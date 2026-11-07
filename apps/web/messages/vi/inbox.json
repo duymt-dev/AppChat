@@ -232,11 +232,18 @@
     },
     "sched": {
       "title": "Đặt lịch hẹn cho {name}",
-      "ai": "AI gợi ý khung giờ tốt nhất",
-      "best": "Tốt nhất",
-      "fit": "Phù hợp",
-      "send": "Gửi thẻ xác nhận lịch",
-      "confirm": "Em xác nhận lịch hẹn {time} ngày {day} cho mình nhé ạ."
+      "service": "Dịch vụ",
+      "serviceOpt": "{name} · {min} phút",
+      "date": "Ngày",
+      "staff": "Nhân viên",
+      "anyStaff": "Nhân viên bất kỳ",
+      "loading": "Đang tìm khung giờ trống…",
+      "error": "Không tải được khung giờ — thử lại",
+      "empty": "Không còn khung giờ trống ngày này",
+      "hint": "Khung giờ trống theo lịch workspace — chọn rồi mở form đặt lịch",
+      "book": "Mở form đặt lịch",
+      "proposeBtn": "Chèn đề xuất giờ vào tin nhắn",
+      "propose": "Bên em còn trống {time} ngày {date} cho dịch vụ {service}, mình xem giờ này được không ạ?"
     },
     "xl": {
       "title": "Dịch tự động",

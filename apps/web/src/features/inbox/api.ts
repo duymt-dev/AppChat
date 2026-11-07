@@ -94,19 +94,10 @@ export interface CannedGroup {
   group: string;
   items: [cmd: string, title: string, body: string][];
 }
-export interface Slot {
-  day: string;
-  mon: string;
-  time: string;
-  staff: string;
-  best: boolean;
-}
 
 /** Thẻ dùng chung (gắn thẻ hàng loạt — TIP-025b). */
 export const tagsQuery = () => queryOptions({ queryKey: ['tags', 'inbox'], queryFn: () => transport.get<{ id: string; name: string; color: string; emoji: string | null }[]>('/tags'), ...staticOpts });
 export const cannedQuery = () => queryOptions({ queryKey: ['inbox', 'canned'], queryFn: () => transport.get<CannedGroup[]>('/canned-replies'), ...staticOpts });
-/** Khung giờ gợi ý (Đặt lịch hẹn) — module lịch hẹn chưa có endpoint → popover trống, không gọi lại. */
-export const slotsQuery = () => queryOptions({ queryKey: ['booking', 'slots'], queryFn: () => transport.get<Slot[]>('/booking/slots'), retry: false, ...staticOpts });
 
 /** Thành viên workspace để @nhắc trong ghi chú (cùng nguồn `/members` với ô chọn người phụ trách — không import feature customers). */
 export const mentionMembersQuery = () =>

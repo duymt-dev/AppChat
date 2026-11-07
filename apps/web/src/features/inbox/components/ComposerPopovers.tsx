@@ -1,4 +1,4 @@
-// Popover của ô soạn: Trả lời nhanh · Đặt lịch hẹn (AI gợi ý khung giờ) · Dịch tự động · menu ＋ (REQ-C11 — AgentToolsMenu) — prototype L1801–1868, L653.
+// Popover của ô soạn: Trả lời nhanh · Đặt lịch hẹn (khung giờ trống thật — SchedulingPopover, TIP-025b §E) · Dịch tự động · menu ＋ (REQ-C11 — AgentToolsMenu) — prototype L1801–1868, L653.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -8,9 +8,10 @@ import { useComposerStyles } from '../styles/composer.styles';
 import { usePopStyles } from '../styles/popover.styles';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
-import { cannedQuery, slotsQuery } from '../api';
+import { cannedQuery } from '../api';
 import type { Conversation } from '../types';
 import { AgentToolsMenu } from './AgentToolsMenu';
+import { SchedulingPopover } from './SchedulingPopover';
 
 const LANGS = ['English', '中文', '한국어', '日本語'] as const;
 
@@ -21,8 +22,6 @@ export function ComposerPopovers({ conv, customer, onInsert, onPickFile }: { con
   const { styles: base } = useInboxStyles();
   const ui = useInboxUi();
   const canned = useQuery({ ...cannedQuery(), enabled: ui.pop === 'qr' });
-  const slots = useQuery({ ...slotsQuery(), enabled: ui.pop === 'sched' });
-  const [slot, setSlot] = useState(0);
   const [lang, setLang] = useState(0);
   if (ui.pop !== 'qr' && ui.pop !== 'sched' && ui.pop !== 'xl' && ui.pop !== 'attach') return null;
 
@@ -55,38 +54,7 @@ export function ComposerPopovers({ conv, customer, onInsert, onPickFile }: { con
           </div>
         </div>
       ) : null}
-      {ui.pop === 'sched' ? (
-        <div className={cx(ps.pop, ps.popNarrow)} data-testid="sched-pop">
-          <div className={ps.popHead}>
-            <Icon name="ic-cal" size={16} color={color.calText} />
-            {t('sched.title', { name: customer })}
-          </div>
-          <div className={ps.popBody}>
-            <div className={ps.popHint}>{t('sched.ai')}</div>
-            {(slots.data ?? []).map((s, i) => (
-              <button key={s.time + s.day} type="button" className={cx(ps.slot, slot === i && ps.slotOn)} onClick={() => setSlot(i)}>
-                <span className={ps.qrTitle}>{`${s.day} ${s.mon}`}</span>
-                <span className={styles.grow}>
-                  <div className={ps.qrTitle}>{s.time}</div>
-                  <div className={ps.qrPreview}>{s.staff}</div>
-                </span>
-                <span className={styles.conf}>{s.best ? t('sched.best') : t('sched.fit')}</span>
-              </button>
-            ))}
-            <button
-              type="button"
-              className={styles.primary}
-              onClick={() => {
-                const s = slots.data?.[slot];
-                if (s) onInsert(t('sched.confirm', { day: `${s.day} ${s.mon}`, time: s.time }));
-              }}
-            >
-              <Icon name="ic-cal" size={15} color={color.white} />
-              {t('sched.send')}
-            </button>
-          </div>
-        </div>
-      ) : null}
+      {ui.pop === 'sched' ? <SchedulingPopover conv={conv} customer={customer} onInsert={onInsert} onClose={ui.closePop} /> : null}
       {ui.pop === 'xl' ? (
         <div className={cx(ps.pop, ps.popRight)} data-testid="xl-pop">
           <div className={ps.popHead}>

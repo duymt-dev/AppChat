@@ -124,7 +124,6 @@ export const inboxRoutes: Record<string, MockRoute> = {
   '/inbox/channels': () => fixture.channels,
   '/canned-replies': () => fixture.canned_replies,
   '/tags': (db) => db.settingsData.tags.map((t) => ({ id: t.id, name: t.name, color: t.color, emoji: t.emoji })),
-  '/booking/slots': () => fixture.slots,
 };
 
 const plainOf = (s: string) => s.replace(/<[^>]+>/g, '');

@@ -76,11 +76,8 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
     ['auto', 'ic-bot', color.violetInk, () => setMode('auto')],
   ];
   const on = (key: string) => (key === 'note' ? isNote : conv.ai_mode === key);
-  const tools: [key: 'qr' | 'sched' | 'xl', icon: IconName][] = [
-    ['qr', 'ic-bolt'],
-    ['sched', 'ic-cal'],
-    ['xl', 'ic-globe'],
-  ];
+  const canBook = useCan('booking.view');
+  const tools = ([['qr', 'ic-bolt'], ['sched', 'ic-cal'], ['xl', 'ic-globe']] as [key: 'qr' | 'sched' | 'xl', icon: IconName][]).filter(([k]) => k !== 'sched' || canBook);
 
   if (!canReply) return null;
 

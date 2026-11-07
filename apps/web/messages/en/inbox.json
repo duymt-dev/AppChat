@@ -232,11 +232,18 @@
     },
     "sched": {
       "title": "Book an appointment for {name}",
-      "ai": "AI-suggested best slots",
-      "best": "Best",
-      "fit": "Good fit",
-      "send": "Send booking confirmation",
-      "confirm": "Your appointment is confirmed for {time} on {day}."
+      "service": "Service",
+      "serviceOpt": "{name} · {min} min",
+      "date": "Date",
+      "staff": "Staff",
+      "anyStaff": "Any staff",
+      "loading": "Finding free slots…",
+      "error": "Couldn't load slots — try again",
+      "empty": "No free slots on this day",
+      "hint": "Free slots in workspace time — pick one, then open the booking form",
+      "book": "Open booking form",
+      "proposeBtn": "Insert time suggestion into message",
+      "propose": "We have {time} on {date} available for {service} — does that time work for you?"
     },
     "xl": {
       "title": "Auto translate",
