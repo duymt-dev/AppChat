@@ -1,4 +1,4 @@
-### COMPLETION REPORT — TIP-025b (pha 1–2 — hàng loạt Hộp thư + alias "bỏ" + đếm theo bộ lọc; tìm có trang + cửa sổ quanh tin)
+### COMPLETION REPORT — TIP-025b (pha 1–3 — hàng loạt Hộp thư + alias "bỏ" + đếm theo bộ lọc; tìm có trang + cửa sổ quanh tin; quản lý nhóm Zalo)
 
 **STATUS:** pha 1, 2 DONE (TIP chưa DONE). Chia 6 pha theo DC-377, mỗi pha một PR xếp chồng: **P1** §C + §B.4 (PR này) → P2 §B.1–3 tìm / cửa sổ quanh tin → P3 §A nhóm → P4 §D ngữ cảnh CRM / commerce + xuất timeline → P5 §E slot + §F dịch / chụp màn hình → P6 §G thẻ duyệt + AC10 ai:live.
 
@@ -120,3 +120,44 @@ Chưa nghiệm thu với provider thật: unreact Zalo thật vì không có tà
 | shared unit `inbox-thread-fold` · web `HitSnippet` + mock `inbox-thread` | 4/4 · 2/2 + 2/2 |
 | E2E mock `inbox-thread` + `inbox` | 13 passed, 9 skip |
 | parity inbox (10 màn) | không đổi so với P1 (default 4,70% · connect-channel 6,20% ≤ trần) |
+
+## Pha 3 — quản lý nhóm Zalo (§A.2–5)
+
+**COMMIT:** nhánh `tip/025b-inbox-vertical-p3` (xếp chồng #110) — `81f0aca9` (nền: bảng + adapter), `aaf00909` (chính sách + lệnh + route), `8cf8f401` (web). **Migration tenant** `20261102002520_inbox_vertical` → sau merge: `pnpm --filter @appchat/db db:migrate-tenants` + build api / worker.
+
+**FILES CHANGED** (DV-047)
+- db: `prisma/tenant/inbox-ui.prisma` (`ConversationGroupState`, `GroupCommand`), migration + CHECK + `group_command_conversation_idx` + unique một phần `group_command_open_refresh_key` (một lệnh làm mới đang mở / nhóm).
+- channels: OperationKind `group_settings` / `group_mute`; `GroupInfo.accountRole / version`; `updateGroupSettings` (đổi tên ≤ 100, bật / tắt link), `setGroupMute`; zca `changeGroupName` / `enableGroupLink` / `disableGroupLink` / `setMute`; vai trò từ `creatorId` / `adminIds`; fake transport tương ứng.
+- shared / actions: `api/inbox-groups.ts`; `group.set_ai_policy` (CAS `if_version`), `group.add_members` (≤ 50, chỉ hội thoại 1-1 cùng tài khoản), `group.update` (`expected_version`), `group.set_mute`, `group.refresh`; event `channel.group_command_requested`. Không cấp cho agent.
+- core: `inbox/groups/*` (xếp lệnh + outbox, chính sách khoá hội thoại + tăng `ai_epoch` + huỷ tin agent chưa gửi, đọc trạng thái / lệnh / ứng viên); `channels/jobs/group-command.processor.ts` (giành lệnh có fence thế hệ phiên; đã đặt chỗ rồi chạy lại → unknown, không gọi Zalo lần hai; lỗi rõ → failed; mạng / hết giờ → unknown; thêm thành viên một phần → partial).
+- api: `GET /v1/conversations/:id/group`, `/group/candidates` (inbox.manage), `GET /v1/inbox/group-commands/:id`; openapi.
+- web: Thông tin nhóm — Tắt / Bật thông báo (`group.set_mute`), Ghim (`conversation.pin`), Thêm / Quản lý chỉ khi có quyền + kênh hỗ trợ; chính sách AI đọc / ghi theo phiên bản; link chỉ “đang bật / tắt / chưa rõ”; Ẩn = `conversation.hide`. Hộp Quản lý nhóm: ảnh chụp Zalo (tổng / AppChat thấy / vai trò / chưa đủ), làm mới, đổi tên + link khi có phiên bản, thêm thành viên ≤ 50, trạng thái lệnh thật + từng người.
+- test: `packages/channels/test/zalo-group-settings.test.ts`, `apps/api/test/integration/inbox-group-controls.test.ts`, web `GroupInfoPanel.test.tsx`, mock `inbox-groups.test.ts`, `e2e/inbox-group.spec.ts`.
+
+**ĐỐI CHIẾU STANDARDS (P3)**
+
+| Standard | Kết quả |
+|---|---|
+| `actions/action-registry.md` | 5 action zod + quyền + risk (send cho lệnh kênh, write cho chính sách / làm mới); handler có `preview()` từng lớp; không undo lệnh kênh (thao tác ngược = lệnh mới) |
+| `events/outbox.md` | lệnh ghi `group_command` + outbox cùng transaction executor; kết quả ghi cùng transaction với `conversation.updated` |
+| `channels/omnichannel-adapter.md` | năng lực theo manifest (`group_settings`, `group_mute`); kênh không hỗ trợ → `supports.* = false`, nút ẩn |
+| `domain/concurrency.md` | CAS `policy_version`; `expected_version` nhóm kiểm ở handler + kiểm lại trên worker (`stale_snapshot`); fence thế hệ phiên khi giành lệnh |
+| `authz/rbac-permissions.md` | ngoài scope → 404; thêm thành viên / ứng viên cần inbox.manage; ứng viên chỉ hội thoại 1-1 cùng tài khoản (DC-247) |
+| `database/indexing.md` | `group_command (conversation_id, created_at DESC)`; unique một phần cho lệnh làm mới đang mở |
+| `ui/frontend-structure.md` · `i18n/i18n.md` | hook / modal / api tách riêng, panel ≤ 400 dòng; 6254 key 100% |
+
+**CỔNG TEST (P3)**
+
+| Cổng | Kết quả |
+|---|---|
+| `db:test-reset` (migration mới) | OK |
+| turbo affected lint / typecheck / test (vs origin/dev) | 33/33 (sửa: 4 handler lệnh khai `preview()` từng lớp cho quét phủ Trợ lý) |
+| depcheck · lint-size · lint-tokens · i18n | 0 · OK · OK · 100% |
+| build api + worker + check:bundle | OK |
+| channels unit (gồm `zalo-group-settings`) | 84/84 |
+| integration `inbox-group-controls` + `conversation-groups` | 7/7 + 6/6 |
+| web inbox + mock unit | 60 file / 232 test |
+| E2E mock `inbox-group` + `inbox` + `inbox-bulk` + `inbox-thread` | 18 passed, 10 skip (desktop + mobile 390) |
+| parity inbox (10 màn) | zalo-group-info 4,53% · default 4,70% · folder-rail 4,57% · connect-channel 6,20% ≤ trần 6,5% · còn lại PASS |
+
+Chưa nghiệm thu với Zalo thật (fake transport). Chưa làm: bảng tin / ghi chú / thư viện media có trang (§A.6–7) — DV-047.

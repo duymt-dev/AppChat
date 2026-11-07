@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 146 | 10 | 4 | 13 | 15 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 147 | 9 | 4 | 13 | 15 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 125 | 11 | 2 | 1 | 14 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 161 | 13 | 3 | 6 | 10 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 341 | 64 | 1 | 4 | 46 | 3 | 0 | 0 |
 | E. standards/* | 201 | 47 | 1 | 6 | 33 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 43 | 0 | 41 | 0 | 4 | 5 | 0 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 45 | 1 | 38 | 0 | 4 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 68 | 11 | 3 | 13 | 28 | 3 | 0 | 0 |
-| **Tổng** | **1085** | **156** | **55** | **43** | **150** | **37** | **69** | **0** |
+| **Tổng** | **1088** | **156** | **52** | **43** | **150** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -73,7 +73,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B02e | Đồng bộ tin gần đây | 01-REQUIREMENTS-MATRIX.md:49 | 014 | CHỜ-TK | adapter.ts:95; channel-manage.handlers.ts:88; test channels.test.ts AC6 — Q-003 |
 | REQ-B02f | Báo trạng thái kênh | 01-REQUIREMENTS-MATRIX.md:49 | 014 | ĐẠT | sessions.ts:149; test channels.test.ts AC9 |
 | REQ-B03a | Nhận tin nhóm Zalo | 01-REQUIREMENTS-MATRIX.md:50 | 014, 016 | CHỜ-TK | test inbox.test.ts AC2 (nhóm → participant), zalo-adapter.test.ts — Q-003 |
-| REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | MỘT PHẦN | Backend đọc group_ai_policy (pipeline.ts:29; agent-reply.test.ts); FE đổi chỉ useState (GroupSections.tsx:37,109), không action ghi |
+| REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | ĐẠT | TIP-025b P3: group.set_ai_policy (CAS) + đọc GET /conversations/:id/group; FE GroupSections ghi theo phiên bản; pipeline đọc group_ai_policy; inbox-group-controls.test.ts |
 | REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | 014c | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n; TIP-014c nhận (2026-11-02) |
 | REQ-B04b | Random delay + giới hạn / phút | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | channels/jobs/send.processor.ts:42-59; test channels.test.ts AC8 — Q-003 |
 | REQ-B04c | Quota tin / ngày | 01-REQUIREMENTS-MATRIX.md:51 | 037 | ĐẠT | Trần tin chủ động / ngày mặc định 200 (manifest.ts:26), chỉnh ở kênh kèm cảnh báo; test proactive-cap.test.ts |
@@ -1525,10 +1525,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-products-richtext | Form sản phẩm: thanh định dạng mô tả (B / I / list…) | docs/06-prototype/AppChat.dc.html:4069 | 027b | GIẢ | apps/web/src/features/products/components/ProductFormModal.tsx:244 `<button>` không onClick |
 | PRO-customers-dedupe | Modal gộp trùng: ô tìm trả "không khớp" theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:2604 | 015e | GIẢ | apps/web/src/features/customers/components/DedupeModal.tsx:16 `NO_MATCH=/(0&#124;999&#124;test&#124;xxx&#124;9999)/` quyết định kết quả |
 | PRO-inbox-groupcreate | Menu ⋯ hội thoại: Tạo nhóm Zalo (D50 hết khoá vì TIP-014 xong) | docs/06-prototype/AppChat.dc.html:11853 | 023b | ĐẠT | ConvMenu.tsx:34 canGroup theo capability create_group của kênh; không hỗ trợ → disabled + groupUnsupported; action conversation.create_group |
-| PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupInfoPanel.tsx:54 `<button>` không onClick |
-| PRO-inbox-grouplink | Thông tin nhóm: Link tham gia (sao chép) | docs/06-prototype/AppChat.dc.html:2279 | 025b | GIẢ | GroupInfoPanel.tsx:85 không onClick |
+| PRO-inbox-groupacts | Thông tin nhóm Zalo: Tắt thông báo / Ghim / Thêm thành viên / Quản lý nhóm | docs/06-prototype/AppChat.dc.html:10102 | 025b | ĐẠT | TIP-025b P3: GroupInfoPanel.tsx nối group.set_mute / conversation.pin / GroupManageModal (làm mới, đổi tên + link theo phiên bản, thêm thành viên ≤ 50 kết quả từng người); inbox-group-controls.test.ts 7/7; e2e/inbox-group.spec.ts desktop + mobile; chưa nghiệm thu với Zalo thật |
+| PRO-inbox-grouplink | Thông tin nhóm: Link tham gia (sao chép) | docs/06-prototype/AppChat.dc.html:2279 | 025b | MỘT PHẦN | TIP-025b P3: link chỉ hiện bật / tắt / chưa rõ + bật / tắt qua group.update (không trả / sao chép URL — DV-047, không lộ link mời) |
 | PRO-inbox-groupboard | Nhóm: Bảng tin (tin ghim, ghi chú) + "Xem tất cả" ảnh / tệp | docs/06-prototype/AppChat.dc.html:2284 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupSections.tsx:45,52,70,88 không onClick |
-| PRO-inbox-grouppolicy | Nhóm: chính sách AI trả lời (@nhắc / tự động / tắt) lưu thật | docs/06-prototype/AppChat.dc.html:2106 | 025b | GIẢ | GroupSections.tsx:37,109 chỉ `useState`, không action |
+| PRO-inbox-grouppolicy | Nhóm: chính sách AI trả lời (@nhắc / tự động / tắt) lưu thật | docs/06-prototype/AppChat.dc.html:2106 | 025b | ĐẠT | TIP-025b P3: GroupSections.tsx ghi group.set_ai_policy (CAS if_version, tăng ai_epoch, huỷ tin agent chưa gửi); inbox-group-controls.test.ts; GroupInfoPanel.test.tsx |
 | PRO-inbox-360edit | Hồ sơ 360° trong Hộp thư: "Sửa" liên hệ | docs/06-prototype/AppChat.dc.html:2386 | 025b | GIẢ | apps/web/src/features/inbox/components/Overview360.tsx:75 không onClick |
 | PRO-inbox-360deal | Hồ sơ 360°: "+ Thêm" cơ hội / deal | docs/06-prototype/AppChat.dc.html:2402 | 026b | GIẢ | Overview360.tsx:121 không onClick |
 | PRO-inbox-360csv | Hồ sơ 360°: "Xuất CSV" lịch sử / timeline | docs/06-prototype/AppChat.dc.html:2413 | 025b | GIẢ | Overview360.tsx:148, Tabs360.tsx:139 không onClick |

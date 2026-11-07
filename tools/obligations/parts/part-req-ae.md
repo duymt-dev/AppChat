@@ -41,7 +41,7 @@
 | REQ-B02e | Đồng bộ tin gần đây | 01-REQUIREMENTS-MATRIX.md:49 | 014 | CHỜ-TK | adapter.ts:95; channel-manage.handlers.ts:88; test channels.test.ts AC6 — Q-003 |
 | REQ-B02f | Báo trạng thái kênh | 01-REQUIREMENTS-MATRIX.md:49 | 014 | ĐẠT | sessions.ts:149; test channels.test.ts AC9 |
 | REQ-B03a | Nhận tin nhóm Zalo | 01-REQUIREMENTS-MATRIX.md:50 | 014, 016 | CHỜ-TK | test inbox.test.ts AC2 (nhóm → participant), zalo-adapter.test.ts — Q-003 |
-| REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | MỘT PHẦN | Backend đọc group_ai_policy (pipeline.ts:29; agent-reply.test.ts); FE đổi chỉ useState (GroupSections.tsx:37,109), không action ghi |
+| REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | ĐẠT | TIP-025b P3: group.set_ai_policy (CAS) + đọc GET /conversations/:id/group; FE GroupSections ghi theo phiên bản; pipeline đọc group_ai_policy; inbox-group-controls.test.ts |
 | REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | 014c | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n; TIP-014c nhận (2026-11-02) |
 | REQ-B04b | Random delay + giới hạn / phút | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | channels/jobs/send.processor.ts:42-59; test channels.test.ts AC8 — Q-003 |
 | REQ-B04c | Quota tin / ngày | 01-REQUIREMENTS-MATRIX.md:51 | 037 | ĐẠT | Trần tin chủ động / ngày mặc định 200 (manifest.ts:26), chỉnh ở kênh kèm cảnh báo; test proactive-cap.test.ts |
