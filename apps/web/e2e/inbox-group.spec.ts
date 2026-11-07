@@ -46,7 +46,8 @@ test.describe('inbox nhóm Zalo (mock)', () => {
     if (isMobile(page)) await page.getByRole('button', { name: 'Thu gọn hồ sơ' }).click();
     const board = page.getByTestId('group-board');
     await expect(board.getByTestId('group-pinned')).toContainText('Lịch liệu trình');
-    await expect(page.getByTestId('group-media')).toContainText('Ảnh không gian spa');
+    // Ô ảnh hiện ảnh thật (tên ở `alt`), không chữ.
+    await expect(page.getByTestId('group-media').getByRole('img', { name: 'Ảnh không gian spa' })).toBeVisible();
     await expect(page.getByTestId('group-file').first()).toContainText('Bảng giá liệu trình');
     await expect(page.getByTestId('group-link-item').first()).toHaveAttribute('href', /^https:\/\//);
     await page.getByTestId('group-link-copy').click();
