@@ -5,10 +5,12 @@
 // máy chủ ký dạng nào → chấp nhận cả hai dạng; cả hai đều cần đúng khoá bí mật.
 // Webhook cũ (header `secure-token`, data là mảng) KHÔNG hỗ trợ — chỉ V2. Không có bí mật → mọi request bị từ chối.
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { BankFeedProvider, BankTransaction } from '../../ports/bank-feed';
+import type { BankFeedProvider, BankProbeResult, BankPullCursor, BankPullPage, BankTransaction } from '../../ports/bank-feed';
 import type { ConnectionCtx, ConnectorManifest, WebhookEvent, WebhookRequest } from '../../types';
 import { parseJsonObject } from '../../bank-validation';
 import { normalizeCasso } from './normalize';
+import { cassoProbe, cassoPull } from './client';
+import type { ProviderHttp } from '../../provider-http';
 
 export type { CassoWebhookData } from './normalize';
 
@@ -59,5 +61,14 @@ export class CassoBankFeed implements BankFeedProvider {
   parseTransactions(_conn: ConnectionCtx, payload: unknown): BankTransaction[] {
     const t = normalizeCasso(payload as Record<string, unknown>);
     return t ? [t] : [];
+  }
+
+  /** Thăm dò đọc qua API key Casso (tuỳ chọn trong manifest) — không có → unsupported. */
+  probe(conn: ConnectionCtx, http: ProviderHttp): Promise<BankProbeResult> {
+    return cassoProbe(conn, http);
+  }
+
+  pull(conn: ConnectionCtx, http: ProviderHttp, cursor: BankPullCursor | null, since: Date): Promise<BankPullPage> {
+    return cassoPull(conn, http, cursor, since);
   }
 }

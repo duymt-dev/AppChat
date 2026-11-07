@@ -11,6 +11,9 @@ export { SepayBankFeed, sepaySignature, sepayTime, SEPAY_MAX_SKEW_S, type SepayW
 export { CassoBankFeed, cassoSignature, cassoSorted, type CassoWebhookData } from './connectors/casso/adapter';
 export { cassoManifest } from './connectors/casso/manifest';
 export * from './provider-errors';
+export * from './provider-http';
+export { CASSO_API, CASSO_PAGE_SIZE, cassoPull, cassoProbe, normalizeCassoRecord, vnDate } from './connectors/casso/client';
+export { SEPAY_API, sepayProbe } from './connectors/sepay/client';
 export { MAX_BATCH, accountOrEmpty, normalizeAccount } from './bank-validation';
 export { sepayManifest } from './connectors/sepay/manifest';
 export { BrevoMailProvider, type BrevoOptions } from './connectors/brevo/mail';

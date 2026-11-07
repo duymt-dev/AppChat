@@ -28,6 +28,7 @@ import { leadRoutingHandlers } from './domains/lead-routing';
 import { ownershipTransferHandlers } from './domains/ownership-transfer';
 import { settingsAppsHandlers } from './domains/settings-apps';
 import { integrationProbeHandlers } from './domains/integration-probe';
+import { integrationRuntimeHandlers } from './domains/integration-runtime';
 import { assistantUiHandlers } from './domains/assistant-ui';
 import { profileLayoutHandlers } from './domains/profile-layout';
 import { settingsDataHandlers } from './domains/settings-data';
@@ -131,6 +132,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...ownershipTransferHandlers,
   ...settingsAppsHandlers,
   ...integrationProbeHandlers,
+  ...integrationRuntimeHandlers,
   ...assistantUiHandlers,
   ...profileLayoutHandlers,
   ...settingsDataHandlers,

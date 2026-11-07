@@ -95,6 +95,7 @@ model TenantBankFeed {
 
   txs      BankTx[]
   receipts BankReceipt[]
+  pulls    BankPullState[]
 
   @@map("tenant_bank_feed")
 }

@@ -8,6 +8,8 @@ export class ProviderError extends Error {
   constructor(
     readonly code: ProviderErrorCode,
     readonly field?: string,
+    /** `rate_limited`: số giây provider yêu cầu chờ (Retry-After) — người gọi lùi lịch, không thử ngay. */
+    readonly retryAfterS?: number,
   ) {
     super(field ? `${code}:${field}` : code);
     this.name = 'ProviderError';

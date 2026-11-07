@@ -5,6 +5,7 @@ import type { BankTransaction } from '@appchat/integrations';
 import type { TenantDb } from '@appchat/db';
 import { uuidv7 } from '../../../kernel/ids';
 import { writeOutbox } from '../../../kernel/outbox/outbox';
+import type { TenantTx } from '../../../kernel/actions/action-context';
 
 export const RECEIPT_TOPIC = 'bank_receipt.accepted';
 
@@ -28,9 +29,14 @@ function ignoreReason(feedAccount: string, t: BankTransaction): string | null {
 
 /** Nhận một lô giao dịch đã xác thực + chuẩn hoá: mỗi giao dịch một biên nhận; trả số mới / trùng / bỏ qua. Một transaction cho cả lô. */
 export async function acceptReceipts(db: TenantDb, ws: string, items: AcceptInput[], now: Date) {
+  if (!items.length) return { accepted: 0, duplicate: 0, ignored: 0 };
+  return db.$transaction((tx) => acceptReceiptsIn(tx, ws, items, now));
+}
+
+/** Như `acceptReceipts` nhưng trong transaction của người gọi (kéo: lô biên nhận + con trỏ cùng commit — TIP-012b §4.3). */
+export async function acceptReceiptsIn(tx: TenantTx, ws: string, items: AcceptInput[], now: Date) {
   const out = { accepted: 0, duplicate: 0, ignored: 0 };
-  if (!items.length) return out;
-  await db.$transaction(async (tx) => {
+  {
     const events: { topic: string; payload: Record<string, unknown> }[] = [];
     for (const it of items) {
       const t = it.tx;
@@ -70,6 +76,10 @@ export async function acceptReceipts(db: TenantDb, ws: string, items: AcceptInpu
       events.push({ topic: RECEIPT_TOPIC, payload: { receipt_id: id } });
     }
     if (events.length) await writeOutbox(tx, ws, events, now);
-  });
+  }
   return out;
 }
+
+/** `stage` cho op kéo `bank.pull` của integrations (TIP-012b P3): cùng luật biên nhận với webhook, trong transaction của trang kéo. */
+export const stagePulledReceipts = (tx: TenantTx, ws: string, feed: { provider: string; feedId: string; feedAccount: string }, txs: BankTransaction[], now: Date) =>
+  acceptReceiptsIn(tx, ws, txs.map((t) => ({ provider: feed.provider, feedId: feed.feedId, feedAccount: feed.feedAccount, tx: t })), now);

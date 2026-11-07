@@ -50,7 +50,7 @@ describe('connectorRegistry', () => {
       const f = fx.find((c) => c.key === m.key)!;
       expect({ key: m.key, color: m.color, name: m.name, fields: m.auth.fields.map((x) => x.key) }).toEqual({ key: f.key, color: f.color, name: f.name, fields: f.fields });
     }
-    expect(connectorRegistry.get('sepay')!.manifest.auth.fields.filter((f) => f.secret).map((f) => f.key)).toEqual(['api_key', 'hmac_secret']);
+    expect(connectorRegistry.get('sepay')!.manifest.auth.fields.filter((f) => f.secret).map((f) => f.key)).toEqual(['api_key', 'hmac_secret', 'api_token']);
     expect(connectorRegistry.get('casso')!.manifest.auth.fields.filter((f) => f.secret).map((f) => f.key)).toEqual(['webhook_secret', 'api_key']);
   });
 

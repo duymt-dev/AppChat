@@ -41,3 +41,24 @@ model BankReceipt {
   @@unique([provider, accountNo, externalId])
   @@map("bank_receipt")
 }
+
+/// Trạng thái kéo giao dịch của một kết nối bank_feed (TIP-012b P3 §4.3): con trỏ mờ của adapter + mốc kích hoạt. Con trỏ và lô biên
+/// nhận của một trang ghi CÙNG transaction — crash giữa chừng chạy lại đúng trang (trùng chỉ tăng `deliveries`).
+model BankPullState {
+  connectionId  String    @id @map("connection_id") @db.Uuid
+  feedId        String    @map("feed_id") @db.Uuid
+  /// Con trỏ adapter (≤ 2 KB) — null = từ mốc kích hoạt.
+  cursor        Json?
+  /// Mốc kích hoạt kéo tự động: không kéo lịch sử trước mốc này (tránh nhận đôi giao dịch đã qua webhook / feed cũ).
+  checkpointAt  DateTime  @map("checkpoint_at") @db.Timestamptz(6)
+  /// Phiên bản khoá của con trỏ — đổi khoá → về mốc mới.
+  credentialRev Int       @map("credential_rev")
+  nextPullAt    DateTime  @map("next_pull_at") @db.Timestamptz(6)
+  lastPulledAt  DateTime? @map("last_pulled_at") @db.Timestamptz(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  feed TenantBankFeed @relation(fields: [feedId], references: [id], onDelete: Restrict)
+
+  @@map("bank_pull_state")
+}

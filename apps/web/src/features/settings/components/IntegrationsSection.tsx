@@ -1,5 +1,6 @@
 // Mục Nền tảng kết nối (D28) — prototype L6219–6267: hero, pill nhóm, lưới thẻ 4 cột theo nhóm (cùng mẫu thẻ với Kênh kết nối).
 // Chỉ connector có manifest (provider-ports.md). GA → hộp kết nối (form sinh từ manifest.auth.fields); "Sắp có" → Đăng ký quan tâm.
+// Đã kết nối + có runtime (bank feed — TIP-012b P3) → drawer chi tiết (sức khoẻ, đồng bộ, nhật ký); "Quản lý" trong drawer mở hộp kết nối.
 'use client';
 import { useRouter } from 'next/navigation';
 import { useQuery } from '@tanstack/react-query';
@@ -14,11 +15,13 @@ import { useSettingsUi } from '../settings-store';
 import { connectorsQuery } from '../api';
 import type { Connector } from '../types';
 import { ConnectIntegrationModal } from './ConnectIntegrationModal';
+import { IntegrationDetailDrawer } from './IntegrationDetailDrawer';
+import { runtimeConnectorsQuery } from '../integration-api';
 
 const GROUPS: Connector['group'][] = ['channels_studio', 'marketing', 'crm', 'commerce', 'payments', 'productivity', 'erp'];
 const ALL = 'all';
 
-function Card({ c }: { c: Connector }) {
+function Card({ c, connectionId }: { c: Connector; connectionId: string | null }) {
   const t = useTranslations('settings.integrations');
   const { styles, cx } = useChannelsStyles();
   const i = useIntegStyles().styles;
@@ -29,6 +32,7 @@ function Card({ c }: { c: Connector }) {
   const soon = c.status === 'coming_soon';
   const open = () => {
     if (c.opens) router.push(`/settings/${c.opens}`);
+    else if (c.connected && connectionId) set({ integDetail: connectionId });
     else if (!soon) set({ integModal: c.key });
   };
   return (
@@ -80,6 +84,9 @@ export function IntegrationsSection() {
   const ui = useSettingsUi();
   const q = useQuery(connectorsQuery());
   const rows = q.data ?? [];
+  const runtime = useQuery(runtimeConnectorsQuery()).data ?? [];
+  const connOf = (key: string) => runtime.find((r) => r.key === key)?.connection_id ?? null;
+  const detailKey = runtime.find((r) => r.connection_id === ui.integDetail)?.key;
   return (
     <>
       <div className={styles.hero}>
@@ -102,7 +109,7 @@ export function IntegrationsSection() {
                 <div className={ch.gT}>{t(`group.${g}`)}</div>
                 <div className={ch.grid}>
                   {items.map((c) => (
-                    <Card key={c.key} c={c} />
+                    <Card key={c.key} c={c} connectionId={connOf(c.key)} />
                   ))}
                 </div>
               </div>
@@ -111,6 +118,7 @@ export function IntegrationsSection() {
         </div>
       </PageStates>
       <ConnectIntegrationModal />
+      <IntegrationDetailDrawer connectionId={ui.integDetail} onClose={() => ui.set({ integDetail: null })} onManage={() => ui.set({ integDetail: null, integModal: detailKey ?? null })} />
     </>
   );
 }

@@ -32,7 +32,7 @@ function memKv() {
 describe('secretPaths', () => {
   it('đường dẫn cố định + theo manifest provider; provider lạ → chỉ đường cố định', () => {
     expect(secretPaths(email, {})).toEqual(['fields.password']);
-    expect(secretPaths(integ, { provider: 'sepay' })).toEqual(['fields.api_key', 'fields.hmac_secret']);
+    expect(secretPaths(integ, { provider: 'sepay' })).toEqual(['fields.api_key', 'fields.hmac_secret', 'fields.api_token']);
     expect(secretPaths(integ, { provider: 'smtp' })).toEqual(['fields.password']);
     expect(secretPaths(bank, { provider: 'casso' })).toEqual(['fields.webhook_secret', 'fields.api_key']);
     expect(secretPaths(integ, { provider: 'nope' })).toEqual([]);

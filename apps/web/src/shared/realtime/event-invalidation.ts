@@ -33,6 +33,10 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   'campaign.updated': [['marketing']],
   // đổi định nghĩa / vai trò được thấy của trường tuỳ biến (TIP-045b annex C) → mọi danh sách + chi tiết tải lại (REST chiếu theo quyền)
   'fields.changed': [[]],
+  // kết nối / lỗi gọi ra ngoài (TIP-012b P3 — chỉ id + mã lỗi đã làm sạch) → thẻ + drawer chi tiết kết nối tải lại
+  'integration.connected': [['integrations']],
+  'integration.disconnected': [['integrations']],
+  'integration.error': [['integrations']],
 };
 
 /** Khoá cần làm mới của một sự kiện (sự kiện hội thoại → theo `conversation_id`). */

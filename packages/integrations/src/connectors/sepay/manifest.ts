@@ -1,5 +1,6 @@
 // SePay — BankFeedProvider chính (D35): đối soát chuyển khoản qua webhook. Hai cách xác thực webhook SePay (developer.sepay.vn → Xác
 // thực): API Key (`api_key`) hoặc HMAC-SHA256 (`hmac_secret`) — cần ít nhất một. Số tài khoản nhận bắt buộc (gắn feed với đúng tài khoản).
+// `api_token` (tuỳ chọn, TIP-012b P3) = API Token gọi SePay API v2 (Bearer) — chỉ để thăm dò đọc; tách khỏi khoá webhook.
 import type { ConnectorManifest } from '../../types';
 
 export const sepayManifest: ConnectorManifest = {
@@ -16,6 +17,7 @@ export const sepayManifest: ConnectorManifest = {
       { key: 'api_key', secret: true, optional: true },
       { key: 'hmac_secret', secret: true, optional: true },
       { key: 'account_number' },
+      { key: 'api_token', secret: true, optional: true },
     ],
   },
   webhooks: true,

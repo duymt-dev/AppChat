@@ -61,6 +61,7 @@ const ALIAS: Record<string, string> = {
   task_id: 'ai_task',
   target_conversation_id: 'conversation',
   account_id: 'channel_account',
+  connection_id: 'integration',
 };
 
 /** Ô id người dùng không nói ra / không phải tham chiếu thực thể — miễn trừ, kèm lý do. */

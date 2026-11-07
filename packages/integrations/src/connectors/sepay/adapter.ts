@@ -5,10 +5,12 @@
 // So sánh hằng thời gian; xác thực trên byte gốc TRƯỚC khi parse. OAuth2 Bearer của SePay chưa hỗ trợ (không khai trong manifest).
 // Nền tảng (thu phí AppChat — TIP-010) dùng adapter này qua env; kết nối SePay của DN gắn vào registry (TIP-012b).
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { BankFeedProvider, BankTransaction } from '../../ports/bank-feed';
+import type { BankFeedProvider, BankProbeResult, BankTransaction } from '../../ports/bank-feed';
 import type { ConnectionCtx, ConnectorManifest, WebhookEvent, WebhookRequest } from '../../types';
 import { parseJsonObject, vnLocalTime } from '../../bank-validation';
 import { normalizeSepay } from './normalize';
+import { sepayProbe } from './client';
+import type { ProviderHttp } from '../../provider-http';
 
 export type { SepayWebhookBody } from './normalize';
 
@@ -58,5 +60,10 @@ export class SepayBankFeed implements BankFeedProvider {
   /** Đã xác thực → một giao dịch chuẩn; payload sai → ProviderError (người gọi từ chối cả request). */
   parseTransactions(_conn: ConnectionCtx, payload: unknown): BankTransaction[] {
     return [normalizeSepay(payload as Record<string, unknown>)];
+  }
+
+  /** Thăm dò đọc bằng API Token SePay (`api_token`, tuỳ chọn) — không có → unsupported. Không khai `pull` (xem client.ts). */
+  probe(conn: ConnectionCtx, http: ProviderHttp): Promise<BankProbeResult> {
+    return sepayProbe(conn, http);
   }
 }

@@ -1094,6 +1094,15 @@
     },
     "test": {
       "title": "Kiểm tra kết nối nền tảng"
+    },
+    "sync_now": {
+      "title": "Đồng bộ giao dịch ngay"
+    },
+    "get": {
+      "title": "Xem trạng thái kết nối"
+    },
+    "list_calls": {
+      "title": "Xem nhật ký gọi kết nối"
     }
   },
   "profile_layout": {

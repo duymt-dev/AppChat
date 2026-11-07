@@ -44,6 +44,7 @@ export class IntegrationWebhooks {
         data: [{ id, connectionId, externalEventId: ev.id, kind: ev.kind, payload: ev.payload as object, createdAt: now }],
         skipDuplicates: true,
       });
+      await tx.integrationConnection.update({ where: { id: connectionId }, data: { lastEventAt: now } });
       if (r.count === 0) return false;
       await writeOutbox(
         tx,

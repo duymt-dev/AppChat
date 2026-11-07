@@ -463,7 +463,8 @@
       "fields": [
         "api_key",
         "hmac_secret",
-        "account_number"
+        "account_number",
+        "api_token"
       ],
       "interest": false
     },

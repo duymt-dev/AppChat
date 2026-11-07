@@ -1094,6 +1094,15 @@
     },
     "test": {
       "title": "Test platform connection"
+    },
+    "sync_now": {
+      "title": "Sync transactions now"
+    },
+    "get": {
+      "title": "View connection status"
+    },
+    "list_calls": {
+      "title": "View connection call log"
     }
   },
   "profile_layout": {

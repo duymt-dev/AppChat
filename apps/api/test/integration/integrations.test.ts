@@ -110,7 +110,7 @@ describe('kết nối', () => {
     expect(connectorListSchema.safeParse(data).success).toBe(true);
     expect(data).toHaveLength(18);
     expect(data[0]).toMatchObject({ key: 'web_widget', opens: 'web_widget' });
-    expect(data.find((c: { key: string }) => c.key === 'sepay')).toMatchObject({ connected: true, fields: ['api_key', 'hmac_secret', 'account_number'], color: '#0E7C66' });
+    expect(data.find((c: { key: string }) => c.key === 'sepay')).toMatchObject({ connected: true, fields: ['api_key', 'hmac_secret', 'account_number', 'api_token'], color: '#0E7C66' });
     expect(data.find((c: { key: string }) => c.key === 'smtp')).toMatchObject({ name: 'Google Workspace', fields: ['host', 'username', 'password'], connected: false });
     expect(JSON.stringify(data)).not.toContain('sk_live');
   });

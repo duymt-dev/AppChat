@@ -39,6 +39,7 @@ import { loyaltyFileBlob, loyaltyParamRoute } from './domains/loyalty';
 import { kbSuggestionParamRoute } from './domains/kb-suggestions';
 import { kbSourceBlob } from './domains/kb-folders';
 import { settingsAppsParamRoute } from './domains/settings-apps';
+import { integrationRuntimeParamRoute } from './domains/integration-runtime';
 import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui';
 import { runDetailParamRoute } from './domains/run-detail';
 import { assistantSessionParamRoute } from './domains/assistant-sessions';
@@ -104,6 +105,7 @@ export const mockTransport: Transport = {
       loyaltyParamRoute(path) ??
       kbSuggestionParamRoute(path) ??
       settingsAppsParamRoute(path) ??
+      integrationRuntimeParamRoute(path) ??
       assistantUiParamRoute(path) ??
       runDetailParamRoute(path) ??
       assistantSessionParamRoute(path) ??

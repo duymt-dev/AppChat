@@ -7,6 +7,7 @@ import { openSecrets, sealSecrets } from '../../kernel/crypto';
 import { uuidv7 } from '../../kernel/ids';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { adapterOf, pickMode } from './adapter-selection';
+import { cancelPending } from '../operations/call-receipt';
 
 type ConnectionRow = { id: string; mode: 'sandbox' | 'live'; config: unknown; secretEnc: Uint8Array | null };
 
@@ -21,6 +22,15 @@ export function connectionCtx(row: ConnectionRow, key: Buffer): ConnectionCtx {
     config: (row.config ?? {}) as Record<string, string>,
     secrets: row.secretEnc ? openSecrets(row.secretEnc, key) : {},
   };
+}
+
+/**
+ * Đổi khoá / ngắt (TIP-012b §4.5): huỷ lệnh chưa chạy của phiên bản cũ + bỏ con trỏ kéo (kết nối lại bắt đầu từ mốc mới, không kéo lùi).
+ * Việc đang chạy tự huỷ khi thấy `credential_rev` đổi. Lịch sử biên nhận / khoản thu giữ nguyên.
+ */
+export async function rotated(tx: Pick<TenantTx, 'integrationCallLog' | 'bankPullState'>, connectionId: string, now: Date) {
+  await cancelPending(tx, connectionId, now);
+  await tx.bankPullState.deleteMany({ where: { connectionId } });
 }
 
 /** Tách trường theo manifest: thiếu trường bắt buộc → 422 `{ [field]: 'required' }`; trường lạ bỏ qua; kiểm chéo `manifest.validate`. */
@@ -87,8 +97,9 @@ export class ConnectionsService {
       lastError: null,
     };
     const row = existing
-      ? await tx.integrationConnection.update({ where: { id }, data })
+      ? await tx.integrationConnection.update({ where: { id }, data: { ...data, credentialRev: { increment: 1 } } })
       : await tx.integrationConnection.create({ data: { id, connectorKey: provider, createdBy: userId, ...data } });
+    if (existing) await rotated(tx, id, this.now());
     await this.route(ws, row.id, provider, 'connected');
     return { row, existed: !!existing };
   }
@@ -117,9 +128,10 @@ export class ConnectionsService {
   async applyConnect(tx: TenantTx, userId: string, p: Awaited<ReturnType<ConnectionsService['prepareConnect']>>) {
     const data = { name: p.name, port: p.port, mode: p.mode, status: 'connected' as const, config: p.config, secretEnc: new Uint8Array(Buffer.from(p.secretEnc, 'base64')), lastError: null };
     const existing = await tx.integrationConnection.findUnique({ where: { id: p.id }, select: { id: true } });
-    return existing
-      ? tx.integrationConnection.update({ where: { id: p.id }, data })
-      : tx.integrationConnection.create({ data: { id: p.id, connectorKey: p.provider, createdBy: userId, ...data } });
+    if (!existing) return tx.integrationConnection.create({ data: { id: p.id, connectorKey: p.provider, createdBy: userId, ...data } });
+    const row = await tx.integrationConnection.update({ where: { id: p.id }, data: { ...data, credentialRev: { increment: 1 } } });
+    await rotated(tx, p.id, this.now());
+    return row;
   }
 
   /** Route webhook trong transaction nền tảng của người gọi. */
@@ -130,7 +142,8 @@ export class ConnectionsService {
   async disconnect(tx: TenantTx, ws: string, provider: string) {
     const row = await tx.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE } });
     if (!row) throw new AppError('NOT_FOUND', 404, { provider: 'not_connected' });
-    await tx.integrationConnection.update({ where: { id: row.id }, data: { status: 'disconnected', secretEnc: null } });
+    await tx.integrationConnection.update({ where: { id: row.id }, data: { status: 'disconnected', secretEnc: null, credentialRev: { increment: 1 } } });
+    await rotated(tx, row.id, this.now());
     await this.route(ws, row.id, provider, 'disconnected');
     return row;
   }

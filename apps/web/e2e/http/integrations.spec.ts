@@ -35,9 +35,10 @@ test.describe('nền tảng kết nối (http)', () => {
     await page.getByTestId('st-int-cat-all').click();
     await expect(page.getByTestId('st-int-interest-kiotviet')).toBeDisabled();
 
-    // Ngắt kết nối từ hộp đã kết nối.
+    // Ngắt kết nối: thẻ đã kết nối mở drawer chi tiết (TIP-012b P3) → "Quản lý kết nối" → hộp kết nối.
     await page.getByTestId('st-int-cat-payments').click();
     await page.locator('[data-connector="casso"]').click();
+    await page.getByTestId('st-int-drawer').getByTestId('st-int-manage').click();
     await page.getByTestId('st-int-modal').getByTestId('st-int-save').click();
     await expect(page.getByTestId('st-int-modal')).toHaveCount(0);
     await expect(page.locator('[data-connector="casso"]')).not.toContainText('Thiết lập');

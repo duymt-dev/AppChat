@@ -66,7 +66,7 @@ function routingOf(db: MockDb, accountId: string) {
     : { source: 'none' as const, rule_id: null, enabled: false, mode: 'manual', version: 0 };
 }
 
-const OPTIONAL: Record<string, string[]> = { sepay: ['api_key', 'hmac_secret'], casso: ['api_key'] };
+const OPTIONAL: Record<string, string[]> = { sepay: ['api_key', 'hmac_secret', 'api_token'], casso: ['api_key'] };
 
 const connector = (db: MockDb, key: string) => {
   const c = db.settingsApps.connectors.find((x) => x.key === key);

@@ -66,6 +66,7 @@ export class TenantBankHook {
     const now = this.d.now();
     const r = await acceptReceipts(db, route.workspaceId, txs.map((tx) => ({ provider, feedId: feed.id, feedAccount, tx })), now);
     if (r.accepted || r.ignored) await db.tenantBankFeed.update({ where: { id: feed.id }, data: { lastTxAt: now } });
+    await db.integrationConnection.update({ where: { id: conn.id }, data: { lastEventAt: now } });
     if (r.accepted && this.d.kv) await markDirty(this.d.kv, route.workspaceId);
     return { ok: true, ...r };
   }

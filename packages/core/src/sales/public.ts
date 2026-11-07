@@ -19,7 +19,7 @@ export { InvoicesReadService, type InvoiceViewer } from './payments/services/inv
 export type { InvoiceFilter } from './payments/repos/invoices.repo';
 export { TenantBankHook, webhookPathOf, type HookAck } from './payments/services/bank-feed';
 export { bankIngestConsumer, bankIngressCtx, BANK_INGEST_CONSUMER } from './payments/bank/bank-event.consumer';
-export { RECEIPT_TOPIC } from './payments/bank/receipt';
+export { RECEIPT_TOPIC, stagePulledReceipts } from './payments/bank/receipt';
 export { BANK_INGRESS_ACTOR } from './payments/actions/bank-ingest.handler';
 export { markOverdue, remindDue, packagesOnConfirm } from './payments/services/payment-system';
 export { expireDuePackages, grantPackages } from './payments/services/packages';

@@ -24,6 +24,8 @@ import { CrmMembers } from '../../crm/public';
 import { enqueueOutgoing } from '../../inbox/public';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { BANK_INGEST_CONSUMER, bankIngestConsumer } from '../payments/bank/bank-event.consumer';
+import { stagePulledReceipts } from '../payments/bank/receipt';
+import { BANK_PULL_OP, bankPullOp, registerCallOp, unregisterCallOp } from '../../integrations/public';
 
 export const SALES_SCHEDULER_QUEUE = 'sales-scheduler';
 export const QUOTE_SWEEP_JOB = 'sales.quote-sweep';
@@ -83,6 +85,8 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone));
     // TIP-012b P2: biên nhận ngân hàng đã ACK → khớp / ghi nhận qua ActionExecutor nguồn system (ngoài transaction consumer).
     if (this.executor) registerEventConsumer(bankIngestConsumer(this.executor));
+    // TIP-012b P3: op kéo giao dịch của integrations ghi biên nhận bằng luật của sales (hội tụ với webhook).
+    registerCallOp(BANK_PULL_OP, bankPullOp(stagePulledReceipts));
     const deps = { platform: this.platform, tenants: this.tenants, now, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: QUOTE_SWEEP_JOB }, 'quét báo giá lỗi ở workspace') };
     const pay = {
       ...deps,
@@ -137,6 +141,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     unregisterEventConsumer('sales.order-sync');
     unregisterEventConsumer('sales.payment-packages');
     unregisterEventConsumer(BANK_INGEST_CONSUMER);
+    unregisterCallOp(BANK_PULL_OP);
     await this.worker?.close();
     await this.queue?.close();
     await this.syncWorker?.close();

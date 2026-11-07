@@ -3,8 +3,9 @@
 // (`api_key` / `hmac_secret` / `webhook_secret`). Kiểm kết nối: khoá bắt đầu bằng `bad` → lỗi. Webhook: header `x-mock-signature` =
 // HMAC-SHA256(khoá, raw body) hex — KHÔNG phải giao thức của SePay / Casso.
 import { createHmac, timingSafeEqual } from 'node:crypto';
-import type { BankFeedProvider, BankTransaction } from '../../ports/bank-feed';
+import type { BankFeedProvider, BankProbeResult, BankPullCursor, BankPullPage, BankTransaction } from '../../ports/bank-feed';
 import type { ConnectionCtx, ConnectorManifest, WebhookEvent, WebhookRequest } from '../../types';
+import { ProviderError } from '../../provider-errors';
 
 interface MockBody {
   id: string;
@@ -39,5 +40,16 @@ export class MockBankFeedProvider implements BankFeedProvider {
 
   parseTransactions(_conn: ConnectionCtx, payload: unknown): BankTransaction[] {
     return (payload as MockBody).transactions ?? [];
+  }
+
+  /** Giả lập thăm dò: khoá `bad…` → auth_failed; còn lại thấy đúng tài khoản cấu hình. Không gọi mạng. */
+  async probe(conn: ConnectionCtx): Promise<BankProbeResult> {
+    if (keyOf(conn).startsWith('bad')) throw new ProviderError('auth_failed');
+    return { account_found: !!conn.config.account_number, accounts: 1 };
+  }
+
+  /** Giả lập kéo: trang rỗng, con trỏ giữ nguyên (sandbox không có giao dịch kéo — test tiêm adapter riêng khi cần). */
+  async pull(_conn: ConnectionCtx, _http: unknown, cursor: BankPullCursor | null): Promise<BankPullPage> {
+    return { transactions: [], cursor: cursor ?? { page: 1 }, has_more: false };
   }
 }

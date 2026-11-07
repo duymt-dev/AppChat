@@ -6,7 +6,9 @@
   "note": "Không có tài khoản SePay thật (Q-004): mẫu tài liệu chính thức + mô phỏng fixture ký bằng khoá test. KHÔNG phải nghiệm thu với provider thật.",
   "sources": [
     "https://developer.sepay.vn/vi/sepay-webhooks/tich-hop-webhook (payload, phản hồi success true, chống lặp theo id)",
-    "https://developer.sepay.vn/en/sepay-webhooks/xac-thuc (API Key / HMAC-SHA256 / OAuth2)"
+    "https://developer.sepay.vn/en/sepay-webhooks/xac-thuc (API Key / HMAC-SHA256 / OAuth2)",
+    "https://developer.sepay.vn/en/sepay-api/v2/giao-dich/danh-sach (GET /v2/transactions)",
+    "https://developer.sepay.vn/en/sepay-api/v2/tai-khoan-ngan-hang/danh-sach (GET /v2/bank-accounts)"
   ],
   "auth": {
     "api_key": {
@@ -35,7 +37,7 @@
   "amount": "transferAmount số nguyên dương (VND); chiều ở transferType in / out",
   "timezone": "transactionDate YYYY-MM-DD HH:mm:ss giờ Việt Nam (+07:00)",
   "response": "HTTP 200/201 + body success true trong 30 giây (endpoint DN: nhận bền rồi ACK ở pha 2)",
-  "read_probe": "Chưa có hợp đồng đọc / thăm dò trong tài liệu webhook — pha 3 rà SePay API trước khi bật kéo",
+  "read_probe": "Xem `read` (pha 3)",
   "cases": [
     {
       "name": "official_payload_shape",
@@ -159,5 +161,76 @@
       },
       "field": "id"
     }
-  ]
+  ],
+  "read": {
+    "version": 1,
+    "evidence": "provider_documentation",
+    "base_url": "https://userapi.sepay.vn/v2",
+    "auth": {
+      "header": "Authorization",
+      "format": "Bearer <API_TOKEN>",
+      "secret_field": "api_token",
+      "note": "API Token SePay — khác khoá Apikey của webhook; không suy quyền đọc từ khoá webhook"
+    },
+    "probe": {
+      "method": "GET",
+      "path": "/bank-accounts",
+      "query": {
+        "q": "LIKE trên label / account_holder_name / account_number",
+        "per_page": "số dòng"
+      },
+      "account_field": "data[].account_number",
+      "envelope": "{ status: 'success', data[], meta.pagination{ total, per_page, current_page, last_page, has_more } }"
+    },
+    "pull": {
+      "supported": false,
+      "reason": "GET /v2/transactions trả id UUID; webhook gửi id số. Tài liệu không nói hai mã là một → kéo sẽ tạo khoá chuẩn tắc khác webhook (nhận đôi). Không bật kéo SePay tới khi có hợp đồng định danh (Q-xxx).",
+      "documented": {
+        "path": "/transactions",
+        "query": "since_id (UUID, con trỏ) + transaction_date_sort=asc, per_page ≤ 100 (mặc định 20), page",
+        "rate_limit": "3 req/s mỗi IP, 429 + X-RateLimit-*"
+      }
+    },
+    "errors": {
+      "401": "auth_failed",
+      "403": "auth_failed",
+      "429": "rate_limited (Retry-After / x-sepay-userapi-retry-after)",
+      "other": "provider_unavailable"
+    },
+    "cases": [
+      {
+        "name": "bank_accounts_official_shape",
+        "status": 200,
+        "body": {
+          "status": "success",
+          "data": [
+            {
+              "id": "f9e8d7c6-b5a4-3210-fedc-ba0987654321",
+              "account_holder_name": "CONG TY A",
+              "account_number": "0071000123456",
+              "accumulated": 1500000,
+              "last_transaction": "2026-10-30 14:02:37",
+              "label": "VCB",
+              "account_type": "individual",
+              "active": 1,
+              "created_at": "2026-01-01 00:00:00",
+              "bank_short_name": "VCB",
+              "bank_full_name": "Vietcombank",
+              "bank_bin": "970436",
+              "bank_code": "VCB"
+            }
+          ],
+          "meta": {
+            "pagination": {
+              "total": 1,
+              "per_page": 20,
+              "current_page": 1,
+              "last_page": 1,
+              "has_more": false
+            }
+          }
+        }
+      }
+    ]
+  }
 }

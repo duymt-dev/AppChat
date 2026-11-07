@@ -5,6 +5,7 @@ export * from './platform-admin';
 export * from './identity';
 export * from './workspace-lifecycle';
 export * from './integrations';
+export * from './integration-runtime';
 export * from './settings';
 export * from './teams';
 export * from './lead-routing';
