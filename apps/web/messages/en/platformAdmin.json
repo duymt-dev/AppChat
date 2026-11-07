@@ -9,6 +9,7 @@
     "routes": "Model routing",
     "prices": "Model prices",
     "transfers": "Transfers",
+    "freeze": "Freeze requests",
     "templates": "AI agent templates"
   },
   "pager": {
@@ -165,6 +166,26 @@
     "active": "In use",
     "on": "On",
     "off": "Off"
+  },
+  "freeze": {
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "empty": "No requests.",
+    "workspace": "Workspace",
+    "reason": "Owner's reason",
+    "created": "Sent",
+    "decision": "Decision",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveTitle": "Approve freezing {name}",
+    "rejectTitle": "Reject the request from {name}",
+    "approveHint": "The workspace is paused immediately (new work blocked, data kept) — reopen it with Resume on the Workspace tab.",
+    "rejectHint": "The workspace is unchanged; the Owner sees the result in Settings.",
+    "reasonPh": "Decision reason (at least 3 characters)"
   },
   "transfers": {
     "view": {

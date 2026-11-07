@@ -222,8 +222,8 @@ function mockContractDraft(text: string) {
 export const echoScript: MockScript = (ctx) => {
   const { lastUser, system, lastTool } = ctx;
   if (ASSISTANT_MARKS.some((m) => system.includes(m))) return assistantTurn(ctx);
-  // Skill dịch (TIP-025 `ai.translate`): tiền tố ngôn ngữ đích + nguyên văn.
-  const xl = /^# TRANSLATE[\s\S]*Target: (vi|en)/.exec(system);
+  // Skill dịch (TIP-025 `ai.translate`, TIP-025b `ai.translate_draft`): tiền tố ngôn ngữ đích + nguyên văn.
+  const xl = /^# TRANSLATE[\s\S]*Target: (vi|en|zh|ko|ja)/.exec(system);
   if (xl) return { text: `[${xl[1]!.toUpperCase()}] ${lastUser}` };
   // Nháp Hộp thư (TIP-023c REQ-C05c): không tool — chỉ chữ; viết lại = "Dạ " + nháp, soạn = câu chào theo tin khách cuối.
   if (/^# (SOẠN NHÁP TIN NHẮN|INBOX MESSAGE DRAFT)/.test(system)) {

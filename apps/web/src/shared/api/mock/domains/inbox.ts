@@ -69,6 +69,31 @@ const FOLDER: Record<string, (c: Row, s: InboxState) => boolean> = {
   closed: (c) => c.status === 'closed' && !c.archived,
 };
 
+/** Bộ lọc ngoài thư mục (cùng tham số API): kênh (bỏ khi đếm theo kênh) · tài khoản · tìm kiếm không dấu. */
+function filterOf(p: Record<string, unknown>, withChannel: boolean) {
+  const channel = withChannel ? (p.channel as string | undefined) : undefined;
+  const account = fixture.accounts.find((a) => a.id === p.channel_account_id);
+  const q = foldText(String(p.q ?? '').trim());
+  return (c: Row) =>
+    (!channel || c.channel === channel) &&
+    (!p.channel_account_id || (!!account && account.channel === c.channel && account.name.endsWith(c.account))) &&
+    (!q || foldText(`${c.title} ${c.preview}`).includes(q));
+}
+
+function filteredCounts(s: InboxState, match: (c: Row) => boolean, byChannel: (c: Row) => boolean) {
+  const n = (k: string) => s.conversations.filter((c) => FOLDER[k]!(c, s) && match(c)).length;
+  const swap = <T extends unknown[]>(r: T, at: number) => r.map((v, i) => (i === at ? n(String(r[0])) : v)) as T;
+  const ch = new Map<string, number>();
+  for (const c of s.conversations) if (live(c) && byChannel(c)) ch.set(c.channel, (ch.get(c.channel) ?? 0) + 1);
+  return {
+    ...fixture.folders,
+    tabs: fixture.folders.tabs.map((r) => (FOLDER[String(r[0])] ? swap(r, 1) : r)),
+    mailbox: fixture.folders.mailbox.map((r) => (FOLDER[String(r[0])] ? swap(r, 2) : r)),
+    ai: fixture.folders.ai.map((r) => (FOLDER[String(r[0])] ? swap(r, 2) : r)),
+    channels: fixture.folders.channels.map(([k]) => [k, ch.get(String(k)) ?? 0]),
+  };
+}
+
 /** ?inbox=empty (parity / e2e `inbox:empty`): workspace chưa có hội thoại nào. */
 const isEmptySeed = () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('inbox') === 'empty';
 
@@ -76,25 +101,19 @@ export const inboxRoutes: Record<string, MockRoute> = {
   // Cùng tham số với API (TIP-025): folder · channel · channel_account_id · q (không dấu) · sort · cursor (vị trí, 50 / trang).
   '/conversations': (db, p) => {
     if (isEmptySeed()) return { data: [], next_cursor: null };
-    const channel = p.channel as string | undefined;
-    const account = fixture.accounts.find((a) => a.id === p.channel_account_id);
-    const q = foldText(String(p.q ?? '').trim());
     const keep = FOLDER[String(p.folder ?? 'all')] ?? FOLDER.all!;
-    let rows = db.inbox.conversations.filter(
-      (c) =>
-        keep(c, db.inbox) &&
-        (!channel || c.channel === channel) &&
-        (!p.channel_account_id || (!!account && account.channel === c.channel && account.name.endsWith(c.account))) &&
-        (!q || foldText(`${c.title} ${c.preview}`).includes(q)),
-    );
+    const match = filterOf(p, true);
+    let rows = db.inbox.conversations.filter((c) => keep(c, db.inbox) && match(c));
     if (p.sort === 'unread') rows = [...rows.filter((c) => c.unread > 0), ...rows.filter((c) => c.unread === 0)];
     const from = Number(p.cursor ?? 0) || 0;
     const page = rows.slice(from, from + PAGE);
     return { data: page, next_cursor: from + PAGE < rows.length ? String(from + PAGE) : null };
   },
   // Số liệu prototype; "Nhắc đến tôi" cộng các lần @nhắc mới trong phiên mock.
-  '/conversations/counts': (db) => {
+  '/conversations/counts': (db, p) => {
     if (isEmptySeed()) return { ...fixture.folders, empty: true };
+    // Có bộ lọc kênh / tài khoản / tìm kiếm (TIP-025b §B.4) → đếm thật trên các hàng đang lọc; không lọc → số mẫu của prototype.
+    if (p.channel || p.channel_account_id || p.q) return filteredCounts(db.inbox, filterOf(p, true), filterOf(p, false));
     const n = db.inbox.mentioned.length;
     if (!n) return fixture.folders;
     const bump = <T extends unknown[]>(r: T, at: number) => (r[0] === 'mention' ? (r.map((v, i) => (i === at ? Number(v) + n : v)) as T) : r);
@@ -105,7 +124,6 @@ export const inboxRoutes: Record<string, MockRoute> = {
   '/inbox/channels': () => fixture.channels,
   '/canned-replies': () => fixture.canned_replies,
   '/tags': (db) => db.settingsData.tags.map((t) => ({ id: t.id, name: t.name, color: t.color, emoji: t.emoji })),
-  '/booking/slots': () => fixture.slots,
 };
 
 const plainOf = (s: string) => s.replace(/<[^>]+>/g, '');

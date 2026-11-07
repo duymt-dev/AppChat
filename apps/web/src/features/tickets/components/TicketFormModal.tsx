@@ -11,6 +11,7 @@ import { useTicketsUi } from '../tickets-store';
 import { PRIORITIES, STATUSES } from '../status';
 import type { Channel, Priority, TicketsMeta } from '../types';
 import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
+import { sourceLinkOf } from '@/shared/crm-forms/source-link';
 
 const CHANNELS: Channel[] = ['zalo_personal', 'webchat', 'email'];
 const OPEN_STATUSES = STATUSES.filter((s) => s !== 'closed');
@@ -77,7 +78,7 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
       ...(d.company.trim() ? { company: d.company.trim() } : {}),
       ...(d.email ? { email: d.email } : {}),
       ...(str(prefill.contact_id) ? { contact_id: str(prefill.contact_id) } : {}),
-      ...(str(prefill.source_message_id) ? { source_message_id: str(prefill.source_message_id) } : {}),
+      ...sourceLinkOf(prefill),
       channel: d.channel,
       category: d.category,
       priority: d.priority,

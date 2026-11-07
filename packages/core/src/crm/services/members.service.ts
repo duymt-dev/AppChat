@@ -30,6 +30,15 @@ export class CrmMembers {
     return (await this.list(workspaceId)).map((m) => ({ id: m.id, name: m.name, role: isSystemRole(m.roleKey) ? ROLE_NAMES[m.roleKey] : m.roleKey.replace(/^custom:/, '') }));
   }
 
+  /** Ngôn ngữ người dùng + múi giờ workspace (tệp xuất in ngày giờ theo múi giờ này — TIP-025b §D.6). */
+  async place(workspaceId: string, userId: string | null): Promise<{ locale: string; timeZone: string }> {
+    const [u, ws] = await Promise.all([
+      userId ? this.platform.user.findUnique({ where: { id: userId }, select: { locale: true } }) : null,
+      this.platform.workspace.findUnique({ where: { id: workspaceId }, select: { timezone: true } }),
+    ]);
+    return { locale: u?.locale ?? 'vi', timeZone: ws?.timezone ?? 'Asia/Ho_Chi_Minh' };
+  }
+
   /** Tên theo id (người đã rời workspace vẫn hiện tên). */
   async names(ids: readonly (string | null | undefined)[]): Promise<Map<string, string>> {
     const want = [...new Set(ids.filter((x): x is string => !!x))];

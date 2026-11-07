@@ -1,7 +1,7 @@
 // AI Agents · Duyệt · Tác vụ tự chủ (Blueprint §3.4 ai, D29). Prototype L1178–1504, L2227–2450.
 import { z } from 'zod';
 import { defineAction } from './define';
-import { AI_TASK_DATA_KEYS, AI_TASK_EVENTS, AI_TASK_TEMPLATES, AI_TASK_TOOL_KEYS, weeklyScheduleSchema, type AiTaskData } from '@appchat/shared';
+import { AI_TASK_DATA_KEYS, AI_TASK_EVENTS, AI_TASK_TEMPLATES, AI_TASK_TOOL_KEYS, TRANSLATE_TARGETS, weeklyScheduleSchema, type AiTaskData } from '@appchat/shared';
 
 const agentId = z.string().min(1);
 const tier = z.enum(['standard', 'advanced', 'max']);
@@ -321,8 +321,8 @@ export const aiTranslate = defineAction({
   id: 'ai.translate',
   module: 'ai',
   title: 'actions.ai.translate.title',
-  description: 'Translate one message of a conversation into the user language (or `to`: vi | en). Example: {"conversation_id":"c_lan","message_id":"m7"}',
-  input: z.object({ conversation_id: z.string().min(1), message_id: z.string().min(1), to: z.enum(['vi', 'en']).optional() }),
+  description: 'Translate one message of a conversation into the user language (or `to`: vi | en | zh | ko | ja). Example: {"conversation_id":"c_lan","message_id":"m7"}',
+  input: z.object({ conversation_id: z.string().min(1), message_id: z.string().min(1), to: z.enum(TRANSLATE_TARGETS).optional() }),
   output: z.object({ text: z.string(), to: z.string().optional() }),
   permission: 'inbox.view',
   risk: 'read',

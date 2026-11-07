@@ -19,6 +19,10 @@ const T = {
     vi: (code: string) => ({ s: `Mã xác nhận chuyển quyền Chủ sở hữu: ${code}`, b: `Bạn đang chuyển quyền Chủ sở hữu workspace cho một thành viên khác. Mã xác nhận: <b>${code}</b> (hiệu lực 10 phút). Nếu không phải bạn, đừng nhập mã và hãy đổi mật khẩu ngay.` }),
     en: (code: string) => ({ s: `Ownership transfer code: ${code}`, b: `You are transferring workspace ownership to another member. Confirmation code: <b>${code}</b> (valid for 10 minutes). If this was not you, do not enter the code and change your password now.` }),
   },
+  deleteWs: {
+    vi: (code: string, ws: string) => ({ s: `Mã xác nhận XOÁ workspace: ${code}`, b: `Bạn đang yêu cầu <b>xoá vĩnh viễn</b> workspace <b>${ws}</b>. Mã xác nhận: <b>${code}</b> (hiệu lực 5 phút). Sau khi xoá, bản sao lưu được giữ 30 ngày rồi huỷ. Nếu không phải bạn, đừng nhập mã và hãy đổi mật khẩu ngay.` }),
+    en: (code: string, ws: string) => ({ s: `Workspace DELETION code: ${code}`, b: `You asked to <b>permanently delete</b> the workspace <b>${ws}</b>. Confirmation code: <b>${code}</b> (valid for 5 minutes). After deletion the backup is kept for 30 days, then destroyed. If this was not you, do not enter the code and change your password now.` }),
+  },
   invite: {
     vi: (ws: string, url: string) => ({ s: `Lời mời tham gia ${ws} trên AppChat`, b: `Bạn được mời tham gia workspace <b>${ws}</b>. Nhận lời mời (hiệu lực 7 ngày): <a href="${url}">${url}</a>` }),
     en: (ws: string, url: string) => ({ s: `Invitation to join ${ws} on AppChat`, b: `You have been invited to the workspace <b>${ws}</b>. Accept within 7 days: <a href="${url}">${url}</a>` }),
@@ -36,4 +40,5 @@ const msg = (to: string, tag: string, t: { s: string; b: string }): MailMessage 
 export const otpMail = (to: string, locale: string, code: string) => msg(to, 'otp', T.otp[pick(locale)](code));
 export const resetMail = (to: string, locale: string, url: string) => msg(to, 'password_reset', T.reset[pick(locale)](esc(url)));
 export const inviteMail = (to: string, locale: string, workspace: string, url: string) => msg(to, 'invite', T.invite[pick(locale)](esc(workspace), esc(url)));
+export const deleteOtpMail = (to: string, locale: string, code: string, workspace: string) => msg(to, 'workspace_delete_otp', T.deleteWs[pick(locale)](code, esc(workspace)));
 export const transferOtpMail = (to: string, locale: string, code: string) => msg(to, 'owner_transfer_otp', T.transfer[pick(locale)](code));

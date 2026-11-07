@@ -1,6 +1,7 @@
 // Phần dưới của "Thông tin nhóm": Bảng tin · Ảnh/Video · File · Link · AI trong nhóm · ẩn / xoá lịch sử / rời nhóm — prototype L1941–2008.
 'use client';
 import { useState } from 'react';
+import type { GroupStateDto } from '@appchat/shared';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
@@ -28,14 +29,23 @@ function Fold({ title, meta, open, onToggle, children }: { title: string; meta?:
   );
 }
 
-export function GroupSections({ conv, g }: { conv: Conversation; g: GroupInfo }) {
+export interface GroupSectionsProps {
+  conv: Conversation;
+  g: GroupInfo;
+  /** TIP-025b: trạng thái nhóm (chính sách + phiên bản); chưa tải → chỉ hiện chính sách cũ, không cho đổi. */
+  state?: GroupStateDto;
+  onPolicy: (p: (typeof POLICIES)[number], version: number) => Promise<boolean>;
+}
+
+export function GroupSections({ conv, g, state, onPolicy }: GroupSectionsProps) {
   const t = useTranslations('inbox.group');
   const { styles, cx } = useGroupStyles();
   const clear = useAction('conversation.clear_history');
-  const hide = useAction('conversation.set_status');
+  const hide = useAction('conversation.hide');
   const [open, setOpen] = useState({ media: true, files: true, links: true, ai: false });
-  const [policy, setPolicy] = useState<(typeof POLICIES)[number]>(g.ai_policy);
   const toggle = (k: keyof typeof open) => setOpen((o) => ({ ...o, [k]: !o[k] }));
+  // Chính sách lưu thật (TIP-025b §A.2): đọc từ trạng thái nhóm, ghi qua group.set_ai_policy (CAS) — không giữ state cục bộ.
+  const policy = state?.policy ?? g.ai_policy;
 
   return (
     <>
@@ -106,7 +116,7 @@ export function GroupSections({ conv, g }: { conv: Conversation; g: GroupInfo })
       <Fold title={t('ai.title')} open={open.ai} onToggle={() => toggle('ai')}>
         <div className={styles.seg} role="radiogroup" data-testid="group-ai">
           {POLICIES.map((k) => (
-            <button key={k} type="button" role="radio" aria-checked={policy === k} className={cx(styles.segBtn, policy === k && styles.segOn)} onClick={() => setPolicy(k)}>
+            <button key={k} type="button" role="radio" aria-checked={policy === k} className={cx(styles.segBtn, policy === k && styles.segOn)} disabled={!state || policy === k} onClick={() => state && void onPolicy(k, state.policy_version)} data-testid={`group-ai-${k}`}>
               {t(`ai.${k}`)}
             </button>
           ))}
@@ -121,7 +131,7 @@ export function GroupSections({ conv, g }: { conv: Conversation; g: GroupInfo })
       </Fold>
       <div className={styles.gap} />
       <div className={styles.block}>
-        <button type="button" className={styles.row} onClick={() => void hide.run({ conversation_id: conv.id, status: 'snoozed', snooze_hours: 24 })}>
+        <button type="button" className={styles.row} onClick={() => void hide.run({ conversation_id: conv.id, hidden: true })}>
           <Icon name="ic-eye" size={18} color={color.groupInk} />
           <span className={styles.label}>{t('hide')}</span>
         </button>

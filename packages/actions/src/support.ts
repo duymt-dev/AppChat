@@ -53,7 +53,8 @@ export const ticketCreate = defineAction({
     assignee_user_id: z.string().optional(),
     assignee_agent_id: z.string().optional(),
     description: z.string().max(5000).optional(),
-    /** Tạo từ tin nhắn (menu ⋯ Hộp thư, REQ-C09) — chỉ để truy vết, không bắt buộc tồn tại. */
+    /** Tạo từ Hộp thư (REQ-C09, TIP-025b §D.1): hội thoại + tin nguồn phải thấy được và khớp khách — sai → 404 / 422, không bỏ qua. */
+    conversation_id: z.string().optional(),
     source_message_id: z.string().optional(),
     /**
      * Khách đã có ticket còn mở cùng danh mục trong 24 giờ (REQ-H02): `ask` (mặc định) → 409 CONFLICT `{ duplicate_of: mã }` để hỏi gộp;

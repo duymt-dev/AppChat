@@ -124,6 +124,8 @@ model Contact {
   createdAt          DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   deletedAt          DateTime?     @map("deleted_at") @db.Timestamptz(6)
+  /// Phiên bản lạc quan (TIP-025b §D.4) — trigger `contact_bump_version` tăng mỗi UPDATE; không ghi tay.
+  version            Int           @default(1)
 
   @@map("contact")
 }

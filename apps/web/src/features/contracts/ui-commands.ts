@@ -6,17 +6,18 @@ import { useUiCommand } from '@/shared/assistant/ui-command-bus';
 import { useContractsUi } from './contracts-store';
 import type { ContractFilter } from './types';
 
+/** `prefill:contract.form` — đăng ký MỘT lần ở FormCommandHost toàn cục (TIP-025b §D.3), không theo màn: Trợ lý điền form khi màn chưa mở. */
+export function prefillContractsForm(cmd: UiCommand) {
+  if (cmd.type === 'prefill') useContractsUi.getState().set({ prefill: cmd.values, form: 'create' });
+}
+
 export function useContractsUiCommands() {
-  const prefill = useCallback((cmd: UiCommand) => {
-    if (cmd.type === 'prefill') useContractsUi.getState().set({ prefill: cmd.values, form: 'create' });
-  }, []);
   const open = useCallback((cmd: UiCommand) => {
     if (cmd.type === 'open') useContractsUi.getState().set({ detail: cmd.id, tab: 'overview' });
   }, []);
   const filter = useCallback((cmd: UiCommand) => {
     if (cmd.type === 'filter') useContractsUi.getState().setFilter(cmd.filter as Partial<ContractFilter>);
   }, []);
-  useUiCommand('prefill:contract.form', prefill);
   useUiCommand('open:contract', open);
   useUiCommand('filter:contracts', filter);
 }

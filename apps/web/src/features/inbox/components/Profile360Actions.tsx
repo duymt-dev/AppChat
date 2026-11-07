@@ -2,7 +2,9 @@
 // Luật COMMERCE (D46, không đổi): báo giá Nháp → Cập nhật, đã gửi → Tạo phiên bản mới (quote.request_revision rồi sửa bản mới);
 // trạng thái khác (chờ duyệt / đã duyệt chưa gửi / đã chốt / hết hạn…) không sửa được theo QUOTE_FLOW → tạo báo giá mới điền sẵn khách;
 // hợp đồng Nháp → Cập nhật, đã gửi ký → mở chi tiết chỉ xem (ContractDrawer tại chỗ, không rời Hộp thư / Khách hàng);
-// Đơn / Ticket / Lịch hẹn: luôn tạo mới. Gửi email: modal soạn email dùng chung (shared/crm-forms).
+// Đơn / Ticket / Lịch hẹn: luôn tạo mới. Gửi email: modal soạn email dùng chung (shared/crm-forms). Mở từ Hộp thư (TIP-025b §D.3): form
+// tạo mang `conversation_id` của hội thoại đang mở (server kiểm khớp khách); mở ngoài Hộp thư (Khách hàng) → không có ngữ cảnh.
+// Báo giá / hợp đồng sẵn có không bị gắn lại hội thoại khác.
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -30,7 +32,7 @@ const FOOT: [key: string, icon: IconName, tone: string][] = [
 ];
 
 /** Hàng nghiệp vụ (báo giá / hợp đồng / đơn) + thanh hành động (email / ticket / đặt lịch) — prototype L2562–2573. */
-export function Profile360Actions({ contactId }: { contactId: string }) {
+export function Profile360Actions({ contactId, conversationId }: { contactId: string; conversationId?: string }) {
   const t = useTranslations('inbox.p360');
   const { styles } = usePanelStyles();
   const contact = useQuery(contactQuery(contactId)).data;
@@ -38,22 +40,23 @@ export function Profile360Actions({ contactId }: { contactId: string }) {
   const contract = useQuery(latestContractByContactQuery(contactId)).data;
   const requestRevision = useAction<{ quote_id: string }>('quote.request_revision');
   const openEmail = useEmailComposeUi((s) => s.open);
+  const pre = { contact_id: contactId, ...(conversationId ? { conversation_id: conversationId } : {}) };
 
   const onQuote = async () => {
     const allows = (a: string) => !!quote && nextState(QUOTE_FLOW, quote.status, a) !== null;
     if (allows('quote.update')) return useQuotesUi.getState().set({ form: 'edit', editId: quote!.id });
-    if (!quote || !allows('quote.request_revision')) return useQuotesUi.getState().set({ form: 'create', prefill: { contact_id: contactId } });
+    if (!quote || !allows('quote.request_revision')) return useQuotesUi.getState().set({ form: 'create', prefill: pre });
     const res = await requestRevision.run({ quote_id: quote.id });
     if (res) useQuotesUi.getState().set({ form: 'edit', editId: res.result.quote_id });
   };
   const onContract = () => {
-    if (!contract) return useContractsUi.getState().set({ form: 'create', prefill: { contact_id: contactId } });
+    if (!contract) return useContractsUi.getState().set({ form: 'create', prefill: pre });
     if (contract.status === 'draft') return useContractsUi.getState().set({ form: 'edit', editId: contract.id });
     useContractsUi.getState().set({ detail: contract.id, tab: 'overview' });
   };
-  const onOrder = () => useOrdersUi.getState().set({ form: 'create', prefill: { contact_id: contactId } });
-  const onTicket = () => useTicketsUi.getState().set({ form: true, prefill: { contact_id: contactId } });
-  const onBooking = () => useCalendarUi.getState().set({ form: 'create', prefill: { contact_id: contactId } });
+  const onOrder = () => useOrdersUi.getState().set({ form: 'create', prefill: pre });
+  const onTicket = () => useTicketsUi.getState().set({ form: true, prefill: pre });
+  const onBooking = () => useCalendarUi.getState().set({ form: 'create', prefill: pre });
   const onEmail = () => {
     if (!contact) return;
     openEmail({ contactId, to: contact.email ? `${contact.name} <${contact.email}>` : contact.name });

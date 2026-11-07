@@ -130,6 +130,7 @@
   },
   "empty": "Chưa có khách hàng nào",
   "edit": {
+    "stale": "Khách vừa được sửa ở nơi khác — đóng rồi mở lại để xem bản mới (nội dung bạn nhập vẫn giữ ở đây).",
     "title": "Cập nhật khách hàng",
     "name": "Tên khách hàng",
     "role": "Chức danh",
@@ -302,6 +303,7 @@
     "readOnly": "Chỉ người phụ trách chính hoặc Quản lý được thêm / gỡ."
   },
   "transfer": {
+    "hidden": "không xem được",
     "title": "Chuyển phụ trách",
     "from": "Đang phụ trách: {name}",
     "to": "Chuyển cho",
