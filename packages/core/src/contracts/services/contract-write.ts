@@ -7,7 +7,7 @@ import { uuidv7 } from '../../kernel/ids';
 import { actorUserId, editableContact, type CrmMembers } from '../../crm/public';
 import type { ContractRecord } from '../contract-access';
 
-export type ContractFields = Partial<ActionInput<typeof contractCreate>>;
+export type ContractFields = Partial<Omit<ActionInput<typeof contractCreate>, 'conversation_id' | 'source_message_id'>>;
 
 const day = (v: string | undefined) => (v ? new Date(`${v}T00:00:00.000Z`) : undefined);
 

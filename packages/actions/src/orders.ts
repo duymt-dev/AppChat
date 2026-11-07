@@ -4,7 +4,7 @@
 import { z } from 'zod';
 import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
-import { discount, lineItem, money } from './sales-schemas';
+import { discount, lineItem, money, sourceLink } from './sales-schemas';
 
 const orderId = z.string().min(1);
 const shipping = z.object({
@@ -42,7 +42,7 @@ export const orderCreate = defineAction({
   title: 'actions.order.create.title',
   description:
     'Create an order (status new). deposit_amount > 0 turns on deposit (pay_status awaiting_deposit). Example: {"contact_id":"ct_lan","items":[{"name":"HIFU nâng cơ","qty":8,"unit_price":"1500000","tax_rate":8}],"deposit_amount":"3000000"}',
-  input: fields,
+  input: fields.merge(sourceLink),
   output: out,
   permission: 'order.manage',
   risk: 'write',

@@ -5,6 +5,8 @@ export { InboundPipeline, wantsAgent } from './services/pipeline';
 export { INBOX_RUNTIME } from './jobs/inbox.jobs.module';
 export type { ConvFilter } from './repos/conversations.repo';
 export { visibleConversation, writableConversation } from './services/access';
+// TIP-025b §D: liên kết hội thoại nguồn khi tạo chứng từ từ Hộp thư (quote / order / contract / ticket / appointment).
+export { linkConversation, type ConversationLink, type LinkInput } from './services/conversation-link';
 // Gửi tin ra kênh từ domain khác (báo giá gửi khách — TIP-029): ghi tin + outbox trong transaction, đẩy hàng đợi sau commit.
 export { writeOutgoing, enqueueOutgoing, sendableAccount, type Outgoing } from './services/outbound';
 export { scopeCols } from './services/access';

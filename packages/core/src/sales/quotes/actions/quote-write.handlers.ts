@@ -11,6 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { uuidv7 } from '../../../kernel/ids';
 import { nextCode } from '../../../kernel/sequence';
 import { CrmMembers, actorUserId } from '../../../crm/public';
+import { linkConversation } from '../../../inbox/public';
 import { lockQuote, visibleQuote } from '../quote-access';
 import { commentPreview, createPreview, deletePreview, updatePreview } from '../previews/quote-write.handlers.preview';
 import { checkParties, checkQuoteCustom, creatorOf, linesOf, resolveLines, totalCols, writeLines, type LineIn, type QuoteFieldsIn } from '../services/quote-write';
@@ -22,6 +23,8 @@ type UpdateIn = ActionInput<typeof quoteUpdate>;
 export interface NewQuote extends QuoteFieldsIn {
   contact_id: string;
   items: LineIn[];
+  /** Hội thoại nguồn đã kiểm qua `linkConversation` (TIP-025b §D.1). */
+  conversation_id?: string | null;
 }
 
 /** Tạo bản nháp (dùng chung `quote.create` / `quote.draft_from_content`). `offCatalog` chỉ tính cho báo giá AI / agent tạo (§12). */
@@ -40,6 +43,7 @@ export async function insertQuote(ctx: ActionContext, tx: TenantTx, members: Crm
       code,
       rootQuoteId: id,
       contactId: input.contact_id,
+      conversationId: input.conversation_id ?? null,
       ownerUserId,
       // DC-299: nhóm duy nhất của người phụ trách lúc tạo (0 / nhiều nhóm → null).
       teamId: await snapshotTeam(tx, { owner: ownerUserId }),
@@ -72,8 +76,9 @@ export class QuoteCreateHandler implements Handler<CreateIn, { quote_id: string;
   ) {}
 
   async execute(ctx: ActionContext, input: CreateIn, tx: TenantTx): Promise<HandlerOutcome<{ quote_id: string; code: string }>> {
-    const q = await insertQuote(ctx, tx, this.members, input, this.clock.now());
-    return { result: { quote_id: q.id, code: q.code }, after: { id: q.id } };
+    const link = await linkConversation(tx, ctx.authz, input.contact_id, input, { served: ctx.servedConversationId });
+    const q = await insertQuote(ctx, tx, this.members, { ...input, contact_id: link.contactId!, conversation_id: link.conversationId }, this.clock.now());
+    return { result: { quote_id: q.id, code: q.code }, after: { id: q.id, conversation_id: link.conversationId } };
   }
 
   async preview(ctx: ActionContext, input: CreateIn, tx: TenantTx) {
