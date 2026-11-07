@@ -1,7 +1,9 @@
 export * from './envelope';
 export * from './notify';
 export * from './billing';
+export * from './platform-admin';
 export * from './identity';
+export * from './workspace-lifecycle';
 export * from './integrations';
 export * from './settings';
 export * from './teams';
@@ -13,6 +15,7 @@ export * from './contact-memory';
 export * from './catalog';
 export * from './field-visibility';
 export * from './data-jobs';
+export * from './data-transfer';
 export * from './documents';
 export * from './quotes';
 export * from './contracts';

@@ -4,6 +4,8 @@ import { z } from 'zod';
 
 const status = z.enum(['trialing', 'active', 'expired', 'cancelled']);
 const usage = z.object({ used: z.number().int(), max: z.number().int().nullable() });
+/** Kênh đếm ở DB tenant (TIP-039): đọc lỗi → `available: false` + used 0 (FE hiện "—", không hiện 0 như số thật). */
+const tenantUsage = usage.extend({ available: z.boolean().optional() });
 
 export const billingSummarySchema = z.object({
   plan_key: z.string(),
@@ -14,11 +16,13 @@ export const billingSummarySchema = z.object({
   days_left: z.number().int(),
   period_pct: z.number().int().min(0).max(100),
   users: usage,
-  channels: usage,
+  channels: tenantUsage,
   credits_month: z.number().int().nullable(),
   balance: z.number().int(),
   plan_balance: z.number().int(),
   topup_balance: z.number().int(),
+  /** Gói trả phí đã hết hạn: dữ liệu giữ tới ngày này (TIP-039, DC-367 — xoá / lưu trữ là TIP-041). */
+  retain_until: z.string().nullable().optional(),
 });
 export type BillingSummaryDto = z.infer<typeof billingSummarySchema>;
 
@@ -79,3 +83,21 @@ export const billInvoiceSchema = z.object({
 });
 export type BillInvoiceDto = z.infer<typeof billInvoiceSchema>;
 export const billInvoicesPageSchema = z.object({ data: z.array(billInvoiceSchema), next_cursor: z.string().nullable() });
+
+/** `GET /v1/billing/quote?kind=&item=&period=` (TIP-039) — giá server tính trước khi tạo hoá đơn (không ghi): mua mới / gia hạn (nối tiếp
+ *  ngày hết hạn) / nâng giữa kỳ (chênh × phần kỳ còn lại + Credit chênh) / đổi xuống từ kỳ sau / addon đồng hạn. `open` = hoá đơn chờ
+ *  cùng mặt hàng sẽ được dùng lại. */
+export const billQuoteSchema = z.object({
+  mode: z.enum(['new', 'renew', 'switch', 'upgrade', 'credits', 'addon']),
+  amount: z.string(),
+  credits: z.number().int().nullable(),
+  months: z.number().int().nullable(),
+  /** Ngày áp dụng (renew / switch: ngày hết hạn hiện tại). */
+  starts_at: z.string().nullable(),
+  /** Hết hạn kỳ (upgrade: giữ ngày hết hạn cũ; addon: đồng hạn gói). */
+  ends_at: z.string().nullable(),
+  from_plan_key: z.string().nullable(),
+  open: z.object({ id: z.string(), code: z.string() }).nullable(),
+});
+export type BillQuoteDto = z.infer<typeof billQuoteSchema>;
+

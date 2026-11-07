@@ -24,7 +24,7 @@ export interface ExportPlace {
 
 export type ExportDb = Pick<
   TenantTx,
-  '$queryRaw' | 'quote' | 'order' | 'contract' | 'ticket' | 'contact' | 'team' | 'aiAgent' | 'customFieldDef'
+  '$queryRaw' | 'quote' | 'order' | 'contract' | 'ticket' | 'contact' | 'team' | 'aiAgent' | 'customFieldDef' | 'product' | 'productCategory' | 'invoice'
 >;
 
 export interface ListReader<F> {

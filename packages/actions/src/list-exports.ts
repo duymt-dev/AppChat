@@ -5,7 +5,9 @@
 import {
   contractExportFilter,
   listExportResultSchema,
+  invoiceExportFilter,
   orderExportFilter,
+  productExportFilter,
   quoteExportFilter,
   ticketExportFilter,
 } from '@appchat/shared';
@@ -61,6 +63,33 @@ export const ticketExport = defineAction({
   input: ticketExportFilter,
   output: listExportResultSchema,
   permission: 'ticket.view',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
+});
+
+// TIP-038b P3 (DC-374): sản phẩm + đề nghị thanh toán dùng CÙNG khung xuất 038 (không exporter thứ hai).
+export const productExport = defineAction({
+  id: 'product.export',
+  module: 'catalog',
+  title: 'actions.product.export.title',
+  description: `Export the products / services (same filters as the product list: category, type, status, q, custom). Cost price is included only for users allowed to see it; stock is a read-only snapshot. ${note} Example: {"type":"service"}`,
+  input: productExportFilter,
+  output: listExportResultSchema,
+  permission: 'catalog.view',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
+});
+
+export const invoiceExport = defineAction({
+  id: 'invoice.export',
+  module: 'sales',
+  title: 'actions.invoice.export.title',
+  description: `Export the payment requests (Đề nghị thanh toán — not VAT invoices) visible to the caller (same filters as the list: status, contact_id, order_id, owner_id, q). ${note} Example: {"status":"overdue"}`,
+  input: invoiceExportFilter,
+  output: listExportResultSchema,
+  permission: 'invoice.manage',
   risk: 'write',
   agentGrantable: false,
   invalidates: ['data-jobs'],

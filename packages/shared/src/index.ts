@@ -41,3 +41,4 @@ export * from './marketing/segment-filter';
 export * from './marketing/events';
 export * from './insights/metrics';
 export * from './kb/suggestion-events';
+export * from './data-transfer/registry';

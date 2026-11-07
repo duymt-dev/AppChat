@@ -1,7 +1,7 @@
 // Đọc Cài đặt (Blueprint §4.4 settings). Query key đầu = tên trong `invalidates` của action (workspace / members / …). Ghi qua useAction.
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
-import type { SalesPolicyDto } from '@appchat/shared';
+import type { BillQuoteDto as BillQuote, SalesPolicyDto } from '@appchat/shared';
 import type {
   DocTemplate,
   BillInvoice,
@@ -128,6 +128,15 @@ export const slaQuery = () => queryOptions({ queryKey: ['settings', 'sla'], quer
 export const notifPrefsQuery = () => queryOptions({ queryKey: ['me', 'notif-prefs'], queryFn: () => transport.get<NotifPrefs>('/settings/notifications') });
 
 export const billingSummaryQuery = () => queryOptions({ queryKey: ['billing', 'summary'], queryFn: () => transport.get<BillingSummary>('/billing/summary') });
+
+/** Giá server tính trước khi mua (TIP-039) — không cache lâu: kỳ còn lại đổi theo thời gian. */
+export const billQuoteQuery = (item: string | null) =>
+  queryOptions({
+    queryKey: ['billing', 'quote', item],
+    queryFn: () => transport.get<BillQuote>('/billing/quote', { kind: 'plan', item: item! }),
+    enabled: !!item,
+    staleTime: 0,
+  });
 
 export const billingPlansQuery = () =>
   queryOptions({ queryKey: ['billing', 'plans'], queryFn: () => transport.get<BillingCatalog>('/billing/plans'), staleTime: Infinity });

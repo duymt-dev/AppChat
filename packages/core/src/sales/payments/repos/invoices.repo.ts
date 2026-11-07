@@ -32,6 +32,12 @@ function where(authz: AuthzContext, f: InvoiceFilter): Prisma.Sql {
   return Prisma.join(parts, ' AND ');
 }
 
+/** Xuất danh sách (TIP-038b P3): toàn bộ id trong scope + bộ lọc, cùng thứ tự danh sách — tối đa `cap`. */
+export async function snapshotInvoiceIds(tx: TenantTx, authz: AuthzContext, f: InvoiceFilter, cap: number): Promise<string[]> {
+  const rows = await tx.$queryRaw<{ id: string }[]>`SELECT i.id FROM invoice i WHERE ${where(authz, f)} ORDER BY i.created_at DESC, i.id DESC LIMIT ${cap}`;
+  return rows.map((r) => r.id);
+}
+
 export async function listInvoiceIds(tx: TenantTx, authz: AuthzContext, f: InvoiceFilter, page: { offset: number; limit: number } | null) {
   const w = where(authz, f);
   const paging = page ? Prisma.sql`LIMIT ${page.limit} OFFSET ${page.offset}` : Prisma.sql`LIMIT 2000`;

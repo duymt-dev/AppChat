@@ -1337,6 +1337,7 @@
       "ai_briefing": "Bản tin sáng của Trợ lý AI",
       "ai_task_failed": "Tác vụ tự chủ lỗi",
       "channel_down": "Kênh bị ngắt kết nối",
+      "archive_warning": "Workspace sắp được lưu trữ (không hoạt động)",
       "billing_invoice": "Gói & ví — hoá đơn mới",
       "owner_transfer": "Đổi Chủ sở hữu workspace",
       "data_job_done": "Xuất dữ liệu / sửa hàng loạt chạy nền xong",
@@ -1395,13 +1396,50 @@
         "service": "Hỗ trợ dịch vụ"
       }
     },
+    "change": {
+      "title": "Xác nhận gói {plan}",
+      "loading": "Đang tính giá…",
+      "error": "Chưa tính được giá — thử lại sau. Chưa có hoá đơn nào được tạo.",
+      "new": "Mua mới · kỳ {n} tháng tính từ lúc thanh toán được xác nhận.",
+      "renew": "Gia hạn cùng gói · kỳ mới nối tiếp ngày hết hạn {at}.",
+      "upgrade": "Nâng từ {from} lên {to} giữa kỳ · thu phần chênh theo số ngày còn lại, giữ ngày hết hạn {end}.",
+      "switch": "Đổi sang {plan} từ kỳ sau ({at}) · kỳ hiện tại giữ nguyên, không hoàn tiền.",
+      "credits": "+{n} credit chênh cho tháng này",
+      "reuse": "Đang có hoá đơn chờ {code} cùng gói — sẽ mở lại hoá đơn đó, không tạo QR mới.",
+      "note": "Gói chỉ kích hoạt khi tiền về tài khoản AppChat (VietQR / chuyển khoản), không tự trừ tiền.",
+      "confirm": "Tạo mã thanh toán",
+      "cancel": "Huỷ",
+      "close": "Đóng"
+    },
+    "contact": {
+      "title": "Liên hệ tư vấn gói Doanh nghiệp",
+      "sub": "Để lại thông tin — đội AppChat liên hệ bạn trong 1 ngày làm việc để báo giá theo nhu cầu.",
+      "name": "Họ và tên",
+      "email": "Email",
+      "phone": "Số điện thoại",
+      "message": "Nhu cầu",
+      "messagePh": "Số người dùng, số kênh, tính năng cần…",
+      "consent": "Tôi đồng ý để đội AppChat liên hệ theo thông tin trên.",
+      "send": "Gửi yêu cầu",
+      "cancel": "Huỷ",
+      "close": "Đóng",
+      "ok": "Đã hiểu",
+      "askOwner": "Chỉ Chủ sở hữu hoặc người có quyền quản lý thanh toán gửi được yêu cầu tư vấn. Hãy nhờ họ liên hệ đội AppChat.",
+      "received": "Đã nhận yêu cầu — đội AppChat sẽ liên hệ bạn trong 1 ngày làm việc.",
+      "errName": "Nhập họ tên (ít nhất 2 ký tự).",
+      "errEmail": "Email chưa đúng định dạng.",
+      "errPhone": "Số điện thoại chưa đúng (8–20 chữ số).",
+      "errMessage": "Mô tả nhu cầu (ít nhất 5 ký tự).",
+      "errConsent": "Cần đồng ý để đội AppChat liên hệ.",
+      "errLimit": "Workspace đã gửi 3 yêu cầu trong 24 giờ — đội AppChat sẽ liên hệ theo yêu cầu đã gửi.",
+      "errSend": "Chưa gửi được yêu cầu — thử lại sau."
+    },
     "upgrade": {
       "title": "Nâng cấp gói",
       "sub": "Chọn gói phù hợp — mở khoá thêm kênh, credit AI và tính năng cao cấp",
       "close": "Đóng",
       "trialT": "Bạn đang dùng thử Cá nhân Pro — còn {n} ngày",
-      "trialS": "Mở hết tính năng. Hết hạn sẽ tạm khoá workspace và chuyển về gói Miễn phí.",
-      "contacted": "Đã gửi yêu cầu — đội AppChat sẽ liên hệ bạn trong 1 ngày làm việc."
+      "trialS": "Mở hết tính năng. Hết hạn sẽ tạm khoá workspace và chuyển về gói Miễn phí."
     },
     "credit": {
       "title": "Chọn gói nạp Credit",
@@ -1444,6 +1482,8 @@
       "seatsLeft": "Còn {n} chỗ trống",
       "channels": "Kênh kết nối",
       "chLeft": "Còn {n} kết nối",
+      "unlimited": "Không giới hạn",
+      "unavailable": "Chưa đọc được số kênh",
       "credits": "Credit gói còn lại",
       "reset": "Reset theo chu kỳ tháng"
     },
@@ -1476,6 +1516,8 @@
         "bank_transfer": "Chuyển khoản"
       },
       "pay": "Thanh toán",
+      "pdf": "Tải PDF đề nghị thanh toán {code}",
+      "pdfFail": "Chưa tải được PDF — thử lại sau.",
       "view": "Xem"
     }
   },
@@ -1493,7 +1535,6 @@
       "invoice": "Hoá đơn"
     },
     "plans": "Gói dịch vụ",
-    "contacted": "Đã gửi yêu cầu — đội AppChat sẽ liên hệ bạn trong 1 ngày làm việc.",
     "shop": {
       "credit": "Nạp Credit",
       "addon": "Tài nguyên bổ sung"
@@ -1518,6 +1559,26 @@
     "ledger": {
       "title": "Lịch sử ví",
       "filter": "Lọc",
+      "source": "Nguồn",
+      "period": "Kỳ",
+      "src": {
+        "all": "Mọi nguồn",
+        "plan": "Gói",
+        "inbox": "Hộp thư",
+        "assistant": "Trợ lý AI",
+        "marketing": "Marketing",
+        "ai": "AI",
+        "qr": "VietQR",
+        "bank": "Chuyển khoản"
+      },
+      "p": {
+        "all": "Mọi thời gian",
+        "month": "Tháng này",
+        "d30": "30 ngày"
+      },
+      "more": "Xem thêm",
+      "empty": "Không có giao dịch phù hợp",
+      "error": "Chưa tải được lịch sử ví — thử lại sau",
       "f": {
         "all": "Tất cả",
         "in": "Cộng credit",

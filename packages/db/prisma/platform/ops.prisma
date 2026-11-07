@@ -1,5 +1,6 @@
 // platform/ops.prisma — sở hữu: TIP-002 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
-// Bảng: tenant_migration, workspace_stats, platform_audit_log, reconcile_finding, reconcile_checkpoint (TIP-045b annex E).
+// Bảng: tenant_migration, workspace_stats, platform_audit_log, reconcile_finding, reconcile_checkpoint (TIP-045b annex E),
+// admin_operation (TIP-040).
 // Không Prisma relation xuyên domain (Blueprint §2.1).
 
 enum TenantMigrationStatus {
@@ -87,3 +88,20 @@ model ReconcileCheckpoint {
 
   @@map("reconcile_checkpoint")
 }
+
+/// Biên nhận action quản trị nền tảng (TIP-040, DC-368): ghi CÙNG transaction với thay đổi + audit nền tảng — gửi lại cùng
+/// Idempotency-Key trả đúng kết quả (khác input → 409). Không gắn workspace (admin không cần membership); `result` đã chiếu an toàn.
+model AdminOperation {
+  id             String   @id @db.Uuid
+  actorUserId    String   @map("actor_user_id") @db.Uuid
+  idempotencyKey String   @map("idempotency_key")
+  actionId       String   @map("action_id")
+  inputHash      String   @map("input_hash")
+  /// `ActionResult` trả cho client (action_log_id = id audit nền tảng).
+  result         Json
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([actorUserId, idempotencyKey])
+  @@map("admin_operation")
+}
+

@@ -1,6 +1,7 @@
 // "Nhập" khách hàng (REQ-F03, DC-147 — prototype chỉ có nút L2460): chọn tệp CSV / XLSX → tải lên (purpose `import`) → server đọc
 // bảng sheet đầu → ghép cột tự động (sửa được) + xem trước 5 dòng → contact.import theo lô ≤ 500 (mỗi lô qua preview đếm tạo /
 // trùng / của người khác / lỗi) → tổng kết. Hoàn tác từng lô ở Nhật ký (undo 24h). Trùng khách của người khác chỉ đếm (D32).
+// TIP-038b: giữ hợp đồng cũ; "Nhập có kiểm từng dòng" mở TransferPanel dùng chung (kế hoạch, tệp lỗi, chỉ dòng hợp lệ) cho khách hàng.
 'use client';
 import { useRef, useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -10,6 +11,7 @@ import { transport } from '@/shared/api/client';
 import { useAction } from '@/shared/actions/useAction';
 import { useFormStyles } from '../styles/form.styles';
 import { useImportStyles } from '../styles/import.styles';
+import { openTransfer } from '@/features/data-transfer';
 import { useCrmUi } from '../crm-store';
 import { importTableQuery } from '../api';
 import { IMPORT_FIELDS, batches, guessMapping, toImportRows } from '../import-map';
@@ -114,6 +116,9 @@ export function ImportModal() {
             {t('hint')}
             <button type="button" className={cx(fs.btn, s.pick)} disabled={busy} onClick={() => input.current?.click()} data-testid="import-pick">
               {t('pick')}
+            </button>
+            <button type="button" className={cx(fs.btn, s.pick)} onClick={() => (close(), openTransfer({ entity: 'contact' }))} data-testid="import-advanced">
+              {t('advanced')}
             </button>
             <input ref={input} type="file" hidden accept=".csv,.xlsx,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" onChange={(e) => void pick(e.target.files?.[0])} data-testid="import-file" />
           </div>

@@ -48,7 +48,7 @@ export class WebchatUpdateWidgetHandler implements Handler<In, Out> {
     const adding = !live && input.enabled !== false;
     if (adding) {
       await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
-      await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
+      await new QuotaService(ptx, () => this.clock.now()).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
       await reserveQuota(ptx, ctx, 'channels', now);
     }
     const accountId = acc?.id ?? uuidv7(now.getTime());

@@ -1,9 +1,11 @@
-// AppShell (Blueprint §7.1): NavRail | main | AssistantDock + ConfirmActionHost; < md: MobileTabBar.
+// AppShell (Blueprint §7.1): NavRail | main | AssistantDock + ConfirmActionHost + BillingNoticeHost + PlanExpiredNotice (TIP-039); < md: MobileTabBar.
 'use client';
 import { useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { ConfirmActionHost } from '../actions/ConfirmActionHost';
 import { AssistantDock } from '../assistant/AssistantDock';
+import { BillingNoticeHost } from '../billing/BillingNoticeHost';
+import { PlanExpiredNotice } from '../billing/PlanExpiredNotice';
 import { useEventInvalidation } from '../realtime/event-invalidation';
 import { NavRail } from './NavRail';
 import { MobileTabBar } from './MobileTabBar';
@@ -47,6 +49,8 @@ export function AppShell({ children }: AppShellProps) {
       <MobileTabBar />
       <AssistantDock />
       <ConfirmActionHost />
+      <BillingNoticeHost />
+      <PlanExpiredNotice />
     </div>
   );
 }

@@ -37,7 +37,7 @@ export class MemberInviteHandler implements Handler<Input, { invite_id: string }
     const members = await ptx.membership.count({ where: { workspaceId: ws, status: 'active' } });
     const pending = await this.invites.pendingCount(ws, this.clock.now(), ptx, input.email);
     // QuotaService chỉ đọc subscription / plan — dựng trên ptx (cùng transaction, không kéo BillingModule vào identity).
-    await new QuotaService(ptx).assert(ws, 'users', members + pending);
+    await new QuotaService(ptx, () => this.clock.now()).assert(ws, 'users', members + pending);
     // Id lời mời = id thao tác (TIP-045b): pha nền tảng chạy lại không tạo lời mời / token thứ hai.
     const inv = await this.invites.create(ws, ctx.actor.id, input, ptx, ctx.operationId);
     const mail: InviteMailPayload | null = inv.token ? { to: inv.email, locale: inv.locale, workspace: inv.workspace, token: inv.token } : null;

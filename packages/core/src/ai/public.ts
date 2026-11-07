@@ -77,3 +77,4 @@ export { KB_SUGGEST_ACTOR } from './kb/suggestions/suggestion.handlers';
 export { proposeFromConversation, parsePairs, type ProposeDeps, type ProposeOutcome } from './kb/suggestions/suggestion.service';
 export { kbSuggestConsumer, closedCutoff } from './kb/suggestions/suggestion.consumer';
 export { KbSuggestQueue, KB_SUGGEST_QUEUE } from './kb/suggestions/suggestion.jobs';
+export { CREDIT_HANDOFF_CONSUMER, creditHandoffConsumer, handoffForCredit, type CreditHandoffDeps } from './reply/credit-handoff.consumer';

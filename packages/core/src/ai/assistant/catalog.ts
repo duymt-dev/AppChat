@@ -20,8 +20,9 @@ const HIDDEN = /^(admin\.|workspace\.(switch|request_transfer_otp|transfer_owner
  * Callback chỉ nguồn system (worker) — không ai gọi bằng lời / UI nên không cần preview hay đường tra id. Trang ký công khai phụ lục
  * (TIP-030b F3): chỉ bộ chuyển token gọi với capability niêm phong — ẩn khỏi mọi khám phá; handler vẫn từ chối khi thiếu capability.
  * Sổ điểm theo sự kiện / lịch (TIP-036 — loyalty.earn / reverse / expire / review_tier): chỉ consumer + job loyalty gọi.
+ * Mở workspace (TIP-041 — workspace.open): chỉ cổng FE gọi qua nhánh vòng đời; executor thường từ chối.
  */
-export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline', 'loyalty.earn', 'loyalty.reverse', 'loyalty.expire', 'loyalty.review_tier', 'kb.suggestion.propose', 'lead_routing.apply', 'campaign.dispatch', 'campaign.record_delivery', 'campaign.record_metric', 'campaign.store_analysis', 'campaign.unsubscribe', 'follow_up.reconcile', 'digest.dispatch']);
+export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline', 'loyalty.earn', 'loyalty.reverse', 'loyalty.expire', 'loyalty.review_tier', 'kb.suggestion.propose', 'lead_routing.apply', 'campaign.dispatch', 'campaign.record_delivery', 'campaign.record_metric', 'campaign.store_analysis', 'campaign.unsubscribe', 'follow_up.reconcile', 'digest.dispatch', 'billing.lifecycle_step', 'billing.apply_invoice', 'workspace.open']);
 
 export const entityOf = (actionId: string) => actionId.split('.')[0]!;
 
@@ -50,6 +51,8 @@ const ENTITY_VI: Record<string, string> = {
   product: 'dich vu goi lieu trinh hang hoa mat hang gia ban', stock: 'kho ton kho con hang nhap kho', contact: 'khach nguoi lien he so dien thoai',
   quote: 'bao gia', appointment: 'lich dat lich hen', ticket: 'khieu nai phan nan yeu cau ho tro', order: 'don don hang',
   tag: 'nhan the', invoice: 'thanh toan thu tien', loyalty: 'diem tich diem hang khach than thiet', payment: 'thanh toan thu tien',
+  // TIP-038b: nhập dữ liệu dùng chung từ tệp (khách / sản phẩm / báo giá / đơn / hợp đồng / đề nghị thanh toán) — "nhập từ tệp / file / excel".
+  transfer: 'nhap du lieu tep file excel csv bang tinh nhap khach nhap san pham nhap bao gia nhap don nhap hop dong nhap de nghi thanh toan',
 };
 
 /**

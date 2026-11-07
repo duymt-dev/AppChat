@@ -55,6 +55,7 @@ export class SessionController {
         // Chỉ nhắc khi đã hết trial và đang ở gói Miễn phí; gói trả phí / đang trial coi như đã xem.
         expiredSeen: !trial.expired || o.notices.includes('trial_expired'),
         workspace_id: o.workspaceId,
+        lifecycle: o.lifecycle,
       },
     };
   }

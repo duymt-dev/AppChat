@@ -1,7 +1,8 @@
-// Hạn mức gói (REQ-L02): số người dùng / kênh / agent theo `plan.max_*` của subscription hiện tại; null = không giới hạn.
-// TIP tạo tài nguyên gọi `assert(ws, resource, current)` TRƯỚC khi thêm (013 thành viên · 014 kênh · 021 agent).
+// Hạn mức gói (REQ-L02): số người dùng / kênh / agent theo `plan.max_*` của subscription hiện tại + tài nguyên mua thêm còn hạn (TIP-039,
+// DC-056); null = không giới hạn. TIP tạo tài nguyên gọi `assert(ws, resource, current)` TRƯỚC khi thêm (013 thành viên · 014 kênh · 021 agent).
 import { AppError, FREE_PLAN_KEY, type QuotaResource } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
+import { activeAddons, withAddons } from './addons.service';
 
 export interface PlanLimits {
   planKey: string;
@@ -11,7 +12,10 @@ export interface PlanLimits {
 }
 
 export class QuotaService {
-  constructor(private readonly db: Pick<PlatformDb, 'subscription' | 'plan'>) {}
+  constructor(
+    private readonly db: Pick<PlatformDb, 'subscription' | 'plan' | 'subscriptionAddon'>,
+    private readonly now: () => Date = () => new Date(),
+  ) {}
 
   /** Workspace chưa có subscription (chưa khai báo) → hạn mức gói Miễn phí. */
   async limits(workspaceId: string): Promise<PlanLimits> {
@@ -20,7 +24,8 @@ export class QuotaService {
       ? await this.db.plan.findUnique({ where: { id: s.planId } })
       : await this.db.plan.findUnique({ where: { key: FREE_PLAN_KEY } });
     if (!p) throw new AppError('INTERNAL', 500, undefined, 'Thiếu seed gói');
-    return { planKey: p.key, users: p.maxUsers, channels: p.maxChannels, agents: p.maxAgents };
+    const add = await activeAddons(this.db, workspaceId, this.now());
+    return { planKey: p.key, users: withAddons(p.maxUsers, 'users', add), channels: withAddons(p.maxChannels, 'channels', add), agents: p.maxAgents };
   }
 
   /** `current` = số đang có (không tính cái sắp thêm). Vượt → PLAN_LIMIT_REACHED 402 `{ resource, limit }`. */

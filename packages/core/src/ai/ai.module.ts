@@ -9,6 +9,7 @@ import { AiSdkEmbedder, AiSdkEngine, LlmRouter, mockEmbedSource, mockModelSource
 import type { PlatformDb } from '@appchat/db';
 import { CreditMeter } from '../billing/public';
 import { BillingModule } from '../billing/billing.module';
+import { WorkspaceAccess } from '../platform/public';
 import { ENC_KEY } from '../kernel/crypto';
 import { ENV_SOURCE, LOGGER } from '../kernel/kernel.module';
 import type { AppLogger } from '../kernel/logger/logger';
@@ -63,6 +64,8 @@ class ProviderSeed implements OnModuleInit {
     // Mẫu agent theo ngành (TIP-021, D15) — idempotent theo key, không ghi đè.
     if (this.platform) await seedAgentTemplates(this.platform).catch((err: unknown) => this.log.warn({ err }, 'agent template seed failed'));
     // `AI_ENGINE=mock` (dev / E2E): đơn giá cho model giả để CreditMeter trừ được (không đè giá đã có).
+    // Header provider cũ (giá trị thô) → mã hoá (TIP-040, DC-371) — trước mọi lần nạp cấu hình.
+    if (this.store) await this.store.sealLegacyHeaders().catch((err: unknown) => this.log.warn({ err }, 'provider header seal failed'));
     if (this.store && this.env.AI_ENGINE === 'mock') await this.store.seedMockPrices().catch((err: unknown) => this.log.warn({ err }, 'mock price seed failed'));
     if (!this.store || !this.env.LLM_SEED_PROVIDER_KEY) return;
     await this.store.seed(this.env).then(
@@ -97,9 +100,12 @@ class ProviderSeed implements OnModuleInit {
     { provide: KbIngestQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new KbIngestQueue(r) : null) },
     {
       provide: AiRunner,
-      inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace],
-      useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger, clock: Clock, place: TaskPlace) =>
-        engine ? new AiRunner({ engine, meter, log, clock: { now: () => clock.now(), timeZone: async (ws) => (await place.of(ws)).timeZone } }) : null,
+      inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace, opt(PLATFORM_DB)],
+      useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger, clock: Clock, place: TaskPlace, p?: PlatformDb) => {
+        // Tạm dừng workspace (TIP-040) chặn bước AI mới cả ở run đang chạy.
+        const access = p ? new WorkspaceAccess(p, () => clock.now().getTime()) : null;
+        return engine ? new AiRunner({ engine, meter, log, clock: { now: () => clock.now(), timeZone: async (ws) => (await place.of(ws)).timeZone }, ...(access ? { assertOpen: (ws: string) => access.assertOpen(ws) } : {}) }) : null;
+      },
     },
     {
       provide: ProviderSeed,

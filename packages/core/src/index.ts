@@ -66,7 +66,12 @@ export * from './insights/public';
 export { NotifyModule } from './notify/notify.module';
 export { NotifyJobsModule } from './notify/jobs/notify.jobs.module';
 export { PlatformModule } from './platform/platform.module';
+export { ConfigReadService } from './platform/services/config-read';
+export { TransfersReadService } from './platform/services/transfers-read';
+export { WorkspacesReadService } from './platform/services/workspaces-read';
+export { AI_CONFIG_SCOPE, RevisionWatch, WorkspaceAccess, WorkspaceSuspendedError, readRevision } from './platform/public';
 export { PlatformJobsModule } from './platform/jobs/platform.jobs.module';
+export * from './data-transfer/public';
 
 /** Danh sách domain (thứ tự Blueprint §1.2) — test kiểm đủ module đăng ký. */
 export const DOMAINS = ['identity', 'authz', 'billing', 'channels', 'inbox', 'crm', 'catalog', 'sales', 'contracts', 'documents', 'integrations', 'booking', 'support', 'marketing', 'loyalty', 'ai', 'insights', 'notify', 'platform'] as const;

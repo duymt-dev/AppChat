@@ -13,8 +13,19 @@ export const REALTIME_EMITTER = Symbol('REALTIME_EMITTER');
 export class RedisRealtimeEmitter implements RealtimeEmitter {
   private readonly emitter: Emitter;
 
-  constructor(private readonly client: Redis) {
-    this.emitter = new Emitter(client).of(WS_NAMESPACE);
+  constructor(
+    private readonly client: Redis,
+    onError: (err: unknown) => void = () => undefined,
+  ) {
+    // `@socket.io/redis-emitter` gọi `client.publish()` rồi bỏ promise: Redis rớt / đang `quit` → unhandled rejection (sập process theo
+    // chính sách Node). Bọc publish để nuốt + báo lỗi — realtime chỉ là gợi ý làm mới, dữ liệu thật vẫn đọc lại qua REST (outbox §8).
+    const safe = new Proxy(client, {
+      get: (t, k, r) =>
+        k === 'publish'
+          ? (...a: Parameters<Redis['publish']>) => t.publish(...a).catch((err: unknown) => (onError(err), 0))
+          : Reflect.get(t, k, r),
+    });
+    this.emitter = new Emitter(safe).of(WS_NAMESPACE);
   }
 
   publish(env: RealtimeEnvelope): void {

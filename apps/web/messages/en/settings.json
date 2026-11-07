@@ -1337,6 +1337,7 @@
       "ai_briefing": "AI Assistant morning briefing",
       "ai_task_failed": "Autonomous task failed",
       "channel_down": "Channel disconnected",
+      "archive_warning": "Workspace will be archived (inactive)",
       "billing_invoice": "Plan & wallet — new invoice",
       "owner_transfer": "Workspace ownership transfer",
       "data_job_done": "Background export / bulk update finished",
@@ -1395,13 +1396,50 @@
         "service": "Service & support"
       }
     },
+    "change": {
+      "title": "Confirm {plan} plan",
+      "loading": "Calculating price…",
+      "error": "Could not calculate the price — try again later. No invoice was created.",
+      "new": "New purchase · {n}-month period starting when payment is confirmed.",
+      "renew": "Renew the same plan · the new period continues from {at}.",
+      "upgrade": "Upgrade from {from} to {to} mid-period · pay the difference for the remaining days, expiry stays {end}.",
+      "switch": "Switch to {plan} from the next period ({at}) · the current period is unchanged, no refund.",
+      "credits": "+{n} difference credits for this month",
+      "reuse": "Invoice {code} for this plan is still pending — it will be reopened, no new QR.",
+      "note": "The plan activates only when payment reaches AppChat (VietQR / bank transfer); nothing is charged automatically.",
+      "confirm": "Create payment code",
+      "cancel": "Cancel",
+      "close": "Close"
+    },
+    "contact": {
+      "title": "Contact sales — Business plan",
+      "sub": "Leave your details — the AppChat team will contact you within 1 business day with a tailored quote.",
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Phone",
+      "message": "Requirements",
+      "messagePh": "Number of users, channels, features needed…",
+      "consent": "I agree to be contacted by the AppChat team using the details above.",
+      "send": "Send request",
+      "cancel": "Cancel",
+      "close": "Close",
+      "ok": "Got it",
+      "askOwner": "Only the Owner or someone who manages billing can request a consultation. Ask them to contact the AppChat team.",
+      "received": "Request received — the AppChat team will contact you within 1 business day.",
+      "errName": "Enter your name (at least 2 characters).",
+      "errEmail": "Invalid email.",
+      "errPhone": "Invalid phone number (8–20 digits).",
+      "errMessage": "Describe your needs (at least 5 characters).",
+      "errConsent": "Consent is required for the AppChat team to contact you.",
+      "errLimit": "This workspace has sent 3 requests in 24 hours — the AppChat team will follow up on those.",
+      "errSend": "Could not send the request — try again later."
+    },
     "upgrade": {
       "title": "Upgrade plan",
       "sub": "Pick the right plan — unlock more channels, AI credit and premium features",
       "close": "Close",
       "trialT": "You are trialling Personal Pro — {n} days left",
-      "trialS": "All features unlocked. When it ends the workspace is paused and moves to the Free plan.",
-      "contacted": "Request sent — the AppChat team will contact you within 1 business day."
+      "trialS": "All features unlocked. When it ends the workspace is paused and moves to the Free plan."
     },
     "credit": {
       "title": "Choose a credit pack",
@@ -1444,6 +1482,8 @@
       "seatsLeft": "{n} seats left",
       "channels": "Connected channels",
       "chLeft": "{n} connections left",
+      "unlimited": "Unlimited",
+      "unavailable": "Channel count unavailable",
       "credits": "Plan credit left",
       "reset": "Resets every month"
     },
@@ -1476,6 +1516,8 @@
         "bank_transfer": "Bank transfer"
       },
       "pay": "Pay",
+      "pdf": "Download payment request PDF {code}",
+      "pdfFail": "Could not download the PDF — try again later.",
       "view": "View"
     }
   },
@@ -1493,7 +1535,6 @@
       "invoice": "Invoices"
     },
     "plans": "Plans",
-    "contacted": "Request sent — the AppChat team will contact you within 1 business day.",
     "shop": {
       "credit": "Buy credit",
       "addon": "Extra resources"
@@ -1518,6 +1559,26 @@
     "ledger": {
       "title": "Wallet history",
       "filter": "Filter",
+      "source": "Source",
+      "period": "Period",
+      "src": {
+        "all": "All sources",
+        "plan": "Plan",
+        "inbox": "Inbox",
+        "assistant": "AI Assistant",
+        "marketing": "Marketing",
+        "ai": "AI",
+        "qr": "VietQR",
+        "bank": "Bank transfer"
+      },
+      "p": {
+        "all": "All time",
+        "month": "This month",
+        "d30": "Last 30 days"
+      },
+      "more": "Load more",
+      "empty": "No matching transactions",
+      "error": "Could not load wallet history — try again later",
       "f": {
         "all": "All",
         "in": "Credit in",

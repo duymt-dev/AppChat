@@ -2,6 +2,7 @@
 import { ROLE_DEFS } from '@appchat/shared';
 import type { MockDb } from './store';
 import { dashboardRoutes } from './domains/dashboard';
+import { workspaceLifecycleRoutes } from './domains/workspace-lifecycle';
 import { inboxRoutes } from './domains/inbox';
 import { customersRoutes } from './domains/customers';
 import { assistantRoutes } from './domains/assistant';
@@ -29,6 +30,7 @@ import { auditRoutes } from './domains/audit';
 import { kbSuggestionRoutes } from './domains/kb-suggestions';
 import { settingsOpsRoutes } from './domains/settings-ops';
 import { settingsBillingRoutes } from './domains/settings-billing';
+import { platformAdminRoutes } from './domains/platform-admin';
 import { docTemplatesRoutes } from './domains/doc-templates';
 import { withCustomFilters } from './domains/custom-values';
 
@@ -63,6 +65,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
     db.session.provisioned = true;
     return { status };
   },
+  ...workspaceLifecycleRoutes,
   ...dashboardRoutes,
   ...inboxRoutes,
   ...customersRoutes,
@@ -91,5 +94,6 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...kbSuggestionRoutes,
   ...settingsOpsRoutes,
   ...settingsBillingRoutes,
+  ...platformAdminRoutes,
   ...docTemplatesRoutes,
 });

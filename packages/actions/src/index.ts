@@ -38,10 +38,14 @@ import * as authz from './authz';
 import * as leadRouting from './lead-routing';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
+import * as billingLifecycle from './billing-lifecycle';
 import * as kbFolders from './kb-folders';
 import * as kbSuggestions from './kb-suggestions';
 import * as documents from './documents';
 import * as platformAdmin from './platform-admin';
+import * as adminConfig from './admin-config';
+import * as adminWorkspaces from './admin-workspaces';
+import * as workspaceLifecycle from './workspace-lifecycle';
 import * as salesReads from './reads/sales';
 import * as contractReads from './reads/contracts';
 import * as crmReads from './reads/crm';
@@ -55,6 +59,7 @@ import * as documentReads from './reads/documents';
 import * as assistantUi from './assistant-ui';
 import * as integrationProbe from './integration-probe';
 import * as dataJobs from './data-jobs';
+import * as dataTransfer from './data-transfer';
 import * as crmBulk from './crm-bulk';
 
 export * from './define';
@@ -99,10 +104,14 @@ export * from './authz';
 export * from './lead-routing';
 export * from './settings-apps';
 export * from './settings-ai';
+export * from './billing-lifecycle';
 export * from './kb-folders';
 export * from './kb-suggestions';
 export * from './documents';
 export * from './platform-admin';
+export * from './admin-config';
+export * from './admin-workspaces';
+export * from './workspace-lifecycle';
 export * from './reads/sales';
 export * from './reads/contracts';
 export * from './reads/crm';
@@ -115,6 +124,7 @@ export * from './reads/channels';
 export * from './reads/documents';
 export * from './integration-probe';
 export * from './data-jobs';
+export * from './data-transfer';
 export * from './crm-bulk';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
@@ -159,11 +169,16 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(leadRouting),
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
+  ...Object.values(billingLifecycle),
   ...Object.values(kbFolders),
   ...Object.values(kbSuggestions),
   ...Object.values(documents),
   ...Object.values(platformAdmin),
+  ...Object.values(adminConfig),
+  ...Object.values(adminWorkspaces),
+  ...Object.values(workspaceLifecycle),
   ...Object.values(dataJobs),
+  ...Object.values(dataTransfer),
   ...Object.values(crmBulk),
   // Action đọc bản ghi cho Trợ lý / agent (TIP-023b R2 · DC-224).
   ...Object.values(salesReads),

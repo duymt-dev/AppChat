@@ -50,6 +50,8 @@ export interface RunnerDeps {
   onEvent?: (run: RunRow, e: RunEvent) => void;
   /** Giờ hiện tại + múi giờ workspace → dòng thời gian trong system prompt; thiếu → không chèn (test đơn vị). */
   clock?: { now: () => Date; timeZone: (ws: string) => Promise<string> };
+  /** Workspace còn hoạt động (TIP-040, DC-373) — kiểm trước MỖI bước model; tạm dừng → dừng run (lỗi 423), bước đã gửi không thu hồi. */
+  assertOpen?: (ws: string) => Promise<void>;
 }
 
 export class AiRunner {
@@ -106,6 +108,7 @@ export class AiRunner {
             beforeStep: async () => {
               const cur = await store.get(run.id);
               if (cur?.status === 'cancelled') ac.abort();
+              await this.d.assertOpen?.(ws);
               await meter?.assertBalance(ws);
             },
             onUsage: async (u) => {

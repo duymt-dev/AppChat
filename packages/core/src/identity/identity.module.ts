@@ -27,6 +27,7 @@ import { WorkspaceUpdateHandler } from './actions/workspace-update.handler';
 import { WorkspaceRequestTransferOtpHandler } from './actions/workspace-transfer-otp.handler';
 import { WorkspaceTransferOwnershipHandler } from './actions/workspace-transfer.handler';
 import { readIdentityEnv, type IdentityEnv } from './identity.env';
+import { LifecycleModule } from './lifecycle/lifecycle.module';
 import { BullProvisionQueue, TENANT_QUEUE } from './jobs/tenant-provision.processor';
 import { AccessTokens, jwtKeysFromEnv } from './services/access-tokens';
 import { AuthService } from './services/auth.service';
@@ -121,6 +122,8 @@ const providers: FactoryProvider[] = [
 const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, MemberInviteHandler, InviteRevokeHandler, MemberSetRoleHandler, MemberRemoveHandler, MemberSearchHandler, WorkspaceRequestTransferOtpHandler, WorkspaceTransferOwnershipHandler];
 
 @Module({
+  // Vòng đời workspace (TIP-041): handler admin.workspace.archive / restore + hạ tầng — module con không import ngược IdentityModule.
+  imports: [LifecycleModule],
   providers: [...providers, InviteEffectsInstaller, ProfileUpdateHandler, WorkspaceSwitchHandler, BusinessProfileUpdateHandler, OnboardingToggleStepHandler, ...SETTINGS_HANDLERS],
   exports: [
     IDENTITY_ENV,
@@ -135,6 +138,7 @@ const SETTINGS_HANDLERS = [WorkspaceUpdateHandler, WorkingHoursUpdateHandler, Me
     WorkspacesService,
     InvitesService,
     SettingsReadService,
+    LifecycleModule,
   ],
 })
 export class IdentityModule {}

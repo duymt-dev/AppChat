@@ -1,5 +1,6 @@
 // Đọc + lệnh auth (Blueprint §4.2). Auth nằm ngoài Action Registry (chưa có phiên) — đi qua transport.post.
 import { queryOptions } from '@tanstack/react-query';
+import type { WorkspaceLifecycleDto } from '@appchat/shared';
 import { transport } from '@/shared/api/client';
 
 export interface BrandData {
@@ -24,6 +25,9 @@ export interface SessionInfo {
   trialDaysLeft: number;
   provisioned: boolean;
   trialEndsAt: number;
+  workspace_id?: string | null;
+  /** TIP-041: DB tenant đang lưu trữ / đã lưu trữ / đang khôi phục. */
+  lifecycle?: 'archiving' | 'archived' | 'restoring' | null;
 }
 
 export const authKeys = {
@@ -49,5 +53,6 @@ export const authApi = {
   logout: () => transport.post<void>('/auth/logout'),
   ackNotice: (notice: 'trial_welcome' | 'trial_expired') => transport.post<void>('/session/ack', { notice }),
   provisioning: () => transport.get<{ status: 'running' | 'ready' | 'failed' }>('/workspace/provisioning'),
+  lifecycle: () => transport.get<WorkspaceLifecycleDto>('/workspace/lifecycle'),
   taxLookup: (taxCode: string) => transport.get<TaxLookup>(`/business-lookup/tax/${encodeURIComponent(taxCode)}`),
 };

@@ -9,6 +9,8 @@ export const LIST_EXPORT_KINDS = [
   'order.export',
   'contract.export',
   'ticket.export',
+  'product.export',
+  'invoice.export',
 ] as const;
 export type ListExportKind = (typeof LIST_EXPORT_KINDS)[number];
 
@@ -55,6 +57,21 @@ export const ticketExportFilter = z.object({
   q: text(100),
   sort: z.enum(['recent', 'priority']).optional(),
   custom,
+});
+
+export const productExportFilter = z.object({
+  category: text(60),
+  type: text(20),
+  status: text(20),
+  q: text(100),
+  custom,
+});
+export const invoiceExportFilter = z.object({
+  status: text(20),
+  contact_id: text(64),
+  order_id: text(64),
+  owner_id: text(64),
+  q: text(100),
 });
 
 /** Kết quả action xuất: handle việc + số dòng chốt; `download_url` có ngay khi tệp đã dựng (≤ 50 dòng). */

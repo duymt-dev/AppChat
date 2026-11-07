@@ -3,7 +3,6 @@
 // White-label, API là OUT). Mở bằng ?upgrade=1 (rail "Nâng cấp", trial welcome / expired) hoặc nút Gia hạn.
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useUpgradeStyles } from '../styles/upgrade.styles';
@@ -17,7 +16,6 @@ const TRIAL_PLAN = 'personal_pro';
 
 export function UpgradeModal({ trialDays, current }: { trialDays: number; current?: string }) {
   const t = useTranslations('settings.billing.upgrade');
-  const { message } = App.useApp();
   const { styles } = useUpgradeStyles();
   const { upgradeOpen, cmpSeg, set } = useBillingUi();
   const q = useQuery({ ...billingPlansQuery(), enabled: upgradeOpen });
@@ -52,7 +50,7 @@ export function UpgradeModal({ trialDays, current }: { trialDays: number; curren
               </div>
             </div>
           ) : null}
-          <PlanCards big plans={q.data.plans[cmpSeg]} trial={{ key: TRIAL_PLAN, days: trialDays }} current={current} onContact={() => void message.info(t('contacted'))} />
+          <PlanCards big plans={q.data.plans[cmpSeg]} trial={{ key: TRIAL_PLAN, days: trialDays }} current={current} onContact={() => set({ contactOpen: true })} />
           <div className={styles.cmp}>
             <PlanCompare cat={q.data} />
           </div>

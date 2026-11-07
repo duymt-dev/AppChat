@@ -86,9 +86,28 @@ export class WalletService {
     });
   }
 
-  /** Nạp credit mua thêm (không hết hạn) — TIP-010 gọi khi hoá đơn credit được trả. */
-  topup(workspaceId: string, credits: number, l: LedgerInput): Promise<WalletChange> {
-    return this.apply(workspaceId, 'topup', credits, l, (w) => ({ planBalance: w.planBalance, topupBalance: w.topupBalance + BigInt(credits) }));
+  /** Nạp credit mua thêm (không hết hạn) — TIP-010 gọi khi hoá đơn credit được trả. `tx` = trong transaction người gọi (tự `emit` sau commit). */
+  async topup(workspaceId: string, credits: number, l: LedgerInput, tx?: PlatformTx): Promise<WalletChange> {
+    const next: Next = (w) => ({ planBalance: w.planBalance, topupBalance: w.topupBalance + BigInt(credits) });
+    if (!tx) return this.apply(workspaceId, 'topup', credits, l, next);
+    return this.applyIn(tx, workspaceId, 'topup', credits, l, next);
+  }
+
+  /** Credit chênh khi nâng gói giữa kỳ (TIP-039, DC-242): cộng vào plan bucket (không reset phần đã dùng, không đụng topup). Trong tx người gọi. */
+  addPlan(tx: PlatformTx, workspaceId: string, credits: number, l: LedgerInput): Promise<WalletChange> {
+    if (!Number.isSafeInteger(credits) || credits < 0) throw new AppError('VALIDATION_FAILED', 400, { credits: 'invalid' });
+    return this.applyIn(tx, workspaceId, 'grant', credits, l, (w) => ({ planBalance: w.planBalance + BigInt(credits), topupBalance: w.topupBalance }));
+  }
+
+  /** Gói trả phí hết hạn (TIP-039): Credit gói còn lại hết hạn (`expire`), topup giữ nguyên. Idempotent theo ref. Trong tx người gọi. */
+  async expirePlan(tx: PlatformTx, workspaceId: string, l: LedgerInput): Promise<WalletChange> {
+    const w = await this.lock(tx, workspaceId);
+    const dup = await this.findRef(tx, workspaceId, l);
+    if (dup || w.planBalance === 0n) return this.unchanged(tx, workspaceId, w, dup ?? { id: '' });
+    const n = { planBalance: 0n, topupBalance: w.topupBalance };
+    await tx.creditWallet.update({ where: { workspaceId }, data: { planBalance: 0n } });
+    const ledgerId = await this.write(tx, workspaceId, 'expire', -Number(w.planBalance), l, n);
+    return { workspaceId, before: bal(w), after: bal(n), applied: true, creditsMonth: await this.creditsMonth(tx, workspaceId), ledgerId };
   }
 
   /** Điều chỉnh tay (Quản trị nền tảng — TIP-040) / hoàn credit: ± vào topup; không cho âm. */

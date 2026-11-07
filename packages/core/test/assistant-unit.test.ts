@@ -92,7 +92,7 @@ describe('UiCommand + prompt + nhật ký', () => {
     const en = await assistantSystem(noAgents, { text: 'x', mode: 'cowork', session_id: 's', locale: 'en', user_name: 'Lan', role: 'owner' }, owner);
     expect(en).toMatch(/^# APPCHAT ASSISTANT/);
     expect(en).toContain('Workspace owner (full access)');
-    expect(contextLine(undefined, [{ id: 'f1', name: 'bang-gia.pdf' }], '-')).toBe('- attachments: bang-gia.pdf');
+    expect(contextLine(undefined, [{ id: 'f1', name: 'bang-gia.pdf' }], '-')).toBe('- attachments: bang-gia.pdf [file_id: f1]');
   });
 
   it('nhóm nhật ký theo action / risk', () => {

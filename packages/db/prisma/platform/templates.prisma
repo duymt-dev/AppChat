@@ -17,6 +17,8 @@ model AgentTemplate {
   defaults      Json     @default("{}")
   sort          Int      @default(0)
   active        Boolean  @default(true)
+  /// CAS Quản trị nền tảng (TIP-040); nâng mẫu dựng sẵn lúc boot cũng +1.
+  version       Int      @default(1)
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([active, sort])

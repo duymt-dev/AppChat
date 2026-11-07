@@ -1,9 +1,14 @@
-// Ghi nhận hoá đơn gói đã thanh toán (TIP-010): `paid` → kích hoạt gói (SubscriptionsService.activate) / cộng credit mua thêm
-// (WalletService.topup) — cả hai idempotent theo id hoá đơn — rồi đánh dấu `fulfilled_at`, event `billing.invoice_paid` + thông
-// báo Owner. Hoá đơn `paid` chưa ghi nhận (admin xác nhận tay trong action, lỗi giữa chừng) được scheduler quét lại (DC-055).
+// Ghi nhận hoá đơn gói đã thanh toán (TIP-010 → TIP-039): `paid` → action system-only `billing.apply_invoice` qua ActionExecutor (sổ thao tác
+// xuyên DB 045b): ghi nhận theo ẢNH CHỤP giá lúc tạo (kỳ mới / gia hạn / nâng gói / addon / gói credit) trong một transaction nền tảng, khoá
+// chống ghi đôi = `fulfilled_at` giành cùng transaction; event + thông báo Owner sang outbox tenant có biên nhận (khôi phục được). Hoá đơn
+// `paid` chưa ghi nhận (admin xác nhận tay, lỗi giữa chừng) được scheduler quét lại (DC-055). Không có executor (process thiếu APP_ENC_KEY)
+// → ghi nhận trực tiếp + event sau commit (đường cũ, không bền qua crash).
 import type { PlatformDb } from '@appchat/db';
-import type { PlatformTx } from '../../kernel/actions/action-context';
-import type { BillingEventSink, SubscriptionsService } from '../services/subscriptions.service';
+import type { ActionContext, PlatformTx } from '../../kernel/actions/action-context';
+import type { ActionExecutor } from '../../kernel/actions/executor';
+import { applyPaidInvoice } from '../lifecycle/apply-invoice';
+import { BILLING_ACTOR } from '../lifecycle/types';
+import type { BillingEventSink } from '../services/subscriptions.service';
 import type { WalletService } from '../services/wallet.service';
 
 const PAYABLE = ['pending', 'pending_review', 'expired'] as const;
@@ -14,14 +19,23 @@ export interface PaidBy {
   confirmedBy?: string;
 }
 
+/** Ngữ cảnh action hệ thống của billing (không khoá idempotency — mỗi action tự idempotent theo biên nhận / `fulfilled_at`). */
+export const billingCtx = (ws: string): ActionContext => ({ workspaceId: ws, source: 'system', actor: { type: 'system', id: BILLING_ACTOR }, authz: { isOwner: true } as never });
+
 export class InvoiceFulfiller {
+  private executor: Pick<ActionExecutor, 'execute'> | null = null;
+
   constructor(
     private readonly db: PlatformDb,
     private readonly wallet: WalletService,
-    private readonly subs: SubscriptionsService,
     private readonly sink: BillingEventSink,
     private readonly now: () => Date,
   ) {}
+
+  /** Executor nối lúc boot (ActionsModule global) — tránh vòng DI billing ↔ kernel actions. */
+  useExecutor(e: Pick<ActionExecutor, 'execute'> | null): void {
+    this.executor = e;
+  }
 
   /** Chuyển `paid` nếu còn chờ (kể cả hết hạn — tiền về muộn vẫn nhận). true = lần này chuyển. */
   async markPaid(t: PlatformTx | PlatformDb, invoiceId: string, by: PaidBy): Promise<boolean> {
@@ -32,36 +46,23 @@ export class InvoiceFulfiller {
     return r.count === 1;
   }
 
-  /** Kích hoạt / cộng credit cho hoá đơn đã `paid` chưa ghi nhận. Gọi lại an toàn. */
+  /** Ghi nhận hoá đơn đã `paid` chưa ghi nhận. Gọi lại an toàn. true = lần này ghi nhận. */
   async fulfil(invoiceId: string): Promise<boolean> {
-    const inv = await this.db.billingInvoice.findUnique({ where: { id: invoiceId } });
-    if (!inv || inv.status !== 'paid' || inv.fulfilledAt) return false;
-    if (inv.kind === 'plan' || inv.kind === 'upgrade_proration') {
-      const plan = inv.planId ? await this.db.plan.findUnique({ where: { id: inv.planId }, select: { key: true } }) : null;
-      if (plan) await this.subs.activate(inv.workspaceId, plan.key, inv.months ?? 1, inv.id);
-    } else if (inv.kind === 'credits' && inv.credits) {
-      await this.wallet.topup(inv.workspaceId, Number(inv.credits), {
-        refType: 'invoice',
-        refId: inv.id,
-        note: 'topup',
-        meta: { credits: Number(inv.credits).toLocaleString('vi-VN') },
-        source: inv.method === 'qr' ? 'qr' : 'bank',
-      });
+    const inv = await this.db.billingInvoice.findUnique({ where: { id: invoiceId }, select: { id: true, workspaceId: true, status: true, fulfilledAt: true, holdReason: true } });
+    if (!inv || inv.status !== 'paid' || inv.fulfilledAt || inv.holdReason) return false;
+    if (this.executor) {
+      const out = (await this.executor.execute(billingCtx(inv.workspaceId), 'billing.apply_invoice', { invoice_id: inv.id })) as { status: number; data: { result?: { status?: string } } };
+      return out.status === 200 && out.data.result?.status === 'applied';
     }
-    // addon: hạn mức người / kênh mua thêm áp vào quota ở TIP-039 (DC-056) — ở đây chỉ ghi nhận đã trả.
-    const claimed = await this.db.billingInvoice.updateMany({ where: { id: inv.id, fulfilledAt: null }, data: { fulfilledAt: this.now() } });
-    if (!claimed.count) return false;
-    const ws = await this.db.workspace.findUnique({ where: { id: inv.workspaceId }, select: { ownerUserId: true } });
-    await this.sink.emit(inv.workspaceId, [
-      { topic: 'billing.invoice_paid', payload: { invoice_id: inv.id, code: inv.code, kind: inv.kind, amount: String(inv.amount) } },
-      ...(ws ? [{ topic: 'notify.requested', payload: { kind: 'billing_invoice', to: { user_ids: [ws.ownerUserId] }, params: { code: inv.code }, link: '/settings/billing' } }] : []),
-    ]);
-    return true;
+    const r = await this.db.$transaction((t) => applyPaidInvoice(t, this.wallet, inv.id, this.now()));
+    for (const c of r.changes) await this.wallet.emit(c);
+    await this.sink.emit(inv.workspaceId, r.events);
+    return r.status === 'applied';
   }
 
-  /** Scheduler: hoá đơn `paid` chưa ghi nhận → ghi nhận. */
+  /** Scheduler: hoá đơn `paid` chưa ghi nhận, không bị giữ đối soát → ghi nhận (index billing_invoice_paid_unfulfilled_idx). */
   async fulfilPending(limit = 50): Promise<number> {
-    const rows = await this.db.billingInvoice.findMany({ where: { status: 'paid', fulfilledAt: null }, select: { id: true }, take: limit });
+    const rows = await this.db.billingInvoice.findMany({ where: { status: 'paid', fulfilledAt: null, holdReason: null }, orderBy: [{ paidAt: 'asc' }, { id: 'asc' }], select: { id: true }, take: limit });
     let n = 0;
     for (const r of rows) if (await this.fulfil(r.id)) n++;
     return n;

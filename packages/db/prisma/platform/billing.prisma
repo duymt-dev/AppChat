@@ -49,6 +49,8 @@ model Plan {
   archiveInactiveDays Int?        @map("archive_inactive_days")
   active              Boolean     @default(true)
   sort                Int         @default(0)
+  /// CAS Quản trị nền tảng (TIP-040).
+  version             Int         @default(1)
   createdAt           DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -65,6 +67,27 @@ model Subscription {
   trialEndsAt        DateTime?          @map("trial_ends_at") @db.Timestamptz(6)
   currentPeriodStart DateTime           @map("current_period_start") @db.Timestamptz(6)
   currentPeriodEnd   DateTime?          @map("current_period_end") @db.Timestamptz(6)
+  /// Neo kỳ theo ngày đăng ký (DC-242): ngày 1–31 + giờ tường "HH:mm" + múi workspace lúc kích hoạt gói trả phí. null = trial / Miễn phí cũ.
+  anchorDay          Int?               @map("anchor_day")
+  anchorHm           String?            @map("anchor_hm")
+  anchorTz           String?            @map("anchor_tz")
+  /// Mốc cấp Credit kỳ tháng kế tiếp (gói năm cấp từng tháng, không cấp trước 12 tháng). null = không còn kỳ để cấp.
+  nextGrantAt        DateTime?          @map("next_grant_at") @db.Timestamptz(6)
+  /// Hạ gói / huỷ hiệu lực kỳ sau (COMMERCE §10): áp một lần khi tới `pending_effective_at`.
+  pendingPlanId      String?            @map("pending_plan_id") @db.Uuid
+  pendingEffectiveAt DateTime?          @map("pending_effective_at") @db.Timestamptz(6)
+  /// Kỳ đã trả cho gói sau (số tháng + tiền) — áp cùng pending_plan_id.
+  pendingMonths      Int?               @map("pending_months")
+  pendingPrice       BigInt?            @map("pending_price")
+  /// Gói trả phí hết hạn: thời điểm chuyển `expired`; dữ liệu giữ tới `retain_until` (+30 ngày — xoá / lưu trữ là TIP-041).
+  expiredAt          DateTime?          @map("expired_at") @db.Timestamptz(6)
+  retainUntil        DateTime?          @map("retain_until") @db.Timestamptz(6)
+  /// Khoảng đã trả [current_period_start, current_period_end): tổng số tháng + tổng tiền (gồm gia hạn nối tiếp) — nâng gói giữa kỳ tính
+  /// chênh trên giá ĐÃ TRẢ (gói năm dùng giá năm), không nhân lại giá tháng. null = gói không trả phí (trial / Miễn phí).
+  termMonths         Int?               @map("term_months")
+  termPrice          BigInt?            @map("term_price")
+  /// CAS cho gia hạn / nâng / hạ / cấp kỳ song song.
+  version            Int                @default(1)
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

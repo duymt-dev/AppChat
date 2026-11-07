@@ -98,11 +98,11 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 14 | [042c](../tips/TIP-042c-record-scope.md) | W8 | DONE | `tip/042c-record-scope` | `84f6086d` | #90 (xếp chồng #89) |
 | 15 | [022b](../tips/TIP-022b-agent-channel-behavior.md) | W8 | DONE | `tip/022b-agent-channel-behavior` | `d3b0571e` | #91 (xếp chồng #90) |
 | 16 | [037](../tips/TIP-037-marketing.md) | W8 | DONE | `tip/037-marketing` | `9100b2d7` | #92 (xếp chồng #91) |
-| 17 | [038](../tips/TIP-038-insights-dashboard.md) | W8 | DONE (pha 4/4 — AC01–10; DC-363…366; Brevo thật CHỜ-TK Q-004) | `tip/038-insights-dashboard` · `tip/038-insights-dashboard-p2` · `tip/038-insights-exports` · `tip/038-insights-digest` | `28dcba68` · `9cc04319` · `f4f81050` · `c0d4e568` | #93 (đã merge) · #95 · #96 · #97 |
-| 18 | [039](../tips/TIP-039-billing-lifecycle.md) | W8 | chờ | `tip/039-billing-lifecycle` | | |
-| 19 | [040](../tips/TIP-040-platform-admin.md) | W8 | chờ | `tip/040-platform-admin` | | |
-| 20 | [038b](../tips/TIP-038b-ai-first-data-transfer.md) | W8 | chờ | `tip/038b-ai-first-data-transfer` | | |
-| 21 | [041](../tips/TIP-041-workspace-lifecycle.md) | W8 | chờ | `tip/041-workspace-lifecycle` | | |
+| 17 | [038](../tips/TIP-038-insights-dashboard.md) | W8 | DONE (pha 4/4 — AC01–10; DC-363…366; Brevo thật CHỜ-TK Q-004) | `tip/038-insights-dashboard` · `tip/038-insights-dashboard-p2` · `tip/038-insights-exports` · `tip/038-insights-digest` | `28dcba68` · `9cc04319` · `f4f81050` · `c0d4e568` | #93 · #95 · #96 · #97 (đã merge) |
+| 18 | [039](../tips/TIP-039-billing-lifecycle.md) | W8 | DONE (pha 3/3 — AC01–10; DC-367; SePay / Brevo thật chưa nghiệm thu — Q-004) | `tip/039-billing-lifecycle` · `tip/039-billing-alerts` · `tip/039-billing-ui` | `081f6bac` · `99a97695` · `53423a0a` · `f95182e4` · `873f1ee1` · `5465d60e` · `00776b5b` · `5afba3f8` · `4aa2f687` | #98 · #99 (xếp chồng #98) · #100 (xếp chồng #99) |
+| 19 | [040](../tips/TIP-040-platform-admin.md) | W8 | DONE (6 pha — AC01–09; AC10 9router / OpenAI probe thật một phần; DC-368…373) | `tip/040-platform-admin` | `41c48d6a` · `b8750d28` · `a05230f2` · `d05dc3b7` · `3a94320b` · `0d84b41b` | #101 (xếp chồng #100) |
+| 20 | [038b](../tips/TIP-038b-ai-first-data-transfer.md) | W8 | **DONE** (pha 4/4 — nền tảng + khách hàng · chứng từ nháp + sản phẩm · Trợ lý + xuất · TransferPanel + E2E + ai:live 12/12; DC-374, DV-038…041, PD-023) | `tip/038b-ai-first-data-transfer` · `-p2` · `-p3` · `-p4` | `f8bc307b` · `cc46d0a3` · `704a8f2a` · `5db34a3a` | #102 (xếp chồng #101) · #103 · #104 · #105 |
+| 21 | [041](../tips/TIP-041-workspace-lifecycle.md) | W8 | **đang làm** (pha 2/3 xong — P1 lưu trữ / khôi phục DB tenant native; P2 hoạt động + quét 90 ngày + cảnh báo 14 ngày + `workspace.open` khôi phục + thẻ Đang khôi phục; DC-375, DV-042…043; còn P3 danger zone) | `tip/041-workspace-lifecycle` · `tip/041-workspace-lifecycle-p2` | `35f63c48` · `928bf8ea` | #106 (xếp chồng #105) · #107 (xếp chồng #106) |
 | 22 | [025b](../tips/TIP-025b-inbox-vertical.md) | W8 | chờ | `tip/025b-inbox-vertical` | | |
 | 23 | [019b](../tips/TIP-019b-runtime-integrity.md) | W8 | chờ | `tip/019b-runtime-integrity` | | |
 | 24 | [012b](../tips/TIP-012b-bank-connectors.md) | W8 | chờ | `tip/012b-bank-connectors` | | |

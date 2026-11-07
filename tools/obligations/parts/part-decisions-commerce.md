@@ -126,11 +126,11 @@
 | COM-12-4 | Bảng kiểm cảnh báo: Điều 398 (HĐ); BG có bên bán + MST + hiệu lực + VAT | plans/COMMERCE-DECISIONS.md:239 | 028 | ĐẠT | packages/shared/src/documents/variables.ts:44 legalChecklist · test template-text.test.ts, documents.test.ts "bảng kiểm" |
 | COM-10-1 | `billing_invoice` có thông tin xuất VAT (MST, tên, địa chỉ, email) | plans/COMMERCE-DECISIONS.md:244 | 010 | ĐẠT | billing/payments/invoices.service.ts:85 · test billing-payments.test.ts AC2 "vat_info"; xuất HĐĐT thật NGOÀI P2 |
 | COM-10-2 | Credit gói không cộng dồn; credit mua thêm không hết hạn; trừ gói trước | plans/COMMERCE-DECISIONS.md:245 | 009 | ĐẠT | billing/services/wallet.service.ts:83-91 (resetPlan DC-034) · test billing.test.ts AC4 "trừ plan trước rồi topup" |
-| COM-10-3 | Nâng gói giữa kỳ: tính chênh theo ngày còn lại + cộng ngay credit chênh | plans/COMMERCE-DECISIONS.md:246 | 039 | CHƯA | fulfil.ts:39 xử lý như mua mới; TIP039 task2/AC03 nhận upgrade giữenddate và chênhplancredit, Q031 chốt phần chi tiết, không tự đổi COMMERCE |
-| COM-10-4 | Hạ gói có hiệu lực từ kỳ sau | plans/COMMERCE-DECISIONS.md:246 | 039 | CHƯA | Không có code (grep downgrade / scheduled) |
+| COM-10-3 | Nâng gói giữa kỳ: tính chênh theo ngày còn lại + cộng ngay credit chênh | plans/COMMERCE-DECISIONS.md:246 | 039 | ĐẠT | Backend (DC-367) plan-changes.service.ts upgrade + apply-invoice.ts cộng Credit chênh; FE PlanChangeModal.tsx đọc `GET /v1/billing/quote` (quote-view.ts) hiện chênh × kỳ còn lại + Credit chênh trước khi mua; test billing-lifecycle.test.ts AC03, billing-quote.test.ts, PlanChangeModal.test.tsx |
+| COM-10-4 | Hạ gói có hiệu lực từ kỳ sau | plans/COMMERCE-DECISIONS.md:246 | 039 | ĐẠT | plan-changes.service.ts `switch` → pending_plan; periods.service.ts áp một lần lúc hết kỳ, không xoá tài nguyên; test apps/api/test/integration/billing-lifecycle.test.ts AC03 "hạ gói → áp từ kỳ sau" |
 | COM-10-5 | Bỏ tự nạp; nhắc khi dùng 80% và 95% | plans/COMMERCE-DECISIONS.md:247 | 009 | ĐẠT | wallet.service.ts:198-200 · test billing.test.ts AC6 |
 | COM-10-6 | Chỉ VietQR + chuyển khoản (VNPAY / MoMo / ZaloPay P2) | plans/COMMERCE-DECISIONS.md:248 | 010 | ĐẠT | test billing-payments.test.ts AC2 "QR VietQR (CRC đúng)" |
-| COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | MỘT PHẦN | Chặn có (`CREDIT_EXHAUSTED` wallet.service.ts:83 · test billing.test.ts AC4/AC5); popup nạp FE chưa thấy (chỉ chuỗi i18n errors.json) |
+| COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | ĐẠT | Chặn: wallet.service.ts assertBalance / charge (CREDIT_EXHAUSTED); popup: apps/web/src/shared/billing/BillingNoticeHost.tsx (realtime `billing.notice` + 402 từ useAction, nút Nạp chỉ khi billing.manage); test apps/api/test/integration/billing-alerts.test.ts + BillingNoticeHost.test.tsx |
 | COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
 | D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
@@ -143,8 +143,8 @@
 | D08a | Ticket / SLA | 01-REQUIREMENTS-MATRIX.md:259 | 034 | ĐẠT | packages/core/src/support · test support.test.ts |
 | D08b | Marketing broadcast | 01-REQUIREMENTS-MATRIX.md:259 | 037 | ĐẠT | packages/core/src/marketing/* (phân khúc, duyệt + snapshot, gửi theo lô qua hàng kênh, số đo, AI); integration marketing*.test.ts 31 ca + E2E mock / http marketing |
 | D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | ĐẠT | module loyalty đủ: packages/core/src/loyalty/*, /v1/loyalty/*, màn apps/web/src/features/loyalty; reports/TIP-036-completion.md |
-| D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | MỘT PHẦN | Như COM-10-7 |
-| D10 | Bảng giá gói lưu DB, cấu hình được, seed theo prototype | 01-REQUIREMENTS-MATRIX.md:261 | 040 | MỘT PHẦN | Seed có (billing/seed.ts · test billing.test.ts AC2); `admin.plan.upsert` chưa có |
+| D09 | Hết credit: chặn AI + popup nạp, cảnh báo 80%, dữ liệu vẫn dùng | 01-REQUIREMENTS-MATRIX.md:260 | 039 | ĐẠT | Như COM-10-7; nhắc 80 / 95% → `billing.notice` low (billing.rules.ts); hội thoại sang người nhưng Hộp thư / dữ liệu / trả lời tay vẫn dùng (credit-handoff.consumer.ts) |
+| D10 | Bảng giá gói lưu DB, cấu hình được, seed theo prototype | 01-REQUIREMENTS-MATRIX.md:261 | 040 | ĐẠT | seed billing/seed.ts (không đè cấu hình admin) + admin.plan.upsert (plan.handler.ts, CAS version; tắt gói chỉ chặn mua mới) + tab Gói ở /admin; test apps/api/test/integration/platform-config.test.ts (TIP-040) |
 | D11 | RBAC Owner + Member | 01-REQUIREMENTS-MATRIX.md:262 | — | NGOÀI | Thay bằng D27 |
 | D12 | Không Docker | 01-REQUIREMENTS-MATRIX.md:263 | — | QUY-TẮC | Không có Dockerfile trong repo (find) |
 | D13 | ORM Prisma (+ SQL thô cho index) | 01-REQUIREMENTS-MATRIX.md:264 | 002 | QUY-TẮC | packages/db/prisma/{platform,tenant} |
@@ -156,7 +156,7 @@
 | D20 | Production native VPS (systemd + PM2, nginx, Prom / Grafana / Loki, pgBackRest) | 01-REQUIREMENTS-MATRIX.md:268 | 045 | CHƯA | Thư mục `infra/` chưa tồn tại; Q-006 |
 | D21 | Mỗi workspace một DB + DB nền tảng | 01-REQUIREMENTS-MATRIX.md:269 | 002 | ĐẠT | packages/db/src/provisioner.ts, tenant-resolver.ts · test packages/db/test/integration/tenant-isolation.test.ts |
 | D22 | vi + en; registry 11 ngôn ngữ | 01-REQUIREMENTS-MATRIX.md:274 | 007 | ĐẠT | packages/shared/src/i18n/locales.ts:13-28 · test locales.test.ts |
-| D23 | Tự lưu trữ workspace gói Miễn phí sau 90 ngày | 01-REQUIREMENTS-MATRIX.md:273 | 041 | CHƯA | Không có code archive workspace (`admin.workspace.archive` thiếu) |
+| D23 | Tự lưu trữ workspace gói Miễn phí sau 90 ngày | 01-REQUIREMENTS-MATRIX.md:273 | 041 | ĐẠT | TIP-041 P1 + P2: lưu trữ gói Miễn phí 90 ngày (quét + cảnh báo 14 ngày + archive) và khôi phục khi mở lại — xem REQ-A09a / A09b |
 | D24 | Commerce theo COMMERCE-DECISIONS | 01-REQUIREMENTS-MATRIX.md:272 | — | QUY-TẮC | Xem các dòng COM-* |
 | D25 | Hợp đồng P0: tuỳ chọn sau BG, Owner duyệt + ký trước, khách ký OTP + tay; CA P2 | 01-REQUIREMENTS-MATRIX.md:270 | 030 | ĐẠT | Xem COM-9-*; test contracts.test.ts |
 | D26 | Phạm vi đợt đầu toàn bộ P0 + P1 | 01-REQUIREMENTS-MATRIX.md:271 | — | QUY-TẮC | Phạm vi |
@@ -213,7 +213,7 @@
 | D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | — | NGOÀI | DC-029 chốt: kênh `mobile` chỉ lưu tuỳ chọn, gửi đẩy là TIP push P2 (REQ-M02 phát hành chỉ in-app + email; D37 MCP/P2). Không thuộc bản phát hành |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | ĐẠT | DC-366; packages/core/src/insights/jobs/digest.service.ts + digest.consumer.ts (ROLE=jobs `insights.digest`); test apps/api/test/integration/digest.test.ts; Brevo thật chưa nghiệm thu (Q-004) |
-| DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | CHƯA | Cần bảng `subscription_addon` |
+| DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | ĐẠT | Bảng `subscription_addon` (billing-lifecycle.prisma, unique invoice_id), addons.service.ts withAddons trong QuotaService.limits; test apps/api/test/integration/billing-lifecycle.test.ts AC04 |
 | DC-058 | Kết nối SePay của DN dùng adapter thật | DECISIONS.md:67 | 012b | GIẢ | Như COM-5-13 |
 | DC-081 | Owner vắng / ngoài ca → hàng chung | DECISIONS.md:90 | 013c | CHƯA | "làm cùng ca làm việc (chưa có dữ liệu ca)"; không TIP nhận; TIP-013c nhận (2026-11-02) |
 | DC-083 | Thu hồi / thả cảm xúc phía Zalo thật | DECISIONS.md:92 | 014b | CHỜ-TK | TIP-014b A: thu hồi / cảm xúc là lệnh bền có ACK nhà cung cấp (packages/channels/src/zalo-personal/provider-operations.ts, core/src/channels/operations/operation-*.ts, jobs/provider-operations.processor.ts); test packages/channels/test/zalo-operations.test.ts, packages/core/test/channel-operations.test.ts, apps/api/test/integration/actions/message.react.action.test.ts, E2E apps/web/e2e/{,http/}channel-operations.spec.ts — Zalo giả; chưa nghiệm thu với provider thật (Q-003, packages/channels/test/zalo-live.test.ts chưa viết — CHỜ-TK) |

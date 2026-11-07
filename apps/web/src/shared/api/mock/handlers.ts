@@ -1,6 +1,7 @@
 // Handler giả cho action (chạy trên store in-memory). Policy chung nằm ở mock-transport; ở đây chỉ có nghiệp vụ.
 import type { MockDb } from './store';
 import { dashboardHandlers } from './domains/dashboard';
+import { workspaceLifecycleHandlers } from './domains/workspace-lifecycle';
 import { inboxHandlers } from './domains/inbox';
 import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
@@ -30,10 +31,12 @@ import { kbFolderHandlers } from './domains/kb-folders';
 import { kbSuggestionHandlers } from './domains/kb-suggestions';
 import { settingsOpsHandlers } from './domains/settings-ops';
 import { settingsBillingHandlers } from './domains/settings-billing';
+import { platformAdminHandlers } from './domains/platform-admin';
 import { docTemplatesHandlers } from './domains/doc-templates';
 import { withCustomValues } from './domains/custom-values';
 import { dataJobsHandlers } from './domains/data-jobs';
 import { listExportsHandlers } from './domains/list-exports';
+import { dataTransferHandlers } from './domains/data-transfer';
 import { channelFriendsHandlers } from './domains/channel-friends';
 
 export interface MockHandler {
@@ -93,6 +96,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
       return { user_id: db.shell.me.user.id };
     },
   },
+  ...workspaceLifecycleHandlers,
   ...dashboardHandlers,
   ...inboxHandlers,
   ...customersHandlers,
@@ -125,6 +129,9 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...kbSuggestionHandlers,
   ...settingsOpsHandlers,
   ...settingsBillingHandlers,
+  ...platformAdminHandlers,
   ...docTemplatesHandlers,
   ...channelFriendsHandlers,
+  // Nhập dữ liệu dùng chung (TIP-038b): khách ghi qua đúng handler contact.import của mock.
+  ...dataTransferHandlers((db: MockDb, rows) => customersHandlers['contact.import']!.execute(db, { rows } as never) as { created: number }),
 });

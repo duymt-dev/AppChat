@@ -21,6 +21,10 @@ import { acceptedResponse, replayAccepted } from './job-accepted';
 import { redactDeep, toLogJson } from './executor-redact';
 import { projectActionOutput } from '../../authz/fields/action-output';
 import type { PlatformOperations } from '../consistency/platform-operation';
+import { executePlatformAction, previewPlatformAction, type PlatformExecuteOutcome } from './platform-execution';
+import type { PlatformContext } from './platform-context';
+import { executeLifecycleAction, LIFECYCLE_ACTIONS, type LifecycleContext } from './workspace-lifecycle-context';
+import { activityEvent } from './activity-event';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
 
@@ -90,11 +94,37 @@ export class ActionExecutor {
     return this.d.handlers.isImplemented(actionId);
   }
 
+  /** Action quản trị nền tảng (TIP-040, DC-368): ngữ cảnh không workspace — kernel/actions/platform-execution.ts. */
+  executePlatform<O = unknown>(ctx: PlatformContext, actionId: string, rawInput: unknown): Promise<PlatformExecuteOutcome<O>> {
+    const def = this.defs.get(actionId);
+    if (!def) throw new AppError('ACTION_NOT_FOUND', 404, undefined, actionId);
+    if (!this.d.platform) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
+    return executePlatformAction<O>({ platform: this.d.platform, authorizer: this.d.authorizer, confirm: this.d.confirm, clock: this.d.clock, zodFields }, def, this.d.handlers.get(actionId), ctx, rawInput);
+  }
+
+  /** Action vòng đời workspace (TIP-041): chỉ membership nền tảng, không mở DB tenant — kernel/actions/workspace-lifecycle-context.ts. */
+  executeLifecycle<O = unknown>(ctx: LifecycleContext, actionId: string, rawInput: unknown) {
+    const def = this.defs.get(actionId);
+    if (!def) throw new AppError('ACTION_NOT_FOUND', 404, undefined, actionId);
+    if (!this.d.platform) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
+    return executeLifecycleAction<O>({ platform: this.d.platform, clock: this.d.clock, zodFields }, def, this.d.handlers.get(actionId), ctx, rawInput);
+  }
+
+  previewPlatform(ctx: PlatformContext, actionId: string, rawInput: unknown) {
+    const def = this.defs.get(actionId);
+    if (!def || !this.d.platform) throw new AppError('ACTION_NOT_FOUND', 404, undefined, actionId);
+    return previewPlatformAction({ platform: this.d.platform, authorizer: this.d.authorizer, zodFields }, def, this.d.handlers.get(actionId), ctx, rawInput);
+  }
+
   async execute<O = unknown>(ctx: ActionContext, actionId: string, rawInput: unknown): Promise<ExecuteOutcome<O>> {
     // 1. registry
     const def = this.defs.get(actionId);
     const handler = this.d.handlers.get(actionId);
     if (!def || !handler) throw new AppError('ACTION_NOT_FOUND', 404, undefined, actionId);
+    // Action quản trị không chạy trong ngữ cảnh workspace (Owner / vai trò / Trợ lý / agent đều 403) — chỉ qua executePlatform.
+    if (def.permission === 'platform_admin') throw new AppError('FORBIDDEN', 403, { permission: 'platform_admin' });
+    // Action vòng đời chỉ chạy bằng ngữ cảnh vòng đời (UI, membership nền tảng) — Trợ lý / agent / đường tenant thường đều 403.
+    if (LIFECYCLE_ACTIONS.has(actionId)) throw new AppError('FORBIDDEN', 403, { scope: 'lifecycle' });
 
     // 2. zod
     const parsed = def.input.safeParse(rawInput ?? {});
@@ -205,7 +235,7 @@ export class ActionExecutor {
         },
       });
       const sec = securityEvents(actionId, logId, ctx.actor, ctx.onBehalfOfUserId, ctx.source);
-      const events = await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec], now, traceId);
+      const events = await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec, ...activityEvent(ctx, def, logId)], now, traceId);
       // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.
       const queued = r.accepted ? acceptedResponse(logId, r.accepted) : null;
       if (key) await tx.idempotencyKey.create({ data: { key, route, requestHash: reqHash, response: json(queued ?? data), statusCode: queued ? 202 : 200, createdAt: now } });

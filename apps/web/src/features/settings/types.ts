@@ -252,6 +252,13 @@ export interface Plan {
   features: string[];
 }
 
+/** Hạn mức đang dùng — `max` null = không giới hạn; `available: false` = chưa đọc được (TIP-039). */
+export interface QuotaUsage {
+  used: number;
+  max: number | null;
+  available?: boolean;
+}
+
 export interface BillingSummary {
   plan_key: string;
   plan_name: string;
@@ -260,12 +267,14 @@ export interface BillingSummary {
   expires_at: string;
   days_left: number;
   period_pct: number;
-  users: { used: number; max: number };
-  channels: { used: number; max: number };
+  users: QuotaUsage;
+  channels: QuotaUsage;
   credits_month: number;
   balance: number;
   plan_balance: number;
   topup_balance: number;
+  /** Gói trả phí hết hạn: dữ liệu giữ tới ngày này (TIP-039). */
+  retain_until?: string | null;
 }
 
 export interface CreditPack {

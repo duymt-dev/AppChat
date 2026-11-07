@@ -42,7 +42,7 @@ export class ChannelEmailConnectHandler implements Handler<ActionInput<typeof ch
       throw new AppError('CONFLICT', 409, { address: 'exists' });
     }
     await ptx.$queryRaw`SELECT id FROM workspace WHERE id = ${ctx.workspaceId}::uuid FOR UPDATE`;
-    await new QuotaService(ptx).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
+    await new QuotaService(ptx, () => this.clock.now()).assert(ctx.workspaceId, 'channels', (await accounts.countLive(tx)) + (await openReservations(ptx, ctx.workspaceId, 'channels')));
     // Đăng nhập thật trước khi lưu — sai thì 422 kèm lý do (mã i18n), không tạo tài khoản (giao dịch nền tảng huỷ, không giữ chỗ).
     const v = await verifyMailbox(emailAdapterOf(this.registry), creds);
     if (!v.ok) throw new AppError('VALIDATION_FAILED', 422, { fields: v.reason }, serverMessages('vi').channels.email[v.reason as 'imap_auth']);

@@ -23,6 +23,7 @@ import { CHANNEL_CONTROL, CHANNEL_INBOUND_QUEUE, ChannelControl, type ControlOp 
 import { ChannelLeases, LEASE_HEARTBEAT_MS } from './lease';
 import { startLoginWorker } from './login.processor';
 import { ChannelSenders } from './send.processor';
+import { WorkspaceAccess } from '../../platform/public';
 import { reserveSend } from '../services/send-queue';
 import { GroupCreators } from './create-group.processor';
 import { OperationQueue, ProviderOperators } from './provider-operations.processor';
@@ -117,11 +118,14 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     });
     const groups = this.executor ? new GroupCreators({ redis, tenants, executor: this.executor, log: this.log }) : undefined;
     this.groups = groups;
+    // Tạm dừng workspace (TIP-040) chặn tin gửi ra ngay cả khi worker đã giữ client DB tenant.
+    const access = new WorkspaceAccess(platform, () => now().getTime());
     const senders: ChannelSenders = new ChannelSenders({
       redis, tenants, log: this.log, jitterScale: env.CHANNEL_SEND_JITTER, now,
       pause: (ws, id, detail) => sessions.markDown(ws, id, 'send_errors', detail),
       expire: (ws, id) => sessions.markDown(ws, id, 'expired'),
       reserve: reserveSend,
+      isOpen: (ws) => access.isOpen(ws),
     });
     this.sessions = sessions;
     this.senders = senders;

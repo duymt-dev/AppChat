@@ -3,7 +3,8 @@
 // billing.report_transfer, billing.cancel_invoice. Mock: "Tôi đã chuyển khoản" trả `pending_review` như backend (TIP-010) và coi
 // như webhook ngân hàng về ngay → hoá đơn paid + cộng credit / kích hoạt gói trong cùng lệnh (bản thật: §4.7, đối soát bất đồng bộ).
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
-import { ApiRequestError } from '@appchat/shared';
+import { ApiRequestError, htmlPage } from '@appchat/shared';
+import type { MockDb } from '../store';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 
@@ -33,6 +34,7 @@ export const createSettingsBillingState = (): SettingsBillingState => ({
 });
 
 const QR_TTL = 15 * 60_000;
+const SOURCE_LABEL: Record<string, string> = { plan: 'Gói', inbox: 'Hộp thư', assistant: 'Trợ lý AI', marketing: 'Marketing', ai: 'AI', qr: 'VietQR', bank: 'Chuyển khoản' };
 const NOW = '2026-06-24T09:00:00+07:00';
 
 const notFound = () => new ApiRequestError(404, { code: 'NOT_FOUND', message: 'invoice' });
@@ -76,6 +78,43 @@ export const settingsBillingRoutes: Record<string, MockRoute> = {
     return { plans: b.plans, compare: b.compare, credit_packs: b.credit_packs, addons: b.addons };
   },
   '/billing/wallet': (db) => db.settingsBilling.wallet,
+  // TIP-039: lọc như server (vào-ra / nguồn / kỳ) + cursor = vị trí. Fixture lưu nhãn nguồn → so theo nhãn tiếng Việt của khoá.
+  '/billing/ledger': (db, p) => {
+    const src = SOURCE_LABEL[String(p.source ?? '')];
+    const from = p.from ? `${String(p.from)}T00:00:00+07:00` : null;
+    const to = p.to ? `${String(p.to)}T23:59:59+07:00` : null;
+    const rows = db.settingsBilling.wallet.ledger.filter(
+      (r) =>
+        (p.dir !== 'in' || r.delta > 0) &&
+        (p.dir !== 'out' || r.delta < 0) &&
+        (!p.source || r.source === src) &&
+        (!from || Date.parse(r.at) >= Date.parse(from)) &&
+        (!to || Date.parse(r.at) <= Date.parse(to)),
+    );
+    const start = Number(p.cursor ?? 0) || 0;
+    const n = Math.min(Number(p.limit ?? 50) || 50, 100);
+    return { data: rows.slice(start, start + n), next_cursor: start + n < rows.length ? String(start + n) : null };
+  },
+  // TIP-039: giá trước khi mua — mock không có kỳ gói trả phí → luôn `new` (hoặc gia hạn khi gói đang dùng là gói đó).
+  '/billing/quote': (db, p) => {
+    const s = db.settingsBilling;
+    const kind = String(p.kind ?? '');
+    const item = String(p.item ?? '');
+    const price = priceOf(s, kind, item);
+    if (!price) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'item', fields: { item: 'not_purchasable' } });
+    const renew = kind === 'plan' && s.billing.current.plan_key === item && s.billing.current.status === 'active';
+    const open = s.billing.invoices.find((i) => i.kind === kind && i.item === item && i.status === 'pending');
+    return {
+      mode: kind === 'credit' ? 'credits' : kind === 'addon' ? 'addon' : renew ? 'renew' : 'new',
+      amount: price.amount,
+      credits: null,
+      months: kind === 'credit' ? null : 1,
+      starts_at: renew ? s.billing.current.expires_at : null,
+      ends_at: null,
+      from_plan_key: null,
+      open: open ? { id: open.id, code: open.code } : null,
+    };
+  },
   '/billing/invoices': (db, p) => {
     const st = String(p.status ?? 'all');
     const q = String(p.q ?? '').trim().toLowerCase();
@@ -122,6 +161,15 @@ export const settingsBillingHandlers: Record<string, MockHandler> = {
       return { ok: true };
     },
   },
+  // Mock giữ giới hạn 3 yêu cầu / phiên như server (3 / 24 giờ) để màn thấy được nhánh RATE_LIMITED.
+  'billing.contact_sales': {
+    execute: (db) => {
+      const b = db.settingsBilling as { salesInquiries?: number };
+      b.salesInquiries = (b.salesInquiries ?? 0) + 1;
+      if (b.salesInquiries > 3) throw new ApiRequestError(429, { code: 'RATE_LIMITED', message: 'too_many', fields: { inquiry: 'too_many' } });
+      return { inquiry_id: `00000000-0000-7000-8000-00000000000${b.salesInquiries}`, status: 'received' };
+    },
+  },
   'billing.cancel_invoice': {
     execute: (db, i: { invoice_id: string }) => {
       const inv = db.settingsBilling.billing.invoices.find((x) => x.id === i.invoice_id);
@@ -132,3 +180,11 @@ export const settingsBillingHandlers: Record<string, MockHandler> = {
     },
   },
 };
+
+/** Mock PDF đề nghị thanh toán (không LibreOffice): trang HTML có mã + số tiền + dòng không thay thế HĐ GTGT — server trả PDF thật. */
+export function billingInvoicePdf(db: MockDb, path: string): string | null {
+  const m = path.match(/^\/billing\/invoices\/([^/]+)\/pdf$/);
+  if (!m) return null;
+  const inv = db.settingsBilling.billing.invoices.find((x) => x.id === m[1]);
+  return inv ? htmlPage(inv.code, `<h1>${inv.code}</h1><p>${inv.desc} · ${inv.amount}</p><p>Chứng từ này không thay thế hoá đơn giá trị gia tăng.</p>`) : null;
+}

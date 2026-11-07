@@ -13,6 +13,9 @@
     }
   },
   "workspace": {
+    "open": {
+      "title": "Mở workspace (giữ hoạt động / khôi phục khi đã lưu trữ)"
+    },
     "switch": {
       "title": "Chuyển workspace"
     },
@@ -312,6 +315,9 @@
     }
   },
   "product": {
+    "export": {
+      "title": "Xuất danh sách sản phẩm (Excel)"
+    },
     "create": {
       "title": "Thêm sản phẩm"
     },
@@ -608,6 +614,9 @@
     }
   },
   "invoice": {
+    "export": {
+      "title": "Xuất danh sách đề nghị thanh toán (Excel)"
+    },
     "create": {
       "title": "Tạo đề nghị thanh toán",
       "desc": "Tạo đề nghị thanh toán (cọc, theo đợt hoặc toàn bộ) cho đơn hàng hoặc khách."
@@ -1116,6 +1125,18 @@
     },
     "report_transfer": {
       "title": "Báo đã chuyển khoản"
+    },
+    "lifecycle_step": {
+      "title": "Vòng đời gói (hệ thống)",
+      "desc": "Hệ thống cấp Credit gói mỗi kỳ tháng theo ngày đăng ký, áp gói đã đổi từ kỳ sau và chuyển gói hết hạn (dữ liệu giữ 30 ngày)."
+    },
+    "apply_invoice": {
+      "title": "Ghi nhận hoá đơn gói (hệ thống)",
+      "desc": "Hệ thống ghi nhận hoá đơn gói đã thanh toán đúng một lần theo giá chụp lúc tạo; hoá đơn không khớp được giữ lại để đối soát."
+    },
+    "contact_sales": {
+      "title": "Liên hệ gói Doanh nghiệp",
+      "desc": "Gửi yêu cầu tư vấn gói Doanh nghiệp tới đội bán hàng AppChat — đội sẽ liên hệ lại; chưa phải ký hợp đồng."
     }
   },
   "doc_template": {
@@ -1142,9 +1163,59 @@
     }
   },
   "admin": {
+    "bank_transaction": {
+      "match": {
+        "title": "Gắn giao dịch ngân hàng vào hoá đơn (quản trị nền tảng)"
+      }
+    },
     "invoice": {
       "confirm_transfer": {
         "title": "Xác nhận chuyển khoản (quản trị nền tảng)"
+      }
+    },
+    "plan": {
+      "upsert": {
+        "title": "Lưu gói (quản trị nền tảng)"
+      }
+    },
+    "model_price": {
+      "upsert": {
+        "title": "Lưu đơn giá model (quản trị nền tảng)"
+      }
+    },
+    "model_route": {
+      "upsert": {
+        "title": "Lưu định tuyến model (quản trị nền tảng)"
+      }
+    },
+    "llm_provider": {
+      "upsert": {
+        "title": "Lưu nhà cung cấp LLM (quản trị nền tảng)"
+      },
+      "probe": {
+        "title": "Kiểm tra nhà cung cấp LLM (quản trị nền tảng)"
+      },
+      "disable": {
+        "title": "Bật / tắt nhà cung cấp LLM (quản trị nền tảng)"
+      }
+    },
+    "workspace": {
+      "suspend": {
+        "title": "Tạm dừng workspace (quản trị nền tảng)"
+      },
+      "resume": {
+        "title": "Mở lại workspace (quản trị nền tảng)"
+      },
+      "archive": {
+        "title": "Lưu trữ workspace (quản trị nền tảng)"
+      },
+      "restore": {
+        "title": "Khôi phục workspace đã lưu trữ (quản trị nền tảng)"
+      }
+    },
+    "agent_template": {
+      "upsert": {
+        "title": "Lưu mẫu AI Agent (quản trị nền tảng)"
       }
     }
   },
@@ -1233,6 +1304,23 @@
   "channel_operation": {
     "cancel": {
       "title": "Huỷ lệnh thao tác kênh chưa gửi"
+    }
+  },
+  "transfer": {
+    "plan": {
+      "title": "Lập kế hoạch nhập dữ liệu từ tệp"
+    },
+    "update_mapping": {
+      "title": "Sửa ánh xạ cột / cách xử lý dòng lỗi"
+    },
+    "commit": {
+      "title": "Xác nhận nhập dữ liệu"
+    },
+    "cancel": {
+      "title": "Huỷ nhập dữ liệu"
+    },
+    "sample": {
+      "title": "Xem mẫu tệp nhập (đã che dữ liệu liên hệ)"
     }
   }
 }

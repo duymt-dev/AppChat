@@ -28,6 +28,7 @@ import { createSettingsDataState, type SettingsDataState } from './domains/setti
 import { createSettingsAiState, type SettingsAiState } from './domains/settings-ai';
 import { createSettingsOpsState, type SettingsOpsState } from './domains/settings-ops';
 import { createSettingsBillingState, type SettingsBillingState } from './domains/settings-billing';
+import { createPlatformAdminState, type PlatformAdminState } from './domains/platform-admin';
 import { createDocTemplatesState, type DocTemplatesState } from './domains/doc-templates';
 import { createKbSuggestionState } from './domains/kb-suggestions';
 import type { KbSuggestionDto } from '@appchat/shared';
@@ -78,6 +79,7 @@ export interface MockDb {
   settingsAi: SettingsAiState;
   settingsOps: SettingsOpsState;
   settingsBilling: SettingsBillingState;
+  platformAdmin: PlatformAdminState;
   docTemplates: DocTemplatesState;
   kbSuggestions: KbSuggestionDto[];
 }
@@ -123,6 +125,7 @@ const db: MockDb = {
   settingsAi: createSettingsAiState(),
   settingsOps: createSettingsOpsState(),
   settingsBilling: createSettingsBillingState(),
+  platformAdmin: createPlatformAdminState(),
   docTemplates: createDocTemplatesState(),
   kbSuggestions: createKbSuggestionState(),
 };

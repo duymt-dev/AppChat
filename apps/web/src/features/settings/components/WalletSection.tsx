@@ -80,7 +80,7 @@ export function WalletSection() {
               </button>
             ))}
           </div>
-          {walTab === 'topup' ? <WalletShop /> : walTab === 'history' ? <WalletLedger rows={q.data.ledger} /> : <BillInvoiceTable />}
+          {walTab === 'topup' ? <WalletShop /> : walTab === 'history' ? <WalletLedger /> : <BillInvoiceTable />}
         </>
       ) : null}
       <BillingModals />

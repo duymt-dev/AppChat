@@ -9,6 +9,7 @@ import { CatalogModule } from '../../catalog/catalog.module';
 import { ChannelsModule } from '../../channels/channels.module';
 import { ContractsModule } from '../../contracts/contracts.module';
 import { CrmModule } from '../../crm/crm.module';
+import { DataTransferModule } from '../../data-transfer/data-transfer.module';
 import { DocumentsModule } from '../../documents/documents.module';
 import { IdentityModule } from '../../identity/identity.module';
 import { InboxModule } from '../../inbox/inbox.module';
@@ -38,6 +39,7 @@ export const AI_DOMAIN_MODULES = [
   MarketingModule,
   InsightsModule,
   NotifyModule,
+  DataTransferModule,
 ];
 
 @Module({ imports: AI_DOMAIN_MODULES })

@@ -11,6 +11,7 @@ import { insightsCase } from './insights-judge';
 import { hardeningCase } from './hardening-judge';
 import { channelCase } from './channel-judge';
 import { marketingCase } from './marketing-judge';
+import { transferCase } from './transfer-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown, headers?: Record<string, string>): Promise<{ status: number; body: unknown }>;
@@ -90,6 +91,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.channel) return channelCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.insights) return insightsCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.marketing) return marketingCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
+  if (c.transfer) return transferCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.hardening) return hardeningCase(api, c, attempt, o, (s) => fillInput(s, o.seed), contextOf(c, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };
   const context = contextOf(c, o.seed);

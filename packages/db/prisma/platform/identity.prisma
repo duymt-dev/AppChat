@@ -109,6 +109,11 @@ model Workspace {
   timezone      String            @default("Asia/Ho_Chi_Minh")
   locale        String            @default("vi")
   status        WorkspaceStatus   @default(active)
+  /// Phiên bản trạng thái vận hành (TIP-040): admin tạm dừng / mở lại gửi `if_version` — CAS, không ghi đè lẫn nhau.
+  statusVersion Int               @default(0) @map("status_version")
+  suspendedAt   DateTime?         @map("suspended_at") @db.Timestamptz(6)
+  /// Lý do tạm dừng do admin nền tảng nhập (không PII khách).
+  suspendReason String?           @map("suspend_reason")
   settings      Json              @default("{}")
   dbName        String            @unique @map("db_name")
   dbHost        String?           @map("db_host")
@@ -117,6 +122,8 @@ model Workspace {
   provisionedAt DateTime?         @map("provisioned_at") @db.Timestamptz(6)
   archivedAt    DateTime?         @map("archived_at") @db.Timestamptz(6)
   archiveKey    String?           @map("archive_key")
+  /// Thế hệ thao tác vòng đời (TIP-041): archive / restore / delete nhận số kế tiếp bằng CAS — worker cũ không ghi đè lệnh mới.
+  lifecycleGeneration Int         @default(0) @map("lifecycle_generation")
   createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

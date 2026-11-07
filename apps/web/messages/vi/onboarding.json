@@ -45,6 +45,17 @@
     "failed": "Khởi tạo chưa xong. Chúng tôi sẽ thử lại tự động.",
     "retry": "Thử lại"
   },
+  "restoring": {
+    "title": "Đang khôi phục workspace…",
+    "sub": "Workspace đã được lưu trữ vì lâu không hoạt động. AppChat đang khôi phục dữ liệu của bạn — thường mất dưới 1 phút.",
+    "steps": {
+      "create": "Chuẩn bị cơ sở dữ liệu",
+      "restore": "Nạp lại dữ liệu đã lưu trữ",
+      "checks": "Kiểm tra và mở lại workspace"
+    },
+    "failed": "Khôi phục chưa xong. Đội vận hành đã được báo, chúng tôi sẽ thử lại.",
+    "retry": "Kiểm tra lại"
+  },
   "welcome": {
     "eyebrow": "GIẢI PHÁP ONE-PERSON COMPANY",
     "mark": "A",

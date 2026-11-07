@@ -12,6 +12,7 @@ import { agentToolsParamRoute } from './domains/agent-tools';
 import { productsParamRoute } from './domains/products';
 import { withFieldPolicy } from './domains/field-policy';
 import { importTexts, productImportRoute } from './domains/product-import';
+import { dataTransferRoute } from './domains/data-transfer';
 import { dataJobBlob, dataJobsRoute } from './domains/data-jobs';
 import { channelOperationsRoute } from './domains/channel-operations';
 import { contactSyncRoute } from './domains/contact-sync';
@@ -20,6 +21,7 @@ import { quotesParamRoute } from './domains/quotes';
 import { quotePdf, quotesPublicRoute } from './domains/quotes-public';
 import { publicDocumentPdf, publicDocumentRoute } from './domains/commerce-delivery';
 import { contractFileBlob, contractFilesParamRoute, contractPdf, contractsParamRoute, mockUploads } from './domains/contracts';
+import { billingInvoicePdf } from './domains/settings-billing';
 import { appendixMock, contractsPosts } from './domains/contracts-actions';
 import { ordersParamRoute } from './domains/orders';
 import { invoicesParamRoute } from './domains/invoices';
@@ -75,6 +77,7 @@ export const mockTransport: Transport = {
       mockRoutes[path] ??
       productsParamRoute(path) ??
       productImportRoute(path) ??
+      dataTransferRoute(path) ??
       dataJobsRoute(path) ??
       channelOperationsRoute(path) ??
       contactSyncRoute(path) ??
@@ -203,7 +206,8 @@ export const mockTransport: Transport = {
     // Tên theo id để guard giả của hợp đồng từ tệp (TIP-030b) kiểm loại / tên.
     mockUploads.set(id, { name: file.name, size: file.size });
     // Nhập sản phẩm (TIP-032b): mock đọc chữ CSV để tách dòng như server.
-    if (purpose === 'import') importTexts.set(id, { name: file.name, text: await file.text() });
+    // Nhập dữ liệu dùng chung (TIP-038b): tệp CSV đính kèm Trợ lý cũng đọc được như tệp nhập.
+    if (purpose === 'import' || (purpose === 'attachment' && /\.csv$/i.test(file.name))) importTexts.set(id, { name: file.name, text: await file.text() });
     return { file_id: id, name: file.name, size: file.size };
   },
 
@@ -212,7 +216,7 @@ export const mockTransport: Transport = {
     const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path);
     if (kb) return kb;
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
-    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? publicDocumentPdf(path);
+    const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? billingInvoicePdf(mockDb(), path) ?? publicDocumentPdf(path);
     if (html === null) return fail(404, 'NOT_FOUND', path);
     return new Blob([html], { type: 'text/html' });
   },
