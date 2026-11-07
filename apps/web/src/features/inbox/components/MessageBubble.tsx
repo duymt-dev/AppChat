@@ -118,7 +118,7 @@ export function MessageBubble({ m, conv, translated }: MessageBubbleProps) {
     return (
       <div className={cx(styles.row, styles.out)} data-testid="msg-out" id={`msg-${m.id}`}>
         {/* Tin của mình cũng có menu (Thu hồi chỉ áp cho tin của bạn — REQ-C09, TIP-014b); bên trái bong bóng. */}
-        {m.menu && !m.deleted && !m.recalled ? <MessageMenu convId={conv.id} message={m} isPinned={conv.pinned_message_id === m.id} /> : null}
+        {m.menu && !m.deleted && !m.recalled ? <MessageMenu convId={conv.id} channelOf={conv.channel} message={m} isPinned={conv.pinned_message_id === m.id} /> : null}
         <div>
           {m.kind === 'card' ? (
             <div className={styles.card}>
@@ -207,7 +207,7 @@ export function MessageBubble({ m, conv, translated }: MessageBubbleProps) {
           <div className={styles.stamp}>{m.time}</div>
         </div>
       )}
-      {m.menu && !m.deleted ? <MessageMenu convId={conv.id} message={m} isPinned={conv.pinned_message_id === m.id} /> : null}
+      {m.menu && !m.deleted ? <MessageMenu convId={conv.id} channelOf={conv.channel} message={m} isPinned={conv.pinned_message_id === m.id} /> : null}
     </div>
   );
 }

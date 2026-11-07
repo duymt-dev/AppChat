@@ -121,7 +121,8 @@ export const inboxRoutes: Record<string, MockRoute> = {
   },
   '/inbox/accounts': () => fixture.accounts,
   '/inbox/connect-channels': () => fixture.connect_channels,
-  '/inbox/channels': () => fixture.channels,
+  // `reactions` theo manifest kênh (chỉ Zalo cá nhân nhận cảm xúc) — REQ-C09a.
+  '/inbox/channels': () => Object.fromEntries(Object.entries(fixture.channels).map(([k, v]) => [k, { ...v, reactions: k === 'zalo_personal' }])),
   '/canned-replies': () => fixture.canned_replies,
   '/tags': (db) => db.settingsData.tags.map((t) => ({ id: t.id, name: t.name, color: t.color, emoji: t.emoji })),
 };
