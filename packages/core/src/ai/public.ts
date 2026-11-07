@@ -15,6 +15,8 @@ export { expiryDelivery, EXPIRY_ONCE } from './approvals/expiry-delivery';
 export { AI_USAGE_RECOVERY } from './runs/runtime.providers';
 export { actionTool, toolActionId, inputSchemaOf, toolNameOf } from './runs/tools';
 export { AI_CANCEL_CHANNEL, listRuns, publishCancel, runScope, type RunFilter, type RunRowDto } from './runs/runs.service';
+export { runChildren, runDetail, runSteps } from './runs/run-detail';
+export { readableRun } from './runs/run-status';
 export { aiSettingsDto, readAiSetting, tierFor, DEFAULT_RATE_LIMIT, type AiSettingRow } from './settings/ai-settings.service';
 export { KB_EMBEDDER, KbSearchHandler, kbVisibility } from './kb/kb-search.handler';
 export { KbIngestQueue } from './kb/kb.queue';
@@ -48,7 +50,8 @@ export { listApprovals, isApprovalTab, type ApprovalTab } from './approvals/appr
 export { approvalPermissionOf } from './approvals/approval-permission';
 export { DbApprovalGateway } from './approvals/approval.gateway';
 export { ResumeQueue, AI_RESUME_QUEUE, type ResumeJob } from './approvals/resume.queue';
-export { resumeApproval, registerResumeSpec, registerResumeFinish, type ResumeDeps } from './approvals/resume';
+export { continueParents, resumeApproval, registerResumeSpec, registerResumeFinish, type ResumeDeps } from './approvals/resume';
+export { childOutcome } from './runs/child-continuation';
 export { governanceDto, readGovernance, defaultGovernance } from './governance/governance';
 export { AgentReplyQueue, AGENT_REPLY_QUEUE, REPLY_DEBOUNCE_MS, type ReplyJob } from './reply/reply.queue';
 export { replyTurn, finishResumedTurn, MAX_TRANSFERS, type ReplyDeps, type TurnOutcome } from './reply/reply.service';

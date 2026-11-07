@@ -6,6 +6,10 @@ import { getAction } from '@appchat/actions';
 import { uuidv7 } from '../../kernel/ids';
 import { maskToolInput } from '../../kernel/actions/secret-fields';
 import type { MeteredDb } from './metered-db';
+import type { KeyValueStore } from '../../kernel/redis';
+import { markDirty } from '../../kernel/outbox/outbox';
+import type { TenantTx } from '../../kernel/actions/action-context';
+import { appendRunEvent, type RunEventInput } from './run-events';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | '$transaction'>;
 export type RunRow = NonNullable<Awaited<ReturnType<TenantDb['aiRun']['findUnique']>>>;
@@ -49,12 +53,39 @@ export interface StepRecord {
 
 const json = (v: unknown) => toJson(v) as object;
 export const TERMINAL = ['completed', 'failed', 'cancelled', 'handoff'] as const;
+/** Trạng thái chờ (TIP-019b §4.4) — khác nhau, không gộp. */
+export const WAITING = ['waiting_approval', 'waiting_child', 'waiting_operation', 'waiting_usage'] as const;
+export type WaitStatus = (typeof WAITING)[number];
+type ClaimFrom = 'queued' | WaitStatus;
 
 export class RunStore {
   constructor(
     private readonly db: Db,
     private readonly now: () => Date,
+    /** Có workspace → mỗi bước / chuyển trạng thái ghi `ai_run_event` + outbox trong cùng transaction (TIP-019b §5.3). */
+    private readonly events: { ws: string; kv?: Pick<KeyValueStore, 'sadd'> | null } | null = null,
   ) {}
+
+  /** Bản ghi sự kiện cho workspace `ws` (runner / handoff / huỷ dùng). */
+  observed(ws: string, kv?: Pick<KeyValueStore, 'sadd'> | null): RunStore {
+    return new RunStore(this.db, this.now, { ws, kv: kv ?? null });
+  }
+
+  /** Ghi thay đổi + sự kiện cùng transaction (DB là tx sẵn → ghi thẳng); không theo dõi sự kiện → chỉ ghi thay đổi. */
+  private async tracked<T>(write: (tx: Db) => Promise<T>, ev: (r: T) => RunEventInput | null): Promise<T> {
+    if (!this.events) return write(this.db);
+    const ws = this.events.ws;
+    const now = this.now();
+    const run = async (tx: Db) => {
+      const r = await write(tx);
+      const e = ev(r);
+      if (e) await appendRunEvent(tx as unknown as TenantTx, ws, e, now);
+      return r;
+    };
+    const out = typeof this.db.$transaction === 'function' ? await this.db.$transaction((tx) => run(tx as unknown as Db)) : await run(this.db);
+    if (this.events.kv) await markDirty(this.events.kv as KeyValueStore, ws).catch(() => undefined);
+    return out;
+  }
 
   /** DB có bảng ngân sách / biên nhận (TIP-019b) — null khi store dựng trên DB giả của test đơn vị. */
   metered(): MeteredDb | null {
@@ -100,15 +131,20 @@ export class RunStore {
   }
 
   /** Chuyển `queued` / `waiting_approval` → `running` (một người thắng — chạy tiếp hai lần chỉ một lần chạy). */
-  async claim(id: string, from: ('queued' | 'waiting_approval')[]): Promise<boolean> {
-    const r = await this.db.aiRun.updateMany({ where: { id, status: { in: from } }, data: { status: 'running' } });
+  async claim(id: string, from: ClaimFrom[]): Promise<boolean> {
+    const r = await this.tracked(
+      (db) => db.aiRun.updateMany({ where: { id, status: { in: from } }, data: { status: 'running' } }),
+      (x) => (x.count ? { runId: id, kind: 'status', status: 'running' } : null),
+    );
     return r.count === 1;
   }
 
   /** Ghi bước — trùng (run, idx) thì giữ dòng cũ (chạy lại sau lỗi không nhân đôi credit / bước). */
   async step(runId: string, s: StepRecord): Promise<void> {
     const now = this.now();
-    await this.db.aiRunStep.upsert({
+    await this.tracked(async (db) => {
+      const before = await db.aiRunStep.findUnique({ where: { runId_idx: { runId, idx: s.idx } }, select: { id: true } });
+      await db.aiRunStep.upsert({
       where: { runId_idx: { runId, idx: s.idx } },
       create: {
         id: uuidv7(now.getTime()),
@@ -130,7 +166,9 @@ export class RunStore {
         createdAt: now,
       },
       update: {},
-    });
+      });
+      return !before;
+    }, (created) => (created ? { runId, kind: 'step', status: s.status ?? 'ok', stepIdx: s.idx } : null));
   }
 
   async addCredits(runId: string, credits: number): Promise<void> {
@@ -145,15 +183,28 @@ export class RunStore {
 
   /** `approvalId` (tool cần duyệt — TIP-021) lưu cùng state → khung điều phối hiện nút Duyệt (`Run.approval_id`). */
   async pause(runId: string, state: PausedState, approvalId?: string): Promise<void> {
-    await this.db.aiRun.update({ where: { id: runId }, data: { status: 'waiting_approval', state: json({ ...state, ...(approvalId ? { approval_id: approvalId } : {}) }) } });
+    await this.wait(runId, 'waiting_approval', { ...state, ...(approvalId ? { approval_id: approvalId } : {}) });
+  }
+
+  /** Dừng chờ có kiểu (TIP-019b §4.3): chờ duyệt / run con / thao tác nền tảng / đối soát usage — state giữ lời gọi đang chờ. */
+  async wait(runId: string, status: WaitStatus, state: unknown): Promise<void> {
+    await this.tracked(
+      (db) => db.aiRun.updateMany({ where: { id: runId, status: { notIn: [...TERMINAL] } }, data: { status, state: json(state) } }),
+      (r) => (r.count ? { runId, kind: 'status', status } : null),
+    );
   }
 
   async finish(runId: string, status: (typeof TERMINAL)[number], data: { output?: unknown; error?: string | null } = {}): Promise<void> {
     // Đã huỷ / kết thúc ở nơi khác (run.cancel) → giữ trạng thái đó.
-    await this.db.aiRun.updateMany({
-      where: { id: runId, status: { notIn: [...TERMINAL] } },
-      data: { status, finishedAt: this.now(), state: undefined, ...(data.output === undefined ? {} : { output: json(data.output) }), ...(data.error ? { error: data.error.slice(0, 500) } : {}) },
-    });
+    await this.tracked(
+      (db) =>
+        db.aiRun.updateMany({
+          where: { id: runId, status: { notIn: [...TERMINAL] } },
+          data: { status, finishedAt: this.now(), state: undefined, ...(data.output === undefined ? {} : { output: json(data.output) }), ...(data.error ? { error: data.error.slice(0, 500) } : {}) },
+        }),
+      // `run.done` đúng một lần: chỉ lần chuyển thắng CAS (đã kết thúc ở nơi khác → không phát lại).
+      (r) => (r.count ? { runId, kind: 'status', status } : null),
+    );
   }
 
   /** Huỷ run + mọi run con chưa kết thúc (cùng gốc, sâu hơn). Trả id đã huỷ. */
@@ -171,7 +222,16 @@ export class RunStore {
       }
     }
     const live = all.filter((x) => ids.has(x.id) && !(TERMINAL as readonly string[]).includes(x.status)).map((x) => x.id);
-    if (live.length) await this.db.aiRun.updateMany({ where: { id: { in: live } }, data: { status: 'cancelled', finishedAt: this.now() } });
-    return live;
+    if (!live.length) return [];
+    const done: string[] = [];
+    // Mỗi run một CAS → `run.done` chỉ cho run thật sự chuyển sang huỷ ở lượt này.
+    for (const id of live) {
+      const r = await this.tracked(
+        (db) => db.aiRun.updateMany({ where: { id, status: { notIn: [...TERMINAL] } }, data: { status: 'cancelled', finishedAt: this.now(), stopReason: 'cancelled' } }),
+        (x) => (x.count ? { runId: id, kind: 'status', status: 'cancelled' } : null),
+      );
+      if (r.count) done.push(id);
+    }
+    return done;
   }
 }

@@ -24,6 +24,9 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   'agent.changed': [['agents']],
   'channel.status': [['channels']],
   'kb.source': [['kb']],
+  // sự kiện run đã commit (TIP-019b — chỉ id + seq + trạng thái, người còn đọc được run) → khung điều phối + drawer chi tiết tải lại
+  'run.step': [['runs']],
+  'run.done': [['runs']],
   // chiến dịch đổi trạng thái / gửi xong lô (TIP-037 — chỉ id + trạng thái, người có campaign.view)
   'campaign.updated': [['marketing']],
   // đổi định nghĩa / vai trò được thấy của trường tuỳ biến (TIP-045b annex C) → mọi danh sách + chi tiết tải lại (REST chiếu theo quyền)

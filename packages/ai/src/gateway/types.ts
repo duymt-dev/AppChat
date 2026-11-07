@@ -15,6 +15,8 @@ export type ToolOutcome =
   /** `canonicalInput`: input đã chuẩn hoá (mã → id) mà token gắn — xác nhận phải chạy đúng input này (TIP-023b R1.6). */
   | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string; canonicalInput?: unknown }
   | { kind: 'needs_approval'; approvalId: string }
+  /** Run con đang chờ (duyệt / thao tác / usage — TIP-019b §4.3): run cha dừng chờ, không coi là xong, chạy tiếp khi con kết thúc. */
+  | { kind: 'waiting_child'; runId: string }
   /** Việc nền đã nhận (202 `job_accepted`, TIP-032b): CHƯA xong — model chỉ báo đang chạy + handle; bước cần kết quả cuối không được mở. */
   | { kind: 'job_accepted'; jobId: string; actionLogId: string; statusUrl: string }
   /** Thao tác nền tảng đã commit, phần workspace chưa áp xong (202 `operation_pending`, TIP-045b): CHƯA thành công — hệ thống tự hoàn tất. */
@@ -115,7 +117,7 @@ export type RunEvent =
   | { type: 'tool_call'; stepIdx: number; call: ToolCallRef }
   | { type: 'tool_result'; stepIdx: number; call: ToolCallRef; outcome: ToolOutcome; latencyMs: number }
   | { type: 'usage'; usage: UsageInfo; credits: number }
-  | { type: 'paused'; state: PausedState; outcome: Extract<ToolOutcome, { kind: 'needs_confirmation' | 'needs_approval' }> }
+  | { type: 'paused'; state: PausedState; outcome: Extract<ToolOutcome, { kind: 'needs_confirmation' | 'needs_approval' | 'waiting_child' }> }
   | { type: 'finish'; reason: StopReason; text: string; messages: RunMessage[]; steps: number }
   | { type: 'error'; code: string; message: string; stepIdx: number };
 

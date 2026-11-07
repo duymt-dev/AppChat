@@ -84,7 +84,7 @@ async function coordination(db: TenantDb, runId: string) {
 }
 
 /** Chạy một agent cho hội thoại; trả kết quả run + ngữ cảnh. Tin khách nguồn lưu vào `ai_run.input` TRƯỚC khi tool chạy (TIP-022b D). */
-async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Published, extra: { summary?: string; parentRunId?: string; sourceMessageId?: string | null; runId?: string } = {}) {
+async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Published, extra: { summary?: string; parentRunId?: string; sourceMessageId?: string | null; runId?: string; visited?: string[] } = {}) {
   const copilot = c.aiMode === 'copilot';
   const store = new RunStore(db, d.now);
   // Run (gốc của lượt) tạo TRƯỚC khi lắp ngữ cảnh: embedding câu hỏi kho tri thức trừ vào gốc này (TIP-019b §3.2); bảng PII ghi sau.
@@ -111,7 +111,7 @@ async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Publ
     await store.finish(created.id, 'failed', { error: code });
     return { r: { status: 'failed' as const, text: '', creditsUsed: 0, error: { code: code === 'CREDIT_EXHAUSTED' ? code : 'BUDGET', message: (err as Error).message } }, run: created, ctx: await buildReplyContext(db, c, a, null) };
   }
-  const run = await db.aiRun.update({ where: { id: created.id }, data: { input: { ...(created.input as object), pii: ctx.pii } } });
+  const run = await db.aiRun.update({ where: { id: created.id }, data: { input: { ...(created.input as object), pii: ctx.pii }, ...(extra.visited?.length ? { transferCount: extra.visited.length, visitedAgents: extra.visited } : {}) } });
   const tools = await replyTools({ db, executor: d.executor, runner: d.runner, now: d.now }, { ws, runId: run.id, conversationId: c.id, agent: { id: a.agent.id, toolIds: a.cfg.tools }, cfg: a.cfg, pii: ctx.pii, dryRun: copilot });
   const system = extra.summary ? `${ctx.system}\n\n# ĐƯỢC CHUYỂN TỪ AGENT KHÁC\n${extra.summary}` : ctx.system;
   const r = await d.runner.start(ws, store, run, { system, messages: ctx.messages, tools, maxSteps: MAX_STEPS.agent, source: 'inbox' });
@@ -171,8 +171,10 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
     const moved = await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: next.agent.id } });
     if (source) await db.aiTurnReceipt.updateMany({ where: source, data: { agentId: next.agent.id, agentVersion: next.version, bindingSource: 'transfer', bindingReason: 'transfer', updatedAt: d.now() } });
     // Chuyển agent giữ CÙNG lượt (fence) và cùng gốc run (lineage) — không mở lượt thứ hai, không cấp ví gốc mới.
-    const next0 = await runAgent(d, db, ws, moved, next, { summary: coord.summary, parentRunId: run.id, sourceMessageId: source?.sourceMessageId ?? null });
-    return decide(d, db, ws, moved, next0.run, next0.r, next0.ctx, [...transfers, agent.id], turn, source);
+    // Lineage bền (TIP-019b §4.1): ghi lần chuyển + agent đã ghé lên run con TRƯỚC khi chạy — chạy tiếp / khởi động lại đọc lại từ đây.
+    const visited = [...transfers, agent.id];
+    const next0 = await runAgent(d, db, ws, moved, next, { summary: coord.summary, parentRunId: run.id, sourceMessageId: source?.sourceMessageId ?? null, visited });
+    return decide(d, db, ws, moved, next0.run, next0.r, next0.ctx, visited, turn, source);
   }
 
   const out = parseAgentReply(r.text);
@@ -289,7 +291,8 @@ export async function finishResumedTurn(d: ReplyDeps, db: TenantDb, ws: string, 
       return 'handoff';
     }
     const ctx = await buildReplyContext(db, c, a, null, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {});
-    return await decide(d, db, ws, c, run, r, ctx, [], turn, source);
+    // Chạy tiếp không đặt lại lịch sử chuyển (TIP-019b §4.1): A → B → (duyệt) → A vẫn là vòng lặp.
+    return await decide(d, db, ws, c, run, r, ctx, run.visitedAgents ?? [], turn, source);
   } finally {
     await releaseTurn(db, turn).catch(() => undefined);
   }

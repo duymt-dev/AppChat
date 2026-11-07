@@ -40,6 +40,7 @@ import { kbSuggestionParamRoute } from './domains/kb-suggestions';
 import { kbSourceBlob } from './domains/kb-folders';
 import { settingsAppsParamRoute } from './domains/settings-apps';
 import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui';
+import { runDetailParamRoute } from './domains/run-detail';
 import { assistantSessionParamRoute } from './domains/assistant-sessions';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
@@ -104,6 +105,7 @@ export const mockTransport: Transport = {
       kbSuggestionParamRoute(path) ??
       settingsAppsParamRoute(path) ??
       assistantUiParamRoute(path) ??
+      runDetailParamRoute(path) ??
       assistantSessionParamRoute(path) ??
       signParamRoute(path) ??
       agentToolsParamRoute(path) ??

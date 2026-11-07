@@ -48,6 +48,8 @@ import { CLOCK, type Clock } from '../kernel/clock';
 
 export { AI_ENV } from './ai.env';
 import { AI_ENV } from './ai.env';
+import { RunGuardInstaller } from './runs/run-guard.installer';
+import './events/run.rules';
 export const AGENT_ENGINE = Symbol('AGENT_ENGINE');
 
 const opt = (token: symbol) => ({ token, optional: true });
@@ -101,11 +103,12 @@ class ProviderSeed implements OnModuleInit {
     { provide: KbIngestQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new KbIngestQueue(r) : null) },
     {
       provide: AiRunner,
-      inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace, opt(PLATFORM_DB)],
-      useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger, clock: Clock, place: TaskPlace, p?: PlatformDb) => {
+      inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace, opt(PLATFORM_DB), opt(REDIS)],
+      useFactory: (engine: AgentEngine | null, meter: CreditMeter | null, log: AppLogger, clock: Clock, place: TaskPlace, p?: PlatformDb, r?: Redis) => {
         // Tạm dừng workspace (TIP-040) chặn bước AI mới cả ở run đang chạy.
         const access = p ? new WorkspaceAccess(p, () => clock.now().getTime()) : null;
-        return engine ? new AiRunner({ engine, meter, log, clock: { now: () => clock.now(), timeZone: async (ws) => (await place.of(ws)).timeZone }, ...(access ? { assertOpen: (ws: string) => access.assertOpen(ws) } : {}) }) : null;
+        // Redis → đánh dấu outbox dirty sau mỗi sự kiện run (TIP-019b — WS run.step / run.done tới ngay, không chờ quét).
+        return engine ? new AiRunner({ engine, meter, log, kv: r ?? null, clock: { now: () => clock.now(), timeZone: async (ws) => (await place.of(ws)).timeZone }, ...(access ? { assertOpen: (ws: string) => access.assertOpen(ws) } : {}) }) : null;
       },
     },
     {
@@ -156,6 +159,7 @@ class ProviderSeed implements OnModuleInit {
     // Lượt Trợ lý chạy ở ROLE=ai: outbox `assistant.turn_requested` → consumer → queue `assistant-turn` (thiếu Redis → null).
     { provide: TurnQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new TurnQueue(r) : null) },
     TurnRequestInstaller,
+    RunGuardInstaller,
     ...TASK_PROVIDERS,
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],

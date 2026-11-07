@@ -1,6 +1,9 @@
 // Khung "Trợ lý AI đang điều phối" ở tab Cowork của Composer (REQ-E14) — hàng thu gọn mở modal danh sách run.
-// Prototype L1521–1528 (hàng), L736–753 (modal): Dừng (run.cancel) / Duyệt & gửi (approval.approve) / Xem kết quả.
+// Prototype L1521–1528 (hàng), L736–753 (modal): Dừng (run.cancel) / Duyệt & gửi (approval.approve) / Xem kết quả. TIP-019b §5.4: nhãn
+// theo trạng thái thật (lifecycle — chờ agent con / lỗi / đã dừng tách riêng), thanh tiến độ chỉ khi đang chạy (không giả 100%), "Xem kết
+// quả" / bấm hàng mở drawer chi tiết run.
 'use client';
+import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { useQuery } from '@tanstack/react-query';
 import { Icon, color } from '@appchat/ui';
@@ -9,20 +12,9 @@ import { useRunsStyles } from '../styles/runs.styles';
 import { useAssistantUi } from '../assistant-store';
 import { runsQuery } from '../api';
 import type { Run } from '../types';
-
-const TINT_FALLBACK: [string, string] = ['#F3F4F6', '#4A5057'];
-const AGENT_TINT: Record<string, [string, string]> = {
-  'Operations Agent': ['#FEF3E7', '#C8820B'],
-  'Sales Agent': ['#EDFAF3', '#157A40'],
-  'Support Agent': ['#E7F0FF', '#2563EB'],
-  'Marketing Agent': ['#EDE9FC', '#6E48E6'],
-};
-
-const STATUS_STYLE: Record<Run['status'], { fg: string; bg: string; bar: string }> = {
-  running: { fg: '#1D4ED8', bg: '#EFF4FC', bar: '#3B82F6' },
-  waiting_approval: { fg: '#B45309', bg: '#FFFBEB', bar: '#F59E0B' },
-  done: { fg: '#157A40', bg: '#EDFAF3', bar: '#2DC56A' },
-};
+import { RUN_TONE, agentTint } from './run-tone';
+import { RunStatusBadge } from './RunStatusBadge';
+import { RunDetailDrawer } from './RunDetailDrawer';
 
 export function RunsOrchestrationBar() {
   const t = useTranslations('assistant.cw.run');
@@ -33,6 +25,7 @@ export function RunsOrchestrationBar() {
   const q = useQuery(runsQuery(root));
   const cancel = useAction('run.cancel');
   const approve = useAction('approval.approve');
+  const [detail, setDetail] = useState<string | null>(null);
   const rows = q.data?.data ?? [];
   if (!rows.length) return null;
   const running = rows.filter((r) => r.status === 'running').length;
@@ -42,6 +35,7 @@ export function RunsOrchestrationBar() {
   const act = (r: Run) => {
     if (r.status === 'waiting_approval' && r.approval_id) void approve.run({ approval_id: r.approval_id });
     else if (r.status === 'running') void cancel.run({ run_id: r.id });
+    else setDetail(r.id);
   };
 
   return (
@@ -75,11 +69,10 @@ export function RunsOrchestrationBar() {
             </div>
             <div className={styles.list}>
               {rows.map((r) => {
-                const tint = AGENT_TINT[r.agent] ?? TINT_FALLBACK;
-                const st = STATUS_STYLE[r.status];
+                const tint = agentTint(r.agent);
                 return (
                   <div key={r.id} className={styles.row} data-testid="cw-run-row" data-run={r.id}>
-                    <div className={styles.grow}>
+                    <button type="button" className={cx(styles.grow, styles.rowMain)} onClick={() => setDetail(r.id)}>
                       <div className={styles.task}>{r.task}</div>
                       <div className={styles.meta}>
                         <span className={styles.agent} style={{ background: tint[0], color: tint[1] }}>
@@ -87,17 +80,17 @@ export function RunsOrchestrationBar() {
                         </span>
                         <span className={styles.metaTxt}>{r.meta}</span>
                       </div>
-                      <div className={styles.bar2}>
-                        <span style={{ width: `${r.status === 'running' ? r.pct : 100}%`, background: st.bar }} />
-                      </div>
-                    </div>
-                    <span className={styles.st} style={{ color: st.fg, background: st.bg }}>
-                      {t(`status.${r.status}`)}
-                    </span>
+                      {r.pct !== null ? (
+                        <div className={styles.bar2}>
+                          <span style={{ width: `${r.pct}%`, background: RUN_TONE[r.lifecycle].bar }} />
+                        </div>
+                      ) : null}
+                    </button>
+                    <RunStatusBadge lifecycle={r.lifecycle} stopReason={r.stop_reason} />
                     {r.status === 'done' ? (
-                      <span className={styles.act} data-testid="cw-run-act">
+                      <button type="button" className={styles.act} onClick={() => setDetail(r.id)} data-testid="cw-run-act">
                         {t('action.viewResult')}
-                      </span>
+                      </button>
                     ) : (
                       <button
                         type="button"
@@ -115,6 +108,7 @@ export function RunsOrchestrationBar() {
           </div>
         </div>
       ) : null}
+      <RunDetailDrawer runId={detail} onOpen={setDetail} onClose={() => setDetail(null)} />
     </>
   );
 }

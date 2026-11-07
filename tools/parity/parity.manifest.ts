@@ -621,6 +621,22 @@ export const MANIFEST: ParityEntry[] = [
     clip: { x: 920, y: 0, width: 520, height: 900 },
     mask: [{ x: 1000, y: 44, width: 260, height: 20, reason: 'D29 phụ đề nêu mức AI thay tên model' }],
   },
+  // TIP-019b §5.4: hàng run trong modal "Trợ lý AI đang điều phối" (L736–753) — nhãn trạng thái + thanh tiến độ + nút. So theo hàng đầu
+  // (đang chạy): danh sách khi chưa có lượt Cowork chỉ gồm run đang sống (TIP-023), prototype vẽ cả hàng đã xong.
+  {
+    id: 'ai-runtime:run-row',
+    route: '/assistant',
+    protoStorage: asst,
+    proto: async (p) => {
+      await p.locator('div', { hasText: /^Cowork$/ }).first().click();
+      await protoSetState(p, { cwRunOpen: true });
+    },
+    app: async (p) => {
+      await p.getByRole('radio', { name: 'Cowork' }).click();
+      await p.getByTestId('cw-run-bar').getByRole('button').click();
+    },
+    clipTo: { proto: 'div[style*="width: 680px"] .appscroll > div:first-child', app: '[data-testid="cw-run-row"][data-run="run_1"]' },
+  },
   // Nhật ký: "Workflow" (OUT) → Ticket; "ZNS" → Zalo (fixture) — ô chữ hai dòng đó mask; thời gian là chuỗi ngày tương đối giống nhau.
   {
     id: 'actions:log',

@@ -125,6 +125,10 @@ export const groupResultEvent = z.object({ ...base, request_id: z.string().uuid(
 export const kbSourceReadyEvent = z.object({ ...base, source_id: z.string().uuid(), chunk_count: z.number().int() });
 export const kbSourceFailedEvent = z.object({ ...base, source_id: z.string().uuid(), error: z.string().max(300), created_by: z.string().uuid().nullable() });
 export const runCancelledEvent = z.object({ ...base, run_id: z.string().uuid(), run_ids: z.array(z.string().uuid()) });
+/** Sự kiện run đã commit (TIP-019b, DC-380): bước mới / đổi trạng thái — seq tăng theo cây (`ai_run_event`). */
+export const runStepEvent = z.object({ ...base, run_id: z.string().uuid(), root_run_id: z.string().uuid(), seq: z.number().int(), status: z.string(), step_idx: z.number().int().optional() });
+/** Run kết thúc (completed / failed / cancelled / handoff) — một lần mỗi run. */
+export const runDoneEvent = runStepEvent;
 /** Vòng đời AI Agent (TIP-021): xuất bản / tạm dừng / xoá — làm mới routing agent theo kênh (TIP-022), WS danh sách agent. */
 export const agentChangedEvent = z.object({ ...base, agent_id: z.string().uuid(), version: z.number().int(), status: z.enum(['draft', 'active', 'paused', 'deleted']) });
 /** Hàng chờ duyệt (TIP-021): tạo → thông báo người duyệt (`ai_review`); quyết / hết hạn → job `ai-resume` chạy tiếp run. */
@@ -245,6 +249,8 @@ export const EVENT_SCHEMAS = {
   'channel.group_command_requested': groupCommandRequestedEvent,
   'channel.friend_request_received': channelFriendRequestReceivedEvent,
   'run.cancelled': runCancelledEvent,
+  'run.step': runStepEvent,
+  'run.done': runDoneEvent,
   'kb.source_ready': kbSourceReadyEvent,
   'kb.source_failed': kbSourceFailedEvent,
   'agent.published': agentChangedEvent,

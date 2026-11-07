@@ -27,7 +27,7 @@ export const useRunsStyles = createStyles(({ css }) => ({
     width: 34px;
     height: 34px;
     border-radius: ${radius.r10}px;
-    background: #231f20;
+    background: ${color.text};
     display: grid;
     place-items: center;
     flex-shrink: 0;
@@ -102,6 +102,14 @@ export const useRunsStyles = createStyles(({ css }) => ({
     gap: 12px;
     padding: 12px 16px;
     border-top: 1px solid ${color.divider};
+  `,
+  rowMain: css`
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
   `,
   task: css`
     font-size: ${font.scale.s14}px;

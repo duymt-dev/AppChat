@@ -1,10 +1,10 @@
 ### COMPLETION REPORT — TIP-019b (Runtime AI — ngân sách chung, usage bền vững, trạng thái thật)
 
-**STATUS:** pha 2 / 4 DONE (TIP chưa DONE). Chia 4 pha theo DC-379: **P1** §1 + §2 (#116) → **P2** §3 + §4.5–4.6 tiện ích / RAG chung gốc, embedding có đo, hết hạn duyệt báo Owner, handler ROLE=ai (#117) → P3 §4.1–4.4 + §5 lineage bền / trạng thái chờ + chi tiết run + sự kiện + giao diện → P4 ai:live 12 ca.
+**STATUS:** pha 3 / 4 DONE (TIP chưa DONE). Chia 4 pha theo DC-379: **P1** §1 + §2 (#116) → **P2** §3 + §4.5–4.6 tiện ích / RAG chung gốc, embedding có đo, hết hạn duyệt báo Owner, handler ROLE=ai (#117) → **P3** §4.1–4.4 + §5 lineage bền / trạng thái chờ + chi tiết run + sự kiện + giao diện (nhánh `tip/019b-runtime-integrity-p3`) → P4 ai:live 12 ca.
 
 **COMMIT:** nhánh `tip/019b-runtime-integrity` xếp chồng trên `tip/025b-inbox-vertical-p7` (#115). SHA ở bảng tiến độ `goals/GOAL-RELEASE.md`.
 
-**MIGRATION (tenant):** P1 `20261102001920_ai_runtime_integrity`; P2 `20261107080000_ai_runtime_lineage` (`ai_run.child_key` + unique partial (cha, khoá), khoá biên nhận theo nhóm, `ai_expiry_delivery`). (đúng tên manifest; tên cũ hơn các migration đã áp nhưng bộ áp migration theo tập tên đã ghi, không theo mốc — đã kiểm áp được trên 15 DB local + template test). Sau merge: `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker.
+**MIGRATION (tenant):** P1 `20261102001920_ai_runtime_integrity`; P2 `20261107080000_ai_runtime_lineage` (`ai_run.child_key` + unique partial (cha, khoá), khoá biên nhận theo nhóm, `ai_expiry_delivery`); P3 `20261107090000_ai_run_events` (3 trạng thái chờ, `transfer_count` / `visited_agents` / `event_seq`, bảng `ai_run_event`). (đúng tên manifest; tên cũ hơn các migration đã áp nhưng bộ áp migration theo tập tên đã ghi, không theo mốc — đã kiểm áp được trên 15 DB local + template test). Sau merge: `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker.
 
 ---
 
@@ -77,4 +77,44 @@
 | `database/tenant-db.md` · `indexing.md` | không `workspace_id`; unique partial `(parent_run_id, child_key) WHERE child_key IS NOT NULL`; khoá biên nhận (nhóm, ứng viên, lô) |
 | `events/outbox.md` · notify | thông báo qua consumer `notify` + luật thuần; Owner đọc lúc gửi, không chụp vào event; một thông báo / yêu cầu duyệt |
 | `code/file-size-module-layout.md` | file mới ≤ 120 dòng; reply.service 317 dòng (< 400); test riêng |
+
+## Pha 3 — lineage bền, trạng thái chờ / dừng thật, sự kiện đã commit, chi tiết run có scope, giao diện (§4.1–4.4, §5 — AC5, AC8, AC9)
+
+**FILES CHANGED** (manifest + lệch ở DV-054; quyết định DC-380)
+- db: migration `20261107090000_ai_run_events`; `ai-runs.prisma` (enum + `transferCount` / `visitedAgents` / `eventSeq`), `ai-usage.prisma` (`AiRunEvent`).
+- ai: `gateway/types.ts` + `engine.ts` — kết quả tool `waiting_child` dừng run như chờ duyệt.
+- core `ai/runs/`: `run.store.ts` (`observed(ws, kv)` — mỗi bước mới / chuyển trạng thái ghi `ai_run_event` + outbox cùng transaction; `wait()` có kiểu; huỷ cây từng run + `stop_reason`), `run-events.ts` (seq theo gốc qua `ai_run.event_seq`, `run.step` / `run.done`, payload chỉ id + seq + trạng thái), `runner.ts` (dừng an toàn max_steps / loop_guard / budget → `failed` + `stop_reason` + mã lỗi; `waiting_child`; claim mọi trạng thái chờ; kv đánh dấu outbox), `child-continuation.ts`, `run-status.ts` (`readableRun` — runScope theo người khởi tạo run GỐC), `run-detail.ts` (chi tiết / bước / con, keyset + chọn id trước), `run-guard.installer.ts`, `runs.service.ts` (lifecycle + stop_reason, pct null khi không chạy, chờ con / thao tác / usage vẫn là "đang chạy"), `usage-settlement.ts` (bước llm mới phát sự kiện), `run-cancel.handler.ts`.
+- core khác: `assistant/delegate.ts` (con chờ → `waiting_child`), `assistant/turn.service.ts` + `genui/execution-lease.ts` (sổ lượt: `waiting_external` + `waiting_for.reason`), `approvals/resume.ts` (`continueParents` sau khi con kết thúc / hết hạn), `reply/reply.service.ts` (lineage chuyển agent bền: `transfer_count` / `visited_agents`), `events/run.rules.ts`, `notify/realtime/{envelope,filter,run-guard}.ts` (`require.run` tra lại quyền đọc run mỗi lần phát), `ai.module.ts`.
+- shared: `api/ai-runs.ts` (schema chi tiết / bước / con), `api/ai.ts` (`runRowSchema` + lifecycle, pct nullable), `events.ts` (`run.step` / `run.done`).
+- api: `http/ai/runs.controller.ts` (GET /v1/runs/:id · /steps · /children, limit 1–100 mặc định 30, 404 như nhau) + `ai.http.module.ts`.
+- web: `run-types.ts`, `run-api.ts`, `hooks/useRunDetail.ts`, `components/{RunStatusBadge,RunStepList,RunDetailDrawer,run-tone}.tsx|ts`, `RunsOrchestrationBar.tsx` (token thay mã màu, không thanh 100% giả, "Xem kết quả" / bấm hàng mở drawer), `styles/runs.styles.ts`, `types.ts`, `shared/realtime/event-invalidation.ts` (`run.step` / `run.done` → khoá `runs`), mock `domains/{assistant,ai-tasks,run-detail}.ts` + `mock-transport.ts`, i18n `assistant.json` vi + en.
+- test: api `ai-run-detail.test.ts` (5 — sự kiện + seq + outbox một lần, dừng an toàn, chi tiết / bước / con + 404 + cursor, /runs lifecycle, WS chỉ người đọc được), `ai-child-continuation.test.ts` (2), sửa `ai-root-budget.test.ts` (budget → failed); web `RunDetailDrawer.test.tsx` (4), `assistant-shape.test.ts` (+1); e2e `ai-runtime.spec.ts`; parity `ai-runtime:run-row`.
+
+**Giả định đã chọn (gap-filling)**
+- Run chờ con / thao tác / đối soát vẫn thuộc nhóm "đang chạy" của `/runs` (danh sách đang sống); nhãn thật ở `lifecycle`.
+- Sự kiện WS phát vào phòng `ws:{id}` rồi lọc từng người bằng guard đọc run (không tin người khởi tạo trong payload) — cùng `readableRun` với REST.
+- Cha chờ con: chạy tiếp tối đa 3 tầng tổ tiên trong một lần; kết quả con chiếu lại chỉ tên agent + trạng thái + tóm tắt chữ.
+
+**CỔNG TEST (P3)**
+- `migrate-tenants` (15 DB, `20261107090000_ai_run_events` 0 lỗi) + `db:test-reset` (template +1).
+- Integration api: `ai-run-detail` 5/5, `ai-child-continuation` 2/2; hồi quy `ai-root-budget` 6, `ai-runtime-lineage` 5, `ai-runtime` 8, `ai-usage-recovery` 5, `assistant` 15, `agents`, `realtime`, `record-scope-realtime` — 71/71 pass.
+- Unit core 710/710; web `features/assistant` + shape mock pass.
+- E2E mock (port 3462): `ai-runtime` 1/1, `assistant` / `screen-assistant` / `assistant-vertical` 21 pass (20 skip mobile / http).
+- Parity: `ai-runtime:run-row` 0,56%, `assistant:chat-welcome` 2,66%, `assistant:cowork-welcome` 2,21%, `assistant:thread` 3,64%.
+- `pnpm turbo run lint typecheck test --filter="...[origin/dev]"` 36/36; `pnpm depcheck` 0 lỗi; build api + worker; `pnpm check:bundle`; lint-size / lint-tokens / i18n-check 100%.
+- Nhà cung cấp thật: **chưa nghiệm thu với provider thật** ở P3 (model giả); ai:live 12 ca ở P4.
+
+**ĐỐI CHIẾU STANDARDS (P3)**
+
+| Standard | Kết quả |
+|---|---|
+| `ai/agent-gateway.md` §5–6 | dừng an toàn không còn `completed`; chờ con là trạng thái bền, chạy tiếp qua claim (một lần) |
+| `events/outbox.md` §3, §8 | `ai_run_event` + outbox cùng transaction; payload chỉ id / seq / trạng thái; WS lọc theo quyền đọc hiện tại |
+| `api/response-envelope.md` | `{ data }` / `{ data, next_cursor }`; 404 `NOT_FOUND` không phân biệt; limit sai → 400 |
+| `authz/rbac-permissions.md` | `assistant.use` + runScope (Chủ / `ai.governance` thấy cả workspace, còn lại chỉ cây mình khởi tạo) — REST và WS cùng hàm |
+| `database/indexing.md` · `tenant-db.md` | `ai_run_event` PK (root, seq) + covering `INCLUDE (run_id, kind)`; bước / con keyset, chọn id trước rồi đọc đúng N dòng |
+| `domain/concurrency.md` | seq tăng bằng `UPDATE … RETURNING` trên dòng gốc; finish / claim CAS — sự kiện kết thúc đúng một lần |
+| `ui/prototype-parity.md` · `frontend-structure.md` | chỉ token; drawer qua `EntityDrawer`; component ≤ 150 dòng; lệch ghi PD-024 |
+| `i18n/i18n.md` | mọi chuỗi mới vi + en |
+| `code/file-size-module-layout.md` | file mới ≤ 150 dòng; run.store 237, runner 218, reply.service 320; test riêng |
 

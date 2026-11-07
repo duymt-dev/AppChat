@@ -3,7 +3,7 @@
 // Bảng: ai_root_budget (ngân sách chung của cây run — một lời gọi thật / gốc tại một thời điểm), ai_usage_group (nhóm tính tiền logic,
 // làm tròn lên một lần theo tổng chi phí thô luỹ kế), ai_usage_receipt (biên nhận từng lần gọi thật — ghi trước khi gửi),
 // ai_usage_settlement (lượt quyết toán ví: (nhóm, thứ tự) duy nhất, số trừ bất biến), ai_expiry_delivery (thông báo hết hạn duyệt một
-// lần cho Owner hiện tại). FK / CHECK / partial index viết tay ở migration.
+// lần cho Owner hiện tại), ai_run_event (sự kiện run đã commit theo seq của gốc). FK / CHECK / partial index viết tay ở migration.
 
 /// Ngân sách gốc (một dòng / cây run). `observed` = credit đã định giá (kể cả phần ví không đủ để trừ) — hết thì không mở lời gọi mới.
 model AiRootBudget {
@@ -95,5 +95,19 @@ model AiExpiryDelivery {
   sentAt          DateTime? @map("sent_at") @db.Timestamptz(6)
 
   @@map("ai_expiry_delivery")
+}
+
+/// Sự kiện run đã commit (TIP-019b §5.3): (gốc, seq) tăng đơn điệu — tham chiếu an toàn (run, loại, trạng thái, bước), không output.
+model AiRunEvent {
+  rootRunId String   @map("root_run_id") @db.Uuid
+  seq       Int
+  runId     String   @map("run_id") @db.Uuid
+  kind      String
+  status    String
+  stepIdx   Int?     @map("step_idx")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([rootRunId, seq])
+  @@map("ai_run_event")
 }
 
