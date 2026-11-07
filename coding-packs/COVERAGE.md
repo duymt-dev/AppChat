@@ -16,10 +16,10 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 126 | 11 | 1 | 1 | 14 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 161 | 13 | 3 | 6 | 10 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 342 | 63 | 1 | 4 | 46 | 3 | 0 | 0 |
-| E. standards/* | 201 | 47 | 1 | 6 | 33 | 2 | 43 | 0 |
+| E. standards/* | 202 | 46 | 1 | 6 | 33 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 52 | 0 | 32 | 0 | 4 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 70 | 10 | 2 | 13 | 28 | 3 | 0 | 0 |
-| **Tổng** | **1105** | **150** | **42** | **43** | **149** | **37** | **69** | **0** |
+| **Tổng** | **1106** | **149** | **42** | **43** | **149** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1153,7 +1153,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-gateway-3 | Trợ lý theo quyền user; agent theo tool_ids ∩ agentGrantable; `find_actions` lọc theo quyền | standards/ai/agent-gateway.md:16 | 021, 023 | ĐẠT | packages/core/src/ai/assistant/catalog.ts:18,78; test assistant-unit.test.ts, agents.test.ts |
 | STD-ai-gateway-4 | Run dừng ghi `ai_run.state` + approval trong 1 tx; chạy tiếp bằng job `ai-resume` idempotent | standards/ai/agent-gateway.md:20 | 019, 021 | ĐẠT | packages/core/src/ai/runs/runner.ts:3; approvals/resume.queue.ts:22; test ai-runtime.test.ts, agents.test.ts |
 | STD-ai-gateway-5 | Rào chắn: maxSteps 8/16, ngân sách credit cả cây, loop 3 lần, độ sâu ≤ 2, ≤ 3 transfer | standards/ai/agent-gateway.md:23 | 019b | MỘT PHẦN | MaxSteps/loop/depth có ở runner/engine/delegate và tests019/022/023; reply/reply-tools.ts:19,110 consult dùng budget40 riêng, runs/runner.ts:100 dùng budget của run hiện tại. Chưa chứng minh shared root budget atomic cho cả cây; cần supplemental AI runtime, không lấy engine single-run test làm bằng chứng tree budget. |
-| STD-ai-gateway-6 | Mỗi bước LLM: kiểm balance > 0 rồi `CreditMeter.charge` idempotent trước khi ghi `ai_run_step.credits` | standards/ai/agent-gateway.md:28 | 019b | MỘT PHẦN | runs/runner.ts:110-113; billing/services/credit-meter.ts:57; test ai-runtime.test.ts Re-audit2026-11-02: wallet idempotency does not make runner tenant step+counter atomic; credit-meter recalculates price on duplicate.019b receives receipt/recovery tests; not runtime PASS. |
+| STD-ai-gateway-6 | Mỗi bước LLM: kiểm balance > 0 rồi `CreditMeter.charge` idempotent trước khi ghi `ai_run_step.credits` | standards/ai/agent-gateway.md:28 | 019b | ĐẠT | TIP-019b P1: kiểm ví > 0 ngay trước mỗi lời gọi thật (attempt-hooks beforeAttempt, kể cả ứng viên dự phòng) và trước mỗi tool; trừ idempotent theo ref sổ, gọi lại trả đúng số gốc (UsageWallet); bước llm ghi ở transaction tenant sau ví (usage-settlement); test ai-root-budget + ai-usage-recovery |
 | STD-ai-gateway-7 | Output agent trực kênh có cấu trúc zod; handoff khi confidence thấp/khiếu nại/lặp/từ cấm | standards/ai/agent-gateway.md:29 | 022 | ĐẠT | packages/ai/src/reply/output.ts:1, handoff.ts:5; test packages/ai/test/reply.test.ts |
 | STD-ai-gateway-8 | Prompt trong kho `packages/ai/prompts/<name>.<locale>.md` có version | standards/ai/agent-gateway.md:31 | 022, 023 | ĐẠT | packages/ai/src/prompts/assistant.vi.md:1, prompts/index.ts:1 (DV-005); test reply.test.ts |
 | STD-ai-gateway-9 | Che CCCD / số thẻ / STK trước khi gửi LLM, khôi phục khi gửi ra | standards/ai/agent-gateway.md:32 | 022 | ĐẠT | packages/ai/src/reply/pii.ts:1; test reply.test.ts |
