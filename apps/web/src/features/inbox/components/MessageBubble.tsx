@@ -10,13 +10,16 @@ import { MessageProviderStatus } from './MessageProviderStatus';
 import { Rich } from './Rich';
 import type { Conversation, Message } from '../types';
 import { AvatarFace } from './AvatarFace';
+import { AutoTranslated } from './AutoTranslated';
 
 export interface MessageBubbleProps {
   m: Message;
   conv: Conversation;
+  /** Bản dịch tự động (TIP-025b §F.2) — dòng phụ, nguyên văn giữ nguyên. */
+  translated?: string;
 }
 
-export function MessageBubble({ m, conv }: MessageBubbleProps) {
+export function MessageBubble({ m, conv, translated }: MessageBubbleProps) {
   const t = useTranslations('inbox.thread');
   const fmt = useFmt();
   const { styles, cx } = useBubbleStyles();
@@ -198,6 +201,7 @@ export function MessageBubble({ m, conv }: MessageBubbleProps) {
             </div>
           ) : null}
           {text}
+          {translated ? <AutoTranslated text={translated} /> : null}
           {m.reaction ? <span className={styles.reactionBadge}>{m.reaction}</span> : null}
           <MessageProviderStatus op={m.provider_op} />
           <div className={styles.stamp}>{m.time}</div>

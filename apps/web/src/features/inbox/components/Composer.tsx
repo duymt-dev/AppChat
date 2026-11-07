@@ -1,6 +1,7 @@
 // Ô soạn tin — prototype ver2.1 L2195–2245: Ghi chú nội bộ / Co-pilot / AI tự xử · Quick replies / Đặt lịch hẹn / Dịch ·
 // trích dẫn khi trả lời · dòng "Người gửi" · Gửi. REQ-C13: bỏ chế độ "Trả lời" (ngầm định) và 6 icon công cụ, bỏ "Thả nhanh".
 // TIP-023c (REQ-C05c): "AI soạn / viết lại" (AssistantDraftBar) — đề xuất nháp, không tự gửi.
+// TIP-025b §F: tự dịch tin soạn khi Gửi (xem trước + xác nhận), ảnh chụp màn hình xem trước rồi mới đính kèm.
 // TIP-025: chế độ AI hiện tại được đánh dấu, bấm lại chế độ đang bật = Tắt AI; tệp đính kèm (menu ＋ "Thêm tệp"); @nhắc trong ghi chú.
 'use client';
 import { useRef, useState } from 'react';
@@ -13,6 +14,11 @@ import { useComposerStyles } from '../styles/composer.styles';
 import { useInboxUi } from '../inbox-store';
 import { useComposerFiles } from '../hooks/useComposerFiles';
 import { useAssistantDraft } from '../hooks/useAssistantDraft';
+import { useXlPref } from '../hooks/useInboxTranslation';
+import { useDraftTranslation } from '../hooks/useDraftTranslation';
+import { useInboxCapture } from '../hooks/useInboxCapture';
+import { TranslationPreview } from './TranslationPreview';
+import { CapturePreview } from './CapturePreview';
 import { AssistantDraftBar } from './AssistantDraftBar';
 import { ComposerPopovers } from './ComposerPopovers';
 import { FileChips, MentionPicker, mentionNeedle } from './ComposerExtras';
@@ -47,10 +53,15 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
   const needle = isNote ? mentionNeedle(draft) : null;
   // REQ-C05c: AI soạn / viết lại chỉ đề xuất — người chọn thay / chèn; gửi vẫn là nút Gửi.
   const ai = useAssistantDraft(conv.id, draft, onDraft);
+  // TIP-025b §F: tự dịch theo hội thoại — Gửi ở chế độ trả lời → xem trước bản dịch, người xác nhận mới gửi; ghi chú không dịch.
+  const { pref, set: setPref } = useXlPref(conv.id);
+  const xl = useDraftTranslation(conv.id, draft, pref.to);
+  const capture = useInboxCapture(conv.id, (f) => void files.add(f));
+  const press = () => (pref.auto && !isNote && draft.trim() ? void xl.request() : void submit());
   const aiIdle = !ai.pending && !ai.error && !ai.proposal;
 
-  const submit = async () => {
-    const text = draft.trim();
+  const submit = async (override?: string) => {
+    const text = (override ?? draft).trim();
     const withFiles = !isNote && files.ids.length > 0;
     if ((!text && !withFiles) || busy || !files.ready) return;
     setBusy(true);
@@ -61,6 +72,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
       : await send.run({ conversation_id: conv.id, text, ...(ui.replyTo ? { reply_to_id: ui.replyTo.id } : {}), ...(withFiles ? { attachments: files.ids } : {}) }, { silent: true });
     setBusy(false);
     if (res) {
+      xl.cancel();
       onDraft('');
       ui.set({ replyTo: null });
       files.clear();
@@ -83,7 +95,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
 
   return (
     <div className={styles.wrap} data-testid="composer">
-      <ComposerPopovers conv={conv} customer={customer} onInsert={(v) => (onDraft(v), ui.closePop())} onPickFile={() => picker.current?.click()} />
+      <ComposerPopovers conv={conv} customer={customer} xl={pref} onXl={setPref} onInsert={(v) => (onDraft(v), ui.closePop())} onPickFile={() => picker.current?.click()} onCapture={() => void capture.start()} />
       <input ref={picker} type="file" multiple hidden onChange={(e) => (void files.add(e.target.files), (e.target.value = ''))} data-testid="composer-file-input" />
       {needle !== null ? (
         <MentionPicker
@@ -104,14 +116,16 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
         <span className={styles.grow} />
         {!isNote && aiIdle ? <AssistantDraftBar d={ai} hasDraft={!!draft.trim()} /> : null}
         {tools.map(([key, icon]) => (
-          <button key={key} type="button" className={cx(styles.tool, key === 'xl' && ui.autoXl && styles.toolOn)} onClick={() => ui.togglePop(key)} aria-expanded={ui.pop === key}>
+          <button key={key} type="button" className={cx(styles.tool, key === 'xl' && pref.auto && styles.toolOn)} onClick={() => ui.togglePop(key)} aria-expanded={ui.pop === key}>
             <Icon name={icon} size={14} color={color.text3} />
             {t(`tools.${key}` as never)}
-            {key === 'xl' && ui.autoXl ? <span className={styles.auto}>{t('autoBadge')}</span> : null}
+            {key === 'xl' && pref.auto ? <span className={styles.auto}>{t('autoBadge')}</span> : null}
           </button>
         ))}
       </div>
       {!isNote && !aiIdle ? <AssistantDraftBar d={ai} hasDraft={!!draft.trim()} /> : null}
+      {!isNote ? <TranslationPreview state={xl.state} busy={busy} onSendTranslated={(v) => void submit(v)} onSendOriginal={() => void submit()} onRetry={() => void xl.request()} onCancel={xl.cancel} /> : null}
+      <CapturePreview state={capture.state} onAccept={capture.accept} onCancel={capture.cancel} onPickFile={() => picker.current?.click()} />
       <div className={cx(styles.box, isNote && styles.boxNote)}>
         {!isNote ? <FileChips files={files.files} onRemove={files.remove} /> : null}
         {ui.replyTo && !isNote ? (
@@ -132,7 +146,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && !e.shiftKey) {
               e.preventDefault();
-              void submit();
+              press();
             }
           }}
           placeholder={isNote ? t('notePlaceholder') : t('placeholder', { name: customer })}
@@ -152,7 +166,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
               {t.rich('senderLine', { name: me.data?.user.name.split(' ').at(-1) ?? '', b: (c) => <b style={{ color: channel?.color }}>{c}</b> })}
             </span>
           ) : null}
-          <button type="button" className={styles.send} onClick={() => void submit()} disabled={(!draft.trim() && (isNote || !files.ids.length)) || busy || !files.ready} data-testid="composer-send">
+          <button type="button" className={styles.send} onClick={press} disabled={(!draft.trim() && (isNote || !files.ids.length)) || busy || !files.ready} data-testid="composer-send">
             <Icon name="ic-send" size={15} color={color.white} />
             {isNote ? t('saveNote') : t('send')}
           </button>

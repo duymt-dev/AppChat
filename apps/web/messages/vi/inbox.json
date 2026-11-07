@@ -249,7 +249,27 @@
       "title": "Dịch tự động",
       "auto": "Tự động dịch 2 chiều",
       "autoHint": "Tin khách → tiếng Việt · Tin bạn → ngôn ngữ khách",
-      "to": "Dịch tin soạn sang"
+      "to": "Dịch tin soạn sang",
+      "pending": "Đang dịch tin soạn…",
+      "failed": "Không dịch được (lỗi hoặc hết credit) — thử lại hoặc gửi nguyên văn",
+      "sendTranslated": "Gửi bản dịch",
+      "sendOriginal": "Gửi nguyên văn",
+      "retry": "Thử lại",
+      "cancel": "Huỷ dịch",
+      "inMore": "Dịch thêm tin cũ hơn",
+      "inPaused": "Tạm dừng tự dịch (lỗi hoặc hết credit) — thử lại",
+      "autoLabel": "Bản dịch tự động"
+    },
+    "capture": {
+      "busy": "Đang chờ bạn chọn tab / cửa sổ / màn hình…",
+      "unsupported": "Trình duyệt này không hỗ trợ chụp màn hình — hãy đính kèm tệp ảnh",
+      "denied": "Bạn đã từ chối quyền chụp màn hình — có thể đính kèm tệp ảnh",
+      "failed": "Không chụp được màn hình — hãy đính kèm tệp ảnh",
+      "alt": "Ảnh chụp màn hình",
+      "warn": "Kiểm tra ảnh không chứa thông tin nhạy cảm trước khi đính kèm.",
+      "accept": "Đính kèm ảnh",
+      "fallback": "Chọn tệp",
+      "cancel": "Bỏ ảnh chụp"
     },
     "autoBadge": "AUTO",
     "fileFailed": "Không tải lên được tệp {name}",

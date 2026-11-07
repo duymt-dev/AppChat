@@ -249,7 +249,27 @@
       "title": "Auto translate",
       "auto": "Two-way auto translate",
       "autoHint": "Customer → Vietnamese · You → customer's language",
-      "to": "Translate my draft to"
+      "to": "Translate my draft to",
+      "pending": "Translating your draft…",
+      "failed": "Couldn't translate (error or out of credits) — retry or send the original",
+      "sendTranslated": "Send translation",
+      "sendOriginal": "Send original",
+      "retry": "Retry",
+      "cancel": "Cancel translation",
+      "inMore": "Translate older messages",
+      "inPaused": "Auto-translate paused (error or out of credits) — retry",
+      "autoLabel": "Automatic translation"
+    },
+    "capture": {
+      "busy": "Waiting for you to choose a tab / window / screen…",
+      "unsupported": "This browser can't capture the screen — attach an image file instead",
+      "denied": "Screen capture permission was denied — you can attach an image file",
+      "failed": "Couldn't capture the screen — attach an image file instead",
+      "alt": "Screenshot",
+      "warn": "Check the image has no sensitive information before attaching.",
+      "accept": "Attach image",
+      "fallback": "Choose file",
+      "cancel": "Discard screenshot"
     },
     "autoBadge": "AUTO",
     "fileFailed": "Could not upload {name}",

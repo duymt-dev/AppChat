@@ -1,6 +1,5 @@
 // Popover của ô soạn: Trả lời nhanh · Đặt lịch hẹn (khung giờ trống thật — SchedulingPopover, TIP-025b §E) · Dịch tự động · menu ＋ (REQ-C11 — AgentToolsMenu) — prototype L1801–1868, L653.
 'use client';
-import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
@@ -12,23 +11,32 @@ import { cannedQuery } from '../api';
 import type { Conversation } from '../types';
 import { AgentToolsMenu } from './AgentToolsMenu';
 import { SchedulingPopover } from './SchedulingPopover';
+import { TranslationPopover } from './TranslationPopover';
+import type { XlPref } from '../hooks/useInboxTranslation';
 
-const LANGS = ['English', '中文', '한국어', '日本語'] as const;
+export interface ComposerPopoversProps {
+  conv: Conversation;
+  customer: string;
+  xl: XlPref;
+  onXl: (p: Partial<XlPref>) => void;
+  onInsert: (text: string) => void;
+  onPickFile: () => void;
+  onCapture: () => void;
+}
 
-export function ComposerPopovers({ conv, customer, onInsert, onPickFile }: { conv: Conversation; customer: string; onInsert: (text: string) => void; onPickFile: () => void }) {
+export function ComposerPopovers({ conv, customer, xl, onXl, onInsert, onPickFile, onCapture }: ComposerPopoversProps) {
   const t = useTranslations('inbox.composer');
   const { styles, cx } = useComposerStyles();
   const { styles: ps } = usePopStyles();
   const { styles: base } = useInboxStyles();
   const ui = useInboxUi();
   const canned = useQuery({ ...cannedQuery(), enabled: ui.pop === 'qr' });
-  const [lang, setLang] = useState(0);
   if (ui.pop !== 'qr' && ui.pop !== 'sched' && ui.pop !== 'xl' && ui.pop !== 'attach') return null;
 
   return (
     <>
       <div className={base.veil} onClick={ui.closePop} />
-      {ui.pop === 'attach' ? <AgentToolsMenu conversationId={conv.id} onClose={ui.closePop} onPickFile={onPickFile} /> : null}
+      {ui.pop === 'attach' ? <AgentToolsMenu conversationId={conv.id} onClose={ui.closePop} onPickFile={onPickFile} onCapture={onCapture} /> : null}
       {ui.pop === 'qr' ? (
         <div className={ps.pop} data-testid="qr-pop">
           <div className={ps.popHead}>
@@ -55,30 +63,7 @@ export function ComposerPopovers({ conv, customer, onInsert, onPickFile }: { con
         </div>
       ) : null}
       {ui.pop === 'sched' ? <SchedulingPopover conv={conv} customer={customer} onInsert={onInsert} onClose={ui.closePop} /> : null}
-      {ui.pop === 'xl' ? (
-        <div className={cx(ps.pop, ps.popRight)} data-testid="xl-pop">
-          <div className={ps.popHead}>
-            <Icon name="ic-globe" size={16} color={color.blue} />
-            {t('xl.title')}
-          </div>
-          <div className={ps.popBody}>
-            <button type="button" className={cx(ps.slot, ui.autoXl && ps.slotOn)} aria-pressed={ui.autoXl} onClick={() => ui.set({ autoXl: !ui.autoXl })}>
-              <span className={styles.grow}>
-                <div className={ps.qrTitle}>{t('xl.auto')}</div>
-                <div className={ps.qrPreview}>{t('xl.autoHint')}</div>
-              </span>
-            </button>
-            <div className={ps.popHint}>{t('xl.to')}</div>
-            <div className={styles.actions}>
-              {LANGS.map((l, i) => (
-                <button key={l} type="button" className={cx(ps.lang, lang === i && ps.langOn)} onClick={() => setLang(i)}>
-                  {l}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {ui.pop === 'xl' ? <TranslationPopover pref={xl} onChange={onXl} /> : null}
     </>
   );
 }
