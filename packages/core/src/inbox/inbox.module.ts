@@ -45,10 +45,11 @@ import { FILE_LINKS } from './tokens';
 const opt = (token: symbol) => ({ token, optional: true });
 
 import { CannedReplySearchHandler, ConversationGetHandler, ConversationSearchHandler } from './actions/conversation-read.handlers';
+import { ConversationApprovalsHandler } from './actions/conversation-approvals.handler';
 import { TagSearchHandler } from './actions/tag-read.handler';
 
 const HANDLERS = [
-  ConversationSearchHandler, ConversationGetHandler, TagSearchHandler, CannedReplySearchHandler,
+  ConversationSearchHandler, ConversationGetHandler, TagSearchHandler, CannedReplySearchHandler, ConversationApprovalsHandler,
   ConversationMarkReadHandler, ConversationSetStatusHandler, ConversationPinHandler, ConversationArchiveHandler, ConversationHideHandler,
   ConversationSetAiModeHandler, ConversationHandoffHandler, ConversationClearHistoryHandler,
   ConversationAssignHandler, ConversationTagHandler, ConversationSetTagsHandler, ConversationBulkUpdateHandler,

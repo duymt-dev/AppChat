@@ -8,10 +8,11 @@ import { InboxMetaController } from './inbox-meta.controller';
 import { GroupRequestsController } from './group-requests.controller';
 import { ChannelOperationsController } from './channel-operations.controller';
 import { InboxGroupsController } from './inbox-groups.controller';
+import { InboxApprovalsController } from './inbox-approvals.controller';
 
 @Module({ imports: [InboxModule] })
 export class InboxHttpModule {
   static register(): DynamicModule {
-    return { module: InboxHttpModule, imports: [InboxModule, ChannelsModule, ActorModule], controllers: [ConversationsController, InboxMetaController, GroupRequestsController, ChannelOperationsController, InboxGroupsController] };
+    return { module: InboxHttpModule, imports: [InboxModule, ChannelsModule, ActorModule], controllers: [ConversationsController, InboxMetaController, GroupRequestsController, ChannelOperationsController, InboxGroupsController, InboxApprovalsController] };
   }
 }

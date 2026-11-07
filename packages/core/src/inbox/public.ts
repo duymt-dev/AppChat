@@ -15,3 +15,4 @@ export { senderOf } from './actions/message.handlers';
 export { readHandoffSummary } from './services/handoff-summary-read';
 // TIP-025b §A: trạng thái nhóm / lệnh nhóm / ứng viên thêm thành viên (controller inbox-groups).
 export { groupState, groupCommand, groupCandidates } from './groups/group-read';
+export { conversationApprovals } from './approvals/conversation-approvals';

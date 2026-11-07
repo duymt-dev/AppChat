@@ -93,6 +93,10 @@
     }
   },
   "conversation": {
+    "approvals": {
+      "title": "Thẻ duyệt của hội thoại",
+      "desc": "Xem các yêu cầu duyệt do AI tạo trong một hội thoại."
+    },
     "unhide": {
       "title": "Hiện lại hội thoại"
     },

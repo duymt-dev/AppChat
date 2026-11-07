@@ -93,6 +93,10 @@
     }
   },
   "conversation": {
+    "approvals": {
+      "title": "Conversation approvals",
+      "desc": "List approval requests raised by AI in one conversation."
+    },
     "unhide": {
       "title": "Unhide conversation"
     },
