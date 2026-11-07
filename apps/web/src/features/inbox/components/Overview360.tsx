@@ -11,8 +11,14 @@ import { Timeline } from './Timeline';
 import { ExtraCards } from './ExtraCards';
 import type { Contact360 } from '../types';
 import { AvatarFace } from './AvatarFace';
+import { HistoryCsvButton } from './HistoryCsvButton';
+import { useCan } from '@/shared/authz/useCan';
+import { useContactEditUi } from '@/shared/crm-forms/contact-edit-command';
 
 export function Overview360({ c }: { c: Contact360 }) {
+  // TIP-025b §D.3: "Sửa" mở form sửa toàn cục (ContactFormHost) — ẩn khi không có crm.edit; host kiểm lại quyền ghi theo bản ghi.
+  const canEdit = useCan('crm.edit');
+  const openEdit = useContactEditUi((s) => s.open);
   const t = useTranslations('inbox.p360');
   const fmt = useFmt();
   const { styles, cx } = usePanelStyles();
@@ -73,9 +79,11 @@ export function Overview360({ c }: { c: Contact360 }) {
       <div className={styles.card} data-testid="p360-contact">
         <div className={styles.cardHead}>
           <span className={styles.eyebrow}>{t('contact')}</span>
-          <button type="button" className={styles.link}>
-            {t('edit')}
-          </button>
+          {canEdit ? (
+            <button type="button" className={styles.link} onClick={() => openEdit(c.id)} data-testid="p360-edit">
+              {t('edit')}
+            </button>
+          ) : null}
         </div>
         <div className={cs.person}>
           <AvatarFace className={cs.bigAvatar} background={c.avatar_color} src={c.avatar_url}>
@@ -146,9 +154,7 @@ export function Overview360({ c }: { c: Contact360 }) {
       <div className={styles.card}>
         <div className={styles.cardHead}>
           <span className={styles.eyebrow}>{t('history')}</span>
-          <button type="button" className={styles.link}>
-            {t('exportCsv')}
-          </button>
+          <HistoryCsvButton contactId={c.id} />
         </div>
         <Timeline items={c.history} />
       </div>

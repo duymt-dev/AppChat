@@ -8,6 +8,7 @@ import { inboxParamRoute } from './domains/inbox';
 import { inboxThreadParamRoute } from './domains/inbox-thread';
 import { inboxGroupParamRoute } from './domains/inbox-groups';
 import { customersParamRoute } from './domains/customers';
+import { contactEditParamRoute } from './domains/contact-edit';
 import { agentsParamRoute } from './domains/agents';
 import { agentStatsParamRoute } from './domains/agent-stats';
 import { agentToolsParamRoute } from './domains/agent-tools';
@@ -106,6 +107,7 @@ export const mockTransport: Transport = {
       agentToolsParamRoute(path) ??
       agentStatsParamRoute(path) ??
       agentsParamRoute(path) ??
+      contactEditParamRoute(path) ??
       customersParamRoute(path) ??
       inboxThreadParamRoute(path) ??
       inboxGroupParamRoute(path) ??

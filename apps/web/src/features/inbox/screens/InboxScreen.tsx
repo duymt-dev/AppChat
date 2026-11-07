@@ -58,7 +58,7 @@ export function InboxScreen() {
           {conv ? (
             <>
               <ChatPanel key={conv.id} conv={conv} channel={channels?.[conv.channel]} className={cx(!ui.mobileChat && styles.hideMobile)} />
-              {ui.show360 ? conv.kind === 'group' ? <GroupInfoPanel conv={conv} /> : conv.contact_id ? <Panel360 contactId={conv.contact_id} /> : null : null}
+              {ui.show360 ? conv.kind === 'group' ? <GroupInfoPanel conv={conv} /> : conv.contact_id ? <Panel360 contactId={conv.contact_id} conversationId={conv.id} /> : null : null}
             </>
           ) : (
             <div className={cx(styles.empty, styles.hideMobile)} data-testid="inbox-empty">

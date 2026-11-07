@@ -4,3 +4,4 @@ export { CalendarScreen } from './screens/CalendarScreen';
 export { AppointmentFormModal } from './components/AppointmentFormModal';
 export { useCalendarUi } from './calendar-store';
 export { calendarMetaQuery } from './api';
+export { prefillCalendarForm } from './ui-commands';

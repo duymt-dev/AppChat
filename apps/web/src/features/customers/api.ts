@@ -1,6 +1,7 @@
 // Đọc Khách hàng (Blueprint §4.4 crm). Ghi chỉ qua useAction (packages/actions/src/crm.ts).
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
+import type { ContactEditContextDto } from '@appchat/shared';
 import type { AccessRequest, Collaborators, ContactRow, ContactSort, ContactsBoard, CrmAi, CrmStats, Duplicates, ImportTable, Member, StageKey } from './types';
 import type { PageState, Paged } from '@/shared/list/paged';
 import { customParams } from '@/shared/custom-fields';
@@ -49,3 +50,7 @@ export const accessRequestsQuery = () =>
   queryOptions({ queryKey: ['crm', 'access-requests'], queryFn: () => transport.get<AccessRequest[]>('/contact-access-requests') });
 
 export const crmAiQuery = () => queryOptions({ queryKey: ['crm', 'ai'], queryFn: () => transport.get<CrmAi>('/crm/ai'), ...staticOpts });
+
+/** Ngữ cảnh form sửa (TIP-025b §D.3): trường được thấy + version + quyền — luôn đọc mới khi mở form (không dùng cache cũ). */
+export const contactEditQuery = (id: string) =>
+  queryOptions({ queryKey: ['crm', 'edit-context', id], queryFn: () => transport.get<ContactEditContextDto>(`/contacts/${id}/edit-context`), staleTime: 0, gcTime: 0 });
