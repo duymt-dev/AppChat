@@ -462,6 +462,7 @@
       "opens": null,
       "fields": [
         "api_key",
+        "hmac_secret",
         "account_number"
       ],
       "interest": false
@@ -475,6 +476,8 @@
       "connected": false,
       "opens": null,
       "fields": [
+        "webhook_secret",
+        "account_number",
         "api_key"
       ],
       "interest": false

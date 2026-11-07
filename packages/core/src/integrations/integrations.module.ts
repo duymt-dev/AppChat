@@ -8,6 +8,8 @@ import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENC_KEY } from '../kernel/crypto';
 import { REDIS } from '../kernel/redis';
+import { ENV_SOURCE } from '../kernel/env-source';
+import { sandboxAllowed } from './services/adapter-selection';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { IntegrationConnectHandler } from './actions/integration-connect.handler';
 import { IntegrationDisconnectHandler } from './actions/integration-disconnect.handler';
@@ -41,8 +43,9 @@ const INTEGRATIONS_CALL_QUEUE = Symbol('INTEGRATIONS_CALL_QUEUE');
     IntegrationTestHandler,
     {
       provide: ConnectionsService,
-      inject: [opt(PLATFORM_DB), opt(ENC_KEY), CLOCK],
-      useFactory: (p: PlatformDb | undefined, k: Buffer | undefined, c: Clock) => (p && k ? new ConnectionsService(connectorRegistry, p, k, () => c.now()) : null),
+      inject: [opt(PLATFORM_DB), opt(ENC_KEY), CLOCK, opt(ENV_SOURCE)],
+      useFactory: (p: PlatformDb | undefined, k: Buffer | undefined, c: Clock, src?: Record<string, string | undefined>) =>
+        p && k ? new ConnectionsService(connectorRegistry, p, k, () => c.now(), sandboxAllowed(src ?? process.env)) : null,
     },
     {
       provide: IntegrationResolver,

@@ -8,6 +8,7 @@ import { uuidv7 } from '../../kernel/ids';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { connectionCtx } from './connections.service';
+import { adapterOf } from './adapter-selection';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -26,11 +27,12 @@ export class IntegrationWebhooks {
     const notFound = () => new AppError('NOT_FOUND', 404, { connection: 'unknown' });
     if (!UUID.test(connectionId)) throw notFound();
     const route = await this.platform.tenantIntegrationRoute.findUnique({ where: { connectionId } });
-    const adapter = this.registry.get(connector)?.adapter;
-    if (!route || route.connectorKey !== connector || route.status !== 'connected' || !adapter?.verifyWebhook) throw notFound();
+    if (!route || route.connectorKey !== connector || route.status !== 'connected') throw notFound();
     const db = await this.tenants.get(TenantContexts.fromRoute(route.workspaceId, 'integration'));
     const row = await db.integrationConnection.findUnique({ where: { id: connectionId } });
-    if (!row || row.status === 'disconnected') throw notFound();
+    // Adapter theo chế độ đã lưu của kết nối (live không lùi về giả lập) — không có → 404 như route lạ.
+    const adapter = row ? adapterOf(this.registry, connector, row.mode) : null;
+    if (!row || row.status === 'disconnected' || !adapter?.verifyWebhook) throw notFound();
 
     const ev = adapter.verifyWebhook(connectionCtx(row, this.key), req);
     if (!ev) throw new AppError('UNAUTHENTICATED', 401, { signature: 'invalid' });

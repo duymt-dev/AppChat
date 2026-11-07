@@ -19,7 +19,7 @@ beforeAll(async () => {
   inv = await m.seed('invoice.create', { order_id: o.order_id, contact_id: lan, kind: 'full', amount: '2000000' });
   const db = await m.db();
   // Feed thật qua bank_feed.connect (adapter SePay mock); giao dịch "Cần đối soát" dựng ở DB (webhook kiểm ở payments.test).
-  const feed = (await m.seed('bank_feed.connect', { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071000123456' } })).feed_id;
+  const feed = (await m.seed('bank_feed.connect', { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071000123456' }, mode: 'sandbox' })).feed_id;
   bt = uuidv7();
   await db.bankTx.create({ data: { id: bt, feedId: feed, externalId: 'FT-9', amount: 700000n, content: 'CK KHONG MA', accountNo: '0071000123456', occurredAt: m.h.clock.now(), status: 'needs_review', reason: 'missing_code', createdAt: m.h.clock.now() } });
 }, 120_000);

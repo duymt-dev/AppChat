@@ -10,7 +10,7 @@ import { useIntegStyles } from '../styles/integrations.styles';
 import { useSettingsUi } from '../settings-store';
 import { connectorsQuery } from '../api';
 
-const SECRET = ['api_key', 'password'];
+const SECRET = ['api_key', 'password', 'hmac_secret', 'webhook_secret'];
 
 export function ConnectIntegrationModal() {
   const t = useTranslations('settings.integrations');

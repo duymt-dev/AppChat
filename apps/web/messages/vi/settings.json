@@ -660,6 +660,8 @@
     "interested": "Đã đăng ký",
     "field": {
       "api_key": "API key / Token",
+      "hmac_secret": "Khoá bí mật HMAC (nếu dùng chữ ký)",
+      "webhook_secret": "Key bảo mật Webhook V2",
       "account_number": "Số tài khoản nhận",
       "host": "SMTP host",
       "username": "Tài khoản",

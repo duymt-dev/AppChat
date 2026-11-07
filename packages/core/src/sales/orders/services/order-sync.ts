@@ -6,7 +6,7 @@ import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/d
 import { isOrderSync, type ConnectorRegistry, type ExternalOrder, type OrderSyncProvider } from '@appchat/integrations';
 import { markDirty, writeOutbox } from '../../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../../kernel/redis';
-import { connectionCtx } from '../../../integrations/public';
+import { adapterOf, connectionCtx } from '../../../integrations/public';
 import { importExternal } from './order-import';
 
 const OVERLAP_MS = 10 * 60_000;
@@ -40,7 +40,7 @@ export class OrderSyncService {
   constructor(private readonly d: OrderSyncDeps) {}
 
   private adapterOf(row: ConnRow): OrderSyncProvider | null {
-    const a = this.d.registry.get(row.connectorKey)?.adapter;
+    const a = adapterOf(this.d.registry, row.connectorKey, row.mode);
     return isOrderSync(a) ? a : null;
   }
 

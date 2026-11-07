@@ -1,11 +1,12 @@
 // Kết nối connector của workspace (provider-ports §3, §4; TIP-012): kiểm trường theo manifest, tách bí mật → `secret_enc`
 // (AES-256-GCM), kiểm thông tin qua adapter trước khi lưu, upsert theo connector, ghi route webhook ở DB nền tảng.
 import { AppError } from '@appchat/shared';
-import type { ConnectionCtx, ConnectorEntry, ConnectorRegistry } from '@appchat/integrations';
+import type { ConnectionCtx, ConnectionMode, ConnectorEntry, ConnectorRegistry } from '@appchat/integrations';
 import type { PlatformDb } from '@appchat/db';
 import { openSecrets, sealSecrets } from '../../kernel/crypto';
 import { uuidv7 } from '../../kernel/ids';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { adapterOf, pickMode } from './adapter-selection';
 
 type ConnectionRow = { id: string; mode: 'sandbox' | 'live'; config: unknown; secretEnc: Uint8Array | null };
 
@@ -22,7 +23,7 @@ export function connectionCtx(row: ConnectionRow, key: Buffer): ConnectionCtx {
   };
 }
 
-/** Tách trường theo manifest: thiếu trường bắt buộc → 422 `{ [field]: 'required' }`; trường lạ bỏ qua. */
+/** Tách trường theo manifest: thiếu trường bắt buộc → 422 `{ [field]: 'required' }`; trường lạ bỏ qua; kiểm chéo `manifest.validate`. */
 export function splitFields(e: ConnectorEntry, fields: Record<string, string>) {
   const config: Record<string, string> = {};
   const secrets: Record<string, string> = {};
@@ -31,6 +32,8 @@ export function splitFields(e: ConnectorEntry, fields: Record<string, string>) {
     if (!v && !f.optional) throw new AppError('VALIDATION_FAILED', 422, { [f.key]: 'required' });
     if (v) (f.secret ? secrets : config)[f.key] = v;
   }
+  const bad = e.manifest.validate?.({ config, secrets });
+  if (bad) throw new AppError('VALIDATION_FAILED', 422, bad);
   return { config, secrets };
 }
 
@@ -40,6 +43,7 @@ export class ConnectionsService {
     private readonly platform: Pick<PlatformDb, 'tenantIntegrationRoute'>,
     private readonly key: Buffer,
     private readonly now: () => Date,
+    private readonly allowSandbox = true,
   ) {}
 
   /** Connector kết nối được (không "Sắp có") hoặc 422 `{ provider: 'coming_soon' }` — cùng mã với mock FE. */
@@ -53,15 +57,21 @@ export class ConnectionsService {
     return splitFields(e, fields);
   }
 
-  async connect(tx: TenantTx, ws: string, userId: string, provider: string, fields: Record<string, string>) {
+  /** Chế độ cho lần kết nối (giữ chế độ đã lưu khi kết nối lại mà không chọn) — 422 nếu manifest / môi trường không cho. */
+  mode(e: ConnectorEntry, requested?: ConnectionMode, saved?: ConnectionMode): ConnectionMode {
+    return pickMode(e, requested, saved, this.allowSandbox);
+  }
+
+  async connect(tx: TenantTx, ws: string, userId: string, provider: string, fields: Record<string, string>, requested?: ConnectionMode) {
     const e = this.entry(provider);
     const { config, secrets } = this.split(e, fields);
-    const mode = e.manifest.modes.includes('live') ? ('live' as const) : ('sandbox' as const);
     const existing = await tx.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE } });
+    const mode = this.mode(e, requested, existing?.mode);
     const id = existing?.id ?? uuidv7(this.now().getTime());
-    if (e.adapter?.test) {
+    const adapter = adapterOf(this.registry, provider, mode);
+    if (adapter?.test) {
       try {
-        await e.adapter.test({ id, mode, config, secrets });
+        await adapter.test({ id, mode, config, secrets });
       } catch {
         // Lý do từ provider có thể chứa dữ liệu nhạy cảm → không trả client.
         throw new AppError('VALIDATION_FAILED', 422, { provider: 'test_failed' });
@@ -86,15 +96,16 @@ export class ConnectionsService {
   /**
    * Kiểm + mã hoá trước, KHÔNG ghi (action nền tảng — TIP-045b: pha nền tảng chỉ đọc tenant). Trả bản ghi đã mã hoá cho pha tenant.
    */
-  async prepareConnect(read: Pick<TenantTx, 'integrationConnection'>, provider: string, fields: Record<string, string>) {
+  async prepareConnect(read: Pick<TenantTx, 'integrationConnection'>, provider: string, fields: Record<string, string>, requested?: ConnectionMode) {
     const e = this.entry(provider);
     const { config, secrets } = this.split(e, fields);
-    const mode = e.manifest.modes.includes('live') ? ('live' as const) : ('sandbox' as const);
-    const existing = await read.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE }, select: { id: true } });
+    const existing = await read.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE }, select: { id: true, mode: true } });
+    const mode = this.mode(e, requested, existing?.mode);
     const id = existing?.id ?? uuidv7(this.now().getTime());
-    if (e.adapter?.test) {
+    const adapter = adapterOf(this.registry, provider, mode);
+    if (adapter?.test) {
       try {
-        await e.adapter.test({ id, mode, config, secrets });
+        await adapter.test({ id, mode, config, secrets });
       } catch {
         throw new AppError('VALIDATION_FAILED', 422, { provider: 'test_failed' });
       }

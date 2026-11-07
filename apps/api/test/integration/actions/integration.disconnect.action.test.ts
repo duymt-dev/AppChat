@@ -8,7 +8,7 @@ let m: Matrix;
 
 beforeAll(async () => {
   m = await matrix('integration.disconnect');
-  await m.seed('integration.connect', { provider: 'casso', fields: { api_key: 'ck_1' } });
+  await m.seed('integration.connect', { provider: 'casso', fields: { webhook_secret: 'ck_1', account_number: '0071000555666' }, mode: 'sandbox' });
 }, 120_000);
 afterAll(() => m?.close());
 

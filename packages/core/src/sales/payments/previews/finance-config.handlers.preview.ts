@@ -1,6 +1,7 @@
 // Preview cấu hình tài chính (TIP-023b R2.8): tài khoản nhận tiền → ngân hàng / số TK / chủ TK trước / sau (nguồn VietQR của đề nghị); bank
 // feed kết nối → nhà cung cấp + số TK (trường không bí mật), kiểm trường bắt buộc như connect — không gọi provider, không hiện secret; ngắt →
 // nhà cung cấp + số TK đang nhận, cảnh báo giao dịch mới không tự khớp nữa. Chỉ đọc.
+import { accountOrEmpty } from '@appchat/integrations';
 import type { ActionInput, ActionPreview, bankFeedConnect, bankFeedDisconnect, paymentAccountUpdate } from '@appchat/actions';
 import { AppError } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
@@ -18,7 +19,7 @@ export async function connectPreview(tx: TenantTx, connections: ConnectionsServi
   if (!connections) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'integrations chưa cấu hình (APP_ENC_KEY)');
   const e = connections.entry(i.provider);
   const { config } = connections.split(e, i.fields);
-  const accountNo = String(config.account_number ?? '').replace(/\D/g, '');
+  const accountNo = accountOrEmpty(config.account_number);
   const existing = await tx.integrationConnection.findFirst({ where: { connectorKey: i.provider, status: { not: 'disconnected' } }, select: { id: true } });
   return preview('config', line(e.manifest.name, accountNo), { changes: [created('bank_feed', { provider: i.provider, account_no: accountNo || undefined }, existing?.id)], ...(existing ? { warnings: ['reconnect'] } : {}) });
 }

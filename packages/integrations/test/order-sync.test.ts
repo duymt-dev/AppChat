@@ -48,7 +48,7 @@ describe('MockOrderSyncProvider', () => {
     expect(connectorRegistry.listed().some((m) => m.key === 'mock_marketplace')).toBe(false);
     expect(connectorRegistry.isConnectable('mock_marketplace')).toBe(true);
     expect(connectorRegistry.byPort('order_sync').map((e) => e.manifest.key)).toEqual(['mock_marketplace']);
-    expect(isOrderSync(connectorRegistry.get('mock_marketplace')?.adapter)).toBe(true);
-    expect(isOrderSync(connectorRegistry.get('sepay')?.adapter)).toBe(false);
+    expect(isOrderSync(connectorRegistry.get('mock_marketplace')?.adapters?.sandbox)).toBe(true);
+    expect(isOrderSync(connectorRegistry.get('sepay')?.adapters?.live)).toBe(false);
   });
 });

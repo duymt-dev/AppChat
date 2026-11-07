@@ -181,8 +181,8 @@ describe('đề nghị thanh toán', () => {
 
 describe('bank feed SePay của DN (adapter mock)', () => {
   it('connect: finance.manage, kết nối port bank_feed + route nền tảng; settings trả link webhook', async () => {
-    expect((await act('bank_feed.connect', { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071000123456' } }, accountant)).status).toBe(403);
-    const d = ok(await act('bank_feed.connect', { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071 000 123 456' } }));
+    expect((await act('bank_feed.connect', { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071000123456' }, mode: 'sandbox' }, accountant)).status).toBe(403);
+    const d = ok(await act('bank_feed.connect', { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071 000 123 456' }, mode: 'sandbox' }));
     feed = d.result.feed_id;
     expect(d.result.webhook_path).toBe(`/hooks/tenant-payments/sepay/${feed}`);
     expect(await h.platform.tenantBankFeedRoute.findUniqueOrThrow({ where: { feedId: feed } })).toMatchObject({ workspaceId: h.ws, provider: 'sepay' });

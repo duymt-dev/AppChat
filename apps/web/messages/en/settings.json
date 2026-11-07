@@ -660,6 +660,8 @@
     "interested": "Registered",
     "field": {
       "api_key": "API key / Token",
+      "hmac_secret": "HMAC secret key (if using signatures)",
+      "webhook_secret": "Webhook V2 security key",
       "account_number": "Receiving account number",
       "host": "SMTP host",
       "username": "Username",

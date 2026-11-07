@@ -5,6 +5,7 @@
 // thông điệp provider). Không có adapter / `coming_soon` → `unsupported` rõ ràng, không bao giờ `ok`. Không gọi URL tuỳ ý.
 import type { AuthField, ConnectionCtx, ConnectorEntry, ConnectorRegistry } from '@appchat/integrations';
 import { AppError, type AuthFieldDto } from '@appchat/shared';
+import { adapterFor } from '@appchat/integrations';
 
 export const PROBE_TIMEOUT_MS = 10_000;
 
@@ -69,11 +70,12 @@ export type ProbeResult = { status: 'ok' } | { status: 'failed'; reason: 'reject
 /** Gọi `adapter.test` với hạn 10 giây; lỗi → `failed` đã làm sạch. */
 export async function probe(e: ConnectorEntry, conn: ConnectionCtx, timeoutMs = PROBE_TIMEOUT_MS): Promise<ProbeResult> {
   if (e.manifest.status === 'coming_soon') return { status: 'unsupported', reason: 'coming_soon' };
-  if (!e.adapter?.test) return { status: 'unsupported', reason: 'no_test' };
+  const adapter = adapterFor(e, conn.mode);
+  if (!adapter?.test) return { status: 'unsupported', reason: 'no_test' };
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<'timeout'>((r) => (timer = setTimeout(() => r('timeout'), timeoutMs)));
   try {
-    const r = await Promise.race([e.adapter.test(conn).then(() => 'ok' as const), timeout]);
+    const r = await Promise.race([adapter.test(conn).then(() => 'ok' as const), timeout]);
     return r === 'ok' ? { status: 'ok' } : { status: 'failed', reason: 'timeout' };
   } catch {
     // Thông điệp provider có thể chứa dữ liệu nhạy cảm → không trả.

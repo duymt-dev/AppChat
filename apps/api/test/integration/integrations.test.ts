@@ -80,17 +80,17 @@ describe('kết nối', () => {
   let sepayId: string;
 
   it('AC4 thiếu trường → 422 required; "Sắp có" / không có → coming_soon; adapter test lỗi → test_failed; sales → 403', async () => {
-    expect(await act('integration.connect', { provider: 'sepay', fields: { api_key: 'sk_1' } })).toMatchObject({ status: 422, body: { error: { fields: { account_number: 'required' } } } });
+    expect(await act('integration.connect', { provider: 'sepay', fields: { api_key: 'sk_1' }, mode: 'sandbox' })).toMatchObject({ status: 422, body: { error: { fields: { account_number: 'required' } } } });
     expect((await act('integration.connect', { provider: 'kiotviet', fields: {} })).body.error.fields).toEqual({ provider: 'coming_soon' });
     expect((await act('integration.connect', { provider: 'nope', fields: {} })).body.error.fields).toEqual({ provider: 'coming_soon' });
-    expect((await act('integration.connect', { provider: 'sepay', fields: { api_key: 'bad_key', account_number: '0123' } })).body.error.fields).toEqual({ provider: 'test_failed' });
+    expect((await act('integration.connect', { provider: 'sepay', fields: { api_key: 'bad_key', account_number: '0123' }, mode: 'sandbox' })).body.error.fields).toEqual({ provider: 'test_failed' });
     const sales = await h.member('sales');
-    expect((await act('integration.connect', { provider: 'casso', fields: { api_key: 'k' } }, { authorization: `Bearer ${sales.token}` })).status).toBe(403);
+    expect((await act('integration.connect', { provider: 'casso', fields: { webhook_secret: 'k', account_number: '0071000555666' }, mode: 'sandbox' }, { authorization: `Bearer ${sales.token}` })).status).toBe(403);
     expect((await call(h, '/settings/integrations', undefined, { authorization: `Bearer ${sales.token}` })).status).toBe(403);
   });
 
   it('AC3 sepay: config account_number, secret_enc giải ra api_key; DB / action_log không có bản rõ; route nền tảng; outbox integration.connected', async () => {
-    const r = await act('integration.connect', { provider: 'sepay', fields: { api_key: 'sk_live_SECRET123', account_number: '0123456789', extra: 'x' } });
+    const r = await act('integration.connect', { provider: 'sepay', fields: { api_key: 'sk_live_SECRET123', account_number: '0123456789', extra: 'x' }, mode: 'sandbox' });
     expect(r.status).toBe(200);
     expect(r.body.data.result.status).toBe('connected');
     sepayId = r.body.data.result.connection_id;
@@ -110,7 +110,7 @@ describe('kết nối', () => {
     expect(connectorListSchema.safeParse(data).success).toBe(true);
     expect(data).toHaveLength(18);
     expect(data[0]).toMatchObject({ key: 'web_widget', opens: 'web_widget' });
-    expect(data.find((c: { key: string }) => c.key === 'sepay')).toMatchObject({ connected: true, fields: ['api_key', 'account_number'], color: '#0E7C66' });
+    expect(data.find((c: { key: string }) => c.key === 'sepay')).toMatchObject({ connected: true, fields: ['api_key', 'hmac_secret', 'account_number'], color: '#0E7C66' });
     expect(data.find((c: { key: string }) => c.key === 'smtp')).toMatchObject({ name: 'Google Workspace', fields: ['host', 'username', 'password'], connected: false });
     expect(JSON.stringify(data)).not.toContain('sk_live');
   });
@@ -124,11 +124,11 @@ describe('kết nối', () => {
   });
 
   it('AC5 kết nối lại → cùng connection_id, bí mật mới; disconnect → disconnected, secret null, route; chưa kết nối → 404', async () => {
-    const r = await act('integration.connect', { provider: 'sepay', fields: { api_key: 'sk_live_NEW', account_number: '999' } });
+    const r = await act('integration.connect', { provider: 'sepay', fields: { api_key: 'sk_live_NEW', account_number: '999' }, mode: 'sandbox' });
     expect(r.body.data.result.connection_id).toBe(sepayId);
     const db = await tenant();
     expect(JSON.parse(decryptSecret((await db.integrationConnection.findUniqueOrThrow({ where: { id: sepayId } })).secretEnc!, key()))).toEqual({ api_key: 'sk_live_NEW' });
-    expect((await act('integration.connect', { provider: 'casso', fields: { api_key: 'ck_1' } })).status).toBe(200);
+    expect((await act('integration.connect', { provider: 'casso', fields: { webhook_secret: 'ck_1', account_number: '0071000555666' }, mode: 'sandbox' })).status).toBe(200);
     const d = await act('integration.disconnect', { provider: 'casso' });
     expect(d).toMatchObject({ status: 200, body: { data: { result: { ok: true } } } });
     const casso = await db.integrationConnection.findFirstOrThrow({ where: { connectorKey: 'casso' } });
@@ -136,7 +136,7 @@ describe('kết nối', () => {
     expect((await h.platform.tenantIntegrationRoute.findUniqueOrThrow({ where: { connectionId: casso.id } })).status).toBe('disconnected');
     expect((await act('integration.disconnect', { provider: 'casso' })).status).toBe(404);
     // Ngắt rồi kết nối lại → dòng mới (unique partial chỉ áp kết nối đang dùng).
-    const again = await act('integration.connect', { provider: 'casso', fields: { api_key: 'ck_2' } });
+    const again = await act('integration.connect', { provider: 'casso', fields: { webhook_secret: 'ck_2', account_number: '0071000555666' }, mode: 'sandbox' });
     expect(again.body.data.result.connection_id).not.toBe(casso.id);
     expect((await list()).find((c: { key: string }) => c.key === 'casso').connected).toBe(true);
   });

@@ -43,12 +43,16 @@ export interface ConnectorManifest {
   docsUrl?: string;
   /** Connector sandbox / test (provider-ports §9) — kết nối được qua action nhưng không hiện ở trang Nền tảng kết nối. */
   hidden?: boolean;
+  /** Kiểm chéo trường sau khi tách (TIP-012b §1.2: tài khoản nhận, "ít nhất một cách xác thực") → lỗi theo trường, null = hợp lệ. */
+  validate?(v: { config: Record<string, string>; secrets: Record<string, string> }): Record<string, string> | null;
 }
+
+export type ConnectionMode = 'sandbox' | 'live';
 
 /** Kết nối của workspace mà adapter nhận (bí mật đã giải mã — chỉ trong bộ nhớ, không log). */
 export interface ConnectionCtx {
   id: string;
-  mode: 'sandbox' | 'live';
+  mode: ConnectionMode;
   config: Record<string, string>;
   secrets: Record<string, string>;
 }
@@ -74,7 +78,11 @@ export interface ConnectorAdapter {
   verifyWebhook?(conn: ConnectionCtx, req: WebhookRequest): WebhookEvent | null;
 }
 
+/**
+ * Adapter theo chế độ (TIP-012b §1.1): `live` = adapter thật của provider, `sandbox` = adapter giả lập chỉ cho test / dev (ẩn). Tra bằng
+ * `adapterFor(entry, mode)` — KHÔNG có đường lùi live → sandbox; thiếu adapter của chế độ đó = chưa hỗ trợ.
+ */
 export interface ConnectorEntry {
   manifest: ConnectorManifest;
-  adapter?: ConnectorAdapter;
+  adapters?: Partial<Record<ConnectionMode, ConnectorAdapter>>;
 }

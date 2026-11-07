@@ -3,6 +3,7 @@
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { ConnectionCtx, ConnectorAdapter, ConnectorRegistry, PortKey } from '@appchat/integrations';
 import { IN_USE, connectionCtx } from './connections.service';
+import { adapterOf } from './adapter-selection';
 
 export interface ResolvedConnection<A extends ConnectorAdapter = ConnectorAdapter> {
   connectorKey: string;
@@ -21,7 +22,7 @@ export class IntegrationResolver {
     const db = await this.tenants.get(TenantContexts.system(workspaceId, `integration:${port}`));
     const row = await db.integrationConnection.findFirst({ where: { port, status: 'connected' }, orderBy: { updatedAt: 'desc' } });
     if (!row) return null;
-    const adapter = (this.registry.get(row.connectorKey)?.adapter as A | undefined) ?? null;
+    const adapter = adapterOf<A>(this.registry, row.connectorKey, row.mode);
     return { connectorKey: row.connectorKey, adapter, conn: connectionCtx(row, this.key) };
   }
 

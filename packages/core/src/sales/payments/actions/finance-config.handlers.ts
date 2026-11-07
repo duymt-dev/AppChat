@@ -2,6 +2,7 @@
 // tiền = nguồn VietQR của đề nghị thanh toán. Bank feed = kết nối connector port `bank_feed` (bí mật mã hoá ở `integration_connection`,
 // kiểm thông tin qua adapter) + dòng `tenant_bank_feed` + route `tenant_bank_feed_route` ở DB nền tảng (action `db: 'platform'` —
 // nền tảng trước, Blueprint §2.0). Kết nối lại dùng lại feed cũ (giữ link webhook DN đã dán vào SePay / Casso).
+import { accountOrEmpty } from '@appchat/integrations';
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, bankFeedConnect, bankFeedDisconnect, paymentAccountUpdate } from '@appchat/actions';
@@ -52,13 +53,13 @@ export class BankFeedConnectHandler implements Handler<ActionInput<typeof bankFe
   /** Pha nền tảng (TIP-045b): kiểm thông tin + mã hoá + chọn id feed (tenant chỉ đọc). Ghi tenant ở `applyTenant`, route ở `finalizePlatform`. */
   async execute(ctx: ActionContext, input: ActionInput<typeof bankFeedConnect>, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ feed_id: string; webhook_path: string }>> {
     needPtx(ptx);
-    const conn = await need(this.connections).prepareConnect(tx, input.provider, input.fields);
-    const accountNo = String((conn.config as Record<string, unknown>).account_number ?? '').replace(/\D/g, '');
+    const conn = await need(this.connections).prepareConnect(tx, input.provider, input.fields, input.mode);
+    const accountNo = accountOrEmpty((conn.config as Record<string, unknown>).account_number);
     const existing = await tx.tenantBankFeed.findUnique({ where: { connectionId: conn.id } });
     const feedId = existing?.id ?? uuidv7(this.clock.now().getTime());
     return {
       result: { feed_id: feedId, webhook_path: webhookPathOf(input.provider, feedId) },
-      after: { provider: input.provider, feed_id: feedId, account_no: accountNo },
+      after: { provider: input.provider, feed_id: feedId, account_no: accountNo, mode: conn.mode },
       tenantPlan: { conn, feedId, accountNo, provider: input.provider, by: actorUserId(ctx) ?? ctx.actor.id, at: this.clock.now().toISOString() },
     };
   }

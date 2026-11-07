@@ -14,12 +14,12 @@ afterAll(() => m?.close());
 
 describe('bank_feed.connect', () => {
   it('403 sales · thiếu api_key → 422', async () => {
-    expect((await m.act({ provider: 'sepay', fields: { api_key: 'sk', account_number: '1' } }, m.sales)).status).toBe(403);
-    expect((await m.act({ provider: 'sepay', fields: { account_number: '1' } }, undefined, { 'x-action-source': 'assistant' })).body.error.fields).toEqual({ api_key: 'required' });
+    expect((await m.act({ provider: 'sepay', fields: { api_key: 'sk', account_number: '1' }, mode: 'sandbox' }, m.sales)).status).toBe(403);
+    expect((await m.act({ provider: 'sepay', fields: { account_number: '1' }, mode: 'sandbox' }, undefined, { 'x-action-source': 'assistant' })).body.error.fields).toEqual({ api_key: 'required' });
   });
 
   it('preview Trợ lý → xác nhận; lần hai cảnh báo kết nối lại', async () => {
-    const inp = { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071 000 123 456' } };
+    const inp = { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071 000 123 456' }, mode: 'sandbox' };
     const { preview, done } = await m.confirm(inp);
     expect(preview).toEqual({ summary: 'SePay · 0071000123456', risk: 'config', changes: [{ entity: 'bank_feed', after: { provider: 'sepay', account_no: '0071000123456' } }] });
     expect(JSON.stringify(preview)).not.toContain('sk_tenant');

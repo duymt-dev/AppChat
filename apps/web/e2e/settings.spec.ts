@@ -171,7 +171,8 @@ test.describe('settings', () => {
     const m = page.getByTestId('st-int-modal');
     await m.getByTestId('st-int-save').click();
     await expect(m).toBeVisible();
-    await m.getByTestId('st-int-f-api_key').fill('ck_live_123');
+    await m.getByTestId('st-int-f-webhook_secret').fill('ck_live_123');
+    await m.getByTestId('st-int-f-account_number').fill('0071000123456');
     await m.getByTestId('st-int-save').click();
     await expect(m).toHaveCount(0);
     await expect(page.locator('[data-connector="casso"]')).toContainText('Thiết lập');

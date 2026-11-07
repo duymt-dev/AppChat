@@ -304,8 +304,9 @@ export const integrationConnect = defineAction({
   id: 'integration.connect',
   module: 'integrations',
   title: 'actions.integration.connect.title',
-  description: 'Connect a provider from the connector registry with the fields its manifest asks for. Example: {"provider":"sepay","fields":{"api_key":"…"}}',
-  input: z.object({ provider: z.string().min(1), fields: z.record(z.string(), z.string()) }),
+  description:
+    'Connect a provider from the connector registry with the fields its manifest asks for. mode: live (real provider, default) or sandbox (test only). Example: {"provider":"sepay","fields":{"api_key":"…","account_number":"…"}}',
+  input: z.object({ provider: z.string().min(1), fields: z.record(z.string(), z.string()), mode: z.enum(['live', 'sandbox']).optional() }),
   output: z.object({ connection_id: z.string(), status: z.string() }),
   permission: 'integrations.manage',
   risk: 'config',

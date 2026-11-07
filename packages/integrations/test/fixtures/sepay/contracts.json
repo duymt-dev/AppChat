@@ -1,0 +1,163 @@
+{
+  "version": 1,
+  "provider": "sepay",
+  "captured": "2026-11-07",
+  "evidence": "provider_documentation",
+  "note": "Không có tài khoản SePay thật (Q-004): mẫu tài liệu chính thức + mô phỏng fixture ký bằng khoá test. KHÔNG phải nghiệm thu với provider thật.",
+  "sources": [
+    "https://developer.sepay.vn/vi/sepay-webhooks/tich-hop-webhook (payload, phản hồi success true, chống lặp theo id)",
+    "https://developer.sepay.vn/en/sepay-webhooks/xac-thuc (API Key / HMAC-SHA256 / OAuth2)"
+  ],
+  "auth": {
+    "api_key": {
+      "header": "Authorization",
+      "format": "Apikey <API_KEY>"
+    },
+    "hmac": {
+      "headers": [
+        "X-SePay-Signature",
+        "X-SePay-Timestamp"
+      ],
+      "format": "sha256=<hex>",
+      "algorithm": "HMAC-SHA256, key = Secret Key",
+      "signed_string": "{timestamp}.{raw_body}",
+      "timestamp_unit": "unix seconds",
+      "max_skew_seconds": 300
+    },
+    "oauth2": "Bearer token — chưa hỗ trợ (không khai trong manifest)"
+  },
+  "identity": {
+    "event": "id",
+    "transaction": "id",
+    "account": "accountNumber",
+    "bank": "gateway"
+  },
+  "amount": "transferAmount số nguyên dương (VND); chiều ở transferType in / out",
+  "timezone": "transactionDate YYYY-MM-DD HH:mm:ss giờ Việt Nam (+07:00)",
+  "response": "HTTP 200/201 + body success true trong 30 giây (endpoint DN: nhận bền rồi ACK ở pha 2)",
+  "read_probe": "Chưa có hợp đồng đọc / thăm dò trong tài liệu webhook — pha 3 rà SePay API trước khi bật kéo",
+  "cases": [
+    {
+      "name": "official_payload_shape",
+      "source": "developer.sepay.vn tich-hop-webhook (giá trị mô phỏng)",
+      "body": {
+        "id": 92704,
+        "gateway": "Vietcombank",
+        "transactionDate": "2026-10-30 14:02:37",
+        "accountNumber": "0071000123456",
+        "subAccount": null,
+        "code": null,
+        "content": "MBVCB.123 TT260001 CT",
+        "transferType": "in",
+        "description": "BankAPINotify MBVCB.123 TT260001 CT",
+        "transferAmount": 1000000,
+        "accumulated": 19077000,
+        "referenceCode": "FT26303"
+      },
+      "expect": {
+        "transactions": [
+          {
+            "external_id": "92704",
+            "account_number": "0071000123456",
+            "amount": "1000000",
+            "direction": "in",
+            "content": "MBVCB.123 TT260001 CT",
+            "occurred_at": "2026-10-30T07:02:37.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "outgoing",
+      "source": "fixture_simulation",
+      "body_patch": {
+        "id": 92705,
+        "transferType": "out",
+        "transferAmount": 250000
+      },
+      "expect": {
+        "direction": "out",
+        "amount": "250000"
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "unknown_direction",
+      "patch": {
+        "transferType": "IN"
+      },
+      "field": "transferType"
+    },
+    {
+      "name": "missing_direction",
+      "patch": {
+        "transferType": null
+      },
+      "field": "transferType"
+    },
+    {
+      "name": "fractional_amount",
+      "patch": {
+        "transferAmount": 1000.5
+      },
+      "field": "transferAmount"
+    },
+    {
+      "name": "negative_amount",
+      "patch": {
+        "transferAmount": -5
+      },
+      "field": "transferAmount"
+    },
+    {
+      "name": "exponent_string",
+      "patch": {
+        "transferAmount": "1e6"
+      },
+      "field": "transferAmount"
+    },
+    {
+      "name": "unsafe_number",
+      "patch": {
+        "transferAmount": 9007199254740993
+      },
+      "field": "transferAmount"
+    },
+    {
+      "name": "over_bigint",
+      "patch": {
+        "transferAmount": "9223372036854775808"
+      },
+      "field": "transferAmount"
+    },
+    {
+      "name": "missing_account",
+      "patch": {
+        "accountNumber": "  "
+      },
+      "field": "accountNumber"
+    },
+    {
+      "name": "bad_date",
+      "patch": {
+        "transactionDate": "2026-13-01 10:00:00"
+      },
+      "field": "transactionDate"
+    },
+    {
+      "name": "date_with_zone",
+      "patch": {
+        "transactionDate": "2026-10-30T14:02:37+07:00"
+      },
+      "field": "transactionDate"
+    },
+    {
+      "name": "id_too_long",
+      "patch": {
+        "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+      },
+      "field": "id"
+    }
+  ]
+}

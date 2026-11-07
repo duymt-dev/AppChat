@@ -1,5 +1,7 @@
-// BankFeedProvider `mock` (provider-ports §9): sandbox / test cho mọi connector port `bank_feed` khi chưa có adapter thật.
-// Kiểm kết nối: `api_key` bắt đầu bằng `bad` → lỗi. Webhook: header `x-mock-signature` = HMAC-SHA256(api_key, raw body) hex.
+// BankFeedProvider `mock` (provider-ports §9): adapter chế độ `sandbox` (ẩn, chỉ test / dev — core cấm ở production) của mọi connector
+// port `bank_feed`; chế độ live dùng adapter thật (TIP-012b), không bao giờ lùi về đây. Khoá giả lập = bí mật đầu tiên có của kết nối
+// (`api_key` / `hmac_secret` / `webhook_secret`). Kiểm kết nối: khoá bắt đầu bằng `bad` → lỗi. Webhook: header `x-mock-signature` =
+// HMAC-SHA256(khoá, raw body) hex — KHÔNG phải giao thức của SePay / Casso.
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { BankFeedProvider, BankTransaction } from '../../ports/bank-feed';
 import type { ConnectionCtx, ConnectorManifest, WebhookEvent, WebhookRequest } from '../../types';
@@ -9,18 +11,22 @@ interface MockBody {
   transactions?: BankTransaction[];
 }
 
+const keyOf = (c: ConnectionCtx) => c.secrets.api_key || c.secrets.hmac_secret || c.secrets.webhook_secret || '';
+
 export const mockSignature = (apiKey: string, rawBody: string) => createHmac('sha256', apiKey).update(rawBody).digest('hex');
 
 export class MockBankFeedProvider implements BankFeedProvider {
   constructor(readonly manifest: ConnectorManifest) {}
 
   async test(conn: ConnectionCtx): Promise<void> {
-    if ((conn.secrets.api_key ?? '').startsWith('bad')) throw new Error('mock: api_key bị từ chối');
+    if (keyOf(conn).startsWith('bad')) throw new Error('mock: api_key bị từ chối');
   }
 
   verifyWebhook(conn: ConnectionCtx, req: WebhookRequest): WebhookEvent | null {
     const sig = req.headers['x-mock-signature'] ?? '';
-    const want = mockSignature(conn.secrets.api_key ?? '', req.rawBody);
+    const key = keyOf(conn);
+    if (!key) return null;
+    const want = mockSignature(key, req.rawBody);
     if (sig.length !== want.length || !timingSafeEqual(Buffer.from(sig), Buffer.from(want))) return null;
     let body: MockBody;
     try {

@@ -3,18 +3,17 @@
 // dịch tiền VÀO đúng tài khoản: `bank_tx` idempotent theo mã giao dịch provider → khớp mã `TT…` + đúng số còn phải thu thì khoản thu
 // `confirmed` (phiếu thu, cộng đơn); lệch / thiếu mã / đề nghị đã đóng → hàng "Cần đối soát" + thông báo người có `payment.record`.
 import { AppError, INVOICE_PAYABLE, createFmt, matchBankTx } from '@appchat/shared';
-import type { BankFeedProvider, ConnectorRegistry } from '@appchat/integrations';
+import { MAX_BATCH, accountOrEmpty, isProviderError, type BankFeedProvider, type BankTransaction, type ConnectorRegistry } from '@appchat/integrations';
 import { TenantContexts, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
 import { markDirty, writeOutbox } from '../../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../../kernel/redis';
-import { connectionCtx } from '../../../integrations/public';
+import { adapterOf, connectionCtx } from '../../../integrations/public';
 import { localDay, recordInvoicePayment } from './payment-write';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const SYSTEM = { type: 'system', id: null };
-const digits = (s: string) => s.replace(/\D/g, '');
 
 export const webhookPathOf = (provider: string, feedId: string) => `/hooks/tenant-payments/${provider}/${feedId}`;
 
@@ -35,25 +34,37 @@ export class TenantBankHook {
     const notFound = () => new AppError('NOT_FOUND', 404);
     if (!UUID.test(feedId)) throw notFound();
     const route = await this.d.platform.tenantBankFeedRoute.findUnique({ where: { feedId } });
-    const adapter = this.d.registry.get(provider)?.adapter as BankFeedProvider | undefined;
-    if (!route || route.provider !== provider || !adapter?.verifyWebhook || !adapter.parseTransactions) throw notFound();
+    if (!route || route.provider !== provider) throw notFound();
     const db = await this.d.tenants.get(TenantContexts.fromRoute(route.workspaceId, 'bank-feed'));
     const feed = await db.tenantBankFeed.findUnique({ where: { id: feedId } });
     const conn = feed ? await db.integrationConnection.findUnique({ where: { id: feed.connectionId } }) : null;
-    if (!feed || feed.status !== 'active' || !conn || conn.status === 'disconnected') throw notFound();
+    if (!feed || feed.status !== 'active' || !conn || conn.status === 'disconnected' || conn.connectorKey !== provider) throw notFound();
+    // Adapter đúng chế độ đã lưu của kết nối (TIP-012b §1.1) — live không bao giờ dùng giả lập; không có → 404 như feed lạ.
+    const adapter = adapterOf<BankFeedProvider>(this.d.registry, provider, conn.mode);
+    if (!adapter?.verifyWebhook || !adapter.parseTransactions) throw notFound();
     const ctx = connectionCtx(conn, this.d.key);
     const ev = adapter.verifyWebhook(ctx, { headers, rawBody });
     if (!ev) throw new AppError('UNAUTHENTICATED', 401, { signature: 'invalid' });
 
     const w = await this.d.platform.workspace.findUnique({ where: { id: route.workspaceId }, select: { timezone: true } });
     const timeZone = w?.timezone ?? 'Asia/Ho_Chi_Minh';
-    const account = digits(feed.accountNo);
+    // Chuẩn hoá cả request trước mọi ghi (TIP-012b §2.2): một giao dịch hỏng → 400, không ghi phần nào.
+    let txs: BankTransaction[];
+    try {
+      txs = adapter.parseTransactions(ctx, ev.payload);
+    } catch (e) {
+      if (isProviderError(e)) throw new AppError('VALIDATION_FAILED', 400, { payload: e.field ?? e.code });
+      throw e;
+    }
+    if (txs.length > MAX_BATCH) throw new AppError('VALIDATION_FAILED', 400, { payload: 'too_many' });
+    // Feed phải gắn đúng một tài khoản; giao dịch thiếu / khác tài khoản không bao giờ được khớp (§2.3).
+    const account = accountOrEmpty(feed.accountNo);
     let received = 0;
     let matched = 0;
     let dirty = false;
-    for (const t of adapter.parseTransactions(ctx, ev.payload)) {
+    for (const t of txs) {
       if (t.direction !== 'in' || !/^\d+$/.test(t.amount) || BigInt(t.amount) <= 0n) continue;
-      if (account && digits(t.account_number) && digits(t.account_number) !== account) continue;
+      if (!account || accountOrEmpty(t.account_number) !== account) continue;
       const r = await this.ingest(db, route.workspaceId, feed.id, t, timeZone);
       if (!r) continue;
       received++;
@@ -71,7 +82,7 @@ export class TenantBankHook {
     return db.$transaction(async (tx) => {
       const id = uuidv7(now.getTime());
       const amount = BigInt(t.amount);
-      const base = { id, feedId, externalId: t.external_id, amount, content: t.content.slice(0, 500), accountNo: digits(t.account_number), occurredAt: new Date(t.occurred_at), createdAt: now };
+      const base = { id, feedId, externalId: t.external_id, amount, content: t.content.slice(0, 500), accountNo: accountOrEmpty(t.account_number), occurredAt: new Date(t.occurred_at), createdAt: now };
       const ins = await tx.bankTx.createMany({ data: [{ ...base, status: 'needs_review', reason: 'missing_code' }], skipDuplicates: true });
       if (ins.count === 0) return null;
       const { decision, invoice } = await this.decide(tx, t.content, amount);

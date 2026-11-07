@@ -105,8 +105,9 @@ export const bankFeedConnect = defineAction({
   id: 'bank_feed.connect',
   module: 'sales',
   title: 'actions.bank_feed.connect.title',
-  description: 'Connect the business SePay / Casso account so incoming transfers whose content has a TT… code are confirmed automatically. Fields as the connector asks (api_key, account_number).',
-  input: z.object({ provider: z.enum(['sepay', 'casso']), fields: z.record(z.string(), z.string()) }),
+  description:
+    'Connect the business SePay / Casso account so incoming transfers whose content has a TT… code are confirmed automatically. Fields as the connector asks (SePay: api_key or hmac_secret + account_number; Casso: webhook_secret + account_number). mode: live (real provider, default) or sandbox (test only).',
+  input: z.object({ provider: z.enum(['sepay', 'casso']), fields: z.record(z.string(), z.string()), mode: z.enum(['live', 'sandbox']).optional() }),
   output: z.object({ feed_id: z.string(), webhook_path: z.string() }),
   permission: 'finance.manage',
   risk: 'config',

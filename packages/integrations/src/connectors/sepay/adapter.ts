@@ -1,65 +1,62 @@
-// BankFeedProvider SePay (D35 — chính). Webhook SePay: POST JSON một giao dịch, header `Authorization: Apikey <API key>` do chủ
-// tài khoản đặt trong SePay (secrets.api_key). `transactionDate` là giờ Việt Nam không kèm múi giờ ("2026-10-30 14:02:37").
-// Nền tảng (thu phí AppChat — TIP-010) dùng adapter này qua env; kết nối SePay của DN (TIP-032) gắn vào registry.
-import { timingSafeEqual } from 'node:crypto';
+// BankFeedProvider SePay (D35 — chính). Hai cách xác thực webhook SePay hỗ trợ (developer.sepay.vn → Xác thực):
+//   - API Key: header `Authorization: Apikey <key>` (secrets.api_key);
+//   - HMAC-SHA256: `X-SePay-Signature: sha256=<hex>` trên chuỗi `{X-SePay-Timestamp}.{raw body}` bằng secrets.hmac_secret, lệch giờ
+//     > 300 giây → từ chối.
+// So sánh hằng thời gian; xác thực trên byte gốc TRƯỚC khi parse. OAuth2 Bearer của SePay chưa hỗ trợ (không khai trong manifest).
+// Nền tảng (thu phí AppChat — TIP-010) dùng adapter này qua env; kết nối SePay của DN gắn vào registry (TIP-012b).
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { BankFeedProvider, BankTransaction } from '../../ports/bank-feed';
 import type { ConnectionCtx, ConnectorManifest, WebhookEvent, WebhookRequest } from '../../types';
+import { parseJsonObject, vnLocalTime } from '../../bank-validation';
+import { normalizeSepay } from './normalize';
 
-/** Payload webhook SePay (docs.sepay.vn → Webhooks). */
-export interface SepayWebhookBody {
-  id: number | string;
-  gateway?: string;
-  transactionDate: string;
-  accountNumber: string;
-  code?: string | null;
-  content: string;
-  transferType: 'in' | 'out';
-  transferAmount: number | string;
-  referenceCode?: string;
-  description?: string;
-}
+export type { SepayWebhookBody } from './normalize';
 
 const PREFIX = 'apikey ';
+export const SEPAY_MAX_SKEW_S = 300;
 
 const same = (a: string, b: string) => a.length === b.length && timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
-/** "2026-10-30 14:02:37" (giờ VN) → ISO UTC. */
-export function sepayTime(s: string): string {
-  const m = /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2}):(\d{2})$/.exec(s.trim());
-  if (!m) return new Date(s).toISOString();
-  return new Date(`${m[1]}-${m[2]}-${m[3]}T${m[4]}:${m[5]}:${m[6]}+07:00`).toISOString();
-}
+/** Chữ ký HMAC SePay (cho test / fixture): `sha256=` + hex HMAC-SHA256(secret, `${ts}.${raw}`). */
+export const sepaySignature = (secret: string, ts: string, raw: string) => `sha256=${createHmac('sha256', secret).update(`${ts}.${raw}`).digest('hex')}`;
+
+/** "2026-10-30 14:02:37" (giờ VN) → ISO UTC; sai định dạng → ném (không rơi về giờ máy chủ). */
+export const sepayTime = (s: string): string => vnLocalTime(s, 'transactionDate');
 
 export class SepayBankFeed implements BankFeedProvider {
-  constructor(readonly manifest: ConnectorManifest) {}
+  constructor(
+    readonly manifest: ConnectorManifest,
+    private readonly nowMs: () => number = Date.now,
+  ) {}
 
-  verifyWebhook(conn: ConnectionCtx, req: WebhookRequest): WebhookEvent | null {
+  private authentic(conn: ConnectionCtx, req: WebhookRequest): boolean {
+    const sig = req.headers['x-sepay-signature'];
+    if (sig !== undefined) {
+      const secret = conn.secrets.hmac_secret ?? '';
+      const ts = req.headers['x-sepay-timestamp'] ?? '';
+      if (!secret || !/^\d{1,12}$/.test(ts) || Math.abs(this.nowMs() / 1000 - Number(ts)) > SEPAY_MAX_SKEW_S) return false;
+      return same(sig, sepaySignature(secret, ts, req.rawBody));
+    }
     const key = conn.secrets.api_key ?? '';
     const auth = req.headers.authorization ?? '';
-    if (!key || auth.slice(0, PREFIX.length).toLowerCase() !== PREFIX || !same(auth.slice(PREFIX.length).trim(), key)) return null;
-    let body: SepayWebhookBody;
+    return !!key && auth.slice(0, PREFIX.length).toLowerCase() === PREFIX && same(auth.slice(PREFIX.length).trim(), key);
+  }
+
+  verifyWebhook(conn: ConnectionCtx, req: WebhookRequest): WebhookEvent | null {
+    if (!this.authentic(conn, req)) return null;
+    let body: Record<string, unknown>;
     try {
-      body = JSON.parse(req.rawBody) as SepayWebhookBody;
+      body = parseJsonObject(req.rawBody);
     } catch {
       return null;
     }
-    if (body?.id === undefined || body.id === null || String(body.id) === '') return null;
-    return { id: String(body.id), kind: 'transaction', payload: body };
+    const id = body.id;
+    if ((typeof id !== 'string' && typeof id !== 'number') || String(id) === '') return null;
+    return { id: String(id), kind: 'transaction', payload: body };
   }
 
+  /** Đã xác thực → một giao dịch chuẩn; payload sai → ProviderError (người gọi từ chối cả request). */
   parseTransactions(_conn: ConnectionCtx, payload: unknown): BankTransaction[] {
-    const b = payload as SepayWebhookBody;
-    const amount = String(Math.trunc(Number(b.transferAmount)));
-    if (!/^\d+$/.test(amount)) return [];
-    return [
-      {
-        external_id: String(b.id),
-        account_number: String(b.accountNumber ?? '').replace(/\s/g, ''),
-        amount,
-        direction: b.transferType === 'out' ? 'out' : 'in',
-        content: String(b.content ?? b.description ?? ''),
-        occurred_at: sepayTime(String(b.transactionDate)),
-      },
-    ];
+    return [normalizeSepay(payload as Record<string, unknown>)];
   }
 }

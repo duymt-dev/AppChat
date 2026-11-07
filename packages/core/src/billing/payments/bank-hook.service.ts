@@ -2,7 +2,7 @@
 // đã cấu hình → 404; chữ ký sai → 401; mỗi giao dịch tiền VÀO tài khoản nền tảng → `bank_transaction` (idempotent theo
 // provider_tx_id) → khớp hoá đơn theo mã trong nội dung + số tiền ≥ hoá đơn → `paid` → ghi nhận. Không khớp → giữ để đối soát tay.
 import { AppError, contentMatches, findInvoiceRef } from '@appchat/shared';
-import { MockBankFeedProvider, SepayBankFeed, sepayManifest, type BankFeedProvider, type BankTransaction, type ConnectionCtx } from '@appchat/integrations';
+import { MockBankFeedProvider, SepayBankFeed, isProviderError, sepayManifest, type BankFeedProvider, type BankTransaction, type ConnectionCtx } from '@appchat/integrations';
 import type { PlatformDb } from '@appchat/db';
 import { uuidv7 } from '../../kernel/ids';
 import type { InvoiceFulfiller } from './fulfil';
@@ -32,7 +32,14 @@ export class PlatformBankHook {
     const account = digits(this.env.PLATFORM_BANK_ACCOUNT_NO);
     let received = 0;
     let matched = 0;
-    for (const t of this.adapter.parseTransactions(this.conn, ev.payload)) {
+    let txs: BankTransaction[];
+    try {
+      txs = this.adapter.parseTransactions(this.conn, ev.payload);
+    } catch (e) {
+      if (isProviderError(e)) throw new AppError('VALIDATION_FAILED', 400, { payload: e.field ?? e.code });
+      throw e;
+    }
+    for (const t of txs) {
       if (t.direction !== 'in' || digits(t.account_number) !== account || !/^\d+$/.test(t.amount)) continue;
       const row = await this.record(provider, t);
       received++;

@@ -1473,7 +1473,11 @@ export const MANIFEST: ParityEntry[] = [
       await p.getByTestId('st-int-modal').waitFor();
     },
     clipTo: { proto: 'div[style*="width: 440px"]', app: '[data-testid="st-int-modal"] [role="dialog"]' },
-    mask: [{ x: 0, y: 0, width: 440, height: 80, reason: 'tên / logo connector theo manifest (D28: Google Sheets "Sắp có" → mở hộp ở connector GA)' }],
+    mask: [
+      { x: 0, y: 0, width: 440, height: 80, reason: 'tên / logo connector theo manifest (D28: Google Sheets "Sắp có" → mở hộp ở connector GA)' },
+      // Hộp prototype chỉ vẽ một trường; Casso Webhook V2 cần khoá webhook + tài khoản nhận (TIP-012b) — trường thứ hai + chân hộp lùi xuống.
+      { x: 0, y: 222, width: 440, height: 80, reason: 'không có trong prototype: trường thứ hai theo hợp đồng Casso Webhook V2 (D28 connector theo manifest)' },
+    ],
   },
   ...ASSISTANT_COVERAGE,
   ...AGENT_CHANNEL_BEHAVIOR,
