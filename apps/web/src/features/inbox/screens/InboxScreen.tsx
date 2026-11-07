@@ -7,7 +7,7 @@ import { Empty } from 'antd';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
-import { accountsQuery, channelsQuery, countsQuery } from '../api';
+import { accountsQuery, channelsQuery, countParams, countsQuery } from '../api';
 import { useConversations } from '../hooks/useConversations';
 import { useConversationRoom } from '../hooks/useConversationRoom';
 import { ChatPanel } from '../components/ChatPanel';
@@ -29,9 +29,9 @@ export function InboxScreen() {
   const t = useTranslations('inbox');
   const { styles, cx } = useInboxStyles();
   const ui = useInboxUi();
-  const { list, convs, conv } = useConversations();
+  const { list, convs, conv, params } = useConversations();
   useConversationRoom(conv?.id);
-  const counts = useQuery(countsQuery()).data;
+  const counts = useQuery(countsQuery(countParams(params))).data;
   const channels = useQuery(channelsQuery()).data;
   const accounts = useQuery(accountsQuery()).data ?? [];
   const unread = counts?.mailbox.find(([k]) => k === 'unread')?.[2] ?? convs.reduce((n, c) => n + c.unread, 0);
@@ -52,6 +52,7 @@ export function InboxScreen() {
             counts={counts}
             accounts={accounts}
             unreadTotal={unread}
+            filterKey={JSON.stringify(params)}
             className={cx(ui.mobileChat && conv && styles.hideMobile)}
           />
           {conv ? (

@@ -31,7 +31,24 @@
     },
     "at": "@"
   },
+  "bulk": {
+    "label": "Thao tác hàng loạt",
+    "selected": "Đã chọn {n}",
+    "selectVisible": "Chọn các hội thoại đang hiện",
+    "assignTo": "Gán cho…",
+    "assign": "Gán",
+    "tagPick": "Chọn thẻ…",
+    "tag": "Gắn thẻ",
+    "close": "Đóng",
+    "archive": "Lưu trữ",
+    "clear": "Bỏ chọn",
+    "dismiss": "Đóng kết quả",
+    "summary": "Xong {done} · không đổi {skipped} · lỗi {failed}",
+    "jobAccepted": "Đã nhận — đang xử lý nền, kết quả báo qua thông báo khi xong.",
+    "hidden": "Hội thoại không truy cập được"
+  },
   "list": {
+    "select": "Chọn {name}",
     "title": "Hộp thư",
     "sub": "{total} hội thoại · {unread} chưa đọc",
     "connect": "Kết Nối Kênh",
@@ -102,7 +119,16 @@
     "unpin": "Bỏ ghim",
     "pinnedMsg": "📌 Tin đã ghim:",
     "unpinMsg": "Bỏ ghim",
+    "window": {
+      "older": "Đang xem tin cũ quanh kết quả tìm",
+      "latest": "Về tin mới nhất",
+      "newer": "Tải tin mới hơn",
+      "loading": "Đang tải tin quanh kết quả…",
+      "error": "Tin này không còn xem được."
+    },
     "search2": {
+      "loading": "Đang tìm…",
+      "error": "Không tìm được — thử lại.",
       "placeholder": "Tìm trong hội thoại này…",
       "none": "Không tìm thấy “{q}” trong hội thoại này · thử ô tìm kiếm ở danh sách hội thoại bên trái để tìm trong tất cả hội thoại.",
       "sender": "Người gửi",

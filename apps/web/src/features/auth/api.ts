@@ -27,7 +27,7 @@ export interface SessionInfo {
   trialEndsAt: number;
   workspace_id?: string | null;
   /** TIP-041: DB tenant đang lưu trữ / đã lưu trữ / đang khôi phục. */
-  lifecycle?: 'archiving' | 'archived' | 'restoring' | null;
+  lifecycle?: 'archiving' | 'archived' | 'restoring' | 'deleting' | null;
 }
 
 export const authKeys = {

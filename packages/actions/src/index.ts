@@ -5,6 +5,7 @@ import * as dashboard from './dashboard';
 import * as insights from './insights';
 import * as listExports from './list-exports';
 import * as inbox from './inbox';
+import * as inboxAliases from './inbox-aliases';
 import * as crm from './crm';
 import * as ai from './ai';
 import * as catalog from './catalog';
@@ -46,6 +47,7 @@ import * as platformAdmin from './platform-admin';
 import * as adminConfig from './admin-config';
 import * as adminWorkspaces from './admin-workspaces';
 import * as workspaceLifecycle from './workspace-lifecycle';
+import * as workspaceDanger from './workspace-danger';
 import * as salesReads from './reads/sales';
 import * as contractReads from './reads/contracts';
 import * as crmReads from './reads/crm';
@@ -70,6 +72,7 @@ export * from './dashboard';
 export * from './insights';
 export * from './list-exports';
 export * from './inbox';
+export * from './inbox-aliases';
 export * from './crm';
 export * from './ai';
 export * from './catalog';
@@ -112,6 +115,7 @@ export * from './platform-admin';
 export * from './admin-config';
 export * from './admin-workspaces';
 export * from './workspace-lifecycle';
+export * from './workspace-danger';
 export * from './reads/sales';
 export * from './reads/contracts';
 export * from './reads/crm';
@@ -136,6 +140,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(insights),
   ...Object.values(listExports),
   ...Object.values(inbox),
+  ...Object.values(inboxAliases),
   ...Object.values(crm),
   ...Object.values(ai),
   ...Object.values(catalog),
@@ -177,6 +182,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(adminConfig),
   ...Object.values(adminWorkspaces),
   ...Object.values(workspaceLifecycle),
+  ...Object.values(workspaceDanger),
   ...Object.values(dataJobs),
   ...Object.values(dataTransfer),
   ...Object.values(crmBulk),

@@ -9,6 +9,7 @@
     "routes": "Định tuyến model",
     "prices": "Đơn giá model",
     "transfers": "Chuyển khoản",
+    "freeze": "Yêu cầu đóng băng",
     "templates": "Mẫu AI Agent"
   },
   "pager": {
@@ -165,6 +166,26 @@
     "active": "Đang dùng",
     "on": "Bật",
     "off": "Tắt"
+  },
+  "freeze": {
+    "status": {
+      "pending": "Chờ xử lý",
+      "approved": "Đã duyệt",
+      "rejected": "Đã từ chối",
+      "cancelled": "Đã huỷ"
+    },
+    "empty": "Không có yêu cầu.",
+    "workspace": "Workspace",
+    "reason": "Lý do của Owner",
+    "created": "Gửi lúc",
+    "decision": "Quyết định",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "approveTitle": "Duyệt đóng băng {name}",
+    "rejectTitle": "Từ chối yêu cầu của {name}",
+    "approveHint": "Workspace sẽ tạm dừng ngay (chặn việc mới, giữ dữ liệu) — mở lại bằng Tiếp tục ở tab Workspace.",
+    "rejectHint": "Workspace giữ nguyên; Owner thấy kết quả trong Cài đặt.",
+    "reasonPh": "Lý do quyết định (tối thiểu 3 ký tự)"
   },
   "transfers": {
     "view": {

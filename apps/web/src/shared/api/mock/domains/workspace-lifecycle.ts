@@ -3,6 +3,7 @@
 import type { WorkspaceLifecycleDto } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
+import { latestFreeze } from './workspace-danger';
 
 const STEPS = ['queued', 'create', 'restore', 'migrate', 'checks', 'done'] as const;
 const JOB_ID = '0190f000-0000-7000-8000-00000000a041';
@@ -32,7 +33,8 @@ export const workspaceLifecycleRoutes: Record<string, (db: MockDb) => WorkspaceL
       if (STEPS[step] === 'done') db.session.lifecycle = null;
     }
     const status = db.session.lifecycle ?? 'active';
+    if (status === 'deleting') return { workspace_id: wsId(db), db_status: status, job: { id: '0190f000-0000-7000-8000-00000000d042', operation: 'delete', status: 'running', step: 'backup', attempts: 1, error: null }, archive_on: null };
     const job = step >= 0 ? { id: JOB_ID, operation: 'restore' as const, status: status === 'active' ? ('succeeded' as const) : ('running' as const), step: STEPS[step]!, attempts: 1, error: null } : null;
-    return { workspace_id: wsId(db), db_status: status, job, archive_on: null };
+    return { workspace_id: wsId(db), db_status: status, job, archive_on: null, freeze_request: latestFreeze(db) };
   },
 };
