@@ -15,6 +15,7 @@ export { purgeMergeReceipts, MERGE_UNDO_MS } from './memory/merge';
 export { recentFacts } from './memory/read';
 // Việc dữ liệu nặng của crm (TIP-045b annex D) — worker đăng ký qua CrmJobsModule; test dựng runner trực tiếp.
 export { registerContactExportKind, CONTACT_EXPORT_KIND } from './jobs/contact-export.processor';
+export { registerTimelineExportKind, TIMELINE_EXPORT_KIND } from './jobs/contact-timeline-export.processor';
 export { CONTACT_BULK_KIND } from './actions/contact-bulk.handler';
 // Chia lead mới (TIP-042b): đọc cấu hình cho controller Cài đặt; consumer + actor system cho test.
 export { LeadRoutingReadService } from './routing/routing-read.service';

@@ -1,7 +1,7 @@
 // Cổng phiên trên (app): chưa đăng nhập → /login; chưa khai báo → popup khai báo (chặn);
 // đang khởi tạo → ProvisioningCard; xong → chào mừng trial (một lần); trial hết → thông báo (đóng được).
 // Thứ tự ưu tiên như prototype L9555–9560. TIP-041: workspace đã lưu trữ / đang khôi phục → RestoringCard (mở workspace = yêu cầu khôi
-// phục); mỗi lần vào app ghi `workspace.open` một lần (mốc hoạt động — không toast).
+// phục); đang xoá (TIP-041 P3) → DeletingCard; mỗi lần vào app ghi `workspace.open` một lần (mốc hoạt động — không toast).
 'use client';
 import { useEffect, useRef, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
@@ -9,6 +9,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { authApi, authKeys, sessionQuery } from '@/features/auth';
 import { useAction } from '@/shared/actions/useAction';
 import { DeclareBusinessModal } from './DeclareBusinessModal';
+import { DeletingCard } from './DeletingCard';
 import { ProvisioningCard } from './ProvisioningCard';
 import { RestoringCard } from './RestoringCard';
 import { TrialWelcome } from './TrialWelcome';
@@ -27,7 +28,7 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
   const opened = useRef<string | null>(null);
   const ws = s?.authed && s.declared ? (s.workspace_id ?? 'current') : null;
   useEffect(() => {
-    if (!ws || (s?.provisioned === false && !s.lifecycle) || opened.current === ws) return;
+    if (!ws || (s?.provisioned === false && !s.lifecycle) || s?.lifecycle === 'deleting' || opened.current === ws) return;
     opened.current = ws;
     void open.run({}, { silent: true, onError: () => true });
   }, [ws, s?.provisioned, s?.lifecycle, open]);
@@ -41,6 +42,7 @@ export function OnboardingGate({ children }: { children: ReactNode }) {
   if (!s || !s.authed) return null;
   let overlay: ReactNode = null;
   if (!s.declared) overlay = <DeclareBusinessModal />;
+  else if (s.lifecycle === 'deleting') overlay = <DeletingCard />;
   else if (s.lifecycle) overlay = <RestoringCard />;
   else if (!s.provisioned) overlay = <ProvisioningCard />;
   else if (!s.trialSeen && s.trialDaysLeft > 0)

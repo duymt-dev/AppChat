@@ -45,6 +45,12 @@
     "failed": "Khởi tạo chưa xong. Chúng tôi sẽ thử lại tự động.",
     "retry": "Thử lại"
   },
+  "deleting": {
+    "title": "Workspace đang được xoá",
+    "sub": "Bạn đã xác nhận xoá workspace này. Mọi truy cập đã dừng; bản sao lưu mã hoá được giữ 30 ngày rồi xoá vĩnh viễn. Đăng xuất để chọn hoặc tạo workspace khác.",
+    "failed": "Lệnh xoá chưa hoàn tất. Đội vận hành đã được báo và sẽ xử lý.",
+    "logout": "Đăng xuất"
+  },
   "restoring": {
     "title": "Đang khôi phục workspace…",
     "sub": "Workspace đã được lưu trữ vì lâu không hoạt động. AppChat đang khôi phục dữ liệu của bạn — thường mất dưới 1 phút.",

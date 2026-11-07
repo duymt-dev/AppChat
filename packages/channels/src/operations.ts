@@ -6,7 +6,7 @@ import type { FriendEvent } from './friends';
 
 export type OperationMode = 'local' | 'remote' | 'unsupported';
 
-export type OperationKind = 'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members' | 'profiles' | 'friends' | 'friend_requests' | 'find_user';
+export type OperationKind = 'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members' | 'group_settings' | 'group_mute' | 'profiles' | 'friends' | 'friend_requests' | 'find_user';
 
 /** Năng lực thao tác theo kênh (manifest). Thiếu khoá = unsupported. */
 export type OperationCapabilities = Partial<Record<OperationKind, OperationMode>>;
@@ -38,6 +38,16 @@ export interface GroupInfo {
   /** Id thành viên nhà cung cấp trả (có thể không đủ — `complete=false`). */
   memberIds: string[];
   complete: boolean;
+  /** Vai trò của TÀI KHOẢN kênh trong nhóm (TIP-025b): owner (người tạo) / admin / member; null = nhà cung cấp không báo. */
+  accountRole?: 'owner' | 'admin' | 'member' | null;
+  /** Phiên bản nhóm phía kênh — so khi đổi cài đặt (lệch → `stale_snapshot`). */
+  version?: string | null;
+}
+
+/** Đổi cài đặt nhóm (TIP-025b §A.3): chỉ tên + bật / tắt link tham gia — không chuyển chủ, không xoá thành viên, không cài đặt tuỳ ý. */
+export interface GroupSettingsPatch {
+  name?: string;
+  inviteLinkEnabled?: boolean;
 }
 
 export interface GroupMember {
@@ -91,6 +101,10 @@ export interface ChannelOperations {
   groupMembers?(accountId: string, memberIds: string[]): Promise<GroupMember[]>;
   groupLink?(accountId: string, groupId: string): Promise<GroupLink>;
   addGroupMembers?(accountId: string, groupId: string, memberIds: string[]): Promise<AddMembersResult>;
+  /** TIP-025b: đổi tên / bật-tắt link (group_settings). Trả trạng thái link sau lệnh (url chỉ khi bật — nhạy cảm, không log). */
+  updateGroupSettings?(accountId: string, groupId: string, patch: GroupSettingsPatch): Promise<{ linkEnabled: boolean | null }>;
+  /** TIP-025b: tắt / bật thông báo nhóm của chính TÀI KHOẢN kênh (group_mute) — không phải tắt cho người dùng AppChat. */
+  setGroupMute?(accountId: string, groupId: string, muted: boolean): Promise<void>;
   /** Hồ sơ công khai theo lô ≤ MAX_PROFILE_BATCH (chỉ đọc). Id không thấy → vắng trong kết quả (không lỗi). */
   profiles?(accountId: string, ids: string[]): Promise<ProviderProfile[]>;
   /** Danh bạ theo trang (trang 1 trở đi, ≤ MAX_FRIENDS_PAGE). Trang ít hơn `count` = hết. Chỉ đọc. */

@@ -2,6 +2,7 @@
 'use client';
 import { useMemo, useState } from 'react';
 import { approvalReasons, quoteTotals, QUOTE_VALID_DAYS, type ApprovalPolicy, type Discount } from '@appchat/shared';
+import { sourceLinkOf, type SourceLink } from '@/shared/crm-forms/source-link';
 import type { QuoteItem } from '../types';
 
 export interface QuoteDraft {
@@ -12,6 +13,8 @@ export interface QuoteDraft {
   header_pct: number;
   payment_terms: string;
   note: string;
+  /** Nguồn Hộp thư (TIP-025b §D.3) — chỉ gửi kèm lệnh tạo. */
+  source: SourceLink;
 }
 
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '');
@@ -28,6 +31,7 @@ export function initialQuoteDraft(prefill?: Record<string, unknown> | null): Quo
     header_pct: hd?.kind === 'pct' ? hd.value : 0,
     payment_terms: String(pre.payment_terms ?? ''),
     note: String(pre.note ?? ''),
+    source: sourceLinkOf(pre),
   };
 }
 

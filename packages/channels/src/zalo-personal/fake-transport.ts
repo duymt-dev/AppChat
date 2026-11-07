@@ -21,7 +21,7 @@ export interface FakeSent {
 
 /** Lệnh thao tác đã nhận (thu hồi / cảm xúc / thêm thành viên) — test đối chiếu tham số SDK. */
 export interface FakeOp {
-  op: 'undo' | 'react' | 'add_members' | 'profiles' | 'friends' | 'friend_accept' | 'friend_reject' | 'friend_send' | 'friend_undo' | 'find_user';
+  op: 'undo' | 'react' | 'add_members' | 'profiles' | 'friends' | 'friend_accept' | 'friend_reject' | 'friend_send' | 'friend_undo' | 'find_user' | 'group_name' | 'group_link' | 'group_mute';
   userId?: string;
   text?: string;
   threadId: string;
@@ -80,7 +80,7 @@ export class FakeZaloSession implements ZaloSession {
   /** Tin tự gửi phát lại qua self-listen (mang cliMsgId) — như zca-js `selfListen: true`. Tắt để thử tin cũ thiếu cliMsgId. */
   selfEcho = true;
   /** Nhóm phía kênh cho groupInfo / groupLink. */
-  readonly remoteGroups = new Map<string, ZaloGroupInfo & { link: string | null }>();
+  readonly remoteGroups = new Map<string, ZaloGroupInfo & { link: string | null; muted?: boolean }>();
   /** Tin cũ trả về khi `requestOldMessages` — theo trang `historyPage` tin, mới → cũ, lùi theo `lastId`. */
   history: ZaloRawMessage[] = [];
   historyPage = 50;
@@ -273,7 +273,7 @@ export class FakeZaloSession implements ZaloSession {
   async groupInfo(groupId: string): Promise<ZaloGroupInfo> {
     const g = this.remoteGroups.get(groupId);
     if (!g) throw new ChannelOperationError('forbidden', 'group_not_visible');
-    return { groupId, name: g.name, totalMember: g.totalMember, memberIds: [...g.memberIds] };
+    return { groupId, name: g.name, totalMember: g.totalMember, memberIds: [...g.memberIds], creatorId: g.creatorId, adminIds: g.adminIds, version: g.version };
   }
   async groupMembers(memberIds: string[]) {
     return memberIds.map((id) => ({ id, displayName: `Thành viên ${id}` }));
@@ -298,6 +298,30 @@ export class FakeZaloSession implements ZaloSession {
   }
   async addUserToGroup(groupId: string, memberIds: string[]) {
     return this.op({ op: 'add_members', threadId: groupId, isGroup: true, members: memberIds }, () => ({ failed: memberIds.filter((m) => m.startsWith('blocked')).map((id) => ({ id, error: 'blocked' })) }));
+  }
+  private group(groupId: string) {
+    const g = this.remoteGroups.get(groupId);
+    if (!g) throw new ChannelOperationError('forbidden', 'group_not_visible');
+    return g;
+  }
+  async changeGroupName(groupId: string, name: string) {
+    const g = this.group(groupId);
+    await this.op({ op: 'group_name', threadId: groupId, isGroup: true, text: name }, () => {
+      g.name = name;
+      g.version = String(Number(g.version ?? 0) + 1);
+    });
+  }
+  async setGroupLink(groupId: string, enabled: boolean) {
+    const g = this.group(groupId);
+    await this.op({ op: 'group_link', threadId: groupId, isGroup: true, text: String(enabled) }, () => {
+      g.link = enabled ? `https://zalo.me/g/fake${groupId.length}` : null;
+    });
+  }
+  async setGroupMute(groupId: string, muted: boolean) {
+    const g = this.group(groupId);
+    await this.op({ op: 'group_mute', threadId: groupId, isGroup: true, text: String(muted) }, () => {
+      g.muted = muted;
+    });
   }
 }
 

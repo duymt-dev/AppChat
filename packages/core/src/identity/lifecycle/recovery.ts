@@ -4,10 +4,13 @@
 //     active nếu DB kiểm được (DB chưa bị đụng)
 //   - archive lỗi SAU khi có manifest (drop / registry) → thử lại hoàn tất; hết lượt → recovery_needed (không báo active khi DB có thể đã mất)
 //   - restore lỗi → thử lại (DB tạm của thế hệ đã dọn); hết lượt → failed, workspace giữ `restoring` (admin xem lỗi, không mở DB nửa vời)
+//   - delete lỗi TRƯỚC DROP (chưa tới bước drop) → việc dở thử lại; hết lượt / lỗi khác → về đúng trạng thái trước lệnh; từ bước drop trở đi →
+//     thử lại tới tombstone, hết lượt → recovery_needed (không bao giờ về active khi DB có thể đã mất)
 import { LockUnavailableError } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { ArchiveActivityError, ArchiveBusyError, rollbackArchive, runArchive, type ArchiveRunDeps } from './archive-run';
+import { rollbackDelete, runDelete } from './delete-run';
 import { runRestore, type RestoreRunDeps } from './restore-run';
 import { LIFECYCLE_MAX_ATTEMPTS } from './types';
 
@@ -28,8 +31,7 @@ export async function processLifecycleJob(d: LifecycleRunDeps, jobId: string, ow
   try {
     if (job.operation === 'archive') return await runArchive(d, job, owner);
     if (job.operation === 'restore') return (await runRestore(d, job, owner), 'restored');
-    await d.jobs.finish(job, owner, { status: 'failed', error: 'operation_not_supported' });
-    return 'unsupported';
+    return await runDelete(d, job, owner);
   } catch (e) {
     const code = lifecycleErrorCode(e);
     d.log.warn({ job: job.id, ws: job.workspaceId, op: job.operation, step: job.step, attempt: job.attempts, err: code }, 'workspace lifecycle step failed');
@@ -49,6 +51,16 @@ export async function processLifecycleJob(d: LifecycleRunDeps, jobId: string, ow
       if (e instanceof ArchiveActivityError) return (await rollbackArchive(d, job, owner, code, 'cancelled'), 'cancelled');
       if (e instanceof ArchiveBusyError && !last) return (await d.jobs.retryLater(job, owner, code, backoff(job.attempts)), 'retry');
       return rollbackArchive(d, job, owner, code);
+    }
+    if (job.operation === 'delete') {
+      const dropped = job.step === 'drop' || job.step === 'tombstone';
+      if (dropped) {
+        if (!last) return (await d.jobs.retryLater(job, owner, code, backoff(job.attempts)), 'retry');
+        await d.jobs.finish(job, owner, { status: 'recovery_needed', error: code });
+        return 'recovery_needed';
+      }
+      if (e instanceof ArchiveBusyError && !last) return (await d.jobs.retryLater(job, owner, code, backoff(job.attempts)), 'retry');
+      return rollbackDelete(d, job, owner, code);
     }
     if (!last) return (await d.jobs.retryLater(job, owner, code, backoff(job.attempts)), 'retry');
     await d.jobs.finish(job, owner, { status: 'failed', error: code });

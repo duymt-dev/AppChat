@@ -1,6 +1,6 @@
 // Port registry workspace (DC-008): resolver chỉ cần db_name / db_host / db_status. Bảng `workspace` thuộc TIP-004
 // (platform/identity.prisma) — TIP-004 cài adapter Prisma; trước đó test + dev dùng MemoryWorkspaceRegistry.
-export const DB_STATUSES = ['provisioning', 'active', 'suspended', 'archiving', 'archived', 'restoring', 'deleting'] as const;
+export const DB_STATUSES = ['provisioning', 'active', 'suspended', 'archiving', 'archived', 'restoring', 'deleting', 'deleted'] as const;
 export type DbStatus = (typeof DB_STATUSES)[number];
 
 export interface WorkspaceDbInfo {

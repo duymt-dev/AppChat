@@ -24,6 +24,8 @@ interface SettingsUi {
   routingEditor: RoutingDraft | null;
   /** Hộp chuyển quyền Chủ sở hữu (TIP-045b A3). */
   transferOpen: boolean;
+  /** Hộp vùng nguy hiểm của Owner (TIP-041 P3): xoá / yêu cầu đóng băng / xuất dữ liệu. */
+  danger: 'delete' | 'freeze' | 'export' | null;
   menuFor: string | null;
   chanFilter: 'all' | 'on' | 'off';
   chanView: 'cards' | 'list';
@@ -61,6 +63,7 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   teamEditor: null,
   routingEditor: null,
   transferOpen: false,
+  danger: null,
   menuFor: null,
   chanFilter: 'all',
   chanView: 'cards',

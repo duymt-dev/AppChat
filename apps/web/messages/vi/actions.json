@@ -13,6 +13,15 @@
     }
   },
   "workspace": {
+    "delete_challenge": {
+      "title": "Gửi mã xác nhận xoá workspace"
+    },
+    "delete": {
+      "title": "Xoá workspace"
+    },
+    "freeze_request": {
+      "title": "Gửi yêu cầu đóng băng workspace"
+    },
     "open": {
       "title": "Mở workspace (giữ hoạt động / khôi phục khi đã lưu trữ)"
     },
@@ -66,7 +75,31 @@
       "desc": "Hệ thống gửi email tóm tắt hằng ngày / hằng tuần lúc 08:00 cho người bật trong Thông báo — chỉ số liệu người đó được xem, lùi qua giờ yên lặng."
     }
   },
+  "group": {
+    "set_ai_policy": {
+      "title": "Đổi chính sách AI của nhóm"
+    },
+    "add_members": {
+      "title": "Thêm thành viên vào nhóm Zalo"
+    },
+    "update": {
+      "title": "Đổi tên / link nhóm Zalo"
+    },
+    "set_mute": {
+      "title": "Tắt / bật thông báo nhóm của tài khoản"
+    },
+    "refresh": {
+      "title": "Làm mới thông tin nhóm từ Zalo"
+    }
+  },
   "conversation": {
+    "unhide": {
+      "title": "Hiện lại hội thoại"
+    },
+    "untag": {
+      "title": "Gỡ thẻ hội thoại",
+      "desc": "Gỡ một thẻ khỏi hội thoại (chưa có thẻ thì không đổi gì)."
+    },
     "mark_read": {
       "title": "Đánh dấu đã đọc"
     },
@@ -120,6 +153,12 @@
     }
   },
   "message": {
+    "unpin": {
+      "title": "Bỏ ghim tin nhắn"
+    },
+    "unreact": {
+      "title": "Bỏ cảm xúc tin nhắn"
+    },
     "send": {
       "title": "Gửi tin nhắn",
       "desc": "Trả lời khách bằng tin nhắn qua đúng kênh của hội thoại."
@@ -137,6 +176,14 @@
     }
   },
   "contact": {
+    "history_export": {
+      "title": "Xuất lịch sử khách",
+      "desc": "Xuất lịch sử một khách ra CSV theo khoảng ngày / loại sự kiện / cột."
+    },
+    "get_edit_context": {
+      "title": "Xem ngữ cảnh sửa khách",
+      "desc": "Đọc các trường được sửa, phiên bản hiện tại và người phụ trách của một khách (trường ẩn bị bỏ)."
+    },
     "import": {
       "title": "Nhập khách hàng",
       "desc": "Nhập khách hàng từ file theo lô; bỏ qua trùng, báo khách của người khác."
@@ -1200,6 +1247,9 @@
       }
     },
     "workspace": {
+      "freeze_decide": {
+        "title": "Duyệt yêu cầu đóng băng workspace (quản trị nền tảng)"
+      },
       "suspend": {
         "title": "Tạm dừng workspace (quản trị nền tảng)"
       },

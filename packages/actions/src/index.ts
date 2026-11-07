@@ -5,6 +5,8 @@ import * as dashboard from './dashboard';
 import * as insights from './insights';
 import * as listExports from './list-exports';
 import * as inbox from './inbox';
+import * as inboxAliases from './inbox-aliases';
+import * as inboxGroups from './inbox-groups';
 import * as crm from './crm';
 import * as ai from './ai';
 import * as catalog from './catalog';
@@ -46,6 +48,7 @@ import * as platformAdmin from './platform-admin';
 import * as adminConfig from './admin-config';
 import * as adminWorkspaces from './admin-workspaces';
 import * as workspaceLifecycle from './workspace-lifecycle';
+import * as workspaceDanger from './workspace-danger';
 import * as salesReads from './reads/sales';
 import * as contractReads from './reads/contracts';
 import * as crmReads from './reads/crm';
@@ -61,6 +64,7 @@ import * as integrationProbe from './integration-probe';
 import * as dataJobs from './data-jobs';
 import * as dataTransfer from './data-transfer';
 import * as crmBulk from './crm-bulk';
+import * as crmForms from './crm-forms';
 
 export * from './define';
 export * from './assistant-ui';
@@ -70,6 +74,8 @@ export * from './dashboard';
 export * from './insights';
 export * from './list-exports';
 export * from './inbox';
+export * from './inbox-aliases';
+export * from './inbox-groups';
 export * from './crm';
 export * from './ai';
 export * from './catalog';
@@ -112,6 +118,7 @@ export * from './platform-admin';
 export * from './admin-config';
 export * from './admin-workspaces';
 export * from './workspace-lifecycle';
+export * from './workspace-danger';
 export * from './reads/sales';
 export * from './reads/contracts';
 export * from './reads/crm';
@@ -126,6 +133,7 @@ export * from './integration-probe';
 export * from './data-jobs';
 export * from './data-transfer';
 export * from './crm-bulk';
+export * from './crm-forms';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -136,6 +144,8 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(insights),
   ...Object.values(listExports),
   ...Object.values(inbox),
+  ...Object.values(inboxAliases),
+  ...Object.values(inboxGroups),
   ...Object.values(crm),
   ...Object.values(ai),
   ...Object.values(catalog),
@@ -177,9 +187,11 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(adminConfig),
   ...Object.values(adminWorkspaces),
   ...Object.values(workspaceLifecycle),
+  ...Object.values(workspaceDanger),
   ...Object.values(dataJobs),
   ...Object.values(dataTransfer),
   ...Object.values(crmBulk),
+  ...Object.values(crmForms),
   // Action đọc bản ghi cho Trợ lý / agent (TIP-023b R2 · DC-224).
   ...Object.values(salesReads),
   ...Object.values(contractReads),
