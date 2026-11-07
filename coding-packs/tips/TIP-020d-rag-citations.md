@@ -1,7 +1,6 @@
 # TIP-020d — Validated RAG answer citations in drafts and AI logs
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 020d before006d.
 - **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/delegate.ts`, `packages/core/src/ai/kb/kb-search.handler.ts`; integrate 020d before019d.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 020d before046.
 - **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `tools/parity/parity.manifest.ts`; integrate 020d before004b.

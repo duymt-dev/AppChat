@@ -1,7 +1,6 @@
 # TIP-020b — Hoàn thiện quản lý nguồn và thư mục RAG
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 020b before006d.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/ai/kb/kb.read.ts`; integrate 020b before003i.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 020b before003e.
 - **Parallel-safe with TIP-004b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 020b before004b.

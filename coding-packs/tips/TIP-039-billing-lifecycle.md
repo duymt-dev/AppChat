@@ -1,7 +1,6 @@
 # TIP-039 — Billing lifecycle, ví và gói chạy thật
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 039 before006d.
 - **Parallel-safe with TIP-001c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/actions/useAction.ts`; integrate 039 before001c.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/billing/payments/invoices.service.ts`; integrate 039 before003i.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 039 before046.

@@ -1,7 +1,6 @@
 # TIP-033b: Booking operations and package-aware CRM/AI
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 033b before006d.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 033b before003i.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 033b before046.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/booking.ts`, `packages/actions/src/index.ts`, `packages/core/src/booking/actions/appointment-flow.handlers.ts`; integrate 033b before003e.

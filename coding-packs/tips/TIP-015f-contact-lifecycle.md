@@ -1,7 +1,6 @@
 # TIP-015f: Soft-delete/restore khách và identity inbound an toàn
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `packages/core/src/notify/services/notifier.ts`; integrate 015f before006d.
 - **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 015f before022d.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015f before046.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/errors.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/errors.json`, `packages/actions/src/crm.ts`, `packages/actions/src/index.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate 015f before003e.

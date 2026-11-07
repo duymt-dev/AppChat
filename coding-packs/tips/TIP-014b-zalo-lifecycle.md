@@ -1,7 +1,6 @@
 # TIP-014b: Zalo provider lifecycle, message operations and durable delivery
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 014b before006d.
 - **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/channels/src/zalo-personal/manifest.ts`, `packages/core/src/channels/jobs/send.processor.ts`; integrate 014b before022d.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 014b before046.
 - **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`; integrate 014b before001b.

@@ -1,7 +1,6 @@
 # TIP-037 — Marketing broadcast, segmentation, AI suggestions và campaign reporting
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 037 before006d.
 - **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/channels/src/zalo-personal/manifest.ts`, `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/channels/services/accounts.service.ts`; integrate 037 before022d.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 037 before046.
 - **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `apps/web/src/features/marketing/columns.tsx`, `apps/web/src/features/marketing/components/AnalyzeModal.tsx`, `apps/web/src/features/marketing/components/CampaignDetail.tsx`, `apps/web/src/features/marketing/components/DetailTabs.tsx`, `apps/web/src/features/marketing/components/WizardSteps.tsx`, `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`; integrate 037 before001b.

@@ -1,7 +1,6 @@
 # TIP-034b — Configurable ticket category suggestions, current scoped reads and AI/file authoring
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 034b before006d.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 034b before046.
 - **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/routes.ts`; integrate 034b before001b.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 034b before003e.

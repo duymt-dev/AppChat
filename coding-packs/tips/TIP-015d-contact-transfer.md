@@ -1,7 +1,6 @@
 # TIP-015d: Chuyển phụ trách CRM đúng D32 — AI qua duyệt, dữ liệu liên quan atomic
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/api/src/http/notify/notify.controller.ts`, `packages/core/src/notify/jobs/notify.jobs.module.ts`, `packages/core/src/notify/notify.module.ts`, `packages/core/src/notify/services/notifier.ts`; integrate 015d before006d.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/ai/agents.controller.ts`; integrate 015d before003i.
 - **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/actions/policy.ts`; integrate 015d before019d.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 015d before046.

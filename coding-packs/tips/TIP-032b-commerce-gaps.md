@@ -1,7 +1,6 @@
 # TIP-032b: Commerce — vá luật đã chốt còn hở: ngưỡng duyệt cấu hình được, báo giá → HĐ hoặc đơn, VietQR ảnh thật, gửi chứng từ qua webchat, gửi xác nhận đơn / phiếu thu, liệu trình khi cọc, catalog còn thiếu
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 032b before006d.
 - **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/ai/runs/tools.ts`, `packages/core/src/kernel/actions/policy.ts`; integrate 032b before019d.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `package.json`, `pnpm-lock.yaml`, `tools/parity/parity.manifest.ts`; integrate 032b before046.
 - **Parallel-safe with TIP-001c (coverage-closure manifest):** sequential, shares `apps/web/src/features/products/screens/ProductsScreen.tsx`; integrate 032b before001c.

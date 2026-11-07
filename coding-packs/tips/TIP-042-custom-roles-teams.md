@@ -1,7 +1,6 @@
 # TIP-042 — Vai trò tuỳ biến, Nhóm và vòng đời cấp/thu hồi quyền
 
 ## HEADER
-- **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/settings.ts`; integrate 042 before006d.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/identity/settings.controller.ts`, `packages/core/src/identity/settings/settings-read.service.ts`; integrate 042 before003i.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 042 before046.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 042 before003e.
