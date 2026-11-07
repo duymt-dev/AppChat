@@ -199,3 +199,48 @@ Chưa nghiệm thu với Zalo thật (fake transport). Chưa làm: bảng tin / 
 | parity | inbox không đổi (default 4,70% · connect-channel 6,20% ≤ trần) · customers:360 3,35% · customers:edit 1,30% · customers:table 0,99% · quotes:editor 1,80% |
 
 Đỏ sẵn ngoài phạm vi TIP: `assistant-vertical.test.ts` › mục lục ma trận — 11 action từ TIP-038b / 041 (`transfer.*`, `workspace.open|delete*|freeze_request`, `product.export`, `invoice.export`) chưa có file ma trận trên `origin/dev` (action của 025b đã có đủ).
+
+## Pha 5 — khung giờ thật + dịch hai chiều + chụp màn hình (§E, §F)
+
+**COMMIT:** nhánh `tip/025b-inbox-vertical-p5` (xếp chồng #112) — `ce1580b8` (§E), `fc4291e9` (§F nền), `f946b4f8` (§F web), `22e0bef6` (e2e). **Migration tenant** `20261107025250_translation_cache` → sau merge: `pnpm --filter @appchat/db db:migrate-tenants` + build api / worker.
+
+**FILES CHANGED** (DV-049)
+- shared: `api/inbox-translation.ts` (đích vi/en/zh/ko/ja, ≤ 4.000 ký tự, 10 tin tự dịch đầu, phiên bản prompt, TTL 24h, schema kết quả).
+- actions: `ai.translate` mở đích zh/ko/ja (hợp đồng / quyền / grantable giữ nguyên); `inbox-translation.ts` — `ai.translate_draft` (inbox.reply, read, `agentGrantable:false`).
+- core: `ai/skills/translation-cache.ts` (giữ chỗ INSERT … ON CONFLICT DO NOTHING; lượt trùng chờ cùng lượt; giữ chỗ quá hạn nhận lại có điều kiện; lỗi / hết credit xoá chỗ giữ; chỉ lưu băm), `translation-service.ts` (run consult KHÔNG tool qua AiRunner + CreditMeter; nội dung ở lượt user), `draft-translate.handler.ts` (kiểm inbox.reply + scope hội thoại hiện hành trước model; trả `draft_revision`), `translate.handler.ts` dùng chung dịch vụ + cache; `ai/jobs/translation-cache.cleanup.ts` (mỗi giờ, theo workspace, ROLE=jobs qua `InboxUiJobsModule`).
+- db: `inbox-ui.prisma` `TranslationCache`; migration bảng + unique khoá (actor, hội thoại, băm, đích, prompt, epoch quyền) + index `expires_at`.
+- ai: model giả nhận đích zh/ko/ja.
+- web: `SchedulingPopover.tsx` + `useInboxSlots.ts` (dịch vụ / ngày giờ workspace / nhân viên → `/calendar/slots`, thứ tự server; chọn giờ mở form lịch hẹn chuẩn điền sẵn khách + hội thoại; "Chèn đề xuất giờ" chỉ chèn câu hỏi; nút chỉ hiện với booking.view); bỏ `/booking/slots`; `TranslationPopover` / `TranslationPreview` / `AutoTranslated` / `CapturePreview`; hooks `useInboxTranslation` (tuỳ chọn theo người + workspace + hội thoại, mặc định tắt), `useIncomingTranslations`, `useDraftTranslation`, `useInboxCapture`; `shared/media/screen-capture.ts`; mock `domains/inbox-translation.ts`; i18n vi/en.
+- test: core `inbox-translation.test.ts` (5); api `inbox-translation.test.ts` (3), ma trận `ai.translate_draft` (3); web `SchedulingPopover.test.tsx` (3), `TranslationPreview.test.tsx` (4), `CapturePreview.test.tsx` (4), `useIncomingTranslations.test.tsx` (3); `e2e/inbox-assist.spec.ts`.
+
+**Giả định đã chọn (gap-filling)**
+- Tuỳ chọn tự dịch lưu ở trình duyệt (tiện ích hiển thị theo người + workspace + hội thoại, mất thì về tắt) — không có dữ liệu nghiệp vụ nào phụ thuộc.
+- Tự dịch tin vào luôn sang tiếng Việt (đặc tả §F.2); đích tin soạn chọn trong 4 ngôn ngữ của prototype.
+- Chọn giờ ở popover = đề xuất: mở form lịch hẹn (form kiểm lại slot + EXCLUDE ở server khi tạo), không đặt chỗ ngầm.
+
+**ĐỐI CHIẾU STANDARDS (P5)**
+
+| Standard | Kết quả |
+|---|---|
+| `ai/agent-gateway.md` | dịch = run consult không tool qua AiRunner / CreditMeter; hết credit 402, không bịa bản dịch; cache theo người + epoch quyền, không trừ credit hai lần cho lượt trùng |
+| `actions/action-registry.md` | `ai.translate_draft` có handler + preview + ma trận; không cấp agent; gửi vẫn chỉ qua `message.send` |
+| `authz/rbac-permissions.md` | kiểm inbox.reply + scope hội thoại trước model (ngoài scope 404, kế toán 403); nút đặt lịch theo booking.view |
+| `database/indexing.md` | tra cache = unique (actor, hội thoại, băm, đích, prompt, epoch) — một lần seek; dọn theo index `expires_at` lô id |
+| `ops/observability-security.md` | không lưu / log nguyên văn tin (chỉ băm sha256); log job chỉ id workspace + số dòng |
+| `ui/frontend-structure.md` | hook / component tách riêng, Composer 177 dòng, style mới `assist.styles.ts` dùng token; e2e desktop + mobile 390 |
+| `i18n/i18n.md` | 6287 key 100% |
+
+**CỔNG TEST (P5)**
+
+| Cổng | Kết quả |
+|---|---|
+| `db:test-reset` | OK |
+| depcheck · lint-size · lint-tokens · i18n | 0 lỗi · OK · OK · 100% |
+| build api + worker + check:bundle | OK |
+| core unit | 110 file / 696 |
+| integration phạm vi P5 (`inbox-translation`, ma trận `ai.translate_draft` / `ai.translate`, `assistant-vertical`) | 4 file / 14 test; mục lục ma trận chỉ còn 11 action đỏ sẵn của 038b / 041 |
+| web unit | 125 file / 398 |
+| E2E mock `inbox-assist` + `inbox-group` + `inbox-context` | 13 passed, 4 skip (desktop + mobile 390) |
+| parity | inbox không đổi (default 4,70% · folder-rail 4,57% · chat-menu 4,36% · zalo-group-info 4,53% · connect-channel 6,20% ≤ trần 6,5%) |
+
+Chưa nghiệm thu với provider thật: dịch qua 9router (kiểm ở P6 ai:live, AC10). Chụp màn hình trên trình duyệt thật cần người chọn tab — e2e kiểm nhánh không hỗ trợ + unit kiểm dừng track.
