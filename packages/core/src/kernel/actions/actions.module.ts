@@ -62,7 +62,7 @@ export class ActionsModule {
         },
         {
           provide: ActionExecutor,
-          inject: [ActionHandlerRegistry, TENANT_RESOLVER, AUTHORIZER, ConfirmTokens, REDIS, CLOCK, PLATFORM_DB, PlatformOperations],
+          inject: [ActionHandlerRegistry, TENANT_RESOLVER, AUTHORIZER, ConfirmTokens, REDIS, CLOCK, PLATFORM_DB, PlatformOperations, { token: ENC_KEY, optional: true }],
           useFactory: (
             handlers: ActionHandlerRegistry,
             resolver: TenantDbResolver,
@@ -72,8 +72,9 @@ export class ActionsModule {
             clock: Clock,
             platform: PlatformDb,
             operations: PlatformOperations,
+            encKey?: Buffer,
           ) => {
-            const ex = new ActionExecutor({ registry, handlers, resolver, authorizer, confirm, kv, clock, platform, operations });
+            const ex = new ActionExecutor({ registry, handlers, resolver, authorizer, confirm, kv, clock, platform, operations, ...(encKey ? { encKey } : {}) });
             operations.useApprovals(() => ex.approvalGateway());
             // Đếm action_total{action,source,result} (TIP-045b) — action ngoài registry ghi `unknown`.
             const ids = new Set(registry.map((a) => a.id));

@@ -6,7 +6,8 @@ import type { MailProvider } from '@appchat/integrations';
 import { registerEffectSender } from '../../kernel/consistency/platform-effects';
 import type { IdentityEnv } from '../identity.env';
 import { IDENTITY_ENV, MAIL_PROVIDER } from './identity.tokens';
-import { inviteMail, transferOtpMail } from './mail-templates';
+import { deleteOtpMail, inviteMail, transferOtpMail } from './mail-templates';
+import { DELETE_OTP_MAIL_EFFECT, type DeleteOtpMail } from '../lifecycle/delete-request';
 import { TRANSFER_OTP_MAIL_EFFECT, type TransferOtpMail } from './ownership-transfer';
 
 export const INVITE_MAIL_EFFECT = 'identity.invite_mail';
@@ -40,6 +41,11 @@ export class InviteEffectsInstaller implements OnModuleInit, OnModuleDestroy {
       registerEffectSender(TRANSFER_OTP_MAIL_EFFECT, async (p) => {
         const x = p as unknown as TransferOtpMail;
         await mail.send(transferOtpMail(x.to, x.locale, x.code));
+      }),
+      // Mã xoá workspace (TIP-041 pha 3) — mục đích riêng, hạn 5 phút; chỉ trong payload mã hoá.
+      registerEffectSender(DELETE_OTP_MAIL_EFFECT, async (p) => {
+        const x = p as unknown as DeleteOtpMail;
+        await mail.send(deleteOtpMail(x.to, x.locale, x.code, x.workspace));
       }),
     );
   }

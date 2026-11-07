@@ -13,6 +13,15 @@
     }
   },
   "workspace": {
+    "delete_challenge": {
+      "title": "Gửi mã xác nhận xoá workspace"
+    },
+    "delete": {
+      "title": "Xoá workspace"
+    },
+    "freeze_request": {
+      "title": "Gửi yêu cầu đóng băng workspace"
+    },
     "open": {
       "title": "Mở workspace (giữ hoạt động / khôi phục khi đã lưu trữ)"
     },
@@ -1200,6 +1209,9 @@
       }
     },
     "workspace": {
+      "freeze_decide": {
+        "title": "Duyệt yêu cầu đóng băng workspace (quản trị nền tảng)"
+      },
       "suspend": {
         "title": "Tạm dừng workspace (quản trị nền tảng)"
       },
