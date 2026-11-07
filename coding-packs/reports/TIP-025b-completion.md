@@ -1,6 +1,6 @@
-### COMPLETION REPORT — TIP-025b (pha 1–4 — hàng loạt Hộp thư + alias "bỏ" + đếm theo bộ lọc; tìm có trang + cửa sổ quanh tin; quản lý nhóm Zalo; ngữ cảnh CRM + xuất lịch sử)
+### COMPLETION REPORT — TIP-025b (pha 1–7 — hàng loạt Hộp thư + alias "bỏ" + đếm theo bộ lọc; tìm có trang + cửa sổ quanh tin; quản lý nhóm Zalo; ngữ cảnh CRM + xuất lịch sử; khung giờ / dịch / chụp màn hình; thẻ duyệt + ai:live; bảng tin nhóm + link + chọn phụ trách)
 
-**STATUS:** pha 1, 2 DONE (TIP chưa DONE). Chia 6 pha theo DC-377, mỗi pha một PR xếp chồng: **P1** §C + §B.4 (PR này) → P2 §B.1–3 tìm / cửa sổ quanh tin → P3 §A nhóm → P4 §D ngữ cảnh CRM / commerce + xuất timeline → P5 §E slot + §F dịch / chụp màn hình → P6 §G thẻ duyệt + AC10 ai:live.
+**STATUS:** **TIP DONE** sau pha 7 (DC-378). Chia 6 pha theo DC-377 + pha 7 (DC-378), mỗi pha một PR xếp chồng: **P1** §C + §B.4 (PR này) → P2 §B.1–3 tìm / cửa sổ quanh tin → P3 §A nhóm → P4 §D ngữ cảnh CRM / commerce + xuất timeline → P5 §E slot + §F dịch / chụp màn hình → P6 §G thẻ duyệt + AC10 ai:live.
 
 **COMMIT:** nhánh `tip/025b-inbox-vertical`, xếp chồng trên `tip/041-workspace-lifecycle-p3` (#108). SHA ở bảng tiến độ `goals/GOAL-RELEASE.md`.
 
@@ -274,4 +274,43 @@ Chưa nghiệm thu với provider thật: dịch qua 9router (kiểm ở P6 ai:l
 | `database/indexing.md` | `ai_run_conversation_idx` + `approval_request_run_idx` (EXPLAIN trong test); số truy vấn cố định 3 (không theo dòng) |
 | `ai/eval.md` | suite có phiên bản, 3 lượt, chấm theo vết run + an toàn tuyệt đối; báo cáo + JSON trong `reports/` |
 | `ui/frontend-structure.md` | dùng lại ApprovalCard qua barrel, không import `features/assistant/components/*`; file ≤ 400 dòng |
+| `i18n/i18n.md` | vi + en 100% |
+
+
+## Pha 7 — bảng tin nhóm + sao chép link + chọn phụ trách kèm tải (§A.6–7, §B.6)
+
+**COMMIT:** nhánh `tip/025b-inbox-vertical-p7` (xếp chồng #114) — `d1c654dd` (nền), `f61d28ce` (web). **MIGRATION tenant:** `20261107062500_group_board`, `20261107062501_group_link_command`, `20261107062502_agent_load` → sau merge `db:migrate-tenants` + build lại api / worker (worker ROLE=channels chạy lệnh `link`).
+
+**FILES CHANGED** (DV-051)
+- shared: `api/inbox-board.ts` (GROUP_BOARD_KINDS, trang 24), `api/inbox-assignees.ts` (trang 30), `api/inbox-groups.ts` kind `link` + `link?: {enabled, url}`.
+- actions: `inbox-groups.ts` — `group.copy_link` (inbox.manage, read, không cấp agent, cần connector Zalo cá nhân).
+- core: `inbox/groups/group-board.ts` (keyset, mốc xoá lịch sử, bỏ xoá / thu hồi, link chỉ http(s) ≤ 3 / tin, ghi chú = tin `note`), `group-commands.ts` / `group-read.ts` (link: chỉ người yêu cầu, 10 phút, giải mã khi đọc), `group.handlers.ts` (`GroupCopyLinkHandler`, chỉ nguồn UI), `channels/jobs/group-command.processor.ts` (đọc link + `encryptSecret`), `inbox/services/assignee-candidates.ts`, `crm/public.ts` (`assigneeLoadOf`).
+- api: `inbox-groups.controller.ts` (`GET …/group/board`), `inbox-assignees.controller.ts` (`GET …/assignees`), OpenAPI.
+- web: `GroupBoard.tsx`, `GroupFold.tsx`, `GroupLinkRow.tsx`, `AssignPicker.tsx`, `assign-api.ts`, `group-api.ts` (`groupBoardQuery`); `GroupSections` / `GroupInfoPanel` / `ConvMenu` gọn lại; mock `domains/inbox-board.ts` + `group.copy_link`.
+- test: api `inbox-group-board.test.ts` (5 — link tắt / bật / chỉ người yêu cầu / hết hạn 10 phút / DB chỉ bản mã hoá, Trợ lý + sales bị từ chối, bảng tin trang / mốc / xoá / link / ghi chú, 404, EXPLAIN), ma trận `group.copy_link` (3), `inbox-assignees.test.ts` (4 — agent đúng kênh / nháp / xoá, tải mở, current, tìm, 403 / 404, EXPLAIN); web `GroupBoard` (1), `GroupLinkRow` (3), `AssignPicker` (3), `GroupInfoPanel` cập nhật; e2e `inbox-group.spec.ts` +2 (desktop + mobile 390).
+
+**Giả định đã chọn (gap-filling)**
+- Sao chép link luôn đọc mới qua worker (không giữ URL ở server quá 10 phút, không đưa URL vào trạng thái nhóm) — đổi một lượt chờ lấy việc không lộ link.
+- Thiếu inbox.assign → 403 trước khi xét scope (giống conversation.assign); không thấy hội thoại → 404.
+- Agent ứng viên = đang chạy (active, đã xuất bản, chưa xoá) và nhận loại kênh của hội thoại (`channels` rỗng = mọi kênh như Builder).
+- Tổng ảnh / tệp chưa biết → hiện "N+ mục" khi còn trang, không bịa tổng.
+
+**CỔNG TEST (P7)**
+- `db:test-reset` (template +1) → integration `inbox-group-board` + `inbox-assignees` + ma trận `group.copy_link`: 12/12 pass.
+- `pnpm turbo run lint typecheck test` core / shared / actions / api: 12/12 task pass. Web: typecheck, eslint (0 lỗi), vitest `features/inbox` + `shared/api/mock` 258/258.
+- E2E mock `inbox-group.spec.ts` + `inbox.spec.ts`: 16 pass / 10 bỏ qua (luồng desktop trên mobile).
+- Parity `inbox:zalo-group-info` 4,74% (≤ trần sổ nợ 5,7%) · `inbox:default` 4,70%.
+- lint-size, lint-tokens, i18n-check (vi / en 100%).
+- Zalo thật: **chưa nghiệm thu với provider thật** (fake transport).
+
+**ĐỐI CHIẾU STANDARDS (P7)**
+
+| Standard | Kết quả |
+|---|---|
+| `actions/action-registry.md` | `group.copy_link` có handler + preview + ma trận; ghi phụ trách vẫn chỉ `conversation.assign` |
+| `authz/rbac-permissions.md` | copy_link inbox.manage + chỉ nguồn UI; assignees inbox.assign; ngoài scope 404; URL chỉ người yêu cầu |
+| `database/indexing.md` | 2 index partial mới (kind + tải agent) + dùng lại `conversation_routing_load_idx`; EXPLAIN trong test; keyset (created_at,id) |
+| `ops/observability-security.md` | URL mã hoá ở DB, không vào log / sự kiện / DOM khi chưa sao chép |
+| `ui/frontend-structure.md` | tách component ≤ 400 dòng, query ở `*-api.ts`, mock cùng hợp đồng |
+| `ui/prototype-parity.md` | ≤ trần sổ nợ; ô ảnh thật thay ô màu giả (TIP §A.7) |
 | `i18n/i18n.md` | vi + en 100% |

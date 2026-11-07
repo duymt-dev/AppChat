@@ -95,7 +95,7 @@
 | REQ-C09e | Thu hồi / Xoá có xác nhận | 01-REQUIREMENTS-MATRIX.md:71 | 016 | ĐẠT | message.handlers.ts:100,115; test inbox.test.ts AC6 |
 | REQ-C10a | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | 01-REQUIREMENTS-MATRIX.md:72 | 014c | MỘT PHẦN | ConvMenu.tsx:63 "sáng mai" = +16 giờ, "tuỳ chọn" = +24 giờ cố định; TIP-014c nhận (2026-11-02) |
 | REQ-C10b | Phím tắt chèn câu trả lời mẫu | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:110-119; e2e inbox.spec.ts:23 |
-| REQ-C10c | Phân công nhân viên + agent kèm tải | 01-REQUIREMENTS-MATRIX.md:72 | 025b | MỘT PHẦN | ConvMenu.tsx:121-140 không hiện tải |
+| REQ-C10c | Phân công nhân viên + agent kèm tải | 01-REQUIREMENTS-MATRIX.md:72 | 025b | ĐẠT | TIP-025b P7: `GET /v1/conversations/:id/assignees` (người + agent đúng kênh, tải mở, phiên bản, trang) + AssignPicker.tsx; ghi qua conversation.assign; test inbox-assignees + AssignPicker + e2e |
 | REQ-C10d | Vòng đời = contact.stage (D49) | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:16,143; test crm-contacts.test.ts |
 | REQ-C10e | Gắn nhiều thẻ, tạo thẻ mới | 01-REQUIREMENTS-MATRIX.md:72 | 016, 025 | ĐẠT | ConvMenu.tsx:168; test inbox.test.ts AC5 |
 | REQ-C10f | Lưu trữ · Ẩn trò chuyện · Xoá lịch sử | 01-REQUIREMENTS-MATRIX.md:72 | 016 | ĐẠT | conversation-state.handlers.ts:68,82,125; test inbox.test.ts AC5 |
