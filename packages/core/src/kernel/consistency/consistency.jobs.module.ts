@@ -13,7 +13,7 @@ import { LOGGER } from '../kernel.module';
 import type { AppLogger } from '../logger/logger';
 import { REDIS } from '../redis';
 import { PLATFORM_DB } from '../tenant/tenant.providers';
-import { recoverOperations } from './operation-recovery';
+import { recoverOperations, recoveryAdapters } from './operation-recovery';
 import { PlatformOperations } from './platform-operation';
 import { sweepEffects } from './platform-effects';
 
@@ -49,6 +49,11 @@ class ConsistencyRunner implements OnApplicationBootstrap, OnApplicationShutdown
         if (job.name === RECOVER_JOB) {
           const r = await recoverOperations({ ops, defs, handler: (id) => handlers.get(id), now, onError: (id, err) => this.log.warn({ err, operation: id }, 'khôi phục thao tác lỗi') });
           if (r.completed || r.dead) this.log.info({ job: RECOVER_JOB, ...r }, 'khôi phục thao tác xuyên DB');
+          // Bộ khôi phục phụ của domain (TIP-019b usage AI): lỗi một bộ không chặn bộ khác.
+          for (const [name, fn] of recoveryAdapters()) {
+            const a = await fn(now).catch((err) => (this.log.warn({ err, adapter: name }, 'khôi phục phụ lỗi'), null));
+            if (a && Object.values(a).some((v) => v > 0)) this.log.info({ job: RECOVER_JOB, adapter: name, ...a }, 'khôi phục phụ');
+          }
           return r;
         }
         if (job.name === EFFECTS_JOB) return sweepEffects({ platform, key: this.key, now, onError: (kind, err) => this.log.warn({ err, kind }, 'gửi hiệu ứng lỗi') });

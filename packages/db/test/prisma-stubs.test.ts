@@ -13,7 +13,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   },
   tenant: {
     kernel: '002', authz: '005', integrations: '012', channels: '014', 'channels-webchat': '017', 'channels-email': '018', crm: '015',
-    inbox: '016', 'ai-runs': '019', 'ai-kb': '020', 'ai-agents': '021', 'ai-assistant': '023', 'ai-tasks': '035',
+    inbox: '016', 'ai-runs': '019', 'ai-usage': '019b', 'ai-kb': '020', 'ai-agents': '021', 'ai-assistant': '023', 'ai-tasks': '035',
     catalog: '027', documents: '028', 'sales-quotes': '029', contracts: '030', 'contract-appendix-signing': '030b', 'catalog-import': '032b', 'sales-orders': '031',
     'sales-payments': '032', 'commerce-settings': '032b', booking: '033', support: '034', loyalty: '036', marketing: '037', 'data-jobs': '045b',
     'channel-operations': '014b', 'ai-channel-behavior': '022b', insights: '038', 'data-transfer': '038b', 'inbox-ui': '025b',
@@ -26,7 +26,7 @@ describe('prisma stubs', () => {
     expect(files.sort()).toEqual(Object.keys(OWNERS[kind]).sort());
   });
 
-  it('45 file, mỗi file ghi đúng TIP chủ ở dòng đầu', () => {
+  it('46 file, mỗi file ghi đúng TIP chủ ở dòng đầu', () => {
     let n = 0;
     for (const kind of ['platform', 'tenant'] as const) {
       for (const [file, tip] of Object.entries(OWNERS[kind])) {
@@ -35,6 +35,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(45);
+    expect(n).toBe(46);
   });
 });

@@ -5,6 +5,7 @@ import { AppError, creditsFor } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
 import type { WalletChange, WalletService } from './wallet.service';
 import { AI_CONFIG_SCOPE, RevisionWatch } from '../../platform/public';
+import { UsageWallet } from './usage-receipt';
 
 export interface ModelPrice {
   per1kIn: number;
@@ -63,13 +64,26 @@ export interface UsageInput {
 }
 
 export class CreditMeter {
+  /** TIP-019b: trừ ví theo biên nhận lần gọi (gọi lại trả đúng số đã trừ); null khi không có DB nền tảng (test đơn vị). */
+  readonly usage: UsageWallet | null;
+
   constructor(
     private readonly wallet: Pick<WalletService, 'charge' | 'assertBalance'>,
     private readonly prices: PriceBook,
-  ) {}
+    platform?: Pick<PlatformDb, 'creditLedger'>,
+  ) {
+    this.usage = platform ? new UsageWallet(wallet, platform) : null;
+  }
 
   assertBalance(workspaceId: string): Promise<void> {
     return this.wallet.assertBalance(workspaceId);
+  }
+
+  /** Đơn giá hiện hành (chụp vào biên nhận TRƯỚC khi gọi — TIP-019b §2.2). Thiếu giá → lỗi trước khi gọi nhà cung cấp. */
+  async price(provider: string, model: string): Promise<ModelPrice> {
+    const p = await this.prices.price(provider, model);
+    if (!p) throw new AppError('VALIDATION_FAILED', 400, { model: 'price_missing' }, `Chưa có đơn giá cho ${provider}:${model}`);
+    return p;
   }
 
   async charge(u: UsageInput): Promise<{ credits: number; change: WalletChange }> {

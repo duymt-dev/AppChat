@@ -5,6 +5,7 @@ import { toJson, type PausedState } from '@appchat/ai';
 import { getAction } from '@appchat/actions';
 import { uuidv7 } from '../../kernel/ids';
 import { maskToolInput } from '../../kernel/actions/secret-fields';
+import type { MeteredDb } from './metered-db';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | '$transaction'>;
 export type RunRow = NonNullable<Awaited<ReturnType<TenantDb['aiRun']['findUnique']>>>;
@@ -52,6 +53,16 @@ export class RunStore {
     private readonly db: Db,
     private readonly now: () => Date,
   ) {}
+
+  /** DB có bảng ngân sách / biên nhận (TIP-019b) — null khi store dựng trên DB giả của test đơn vị. */
+  metered(): MeteredDb | null {
+    return 'aiRootBudget' in (this.db as object) ? (this.db as unknown as MeteredDb) : null;
+  }
+
+  /** Lý do dừng (TIP-019b §4.4) — ghi riêng, không đổi trạng thái. */
+  async stopReason(runId: string, reason: string): Promise<void> {
+    await this.db.aiRun.updateMany({ where: { id: runId }, data: { stopReason: reason.slice(0, 40) } });
+  }
 
   async create(r: NewRun): Promise<RunRow> {
     const now = this.now();
@@ -120,7 +131,7 @@ export class RunStore {
   }
 
   async addCredits(runId: string, credits: number): Promise<void> {
-    if (credits > 0) await this.db.aiRun.update({ where: { id: runId }, data: { creditsUsed: { increment: credits } } });
+    if (credits > 0) await this.db.aiRun.update({ where: { id: runId }, data: { creditsUsed: { increment: credits }, subtreeCredits: { increment: credits } } });
   }
 
   /** Số thứ tự bước kế tiếp (bước LLM + tool đánh số chung). */

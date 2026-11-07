@@ -2,6 +2,8 @@
 // `@ai-sdk/*` (agent-gateway §1). Không import @appchat/core — nhận dependency qua interface (Blueprint §1.1).
 export * from './gateway/types';
 export { AiSdkEngine, EngineError, LOOP_LIMIT } from './gateway/engine';
+export { classifyAttemptError } from './gateway/attempts';
+export { OUTPUT_TOKENS_DEFAULT, OUTPUT_TOKENS_MAX, REQUEST_MAX_BYTES, outputTokens, requestBytes } from './gateway/limits';
 export { callKey, resumeMessages, toJson } from './gateway/messages';
 export { LlmRouter, isFallbackError, type RouteRow, type RouterConfigSource } from './router/router';
 export { buildModel, type ProviderCapabilities, type ProviderConfig, type ProviderKind } from './router/providers';

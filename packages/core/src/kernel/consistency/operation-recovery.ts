@@ -5,6 +5,12 @@ import type { ActionDef } from '@appchat/actions';
 import type { ActionHandler } from '../actions/handler';
 import type { PlatformOperations } from './platform-operation';
 
+/** Bộ khôi phục phụ đăng ký bởi domain (TIP-019b: usage AI) — chạy cùng lịch `consistency.recover`, không có lịch riêng. */
+export type RecoveryAdapter = (now: () => Date) => Promise<Record<string, number>>;
+const adapters = new Map<string, RecoveryAdapter>();
+export const registerRecoveryAdapter = (name: string, fn: RecoveryAdapter) => void adapters.set(name, fn);
+export const recoveryAdapters = (): ReadonlyMap<string, RecoveryAdapter> => adapters;
+
 export const RECOVERY_MAX_ATTEMPTS = 12;
 export const RECOVERY_LEASE_MS = 60_000;
 /** Thao tác trẻ hơn mức này để request đang chạy tự làm nốt (không giành việc với request). */
