@@ -1,5 +1,6 @@
 // Mục Tổng quan — prototype L5824–5858: workspace của bạn (3 thẻ), logo + mã workspace, form Thông tin chung (workspace.update), vùng nguy hiểm.
-// Đóng băng / xuất / xoá workspace do Quản trị nền tảng xử lý (Blueprint §3.4 admin.workspace.*) → ở đây gửi yêu cầu qua hỗ trợ.
+// Vùng nguy hiểm chỉ Owner (TIP-041 P3): đóng băng = gửi yêu cầu cho admin nền tảng; xuất = xuất logic từng danh sách (038b); xoá = xem
+// trước + mã email + xác nhận (sao lưu mã hoá giữ 30 ngày, không hoàn tiền tự động — DC-376). Mỗi hộp một component riêng.
 'use client';
 import { useState } from 'react';
 import { App } from 'antd';
@@ -12,6 +13,10 @@ import { PageStates, stateOf } from '@/shared/states/PageStates';
 import { useSectionStyles } from '../styles/section.styles';
 import { useGeneralStyles } from '../styles/general.styles';
 import { workspaceQuery } from '../api';
+import { useSettingsUi } from '../settings-store';
+import { WorkspaceDeleteModal } from './WorkspaceDeleteModal';
+import { WorkspaceExportModal } from './WorkspaceExportModal';
+import { WorkspaceFreezeModal } from './WorkspaceFreezeModal';
 import type { Workspace } from '../types';
 
 type FormKey = 'legal_name' | 'website' | 'tax_code' | 'address' | 'support_phone' | 'admin_email';
@@ -78,6 +83,9 @@ export function GeneralSection() {
   const { styles, cx } = useGeneralStyles();
   const isOwner = useCan('workspace.transfer_ownership');
   const q = useQuery(workspaceQuery());
+  const danger = useSettingsUi((x) => x.danger);
+  const set = useSettingsUi((x) => x.set);
+  const closeDanger = () => set({ danger: null });
   return (
     <PageStates state={stateOf(q)} onRetry={() => void q.refetch()}>
       {q.data ? (
@@ -146,13 +154,17 @@ export function GeneralSection() {
                     <button
                       type="button"
                       className={k === 'delete' ? s.dangerBtn : k === 'freeze' ? s.dangerGhost : cx(s.ghost, s.sm)}
-                      onClick={() => void message.info(t('dz.requested'))}
+                      onClick={() => set({ danger: k })}
+                      data-testid={`st-dz-${k}`}
                     >
                       {t(`dz.${k}Btn`)}
                     </button>
                   </div>
                 ))}
               </div>
+              {danger === 'delete' ? <WorkspaceDeleteModal onClose={closeDanger} /> : null}
+              {danger === 'freeze' ? <WorkspaceFreezeModal onClose={closeDanger} /> : null}
+              {danger === 'export' ? <WorkspaceExportModal onClose={closeDanger} /> : null}
             </>
           ) : null}
         </>

@@ -2,6 +2,8 @@
 // Tạo trùng với khách đã có người phụ trách → CONTACT_OWNED: hiện "Đã có người phụ trách" + "Xin chia sẻ" (D32), không lộ dữ liệu khách.
 // Sửa (TIP-026): ô "Phụ trách" giữ như prototype nhưng không lưu qua contact.update (DC-066) — chọn người khác mở "Chuyển phụ trách"
 // điền sẵn người nhận (crm.reassign; không có quyền → ô khoá). Trùng khách của mình → nút mở khách đã có. "—" không điền vào chức danh.
+// TIP-025b §D.3: sửa nhận `version` (edit-context) → gửi `if_version`, chỉ gửi trường ĐÃ ĐỔI và được thấy (ô ẩn / bị che không bao giờ
+// thành chuỗi rỗng); lệch phiên bản → báo, giữ nội dung đang sửa. `onClose` / `onTransfer` cho host toàn cục (ngoài màn Khách hàng).
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -14,6 +16,9 @@ import { useFormStyles } from '../styles/form.styles';
 import { useCrmUi } from '../crm-store';
 import { membersQuery } from '../api';
 import type { ContactRow } from '../types';
+
+/** Ngữ cảnh sửa tối thiểu: dòng danh sách hoặc edit-context (TIP-025b). `hidden` = trường không được thấy — không hiện, không gửi. */
+export type EditTarget = Pick<ContactRow, 'id'> & Partial<Omit<ContactRow, 'id'>> & { version?: number; hidden?: string[] };
 
 type Draft = Record<string, string>;
 type Spec = [key: string, kind: 'text' | 'email' | 'tel' | 'date' | 'pick' | 'member' | 'area', required?: boolean, options?: string[]];
@@ -28,7 +33,7 @@ const CREATE: [section: string, fields: Spec[]][] = [
 const CREATE_LABEL: Record<string, string> = { full_name: 'name', owner_user_id: 'owner' };
 const OPT_NS: Record<string, string> = { type: 'type', group: 'group', gender: 'form.genders', source: 'source', status: 'status' };
 
-export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; contact?: ContactRow }) {
+export function ContactFormModal({ mode, contact, onClose, onTransfer }: { mode: 'create' | 'edit'; contact?: EditTarget; onClose?: () => void; onTransfer?: (to: string) => void }) {
   const t = useTranslations('customers');
   const { styles, cx } = useFormStyles();
   const ui = useCrmUi();
@@ -38,19 +43,25 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
   const request = useAction('contact.request_access');
   const canReassign = useCan('crm.reassign');
   const [dup, setDup] = useState('');
-  const [d, setD] = useState<Draft>((): Draft => ({
-    ...(contact ? { full_name: contact.full_name, title: contact.title === '—' ? '' : contact.title, owner_user_id: contact.owner_user_id, email: contact.email, phone: contact.phone, zalo: contact.zalo, city: contact.city, district: contact.district } : {}),
-    ...ui.prefill,
-  }));
+  const [base] = useState<Draft>((): Draft => {
+    if (!contact) return {};
+    const v = { full_name: contact.full_name, title: contact.title === '—' ? '' : contact.title, owner_user_id: contact.owner_user_id, email: contact.email, phone: contact.phone, zalo: contact.zalo, city: contact.city, district: contact.district };
+    return Object.fromEntries(Object.entries(v).filter(([, x]) => x != null)) as Draft;
+  });
+  const [d, setD] = useState<Draft>((): Draft => ({ ...base, ...ui.prefill }));
+  const [stale, setStale] = useState(false);
+  const shown = (k: string) => !contact?.hidden?.includes(k);
   const [err, setErr] = useState('');
   const cf = useCustomDraft('contact', contact?.custom);
   const [owned, setOwned] = useState<{ id: string; owner: string; sent: boolean } | null>(null);
-  const close = () => ui.set({ modal: null, target: null });
+  const close = onClose ?? (() => ui.set({ modal: null, target: null }));
   const set = (k: string, v: string) => setD((x) => ({ ...x, [k]: v }));
   const editOwner = (k: string) => mode === 'edit' && k === 'owner_user_id';
   const lockOwner = (k: string) => editOwner(k) && !canReassign;
   const transferTo = (to: string) => {
-    if (contact && to && to !== contact.owner_user_id) ui.set({ modal: 'transfer', target: contact.id, prefill: { to_user_id: to } });
+    if (!contact || !to || to === contact.owner_user_id) return;
+    if (onTransfer) return onTransfer(to);
+    ui.set({ modal: 'transfer', target: contact.id, prefill: { to_user_id: to } });
   };
   const label = (k: string) => (mode === 'edit' ? t(`edit.${EDIT_LABEL[k]}` as never) : t(`form.${CREATE_LABEL[k] ?? k}` as never));
 
@@ -90,8 +101,13 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
     if (mode === 'edit' && contact) {
       const c = cf.collect('update');
       if (!c.ok) return;
-      const patch = { ...Object.fromEntries(EDIT.filter(([k]) => k !== 'owner_user_id').map(([k]) => [k, d[k] ?? ''])), ...(c.custom ? { custom: c.custom } : {}) };
-      if (await update.run({ contact_id: contact.id, patch }, { onError: (e) => cf.absorb(e.error.fields) })) close();
+      // Chỉ trường được thấy VÀ đã đổi so với bản đọc — không gửi lại toàn bộ (ô ẩn / chưa tải không thành rỗng).
+      const changed = EDIT.filter(([k]) => k !== 'owner_user_id' && shown(k) && (d[k] ?? '') !== (base[k] ?? '')).map(([k]) => [k, d[k] ?? '']);
+      const patch = { ...Object.fromEntries(changed), ...(c.custom ? { custom: c.custom } : {}) };
+      if (!Object.keys(patch).length) return close();
+      setStale(false);
+      const onError = (e: { error: { code: string; fields?: Record<string, string> } }) => (e.error.code === 'STALE_VERSION' ? (setStale(true), true) : cf.absorb(e.error.fields));
+      if (await update.run({ contact_id: contact.id, patch, ...(contact.version ? { if_version: contact.version } : {}) }, { onError })) close();
       return;
     }
     const missing = CREATE.flatMap(([, fs]) => fs.filter(([k, , req]) => req && !d[k]?.trim()).map(([k]) => label(k)));
@@ -161,6 +177,7 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
         </div>
       ) : null}
       {err ? <div className={styles.err}>{err}</div> : null}
+      {stale ? <div className={styles.err} data-testid="crm-edit-stale">{t('edit.stale')}</div> : null}
       {dup ? (
         <div className={styles.owned} data-testid="contact-dup">
           <div className={styles.ownedBody}>{t('owned.mine')}</div>
@@ -171,7 +188,7 @@ export function ContactFormModal({ mode, contact }: { mode: 'create' | 'edit'; c
       ) : null}
 
       {mode === 'edit' ? (
-        <div className={styles.grid}>{EDIT.map(input)}</div>
+        <div className={styles.grid}>{EDIT.filter(([k]) => shown(k)).map(input)}</div>
       ) : (
         CREATE.map(([sec, fs]) => (
           <div key={sec} className={styles.section}>

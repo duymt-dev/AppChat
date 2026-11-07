@@ -14,6 +14,8 @@ export interface ChannelMeta {
   color: string;
   /** Adapter thật tạo được nhóm (TIP-023b) — không suy từ việc kênh có hội thoại nhóm. */
   create_group?: boolean;
+  /** Kênh nhận cảm xúc (REQ-C09a) — false → menu tin không hiện hàng cảm xúc. */
+  reactions?: boolean;
 }
 
 export interface ConvTag {

@@ -1,4 +1,4 @@
-### COMPLETION REPORT — TIP-041 (pha 1–2 / 3 — archive / restore native + hoạt động / quét / mở workspace)
+### COMPLETION REPORT — TIP-041 (pha 1–3 — archive / restore native + hoạt động / quét / mở workspace + Owner danger zone)
 
 **STATUS:** pha 1 DONE (TIP chưa DONE). Chia pha theo DC-375, mỗi pha một PR xếp chồng: **P1** nền tảng lưu trữ / khôi phục DB tenant trên Postgres native (PR này) → **P2** hoạt động + quét 90 ngày + cảnh báo 14 ngày + member mở workspace → khôi phục (UI "Đang khôi phục") → **P3** Owner danger zone (xoá + OTP + backup 30 ngày + purge, yêu cầu đóng băng, xuất logic).
 
@@ -174,3 +174,95 @@
 | `workflow/git-flow-ci.md` | nhánh `tip/041-workspace-lifecycle-p2` xếp chồng #106, PR vào `dev` | — |
 
 **Chưa nghiệm thu với provider thật:** email cảnh báo đi qua outbox → notify → provider mail (Brevo chưa có key, Q-004). Test xác nhận sự kiện + biên nhận, chưa xác nhận mail tới hộp thư thật.
+
+---
+
+## Pha 3 — Owner danger zone (xoá + OTP + sao lưu 30 ngày + tombstone + purge, yêu cầu đóng băng, xuất logic)
+
+**STATUS:** pha 3 DONE → **TIP-041 DONE** (AC01–08). Nhánh `tip/041-workspace-lifecycle-p3` từ `origin/dev` 8289952e (P1 #106 + P2 #107 đã merge).
+
+**MIGRATION:** **platform** `20261102024100_workspace_lifecycle_delete`:
+- enum `workspace_db_status` thêm `deleted`;
+- `workspace.deleted_at` / `files_purged_at`;
+- `workspace_lifecycle_job.from_db_status`;
+- bảng `workspace_step_up`;
+- bảng `workspace_freeze_request`, với partial unique cho yêu cầu đang chờ;
+- index `archive_manifest_ws_live_idx` (partial).
+
+Không có migration tenant. Sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants`, rồi build lại api / worker. Xoá workspace cần `APP_ENC_KEY` (đã bắt buộc từ trước); thiếu khoá thì action trả 501.
+
+**Luật tiền (DC-376, Chủ nhà trả lời Q-055):**
+- Không hoàn tiền tự động.
+- Bản xem trước liệt kê số ngày gói còn lại và Credit mua thêm sẽ mất. Owner phải gõ lại tên và tick "đã hiểu" (`acknowledge_loss: true`).
+- Subscription chuyển `cancelled` khi tombstone. Hoá đơn, sổ ví và audit giữ nguyên.
+- Hoàn tiền (nếu có) do vận hành xử lý tay.
+
+**FILES CHANGED** (ngoài manifest ở DV-044)
+- **db:**
+  - `identity.prisma` (`deleted`, `deletedAt`, `filesPurgedAt`);
+  - `workspace-lifecycle.prisma` (`fromDbStatus`, `WorkspaceStepUp`, `WorkspaceFreezeRequest`);
+  - `registry.ts` `DB_STATUSES`.
+- **shared:**
+  - `api/workspace-lifecycle.ts`: `deleted`, `freeze_request`, `workspaceDeletePreviewSchema`, `freezeRequestRowSchema`;
+  - `api/identity.ts`: session `deleting`.
+- **actions:** `workspace-danger.ts` gồm `workspace.delete_challenge`, `workspace.delete` (risk delete, secret `otp`), `workspace.freeze_request`, `admin.workspace.freeze_decide`. Cả bốn đều agentGrantable false và có ví dụ.
+- **core `identity/lifecycle/`:**
+  - `step-up.ts`: HMAC-SHA256 khoá APP_ENC_KEY; hạn 5 phút; sai 5 lần thì khoá; tối đa 5 lần xin mã / 15 phút; gắn với preview hash + status_version; tiêu bằng CAS; lần sai ghi ở transaction riêng;
+  - `delete-preview.ts`;
+  - `delete-request.ts`: thử thách + lệnh xoá; thư OTP gửi qua `platform_effect` mã hoá sau commit;
+  - `delete-run.ts`: quiesce → dump mã hoá + kiểm → manifest `deletion` +30 ngày → DROP → tombstone; rollback về `from_db_status`;
+  - `purge.ts`;
+  - `freeze-requests.ts`;
+  - `archive-run.ts`: tách `dumpToManifest` dùng chung;
+  - `jobs.ts`: lệnh `delete` từ active / suspended / archived, `finish.also`;
+  - `recovery.ts`: ma trận lỗi của lệnh xoá;
+  - `dispatcher.ts`: job quét ngày gọi `purgeExpired`;
+  - `status.ts`: `freeze_request` (chỉ Owner) và `deletePreview`.
+- **core kernel:**
+  - `actions/workspace-lifecycle-context.ts`: allowlist; audit / request hash che bí mật; `effects` mã hoá dispatch sau commit;
+  - `executor.ts` + `actions.module.ts`: inject `ENC_KEY`;
+  - `files/storage.ts` + `s3-storage.ts`: `deleteWorkspace` chỉ nhận tiền tố UUID;
+  - `identity/services/{mail-templates,invite-effects,workspaces.service}.ts`;
+  - `ai/assistant/catalog.ts`: 3 action mới thêm vào `SYSTEM_ONLY`.
+- **api:** `http/identity/lifecycle.controller.ts` thêm `GET /v1/workspace/delete-preview` (Owner) và `GET /v1/admin/freeze-requests` (admin nền tảng, cursor).
+- **web:**
+  - `features/settings/components/{WorkspaceDeleteModal,WorkspaceFreezeModal,WorkspaceExportModal}.tsx` + `styles/danger.styles.ts`;
+  - `GeneralSection.tsx`: bỏ toast giả;
+  - `settings-store.ts` (`danger`), `api.ts`;
+  - `features/onboarding/components/{DeletingCard,OnboardingGate}.tsx`;
+  - `features/platform-admin/components/FreezeRequestsPanel.tsx` + tab `freeze`;
+  - i18n vi / en: `settings.general.{del,freeze,export}`, `onboarding.deleting`, `platformAdmin.freeze`, `actions.*`;
+  - mock `domains/workspace-danger.ts` (+ lifecycle `deleting`, `freeze_request`).
+- **test:**
+  - `packages/core/test/workspace-delete.test.ts` (8);
+  - `apps/api/test/integration/workspace-lifecycle-delete.test.ts` (3);
+  - `apps/web/src/shared/api/mock/workspace-danger-shape.test.ts` (3);
+  - e2e `apps/web/e2e/workspace-danger.spec.ts`;
+  - sửa `cross-db-handlers`, `workspace-lifecycle-activity` (allowlist).
+
+**Sửa lỗi phát hiện khi test:**
+1. Tombstone đã chuyển cả bản lưu trữ đang legal hold sang retention xoá. Đã sửa: bản đang hold giữ nguyên retention và lý do; các thế hệ khác vẫn purge đúng hạn.
+2. `consumeStepUp` khoá dòng thử thách trong transaction thao tác, trong khi `bumpFail` cập nhật đúng dòng đó trên kết nối khác, nên sẽ tự chờ nhau. Đã bỏ khoá dòng: người gọi đã giữ khoá dòng workspace, và việc tiêu mã dùng CAS `consumed_at`.
+
+**Giả định đã chọn (gap-filling):**
+1. Xuất logic dùng 7 lệnh `.export` từng danh sách đã có (038 / 038b), không ZIP gộp. Prototype ghi "File ZIP"; lệch này ghi ở DV-044. Không bao giờ đưa bản sao lưu kỹ thuật cho Owner.
+2. Hạn sao lưu tính từ lúc Owner xác nhận (tạo lệnh). Chạy lại sau crash không kéo dài hạn.
+3. Xoá từ trạng thái archived: không dump lại, chỉ kiểm bản lưu trữ còn đọc được trong kho rồi mới tombstone.
+4. Đang có yêu cầu đóng băng chờ: hộp chỉ hiện trạng thái (server cũng chặn trùng). Workspace đã tạm dừng thì không gửi được.
+5. Tệp đính kèm của workspace chỉ dọn khi không còn manifest nào chưa purge (kể cả bản hold).
+
+**Đối chiếu standards (pha 3)**
+
+| Standard | Tuân thủ (file / test) | Lệch |
+|---|---|---|
+| `actions/action-registry.md` | 4 action qua ActionExecutor. Ngữ cảnh lifecycle membership-only: zod strict, biên nhận idempotency + audit nền tảng cùng transaction, `secret.paths ['otp']`, agentGrantable false, `SYSTEM_ONLY` (Trợ lý không thấy) | DV-044 (3 action ngoài §3.4) |
+| `authz/rbac-permissions.md` | Owner kiểm `workspace.owner_user_id` + membership active trong transaction có khoá dòng. Manager, Owner cũ, admin nền tảng → 403 (integration). Freeze decide chỉ `platform_admin` | — |
+| `ops/observability-security.md` | OTP chỉ lưu HMAC có khoá; mã không có trong audit / action log (integration kiểm). Thư OTP qua effect mã hoá. Hạn mức xin / thử mã | — |
+| `database/indexing.md` | `workspace_step_up_live_idx` (= trước, created_at sau); `workspace_freeze_request_status_idx` + partial unique pending; danh sách admin IDs-first, cursor `(created_at, id)`; `archive_manifest_ws_live_idx` partial | — |
+| `domain/state-machine.md` · `concurrency.md` | `deleting` từ active / suspended / archived (CAS generation + status_version); quyết định đóng băng dùng CAS `version` + khoá dòng; tạm dừng cùng transaction với `approved` | — |
+| `api/response-envelope.md` | `{ data }` / `{ data, next_cursor }`; lỗi OTP 422 `OTP_INVALID` kèm `fields.otp` | — |
+| `ui/frontend-structure.md` · `i18n/i18n.md` · `prototype-parity.md` | Mỗi hộp là một component (≤ 140 dòng), ghi qua `useAction`, token, chuỗi vi + en. Hộp và thẻ đang xoá là màn mới loại M (D21) | xuất từng danh sách thay "ZIP" (DV-044) |
+| `code/file-size-module-layout.md` · `testing.md` | File mới < 200 dòng; test ở file riêng (unit / integration / mock / e2e) | — |
+| `workflow/git-flow-ci.md` | Nhánh `tip/041-workspace-lifecycle-p3` từ `origin/dev`, PR vào `dev` | — |
+
+**Chưa nghiệm thu với provider thật:** thư OTP xoá đi qua mail provider. Integration bắt thư bằng `MemoryMailProvider`; Brevo chưa có key (Q-004). Kho S3 cho `deleteWorkspace` mới chạy unit qua đường local (chưa có bucket thật — Q-006).

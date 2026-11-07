@@ -1,5 +1,5 @@
 // Tệp chờ gửi của ô soạn (TIP-025): chọn tệp ("Thêm tệp" ở menu ＋) → tải lên ngay `POST /files` (purpose attachment) → giữ `file_id`;
-// gửi tin kèm `attachments`. Lỗi tải lên báo toast; bỏ tệp trước khi gửi không xoá ở server (tệp chưa xác nhận — dọn job sau).
+// gửi tin kèm `attachments` (ảnh chụp màn hình đã chấp nhận cũng vào đây — TIP-025b §F.4). Lỗi tải lên báo toast; bỏ tệp trước khi gửi không xoá ở server (tệp chưa xác nhận — dọn job sau).
 'use client';
 import { useState } from 'react';
 import { App } from 'antd';
@@ -19,7 +19,7 @@ export function useComposerFiles() {
   const { message: toast } = App.useApp();
   const [files, setFiles] = useState<PendingFile[]>([]);
 
-  const add = async (list: FileList | null) => {
+  const add = async (list: FileList | File[] | null) => {
     for (const f of Array.from(list ?? []).slice(0, MAX - files.length)) {
       const key = `${f.name}-${f.size}-${Math.random().toString(36).slice(2, 8)}`;
       setFiles((xs) => [...xs, { key, name: f.name, file_id: null }]);

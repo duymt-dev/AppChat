@@ -116,12 +116,75 @@
       "freezeD": "Pause all activity, keep all data",
       "freezeBtn": "Freeze",
       "export": "Export all data",
-      "exportD": "ZIP with all conversations, contacts and AI logs",
+      "exportD": "Download each list (customers, quotes, orders, contracts…) as Excel / CSV",
       "exportBtn": "Export data",
       "delete": "Delete workspace",
       "deleteD": "This cannot be undone. All data is deleted after 30 days.",
-      "deleteBtn": "Delete workspace",
-      "requested": "Request sent — AppChat will confirm via the admin email"
+      "deleteBtn": "Delete workspace"
+    },
+    "del": {
+      "title": "Delete workspace",
+      "members": "{n} members will lose access immediately.",
+      "paid": "The {plan} plan with {n} days left will be cancelled.",
+      "noPaid": "No active paid plan.",
+      "credits": "{n} top-up Credits will be lost with the workspace.",
+      "noRefund": "No automatic refund. Contact AppChat if you need a case-by-case review.",
+      "backup": "An encrypted backup is kept for {n} days, then permanently deleted.",
+      "retained": "Invoices, the Credit ledger and the admin log are retained as required.",
+      "typeName": "Type the workspace name \"{name}\" to confirm",
+      "ack": "I understand the remaining plan and Credits are lost, with no automatic refund.",
+      "send": "Send confirmation code",
+      "sent": "A 6-digit code was sent to {to} (valid 5 minutes).",
+      "otp": "Confirmation code",
+      "confirm": "Delete permanently",
+      "cancel": "Cancel",
+      "close": "Close",
+      "err": {
+        "name": "The workspace name does not match.",
+        "ack": "Tick the box to confirm you understand.",
+        "format": "The code has 6 digits.",
+        "invalid": "Wrong code.",
+        "expired": "The code expired — send a new one.",
+        "locked": "Too many wrong attempts — send a new code.",
+        "stale": "The workspace just changed — review and send a new code.",
+        "rate": "Too many codes requested — try again in 15 minutes.",
+        "email": "Your email is not verified — verify it before deleting."
+      }
+    },
+    "freeze": {
+      "title": "Request a workspace freeze",
+      "hint": "Freezing pauses all new activity (channels, AI, sending) but keeps your data. The AppChat operations team reviews the request.",
+      "reason": "Reason",
+      "reasonPh": "E.g. closing for 2 months",
+      "send": "Send request",
+      "cancel": "Cancel",
+      "close": "Close",
+      "status": {
+        "pending": "Request pending (sent {at}).",
+        "approved": "Request approved — the workspace is paused ({at}).",
+        "rejected": "Request rejected ({at}). You can send a new one.",
+        "cancelled": "Request cancelled ({at})."
+      },
+      "err": {
+        "short": "The reason needs at least 3 characters."
+      }
+    },
+    "export": {
+      "title": "Export workspace data",
+      "hint": "Download each list as Excel / CSV — every row you can see. Large lists run in the background and notify you when ready.",
+      "note": "Exports never include passwords, connection keys or system secrets.",
+      "run": "Export",
+      "done": "Done",
+      "close": "Close",
+      "kind": {
+        "contact": "Customers",
+        "quote": "Quotes",
+        "order": "Orders",
+        "contract": "Contracts",
+        "ticket": "Support tickets",
+        "product": "Products",
+        "invoice": "Payment requests"
+      }
     }
   },
   "locale": {

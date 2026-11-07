@@ -3,7 +3,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { App } from 'antd';
 import { Icon, color, type IconName } from '@appchat/ui';
@@ -11,13 +11,13 @@ import { useAction } from '@/shared/actions/useAction';
 import { useMessageMenuStyles } from '../styles/menu.styles';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
-import type { Message } from '../types';
+import type { ChannelType, Message } from '../types';
 import { useMessageProviderStatus } from '../hooks/useMessageProviderStatus';
-import { inboxKeys } from '../api';
+import { channelsQuery, inboxKeys } from '../api';
 
 const REACTS = ['👍', '❤️', '😂', '😮', '😢', '🙏'] as const;
 
-export function MessageMenu({ convId, message, isPinned }: { convId: string; message: Message; isPinned: boolean }) {
+export function MessageMenu({ convId, channelOf, message, isPinned }: { convId: string; channelOf: ChannelType; message: Message; isPinned: boolean }) {
   const t = useTranslations('inbox.msgMenu');
   const router = useRouter();
   const { message: toast } = App.useApp();
@@ -46,6 +46,8 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
   };
 
   const close = ui.closePop;
+  // REQ-C09a: hàng cảm xúc chỉ ở kênh nhận cảm xúc (meta kênh theo manifest); chưa tải meta → ẩn (không hứa thao tác không chạy).
+  const reactable = !!useQuery({ ...channelsQuery(), select: (m) => m[channelOf] }).data?.reactions;
 
   const items: [key: string, icon: IconName, hint: string | undefined, danger: boolean, onClick: () => void][] = [
     ['reply', 'ic-reply', undefined, false, () => { close(); ui.set({ replyTo: { id: messageId, preview: (message.body ?? '').slice(0, 80) } }); }],
@@ -88,6 +90,7 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
         <>
           <div className={base.veil} onClick={ui.closePop} />
           <div className={cx(styles.menu, styles.menuWide)} role="menu" data-testid="chat-menu">
+            {reactable ? (
             <div className={styles.reactRow}>
               {REACTS.map((e) => (
                 <button
@@ -101,6 +104,7 @@ export function MessageMenu({ convId, message, isPinned }: { convId: string; mes
                 </button>
               ))}
             </div>
+            ) : null}
             {items.map(([key, icon, hint, danger, onClick], i) => (
               <div key={key}>
                 {i === items.length - 2 ? <div className={styles.sep} /> : null}

@@ -1,4 +1,12 @@
 {
+  "approvals": {
+    "title": "Cần bạn duyệt",
+    "count": "{pending} chờ duyệt · {total} thẻ",
+    "all": "Xem tất cả",
+    "pendingOnly": "Chỉ chờ duyệt",
+    "waitingRun": "Đã duyệt — thao tác đang chờ chạy, chưa phải đã gửi",
+    "error": "Không tải được thẻ duyệt của hội thoại"
+  },
   "emptyChat": "Chọn một hội thoại để bắt đầu",
   "tabs": {
     "all": "Tất cả",
@@ -31,7 +39,24 @@
     },
     "at": "@"
   },
+  "bulk": {
+    "label": "Thao tác hàng loạt",
+    "selected": "Đã chọn {n}",
+    "selectVisible": "Chọn các hội thoại đang hiện",
+    "assignTo": "Gán cho…",
+    "assign": "Gán",
+    "tagPick": "Chọn thẻ…",
+    "tag": "Gắn thẻ",
+    "close": "Đóng",
+    "archive": "Lưu trữ",
+    "clear": "Bỏ chọn",
+    "dismiss": "Đóng kết quả",
+    "summary": "Xong {done} · không đổi {skipped} · lỗi {failed}",
+    "jobAccepted": "Đã nhận — đang xử lý nền, kết quả báo qua thông báo khi xong.",
+    "hidden": "Hội thoại không truy cập được"
+  },
   "list": {
+    "select": "Chọn {name}",
     "title": "Hộp thư",
     "sub": "{total} hội thoại · {unread} chưa đọc",
     "connect": "Kết Nối Kênh",
@@ -102,7 +127,16 @@
     "unpin": "Bỏ ghim",
     "pinnedMsg": "📌 Tin đã ghim:",
     "unpinMsg": "Bỏ ghim",
+    "window": {
+      "older": "Đang xem tin cũ quanh kết quả tìm",
+      "latest": "Về tin mới nhất",
+      "newer": "Tải tin mới hơn",
+      "loading": "Đang tải tin quanh kết quả…",
+      "error": "Tin này không còn xem được."
+    },
     "search2": {
+      "loading": "Đang tìm…",
+      "error": "Không tìm được — thử lại.",
       "placeholder": "Tìm trong hội thoại này…",
       "none": "Không tìm thấy “{q}” trong hội thoại này · thử ô tìm kiếm ở danh sách hội thoại bên trái để tìm trong tất cả hội thoại.",
       "sender": "Người gửi",
@@ -206,17 +240,44 @@
     },
     "sched": {
       "title": "Đặt lịch hẹn cho {name}",
-      "ai": "AI gợi ý khung giờ tốt nhất",
-      "best": "Tốt nhất",
-      "fit": "Phù hợp",
-      "send": "Gửi thẻ xác nhận lịch",
-      "confirm": "Em xác nhận lịch hẹn {time} ngày {day} cho mình nhé ạ."
+      "service": "Dịch vụ",
+      "serviceOpt": "{name} · {min} phút",
+      "date": "Ngày",
+      "staff": "Nhân viên",
+      "anyStaff": "Nhân viên bất kỳ",
+      "loading": "Đang tìm khung giờ trống…",
+      "error": "Không tải được khung giờ — thử lại",
+      "empty": "Không còn khung giờ trống ngày này",
+      "hint": "Khung giờ trống theo lịch workspace — chọn rồi mở form đặt lịch",
+      "book": "Mở form đặt lịch",
+      "proposeBtn": "Chèn đề xuất giờ vào tin nhắn",
+      "propose": "Bên em còn trống {time} ngày {date} cho dịch vụ {service}, mình xem giờ này được không ạ?"
     },
     "xl": {
       "title": "Dịch tự động",
       "auto": "Tự động dịch 2 chiều",
       "autoHint": "Tin khách → tiếng Việt · Tin bạn → ngôn ngữ khách",
-      "to": "Dịch tin soạn sang"
+      "to": "Dịch tin soạn sang",
+      "pending": "Đang dịch tin soạn…",
+      "failed": "Không dịch được (lỗi hoặc hết credit) — thử lại hoặc gửi nguyên văn",
+      "sendTranslated": "Gửi bản dịch",
+      "sendOriginal": "Gửi nguyên văn",
+      "retry": "Thử lại",
+      "cancel": "Huỷ dịch",
+      "inMore": "Dịch thêm tin cũ hơn",
+      "inPaused": "Tạm dừng tự dịch (lỗi hoặc hết credit) — thử lại",
+      "autoLabel": "Bản dịch tự động"
+    },
+    "capture": {
+      "busy": "Đang chờ bạn chọn tab / cửa sổ / màn hình…",
+      "unsupported": "Trình duyệt này không hỗ trợ chụp màn hình — hãy đính kèm tệp ảnh",
+      "denied": "Bạn đã từ chối quyền chụp màn hình — có thể đính kèm tệp ảnh",
+      "failed": "Không chụp được màn hình — hãy đính kèm tệp ảnh",
+      "alt": "Ảnh chụp màn hình",
+      "warn": "Kiểm tra ảnh không chứa thông tin nhạy cảm trước khi đính kèm.",
+      "accept": "Đính kèm ảnh",
+      "fallback": "Chọn tệp",
+      "cancel": "Bỏ ảnh chụp"
     },
     "autoBadge": "AUTO",
     "fileFailed": "Không tải lên được tệp {name}",
@@ -344,6 +405,9 @@
     "close": "Đóng thông tin nhóm",
     "members": "{n} thành viên",
     "joinLink": "Link tham gia nhóm",
+    "linkOn": "Đang bật · bấm Quản lý để tắt",
+    "linkOff": "Đang tắt",
+    "linkUnknown": "Chưa đọc từ Zalo — làm mới trong Quản lý nhóm",
     "media": "Ảnh/Video",
     "files": "File",
     "links": "Link",
@@ -353,7 +417,9 @@
       "mute": "Tắt thông báo",
       "pin": "Ghim hội thoại",
       "add": "Thêm thành viên",
-      "manage": "Quản lý nhóm"
+      "manage": "Quản lý nhóm",
+      "unmute": "Bật thông báo",
+      "unpin": "Bỏ ghim"
     },
     "ai": {
       "title": "AI trong nhóm",
@@ -371,6 +437,42 @@
     "seeAll": "Xem tất cả",
     "caretOpen": "▾",
     "caretClosed": "▸"
+  },
+  "groupManage": {
+    "title": "Quản lý nhóm",
+    "close": "Đóng",
+    "name": "Tên nhóm",
+    "rename": "Đổi tên nhóm",
+    "linkOn": "Bật link tham gia",
+    "linkOff": "Tắt link tham gia",
+    "refresh": "Làm mới từ Zalo",
+    "refreshFirst": "Làm mới từ Zalo trước khi đổi tên / link.",
+    "snapshot": "Zalo báo {total} thành viên · AppChat đã thấy {observed} · tài khoản là {role}",
+    "noSnapshot": "AppChat đã thấy {observed} thành viên (chưa đọc từ Zalo)",
+    "partial": "Danh sách Zalo trả về chưa đủ — không phải toàn bộ nhóm.",
+    "addTitle": "Thêm khách đã nhắn với tài khoản này ({n}/{max})",
+    "add": "Thêm vào nhóm",
+    "more": "Tải thêm",
+    "role": {
+      "owner": "trưởng nhóm",
+      "admin": "phó nhóm",
+      "member": "thành viên",
+      "unknown": "chưa rõ"
+    },
+    "state": {
+      "pending": "Đang gửi lệnh tới Zalo…",
+      "confirmed": "Zalo đã xác nhận.",
+      "failed": "Zalo từ chối — không đổi gì.",
+      "unknown": "Chưa rõ kết quả — kiểm tra trên Zalo, không tự gửi lại.",
+      "partial": "Xong một phần — xem từng người.",
+      "cancelled": "Đã huỷ.",
+      "superseded": "Đã thay bằng lệnh mới hơn."
+    },
+    "member": {
+      "confirmed": "Đã thêm",
+      "failed": "Không thêm được",
+      "unknown": "Chưa rõ"
+    }
   },
   "connect": {
     "eyebrow": "Kết nối kênh mới",

@@ -21,6 +21,7 @@ import { STORAGE, type Storage } from '../../kernel/files/storage';
 import { DataJobsModule } from '../../kernel/jobs/data-jobs/data-jobs.module';
 import { CrmMembers } from '../services/members.service';
 import { registerContactExportKind } from './contact-export.processor';
+import { registerTimelineExportKind } from './contact-timeline-export.processor';
 import './contact-bulk.processor';
 import { LEAD_ROUTING_CONSUMER, leadRoutingConsumer } from '../routing/routing-consumer';
 
@@ -106,7 +107,10 @@ class CrmJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
 /** Kind việc dữ liệu của crm (TIP-045b annex D): xuất > 5.000 cần Storage + tên người phụ trách; sửa hàng loạt đăng ký khi import. */
 class CrmDataJobKinds {
   constructor(@Optional() @Inject(STORAGE) storage: Storage | undefined, @Inject(CrmMembers) members: CrmMembers | null) {
-    if (storage && members) registerContactExportKind(storage, members);
+    if (storage && members) {
+      registerContactExportKind(storage, members);
+      registerTimelineExportKind(storage, members);
+    }
   }
 }
 

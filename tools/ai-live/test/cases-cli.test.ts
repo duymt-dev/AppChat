@@ -95,6 +95,14 @@ describe('--cases suite bổ sung', () => {
     expect(loadDefault().cases).toHaveLength(DEFAULT_COUNT);
   });
 
+  it('suite inbox-vertical (TIP-025b AC10): 10 ca, cổng 9/10; đủ 4 đích dịch + thẻ duyệt + xuất lịch sử', () => {
+    const p = plan(parseArgs(['--cases', 'fixtures/ai-eval/inbox-vertical/cases.json']));
+    expect([p.suite.suite, p.suite.cases.length, p.gate]).toEqual(['inbox-vertical', 10, 9]);
+    const to = p.suite.cases.filter((c) => c.expect.action === 'ai.translate').map((c) => c.expect.input?.to);
+    expect(to.sort()).toEqual(['en', 'ja', 'ko', 'zh']);
+    expect(p.suite.cases.map((c) => c.expect.action)).toEqual(expect.arrayContaining(['conversation.approvals', 'contact.history_export', 'quote.create', 'appointment.find_slots']));
+  });
+
   it('tham số lạ / thiếu giá trị → lỗi', () => {
     expect(() => parseArgs(['--case', 'x'])).toThrow(/unknown_arg/);
     expect(() => parseArgs(['--cases'])).toThrow(/missing_value/);

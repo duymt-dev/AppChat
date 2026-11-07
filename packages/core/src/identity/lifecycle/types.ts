@@ -1,7 +1,7 @@
 // Kiểu + token DI của vòng đời workspace (TIP-041). Trạng thái DB tenant (registry `workspace.db_status`) chuyển bằng CAS:
 //   active → archiving → archived            (lưu trữ)
 //   archived → restoring → active            (khôi phục)
-//   active | archived | suspended → deleting (xoá — pha sau)
+//   active | archived | suspended → deleting → deleted (xoá của Owner — pha 3; tombstone, sao lưu giữ 30 ngày rồi purge)
 // Tạm dừng (suspend — TIP-040) ≠ lưu trữ: workspace tạm dừng không lưu trữ / khôi phục được tới khi admin mở lại.
 import type { ArchiveStore, KeyRing } from '@appchat/db';
 
@@ -23,6 +23,8 @@ export type LifecycleStep =
   | 'restore'
   | 'migrate'
   | 'checks'
+  | 'backup'
+  | 'tombstone'
   | 'activate'
   | 'done';
 
@@ -38,6 +40,9 @@ export interface LifecycleJobRow {
   manifestId: string | null;
   /** Lệnh của lượt quét: mốc hoạt động đã dựa vào (kiểm lại sau quiesce). */
   basisAt?: Date | null;
+  /** Lệnh xoá: db_status trước khi xoá — lỗi trước DROP trả về đúng trạng thái này. */
+  fromDbStatus?: string | null;
+  createdAt?: Date;
 }
 
 /** Cấu hình hạ tầng của vòng đời (worker ROLE=jobs) — dựng từ env ở lifecycle.providers. */

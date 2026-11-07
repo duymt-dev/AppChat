@@ -11,6 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { uuidv7 } from '../../../kernel/ids';
 import { nextCode } from '../../../kernel/sequence';
 import { CrmMembers, writeTimeline } from '../../../crm/public';
+import { linkConversation } from '../../../inbox/public';
 import { checkParties, creatorOf, linesOf, resolveLines, type LineIn } from '../../quotes/services/quote-write';
 import { lockConversion } from '../../quotes/services/conversion-lock';
 import { UUID } from '../order-access';
@@ -125,7 +126,8 @@ export class OrderCreateHandler implements Handler<ActionInput<typeof orderCreat
       const c = UUID.test(input.contract_id) ? await tx.contract.findUnique({ where: { id: input.contract_id }, select: { contactId: true, deletedAt: true } }) : null;
       if (!c || c.deletedAt || c.contactId !== input.contact_id) throw new AppError('VALIDATION_FAILED', 422, { contract_id: 'not_found' });
     }
-    const { row, events } = await insertOrder(ctx, tx, this.members, { ...input, source: input.contract_id ? 'contract' : 'manual' }, this.clock.now());
+    const link = await linkConversation(tx, ctx.authz, input.contact_id, input, { served: ctx.servedConversationId });
+    const { row, events } = await insertOrder(ctx, tx, this.members, { ...input, contact_id: link.contactId!, conversation_id: link.conversationId, source: input.contract_id ? 'contract' : 'manual' }, this.clock.now());
     return { result: { order_id: row.id, code: row.code }, after: { id: row.id }, events };
   }
 

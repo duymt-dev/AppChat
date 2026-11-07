@@ -13,6 +13,15 @@
     }
   },
   "workspace": {
+    "delete_challenge": {
+      "title": "Send workspace deletion code"
+    },
+    "delete": {
+      "title": "Delete workspace"
+    },
+    "freeze_request": {
+      "title": "Request workspace freeze"
+    },
     "open": {
       "title": "Open workspace (keep active / restore if archived)"
     },
@@ -66,7 +75,35 @@
       "desc": "The system sends the daily / weekly 08:00 digest email to people who turned it on in Notifications — only figures they may see, moved past quiet hours."
     }
   },
+  "group": {
+    "set_ai_policy": {
+      "title": "Change group AI policy"
+    },
+    "add_members": {
+      "title": "Add members to Zalo group"
+    },
+    "update": {
+      "title": "Rename / change link of Zalo group"
+    },
+    "set_mute": {
+      "title": "Mute / unmute group for the account"
+    },
+    "refresh": {
+      "title": "Refresh group info from Zalo"
+    }
+  },
   "conversation": {
+    "approvals": {
+      "title": "Conversation approvals",
+      "desc": "List approval requests raised by AI in one conversation."
+    },
+    "unhide": {
+      "title": "Unhide conversation"
+    },
+    "untag": {
+      "title": "Remove conversation tag",
+      "desc": "Remove a tag from a conversation (no change if it is not tagged)."
+    },
     "mark_read": {
       "title": "Mark as read"
     },
@@ -120,6 +157,12 @@
     }
   },
   "message": {
+    "unpin": {
+      "title": "Unpin message"
+    },
+    "unreact": {
+      "title": "Remove message reaction"
+    },
     "send": {
       "title": "Send message",
       "desc": "Reply to the customer through the conversation's channel."
@@ -137,6 +180,14 @@
     }
   },
   "contact": {
+    "history_export": {
+      "title": "Export customer history",
+      "desc": "Export one customer's history to CSV by date range / event type / columns."
+    },
+    "get_edit_context": {
+      "title": "Read contact edit context",
+      "desc": "Read the editable fields, current version and owner of one contact (hidden fields are omitted)."
+    },
     "import": {
       "title": "Import customers",
       "desc": "Import customers from a file in batches; skips duplicates and reports customers owned by others."
@@ -282,6 +333,10 @@
     "translate": {
       "title": "Translate message",
       "desc": "Translate a customer message into Vietnamese."
+    },
+    "translate_draft": {
+      "title": "Translate draft",
+      "desc": "Translate the reply draft into the customer language for preview — never sends."
     }
   },
   "ai_task": {
@@ -1200,6 +1255,9 @@
       }
     },
     "workspace": {
+      "freeze_decide": {
+        "title": "Decide workspace freeze request (platform admin)"
+      },
       "suspend": {
         "title": "Suspend workspace (platform admin)"
       },

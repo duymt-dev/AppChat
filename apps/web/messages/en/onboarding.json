@@ -45,6 +45,12 @@
     "failed": "Setup isn't finished yet. We'll retry automatically.",
     "retry": "Retry"
   },
+  "deleting": {
+    "title": "This workspace is being deleted",
+    "sub": "You confirmed deleting this workspace. All access has stopped; an encrypted backup is kept for 30 days, then permanently deleted. Sign out to pick or create another workspace.",
+    "failed": "The deletion is not finished yet. Our operators have been notified and will handle it.",
+    "logout": "Sign out"
+  },
   "restoring": {
     "title": "Restoring your workspace…",
     "sub": "This workspace was archived after a long period of inactivity. AppChat is restoring your data — this usually takes under a minute.",
