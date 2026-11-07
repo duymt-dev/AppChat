@@ -1,4 +1,12 @@
 {
+  "approvals": {
+    "title": "Cần bạn duyệt",
+    "count": "{pending} chờ duyệt · {total} thẻ",
+    "all": "Xem tất cả",
+    "pendingOnly": "Chỉ chờ duyệt",
+    "waitingRun": "Đã duyệt — thao tác đang chờ chạy, chưa phải đã gửi",
+    "error": "Không tải được thẻ duyệt của hội thoại"
+  },
   "emptyChat": "Chọn một hội thoại để bắt đầu",
   "tabs": {
     "all": "Tất cả",

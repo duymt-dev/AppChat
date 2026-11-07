@@ -10,6 +10,7 @@ import { useThreadWindow } from '../hooks/useThreadWindow';
 import { ChatHeader } from './ChatHeader';
 import { Composer } from './Composer';
 import { ThreadViewport } from './ThreadViewport';
+import { InboxApprovals } from './InboxApprovals';
 import { HandoffSummaryPanel } from './HandoffSummaryPanel';
 import { AiDraftCard } from './AiDraftCard';
 import { Rich } from './Rich';
@@ -44,6 +45,7 @@ export function ChatPanel({
       <ChatHeader conv={conv} channel={channel} />
       {searchOpen ? <ThreadSearchBar conv={conv} onJump={w.jumpTo} /> : null}
       <ThreadViewport conv={conv} w={w}>
+        <InboxApprovals conversationId={conv.id} />
         {conv.ai_state === 'handoff' ? (
           <>
             <AiDraftCard

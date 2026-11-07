@@ -1,4 +1,12 @@
 {
+  "approvals": {
+    "title": "Needs your approval",
+    "count": "{pending} pending · {total} cards",
+    "all": "Show all",
+    "pendingOnly": "Pending only",
+    "waitingRun": "Approved — the operation is waiting to run, not sent yet",
+    "error": "Couldn't load this conversation's approvals"
+  },
   "emptyChat": "Pick a conversation to start",
   "tabs": {
     "all": "All",

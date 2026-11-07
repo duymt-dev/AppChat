@@ -51,3 +51,18 @@ test.describe('inbox ô soạn — lịch hẹn / dịch / chụp màn hình (mo
     await expect(page.getByTestId('capture-fallback')).toBeVisible();
   });
 });
+
+test.describe('inbox thẻ duyệt (mock)', () => {
+  test('hội thoại có yêu cầu duyệt: thẻ hiện, từ chối cập nhật', async ({ page }) => {
+    await page.goto(URL);
+    await page.locator('[data-conv="c_hieu"] button').first().click();
+    const box = page.getByTestId('inbox-approvals');
+    await expect(box.getByTestId('ap-card')).toHaveCount(1);
+    if (isMobile(page)) await expectNoHorizontalOverflow(page);
+    await box.getByTestId('ap-reject').click();
+    await box.getByTestId('ap-reject-confirm').click();
+    await expect(box.getByTestId('ap-card')).toHaveCount(0);
+    await box.getByTestId('inbox-approvals-all').click();
+    await expect(box.getByTestId('ap-card')).toContainText('Đã từ chối');
+  });
+});
