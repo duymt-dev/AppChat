@@ -46,6 +46,7 @@ import * as platformAdmin from './platform-admin';
 import * as adminConfig from './admin-config';
 import * as adminWorkspaces from './admin-workspaces';
 import * as workspaceLifecycle from './workspace-lifecycle';
+import * as workspaceDanger from './workspace-danger';
 import * as salesReads from './reads/sales';
 import * as contractReads from './reads/contracts';
 import * as crmReads from './reads/crm';
@@ -112,6 +113,7 @@ export * from './platform-admin';
 export * from './admin-config';
 export * from './admin-workspaces';
 export * from './workspace-lifecycle';
+export * from './workspace-danger';
 export * from './reads/sales';
 export * from './reads/contracts';
 export * from './reads/crm';
@@ -177,6 +179,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(adminConfig),
   ...Object.values(adminWorkspaces),
   ...Object.values(workspaceLifecycle),
+  ...Object.values(workspaceDanger),
   ...Object.values(dataJobs),
   ...Object.values(dataTransfer),
   ...Object.values(crmBulk),

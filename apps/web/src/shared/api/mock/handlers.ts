@@ -2,6 +2,7 @@
 import type { MockDb } from './store';
 import { dashboardHandlers } from './domains/dashboard';
 import { workspaceLifecycleHandlers } from './domains/workspace-lifecycle';
+import { workspaceDangerHandlers } from './domains/workspace-danger';
 import { inboxHandlers } from './domains/inbox';
 import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
@@ -97,6 +98,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
     },
   },
   ...workspaceLifecycleHandlers,
+  ...workspaceDangerHandlers,
   ...dashboardHandlers,
   ...inboxHandlers,
   ...customersHandlers,

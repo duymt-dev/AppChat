@@ -13,6 +13,15 @@
     }
   },
   "workspace": {
+    "delete_challenge": {
+      "title": "Send workspace deletion code"
+    },
+    "delete": {
+      "title": "Delete workspace"
+    },
+    "freeze_request": {
+      "title": "Request workspace freeze"
+    },
     "open": {
       "title": "Open workspace (keep active / restore if archived)"
     },
@@ -1200,6 +1209,9 @@
       }
     },
     "workspace": {
+      "freeze_decide": {
+        "title": "Decide workspace freeze request (platform admin)"
+      },
       "suspend": {
         "title": "Suspend workspace (platform admin)"
       },

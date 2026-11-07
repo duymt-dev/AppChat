@@ -1,7 +1,7 @@
 // Đọc Cài đặt (Blueprint §4.4 settings). Query key đầu = tên trong `invalidates` của action (workspace / members / …). Ghi qua useAction.
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
-import type { BillQuoteDto as BillQuote, SalesPolicyDto } from '@appchat/shared';
+import type { BillQuoteDto as BillQuote, SalesPolicyDto, WorkspaceDeletePreviewDto, WorkspaceLifecycleDto } from '@appchat/shared';
 import type {
   DocTemplate,
   BillInvoice,
@@ -31,6 +31,12 @@ import type {
 
 export const workspaceQuery = () =>
   queryOptions({ queryKey: ['workspace', 'settings'], queryFn: () => transport.get<WorkspaceData>('/settings/workspace') });
+
+/** Vùng nguy hiểm (TIP-041 P3): trạng thái vòng đời + yêu cầu đóng băng (Owner) và bản xem trước xoá — chỉ DB nền tảng. */
+export const workspaceLifecycleQuery = () =>
+  queryOptions({ queryKey: ['workspace-lifecycle'], queryFn: () => transport.get<WorkspaceLifecycleDto>('/workspace/lifecycle') });
+export const deletePreviewQuery = () =>
+  queryOptions({ queryKey: ['workspace-lifecycle', 'delete-preview'], queryFn: () => transport.get<WorkspaceDeletePreviewDto>('/workspace/delete-preview'), staleTime: 0 });
 
 export const membersQuery = (q: string) =>
   queryOptions({
