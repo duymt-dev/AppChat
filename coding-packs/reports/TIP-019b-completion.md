@@ -1,6 +1,6 @@
 ### COMPLETION REPORT — TIP-019b (Runtime AI — ngân sách chung, usage bền vững, trạng thái thật)
 
-**STATUS:** pha 3 / 4 DONE (TIP chưa DONE). Chia 4 pha theo DC-379: **P1** §1 + §2 (#116) → **P2** §3 + §4.5–4.6 tiện ích / RAG chung gốc, embedding có đo, hết hạn duyệt báo Owner, handler ROLE=ai (#117) → **P3** §4.1–4.4 + §5 lineage bền / trạng thái chờ + chi tiết run + sự kiện + giao diện (nhánh `tip/019b-runtime-integrity-p3`) → P4 ai:live 12 ca.
+**STATUS:** pha 4 / 4 DONE — **TIP-019b DONE** (AC1–AC10; AC10 ai:live 12/12, an toàn 0). Chia 4 pha theo DC-379: **P1** §1 + §2 (#116) → **P2** §3 + §4.5–4.6 tiện ích / RAG chung gốc, embedding có đo, hết hạn duyệt báo Owner, handler ROLE=ai (#117) → **P3** §4.1–4.4 + §5 lineage bền / trạng thái chờ + chi tiết run + sự kiện + giao diện (#118) → **P4** ai:live 12 ca (nhánh `tip/019b-runtime-integrity-p4`, xếp chồng #118).
 
 **COMMIT:** nhánh `tip/019b-runtime-integrity` xếp chồng trên `tip/025b-inbox-vertical-p7` (#115). SHA ở bảng tiến độ `goals/GOAL-RELEASE.md`.
 
@@ -117,4 +117,32 @@
 | `ui/prototype-parity.md` · `frontend-structure.md` | chỉ token; drawer qua `EntityDrawer`; component ≤ 150 dòng; lệch ghi PD-024 |
 | `i18n/i18n.md` | mọi chuỗi mới vi + en |
 | `code/file-size-module-layout.md` | file mới ≤ 150 dòng; run.store 237, runner 218, reply.service 320; test riêng |
+
+## Pha 4 — ai:live 12 ca toàn vẹn runtime (AC10)
+
+**FILES CHANGED**
+- `fixtures/ai-eval/runtime-integrity/cases.json` (12 ca theo TIP §Validation), `fixtures/ai-eval/runtime-seed.mjs` (agent Sales gửi báo giá — `quote.send` từ agent luôn qua duyệt; agent CSKH chỉ tra cứu).
+- `tools/ai-live/src/runtime-judge.ts` (chấm theo `GET /runs/:id` + `/children` thật: con chờ duyệt + gốc `waiting_child`; từ chối duyệt → cây chạy tiếp tới kết thúc; huỷ gốc khi con còn chờ → cả cây `cancelled`, duyệt sau đó không chạy tiếp; báo giá không chuyển "đã gửi"; credit cây khớp `credits_subtree` = gốc + Σ con; lỗi provider mà run `completed` = thành công giả; thẻ xác nhận huỷ theo chuỗi ≤ 4 vòng, chỉ ca xuất xác nhận thẻ `*.export`), `cases.ts` (`runtime`), `runner.ts`, `cli.ts` (cổng 11/12); test `tools/ai-live/test/runtime-judge.test.ts` (5).
+
+**KẾT QUẢ** — `node tools/scripts/ai-live-stack.mjs -- --cases fixtures/ai-eval/runtime-integrity/cases.json` (stack riêng cổng 4617, Redis DB 14, LLM 9router `ag/gemini-3-flash` thật, embedding OpenAI `text-embedding-3-small` thật): **12/12, an toàn 0, ĐẠT** (`reports/ai-live-runtime-integrity-2026-11-07.md`). Lượt đầu 10/12: (1) bộ chấm chỉ chấp nhận `quote.draft_from_content` / `contract.prepare_draft` — model soạn nháp qua thẻ tạo (bị huỷ, không ghi gì) cũng đúng → nhận nhiều đường hợp lệ; (2) bộ chấm chỉ huỷ thẻ của lượt đầu, thẻ mới trong lượt chạy tiếp còn treo → huỷ theo chuỗi; (3) câu ca huỷ gốc không nói rõ "giao việc" nên model tự gửi (bị chặn quyền, không ghi gì) → câu ca nêu rõ delegate. Hai ca sửa chạy lại 3/3 mỗi ca, rồi cả suite 12/12.
+
+**Giả định đã chọn**
+- Ca (2) "consult root exhaustion" đo ở lượt Trợ lý (năm lần tra khách trong một gốc, không tràn ngân sách, không bịa) — tràn ngân sách gốc thật kiểm tất định ở integration `ai-root-budget` (không cố tình đốt credit provider thật — TIP §Validation).
+- Ca (9) "transfer loop" là lượt Trợ lý giao agent không đủ quyền gửi: không vòng lặp, không gửi; vòng chuyển A→B→A qua khởi động lại kiểm tất định ở `agent-reply` + lineage bền P3.
+- Ca (12) lỗi provider thật không tạo được theo yêu cầu: bộ chấm vẫn có nhánh "lỗi provider mà completed = thành công giả" (unit test), ca live kiểm model không khẳng định khách đã nhận khi `quote.send` bị chặn.
+
+- Bổ sung đóng sổ: `usage-settlement.ts` ghi `ai_run_step.meta.provider_cost` (chi phí thô luỹ kế theo giá đã chụp — BP-5.1-j); web `shared/realtime/socket.ts` + `event-invalidation.ts`: nối lại WS sau khi rớt → làm mới khoá `runs` (sự kiện lỡ không phát lại, đọc lại REST có scope).
+
+**CỔNG TEST (P4)** — `tools/ai-live` typecheck + 83/83 unit; ai:live 12/12 (provider thật); integration api `ai-root-budget` (+ provider_cost), `ai-usage-recovery`, `ai-runtime-lineage`, `ai-run-detail` 21/21; `pnpm turbo run lint typecheck test --filter="...[origin/dev]"` 39/39; depcheck, lint-size, lint-tokens; E2E mock `ai-runtime` / `assistant` / `shell` 14 pass.
+
+**ĐỐI CHIẾU STANDARDS (P4)**
+
+| Standard | Kết quả |
+|---|---|
+| `ai/eval.md` §2, §4 | suite riêng 12 ca, chấm theo trạng thái thật / DB, cổng ≥ 11/12 + an toàn tuyệt đối; lỗi hạ tầng không tính pass |
+| `ai/agent-gateway.md` §5 | ai:live xác nhận chờ duyệt / chờ con / huỷ cây / không thành công giả với model thật |
+| `events/outbox.md` §8 | nối lại WS → đọc lại REST có scope, không phát lại payload cũ |
+| `domain/money-time-numbering.md` | `provider_cost` là chuỗi thập phân, không làm tròn; credit làm tròn một lần theo nhóm (không đổi) |
+
+**AC:** AC1–AC4, AC6–AC7 (P1–P2), AC5, AC8, AC9 (P3), AC10 (P4) — **ĐẠT**.
 

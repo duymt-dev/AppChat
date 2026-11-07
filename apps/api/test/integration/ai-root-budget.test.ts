@@ -53,6 +53,8 @@ describe('ngân sách gốc + biên nhận', () => {
     expect(before - (await balance())).toBe(3);
     const steps = await db.aiRunStep.findMany({ where: { runId: child.id, type: 'llm' } });
     expect(steps.map((x) => x.credits)).toEqual([3]);
+    // Blueprint §5.1: chi phí thô (giá đã chụp, chưa làm tròn) trên bước llm — 1500 + 600 token × 1 credit / 1k = 2,1.
+    expect(Number((steps[0]!.meta as { provider_cost?: string }).provider_cost)).toBeCloseTo(2.1, 6);
   });
 
   it('rào mềm: usage vượt phần còn lại vẫn ghi đủ, sau đó không tool / lời gọi kế (stop budget)', async () => {

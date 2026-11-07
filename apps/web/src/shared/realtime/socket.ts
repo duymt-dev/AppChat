@@ -27,8 +27,13 @@ function connect(): void {
   s.onAny((event: string, data: unknown) => {
     for (const h of handlers) h(event, data);
   });
+  let first = true;
   s.on('connect', () => {
     for (const id of convRooms.keys()) s.emit('conv.join', { conversation_id: id });
+    // Nối lại sau khi rớt (TIP-019b §5.3): sự kiện run lỡ trong lúc mất kết nối không phát lại — làm mới khoá `runs` để đọc lại chi tiết
+    // qua REST có scope (không dựa payload cũ).
+    if (!first) for (const h of handlers) h('realtime.reconnected', null);
+    first = false;
   });
   socket = s;
 }

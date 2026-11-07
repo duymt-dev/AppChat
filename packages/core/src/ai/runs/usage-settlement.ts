@@ -100,8 +100,8 @@ export async function settleReceipt(d: SettleDeps, receiptId: string, meta: { so
   return d.db.$transaction(async (tx) => {
     const n = await tx.aiUsageSettlement.updateMany({ where: { groupId: it.groupId, ordinal: it.ordinal, status: 'intent' }, data: { status: 'settled', applied, ledgerId, settledAt: d.now() } });
     if (n.count !== 1) return { credits: applied, groupCharged: 0, denied: false };
-    const [g] = await tx.$queryRaw<{ charged: number; step_id: string | null }[]>`UPDATE ai_usage_group SET charged = charged + ${applied} WHERE id = ${it.groupId} RETURNING charged, step_id`;
-    const idx = await upsertLlmStep(tx, it, g?.step_id ?? null, rc, g?.charged ?? applied, d.now());
+    const [g] = await tx.$queryRaw<{ charged: number; step_id: string | null; raw: string | null }[]>`UPDATE ai_usage_group SET charged = charged + ${applied} WHERE id = ${it.groupId} RETURNING charged, step_id, raw_cost::text AS raw`;
+    const idx = await upsertLlmStep(tx, it, g?.step_id ?? null, rc, g?.charged ?? applied, g?.raw ?? null, d.now());
     // Bước llm mới → sự kiện run đã commit cùng transaction (TIP-019b §5.3); cộng dồn vào bước sẵn có thì không phát lại.
     if (idx !== null) await appendRunEvent(tx, d.workspaceId, { runId: it.runId, kind: 'step', status: 'ok', stepIdx: idx }, d.now());
     await tx.aiUsageReceipt.updateMany({ where: { id: receiptId }, data: { status: 'settled', updatedAt: d.now() } });
@@ -110,16 +110,20 @@ export async function settleReceipt(d: SettleDeps, receiptId: string, meta: { so
   });
 }
 
-/** Một dòng `ai_run_step(llm)` mỗi nhóm (chat giữ `meta.llm_step` cho đối soát ví 045b; embedding ghi `usage_kind`); credit = tổng đã trừ của nhóm. */
-async function upsertLlmStep(tx: TenantTx, it: Intent, stepId: string | null, rc: { provider: string; model: string; tokensIn: number; tokensOut: number; latencyMs: number }, charged: number, now: Date): Promise<number | null> {
+/**
+ * Một dòng `ai_run_step(llm)` mỗi nhóm (chat giữ `meta.llm_step` cho đối soát ví 045b; embedding ghi `usage_kind`); credit = tổng đã trừ của
+ * nhóm; `meta.provider_cost` = chi phí thô luỹ kế của nhóm theo giá đã chụp (Blueprint §5.1 — chuỗi thập phân, không làm tròn).
+ */
+async function upsertLlmStep(tx: TenantTx, it: Intent, stepId: string | null, rc: { provider: string; model: string; tokensIn: number; tokensOut: number; latencyMs: number }, charged: number, raw: string | null, now: Date): Promise<number | null> {
+  const meta = { ...(it.kind === 'chat' ? { llm_step: it.logicalStep } : { usage_kind: it.kind, logical_step: it.logicalStep }), ...(raw !== null ? { provider_cost: raw } : {}) };
   if (stepId) {
-    await tx.aiRunStep.update({ where: { id: stepId }, data: { credits: charged, provider: rc.provider, model: rc.model, tokensIn: { increment: rc.tokensIn }, tokensOut: { increment: rc.tokensOut } } });
+    await tx.aiRunStep.update({ where: { id: stepId }, data: { credits: charged, provider: rc.provider, model: rc.model, tokensIn: { increment: rc.tokensIn }, tokensOut: { increment: rc.tokensOut }, meta } });
     return null;
   }
   const [last] = await tx.$queryRaw<{ idx: number | null }[]>`SELECT MAX(idx) AS idx FROM ai_run_step WHERE run_id = ${it.runId}::uuid`;
   const id = uuidv7(now.getTime());
   const idx = (last?.idx ?? -1) + 1;
-  await tx.aiRunStep.create({ data: { id, runId: it.runId, idx, type: 'llm', status: 'ok', provider: rc.provider, model: rc.model, tokensIn: rc.tokensIn, tokensOut: rc.tokensOut, credits: charged, latencyMs: rc.latencyMs, meta: it.kind === 'chat' ? { llm_step: it.logicalStep } : { usage_kind: it.kind, logical_step: it.logicalStep }, createdAt: now } });
+  await tx.aiRunStep.create({ data: { id, runId: it.runId, idx, type: 'llm', status: 'ok', provider: rc.provider, model: rc.model, tokensIn: rc.tokensIn, tokensOut: rc.tokensOut, credits: charged, latencyMs: rc.latencyMs, meta, createdAt: now } });
   await tx.$executeRaw`UPDATE ai_usage_group SET step_id = ${id}::uuid WHERE id = ${it.groupId}`;
   return idx;
 }
