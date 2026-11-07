@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 145 | 11 | 4 | 13 | 15 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 146 | 10 | 4 | 13 | 15 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 125 | 11 | 2 | 1 | 14 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 161 | 13 | 3 | 6 | 10 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 341 | 64 | 1 | 4 | 46 | 3 | 0 | 0 |
 | E. standards/* | 201 | 47 | 1 | 6 | 33 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 43 | 0 | 41 | 0 | 4 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 68 | 11 | 3 | 13 | 28 | 3 | 0 | 0 |
-| **Tổng** | **1084** | **157** | **55** | **43** | **150** | **37** | **69** | **0** |
+| **Tổng** | **1085** | **156** | **55** | **43** | **150** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -135,7 +135,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C11a | Menu ＋: Thêm tệp · Chụp ảnh màn hình | 01-REQUIREMENTS-MATRIX.md:73 | 025b | GIẢ | "Chụp ảnh màn hình" chỉ đóng menu (AgentToolsMenu.tsx:32) |
 | REQ-C11b | Quyền của agent chỉ xem, nhóm module + Kỹ năng AI, badge, link Builder | 01-REQUIREMENTS-MATRIX.md:73 | 021, 025 | ĐẠT | AgentToolsMenu.tsx:36-64; test agents.test.ts AC5 |
 | REQ-C11c | Research / Web search "Sắp có" (D48) | 01-REQUIREMENTS-MATRIX.md:73 | 025 | ĐẠT | AgentToolsMenu.tsx:56-59 |
-| REQ-C12 | Tìm trong hội thoại không dấu, N/M, lọc người gửi | 01-REQUIREMENTS-MATRIX.md:74 | 025b | MỘT PHẦN | Backend TIP016/025 có search (conversations.controller.ts:57; read.service.ts:119; inbox.test.ts AC7). Rà lại 2026-11-02: apps/web/src/features/inbox/components/ThreadSearchBar.tsx:37–40 chỉ cuộn DOM đã tải; :54–57 chỉ Escape/Enter, thiếu phím lên/xuống và tải tin cũ để định vị. TIP025b SPEC search/AC2 nhận phím lên/xuống, old-hit positioning và bounded native query; chưa triển khai, không dùng TIP đã DONE làm owner sửa lỗi. |
+| REQ-C12 | Tìm trong hội thoại không dấu, N/M, lọc người gửi | 01-REQUIREMENTS-MATRIX.md:74 | 025b | ĐẠT | TIP-025b P2: GET /v1/conversations/:id/messages/search-page (ảnh chụp, total đúng, cursor mờ) + /messages/around/:messageId (≤ 51) — core/inbox/services/thread-window.ts; shared foldRanges (vị trí gốc UTF-16); web hooks/useThreadSearch + useThreadWindow, ThreadSearchBar (↑/↓, Enter, Esc, N/M), ThreadViewport (Về tin mới nhất); test apps/api/test/integration/inbox-thread-window.test.ts (5.000 tin / 300 khớp + EXPLAIN), packages/shared/test/inbox-thread-fold.test.ts, e2e inbox-thread.spec.ts |
 | REQ-C13 | Header + khung nhập ver2.1 | 01-REQUIREMENTS-MATRIX.md:75 | 025 | ĐẠT | ChatHeader.tsx:27; Composer.tsx:147; MessageBubble.tsx:139; e2e inbox.spec.ts |
 | REQ-D01a | Agent runtime sau Agent Gateway | 01-REQUIREMENTS-MATRIX.md:80 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:35; test packages/ai/test/engine.test.ts |
 | REQ-D01b | Ngữ cảnh → RAG → tools → trả lời, bất đồng bộ trong worker | 01-REQUIREMENTS-MATRIX.md:80 | 022 | ĐẠT | ai/reply/reply.service.ts; test agent-reply.test.ts "worker ROLE=ai" |
