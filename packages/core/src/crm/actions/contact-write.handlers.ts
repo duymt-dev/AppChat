@@ -48,7 +48,7 @@ export class ContactCreateHandler implements Handler<ActionInput<typeof contactC
     const me = actorUserId(ctx);
     const c = await createContact(tx, input, { workspaceId: ctx.workspaceId, authz: ctx.authz, roleKey: await this.members.roleOf(ctx.workspaceId, me), actorUserId: me, now, members: this.members });
     await writeTimeline(tx, { contactId: c.id, type: 'stage', key: 'created', params: { source: c.source }, actor: actor(ctx), at: now });
-    if (input.note?.trim()) await tx.contactNote.create({ data: { id: uuidv7(now.getTime()), contactId: c.id, body: input.note.trim(), authorUserId: me ?? c.id, createdAt: now } });
+    if (input.note?.trim()) await tx.contactNote.create({ data: { id: uuidv7(now.getTime()), contactId: c.id, body: input.note.trim(), authorUserId: me, actorType: me ? 'user' : ctx.actor.type, actorId: me ? null : ctx.actor.id, createdAt: now } });
     return {
       result: { contact_id: c.id, code: c.code },
       after: { id: c.id },

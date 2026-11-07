@@ -63,6 +63,9 @@ import * as documentReads from './reads/documents';
 import * as assistantUi from './assistant-ui';
 import * as integrationProbe from './integration-probe';
 import * as integrationRuntime from './integration-runtime';
+import * as contactNotes from './contact-notes';
+import * as contactTasks from './contact-tasks';
+import * as contactOpportunities from './contact-opportunities';
 import * as dataJobs from './data-jobs';
 import * as dataTransfer from './data-transfer';
 import * as crmBulk from './crm-bulk';
@@ -135,6 +138,9 @@ export * from './reads/channels';
 export * from './reads/documents';
 export * from './integration-probe';
 export * from './integration-runtime';
+export * from './contact-notes';
+export * from './contact-tasks';
+export * from './contact-opportunities';
 export * from './data-jobs';
 export * from './data-transfer';
 export * from './crm-bulk';
@@ -215,6 +221,9 @@ export const registry: readonly ActionDef[] = [
   // TIP-023c G3 (DEF-012-1): metadata form + thăm dò connector, không đổi kết nối.
   ...Object.values(integrationProbe),
   ...Object.values(integrationRuntime),
+  ...Object.values(contactNotes),
+  ...Object.values(contactTasks),
+  ...Object.values(contactOpportunities),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

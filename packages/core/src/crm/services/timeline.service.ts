@@ -4,8 +4,8 @@ import { createFmt, interpolate, serverMessages } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 
-export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported' | 'order_confirmation_sent' | 'receipt_sent' | 'invoice_sent' | 'invoice_paid' | 'invoice_void' | 'refund_requested' | 'refund_approved' | 'refund_rejected' | 'package_granted' | 'package_extended' | 'package_adjusted' | 'appointment_booked' | 'appointment_rescheduled' | 'appointment_done' | 'appointment_no_show' | 'appointment_cancelled' | 'package_session_used' | 'ticket_opened' | 'ticket_closed' | 'ticket_reopened' | 'loyalty_earn' | 'loyalty_redeem' | 'loyalty_adjust' | 'loyalty_reverse' | 'loyalty_expire' | 'loyalty_tier';
-type TimelineType = 'message' | 'quote' | 'contract' | 'order' | 'invoice' | 'payment' | 'appointment' | 'ticket' | 'note' | 'ai_action' | 'loyalty' | 'campaign' | 'stage' | 'owner' | 'merge';
+export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported' | 'order_confirmation_sent' | 'receipt_sent' | 'invoice_sent' | 'invoice_paid' | 'invoice_void' | 'refund_requested' | 'refund_approved' | 'refund_rejected' | 'package_granted' | 'package_extended' | 'package_adjusted' | 'appointment_booked' | 'appointment_rescheduled' | 'appointment_done' | 'appointment_no_show' | 'appointment_cancelled' | 'package_session_used' | 'ticket_opened' | 'ticket_closed' | 'ticket_reopened' | 'loyalty_earn' | 'loyalty_redeem' | 'loyalty_adjust' | 'loyalty_reverse' | 'loyalty_expire' | 'loyalty_tier' | 'note_added' | 'comment_added' | 'task_created' | 'task_updated' | 'task_state_changed' | 'opportunity_created' | 'opportunity_updated' | 'opportunity_archived';
+type TimelineType = 'message' | 'quote' | 'contract' | 'order' | 'invoice' | 'payment' | 'appointment' | 'ticket' | 'note' | 'ai_action' | 'loyalty' | 'campaign' | 'stage' | 'owner' | 'merge' | 'comment' | 'contact_task' | 'contact_opportunity';
 
 export interface TimelineInput {
   contactId: string;
@@ -63,6 +63,14 @@ const STYLE: Record<string, { icon: string; tone: string }> = {
   loyalty_reverse: { icon: 'ic-gift', tone: 'muted' },
   loyalty_expire: { icon: 'ic-clock', tone: 'muted' },
   loyalty_tier: { icon: 'ic-trend', tone: 'violet' },
+  note_added: { icon: 'ic-edit', tone: 'muted' },
+  comment_added: { icon: 'ic-inbox', tone: 'muted' },
+  task_created: { icon: 'ic-check', tone: 'brand' },
+  task_updated: { icon: 'ic-edit', tone: 'brand' },
+  task_state_changed: { icon: 'ic-check', tone: 'ok' },
+  opportunity_created: { icon: 'ic-trend', tone: 'violet' },
+  opportunity_updated: { icon: 'ic-trend', tone: 'violet' },
+  opportunity_archived: { icon: 'ic-x', tone: 'muted' },
 };
 
 export async function writeTimeline(tx: TenantTx, e: TimelineInput): Promise<string> {

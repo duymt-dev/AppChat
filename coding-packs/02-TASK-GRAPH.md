@@ -213,6 +213,7 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `tenant/catalog-import.prisma` | 032b | `product_import`, `product_import_row` (nhập sản phẩm CSV / XLSX, biên nhận từng dòng) |
 | `tenant/sales-orders.prisma` | 031 | `order`, `order_item` |
 | `tenant/ai-task-events.prisma` | 012b | `ai_task_event_receipt` — biên nhận phát sự kiện → tác vụ AI unique (task_id, source_event_id), migration `20261108030000_ai_task_event_receipts` (DC-385) |
+| `tenant/crm-activities.prisma` | 026b | `contact_task`, `contact_opportunity` + enum kind ghi chú — hoạt động CRM thủ công, migration `20261108040000_crm_activities` (DC-387) |
 | `tenant/bank-ingress.prisma` | 012b | `bank_receipt` — biên nhận ngân hàng chuẩn tắc (provider, tài khoản, mã giao dịch), migration `20261108010000_bank_connector_runtime` (DC-383) |
 | `tenant/sales-payments.prisma` | 032 | `invoice`, `customer_payment`, `customer_package`, `package_usage`, `tenant_bank_feed`, `payment_account`; `package_reminder` + cột nguồn / bản hạn của gói do 032b thêm (migration `20261102003230_commerce_packages`) |
 | `tenant/booking.prisma` | 033 | `staff`, `business_hours`, `appointment`, … |

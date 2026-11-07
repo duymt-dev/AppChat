@@ -62,6 +62,10 @@ const ALIAS: Record<string, string> = {
   target_conversation_id: 'conversation',
   account_id: 'channel_account',
   connection_id: 'integration',
+  // TIP-026b: hội thoại nguồn của hoạt động CRM tra như hội thoại; hoạt động / cơ hội tra qua contact_activity.list.
+  source_conversation_id: 'conversation',
+  activity_id: 'contact_activity',
+  opportunity_id: 'contact_activity',
 };
 
 /** Ô id người dùng không nói ra / không phải tham chiếu thực thể — miễn trừ, kèm lý do. */
@@ -121,7 +125,7 @@ const SCREENS: Record<string, string> = {
 const SCREEN_DEBT = new Set<string>([]);
 
 /** Thực thể mà action đọc mang tên khác (tài khoản kênh tra bằng `channel.search`, nguồn KB bằng `kb.source_search`, phụ lục qua `contract.get`, biến thể qua `product.get`, trí nhớ khách qua `contact.memory_list`). */
-const READ_ALIAS: Record<string, string> = { channel_account: 'channel.search', kb_source: 'kb.source_search', appendix: 'contract.get', variant: 'product.get', memory: 'contact.memory_list' };
+const READ_ALIAS: Record<string, string> = { channel_account: 'channel.search', kb_source: 'kb.source_search', appendix: 'contract.get', variant: 'product.get', memory: 'contact.memory_list', contact_activity: 'contact_activity.list' };
 const hasRead = (entity: string) => (READ_ALIAS[entity] ? IMPLEMENTED.has(READ_ALIAS[entity]!) : ['search', 'get', 'list'].some((v) => IMPLEMENTED.has(`${entity}.${v}`)));
 const hasPath = (entity: string) => CODE_REF_ENTITIES.includes(entity) || hasRead(entity);
 

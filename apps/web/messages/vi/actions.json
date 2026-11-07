@@ -183,6 +183,40 @@
       "title": "Thêm ghi chú nội bộ"
     }
   },
+  "contact_activity": {
+    "list": {
+      "title": "Xem hoạt động khách",
+      "desc": "Ghi chú, bình luận, việc chăm sóc hoặc cơ hội của khách (phân trang)."
+    }
+  },
+  "contact_task": {
+    "create": {
+      "title": "Tạo việc chăm sóc",
+      "desc": "Việc nhắc nhân viên chăm sóc khách — không phải tác vụ AI, không đặt lịch hẹn."
+    },
+    "update": {
+      "title": "Sửa việc chăm sóc",
+      "desc": "Sửa tiêu đề, mô tả, hạn hoặc người phụ trách việc."
+    },
+    "set_state": {
+      "title": "Đổi trạng thái việc",
+      "desc": "Đánh dấu xong, mở lại hoặc huỷ việc chăm sóc."
+    }
+  },
+  "contact_opportunity": {
+    "create": {
+      "title": "Tạo cơ hội",
+      "desc": "Ghi nhận cơ hội bán: nhu cầu, giá trị kỳ vọng (không phải doanh thu), xác suất do bạn nhập."
+    },
+    "update": {
+      "title": "Cập nhật cơ hội",
+      "desc": "Sửa cơ hội, kể cả chốt thắng / thua hoặc mở lại."
+    },
+    "archive": {
+      "title": "Lưu trữ cơ hội",
+      "desc": "Lưu trữ cơ hội (không xoá; hoàn tác trong 24 giờ)."
+    }
+  },
   "contact": {
     "history_export": {
       "title": "Xuất lịch sử khách",
@@ -211,6 +245,14 @@
     "set_stage": {
       "title": "Chuyển giai đoạn",
       "desc": "Chuyển khách sang giai đoạn khác trong pipeline."
+    },
+    "add_note": {
+      "title": "Thêm ghi chú",
+      "desc": "Ghi chú nội bộ trên hồ sơ khách — không gửi cho khách."
+    },
+    "add_comment": {
+      "title": "Thêm bình luận",
+      "desc": "Bình luận nội bộ cho đồng nghiệp trên hồ sơ khách — không gửi cho khách."
     },
     "tag": {
       "title": "Gắn tag khách",

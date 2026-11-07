@@ -1,0 +1,76 @@
+// tenant/crm-activities.prisma — sở hữu: TIP-026b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Hoạt động CRM thủ công trên khách (DC253): việc chăm sóc (`contact_task`) + cơ hội (`contact_opportunity`). Việc chăm sóc KHÔNG phải
+// tác vụ AI (không chạy nền, không đặt lịch, không tính credit); cơ hội KHÔNG phải báo giá / doanh thu (giá trị kỳ vọng do người nhập).
+// Bảng tenant không workspace_id; FK về contact (cùng domain crm).
+
+enum ContactNoteKind {
+  note
+  comment
+
+  @@map("contact_note_kind")
+}
+
+enum ContactTaskState {
+  open
+  done
+  cancelled
+
+  @@map("contact_task_state")
+}
+
+enum ContactOpportunityStage {
+  open
+  qualified
+  proposal
+  won
+  lost
+
+  @@map("contact_opportunity_stage")
+}
+
+model ContactTask {
+  id                   String           @id @db.Uuid
+  contactId            String           @map("contact_id") @db.Uuid
+  title                String
+  description          String           @default("")
+  dueAt                DateTime?        @map("due_at") @db.Timestamptz(6)
+  assigneeUserId       String?          @map("assignee_user_id") @db.Uuid
+  state                ContactTaskState @default(open)
+  completedAt          DateTime?        @map("completed_at") @db.Timestamptz(6)
+  completedBy          String?          @map("completed_by") @db.Uuid
+  sourceConversationId String?          @map("source_conversation_id") @db.Uuid
+  sourceMessageId      String?          @map("source_message_id") @db.Uuid
+  version              Int              @default(1)
+  createdBy            String?          @map("created_by") @db.Uuid
+  actorType            String           @default("user") @map("actor_type")
+  actorId              String?          @map("actor_id")
+  createdAt            DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime         @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("contact_task")
+}
+
+model ContactOpportunity {
+  id                   String                  @id @db.Uuid
+  contactId            String                  @map("contact_id") @db.Uuid
+  title                String
+  need                 String                  @default("")
+  /// Giá trị KỲ VỌNG (VND nguyên) — không phải công nợ / doanh thu / đã thu. null = chưa biết.
+  amountVnd            BigInt?                 @map("amount_vnd")
+  stage                ContactOpportunityStage @default(open)
+  /// Ước lượng người nhập (0–100, tối đa 2 chữ số thập phân) — không phải độ tin cậy của model.
+  probability          Decimal?                @db.Decimal(5, 2)
+  expectedCloseDate    DateTime?               @map("expected_close_date") @db.Date
+  quoteId              String?                 @map("quote_id") @db.Uuid
+  sourceConversationId String?                 @map("source_conversation_id") @db.Uuid
+  sourceMessageId      String?                 @map("source_message_id") @db.Uuid
+  version              Int                     @default(1)
+  createdBy            String?                 @map("created_by") @db.Uuid
+  actorType            String                  @default("user") @map("actor_type")
+  actorId              String?                 @map("actor_id")
+  archivedAt           DateTime?               @map("archived_at") @db.Timestamptz(6)
+  createdAt            DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("contact_opportunity")
+}

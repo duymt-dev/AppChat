@@ -183,6 +183,40 @@
       "title": "Add internal note"
     }
   },
+  "contact_activity": {
+    "list": {
+      "title": "View customer activities",
+      "desc": "Notes, comments, follow-up tasks or opportunities of a customer (paged)."
+    }
+  },
+  "contact_task": {
+    "create": {
+      "title": "Create follow-up task",
+      "desc": "A reminder for staff to follow up — not an AI task, not an appointment."
+    },
+    "update": {
+      "title": "Edit follow-up task",
+      "desc": "Edit the title, description, due time or assignee."
+    },
+    "set_state": {
+      "title": "Change task state",
+      "desc": "Mark a follow-up task done, reopen or cancel it."
+    }
+  },
+  "contact_opportunity": {
+    "create": {
+      "title": "Create opportunity",
+      "desc": "Record a sales opportunity: need, expected value (not revenue), your own probability estimate."
+    },
+    "update": {
+      "title": "Update opportunity",
+      "desc": "Edit the opportunity, including won / lost or reopen."
+    },
+    "archive": {
+      "title": "Archive opportunity",
+      "desc": "Archive the opportunity (no deletion; undo within 24 hours)."
+    }
+  },
   "contact": {
     "history_export": {
       "title": "Export customer history",
@@ -211,6 +245,14 @@
     "set_stage": {
       "title": "Change stage",
       "desc": "Move a contact to another pipeline stage."
+    },
+    "add_note": {
+      "title": "Add note",
+      "desc": "Internal note on the customer profile — never sent to the customer."
+    },
+    "add_comment": {
+      "title": "Add comment",
+      "desc": "Internal comment for coworkers on the customer profile — never sent to the customer."
     },
     "tag": {
       "title": "Tag customer",

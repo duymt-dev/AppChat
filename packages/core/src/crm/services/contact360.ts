@@ -1,6 +1,6 @@
 // Hồ sơ 360° (`GET /v1/contacts/:id` — F02; shape `contact360Schema`). Phần của crm: thông tin, giai đoạn, ghi chú, dòng thời gian,
 // trường tuỳ biến, bố cục theo vai trò. KPI / đơn / thu / liên kết chứng từ theo quyền người xem: crm/insights (TIP-015b, ghép ở CrmReadService).
-import { avatarColor, createFmt, initialsOf, serverMessages, type Contact360Dto, type CustomValues } from '@appchat/shared';
+import { avatarColor, createFmt, initialsOf, serverMessages, type ActivitySummaryDto, type Contact360Dto, type CustomValues } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { renderTimeline } from './timeline.service';
 import { contactAvatarLink } from '../../channels/operations/avatar-read';
@@ -17,15 +17,10 @@ interface Ctx {
 
 export async function contact360(tx: TenantTx, contactId: string, c: Ctx): Promise<Contact360Dto> {
   const k = await tx.contact.findUniqueOrThrow({ where: { id: contactId } });
-  const [notes, events] = await Promise.all([
-    tx.contactNote.findMany({ where: { contactId }, orderBy: { createdAt: 'desc' }, take: 20 }),
-    tx.timelineEvent.findMany({ where: { contactId }, orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }], take: 30, select: { id: true, type: true, summary: true, payload: true, occurredAt: true } }),
-  ]);
+  const events = await tx.timelineEvent.findMany({ where: { contactId }, orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }], take: 30, select: { id: true, type: true, summary: true, payload: true, occurredAt: true } });
   const m = serverMessages(c.locale).crm;
   const fmt = createFmt({ locale: c.locale, timeZone: c.timeZone });
-  const who = await c.names(notes.map((n) => n.authorUserId));
   const timeline = renderTimeline(events, c.locale, c.timeZone).map(({ icon, tone, when, text }) => ({ icon, tone, when, text }));
-  const [last, ...older] = notes;
   // Ảnh nhân viên đặt luôn thắng; không có → ảnh đồng bộ từ kênh (link ký).
   const avatar = k.avatarUrl || (c.links ? await contactAvatarLink(tx, c.links.files, c.links.ws, k.id) : null);
   return {
@@ -51,12 +46,10 @@ export async function contact360(tx: TenantTx, contactId: string, c: Ctx): Promi
     ai_summary: { badge: '', close_pct: 0, bullets: [] },
     deal: { title: '', value: '0', stage: '', probability: 0, close_date: '', need: '' },
     history: timeline.slice(0, 6),
+    // Ghi chú / bình luận / việc thật điền ở `withActivities` (TIP-026b — đúng loại, theo quyền người xem).
     tasks: [],
-    note: last ? { body: last.body, meta: `${who.get(last.authorUserId) ?? ''} · ${fmt.date(last.createdAt)} ${fmt.time(last.createdAt)}` } : { body: '', meta: '' },
-    comments: older.slice(0, 10).map((n) => {
-      const author = who.get(n.authorUserId) ?? '';
-      return { author, initial: (author[0] ?? '?').toUpperCase(), body: n.body, at: `${fmt.date(n.createdAt)} ${fmt.time(n.createdAt)}` };
-    }),
+    note: { body: '', meta: '' },
+    comments: [],
     crm: {
       kpis: [],
       open_deal: { title: '', meta: '', value: '' },
@@ -69,5 +62,26 @@ export async function contact360(tx: TenantTx, contactId: string, c: Ctx): Promi
     files: [],
     custom: (k.custom ?? {}) as CustomValues,
     ...(c.layout ? { layout: c.layout } : {}),
+  };
+}
+
+/**
+ * Ghép hoạt động CRM thật (TIP-026b) vào Hồ sơ 360°: ô cũ `note` / `comments` / `tasks` / `deal` lấy từ reader (ghi chú chỉ kind note,
+ * bình luận chỉ kind comment — không gắn nhãn lại ghi chú cũ). Cơ hội không có / tiền bị ẩn → ô rỗng thật, không "0" giả.
+ */
+export function withActivities(p: Contact360Dto, a: ActivitySummaryDto, c: { locale: string; timeZone: string }): Contact360Dto {
+  const fmt = createFmt({ locale: c.locale, timeZone: c.timeZone });
+  const at = (iso: string) => `${fmt.date(new Date(iso))} ${fmt.time(new Date(iso))}`;
+  const n = a.notes.latest;
+  const o = a.opportunity.current;
+  return {
+    ...p,
+    note: n ? { body: n.body, meta: `${n.author.name} · ${at(n.created_at)}` } : { body: '', meta: '' },
+    comments: a.comments.items.map((x) => ({ author: x.author.name, initial: (x.author.name[0] ?? '?').toUpperCase(), body: x.body, at: at(x.created_at) })),
+    tasks: a.tasks.items.map((t) => ({ id: t.id, title: t.title, due: t.due_at ? at(t.due_at) : '', done: t.state === 'done' })),
+    deal: o
+      ? { title: o.title, value: o.amount_vnd ?? '', stage: o.stage, probability: o.probability ?? 0, close_date: o.expected_close_date ?? '', need: o.need }
+      : p.deal,
+    activities: a,
   };
 }

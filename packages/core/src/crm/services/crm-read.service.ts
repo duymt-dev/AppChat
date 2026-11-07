@@ -1,11 +1,11 @@
 // Đọc domain crm cho apps/api (Blueprint §4.4 crm — shape packages/shared/src/api/crm.ts). Mỗi lệnh đọc mở một transaction
 // chỉ-đọc trên DB tenant của workspace (TenantDbResolver) và áp scope crm của người xem (rbac §5 — không có đường vòng).
-import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, utcToWall, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
+import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, utcToWall, type ActivityKind, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { boardIds, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
 import { UUID, visibleContact } from './access';
-import { contact360 } from './contact360';
+import { contact360, withActivities } from './contact360';
 import { ROW_SELECT, loadRowExtras, toRow, type ContactRecord } from './contact-view';
 import { nextActions } from '../insights/next-action';
 import { crmAi, insights360 } from '../insights/read';
@@ -19,6 +19,7 @@ import type { FileLinks } from '../../kernel/files/file-links';
 import { renderTimeline } from './timeline.service';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { contactEditContext } from './contact-edit';
+import { activityPage, activitySummary } from '../activities/read.service';
 
 export interface Viewer {
   workspaceId: string;
@@ -131,14 +132,22 @@ export class CrmReadService {
     const pl = await this.place(v);
     const role = await this.members.roleOf(v.workspaceId, v.userId);
     return this.tx(v, async (tx) => {
-      await visibleContact(tx, v.authz, id);
-      const [p360, ins, fv] = await Promise.all([
+      const { writable } = await visibleContact(tx, v.authz, id);
+      const [p360, ins, fv, acts] = await Promise.all([
         contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role), links: { files: this.links, ws: v.workspaceId } }),
         insights360(tx, v.authz, id, { ...pl, now: this.now() }),
         fieldView(tx, 'contact', v.authz),
+        // TIP-026b: hoạt động CRM thật theo quyền người xem (cùng reader với GET /contacts/:id/activities).
+        activitySummary(tx, id, writable, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)) }),
       ]);
-      return { ...p360, custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
+      return { ...withActivities(p360, acts, pl), custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
     });
+  }
+
+  /** `GET /v1/contacts/:id/activities` (TIP-026b) — cùng reader với action contact_activity.list. */
+  async activities(v: Viewer, id: string, q: { kind: ActivityKind; cursor?: string; limit?: number; activityId?: string }) {
+    const pl = await this.place(v);
+    return this.tx(v, (tx) => activityPage(tx, id, q, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)) }));
   }
 
   /** `GET /v1/contacts/:id/edit-context` (TIP-025b §D.3) — cùng reader với action contact.get_edit_context. */

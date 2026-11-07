@@ -12,6 +12,7 @@ export * from './lead-routing';
 export * from './ownership-transfer';
 export * from './audit';
 export * from './crm';
+export * from './contact-activities';
 export * from './contact-memory';
 export * from './catalog';
 export * from './field-visibility';
