@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 147 | 9 | 4 | 13 | 15 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 148 | 8 | 4 | 13 | 15 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 125 | 11 | 2 | 1 | 14 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 161 | 13 | 3 | 6 | 10 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 341 | 64 | 1 | 4 | 46 | 3 | 0 | 0 |
 | E. standards/* | 201 | 47 | 1 | 6 | 33 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 45 | 1 | 38 | 0 | 4 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 68 | 11 | 3 | 13 | 28 | 3 | 0 | 0 |
-| **Tổng** | **1088** | **156** | **52** | **43** | **150** | **37** | **69** | **0** |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 47 | 1 | 36 | 0 | 4 | 5 | 0 | 0 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 69 | 10 | 3 | 13 | 28 | 3 | 0 | 0 |
+| **Tổng** | **1092** | **154** | **50** | **43** | **150** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -116,7 +116,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C06a | Tự gắn khách theo ID kênh / SĐT | 01-REQUIREMENTS-MATRIX.md:68 | 015, 016 | ĐẠT | crm/services/identity.service.ts:30-55; test inbox.test.ts AC2 |
 | REQ-C06b | Chưa có thì tạo hồ sơ nháp | 01-REQUIREMENTS-MATRIX.md:68 | 015 | ĐẠT | identity.service.ts:40-47; test inbox.test.ts AC2 |
 | REQ-C06c | Khớp không chắc → gợi ý gộp | 01-REQUIREMENTS-MATRIX.md:68 | 015, 026 | ĐẠT | crm/services/crm-read.service.ts:107; test crm-contacts.test.ts AC7 |
-| REQ-C07 | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | 01-REQUIREMENTS-MATRIX.md:69 | 025b | MỘT PHẦN | Profile360Actions.tsx:52-55 mở form chỉ có contact_id; quote / order không nhận conversation_id; chỉ e2e mock inbox.spec.ts:69 |
+| REQ-C07 | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | 01-REQUIREMENTS-MATRIX.md:69 | 025b | ĐẠT | TIP-025b P4: quote/order/contract/ticket/appointment.create nhận conversation_id (+ source_message_id) qua linkConversation (thấy được + khớp khách, nhóm cần thành viên đã liên kết, sai → 404/422); Profile360Actions mang conversation_id; inbox-vertical-context.test.ts (api 4/4 + core 4/4) |
 | REQ-C08a | Thao tác hàng loạt hội thoại (backend) | 01-REQUIREMENTS-MATRIX.md:70 | 016 | ĐẠT | conversation-assign.handlers.ts:100; test inbox.test.ts AC5 |
 | REQ-C08b | Multi-select hội thoại trên UI | 01-REQUIREMENTS-MATRIX.md:70 | 025b | ĐẠT | TIP-025b P1: useInboxSelection (≤ 100, xoá khi đổi bộ lọc) + ConversationBulkBar gọi conversation.bulk_update; e2e inbox-bulk.spec.ts |
 | REQ-C08c | Tìm không dấu | 01-REQUIREMENTS-MATRIX.md:70 | 016, 025 | ĐẠT | test inbox.test.ts AC7, e2e http/inbox-live.spec.ts:41 |
@@ -1076,7 +1076,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | CRM-ACTIVITY-TASKS | Việc chăm sóc khách thủ công: CRUD/state/due/assignee/current scope/CAS, không phải ai_task hay lịch hẹn | DC-253; TIP026b spec1–3 | 026b | CHƯA | contact360.ts:46 tasks=[]; tenant CRM schema không ContactTask, ExtraCards.tsx checkbox giảicon |
 | CRM-ACTIVITY-OPPORTUNITY | Cơ hội nhiều bản ghi: giá trị dự kiến/stage/xác suất/ngày dự kiến có nguồn, không đổi doanh thu/chứng từ | DC-253; TIP026b spec1–3 | 026b | CHƯA | contact360.ts:44 deal rỗng; Overview360.tsx:121 Add không handler; chưa Opportunity schema |
 | CRM-ACTIVITY-TRANSFER | AI-first + manual nhập/xuất CSV/XLSX thật cho note/comment/task/opportunity qua038b cùng quyền/preview/receipts | DC-244; DC-253; TIP026b spec5 | 026b | CHƯA | New CRM datasets chưa tồn tại;038b pipeline còn pending. Không coi export contacts cũ là đủ |
-| CRM-STAGE-CAS | contact.set_stage và kéo Kanban truyền if_version, race/undo không ghi đè sửa sau | standards/domain/concurrency.md:9; TIP026b spec4 | 026b | MỘT PHẦN | actions/crm.ts:109 input chưaif_version; contact-write.handlers.ts:97 đọc rồiupdate.025b tạo version nền,026b nhận stage |
+| CRM-STAGE-CAS | contact.set_stage và kéo Kanban truyền if_version, race/undo không ghi đè sửa sau | standards/domain/concurrency.md:9; TIP026b spec4 | 026b | MỘT PHẦN | Nền version đã có (TIP-025b P4: cột contact.version + trigger contact_bump_version, services/contact-version.ts lockContactVersion/updateAtVersion; contact.update if_version). Còn: contact.set_stage + Kanban chưa truyền if_version — 026b dùng lại nền này |
 | CRM-LAYOUT-CAS | profile_layout version/CAS, autosave serial/draft giữ khi409, delete/assign atomic fallback | standards/domain/concurrency.md:9; TIP026b spec4 | 026b | MỘT PHẦN | profile-layout.handlers.ts:47–50 update chưaCAS; ProfileLayoutEditor.tsx:59–66 gửi mỗi edit. Fallbackdelete đã có:74–76 |
 | CRM-TRANSFER-ATOMIC | Chuyển một khách + selected openconversation/currentquote/upcomingappointment +counts/receipt atomic, không asyncold-event overwrite | COMMERCE8b; DC-254; TIP015d spec2 | 015d | MỘT PHẦN | contact-owner.handlers.ts:97 vàsales.jobs.module.ts:30–37 fan-outquotes trả0 trước effect; booking chưaconsumer; mới planning |
 | CRM-TRANSFER-UNDO | Undo24h currentauthority/after-assignment-version/generation; all-or-conflict, không ABA hay hồi sinh grant/AIepoch | DC-254; TIP015d spec4 | 015d | MỘT PHẦN | contact-owner.handlers.ts:112–120 chỉcontact/conversations; owner-move.ts:25 chỉcompareuser; quoteasync khôngreverse receipt |
@@ -1529,9 +1529,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-inbox-grouplink | Thông tin nhóm: Link tham gia (sao chép) | docs/06-prototype/AppChat.dc.html:2279 | 025b | MỘT PHẦN | TIP-025b P3: link chỉ hiện bật / tắt / chưa rõ + bật / tắt qua group.update (không trả / sao chép URL — DV-047, không lộ link mời) |
 | PRO-inbox-groupboard | Nhóm: Bảng tin (tin ghim, ghi chú) + "Xem tất cả" ảnh / tệp | docs/06-prototype/AppChat.dc.html:2284 | 025b | GIẢ | apps/web/src/features/inbox/components/GroupSections.tsx:45,52,70,88 không onClick |
 | PRO-inbox-grouppolicy | Nhóm: chính sách AI trả lời (@nhắc / tự động / tắt) lưu thật | docs/06-prototype/AppChat.dc.html:2106 | 025b | ĐẠT | TIP-025b P3: GroupSections.tsx ghi group.set_ai_policy (CAS if_version, tăng ai_epoch, huỷ tin agent chưa gửi); inbox-group-controls.test.ts; GroupInfoPanel.test.tsx |
-| PRO-inbox-360edit | Hồ sơ 360° trong Hộp thư: "Sửa" liên hệ | docs/06-prototype/AppChat.dc.html:2386 | 025b | GIẢ | apps/web/src/features/inbox/components/Overview360.tsx:75 không onClick |
+| PRO-inbox-360edit | Hồ sơ 360° trong Hộp thư: "Sửa" liên hệ | docs/06-prototype/AppChat.dc.html:2386 | 025b | ĐẠT | TIP-025b P4: Overview360 "Sửa" → useContactEditUi → ContactFormHost toàn cục (GET /contacts/:id/edit-context, chỉ trường đổi + if_version, ẩn không gửi); ContactFormContext.test.tsx; e2e/inbox-context.spec.ts; contact-edit-version.test.ts |
 | PRO-inbox-360deal | Hồ sơ 360°: "+ Thêm" cơ hội / deal | docs/06-prototype/AppChat.dc.html:2402 | 026b | GIẢ | Overview360.tsx:121 không onClick |
-| PRO-inbox-360csv | Hồ sơ 360°: "Xuất CSV" lịch sử / timeline | docs/06-prototype/AppChat.dc.html:2413 | 025b | GIẢ | Overview360.tsx:148, Tabs360.tsx:139 không onClick |
+| PRO-inbox-360csv | Hồ sơ 360°: "Xuất CSV" lịch sử / timeline | docs/06-prototype/AppChat.dc.html:2413 | 025b | ĐẠT | TIP-025b P4: HistoryCsvButton (Overview360 + History360) → contact.history_export (crm.export, CSV BOM chặn công thức, > 5.000 việc nền, tải 410 khi mất quyền); contact-timeline-export.test.ts (6.001 dòng, EXPLAIN index-only); e2e/inbox-context.spec.ts |
 | PRO-inbox-360tasknote | Hồ sơ 360°: "+ Thêm việc" / "+ Thêm ghi chú" | docs/06-prototype/AppChat.dc.html:2429 | 026b | GIẢ | apps/web/src/features/inbox/components/ExtraCards.tsx:18,35 không onClick; `contact.add_note` chưa có trong registry |
 | PRO-inbox-schedslots | Composer "Đặt lịch": slot gợi ý từ API | docs/06-prototype/AppChat.dc.html:2169 | 025b | GIẢ | apps/web/src/features/inbox/api.ts:99 `GET /booking/slots` (routes.json `missing`; API có `/calendar/slots`) |
 | PRO-inbox-autoxl | Composer "Dịch": bật tự động dịch + chọn ngôn ngữ có tác dụng | docs/06-prototype/AppChat.dc.html:2213 | 025b | GIẢ | apps/web/src/features/inbox/components/ComposerPopovers.tsx:97,106 chỉ đổi state `autoXl`/`lang`, không ai đọc |
@@ -1640,7 +1640,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | 022b | ĐẠT | custom dùng weekly_schedule có cấu trúc (agent.runtime withinHours → inSchedule); custom cũ chưa lịch = needs_configuration; test agent-schedules; coding-packs/reports/TIP-022b-completion.md |
 | DEF-024-2 | `GET /agents/:id/stats` hiệu suất agent | reports/TIP-024-completion.md:36 | 038 | ĐẠT | GET /v1/agents/:id/stats (insights.controller.ts) + mock agent-stats.ts cùng schema `agentStatsSchema`; integration insights.test.ts AC03, mock agents-shape.test.ts |
 | DEF-024-3 | Định tuyến nhiều agent theo từ khoá ưu tiên | reports/TIP-024-completion.md:34 | 022b | ĐẠT | Phân luồng từ khoá theo tài khoản (opt-in, ≤ 25 ứng viên đã xuất bản, ưu tiên → khớp dài nhất → id; không khớp → mặc định / hàng chờ; giữ gán tay / chuyển) — ai/reply/keyword-router.ts, agent-pick.ts; test agent-keyword-routing, worker agent-channel-behavior; coding-packs/reports/TIP-022b-completion.md |
-| DEF-025-1 | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | reports/TIP-025-completion.md:35 | 025b | MỘT PHẦN | apps/web/src/features/inbox/components/Profile360Actions.tsx:42-58 mở form và prefill contact_id; apps/web/e2e/inbox.spec.ts:74-101 chỉ kiểm mở form ở mock. e2e/http/inbox.spec.ts chỉ gửi/tag/archive, chưa chứng minh tạo từ Hộp thư rồi đọc lại HTTP đúng contact/scope |
+| DEF-025-1 | "Chuyển thành" Báo giá / Đơn / Lịch hẹn / Ticket từ Hộp thư | reports/TIP-025-completion.md:35 | 025b | ĐẠT | TIP-025b P4: tạo từ Hộp thư ghi đúng hội thoại + khách, đọc lại HTTP (apps/api/test/integration/inbox-vertical-context.test.ts); FormCommandHost toàn cục cho Trợ lý (FormCommandHost.test.tsx) |
 | DEF-025-2 | Popover "Đặt lịch hẹn" ở ô soạn lấy khung giờ thật | reports/TIP-025-completion.md (khảo sát) | 025b | GIẢ | apps/web/src/features/inbox/api.ts:98-99 gọi `GET /booking/slots` — API không có (routes.json missing), API thật là `/calendar/slots`; chỉ chạy ở mock |
 | DEF-025-3 | Nginx chuyển `/socket.io` (Upgrade) sang API | reports/TIP-025-completion.md:33 | 045 | CHƯA | infra/ chưa có |
 | DEF-026-1 | Khối 360° báo giá / đơn / lịch hẹn / ticket / SLA / CSAT có dữ liệu | reports/TIP-026-completion.md:31 | 015b | ĐẠT | Blocks360.tsx → LinkBlock (LinkBlocks360.tsx) dữ liệu thật từ insights.links; e2e/customers.spec.ts, parity customers:360 3,35% |

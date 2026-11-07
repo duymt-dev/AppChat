@@ -1,4 +1,4 @@
-### COMPLETION REPORT — TIP-025b (pha 1–3 — hàng loạt Hộp thư + alias "bỏ" + đếm theo bộ lọc; tìm có trang + cửa sổ quanh tin; quản lý nhóm Zalo)
+### COMPLETION REPORT — TIP-025b (pha 1–4 — hàng loạt Hộp thư + alias "bỏ" + đếm theo bộ lọc; tìm có trang + cửa sổ quanh tin; quản lý nhóm Zalo; ngữ cảnh CRM + xuất lịch sử)
 
 **STATUS:** pha 1, 2 DONE (TIP chưa DONE). Chia 6 pha theo DC-377, mỗi pha một PR xếp chồng: **P1** §C + §B.4 (PR này) → P2 §B.1–3 tìm / cửa sổ quanh tin → P3 §A nhóm → P4 §D ngữ cảnh CRM / commerce + xuất timeline → P5 §E slot + §F dịch / chụp màn hình → P6 §G thẻ duyệt + AC10 ai:live.
 
@@ -161,3 +161,41 @@ Chưa nghiệm thu với provider thật: unreact Zalo thật vì không có tà
 | parity inbox (10 màn) | zalo-group-info 4,53% · default 4,70% · folder-rail 4,57% · connect-channel 6,20% ≤ trần 6,5% · còn lại PASS |
 
 Chưa nghiệm thu với Zalo thật (fake transport). Chưa làm: bảng tin / ghi chú / thư viện media có trang (§A.6–7) — DV-047.
+
+## Pha 4 — ngữ cảnh CRM / commerce từ Hộp thư + xuất lịch sử (§D)
+
+**COMMIT:** nhánh `tip/025b-inbox-vertical-p4` (xếp chồng #111) — `0ba9f883` (§D.1 liên kết hội thoại), `e9b59c97` + `699bb896` (§D.4 phiên bản khách + ma trận 9 action P1/P3), `e1267d33` (§D.3 edit-context), `20be2a25` (§D.6 xuất lịch sử), `6f9d362f` (web), e2e. **Migration tenant** `20261102002521_contact_version` → sau merge: `pnpm --filter @appchat/db db:migrate-tenants` + build api / worker.
+
+**FILES CHANGED** (DV-048)
+- actions: `sourceLink` (`sales-schemas.ts`) trên quote / order / contract.create (chỉ lệnh tạo, không trong `patch`); ticket / appointment.create thêm `conversation_id` / `source_message_id`; `contact.update` `if_version` + trả `version`; `crm-forms.ts` — `contact.get_edit_context` (crm.view, read), `contact.history_export` (crm.export, read). Không cấp cho agent.
+- core: `inbox/services/conversation-link.ts` (`linkConversation`: thấy được, tin nguồn đúng hội thoại + còn hiện, 1-1 khớp khách / chưa liên kết → 422, nhóm cần thành viên đã liên kết, hội thoại agent phục vụ tin theo server); 5 writer nối helper (lịch hẹn hết âm thầm bỏ liên kết; ticket giữ ràng buộc 022b); `crm/services/contact-version.ts` + `contact.update` (khoá + CAS, chỉ ghi trường đổi, undo chỉ khi đúng version sau-ghi); `crm/services/contact-edit.ts` + handler + `GET /v1/contacts/:id/edit-context`; `crm/services/contact-timeline-export.ts` + handler + kind `contact.history_export` (dấu quyền = scope crm + còn thấy khách); `kernel/jobs/bulk-status.ts` dấu xuất nhận `job.input`; `CrmMembers.place`.
+- db: `crm.prisma` `Contact.version`; migration cột + CHECK + trigger `contact_bump_version`.
+- web: Profile360Actions / Panel360 / InboxScreen mang `conversation_id`; 4 form tạo gửi nguồn (`shared/crm-forms/source-link.ts`; sửa không gửi); form lịch hẹn nhận `contact_id`; `ContactFormHost` + `FormCommandHost` (6 lệnh `prefill:*.form` một lần, gỡ khỏi màn); `ContactFormModal` (edit-context, chỉ trường đổi + if_version, trường ẩn không hiện / không gửi, 409 giữ nội dung) + `TransferOwnerModal` nhận ngữ cảnh tối thiểu; nút "Sửa" + `HistoryCsvButton` ở 360; `shared/actions/download.ts`; mock `domains/contact-edit.ts`.
+- test: core `inbox-vertical-context.test.ts`; api `inbox-vertical-context`, `contact-edit-version`, `contact-timeline-export` (+ EXPLAIN), ma trận `contact.get_edit_context` / `contact.history_export` + 9 action P1 / P3 (`conversation.unhide|untag`, `message.unpin|unreact`, `group.*`); web `FormCommandHost.test.tsx`, `ContactFormContext.test.tsx`, 6 `ui-commands.test.tsx` cập nhật; `e2e/inbox-context.spec.ts`.
+
+**ĐỐI CHIẾU STANDARDS (P4)**
+
+| Standard | Kết quả |
+|---|---|
+| `actions/action-registry.md` | lệnh tạo nhận nguồn qua schema chung; 2 action đọc mới có handler + preview + ma trận; một đường ghi (form sửa = `contact.update`, đổi chủ = `contact.transfer_owner`) |
+| `domain/concurrency.md` | version do trigger (mọi writer cũ cũng tăng); `if_version` lệch → 409 STALE_VERSION; undo kiểm version sau-ghi; hai lệnh song song cùng version → một thắng |
+| `authz/rbac-permissions.md` | liên kết hội thoại không cấp quyền chứng từ; ngoài scope → 404; watcher editable false; trường ẩn bỏ hẳn; tải xuất 410 khi mất quyền thấy khách |
+| `database/indexing.md` | chốt id lịch sử = Index Only Scan `timeline_event_contact_id_occurred_at_id_idx` (`.data/gate/025b-p4-explain.txt`); dòng theo lô (deferred join PK), mã chứng từ một truy vấn / loại |
+| `ui/frontend-structure.md` | form toàn cục ở `app/`, feature chỉ export qua barrel, không import chéo component; file ≤ 400 dòng |
+| `i18n/i18n.md` | 6260 key 100%; nhãn cột / loại sự kiện tệp xuất theo ngôn ngữ người xuất (server i18n) |
+
+**CỔNG TEST (P4)**
+
+| Cổng | Kết quả |
+|---|---|
+| `db:test-reset` | OK |
+| turbo affected lint / typecheck / test (vs origin/dev) | 33/33 |
+| depcheck · lint-size · lint-tokens · i18n | 0 · OK · OK · 100% |
+| build api + worker + check:bundle | OK |
+| core unit | 109 file / 691 |
+| integration phạm vi P4 + hồi quy CRM / commerce / nhóm | 24 file / 189 test |
+| web unit | 121 file / 384 |
+| E2E mock `inbox-context` + `inbox` + `customers` + `quotes` + `calendar` + `tickets` | 42 passed, 40 skip (desktop + mobile 390) |
+| parity | inbox không đổi (default 4,70% · connect-channel 6,20% ≤ trần) · customers:360 3,35% · customers:edit 1,30% · customers:table 0,99% · quotes:editor 1,80% |
+
+Đỏ sẵn ngoài phạm vi TIP: `assistant-vertical.test.ts` › mục lục ma trận — 11 action từ TIP-038b / 041 (`transfer.*`, `workspace.open|delete*|freeze_request`, `product.export`, `invoice.export`) chưa có file ma trận trên `origin/dev` (action của 025b đã có đủ).

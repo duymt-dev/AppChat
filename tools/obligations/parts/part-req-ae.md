@@ -84,7 +84,7 @@
 | REQ-C06a | Tự gắn khách theo ID kênh / SĐT | 01-REQUIREMENTS-MATRIX.md:68 | 015, 016 | ĐẠT | crm/services/identity.service.ts:30-55; test inbox.test.ts AC2 |
 | REQ-C06b | Chưa có thì tạo hồ sơ nháp | 01-REQUIREMENTS-MATRIX.md:68 | 015 | ĐẠT | identity.service.ts:40-47; test inbox.test.ts AC2 |
 | REQ-C06c | Khớp không chắc → gợi ý gộp | 01-REQUIREMENTS-MATRIX.md:68 | 015, 026 | ĐẠT | crm/services/crm-read.service.ts:107; test crm-contacts.test.ts AC7 |
-| REQ-C07 | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | 01-REQUIREMENTS-MATRIX.md:69 | 025b | MỘT PHẦN | Profile360Actions.tsx:52-55 mở form chỉ có contact_id; quote / order không nhận conversation_id; chỉ e2e mock inbox.spec.ts:69 |
+| REQ-C07 | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | 01-REQUIREMENTS-MATRIX.md:69 | 025b | ĐẠT | TIP-025b P4: quote/order/contract/ticket/appointment.create nhận conversation_id (+ source_message_id) qua linkConversation (thấy được + khớp khách, nhóm cần thành viên đã liên kết, sai → 404/422); Profile360Actions mang conversation_id; inbox-vertical-context.test.ts (api 4/4 + core 4/4) |
 | REQ-C08a | Thao tác hàng loạt hội thoại (backend) | 01-REQUIREMENTS-MATRIX.md:70 | 016 | ĐẠT | conversation-assign.handlers.ts:100; test inbox.test.ts AC5 |
 | REQ-C08b | Multi-select hội thoại trên UI | 01-REQUIREMENTS-MATRIX.md:70 | 025b | ĐẠT | TIP-025b P1: useInboxSelection (≤ 100, xoá khi đổi bộ lọc) + ConversationBulkBar gọi conversation.bulk_update; e2e inbox-bulk.spec.ts |
 | REQ-C08c | Tìm không dấu | 01-REQUIREMENTS-MATRIX.md:70 | 016, 025 | ĐẠT | test inbox.test.ts AC7, e2e http/inbox-live.spec.ts:41 |
