@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 142 | 11 | 4 | 13 | 18 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 142 | 12 | 4 | 13 | 17 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 125 | 10 | 3 | 1 | 14 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 159 | 13 | 3 | 6 | 12 | 12 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 331 | 70 | 1 | 4 | 48 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 333 | 70 | 1 | 4 | 46 | 3 | 0 | 0 |
 | E. standards/* | 201 | 47 | 1 | 6 | 33 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 42 | 0 | 42 | 0 | 4 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 66 | 12 | 3 | 13 | 29 | 3 | 0 | 0 |
-| **Tổng** | **1066** | **163** | **57** | **43** | **158** | **37** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 67 | 11 | 3 | 13 | 29 | 3 | 0 | 0 |
+| **Tổng** | **1069** | **163** | **57** | **43** | **155** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -61,7 +61,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A07b | Trang Cài đặt Audit log / AI Audit log dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:41 | 045b | ĐẠT | audit.controller.ts + audit-read.service.ts (trang 50, deferred join, EXPLAIN); FE lọc / Xem thêm / rỗng do lọc; hardening-audit.test.ts |
 | REQ-A07c | admin.* ghi platform_audit_log; sự kiện nhạy cảm cờ audit | 01-REQUIREMENTS-MATRIX.md:41 | 045b | ĐẠT | audit.service.ts — platform_audit_log cho admin.*; action_log cờ audit + event audit.security_event → thông báo Owner (notify/events/security.rules.ts); hardening-audit.test.ts |
 | REQ-A09a | Tự lưu trữ gói Miễn phí sau 90 ngày, báo trước 14 ngày | 01-REQUIREMENTS-MATRIX.md:42 | 041 | CHƯA | Chỉ cột plan archiveInactiveDays (billing/seed.ts:24); không job |
-| REQ-A09b | Lưu trữ = dump + drop; đăng nhập lại khôi phục < 2 phút | 01-REQUIREMENTS-MATRIX.md:42 | 041 | CHƯA | Không code dump / restore |
+| REQ-A09b | Lưu trữ = dump + drop; đăng nhập lại khôi phục < 2 phút | 01-REQUIREMENTS-MATRIX.md:42 | 041 | MỘT PHẦN | TIP-041 P1: dump mã hoá + drop + khôi phục (admin) native, 2,3 giây fixture 300 khách / 142 bảng; khôi phục khi member đăng nhập = P2 |
 | REQ-A08 | Đăng nhập social | 01-REQUIREMENTS-MATRIX.md:43 | — | NGOÀI | P2 theo ma trận |
 | REQ-B01a | Kiến trúc adapter kênh, chuẩn hoá schema chung | 01-REQUIREMENTS-MATRIX.md:48 | 014 | ĐẠT | packages/channels/src/types.ts, registry.ts; test packages/channels/test/registry.test.ts |
 | REQ-B01b | Chống trùng UNIQUE(channel_account_id, external_msg_id) | 01-REQUIREMENTS-MATRIX.md:48 | 016 | ĐẠT | packages/db/prisma/tenant/inbox.prisma:173; inbox/services/pipeline.ts:60; test inbox.test.ts AC2 |
@@ -871,8 +871,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-admin.model_price.upsert | `admin.model_price.upsert` có trong registry + handler | plans/BLUEPRINT.md:812 | 040 | ĐẠT | registry packages/actions (platform_admin, db platform) + handler packages/core/src/platform/actions/model.handlers.ts + previewPlatform; test apps/api/test/integration/platform-config.test.ts (TIP-040) |
 | ACT-admin.model_route.upsert | `admin.model_route.upsert` có trong registry + handler | plans/BLUEPRINT.md:813 | 040 | ĐẠT | registry packages/actions (platform_admin, db platform) + handler packages/core/src/platform/actions/model.handlers.ts + previewPlatform; test apps/api/test/integration/platform-config.test.ts (TIP-040) |
 | ACT-admin.plan.upsert | `admin.plan.upsert` có trong registry + handler | plans/BLUEPRINT.md:811 | 040 | ĐẠT | registry packages/actions (platform_admin, db platform) + handler packages/core/src/platform/actions/plan.handler.ts + previewPlatform; test apps/api/test/integration/platform-config.test.ts (TIP-040) |
-| ACT-admin.workspace.archive | `admin.workspace.archive` có trong registry + handler | plans/BLUEPRINT.md:817 | 041 | CHƯA | Không có trong packages/actions (actions.json) |
-| ACT-admin.workspace.restore | `admin.workspace.restore` có trong registry + handler | plans/BLUEPRINT.md:817 | 041 | CHƯA | Không có trong packages/actions (actions.json) |
+| ACT-admin.workspace.archive | `admin.workspace.archive` có trong registry + handler | plans/BLUEPRINT.md:817 | 041 | ĐẠT | TIP-041 P1: packages/actions/src/workspace-lifecycle.ts + core/identity/lifecycle/actions.ts (luôn xem trước, CAS) + archive-run.ts; integration apps/api workspace-lifecycle.test.ts (pg_dump mã hoá, kiểm trước DROP) |
+| ACT-admin.workspace.restore | `admin.workspace.restore` có trong registry + handler | plans/BLUEPRINT.md:817 | 041 | ĐẠT | TIP-041 P1: restore-run.ts + db/lifecycle/restore.ts (DB tạm, migrate, kiểm, workspace.ready); integration 300 khách về đủ |
 | ACT-admin.workspace.resume | `admin.workspace.resume` có trong registry + handler | plans/BLUEPRINT.md:816 | 040 | ĐẠT | registry packages/actions (platform_admin, db platform) + handler packages/core/src/platform/actions/workspace.handlers.ts + previewPlatform; test apps/api/test/integration/platform-workspaces.test.ts (TIP-040) |
 | ACT-admin.workspace.suspend | `admin.workspace.suspend` có trong registry + handler | plans/BLUEPRINT.md:816 | 040 | ĐẠT | registry packages/actions (platform_admin, db platform) + handler packages/core/src/platform/actions/workspace.handlers.ts + previewPlatform; test apps/api/test/integration/platform-workspaces.test.ts (TIP-040) |
 | ACT-ai.detect_intent | `ai.detect_intent` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
@@ -1583,7 +1583,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-001-2 | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | reports/TIP-001-completion.md:65 | 014b | ĐẠT | standards/channels/omnichannel-adapter.md: `group` gồm `'commerce'`, `capabilities.reactions` + `operations` (TIP-014b) khớp packages/channels/src/types.ts |
 | DEF-002-1 | CI GitHub chạy integration test với Postgres + Redis (Q-008) | reports/TIP-002-completion.md:38 | 046 | CHƯA | .github/workflows/{ci,e2e,full,parity}.yml không có service postgres; TG row 046 "CI backend-it.yml" |
 | DEF-002-2 | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | reports/TIP-002-completion.md:51; TIP-003:49 | 006c | CHƯA | packages/db/src/tenant-resolver.ts:81 TTL 60s trong process, `invalidate` (L62) chỉ xoá cache cục bộ; TIP-006c nhận (2026-11-02) |
-| DEF-003-1 | Provisioner có `pg_signal_backend` khi xoá workspace ở production | reports/TIP-003-completion.md:36 | 041 | MỘT PHẦN | packages/db/src/setup.ts:57 cấp ở db:setup (dev); luồng xoá workspace prod chưa có (TIP-041), infra/ chưa có |
+| DEF-003-1 | Provisioner có `pg_signal_backend` khi xoá workspace ở production | reports/TIP-003-completion.md:36 | 041 | ĐẠT | TIP-041 P1: DROP qua kết nối giữ advisory lock của role provisioner (pg_signal_backend đã cấp ở setup) — integration DROP thật; infra prod do 045 |
 | DEF-004-1 | Bước smoke bản build (`pnpm smoke:build`) trong cổng chốt TIP (Q-009) | reports/TIP-004-completion.md:48 | 046 | CHƯA | package.json không có script `smoke:build`; TG row 046 ghi Q-009 |
 | DEF-004-2 | FE quên mật khẩu gọi đúng `/auth/password/reset-request` của backend | reports/TIP-004-completion.md:49 | 011 | ĐẠT | apps/api/src/http/identity/auth.controller.ts:85; apps/web/src/features/auth/api.ts:47; test apps/web/e2e/http/auth-onboarding.spec.ts:45 |
 | DEF-005-1 | `scopeFilter` nhận `contactIds` collaborator / watcher (TIP-015) | reports/TIP-005-completion.md:44 | 015 | ĐẠT | packages/core/src/authz/scope.ts:2,12; test apps/api/test/integration/crm-contacts.test.ts |

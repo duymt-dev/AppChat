@@ -29,7 +29,7 @@
 | REQ-A07b | Trang Cài đặt Audit log / AI Audit log dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:41 | 045b | ĐẠT | audit.controller.ts + audit-read.service.ts (trang 50, deferred join, EXPLAIN); FE lọc / Xem thêm / rỗng do lọc; hardening-audit.test.ts |
 | REQ-A07c | admin.* ghi platform_audit_log; sự kiện nhạy cảm cờ audit | 01-REQUIREMENTS-MATRIX.md:41 | 045b | ĐẠT | audit.service.ts — platform_audit_log cho admin.*; action_log cờ audit + event audit.security_event → thông báo Owner (notify/events/security.rules.ts); hardening-audit.test.ts |
 | REQ-A09a | Tự lưu trữ gói Miễn phí sau 90 ngày, báo trước 14 ngày | 01-REQUIREMENTS-MATRIX.md:42 | 041 | CHƯA | Chỉ cột plan archiveInactiveDays (billing/seed.ts:24); không job |
-| REQ-A09b | Lưu trữ = dump + drop; đăng nhập lại khôi phục < 2 phút | 01-REQUIREMENTS-MATRIX.md:42 | 041 | CHƯA | Không code dump / restore |
+| REQ-A09b | Lưu trữ = dump + drop; đăng nhập lại khôi phục < 2 phút | 01-REQUIREMENTS-MATRIX.md:42 | 041 | MỘT PHẦN | TIP-041 P1: dump mã hoá + drop + khôi phục (admin) native, 2,3 giây fixture 300 khách / 142 bảng; khôi phục khi member đăng nhập = P2 |
 | REQ-A08 | Đăng nhập social | 01-REQUIREMENTS-MATRIX.md:43 | — | NGOÀI | P2 theo ma trận |
 | REQ-B01a | Kiến trúc adapter kênh, chuẩn hoá schema chung | 01-REQUIREMENTS-MATRIX.md:48 | 014 | ĐẠT | packages/channels/src/types.ts, registry.ts; test packages/channels/test/registry.test.ts |
 | REQ-B01b | Chống trùng UNIQUE(channel_account_id, external_msg_id) | 01-REQUIREMENTS-MATRIX.md:48 | 016 | ĐẠT | packages/db/prisma/tenant/inbox.prisma:173; inbox/services/pipeline.ts:60; test inbox.test.ts AC2 |
