@@ -1,6 +1,6 @@
 // Thông tin nhóm Zalo — prototype L1904–1940: tiêu đề · avatar nhóm · 4 nút nhanh · thành viên · link mời; phần dưới ở GroupSections.
 // TIP-025b §A: Tắt thông báo = lệnh tắt cho TÀI KHOẢN Zalo; Ghim = ghim hội thoại trong AppChat (conversation.pin); Thêm / Quản lý mở
-// GroupManageModal. Nút chỉ hiện khi kênh hỗ trợ + có quyền; link tham gia chỉ báo bật / tắt (không hiện URL).
+// GroupManageModal. Nút chỉ hiện khi kênh hỗ trợ + có quyền; link tham gia chỉ báo bật / tắt, sao chép qua GroupLinkRow (§A.6).
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -13,6 +13,7 @@ import { useInboxUi } from '../inbox-store';
 import { groupQuery } from '../api';
 import { GroupSections } from './GroupSections';
 import { GroupManageModal } from './GroupManageModal';
+import { GroupLinkRow } from './GroupLinkRow';
 import { groupStateQuery } from '../group-api';
 import { useGroupActions } from '../hooks/useGroupActions';
 import type { Conversation } from '../types';
@@ -100,13 +101,7 @@ export function GroupInfoPanel({ conv }: { conv: Conversation }) {
                 </div>
               ))
             : null}
-          <button type="button" className={styles.row} onClick={() => st?.can_manage && setManage(true)} disabled={!st?.can_manage} data-testid="group-link">
-            <Icon name="ic-link" size={18} color={color.groupInk} />
-            <div className={styles.grow}>
-              <div className={styles.label}>{t('joinLink')}</div>
-              <div className={styles.sub}>{t(st?.provider?.link_enabled == null ? 'linkUnknown' : st.provider.link_enabled ? 'linkOn' : 'linkOff')}</div>
-            </div>
-          </button>
+          <GroupLinkRow convId={conv.id} state={st} onManage={() => setManage(true)} />
         </div>
         {g ? <GroupSections conv={conv} g={g} state={st} onPolicy={ga.setPolicy} /> : null}
         <div className={styles.endPad} />

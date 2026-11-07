@@ -24,12 +24,12 @@ const groupConv = (db: MockDb, id: string) => {
 };
 const stateOf = (id: string): State => states.get(id) ?? states.set(id, { policy: 'mention', version: 0, provider: null }).get(id)!;
 
-function queue(id: string, kind: GroupCommandDto['kind'], members?: GroupCommandDto['members']): { command_id: string; status: 'queued' } {
+function queue(id: string, kind: GroupCommandDto['kind'], members?: GroupCommandDto['members'], link?: GroupCommandDto['link']): { command_id: string; status: 'queued' } {
   const command_id = `0190f000-0000-7000-8000-${String(0xc000 + ++seq).padStart(12, '0')}`;
   const failed = members?.some((m) => m.status === 'failed');
   const state = members ? (failed ? (members.some((m) => m.status === 'confirmed') ? 'partial' : 'failed') : 'confirmed') : 'confirmed';
   const at = new Date().toISOString();
-  commands.set(command_id, { id: command_id, kind, conversation_id: id, state, error: null, ...(members ? { members } : {}), created_at: at, finished_at: at });
+  commands.set(command_id, { id: command_id, kind, conversation_id: id, state, error: null, ...(members ? { members } : {}), ...(link ? { link } : {}), created_at: at, finished_at: at });
   return { command_id, status: 'queued' };
 }
 
@@ -98,6 +98,13 @@ export const inboxGroupHandlers: Record<string, MockHandler> = {
     execute: (db, i: Ci & { muted: boolean }) => {
       stateOf(i.conversation_id).provider = { ...snapshot(db, i.conversation_id), muted: i.muted };
       return queue(i.conversation_id, 'set_mute');
+    },
+  },
+  // §A.6: chỉ đọc link — tắt thì enabled false, không URL; không bao giờ bật link.
+  'group.copy_link': {
+    execute: (db, i: Ci) => {
+      const p = snapshot(db, i.conversation_id);
+      return queue(i.conversation_id, 'link', undefined, { enabled: !!p.link_enabled, url: p.link_enabled ? `https://zalo.me/g/${i.conversation_id}` : null });
     },
   },
   'group.add_members': {

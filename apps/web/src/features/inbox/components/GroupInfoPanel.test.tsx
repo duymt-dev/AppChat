@@ -9,6 +9,8 @@ import type { GroupStateDto } from '@appchat/shared';
 const runs: [string, unknown][] = [];
 let state: GroupStateDto;
 vi.mock('next-intl', () => ({ useTranslations: (ns: string) => (k: string) => `${ns}.${k}` }));
+vi.mock('antd', () => ({ App: { useApp: () => ({ message: { success: vi.fn(), info: vi.fn(), error: vi.fn() } }) } }));
+vi.mock('@/shared/i18n/useFmt', () => ({ useFmt: () => ({ date: () => '' }) }));
 vi.mock('@/shared/actions/useAction', () => ({
   useAction: (id: string) => ({ run: async (i: unknown) => (runs.push([id, i]), { result: { command_id: 'cmd1', status: 'queued', policy: 'off', policy_version: 1 } }), isPending: false }),
 }));
@@ -16,6 +18,7 @@ vi.mock('@/shared/api/client', () => ({
   transport: {
     get: async (path: string) => {
       if (path.endsWith('/group')) return state;
+      if (path.endsWith('/group/board')) return { pinned: null, kind: 'media', items: [], next_cursor: null };
       if (path.startsWith('/groups/')) return { members_total: 3, members_hint: '', members: [], pinned_sub: '', media: [], files: [], links: [], join_link: 'https://zalo.me/g/secret', unanswered: 0, ai_policy: 'mention' };
       return null;
     },

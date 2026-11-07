@@ -7,6 +7,7 @@ import { mockRoutes } from './routes';
 import { inboxParamRoute } from './domains/inbox';
 import { inboxThreadParamRoute } from './domains/inbox-thread';
 import { inboxGroupParamRoute } from './domains/inbox-groups';
+import { inboxBoardParamRoute } from './domains/inbox-board';
 import { customersParamRoute } from './domains/customers';
 import { contactEditParamRoute } from './domains/contact-edit';
 import { inboxApprovalsParamRoute } from './domains/inbox-approvals';
@@ -112,6 +113,7 @@ export const mockTransport: Transport = {
       inboxApprovalsParamRoute(path) ??
       customersParamRoute(path) ??
       inboxThreadParamRoute(path) ??
+      inboxBoardParamRoute(path) ??
       inboxGroupParamRoute(path) ??
       inboxParamRoute(path);
     if (!route) fail(404, 'NOT_FOUND', `mock route ${path}`);
