@@ -4,7 +4,7 @@
 
 ## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
 
-**Mới nhất (2026-11-08, 026b P2).** TIP-026b pha 2 / 4 (nhánh `tip/026b-crm-activities-p2`, xếp chồng #127): thẻ Cơ hội / Việc / Ghi chú / Comment thật dùng chung Hộp thư + Khách hàng (`shared/contact-activities`), form + danh sách phân trang ở CrmFormsHost, 3 lệnh Trợ lý prefill, tóm tắt 015b nhận hoạt động (DC-388, DV-062). Không migration. PR mới chưa merge: 9 / 10. Kế tiếp: 026b P3 (Kanban phân trang + set_stage if_version + profile_layout CAS) → đủ 10 PR thì dừng.
+**Mới nhất (2026-11-08, 026b P2).** TIP-026b pha 2 / 4 = PR #128 (nhánh `tip/026b-crm-activities-p2`, `28cbe6f7`, xếp chồng #127): thẻ Cơ hội / Việc / Ghi chú / Comment thật dùng chung Hộp thư + Khách hàng (`shared/contact-activities`), form + danh sách phân trang ở CrmFormsHost, 3 lệnh Trợ lý prefill, tóm tắt 015b nhận hoạt động (DC-388, DV-062). Không migration. PR mới chưa merge: 9 / 10. Kế tiếp: 026b P3 (Kanban phân trang + set_stage if_version + profile_layout CAS) → đủ 10 PR thì dừng.
 
 **Trước đó (2026-11-08, 026b P1).** TIP-026b pha 1 / 4 = PR #127 (nhánh `tip/026b-crm-activities`, `d9fd5a59`, xếp chồng #126): `contact_note` kind note|comment + version / xoá mềm / actor; bảng `contact_task`, `contact_opportunity`; 9 action (add_note / add_comment / contact_task.* / contact_opportunity.* / contact_activity.list) CAS + undo theo version; tiền cơ hội ẩn theo quote.view; GET `/v1/contacts/:id/activities` + Hồ sơ 360° `activities` (DC-387, DV-061). Migration tenant `20261108040000_crm_activities`. PR mới chưa merge: 8 / 10 (#118, #119, #122–#126 + 026b P1). Kế tiếp: 026b P2 (giao diện thẻ / form / Trợ lý / tóm tắt 015b), P3 → đủ 10 thì dừng.
 
