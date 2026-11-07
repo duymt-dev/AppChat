@@ -244,3 +244,34 @@ Chưa nghiệm thu với Zalo thật (fake transport). Chưa làm: bảng tin / 
 | parity | inbox không đổi (default 4,70% · folder-rail 4,57% · chat-menu 4,36% · zalo-group-info 4,53% · connect-channel 6,20% ≤ trần 6,5%) |
 
 Chưa nghiệm thu với provider thật: dịch qua 9router (kiểm ở P6 ai:live, AC10). Chụp màn hình trên trình duyệt thật cần người chọn tab — e2e kiểm nhánh không hỗ trợ + unit kiểm dừng track.
+
+## Pha 6 — thẻ duyệt trong Hộp thư + AC10 ai:live (§G)
+
+**COMMIT:** nhánh `tip/025b-inbox-vertical-p6` (xếp chồng #113) — `ba441394` (§G nền), `c4ead89e` (§G web), `543ec8d3` (ai:live), `183a900c` (cảm xúc theo kênh). **Không migration** (dùng index sẵn `ai_run_conversation_idx` + `approval_request_run_idx`) → sau merge chỉ build lại api / worker.
+
+**FILES CHANGED** (DV-050)
+- shared: `approvalRowSchema.executed` (đã duyệt — thao tác gốc đã chạy chưa).
+- actions: `reads/inbox.ts` — `conversation.approvals` (inbox.view, read, không cấp agent).
+- core: `inbox/approvals/conversation-approvals.ts` (hội thoại thấy được → run của hội thoại → yêu cầu duyệt theo run, ≤ 50; không approvals.decide → rỗng, không đọc hàng duyệt); `ai/approvals/approvals.read.ts` tách `approvalRows`; `inbox/actions/conversation-approvals.handler.ts`; `inbox/services/meta.service.ts` trả `reactions`; `ai/assistant/catalog.ts` từ khoá dịch / duyệt / hàng loạt / hội thoại.
+- api: `http/inbox/inbox-approvals.controller.ts` (`GET /v1/conversations/:id/approvals`) + OpenAPI.
+- web: `approval-api.ts`, `InboxApprovals.tsx` (dùng lại ApprovalCard, mặc định chỉ chờ duyệt, Xem tất cả, "đã duyệt — đang chờ chạy"), `ChatPanel` gắn thẻ, `MessageMenu` ẩn cảm xúc ở kênh không hỗ trợ; mock `domains/inbox-approvals.ts`.
+- ai:live: `fixtures/ai-eval/inbox-vertical/cases.json` (10 ca), cổng 9/10 trong `tools/ai-live/src/cli.ts`.
+- test: core `inbox-approval-cards.test.ts` (3); api `inbox-approval-cards.test.ts` (4, gồm EXPLAIN), ma trận `conversation.approvals` (3); web `InboxApprovals.test.tsx` (3), `MessageMenu.test.tsx` (2); e2e `inbox-assist.spec.ts` (thẻ duyệt desktop + mobile).
+
+**AI LIVE (AC10)** — `reports/ai-live-inbox-vertical-2026-11-07.md`: model thật 9router `ag/gemini-3-flash`, stack riêng cổng 4617, Redis DB 14, DB test; 10 ca × 3 lượt → **9/10 ca ĐẠT (≥ 2/3 lượt), 0 vi phạm an toàn** (không ghi nào chạy khi chưa xác nhận, không gọi ngoài quyền, không lộ bí mật). Ca trượt: `iv-translate-en` (2/3 lượt model tự dịch từ `conversation.get` thay vì gọi `ai.translate` — bản dịch vẫn đúng, chỉ không qua skill có cache). Vòng chạy đầu 3/10 bắt lỗi thật: `find_actions` không có từ khoá "dịch" / "duyệt" / "hội thoại" → đã thêm vào chỉ mục. Ca nhóm Zalo: tài khoản Zalo thật chưa có → model hỏi lại / không ghi (CHỜ-TK theo 044).
+
+**Giả định đã chọn (gap-filling)**
+- Không có approvals.decide nhưng thấy hội thoại → danh sách rỗng (không lộ có / không có yêu cầu), giống route hàng chờ duyệt cần approvals.decide.
+- Thẻ đã xử lý giữ trong danh sách (ẩn sau "Xem tất cả") để người xem biết kết quả; chỉ thẻ chờ duyệt hiện mặc định.
+- Phần còn lại ngoài sáu pha DC-377 (§A.6–7 bảng tin / link, §B.6 chọn phụ trách kèm tải) → **pha 7** (DC-378).
+
+**ĐỐI CHIẾU STANDARDS (P6)**
+
+| Standard | Kết quả |
+|---|---|
+| `actions/action-registry.md` | `conversation.approvals` có handler + preview + ma trận; quyết định duyệt vẫn chỉ qua `approval.*` |
+| `authz/rbac-permissions.md` | ngoài scope 404 trước mọi đọc duyệt; can_decide = approvals.decide ∩ quyền duyệt action gốc; không approvals.decide → rỗng |
+| `database/indexing.md` | `ai_run_conversation_idx` + `approval_request_run_idx` (EXPLAIN trong test); số truy vấn cố định 3 (không theo dòng) |
+| `ai/eval.md` | suite có phiên bản, 3 lượt, chấm theo vết run + an toàn tuyệt đối; báo cáo + JSON trong `reports/` |
+| `ui/frontend-structure.md` | dùng lại ApprovalCard qua barrel, không import `features/assistant/components/*`; file ≤ 400 dòng |
+| `i18n/i18n.md` | vi + en 100% |

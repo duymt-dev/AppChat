@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 150 | 8 | 2 | 13 | 15 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 152 | 7 | 2 | 13 | 14 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 126 | 11 | 1 | 1 | 14 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 161 | 13 | 3 | 6 | 10 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 342 | 63 | 1 | 4 | 46 | 3 | 0 | 0 |
 | E. standards/* | 201 | 47 | 1 | 6 | 33 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 50 | 1 | 33 | 0 | 4 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 70 | 10 | 2 | 13 | 28 | 3 | 0 | 0 |
-| **Tổng** | **1100** | **153** | **43** | **43** | **150** | **37** | **69** | **0** |
+| **Tổng** | **1102** | **152** | **43** | **43** | **149** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -120,7 +120,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C08a | Thao tác hàng loạt hội thoại (backend) | 01-REQUIREMENTS-MATRIX.md:70 | 016 | ĐẠT | conversation-assign.handlers.ts:100; test inbox.test.ts AC5 |
 | REQ-C08b | Multi-select hội thoại trên UI | 01-REQUIREMENTS-MATRIX.md:70 | 025b | ĐẠT | TIP-025b P1: useInboxSelection (≤ 100, xoá khi đổi bộ lọc) + ConversationBulkBar gọi conversation.bulk_update; e2e inbox-bulk.spec.ts |
 | REQ-C08c | Tìm không dấu | 01-REQUIREMENTS-MATRIX.md:70 | 016, 025 | ĐẠT | test inbox.test.ts AC7, e2e http/inbox-live.spec.ts:41 |
-| REQ-C09a | Cảm xúc (bấm lại bỏ), chỉ hiện ở kênh hỗ trợ | 01-REQUIREMENTS-MATRIX.md:71 | 025b | MỘT PHẦN | Backend ĐẠT (message.handlers.ts:148; inbox.test.ts AC6); FE hiện mọi kênh (MessageMenu.tsx:76) |
+| REQ-C09a | Cảm xúc (bấm lại bỏ), chỉ hiện ở kênh hỗ trợ | 01-REQUIREMENTS-MATRIX.md:71 | 025b | ĐẠT | Backend message.handlers.ts:148 (inbox.test.ts AC6); TIP-025b P6: meta kênh `reactions` theo manifest, MessageMenu chỉ hiện hàng cảm xúc ở kênh hỗ trợ; test MessageMenu.test.tsx |
 | REQ-C09b | Trả lời trích · Sao chép · Chuyển tiếp · Ghim | 01-REQUIREMENTS-MATRIX.md:71 | 016, 025 | ĐẠT | MessageMenu.tsx:35-38; message.handlers.ts:76,161; test inbox.test.ts AC3/AC6 |
 | REQ-C09c | Dịch tin | 01-REQUIREMENTS-MATRIX.md:71 | 025 | CHỜ-TK | ai/skills/translate.handler.ts:22; test inbox-ui.test.ts "ai.translate (model giả)" — Q-001 |
 | REQ-C09d | Tạo ticket từ tin | 01-REQUIREMENTS-MATRIX.md:71 | 025, 034 | ĐẠT | MessageMenu.tsx:41-48; TicketsScreen.tsx:45; test support.test.ts (source_message_id) |
@@ -159,7 +159,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-D06c | Handoff kèm tóm tắt | 01-REQUIREMENTS-MATRIX.md:86 | 022b | ĐẠT | Tóm tắt bàn giao có cấu trúc trên mọi đường handoff (ai/reply/handoff-summary.ts, turn-handoff.ts) — trích xuất, không LLM; chiếu theo quyền người xem (inbox/services/handoff-summary-read.ts); HandoffSummaryPanel (chờ duyệt ≠ xong); test agent-handoff-summary, HandoffSummaryPanel.test.tsx; coding-packs/reports/TIP-022b-completion.md |
 | REQ-D07a | Hàng chờ duyệt Duyệt / Sửa / Từ chối | 01-REQUIREMENTS-MATRIX.md:87 | 021, 024 | ĐẠT | approval.handlers.ts:74-92; test agents.test.ts AC4, e2e http/agents-ui.spec.ts:60 |
 | REQ-D07b | Duyệt ở thông báo | 01-REQUIREMENTS-MATRIX.md:87 | 021 | ĐẠT | ai/events/agents.rules.ts:8; test agents.test.ts AC4 |
-| REQ-D07c | Thẻ duyệt trong Inbox | 01-REQUIREMENTS-MATRIX.md:87 | 025b | CHƯA | Chỉ folder ai_pending_approval (FolderRail.tsx:108) |
+| REQ-D07c | Thẻ duyệt trong Inbox | 01-REQUIREMENTS-MATRIX.md:87 | 025b | ĐẠT | TIP-025b P6: GET /v1/conversations/:id/approvals + `conversation.approvals` (run tin cậy, ngoài scope 404, không approvals.decide → rỗng) + InboxApprovals (ApprovalCard, đã duyệt chưa chạy = đang chờ chạy); test inbox-approval-cards (core + api), InboxApprovals.test.tsx, e2e inbox-assist.spec.ts; ai:live `iv-approvals-pending` |
 | REQ-D07d | Thẻ duyệt ở Tổng quan | 01-REQUIREMENTS-MATRIX.md:87 | 038 | ĐẠT | Việc cần tôi `approval` chỉ yêu cầu người xem quyết định được (approvals.decide ∧ permission gốc) — work-items.ts; MyWorkPanel trên Tổng quan; integration insights-dashboard.test.ts AC04 |
 | REQ-D08a | Nhật ký run (prompt, nguồn, tools, token, credit) | 01-REQUIREMENTS-MATRIX.md:88 | 019 | ĐẠT | ai/runs/run.store.ts; test ai-runtime.test.ts AC4 |
 | REQ-D08b | Hoàn tác nhóm cho phép | 01-REQUIREMENTS-MATRIX.md:88 | 003, 024 | ĐẠT | kernel/actions/undo.service.ts:19; test actions.test.ts AC7 |
