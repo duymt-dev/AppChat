@@ -119,7 +119,16 @@
     "unpin": "Unpin",
     "pinnedMsg": "📌 Pinned message:",
     "unpinMsg": "Unpin",
+    "window": {
+      "older": "Viewing older messages around the result",
+      "latest": "Back to latest",
+      "newer": "Load newer messages",
+      "loading": "Loading messages around the result…",
+      "error": "This message is no longer available."
+    },
     "search2": {
+      "loading": "Searching…",
+      "error": "Search failed — try again.",
       "placeholder": "Search in this conversation…",
       "none": "No match for “{q}” in this conversation · try the search box in the conversation list to search everywhere.",
       "sender": "Sender",

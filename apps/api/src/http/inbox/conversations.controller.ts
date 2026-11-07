@@ -1,10 +1,11 @@
 // Đọc Hộp thư (Blueprint §4.4 inbox, TIP-016 — shape packages/shared/src/api/inbox.ts): /v1/conversations (cursor),
-// /conversations/counts, /conversations/:id, /conversations/:id/messages (cursor), /conversations/:id/messages/search.
+// /conversations/counts, /conversations/:id, /conversations/:id/messages (cursor / after), /messages/search, /messages/search-page,
+// /messages/around/:messageId (TIP-025b).
 // Quyền `inbox.view`; scope inbox áp trong service. Ghi qua action conversation.* / message.* / note.add.
 import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { InboxReadService, type ConvFilter } from '@appchat/core';
-import { AppError, INBOX_FOLDERS, INBOX_SORTS, type InboxFolder, type InboxSort } from '@appchat/shared';
+import { AppError, INBOX_FOLDERS, INBOX_SORTS, THREAD_SEARCH_LIMIT, type InboxFolder, type InboxSort } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
 
 const int = (v: string | undefined, field: string) => {
@@ -50,8 +51,24 @@ export class ConversationsController {
   }
 
   @Get(':id/messages')
-  async messages(@Req() req: IncomingMessage, @Param('id') id: string, @Query('cursor') cursor?: string) {
-    return this.read.messages(await this.viewer(req), id, cursor);
+  async messages(@Req() req: IncomingMessage, @Param('id') id: string, @Query('cursor') cursor?: string, @Query('after') after?: string) {
+    return this.read.messages(await this.viewer(req), id, cursor, after);
+  }
+
+  /** TIP-025b §B.1: tìm có trang trong ảnh chụp — q 1–100, sender allowlist, limit ≤ 50, cursor mờ. */
+  @Get(':id/messages/search-page')
+  async searchPage(@Req() req: IncomingMessage, @Param('id') id: string, @Query() q: Record<string, string | undefined>) {
+    const text = (q.q ?? '').trim();
+    if (!text || text.length > 100) throw new AppError('VALIDATION_FAILED', 400, { q: text ? 'too_long' : 'required' });
+    const limit = int(q.limit, 'limit');
+    if (limit !== undefined && limit > THREAD_SEARCH_LIMIT) throw new AppError('VALIDATION_FAILED', 400, { limit: 'too_large' });
+    return this.read.searchPage(await this.viewer(req), id, text, q.sender ?? 'all', q.cursor || undefined, limit);
+  }
+
+  /** TIP-025b §B.2: cửa sổ ≤ 51 tin quanh một tin được thấy. */
+  @Get(':id/messages/around/:messageId')
+  async around(@Req() req: IncomingMessage, @Param('id') id: string, @Param('messageId') messageId: string) {
+    return this.read.around(await this.viewer(req), id, messageId);
   }
 
   @Get(':id/messages/search')

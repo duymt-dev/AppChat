@@ -1,13 +1,13 @@
 // Đọc Hộp thư cho apps/api (Blueprint §4.4 inbox — shape packages/shared/src/api/inbox.ts): danh sách (keyset), đếm thư mục,
-// một hội thoại, tin theo trang (mới nhất trước), tìm trong hội thoại (không dấu — REQ-C12). Mỗi lệnh một transaction chỉ-đọc trên
+// một hội thoại, tin theo trang (mới nhất trước) / cửa sổ quanh tin / tìm có trang (thread-window — TIP-025b), tìm trong hội thoại (REQ-C12). Mỗi lệnh một transaction chỉ-đọc trên
 // DB tenant (TenantDbResolver) + scope inbox của người xem (rbac §5).
 import { TenantSql as Prisma, TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
-import { foldText, type AuthzContext, type ConversationDto, type FolderCountsDto } from '@appchat/shared';
+import { foldRanges, foldText, type AuthzContext, type ConversationDto, type FolderCountsDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { folderCounts, listConversationIds, type ConvFilter } from '../repos/conversations.repo';
-import { UUID, visibleConversation } from './access';
-import { toConversation, toMessage, withDays, type ConvExtras, type Place } from './view';
-import { latestOperations } from '../../channels/operations/operation-read';
+import { visibleConversation, type Conv } from './access';
+import { toConversation, type ConvExtras, type Place } from './view';
+import { threadAround, threadPage, threadSearchPage, type ThreadCtx } from './thread-window';
 import { avatarKey, avatarLinks } from '../../channels/operations/avatar-read';
 import type { FileLinks } from '../../kernel/files/file-links';
 
@@ -86,47 +86,30 @@ export class InboxReadService {
     });
   }
 
-  /** Tin theo trang: trang đầu = 50 tin mới nhất; `cursor` = tin cũ hơn. Trong trang xếp cũ → mới, chèn mốc ngày. */
-  async messages(v: Viewer, id: string, cursor?: string) {
+  /** Tin theo trang: trang đầu = 50 tin mới nhất; `cursor` = tin cũ hơn; `after` = tin mới hơn (sau khi nhảy tới kết quả tìm — TIP-025b). */
+  async messages(v: Viewer, id: string, cursor?: string, after?: string) {
     const p = await this.place(v);
     return this.tx(v, async (tx) => {
       const c = await visibleConversation(tx, v.authz, id);
-      const before = cursor && UUID.test(cursor) ? await tx.message.findUnique({ where: { id: cursor }, select: { createdAt: true, id: true, conversationId: true } }) : null;
-      const rows = await tx.message.findMany({
-        where: {
-          conversationId: c.id,
-          ...(c.clearedAt ? { createdAt: { gt: c.clearedAt } } : {}),
-          ...(before && before.conversationId === c.id ? { OR: [{ createdAt: { lt: before.createdAt } }, { createdAt: before.createdAt, id: { lt: before.id } }] } : {}),
-        },
-        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-        take: THREAD_PAGE + 1,
-      });
-      const page = rows.slice(0, THREAD_PAGE).reverse();
-      const ids = page.map((m) => m.id);
-      const replyIds = [...new Set(page.map((m) => m.replyToId).filter((x): x is string => !!x))];
-      const senders = c.kind === 'group' ? [...new Set(page.filter((m) => m.direction === 'in' && m.senderId).map((m) => m.senderId!))] : [];
-      const [mine, replies, ops, avs] = await Promise.all([
-        tx.messageReaction.findMany({ where: { messageId: { in: ids }, actorType: 'user', actorId: v.userId }, orderBy: { createdAt: 'asc' } }),
-        replyIds.length ? tx.message.findMany({ where: { id: { in: replyIds } }, select: { id: true, body: true, deletedAt: true, recalledAt: true } }) : [],
-        latestOperations(tx, ids),
-        avatarLinks(tx, this.links, v.workspaceId, senders.map((externalId) => ({ accountId: c.channelAccountId, externalId }))),
-      ]);
-      const x = {
-        myReaction: new Map(mine.map((r) => [r.messageId, r.emoji])),
-        replyPreview: new Map(replies.map((r) => [r.id, r.deletedAt || r.recalledAt ? '' : r.body.slice(0, 80)])),
-        isGroup: c.kind === 'group',
-        ops,
-        senderAvatars: new Map(senders.flatMap((s) => {
-          const url = avs.get(avatarKey(c.channelAccountId, s));
-          return url ? [[s, url] as const] : [];
-        })),
-      };
-      return {
-        data: withDays(page.map((m) => ({ at: m.createdAt, dto: toMessage(m, x, p) })), p),
-        next_cursor: rows.length > THREAD_PAGE ? (page[0]?.id ?? null) : null,
-        suggestion: suggestionOf(c.aiSuggestion),
-      };
+      const r = await threadPage(this.ctx(tx, c, v, p), THREAD_PAGE, cursor, after);
+      return { ...r, suggestion: suggestionOf(c.aiSuggestion) };
     });
+  }
+
+  /** Cửa sổ ≤ 51 tin quanh một tin (TIP-025b §B.2). */
+  async around(v: Viewer, id: string, messageId: string) {
+    const p = await this.place(v);
+    return this.tx(v, async (tx) => threadAround(this.ctx(tx, await visibleConversation(tx, v.authz, id), v, p), messageId));
+  }
+
+  /** Tìm có trang trong ảnh chụp (TIP-025b §B.1). */
+  async searchPage(v: Viewer, id: string, q: string, sender: string, cursor?: string, limit?: number) {
+    const p = await this.place(v);
+    return this.tx(v, async (tx) => threadSearchPage(this.ctx(tx, await visibleConversation(tx, v.authz, id), v, p), q, sender, cursor, limit));
+  }
+
+  private ctx(tx: TenantTx, c: Conv, v: Viewer, p: Place): ThreadCtx {
+    return { tx, c, userId: v.userId, ws: v.workspaceId, p, links: this.links };
   }
 
   /** Tìm trong hội thoại (REQ-C12): không dấu, lọc người gửi; `ranges` = vị trí khớp trong `body` để tô. */
@@ -146,12 +129,7 @@ export class InboxReadService {
           AND f_unaccent(lower(m.body)) LIKE ${like} ${who} ${after}
         ORDER BY m.created_at ASC, m.id ASC LIMIT 200`;
       const time = new Intl.DateTimeFormat(p.locale === 'en' ? 'en-GB' : 'vi-VN', { hour: '2-digit', minute: '2-digit', timeZone: p.timeZone, hour12: false });
-      return rows.map((r) => {
-        const folded = foldText(r.body);
-        const ranges: [number, number][] = [];
-        for (let i = folded.indexOf(needle); i >= 0; i = folded.indexOf(needle, i + needle.length)) ranges.push([i, i + needle.length]);
-        return { message_id: r.id, body: r.body, sender: r.sender_type, time: time.format(r.created_at), ranges };
-      });
+      return rows.map((r) => ({ message_id: r.id, body: r.body, sender: r.sender_type, time: time.format(r.created_at), ranges: foldRanges(r.body, q) }));
     });
   }
 
