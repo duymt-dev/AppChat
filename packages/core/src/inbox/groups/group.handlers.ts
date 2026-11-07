@@ -52,7 +52,8 @@ abstract class GroupCommandHandler<I extends { conversation_id: string }> implem
   ) {}
   protected abstract plan(ctx: ActionContext, i: I, tx: TenantTx, c: Conv): Promise<Plan>;
 
-  async preview(ctx: ActionContext, i: I, tx: TenantTx): Promise<ActionPreview> {
+  /** Mỗi lớp con khai `preview()` gọi về đây (quét phủ Trợ lý đọc theo từng lớp có @ActionHandler). */
+  protected async draft(ctx: ActionContext, i: I, tx: TenantTx): Promise<ActionPreview> {
     const c = await groupConversation(tx, ctx.authz, this.registry, i.conversation_id, this.kind);
     const p = await this.plan(ctx, i, tx, c);
     return preview(this.kind === 'refresh' ? 'write' : 'send', line(await convTitle(tx, c), p.summary), { changes: [{ entity: 'group_command', after: { kind: this.kind, ...p.desired } }] });
@@ -70,6 +71,9 @@ abstract class GroupCommandHandler<I extends { conversation_id: string }> implem
 @ActionHandler('group.add_members')
 export class GroupAddMembersHandler extends GroupCommandHandler<ActionInput<typeof groupAddMembers>> {
   protected readonly kind = 'add_members' as const;
+  async preview(ctx: ActionContext, i: ActionInput<typeof groupAddMembers>, tx: TenantTx): Promise<ActionPreview> {
+    return this.draft(ctx, i, tx);
+  }
   protected async plan(ctx: ActionContext, i: ActionInput<typeof groupAddMembers>, tx: TenantTx, g: Conv): Promise<Plan> {
     const ids = [...new Set(i.member_conversation_ids)].slice(0, GROUP_ADD_MAX);
     const convs = await tx.conversation.findMany({ where: { id: { in: ids.filter((x) => UUID.test(x)) } } });
@@ -94,6 +98,9 @@ export class GroupAddMembersHandler extends GroupCommandHandler<ActionInput<type
 @ActionHandler('group.update')
 export class GroupUpdateHandler extends GroupCommandHandler<ActionInput<typeof groupUpdate>> {
   protected readonly kind = 'update' as const;
+  async preview(ctx: ActionContext, i: ActionInput<typeof groupUpdate>, tx: TenantTx): Promise<ActionPreview> {
+    return this.draft(ctx, i, tx);
+  }
   protected async plan(_ctx: ActionContext, i: ActionInput<typeof groupUpdate>, tx: TenantTx, g: Conv): Promise<Plan> {
     const st = await tx.conversationGroupState.findUnique({ where: { conversationId: g.id }, select: { providerVersion: true, providerName: true, linkEnabled: true } });
     // Phải có ảnh chụp nhà cung cấp hiện hành (làm mới trước) và đúng phiên bản người dùng đã thấy.
@@ -110,6 +117,9 @@ export class GroupUpdateHandler extends GroupCommandHandler<ActionInput<typeof g
 @ActionHandler('group.set_mute')
 export class GroupSetMuteHandler extends GroupCommandHandler<ActionInput<typeof groupSetMute>> {
   protected readonly kind = 'set_mute' as const;
+  async preview(ctx: ActionContext, i: ActionInput<typeof groupSetMute>, tx: TenantTx): Promise<ActionPreview> {
+    return this.draft(ctx, i, tx);
+  }
   protected async plan(_ctx: ActionContext, i: ActionInput<typeof groupSetMute>): Promise<Plan> {
     return { desired: { muted: i.muted }, summary: i.muted ? 'mute' : 'unmute' };
   }
@@ -119,6 +129,9 @@ export class GroupSetMuteHandler extends GroupCommandHandler<ActionInput<typeof 
 @ActionHandler('group.refresh')
 export class GroupRefreshHandler extends GroupCommandHandler<ActionInput<typeof groupRefresh>> {
   protected readonly kind = 'refresh' as const;
+  async preview(ctx: ActionContext, i: ActionInput<typeof groupRefresh>, tx: TenantTx): Promise<ActionPreview> {
+    return this.draft(ctx, i, tx);
+  }
   protected async plan(_ctx: ActionContext, _i: ActionInput<typeof groupRefresh>, tx: TenantTx, g: Conv): Promise<Plan> {
     const open = await tx.groupCommand.findFirst({ where: { conversationId: g.id, kind: 'refresh', status: { in: ['queued', 'dispatch_reserved'] } }, select: { id: true } });
     if (open) throw new AppError('CONFLICT', 409, { command_id: `open:${open.id}` });

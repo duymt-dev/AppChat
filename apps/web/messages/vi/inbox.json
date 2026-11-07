@@ -370,6 +370,9 @@
     "close": "Đóng thông tin nhóm",
     "members": "{n} thành viên",
     "joinLink": "Link tham gia nhóm",
+    "linkOn": "Đang bật · bấm Quản lý để tắt",
+    "linkOff": "Đang tắt",
+    "linkUnknown": "Chưa đọc từ Zalo — làm mới trong Quản lý nhóm",
     "media": "Ảnh/Video",
     "files": "File",
     "links": "Link",
@@ -379,7 +382,9 @@
       "mute": "Tắt thông báo",
       "pin": "Ghim hội thoại",
       "add": "Thêm thành viên",
-      "manage": "Quản lý nhóm"
+      "manage": "Quản lý nhóm",
+      "unmute": "Bật thông báo",
+      "unpin": "Bỏ ghim"
     },
     "ai": {
       "title": "AI trong nhóm",
@@ -397,6 +402,42 @@
     "seeAll": "Xem tất cả",
     "caretOpen": "▾",
     "caretClosed": "▸"
+  },
+  "groupManage": {
+    "title": "Quản lý nhóm",
+    "close": "Đóng",
+    "name": "Tên nhóm",
+    "rename": "Đổi tên nhóm",
+    "linkOn": "Bật link tham gia",
+    "linkOff": "Tắt link tham gia",
+    "refresh": "Làm mới từ Zalo",
+    "refreshFirst": "Làm mới từ Zalo trước khi đổi tên / link.",
+    "snapshot": "Zalo báo {total} thành viên · AppChat đã thấy {observed} · tài khoản là {role}",
+    "noSnapshot": "AppChat đã thấy {observed} thành viên (chưa đọc từ Zalo)",
+    "partial": "Danh sách Zalo trả về chưa đủ — không phải toàn bộ nhóm.",
+    "addTitle": "Thêm khách đã nhắn với tài khoản này ({n}/{max})",
+    "add": "Thêm vào nhóm",
+    "more": "Tải thêm",
+    "role": {
+      "owner": "trưởng nhóm",
+      "admin": "phó nhóm",
+      "member": "thành viên",
+      "unknown": "chưa rõ"
+    },
+    "state": {
+      "pending": "Đang gửi lệnh tới Zalo…",
+      "confirmed": "Zalo đã xác nhận.",
+      "failed": "Zalo từ chối — không đổi gì.",
+      "unknown": "Chưa rõ kết quả — kiểm tra trên Zalo, không tự gửi lại.",
+      "partial": "Xong một phần — xem từng người.",
+      "cancelled": "Đã huỷ.",
+      "superseded": "Đã thay bằng lệnh mới hơn."
+    },
+    "member": {
+      "confirmed": "Đã thêm",
+      "failed": "Không thêm được",
+      "unknown": "Chưa rõ"
+    }
   },
   "connect": {
     "eyebrow": "Kết nối kênh mới",

@@ -370,6 +370,9 @@
     "close": "Close group info",
     "members": "{n} members",
     "joinLink": "Group invite link",
+    "linkOn": "On · open Manage to turn off",
+    "linkOff": "Off",
+    "linkUnknown": "Not read from Zalo yet — refresh in Manage group",
     "media": "Photos/Videos",
     "files": "Files",
     "links": "Links",
@@ -379,7 +382,9 @@
       "mute": "Mute",
       "pin": "Pin chat",
       "add": "Add member",
-      "manage": "Manage group"
+      "manage": "Manage group",
+      "unmute": "Unmute",
+      "unpin": "Unpin"
     },
     "ai": {
       "title": "AI in group",
@@ -397,6 +402,42 @@
     "seeAll": "See all",
     "caretOpen": "▾",
     "caretClosed": "▸"
+  },
+  "groupManage": {
+    "title": "Manage group",
+    "close": "Close",
+    "name": "Group name",
+    "rename": "Rename group",
+    "linkOn": "Turn invite link on",
+    "linkOff": "Turn invite link off",
+    "refresh": "Refresh from Zalo",
+    "refreshFirst": "Refresh from Zalo before renaming / changing the link.",
+    "snapshot": "Zalo reports {total} members · AppChat has seen {observed} · account is {role}",
+    "noSnapshot": "AppChat has seen {observed} members (not read from Zalo yet)",
+    "partial": "Zalo returned an incomplete list — not the whole group.",
+    "addTitle": "Add customers who messaged this account ({n}/{max})",
+    "add": "Add to group",
+    "more": "Load more",
+    "role": {
+      "owner": "owner",
+      "admin": "admin",
+      "member": "member",
+      "unknown": "unknown"
+    },
+    "state": {
+      "pending": "Sending command to Zalo…",
+      "confirmed": "Confirmed by Zalo.",
+      "failed": "Rejected by Zalo — nothing changed.",
+      "unknown": "Result unknown — check in Zalo, it will not be resent.",
+      "partial": "Partly done — see each member.",
+      "cancelled": "Cancelled.",
+      "superseded": "Replaced by a newer command."
+    },
+    "member": {
+      "confirmed": "Added",
+      "failed": "Not added",
+      "unknown": "Unknown"
+    }
   },
   "connect": {
     "eyebrow": "Connect a new channel",

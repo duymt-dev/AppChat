@@ -75,6 +75,23 @@
       "desc": "The system sends the daily / weekly 08:00 digest email to people who turned it on in Notifications — only figures they may see, moved past quiet hours."
     }
   },
+  "group": {
+    "set_ai_policy": {
+      "title": "Change group AI policy"
+    },
+    "add_members": {
+      "title": "Add members to Zalo group"
+    },
+    "update": {
+      "title": "Rename / change link of Zalo group"
+    },
+    "set_mute": {
+      "title": "Mute / unmute group for the account"
+    },
+    "refresh": {
+      "title": "Refresh group info from Zalo"
+    }
+  },
   "conversation": {
     "unhide": {
       "title": "Unhide conversation"
