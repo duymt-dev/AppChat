@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 142 | 12 | 4 | 13 | 17 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 144 | 11 | 4 | 13 | 16 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 125 | 10 | 3 | 1 | 14 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 159 | 13 | 3 | 6 | 12 | 12 | 21 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 160 | 13 | 3 | 6 | 11 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 333 | 70 | 1 | 4 | 46 | 3 | 0 | 0 |
 | E. standards/* | 201 | 47 | 1 | 6 | 33 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 42 | 0 | 42 | 0 | 4 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 67 | 11 | 3 | 13 | 29 | 3 | 0 | 0 |
-| **Tổng** | **1069** | **163** | **57** | **43** | **155** | **37** | **69** | **0** |
+| **Tổng** | **1072** | **162** | **57** | **43** | **153** | **37** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -60,8 +60,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-A07a | Audit: mọi hành động người + AI ghi action_log | 01-REQUIREMENTS-MATRIX.md:41 | 003 | ĐẠT | packages/core/src/kernel/actions/executor.ts:150; test actions.test.ts "happy path … action_log" |
 | REQ-A07b | Trang Cài đặt Audit log / AI Audit log dữ liệu thật | 01-REQUIREMENTS-MATRIX.md:41 | 045b | ĐẠT | audit.controller.ts + audit-read.service.ts (trang 50, deferred join, EXPLAIN); FE lọc / Xem thêm / rỗng do lọc; hardening-audit.test.ts |
 | REQ-A07c | admin.* ghi platform_audit_log; sự kiện nhạy cảm cờ audit | 01-REQUIREMENTS-MATRIX.md:41 | 045b | ĐẠT | audit.service.ts — platform_audit_log cho admin.*; action_log cờ audit + event audit.security_event → thông báo Owner (notify/events/security.rules.ts); hardening-audit.test.ts |
-| REQ-A09a | Tự lưu trữ gói Miễn phí sau 90 ngày, báo trước 14 ngày | 01-REQUIREMENTS-MATRIX.md:42 | 041 | CHƯA | Chỉ cột plan archiveInactiveDays (billing/seed.ts:24); không job |
-| REQ-A09b | Lưu trữ = dump + drop; đăng nhập lại khôi phục < 2 phút | 01-REQUIREMENTS-MATRIX.md:42 | 041 | MỘT PHẦN | TIP-041 P1: dump mã hoá + drop + khôi phục (admin) native, 2,3 giây fixture 300 khách / 142 bảng; khôi phục khi member đăng nhập = P2 |
+| REQ-A09a | Tự lưu trữ gói Miễn phí sau 90 ngày, báo trước 14 ngày | 01-REQUIREMENTS-MATRIX.md:42 | 041 | ĐẠT | TIP-041 P2: activity (executor workspace.activity + consumer lifecycle.activity GREATEST) + quét ngày `tenant.archive-scan` (archive-scan.ts: chỉ plan có archive_inactive_days, mốc không rõ bỏ qua, cảnh báo archive_warning một lần/cửa sổ, ngày hiệu lực ≥ giao + 14 ngày, basis_at kiểm lại sau quiesce → cancelled); integration workspace-lifecycle-activity.test.ts |
+| REQ-A09b | Lưu trữ = dump + drop; đăng nhập lại khôi phục < 2 phút | 01-REQUIREMENTS-MATRIX.md:42 | 041 | ĐẠT | TIP-041 P1 dump mã hoá + drop + khôi phục native (2,3 giây fixture 300 khách / 142 bảng); P2 thành viên mở workspace → `workspace.open` tạo lệnh restore (gộp, membership-only, không mở DB tenant) + thẻ RestoringCard poll /workspace/lifecycle; integration + e2e onboarding |
 | REQ-A08 | Đăng nhập social | 01-REQUIREMENTS-MATRIX.md:43 | — | NGOÀI | P2 theo ma trận |
 | REQ-B01a | Kiến trúc adapter kênh, chuẩn hoá schema chung | 01-REQUIREMENTS-MATRIX.md:48 | 014 | ĐẠT | packages/channels/src/types.ts, registry.ts; test packages/channels/test/registry.test.ts |
 | REQ-B01b | Chống trùng UNIQUE(channel_account_id, external_msg_id) | 01-REQUIREMENTS-MATRIX.md:48 | 016 | ĐẠT | packages/db/prisma/tenant/inbox.prisma:173; inbox/services/pipeline.ts:60; test inbox.test.ts AC2 |
@@ -574,7 +574,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D20 | Production native VPS (systemd + PM2, nginx, Prom / Grafana / Loki, pgBackRest) | 01-REQUIREMENTS-MATRIX.md:268 | 045 | CHƯA | Thư mục `infra/` chưa tồn tại; Q-006 |
 | D21 | Mỗi workspace một DB + DB nền tảng | 01-REQUIREMENTS-MATRIX.md:269 | 002 | ĐẠT | packages/db/src/provisioner.ts, tenant-resolver.ts · test packages/db/test/integration/tenant-isolation.test.ts |
 | D22 | vi + en; registry 11 ngôn ngữ | 01-REQUIREMENTS-MATRIX.md:274 | 007 | ĐẠT | packages/shared/src/i18n/locales.ts:13-28 · test locales.test.ts |
-| D23 | Tự lưu trữ workspace gói Miễn phí sau 90 ngày | 01-REQUIREMENTS-MATRIX.md:273 | 041 | CHƯA | Không có code archive workspace (`admin.workspace.archive` thiếu) |
+| D23 | Tự lưu trữ workspace gói Miễn phí sau 90 ngày | 01-REQUIREMENTS-MATRIX.md:273 | 041 | ĐẠT | TIP-041 P1 + P2: lưu trữ gói Miễn phí 90 ngày (quét + cảnh báo 14 ngày + archive) và khôi phục khi mở lại — xem REQ-A09a / A09b |
 | D24 | Commerce theo COMMERCE-DECISIONS | 01-REQUIREMENTS-MATRIX.md:272 | — | QUY-TẮC | Xem các dòng COM-* |
 | D25 | Hợp đồng P0: tuỳ chọn sau BG, Owner duyệt + ký trước, khách ký OTP + tay; CA P2 | 01-REQUIREMENTS-MATRIX.md:270 | 030 | ĐẠT | Xem COM-9-*; test contracts.test.ts |
 | D26 | Phạm vi đợt đầu toàn bộ P0 + P1 | 01-REQUIREMENTS-MATRIX.md:271 | — | QUY-TẮC | Phạm vi |

@@ -1,4 +1,4 @@
-### COMPLETION REPORT — TIP-041 (pha 1 / 3 — archive / restore native)
+### COMPLETION REPORT — TIP-041 (pha 1–2 / 3 — archive / restore native + hoạt động / quét / mở workspace)
 
 **STATUS:** pha 1 DONE (TIP chưa DONE). Chia pha theo DC-375, mỗi pha một PR xếp chồng: **P1** nền tảng lưu trữ / khôi phục DB tenant trên Postgres native (PR này) → **P2** hoạt động + quét 90 ngày + cảnh báo 14 ngày + member mở workspace → khôi phục (UI "Đang khôi phục") → **P3** Owner danger zone (xoá + OTP + backup 30 ngày + purge, yêu cầu đóng băng, xuất logic).
 
@@ -80,3 +80,97 @@
 | `workflow/git-flow-ci.md` | nhánh `tip/041-workspace-lifecycle` xếp chồng #105, PR vào `dev` | — |
 
 **Chưa nghiệm thu với provider thật:** không có provider ngoài ở P1. Kho S3 / VPS và khoá production (045, Q-006) chưa có — chạy local `ARCHIVE_DIR` + khoá dẫn xuất dev.
+
+---
+
+## Pha 2 — hoạt động + quét 90 ngày + cảnh báo 14 ngày + workspace.open khôi phục
+
+**STATUS:** pha 2 DONE (TIP chưa DONE — còn P3 danger zone). Nhánh `tip/041-workspace-lifecycle-p2` xếp chồng #106.
+
+**MIGRATION:** **platform** `20261102014100_workspace_lifecycle_activity` (`workspace_lifecycle_job.basis_at`, bảng `workspace_lifecycle_notice`, index `workspace_stats_last_active_idx` partial). Không migration tenant.
+
+**FILES CHANGED** (ngoài manifest ở DV-043)
+- shared:
+  - `api/workspace-lifecycle.ts` (`workspaceLifecycleSchema`);
+  - `api/identity.ts` (`SessionDto.lifecycle`);
+  - `notify/catalog.ts` + chuỗi server vi / en (`archive_warning`).
+- actions: `workspace.open` (self, write, agentGrantable false, db platform).
+- core kernel:
+  - `actions/workspace-lifecycle-context.ts` — ngữ cảnh chỉ dựng phía server (dấu tin cậy), handler `executeLifecycle`, biên nhận `admin_operation` khoá `lc:<ws>:<key>` + audit nền tảng;
+  - `actions/activity-event.ts` — `workspace.activity` cùng transaction action (không system / đọc);
+  - `actions/executor.ts` — `executeLifecycle`; `execute()` từ chối action vòng đời 403.
+- core `identity/lifecycle/`:
+  - `activity.ts` — `touchActivity` GREATEST + consumer `lifecycle.activity` (message.received / message.sent / workspace.activity, theo `occurred_at` gốc);
+  - `archive-scan.ts` — quét IDs-first, cảnh báo + biên nhận, lệnh scan có `basis_at`;
+  - `restore-request.ts` — `WorkspaceOpenHandler` (membership kiểm lại trong transaction, khoá dòng workspace khi archived, gộp lệnh);
+  - `status.ts` — `WorkspaceLifecycleReader` (chỉ DB nền tảng);
+  - `archive-run.ts` — kiểm lại hoạt động sau quiesce → `ArchiveActivityError`;
+  - `recovery.ts` — hoạt động mới → rollback `cancelled`;
+  - `dispatcher.ts` — job lặp `tenant.archive-scan` mỗi ngày + cài consumer;
+  - `jobs.ts` — lệnh mới nhất theo `generation`.
+- core khác:
+  - `identity/services/workspaces.service.ts` — archived / restoring không còn là "khởi tạo lỗi";
+  - `ai/assistant/catalog.ts` — `workspace.open` ẩn khỏi Trợ lý.
+- api:
+  - `http/kernel/actions.controller.ts` — nhánh vòng đời: JWT + X-Workspace-Id, không AuthzResolver, chỉ nguồn ui;
+  - `http/identity/lifecycle.controller.ts` — `GET /v1/workspace/lifecycle`;
+  - `session.controller.ts` (`lifecycle`).
+- web:
+  - `features/onboarding/components/{OnboardingGate,RestoringCard}.tsx` + i18n `onboarding.restoring` vi / en;
+  - `features/auth/api.ts`;
+  - mock `domains/workspace-lifecycle.ts` + seed `?session=…,archived`.
+- test:
+  - `packages/core/test/workspace-lifecycle-activity.test.ts`;
+  - `apps/api/test/integration/workspace-lifecycle-activity.test.ts`;
+  - `apps/web/src/shared/api/mock/workspace-lifecycle-shape.test.ts`;
+  - e2e `onboarding.spec.ts` (+2 ca);
+  - sửa `cross-db-handlers` / `notify/catalog` / `workspace-lifecycle` test.
+
+**Giả định đã chọn (gap-filling):**
+1. Mốc hoạt động lưu ở `workspace_stats.last_active_at` (cột đã có). Ghi bằng GREATEST từ `occurred_at` gốc; sự kiện thiếu mốc không suy ra hoạt động.
+2. "Hoạt động" gồm:
+   - action ghi của người / Trợ lý / agent (không `system`, không đọc);
+   - tin vào / ra;
+   - thành viên mở workspace (`workspace.open`).
+
+   Job thống kê / healthcheck / quét không giữ workspace sống.
+3. Cửa sổ cảnh báo = mốc hoạt động đã dựa vào. Hoạt động mới thì cửa sổ cũ hết hiệu lực. Biên nhận một dòng mỗi (workspace, cửa sổ, kênh `in_app`); outbox `notify.requested` sinh cả in-app lẫn email theo kênh mặc định của loại. Ngày lưu trữ hiệu lực = max(ngưỡng 90 ngày, lúc giao + 14 ngày). Giao lỗi thì không lưu trữ và thử lại sau 1 giờ.
+4. Workspace tạm dừng: `workspace.open` chỉ trả trạng thái, không tự khôi phục. Admin mở lại trước (TIP-040).
+5. Đua quét ↔ hoạt động: worker kiểm lại mốc (stats + action_log / message trong DB tenant) SAU quiesce; mới hơn `basis_at` thì huỷ, DB nguyên vẹn.
+
+**Kiểm thử (pha 2 — D59 trước commit):**
+- `db:test-reset` — platform 21 migration.
+- `pnpm turbo run lint typecheck test` (shared / actions / db / core / api / worker / web / ai) — xanh.
+- `pnpm depcheck`, `lint:size` (3 229 file, không vượt trần), `i18n-check` (vi / en 6 115 key 100%), build api + worker, `check:bundle` — xanh.
+- Integration Postgres 16 + pg_dump / pg_restore thật — `workspace-lifecycle-activity` (4), `workspace-lifecycle` (4), `onboarding`, `workspaces`, `platform-workspaces`, `actions` — **6 file / 42 test xanh**. Riêng P2:
+  - action người dùng → `workspace.activity` cùng transaction; consumer đẩy mốc, sự kiện cũ / thiếu mốc không kéo lùi;
+  - quét:
+    - không mốc → unknown, không lệnh;
+    - 80 ngày → một cảnh báo (`archive_warning` tới Owner), ngày hiệu lực ≥ +14 ngày;
+    - lượt sau không cảnh báo lại, chưa tới ngày thì không lưu trữ;
+    - tới ngày → lệnh scan `basis_at`;
+    - Owner hoạt động trước quiesce → `cancelled`, DB nguyên, API 200, cảnh báo cũ hết hiệu lực;
+  - gói không ngưỡng (trả phí) 400 ngày không hoạt động → không cảnh báo / lệnh;
+  - `workspace.open`:
+    - nguồn assistant 403; thành viên bị thu hồi 403 (cả status);
+    - tạm dừng không tạo lệnh;
+    - mở → lệnh member + mốc hoạt động; thành viên thứ hai gộp cùng lệnh (đúng 1 lệnh active), audit nền tảng;
+    - `/workspace/lifecycle` + `/session` restoring → chạy worker → active, API 200.
+- E2E mock `onboarding` — 12 passed / 2 skipped (gồm thẻ Đang khôi phục vi + en, mobile không tràn ngang).
+- Parity: declare-business 3,16% · declare-individual 3,01% · trial-welcome 2,61% · trial-expired 3,75% (≤ 4,2%). Thẻ Đang khôi phục là màn mới loại M (D21), không có ảnh prototype.
+
+**Đối chiếu standards (pha 2)**
+
+| Standard | Tuân thủ (file / test) | Lệch |
+|---|---|---|
+| `actions/action-registry.md` | `workspace.open` qua ActionExecutor (`executeLifecycle`): zod input strict, audit + biên nhận idempotency cùng transaction nền tảng; agentGrantable false + ẩn Trợ lý | DV-043 (action ngoài §3.4) |
+| `authz/rbac-permissions.md` | membership `active` kiểm lại trong transaction (thu hồi → 403); không AuthzResolver vì DB tenant có thể không tồn tại; nguồn chỉ ui | — |
+| `database/indexing.md` | quét IDs-first `workspace.id >` + LIMIT 200; `workspace_lifecycle_notice` unique (workspace, cửa sổ, kênh) + partial retry; `workspace_stats_last_active_idx` partial; lệnh mới nhất theo unique (workspace_id, generation) | — |
+| `events/outbox.md` | `workspace.activity` + `notify.requested` qua outbox (cùng transaction / sau commit); consumer idempotent (GREATEST + event_consumption) | — |
+| `domain/state-machine.md` · `concurrency.md` | khoá dòng workspace khi archived (mở đồng thời gộp); `basis_at` + kiểm lại sau quiesce; CAS db_status như P1 | — |
+| `api/response-envelope.md` | `GET /v1/workspace/lifecycle` `{ data }`; 403 / 404 theo envelope | — |
+| `ui/frontend-structure.md` · `i18n/i18n.md` | RestoringCard ở `features/onboarding/components`, ghi qua `useAction`, đọc qua transport; token; chuỗi vi + en | — |
+| `code/file-size-module-layout.md` · `testing.md` | file mới < 200 dòng; test riêng unit / integration / mock / e2e | — |
+| `workflow/git-flow-ci.md` | nhánh `tip/041-workspace-lifecycle-p2` xếp chồng #106, PR vào `dev` | — |
+
+**Chưa nghiệm thu với provider thật:** email cảnh báo đi qua outbox → notify → provider mail (Brevo chưa có key, Q-004). Test xác nhận sự kiện + biên nhận, chưa xác nhận mail tới hộp thư thật.

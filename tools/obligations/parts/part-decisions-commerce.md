@@ -156,7 +156,7 @@
 | D20 | Production native VPS (systemd + PM2, nginx, Prom / Grafana / Loki, pgBackRest) | 01-REQUIREMENTS-MATRIX.md:268 | 045 | CHƯA | Thư mục `infra/` chưa tồn tại; Q-006 |
 | D21 | Mỗi workspace một DB + DB nền tảng | 01-REQUIREMENTS-MATRIX.md:269 | 002 | ĐẠT | packages/db/src/provisioner.ts, tenant-resolver.ts · test packages/db/test/integration/tenant-isolation.test.ts |
 | D22 | vi + en; registry 11 ngôn ngữ | 01-REQUIREMENTS-MATRIX.md:274 | 007 | ĐẠT | packages/shared/src/i18n/locales.ts:13-28 · test locales.test.ts |
-| D23 | Tự lưu trữ workspace gói Miễn phí sau 90 ngày | 01-REQUIREMENTS-MATRIX.md:273 | 041 | CHƯA | Không có code archive workspace (`admin.workspace.archive` thiếu) |
+| D23 | Tự lưu trữ workspace gói Miễn phí sau 90 ngày | 01-REQUIREMENTS-MATRIX.md:273 | 041 | ĐẠT | TIP-041 P1 + P2: lưu trữ gói Miễn phí 90 ngày (quét + cảnh báo 14 ngày + archive) và khôi phục khi mở lại — xem REQ-A09a / A09b |
 | D24 | Commerce theo COMMERCE-DECISIONS | 01-REQUIREMENTS-MATRIX.md:272 | — | QUY-TẮC | Xem các dòng COM-* |
 | D25 | Hợp đồng P0: tuỳ chọn sau BG, Owner duyệt + ký trước, khách ký OTP + tay; CA P2 | 01-REQUIREMENTS-MATRIX.md:270 | 030 | ĐẠT | Xem COM-9-*; test contracts.test.ts |
 | D26 | Phạm vi đợt đầu toàn bộ P0 + P1 | 01-REQUIREMENTS-MATRIX.md:271 | — | QUY-TẮC | Phạm vi |
