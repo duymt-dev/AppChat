@@ -34,8 +34,8 @@ describe('consumer lifecycle.activity', () => {
 });
 
 describe('ngữ cảnh lệnh vòng đời', () => {
-  it('chỉ workspace.open; ngữ cảnh tự dựng (không qua lifecycleContext) không được tin', () => {
-    expect([...LIFECYCLE_ACTIONS]).toEqual(['workspace.open']);
+  it('đúng 4 lệnh vòng đời (open + vùng nguy hiểm Owner); ngữ cảnh tự dựng (không qua lifecycleContext) không được tin', () => {
+    expect([...LIFECYCLE_ACTIONS]).toEqual(['workspace.open', 'workspace.delete_challenge', 'workspace.delete', 'workspace.freeze_request']);
     const ctx = lifecycleContext('u1', WS, { idempotencyKey: 'k' });
     expect(isTrustedLifecycleContext(ctx)).toBe(true);
     expect(isTrustedLifecycleContext({ ...ctx })).toBe(false);

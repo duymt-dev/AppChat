@@ -42,6 +42,8 @@ export interface ExecutorDeps {
   operations?: PlatformOperations;
   /** Tạo approval_request cho nguồn agent / task (TIP-021). Chưa có → NOT_IMPLEMENTED. */
   approvals?: ApprovalGateway;
+  /** Khoá mã hoá hiệu ứng bền của action vòng đời (thư OTP xoá — TIP-041). */
+  encKey?: Buffer;
 }
 
 export interface ApprovalGateway {
@@ -107,7 +109,7 @@ export class ActionExecutor {
     const def = this.defs.get(actionId);
     if (!def) throw new AppError('ACTION_NOT_FOUND', 404, undefined, actionId);
     if (!this.d.platform) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
-    return executeLifecycleAction<O>({ platform: this.d.platform, clock: this.d.clock, zodFields }, def, this.d.handlers.get(actionId), ctx, rawInput);
+    return executeLifecycleAction<O>({ platform: this.d.platform, clock: this.d.clock, zodFields, ...(this.d.encKey ? { encKey: this.d.encKey } : {}) }, def, this.d.handlers.get(actionId), ctx, rawInput);
   }
 
   previewPlatform(ctx: PlatformContext, actionId: string, rawInput: unknown) {

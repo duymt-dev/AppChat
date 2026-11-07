@@ -16,7 +16,9 @@ import { CHANNEL_REGISTRY, ChannelsModule, widgetUrlsFor } from '../channels/cha
 import { CrmModule } from '../crm/crm.module';
 import { ContactIdentityService } from '../crm/services/identity.service';
 import './events/inbox.rules';
-import { ConversationAssignHandler, ConversationBulkUpdateHandler, ConversationSetTagsHandler, ConversationTagHandler } from './actions/conversation-assign.handlers';
+import { ConversationAssignHandler, ConversationSetTagsHandler, ConversationTagHandler } from './actions/conversation-assign.handlers';
+import { ConversationBulkUpdateHandler } from './actions/bulk-update.handler';
+import { ConversationUnhideHandler, ConversationUntagHandler, MessageUnpinHandler, MessageUnreactHandler } from './actions/alias.handlers';
 import {
   ConversationArchiveHandler,
   ConversationClearHistoryHandler,
@@ -51,6 +53,7 @@ const HANDLERS = [
   ConversationAssignHandler, ConversationTagHandler, ConversationSetTagsHandler, ConversationBulkUpdateHandler,
   MessageSendHandler, ContactSendEmailHandler, ConversationCreateGroupHandler, MessageForwardHandler, MessageRecallHandler, MessageDeleteHandler, MessageReactHandler, MessagePinHandler, NoteAddHandler,
   TagCreateHandler, TagUpdateHandler, TagDeleteHandler, CannedReplyCreateHandler, CannedReplyUpdateHandler, CannedReplyDeleteHandler,
+  ConversationUnhideHandler, ConversationUntagHandler, MessageUnpinHandler, MessageUnreactHandler,
 ];
 
 /** WS `conv.join`: `inbox.view` + hội thoại trong scope inbox của người đó. */

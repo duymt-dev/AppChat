@@ -26,6 +26,8 @@ enum WorkspaceDbStatus {
   archived
   restoring
   deleting
+  /// Tombstone sau khi xoá (TIP-041 pha 3): DB đã DROP, chỉ giữ registry tối thiểu + manifest để purge / khôi phục trong hạn.
+  deleted
 
   @@map("workspace_db_status")
 }
@@ -124,6 +126,9 @@ model Workspace {
   archiveKey    String?           @map("archive_key")
   /// Thế hệ thao tác vòng đời (TIP-041): archive / restore / delete nhận số kế tiếp bằng CAS — worker cũ không ghi đè lệnh mới.
   lifecycleGeneration Int         @default(0) @map("lifecycle_generation")
+  /// Owner xoá workspace (TIP-041 pha 3) — tombstone; tệp trong kho dọn khi mọi bản sao lưu xoá đã purge (`files_purged_at`).
+  deletedAt     DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  filesPurgedAt DateTime?         @map("files_purged_at") @db.Timestamptz(6)
   createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt     DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

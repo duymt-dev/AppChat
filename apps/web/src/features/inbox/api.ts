@@ -30,7 +30,7 @@ export function convParams(f: { tab: string; channel: ChannelType | null; accoun
 export const inboxKeys = {
   all: ['inbox'] as const,
   list: (p: ConvParams) => ['inbox', 'conversations', p] as const,
-  counts: () => ['inbox', 'counts'] as const,
+  counts: (p: CountParams = {}) => ['inbox', 'counts', p] as const,
   conv: (id: string) => ['inbox', 'conversation', id] as const,
   thread: (id: string) => ['inbox', 'messages', id] as const,
 };
@@ -63,7 +63,11 @@ export interface ThreadHit {
 export const threadSearchQuery = (id: string, q: string, sender: string) =>
   queryOptions({ queryKey: ['inbox', 'messages', id, 'search', { q, sender }], queryFn: () => transport.get<ThreadHit[]>(`/conversations/${id}/messages/search`, { q, sender }), enabled: !!q.trim() });
 
-export const countsQuery = () => queryOptions({ queryKey: inboxKeys.counts(), queryFn: () => transport.get<FolderCounts>('/conversations/counts') });
+/** Bộ lọc của đếm thư mục = bộ lọc danh sách trừ thư mục / sắp xếp (TIP-025b §B.4 — đếm khớp phần đang lọc). */
+export type CountParams = Omit<ConvParams, 'folder' | 'sort'>;
+export const countParams = ({ folder: _f, sort: _s, ...rest }: ConvParams): CountParams => rest;
+export const countsQuery = (p: CountParams = {}) =>
+  queryOptions({ queryKey: inboxKeys.counts(p), queryFn: () => transport.get<FolderCounts>('/conversations/counts', p), placeholderData: (prev) => prev });
 
 /** TIP-022b: tóm tắt bàn giao có cấu trúc (chiếu theo quyền người xem); null khi chưa có. */
 export const handoffSummaryQuery = (id: string) =>
@@ -98,6 +102,8 @@ export interface Slot {
   best: boolean;
 }
 
+/** Thẻ dùng chung (gắn thẻ hàng loạt — TIP-025b). */
+export const tagsQuery = () => queryOptions({ queryKey: ['tags', 'inbox'], queryFn: () => transport.get<{ id: string; name: string; color: string; emoji: string | null }[]>('/tags'), ...staticOpts });
 export const cannedQuery = () => queryOptions({ queryKey: ['inbox', 'canned'], queryFn: () => transport.get<CannedGroup[]>('/canned-replies'), ...staticOpts });
 /** Khung giờ gợi ý (Đặt lịch hẹn) — module lịch hẹn chưa có endpoint → popover trống, không gọi lại. */
 export const slotsQuery = () => queryOptions({ queryKey: ['booking', 'slots'], queryFn: () => transport.get<Slot[]>('/booking/slots'), retry: false, ...staticOpts });
