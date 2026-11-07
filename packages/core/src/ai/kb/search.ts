@@ -2,7 +2,7 @@
 // không dấu (`content_norm` trigram) → RRF (k = 60) → top-6. Ngưỡng căn cứ: cosine cao nhất < `min_score` và không đoạn nào khớp từ
 // khoá đủ mạnh → `grounded=false`, không trả đoạn (agent không bịa). Đoạn có giá (`meta.volatile`) không bao giờ ra (rag §4).
 // Lọc: visibility (agent trả lời khách chỉ `public`), thư mục / thẻ (`kb_scope` của agent — TIP-021), chỉ đoạn cùng `embed_model`.
-import { rrf, type Embedder } from '@appchat/ai';
+import { rrf, type EmbedResult, type Embedder } from '@appchat/ai';
 import { TenantSql as Prisma, type TenantDb } from '@appchat/db';
 
 export const KB_TOP_K = 20;
@@ -17,6 +17,8 @@ export interface KbSearchInput {
   folderIds?: string[];
   tags?: string[];
   limit?: number;
+  /** Vector câu hỏi đã embed (có đo, ngoài transaction — TIP-019b §3.2); có thì không gọi embedder. */
+  queryEmbedding?: EmbedResult | null;
 }
 
 export interface KbHit {
@@ -83,8 +85,8 @@ export async function searchKb(db: Db, embedder: Embedder | null, i: KbSearchInp
 
   // Nhánh vector: embed câu hỏi bằng cùng router; so đúng các đoạn cùng embed_model (đổi model → job re-embed — rag §10).
   let vec: Row[] = [];
-  if (embedder) {
-    const e = await embedder.embed([query]);
+  const e = i.queryEmbedding ?? (embedder ? await embedder.embed([query]) : null);
+  if (e) {
     const q = vecLit(e.vectors[0]!);
     vec = await inTx(db, async (tx) => {
       await tx.$executeRaw`SET LOCAL hnsw.iterative_scan = relaxed_order`;

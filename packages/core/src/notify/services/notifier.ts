@@ -13,6 +13,7 @@ import type { NotifyIntent } from '../rules';
 import type { NotifyPrefsService } from './prefs.service';
 import { toNotificationDto } from './notifications.service';
 import { resolveRecipients } from './recipients';
+import { receiptFor } from '../delivery-receipts';
 
 export interface MailJob {
   notification_id: string;
@@ -45,12 +46,16 @@ export function deterministicId(key: string): string {
 export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEvent, intent: NotifyIntent, index: number): Promise<string[]> {
   const ws = await d.platform.workspace.findUnique({ where: { id: e.workspaceId }, select: { timezone: true } });
   const timeZone = ws?.timezone ?? 'Asia/Ho_Chi_Minh';
-  const to = await resolveRecipients(d.platform, d.authz, e.workspaceId, intent.to, intent.excludeUserId);
+  const once = intent.onceKey ? receiptFor(intent.onceKey) : null;
+  if (once?.receipt && (await once.receipt.sent(db, once.id))) return [];
+  let to = await resolveRecipients(d.platform, d.authz, e.workspaceId, intent.to, intent.excludeUserId);
+  // Gửi một lần: một người nhận, id theo khoá (không theo người) — event phát lại không tạo thông báo thứ hai.
+  if (once) to = to.slice(0, 1);
   if (!to.length) return [];
   const prefs = await d.prefs.loadMany(to.map((r) => r.userId));
   const now = d.now();
   const rows = to.map((r) => ({
-    id: deterministicId(`${e.id}|${index}|${r.userId}|${intent.kind}`),
+    id: deterministicId(intent.onceKey ? `once|${intent.onceKey}|${intent.kind}` : `${e.id}|${index}|${r.userId}|${intent.kind}`),
     userId: r.userId,
     type: intent.kind,
     title: notificationTitle(intent.kind, r.locale, intent.params),
@@ -64,6 +69,9 @@ export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEven
   for (const [i, r] of to.entries()) {
     const row = saved.get(rows[i]!.id);
     if (!row) continue;
+    // Thông báo một lần đã ghi cho người khác (tiến trình trước chết sau khi ghi, Owner đổi sau đó) → chỉ ghi biên nhận, không gửi lại.
+    if (once?.receipt) await once.receipt.mark(db, once.id, { eventId: e.id, recipientUserId: row.userId, notificationId: row.id }, now);
+    if (row.userId !== r.userId) continue;
     const p = prefs.get(r.userId)!;
     const ch = channelsFor(p, intent.kind);
     d.emitter.publish({

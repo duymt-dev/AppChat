@@ -44,7 +44,7 @@ export async function canAccessConversation(tx: Tx, authz: AuthzContext, c: Conv
 /** Người xem THẤY hội thoại này không (đọc). */
 export const canSeeConversation = (tx: Tx, authz: AuthzContext, c: ConvRef): Promise<boolean> => canAccessConversation(tx, authz, c, 'read');
 
-type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
+export type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 
 /** Hội thoại người gọi thấy được — id lạ / ngoài scope → 404. */
 export async function visibleConversation(tx: TenantTx, authz: AuthzContext, id: string): Promise<Conv> {

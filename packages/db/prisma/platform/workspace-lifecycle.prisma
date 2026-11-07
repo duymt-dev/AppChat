@@ -30,6 +30,8 @@ model WorkspaceLifecycleJob {
   manifestId      String?   @map("manifest_id") @db.Uuid
   /// Lệnh của lượt quét: mốc hoạt động đã dựa vào — sau quiesce thấy hoạt động mới hơn → huỷ (không lưu trữ).
   basisAt         DateTime? @map("basis_at") @db.Timestamptz(6)
+  /// Lệnh xoá: db_status trước khi xoá (active | suspended | archived) — lỗi trước DROP trả về đúng trạng thái này.
+  fromDbStatus    String?   @map("from_db_status")
   /// Thời gian từng pha (ms) — benchmark khôi phục tách queue / dump / restore / migrate.
   metrics         Json      @default("{}")
   startedAt       DateTime? @map("started_at") @db.Timestamptz(6)
@@ -97,4 +99,43 @@ model WorkspaceLifecycleNotice {
 
   @@unique([workspaceId, windowKey, channel])
   @@map("workspace_lifecycle_notice")
+}
+
+/// Thử thách xác thực bước hai cho thao tác nguy hiểm của Owner (TIP-041 pha 3 — xoá workspace): OTP email riêng mục đích, chỉ lưu băm
+/// có khoá máy chủ, hạn 5 phút, sai 5 lần khoá; gắn người / workspace / thao tác / băm bản xem trước / status_version. Tiêu một lần.
+model WorkspaceStepUp {
+  id              String    @id @db.Uuid
+  workspaceId     String    @map("workspace_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  /// delete_workspace
+  operation       String
+  previewHash     String    @map("preview_hash")
+  expectedVersion Int       @map("expected_version")
+  codeHash        String    @map("code_hash")
+  attempts        Int       @default(0)
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt      DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("workspace_step_up")
+}
+
+/// Yêu cầu đóng băng của Owner (DC-245: Owner không tự tạm dừng) — admin nền tảng duyệt (tạm dừng qua luồng TIP-040) / từ chối.
+/// Một yêu cầu `pending` mỗi workspace (partial unique ở migration 20261102024100).
+model WorkspaceFreezeRequest {
+  id             String    @id @db.Uuid
+  workspaceId    String    @map("workspace_id") @db.Uuid
+  requestedBy    String    @map("requested_by") @db.Uuid
+  reason         String
+  /// pending | approved | rejected | cancelled
+  status         String    @default("pending")
+  /// CAS quyết định của admin.
+  version        Int       @default(1)
+  decidedBy      String?   @map("decided_by") @db.Uuid
+  decisionReason String?   @map("decision_reason")
+  decidedAt      DateTime? @map("decided_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("workspace_freeze_request")
 }

@@ -22,8 +22,8 @@ export interface MembershipRow {
 }
 
 export type ProvisioningStatus = 'running' | 'ready' | 'failed';
-type LifecycleState = 'archiving' | 'archived' | 'restoring';
-const LIFECYCLE_STATES: ReadonlySet<string> = new Set<LifecycleState>(['archiving', 'archived', 'restoring']);
+type LifecycleState = 'archiving' | 'archived' | 'restoring' | 'deleting';
+const LIFECYCLE_STATES: ReadonlySet<string> = new Set<LifecycleState>(['archiving', 'archived', 'restoring', 'deleting']);
 
 const slugify = (name: string) =>
   name

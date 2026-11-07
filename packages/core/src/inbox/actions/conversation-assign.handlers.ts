@@ -1,8 +1,7 @@
-// conversation.assign · tag · set_tags · bulk_update (Blueprint §3.4 inbox; REQ-C04, C08, C10). Gán người phải là thành viên
+// conversation.assign · tag · set_tags (Blueprint §3.4 inbox; REQ-C04, C08, C10). bulk_update ở bulk-update.handler.ts (TIP-025b). Gán người phải là thành viên
 // active (kiểm ở DB nền tảng); gán agent lưu id (bảng ai_agent — TIP-021). Thẻ theo tên: chưa có → tạo (nguồn thẻ dùng chung).
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError } from '@appchat/shared';
-import type { ActionInput, ActionPreview, conversationAssign, conversationBulkUpdate, conversationSetTags, conversationTag } from '@appchat/actions';
+import type { ActionInput, conversationAssign, conversationSetTags, conversationTag } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
@@ -100,66 +99,5 @@ export class ConversationSetTagsHandler implements Handler<ActionInput<typeof co
     // Thẻ đã bị xoá sau đó → bỏ qua.
     const live = await tx.tag.findMany({ where: { id: { in: b.tag_ids } }, select: { id: true } });
     await tx.conversationTag.createMany({ data: live.map((t) => ({ conversationId: b.id, tagId: t.id })), skipDuplicates: true });
-  }
-}
-
-type BulkIn = ActionInput<typeof conversationBulkUpdate>;
-interface BulkBefore {
-  convs: ConvSnap[];
-  added: { conversation_id: string; tag_id: string }[];
-}
-
-@Injectable()
-@ActionHandler('conversation.bulk_update')
-export class ConversationBulkUpdateHandler implements Handler<BulkIn, { updated: number }> {
-  constructor(
-    @Inject(CrmMembers) private readonly members: CrmMembers,
-    @Inject(CLOCK) private readonly clock: Clock,
-  ) {}
-
-  /** Bulk luôn preview kèm số bản ghi (§3.3) — đếm hội thoại người gọi được sửa. */
-  async preview(ctx: ActionContext, input: BulkIn, tx: TenantTx): Promise<ActionPreview> {
-    return pv.bulkPreview((await this.load(ctx, input, tx)).length, this.members, input);
-  }
-
-  async execute(ctx: ActionContext, input: BulkIn, tx: TenantTx): Promise<HandlerOutcome<{ updated: number }>> {
-    const convs = await this.load(ctx, input, tx);
-    if (input.assignee_user_id) await this.members.assertMember(ctx.workspaceId, input.assignee_user_id, 'assignee_user_id');
-    const now = this.clock.now();
-    const tags = [];
-    for (const label of input.add_tags ?? []) tags.push((await tagByLabel(tx, label, me(ctx), now, true))!);
-    const before: BulkBefore = { convs: convs.map((c) => snap(c, ['assigneeUserId', 'status', 'snoozedUntil', 'archivedAt'])), added: [] };
-    const events = [];
-    for (const c of convs) {
-      await tx.conversation.update({
-        where: { id: c.id },
-        data: {
-          ...(input.assignee_user_id ? { assigneeUserId: input.assignee_user_id } : {}),
-          ...(input.status ? { status: input.status, snoozedUntil: null } : {}),
-          ...(input.archive !== undefined ? { archivedAt: input.archive ? (c.archivedAt ?? now) : null } : {}),
-        },
-      });
-      for (const t of tags) {
-        const r = await tx.conversationTag.createMany({ data: [{ conversationId: c.id, tagId: t.id, createdAt: now }], skipDuplicates: true });
-        if (r.count) before.added.push({ conversation_id: c.id, tag_id: t.id });
-      }
-      events.push(await updatedEvent(tx, { ...c, assigneeUserId: input.assignee_user_id ?? c.assigneeUserId }, 'bulk'));
-    }
-    return { result: { updated: convs.length }, before, events };
-  }
-
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as BulkBefore;
-    for (const s of b.convs) await restore(tx, s);
-    for (const a of b.added) await tx.conversationTag.deleteMany({ where: { conversationId: a.conversation_id, tagId: a.tag_id } });
-  }
-
-  /** Mọi id phải tồn tại + trong scope (một id sai → cả lô 404 / 403, không sửa nửa vời). */
-  private async load(ctx: ActionContext, input: BulkIn, tx: TenantTx): Promise<Conv[]> {
-    const ids = [...new Set(input.conversation_ids)];
-    const out: Conv[] = [];
-    for (const id of ids) out.push(await writableConversation(tx, ctx.authz, id));
-    if (!out.length) throw new AppError('VALIDATION_FAILED', 422, { conversation_ids: 'too_small' });
-    return out;
   }
 }

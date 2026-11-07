@@ -10,9 +10,10 @@ export type {
   AdminTemplateDto as AdminTemplate,
   AdminTransferDto as AdminTransfer,
   AdminWorkspaceDto as AdminWorkspace,
+  FreezeRequestRowDto as FreezeRequest,
 } from '@appchat/shared';
 
-export const ADMIN_TABS = ['workspaces', 'plans', 'providers', 'routes', 'prices', 'transfers', 'templates'] as const;
+export const ADMIN_TABS = ['workspaces', 'plans', 'providers', 'routes', 'prices', 'transfers', 'freeze', 'templates'] as const;
 export type AdminTab = (typeof ADMIN_TABS)[number];
 
 export interface Cursored<T> {

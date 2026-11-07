@@ -172,6 +172,8 @@ export const approvalRowSchema = z.object({
   input: z.record(z.string(), z.unknown()),
   fields: z.array(z.object({ key: z.string(), type: z.enum(['string', 'number', 'boolean']), required: z.boolean() })),
   note: z.string().optional(),
+  /** Đã duyệt: thao tác gốc đã chạy xong chưa (false = đã duyệt, đang chờ chạy — không phải "đã gửi"). TIP-025b §G.2. */
+  executed: z.boolean().optional(),
 });
 export type ApprovalRowDto = z.infer<typeof approvalRowSchema>;
 

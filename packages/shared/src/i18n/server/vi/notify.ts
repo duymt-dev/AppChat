@@ -35,7 +35,7 @@ export const notify = {
     sla_breach: { title: 'Ticket {code} đã quá hạn SLA: {title}', label: 'Ticket quá hạn SLA (leo thang)' },
     ticket_assigned: { title: 'Ticket {code} được giao cho bạn: {title}', label: 'Ticket được giao cho tôi' },
     campaign_approval: { title: 'Chiến dịch {code} chờ bạn duyệt', approved: 'Chiến dịch {code} đã được duyệt', rejected: 'Chiến dịch {code} bị từ chối', label: 'Chiến dịch chờ duyệt / kết quả duyệt' },
-    ai_review: { title: '{agent} cần bạn duyệt trước khi gửi', label: 'AI cần duyệt trước khi gửi', kb: 'AI đề xuất {count} cặp hỏi–đáp mới cần duyệt trước khi vào kho tri thức' },
+    ai_review: { title: '{agent} cần bạn duyệt trước khi gửi', label: 'AI cần duyệt trước khi gửi', kb: 'AI đề xuất {count} cặp hỏi–đáp mới cần duyệt trước khi vào kho tri thức', expired: 'Một yêu cầu duyệt của AI đã hết hạn — việc đã chuyển cho người xử lý' },
     ai_escalate: { title: '{agent} chuyển hội thoại {contact} sang người', label: 'AI chuyển sang người' },
     ai_budget: { title: 'AI đã dùng {percent}% ngân sách credit', label: 'AI vượt ngân sách' },
     ai_briefing: { title: 'Bản tin sáng: {summary}', label: 'Bản tin sáng của Trợ lý AI' },

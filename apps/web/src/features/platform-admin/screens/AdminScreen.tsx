@@ -13,6 +13,7 @@ import { ModelRoutesPanel } from '../components/ModelRoutesPanel';
 import { ModelPricesPanel } from '../components/ModelPricesPanel';
 import { TransfersPanel } from '../components/TransfersPanel';
 import { TemplatesPanel } from '../components/TemplatesPanel';
+import { FreezeRequestsPanel } from '../components/FreezeRequestsPanel';
 
 const PANELS: Record<AdminTab, () => React.JSX.Element> = {
   workspaces: WorkspaceTable,
@@ -21,6 +22,7 @@ const PANELS: Record<AdminTab, () => React.JSX.Element> = {
   routes: ModelRoutesPanel,
   prices: ModelPricesPanel,
   transfers: TransfersPanel,
+  freeze: FreezeRequestsPanel,
   templates: TemplatesPanel,
 };
 

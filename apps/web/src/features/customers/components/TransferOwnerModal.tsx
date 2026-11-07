@@ -1,4 +1,6 @@
 // D32 "Chuyển phụ trách" (chỉ crm.reassign): chọn người nhận + tuỳ chọn chuyển kèm hội thoại / báo giá / lịch hẹn; ghi timeline.
+// TIP-025b §D.3: nhận ngữ cảnh tối thiểu `{ id, owner_user_id, owner_name? }` (danh sách hoặc edit-context của host toàn cục) — tên
+// người phụ trách ẩn → hiện "không xem được", không bịa.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -9,11 +11,17 @@ import { useFormStyles } from '../styles/form.styles';
 import { useCollabStyles } from '../styles/collab.styles';
 import { useCrmUi } from '../crm-store';
 import { membersQuery } from '../api';
-import type { ContactRow } from '../types';
+
+/** Ngữ cảnh chuyển phụ trách tối thiểu (TIP-025b §D.3). */
+export interface TransferTarget {
+  id: string;
+  owner_user_id: string | null;
+  owner_name?: string | null;
+}
 
 const MOVE = ['conversations', 'quotes', 'appointments'] as const;
 
-export function TransferOwnerModal({ contact }: { contact: ContactRow }) {
+export function TransferOwnerModal({ contact, toUserId, onClose }: { contact: TransferTarget; toUserId?: string; onClose?: () => void }) {
   const t = useTranslations('customers.transfer');
   const { styles: fs, cx } = useFormStyles();
   const { styles } = useCollabStyles();
@@ -21,10 +29,10 @@ export function TransferOwnerModal({ contact }: { contact: ContactRow }) {
   const members = (useQuery(membersQuery()).data ?? []).filter((m) => m.id !== contact.owner_user_id);
   const transfer = useAction('contact.transfer_owner');
   // Mở từ ô "Phụ trách" của form sửa → điền sẵn người nhận.
-  const [to, setTo] = useState(ui.prefill?.to_user_id ?? '');
+  const [to, setTo] = useState(toUserId ?? ui.prefill?.to_user_id ?? '');
   const [note, setNote] = useState('');
   const [move, setMove] = useState({ conversations: true, quotes: true, appointments: false });
-  const close = () => ui.set({ modal: null, target: null });
+  const close = onClose ?? (() => ui.set({ modal: null, target: null }));
   const submit = async () => {
     if (await transfer.run({ contact_id: contact.id, to_user_id: to, move, ...(note ? { note } : {}) })) close();
   };
@@ -51,7 +59,7 @@ export function TransferOwnerModal({ contact }: { contact: ContactRow }) {
         </>
       }
     >
-      <div className={fs.muted}>{t('from', { name: contact.owner_name })}</div>
+      <div className={fs.muted}>{t('from', { name: contact.owner_name ?? t('hidden') })}</div>
       <div className={styles.label}>{t('to')}</div>
       <select className={fs.input} value={to} aria-label={t('to')} onChange={(e) => setTo(e.target.value)} data-testid="transfer-to">
         <option value="" />

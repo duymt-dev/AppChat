@@ -4,6 +4,7 @@ export { seedPlans } from './seed';
 export { WalletService, type Balance, type LedgerInput, type WalletChange, type WalletFlags, type WalletListener } from './services/wallet.service';
 export { CreditMeter, DbPriceBook, StaticPriceBook, PRICE_BOOK, type PriceBook, type ModelPrice, type UsageInput } from './services/credit-meter';
 export { QuotaService, type PlanLimits } from './services/quota.service';
+export { UsageWallet, AI_USAGE_REF, type UsageCharge, type UsageChargeResult } from './services/usage-receipt';
 export { SubscriptionsService, type BillingEventSink } from './services/subscriptions.service';
 export { BillingReadService, ledgerDto, LEDGER_PAGE, CREDIT_VND } from './services/billing-read.service';
 export { OutboxBillingSink, walletThresholdListener, trialConsumer } from './events/billing.events';

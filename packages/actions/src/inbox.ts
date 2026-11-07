@@ -262,7 +262,7 @@ export const conversationBulkUpdate = defineAction({
   module: 'inbox',
   title: 'actions.conversation.bulk_update.title',
   description:
-    'Apply one change to many conversations at once (max 100): add tags, assign to a member, change status or archive. Example: {"conversation_ids":["c_lan","c_hieu"],"add_tags":["VIP"]}',
+    'Apply one change to many conversations at once (max 100): add tags, assign to a member, change status or archive. Each conversation succeeds or fails on its own (result per id); over 50 runs as a background job (202 job_accepted). Example: {"conversation_ids":["c_lan","c_hieu"],"add_tags":["VIP"]}',
   input: z
     .object({
       conversation_ids: z.array(convId).min(1).max(100),
@@ -272,7 +272,12 @@ export const conversationBulkUpdate = defineAction({
       archive: z.boolean().optional(),
     })
     .refine((v) => !!v.add_tags?.length || !!v.assignee_user_id || !!v.status || v.archive !== undefined, { message: 'nothing to change' }),
-  output: z.object({ updated: z.number().int() }),
+  // `failed` / `items` (TIP-025b §C.2) — bổ sung, giữ `updated`. Lỗi bản ghi = mã an toàn (không lộ tiêu đề hội thoại ngoài scope).
+  output: z.object({
+    updated: z.number().int(),
+    failed: z.number().int().optional(),
+    items: z.array(z.object({ id: z.string(), status: z.enum(['done', 'skipped', 'failed']), error: z.string().nullable() })).optional(),
+  }),
   permission: 'inbox.reply',
   risk: 'write',
   bulk: true,

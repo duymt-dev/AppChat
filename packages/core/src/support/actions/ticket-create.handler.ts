@@ -13,6 +13,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers, actorUserId, fieldDefs, visibleContact } from '../../crm/public';
 import { UUID, inSupportScope } from '../ticket-access';
+import { linkConversation } from '../../inbox/public';
 import { SlaCalendar, defaultPolicy, targetsFor } from '../services/sla-clock';
 import { actorOf, evOf, logEvent, timeline } from '../services/ticket-write';
 import { createPreview } from './previews/ticket-create.handler.preview';
@@ -22,20 +23,17 @@ import { agentTicketBinding, claimComplaint, intentHash, settleComplaint } from 
 type In = ActionInput<typeof ticketCreate>;
 type Out = { ticket_id: string; code: string; merged?: boolean };
 
-/** Hội thoại + khách nguồn: tin nhắn (menu ⋯ Hộp thư) hoặc hội thoại agent đang phục vụ. */
-async function sourceOf(ctx: ActionContext, tx: TenantTx, input: In) {
-  if (input.source_message_id && UUID.test(input.source_message_id)) {
-    const m = await tx.message.findUnique({ where: { id: input.source_message_id }, select: { id: true, conversationId: true } });
-    if (m) {
-      const c = await tx.conversation.findUnique({ where: { id: m.conversationId }, select: { id: true, contactId: true } });
-      return { messageId: m.id, conversationId: c?.id ?? null, contactId: c?.contactId ?? null };
-    }
-  }
+/**
+ * Hội thoại + khách nguồn (TIP-025b §D.1): hội thoại / tin chọn rõ → `linkConversation` (thấy được + khớp khách, sai → 404 / 422);
+ * không chọn → hội thoại agent đang phục vụ (server suy ra, không lấy từ input).
+ */
+async function sourceOf(ctx: ActionContext, tx: TenantTx, input: In, contactId: string | null) {
+  if (input.conversation_id || input.source_message_id) return linkConversation(tx, ctx.authz, contactId, input, { served: ctx.servedConversationId });
   if (ctx.servedConversationId) {
     const c = await tx.conversation.findUnique({ where: { id: ctx.servedConversationId }, select: { id: true, contactId: true } });
-    if (c) return { messageId: null, conversationId: c.id, contactId: c.contactId };
+    if (c) return { messageId: null, conversationId: c.id, contactId: contactId ?? c.contactId };
   }
-  return { messageId: null, conversationId: null, contactId: null };
+  return { messageId: null, conversationId: null, contactId };
 }
 
 @Injectable()
@@ -64,9 +62,10 @@ export class TicketCreateHandler implements Handler<In, Out> {
       }
       input = { ...input, source_message_id: bound.sourceMessageId };
     }
-    const src = await sourceOf(ctx, tx, input);
-    let contactId = src.contactId;
-    if (input.contact_id) contactId = (await visibleContact(tx, ctx.authz, input.contact_id)).contact.id;
+    const picked = input.contact_id ? (await visibleContact(tx, ctx.authz, input.contact_id)).contact.id : null;
+    // Liên kết do 022b ràng (agent) đã kiểm phía server — không bắt người gọi thấy hội thoại lần nữa.
+    const src = bound ? { messageId: bound.sourceMessageId, conversationId: bound.conversationId, contactId: picked ?? (await tx.conversation.findUnique({ where: { id: bound.conversationId }, select: { contactId: true } }))?.contactId ?? null } : await sourceOf(ctx, tx, input, picked);
+    const contactId = src.contactId;
     const contact = contactId ? await tx.contact.findUnique({ where: { id: contactId }, select: { name: true, email: true } }) : null;
     const errs = validateCustomValues(await fieldDefs(tx, 'ticket'), input.custom, ctx.authz.isOwner ? 'owner' : await this.members.roleOf(ctx.workspaceId, actorUserId(ctx)), 'create');
     if (Object.keys(errs).length) throw new AppError('VALIDATION_FAILED', 422, errs);

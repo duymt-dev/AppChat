@@ -130,6 +130,7 @@
   },
   "empty": "No customers yet",
   "edit": {
+    "stale": "This customer was just changed elsewhere — close and reopen to see the latest (your edits are kept here).",
     "title": "Update customer",
     "name": "Customer name",
     "role": "Title",
@@ -302,6 +303,7 @@
     "readOnly": "Only the primary owner or a manager can add / remove."
   },
   "transfer": {
+    "hidden": "not visible",
     "title": "Transfer owner",
     "from": "Current owner: {name}",
     "to": "Transfer to",

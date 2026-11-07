@@ -15,6 +15,7 @@ import { actorUserId, editableContact } from '../../crm/public';
 import { visibleQuote } from '../../sales/public';
 import { pickContractTemplate } from '../../documents/public';
 import { AiRunner } from '../../ai/runs/runner';
+import { trustedParent } from '../../ai/runs/run-lineage';
 import { runOnce } from '../../ai/agents/agent.runtime';
 import { ContractDeps } from '../services/contract-deps';
 import { guardUpload } from '../files/source';
@@ -85,6 +86,7 @@ export class ContractPrepareDraftHandler implements Handler<In, unknown> {
     if (this.runner) {
       const r = await runOnce(db, this.runner, () => this.clock.now(), ctx.workspaceId, {
         run: { kind: 'assistant', title: 'contract.prepare_draft', tier: 'standard', initiatedByUserId: actorUserId(ctx) },
+        parent: await trustedParent(db, ctx, 'contract.prepare_draft'),
         system: p.text,
         prompt: draftMessages(input.brief, kindOf(input), fileText, quoteLines),
         source: 'assistant',

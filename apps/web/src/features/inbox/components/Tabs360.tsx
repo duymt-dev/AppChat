@@ -9,6 +9,7 @@ import { Rich } from './Rich';
 import { Timeline } from './Timeline';
 import { MemoryPanel } from '@/shared/contact-memory';
 import type { Contact360 } from '../types';
+import { HistoryCsvButton } from './HistoryCsvButton';
 
 const BAR = { ok: color.okStrong, brand: color.brand, blue: color.blueAvatar } as const;
 
@@ -138,9 +139,7 @@ export function History360({ c }: { c: Contact360 }) {
     <div className={styles.card}>
       <div className={styles.cardHead}>
         <span className={styles.eyebrow}>{t('timeline')}</span>
-        <button type="button" className={styles.link}>
-          {t('exportCsv')}
-        </button>
+        <HistoryCsvButton contactId={c.id} />
       </div>
       <Timeline items={c.timeline} />
     </div>

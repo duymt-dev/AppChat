@@ -1,9 +1,10 @@
 // Skill `ai.translate` (TIP-025, REQ-C05 menu ⋯ tin "Dịch"): dịch một tin của hội thoại sang ngôn ngữ người dùng (hoặc `to`) bằng
 // model — run `consult` tier standard, credit trừ như mọi run (Blueprint §5). Gọi model trong `prepare` (ngoài transaction). Đọc tin
-// theo scope inbox của người gọi (không thấy hội thoại → 404). Model giả trả câu có tiền tố ngôn ngữ ("[EN] …").
+// theo scope inbox của người gọi (không thấy hội thoại → 404). Model giả trả câu có tiền tố ngôn ngữ ("[EN] …"). TIP-025b §F: đích
+// vi/en/zh/ko/ja, cache theo người + epoch quyền (tự dịch tin vào dùng lại, mount lặp không trừ credit hai lần).
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
-import { AppError } from '@appchat/shared';
+import { AppError, type TranslateTarget } from '@appchat/shared';
 import type { ActionInput, ActionPreview, aiTranslate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
@@ -11,13 +12,11 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { visibleConversation } from '../../inbox/services/access';
 import { AiRunner } from '../runs/runner';
-import { runOnce } from '../agents/agent.runtime';
+import { trustedParent } from '../runs/run-lineage';
+import { translateText } from './translation-service';
 import { translatePreview } from './previews/translate.handler.preview';
 
-const LANG: Record<'vi' | 'en', string> = { vi: 'Vietnamese (tiếng Việt)', en: 'English' };
-
-export const TRANSLATE_SYSTEM = (to: 'vi' | 'en') =>
-  `# TRANSLATE\nTranslate the user message into ${LANG[to]}. Keep names, numbers, prices, emoji and line breaks. Reply with the translation only — no quotes, no notes.\nTarget: ${to}`;
+export { TRANSLATE_SYSTEM } from './translation-service';
 
 @Injectable()
 @ActionHandler('ai.translate')
@@ -25,11 +24,11 @@ export class AiTranslateHandler implements Handler<ActionInput<typeof aiTranslat
   constructor(
     @Inject(AiRunner) private readonly runner: AiRunner | null,
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | null,
-    @Optional() @Inject(PLATFORM_DB) private readonly platform: Pick<PlatformDb, 'user'> | null,
+    @Optional() @Inject(PLATFORM_DB) private readonly platform: Pick<PlatformDb, 'user' | 'workspace'> | null,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async prepare(ctx: ActionContext, input: ActionInput<typeof aiTranslate>): Promise<{ text: string; to: 'vi' | 'en' }> {
+  async prepare(ctx: ActionContext, input: ActionInput<typeof aiTranslate>): Promise<{ text: string; to: TranslateTarget }> {
     if (!this.runner || !this.tenants) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' });
     const userId = ctx.onBehalfOfUserId ?? (ctx.actor.type === 'user' ? ctx.actor.id : null);
     const db = await this.tenants.get(TenantContexts.system(ctx.workspaceId, 'ai.translate'));
@@ -42,17 +41,13 @@ export class AiTranslateHandler implements Handler<ActionInput<typeof aiTranslat
     if (!body.trim()) throw new AppError('VALIDATION_FAILED', 422, { message_id: 'empty' });
     const u = userId && this.platform ? await this.platform.user.findUnique({ where: { id: userId }, select: { locale: true } }) : null;
     const to = input.to ?? (u?.locale === 'en' ? 'en' : 'vi');
-    const r = await runOnce(db, this.runner, () => this.clock.now(), ctx.workspaceId, {
-      run: { kind: 'consult', title: 'ai.translate', tier: 'standard', initiatedByUserId: userId, conversationId: input.conversation_id, input: { message_id: input.message_id, to } },
-      system: TRANSLATE_SYSTEM(to),
-      prompt: body.slice(0, 4000),
-      source: 'inbox',
+    const epoch = this.platform ? ((await this.platform.workspace.findUnique({ where: { id: ctx.workspaceId }, select: { authzEpoch: true } }))?.authzEpoch ?? 0) : 0;
+    const r = await translateText(db, this.runner, () => this.clock.now(), {
+      ws: ctx.workspaceId, userId, conversationId: input.conversation_id, text: body.slice(0, 4000), to, authzEpoch: epoch,
+      title: 'ai.translate', input: { message_id: input.message_id, to },
+      parent: await trustedParent(db, ctx, 'ai.translate'),
     });
-    if (r.status === 'failed') {
-      const credit = r.error?.code === 'CREDIT_EXHAUSTED';
-      throw new AppError(credit ? 'CREDIT_EXHAUSTED' : 'INTERNAL', credit ? 402 : 502, { run_id: r.runId }, r.error?.message);
-    }
-    return { text: r.text.trim(), to };
+    return { text: r.text, to };
   }
 
   async execute(_ctx: ActionContext, _input: unknown, _tx: unknown, _ptx: unknown, prepared?: unknown): Promise<HandlerOutcome<{ text: string; to: string }>> {

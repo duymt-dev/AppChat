@@ -42,13 +42,13 @@ export class ArchiveBusyError extends Error {
   }
 }
 
-const one = async <T extends Record<string, unknown>>(url: string, sql: string): Promise<T | undefined> => (await pgQuery<T>(url, sql))[0];
+export const one = async <T extends Record<string, unknown>>(url: string, sql: string): Promise<T | undefined> => (await pgQuery<T>(url, sql))[0];
 
 /**
  * Việc còn dở có tác dụng RA NGOÀI sau quiesce: run AI đang chạy, tin gửi đã đặt chỗ / đang gửi. Sự kiện outbox chưa phát không chặn —
  * chúng nằm trong bản dump và relay phát sau khi khôi phục (không mất, không phát đôi vì id sự kiện giữ nguyên).
  */
-const BUSY_SQL = `SELECT
+export const BUSY_SQL = `SELECT
   (SELECT count(*)::int FROM ai_run WHERE status = 'running') AS runs,
   (SELECT count(*)::int FROM outbox_message WHERE status IN ('dispatch_reserved', 'sending')) AS sends`;
 
@@ -85,40 +85,58 @@ export async function runArchive(d: ArchiveRunDeps, job: LifecycleJobRow, owner:
     }
     const tables = (await one<{ n: number }>(adminDb, TABLE_COUNT_SQL))?.n ?? 0;
 
-    await d.jobs.step(job, owner, 'dump');
-    const manifestId = uuidv7(d.now().getTime());
-    const key = archiveKeyOf(job.workspaceId, job.generation, manifestId);
-    const conn = (db: string) => pgConnFromUrl(d.infra.provisionerUrl, db, ws.dbHost);
-    const started = Date.now();
-    const proof = await dumpAndVerify({ store: d.infra.store, keys: d.infra.keys, conn, binDir: d.infra.binDir }, lock, dbName, key, tables);
-
-    await d.jobs.assertCurrent(job, owner);
-    await d.platform.archiveManifest.create({
-      data: {
-        id: manifestId,
-        workspaceId: job.workspaceId,
-        jobId: job.id,
-        generation: job.generation,
-        storageKey: key,
-        dbName,
-        dbHost: ws.dbHost,
-        schemaVersion: ws.schemaVersion,
-        envelopeVersion: 1,
-        encryptionKeyId: proof.encryptionKeyId,
-        checksum: proof.checksum,
-        sizeBytes: BigInt(proof.sizeBytes),
-        cipherChecksum: proof.cipherChecksum,
-        cipherBytes: BigInt(proof.cipherBytes),
-        tocEntries: proof.tocEntries,
-        tableCount: proof.tableCount,
-        verifiedAt: d.now(),
-      },
-    });
-    await d.jobs.step(job, owner, 'manifest', { manifestId, metrics: { dump_ms: Date.now() - started, size_bytes: proof.sizeBytes } });
+    job.manifestId = await dumpToManifest(d, job, owner, lock, dbName, ws, tables, 'indefinite');
     return await finishAfterManifest(d, job, owner, lock, dbName);
   } finally {
     await lock.release();
   }
+}
+
+/**
+ * Dump mã hoá → đọc lại kiểm → manifest BỀN (retention `indefinite` cho lưu trữ, `deletion` + hạn cho bản sao lưu xoá) → bước `manifest`.
+ * Dùng chung archive / delete. Trả id manifest.
+ */
+export async function dumpToManifest(
+  d: ArchiveRunDeps,
+  job: LifecycleJobRow,
+  owner: string,
+  lock: OperationLock,
+  dbName: string,
+  ws: { dbHost: string | null; schemaVersion: string | null },
+  tables: number,
+  retention: 'indefinite' | { expiresAt: Date },
+): Promise<string> {
+  await d.jobs.step(job, owner, retention === 'indefinite' ? 'dump' : 'backup');
+  const manifestId = uuidv7(d.now().getTime());
+  const key = archiveKeyOf(job.workspaceId, job.generation, manifestId);
+  const conn = (db: string) => pgConnFromUrl(d.infra.provisionerUrl, db, ws.dbHost);
+  const started = Date.now();
+  const proof = await dumpAndVerify({ store: d.infra.store, keys: d.infra.keys, conn, binDir: d.infra.binDir }, lock, dbName, key, tables);
+  await d.jobs.assertCurrent(job, owner);
+  await d.platform.archiveManifest.create({
+    data: {
+      id: manifestId,
+      workspaceId: job.workspaceId,
+      jobId: job.id,
+      generation: job.generation,
+      storageKey: key,
+      dbName,
+      dbHost: ws.dbHost,
+      schemaVersion: ws.schemaVersion,
+      envelopeVersion: 1,
+      encryptionKeyId: proof.encryptionKeyId,
+      checksum: proof.checksum,
+      sizeBytes: BigInt(proof.sizeBytes),
+      cipherChecksum: proof.cipherChecksum,
+      cipherBytes: BigInt(proof.cipherBytes),
+      tocEntries: proof.tocEntries,
+      tableCount: proof.tableCount,
+      verifiedAt: d.now(),
+      ...(retention === 'indefinite' ? {} : { retentionKind: 'deletion', expiresAt: retention.expiresAt }),
+    },
+  });
+  await d.jobs.step(job, owner, 'manifest', { manifestId, metrics: { dump_ms: Date.now() - started, size_bytes: proof.sizeBytes } });
+  return manifestId;
 }
 
 /** Manifest đã bền: DROP (idempotent) → registry archived. Không bao giờ quay lại `active` từ đây. */

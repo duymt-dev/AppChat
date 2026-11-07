@@ -2,12 +2,15 @@
 // `@ai-sdk/*` (agent-gateway §1). Không import @appchat/core — nhận dependency qua interface (Blueprint §1.1).
 export * from './gateway/types';
 export { AiSdkEngine, EngineError, LOOP_LIMIT } from './gateway/engine';
+export { classifyAttemptError } from './gateway/attempts';
+export { OUTPUT_TOKENS_DEFAULT, OUTPUT_TOKENS_MAX, REQUEST_MAX_BYTES, outputTokens, requestBytes } from './gateway/limits';
 export { callKey, resumeMessages, toJson } from './gateway/messages';
 export { LlmRouter, isFallbackError, type RouteRow, type RouterConfigSource } from './router/router';
 export { buildModel, type ProviderCapabilities, type ProviderConfig, type ProviderKind } from './router/providers';
 export { mergeCapabilities, probeError, probeProvider, type ProbeCapability, type ProbeCheck, type ProbeError, type ProbeRequest } from './router/probe';
 export { MOCK_MODEL, MOCK_PROVIDER, echoScript, mockLanguageModel, mockModelSource, staticModelSource, type MockCtx, type MockScript, type MockTurn } from './testing/mock-model';
 export { AiSdkEmbedder, EMBED_DIM, type EmbedResult, type Embedder } from './embed/embedder';
+export type { EmbedAttempt, EmbedHooks } from './embed/attempts';
 export { CHUNK_MAX_TOKENS, CHUNK_MIN_TOKENS, chunkDocument, hasPrice, tokensOf, type Chunk, type ChunkMeta, type DocBlock } from './kb/chunker';
 export { RRF_K, rrf } from './kb/rrf';
 export { KB_LABELS, nameVariants, redactForKnowledge, sensitiveLeft, type KbLabelLocale, type KnowledgeContext } from './kb/suggestion-redaction';

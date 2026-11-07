@@ -26,18 +26,22 @@ export function mockVector(text: string): number[] {
   return v.map((x) => x / n);
 }
 
-export function mockEmbeddingModel(provider = 'mock') {
+/** `tokensPerCall` (test đo usage): mỗi lô báo đúng số token này; `onCall` đếm lời gọi thật. */
+export function mockEmbeddingModel(provider = 'mock', o: { tokensPerCall?: number; onCall?: () => void } = {}) {
   return new MockEmbeddingModelV4({
     provider,
     modelId: MOCK_EMBED_MODEL,
     maxEmbeddingsPerCall: 64,
-    doEmbed: async ({ values }) => ({
-      embeddings: values.map((x) => mockVector(String(x))),
-      usage: { tokens: values.reduce((s, x) => s + Math.ceil(String(x).length / 4), 0) },
-      warnings: [],
-    }),
+    doEmbed: async ({ values }) => {
+      o.onCall?.();
+      return {
+        embeddings: values.map((x) => mockVector(String(x))),
+        usage: { tokens: o.tokensPerCall ?? values.reduce((s, x) => s + Math.ceil(String(x).length / 4), 0) },
+        warnings: [],
+      };
+    },
   });
 }
 
 /** Nguồn model embed giả một ứng viên (test / `AI_ENGINE=mock`). */
-export const mockEmbedSource = (provider = 'mock') => staticModelSource([{ provider, model: MOCK_EMBED_MODEL, handle: mockEmbeddingModel(provider) }]);
+export const mockEmbedSource = (provider = 'mock', o: { tokensPerCall?: number; onCall?: () => void } = {}) => staticModelSource([{ provider, model: MOCK_EMBED_MODEL, handle: mockEmbeddingModel(provider, o) }]);

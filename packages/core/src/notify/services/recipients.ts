@@ -1,5 +1,5 @@
 // Người nhận của một ý định thông báo: thành viên `active` của workspace (DB nền tảng), theo danh sách user và / hoặc
-// permission (AuthzContext thật — Owner luôn có). Trả kèm locale + email (render theo người nhận — i18n §8).
+// permission (AuthzContext thật — Owner luôn có) hoặc Owner hiện tại (`ownerOnly`). Trả kèm locale + email (render theo người nhận — i18n §8).
 import { can } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
 import type { AuthzResolver } from '../../authz/services/authz-resolver';
@@ -12,12 +12,18 @@ export interface Recipient {
 }
 
 export async function resolveRecipients(
-  platform: Pick<PlatformDb, 'membership' | 'user'>,
+  platform: Pick<PlatformDb, 'membership' | 'user'> & Partial<Pick<PlatformDb, 'workspace'>>,
   authz: Pick<AuthzResolver, 'resolve'>,
   workspaceId: string,
   to: NotifyIntent['to'],
   excludeUserId?: string,
 ): Promise<Recipient[]> {
+  if (to.ownerOnly) {
+    // Owner hiện tại (đọc lúc gửi) và vẫn là thành viên active — không dùng id chủ đã chụp từ trước.
+    const w = await platform.workspace?.findUnique({ where: { id: workspaceId }, select: { ownerUserId: true } });
+    if (!w) return [];
+    to = { userIds: [w.ownerUserId] };
+  }
   const members = await platform.membership.findMany({
     where: { workspaceId, status: 'active', ...(to.permission ? {} : { userId: { in: [...(to.userIds ?? [])] } }) },
     select: { userId: true, roleKey: true, delegations: true },
