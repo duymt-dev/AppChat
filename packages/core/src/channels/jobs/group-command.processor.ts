@@ -10,6 +10,7 @@ import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { assertGeneration } from '../operations/session-generation';
 import { OPERATION_TIMEOUT_MS } from '../operations/types';
+import { encryptSecret } from '../../kernel/crypto';
 
 export interface GroupCommandJob {
   ws: string;
@@ -22,10 +23,12 @@ export interface GroupCommandDeps {
   log: AppLogger;
   now: () => Date;
   timeoutMs?: number;
+  /** APP_ENC_KEY — mã hoá link tham gia trong kết quả lệnh `link` (TIP-025b §A.6); thiếu → lệnh link thất bại an toàn. */
+  key?: Buffer;
 }
 
 type Member = { id: string; status: 'confirmed' | 'failed' | 'unknown'; error?: string };
-type Outcome = { status: 'confirmed' | 'failed' | 'unknown' | 'partial'; error?: string; members?: Member[]; snapshot?: Record<string, unknown> };
+type Outcome = { status: 'confirmed' | 'failed' | 'unknown' | 'partial'; error?: string; members?: Member[]; snapshot?: Record<string, unknown>; result?: Record<string, unknown> };
 type Cmd = NonNullable<Awaited<ReturnType<TenantDb['groupCommand']['findUnique']>>>;
 
 const within = <T>(p: Promise<T>, ms: number) => Promise.race([p, new Promise<never>((_, rej) => setTimeout(() => rej(new Error('operation_timeout')), ms))]);
@@ -35,7 +38,7 @@ const msgOf = (err: unknown) => (err instanceof Error ? err.message : 'group_com
 async function finish(d: GroupCommandDeps, db: TenantDb, ws: string, cmd: Cmd, o: Outcome) {
   const now = d.now();
   await db.$transaction(async (tx) => {
-    const n = await tx.groupCommand.updateMany({ where: { id: cmd.id, status: { in: ['queued', 'dispatch_reserved'] } }, data: { status: o.status, error: o.error ?? null, result: o.members ? { members: o.members } : {}, finishedAt: now } });
+    const n = await tx.groupCommand.updateMany({ where: { id: cmd.id, status: { in: ['queued', 'dispatch_reserved'] } }, data: { status: o.status, error: o.error ?? null, result: (o.result ?? (o.members ? { members: o.members } : {})) as object, finishedAt: now } });
     if (!n.count) return;
     if (o.snapshot) await tx.conversationGroupState.upsert({ where: { conversationId: cmd.conversationId }, create: { conversationId: cmd.conversationId, ...o.snapshot, updatedAt: now }, update: o.snapshot });
     const c = await tx.conversation.findUnique({ where: { id: cmd.conversationId }, select: { id: true, contactId: true, assigneeUserId: true, channelAccountId: true } });
@@ -45,7 +48,7 @@ async function finish(d: GroupCommandDeps, db: TenantDb, ws: string, cmd: Cmd, o
 }
 
 /** Gọi kênh theo loại lệnh — trả kết quả + ảnh chụp nhóm cần ghi (chỉ trường đã xác nhận). */
-async function dispatch(adapter: ChannelAdapter, accountId: string, groupId: string, cmd: Cmd, ms: number, now: Date): Promise<Outcome> {
+async function dispatch(adapter: ChannelAdapter, accountId: string, groupId: string, cmd: Cmd, ms: number, now: Date, key?: Buffer): Promise<Outcome> {
   const ops = adapter.operations;
   const want = cmd.desired as { member_ids?: string[]; name?: string; invite_link_enabled?: boolean; muted?: boolean };
   if (cmd.kind === 'refresh') {
@@ -53,6 +56,12 @@ async function dispatch(adapter: ChannelAdapter, accountId: string, groupId: str
     const g = await within(ops.groupInfo(accountId, groupId), ms);
     const link = ops.groupLink ? await within(ops.groupLink(accountId, groupId), ms).catch(() => null) : null;
     return { status: 'confirmed', snapshot: { providerName: g.name.slice(0, 200), providerTotal: g.totalMembers, complete: g.complete, accountRole: g.accountRole ?? null, providerVersion: g.version ?? null, linkEnabled: link ? link.enabled : null, fetchedAt: now } };
+  }
+  if (cmd.kind === 'link') {
+    // Chỉ ĐỌC link hiện có (không bật); URL mã hoá trong kết quả, không vào log / ảnh chụp / sự kiện.
+    if (!ops?.groupLink || !key) throw new ChannelOperationError('unsupported');
+    const l = await within(ops.groupLink(accountId, groupId), ms);
+    return { status: 'confirmed', snapshot: { linkEnabled: l.enabled, fetchedAt: now }, result: { enabled: l.enabled, ...(l.enabled && l.url ? { url_enc: Buffer.from(encryptSecret(l.url, key)).toString('base64') } : {}) } };
   }
   if (cmd.kind === 'add_members') {
     if (!ops?.addGroupMembers) throw new ChannelOperationError('unsupported');
@@ -98,7 +107,7 @@ export async function runGroupCommand(d: GroupCommandDeps, accountId: string, ad
   if (!claimed.count) return 'raced';
   let o: Outcome;
   try {
-    o = await dispatch(adapter, accountId, conv.externalThreadId, cmd, d.timeoutMs ?? OPERATION_TIMEOUT_MS, d.now());
+    o = await dispatch(adapter, accountId, conv.externalThreadId, cmd, d.timeoutMs ?? OPERATION_TIMEOUT_MS, d.now(), d.key);
   } catch (err) {
     o = { status: sure(err) ? 'failed' : 'unknown', error: msgOf(err) };
     d.log.warn({ account: accountId, command: cmd.id, kind: cmd.kind, err: o.error }, 'group command not confirmed');

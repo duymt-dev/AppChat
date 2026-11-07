@@ -5,7 +5,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import type { ChannelRegistry } from '@appchat/channels';
 import { AppError, GROUP_ADD_MAX } from '@appchat/shared';
-import type { ActionInput, ActionPreview, groupAddMembers, groupRefresh, groupSetAiPolicy, groupSetMute, groupUpdate } from '@appchat/actions';
+import type { ActionInput, ActionPreview, groupAddMembers, groupCopyLink, groupRefresh, groupSetAiPolicy, groupSetMute, groupUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
@@ -56,7 +56,7 @@ abstract class GroupCommandHandler<I extends { conversation_id: string }> implem
   protected async draft(ctx: ActionContext, i: I, tx: TenantTx): Promise<ActionPreview> {
     const c = await groupConversation(tx, ctx.authz, this.registry, i.conversation_id, this.kind);
     const p = await this.plan(ctx, i, tx, c);
-    return preview(this.kind === 'refresh' ? 'write' : 'send', line(await convTitle(tx, c), p.summary), { changes: [{ entity: 'group_command', after: { kind: this.kind, ...p.desired } }] });
+    return preview(this.kind === 'link' ? 'read' : this.kind === 'refresh' ? 'write' : 'send', line(await convTitle(tx, c), p.summary), { changes: [{ entity: 'group_command', after: { kind: this.kind, ...p.desired } }] });
   }
 
   async execute(ctx: ActionContext, i: I, tx: TenantTx): Promise<HandlerOutcome<Queued>> {
@@ -139,4 +139,18 @@ export class GroupRefreshHandler extends GroupCommandHandler<ActionInput<typeof 
   }
 }
 
-export const GROUP_HANDLERS = [GroupSetAiPolicyHandler, GroupAddMembersHandler, GroupUpdateHandler, GroupSetMuteHandler, GroupRefreshHandler];
+/** Sao chép link tham gia (§A.6): chỉ người bấm trên UI (không AI / Trợ lý), lệnh đọc — không bao giờ bật link. */
+@Injectable()
+@ActionHandler('group.copy_link')
+export class GroupCopyLinkHandler extends GroupCommandHandler<ActionInput<typeof groupCopyLink>> {
+  protected readonly kind = 'link' as const;
+  async preview(ctx: ActionContext, i: ActionInput<typeof groupCopyLink>, tx: TenantTx): Promise<ActionPreview> {
+    return this.draft(ctx, i, tx);
+  }
+  protected async plan(ctx: ActionContext): Promise<Plan> {
+    if (ctx.source !== 'ui') throw new AppError('FORBIDDEN', 403, { source: 'human_only' });
+    return { desired: {}, summary: 'link' };
+  }
+}
+
+export const GROUP_HANDLERS = [GroupSetAiPolicyHandler, GroupAddMembersHandler, GroupUpdateHandler, GroupSetMuteHandler, GroupRefreshHandler, GroupCopyLinkHandler];

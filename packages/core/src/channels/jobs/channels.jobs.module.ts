@@ -99,7 +99,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
         friend: (id, a, j, g) => runFriendOp({ tenants, kv: redis, log: this.log, now }, id, a, j, g),
         lookup: (id, a, j) => runLookup({ tenants, kv: redis, log: this.log, now }, id, a, j),
         // Lệnh quản lý nhóm (TIP-025b): cùng hàng đợi tài khoản, kết quả theo ACK.
-        group: (id, a, j, g) => runGroupCommand({ tenants, kv: redis, log: this.log, now }, id, a, j, g),
+        group: (id, a, j, g) => runGroupCommand({ tenants, kv: redis, log: this.log, now, ...(this.key ? { key: this.key } : {}) }, id, a, j, g),
       },
       this.opQueue ?? undefined,
     ));

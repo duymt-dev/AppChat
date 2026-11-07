@@ -5,7 +5,7 @@ import { z } from 'zod';
 
 export const GROUP_AI_POLICIES = ['mention', 'auto', 'off'] as const;
 export type GroupAiPolicy = (typeof GROUP_AI_POLICIES)[number];
-export const GROUP_COMMAND_KINDS = ['add_members', 'update', 'set_mute', 'refresh'] as const;
+export const GROUP_COMMAND_KINDS = ['add_members', 'update', 'set_mute', 'refresh', 'link'] as const;
 export const GROUP_ADD_MAX = 50;
 
 export const groupCommandStateSchema = z.enum(['pending', 'confirmed', 'failed', 'unknown', 'partial', 'cancelled', 'superseded']);
@@ -41,6 +41,8 @@ export const groupCommandSchema = z.object({
   state: groupCommandStateSchema,
   error: z.string().nullable(),
   members: z.array(z.object({ id: z.string(), status: z.enum(['confirmed', 'failed', 'unknown']), error: z.string().nullable() })).optional(),
+  /** Lệnh `link` (TIP-025b §A.6): CHỈ trả cho người yêu cầu, trong 10 phút sau khi đọc; link đang tắt → `enabled:false`, `url:null`. */
+  link: z.object({ enabled: z.boolean(), url: z.string().nullable() }).optional(),
   created_at: z.string(),
   finished_at: z.string().nullable(),
 });

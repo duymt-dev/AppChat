@@ -6,7 +6,8 @@ import { AppError, can, type AuthzContext, type GroupCommandDto, type GroupState
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { convScopeSql, UUID, visibleConversation } from '../services/access';
 import { TenantSql as Prisma } from '@appchat/db';
-import { groupCommandDto, supports } from './group-commands';
+import { decryptSecret } from '../../kernel/crypto';
+import { groupCommandDto, LINK_VISIBLE_MS, supports } from './group-commands';
 
 export async function groupState(tx: TenantTx, authz: AuthzContext, registry: ChannelRegistry, id: string): Promise<GroupStateDto> {
   const c = await visibleConversation(tx, authz, id);
@@ -38,18 +39,26 @@ export async function groupState(tx: TenantTx, authz: AuthzContext, registry: Ch
   };
 }
 
-/** Trạng thái một lệnh nhóm — cần inbox.manage (lệnh làm mới: inbox.view) + thấy hội thoại; không phải lệnh nhóm → 404. */
-export async function groupCommand(tx: TenantTx, authz: AuthzContext, commandId: string): Promise<GroupCommandDto> {
+/**
+ * Trạng thái một lệnh nhóm — cần inbox.manage (lệnh làm mới: inbox.view) + thấy hội thoại; không phải lệnh nhóm → 404. Lệnh `link`: chỉ
+ * người yêu cầu đọc được; URL giải mã khi còn trong 10 phút sau khi kênh trả (không log, không phát realtime).
+ */
+export async function groupCommand(tx: TenantTx, authz: AuthzContext, commandId: string, now = new Date(), key?: Buffer): Promise<GroupCommandDto> {
   const missing = () => new AppError('NOT_FOUND', 404, { command_id: 'not_found' });
   const r = UUID.test(commandId) ? await tx.groupCommand.findUnique({ where: { id: commandId } }) : null;
   if (!r) throw missing();
   if (r.kind !== 'refresh' && !can(authz, 'inbox.manage')) throw missing();
+  if (r.kind === 'link' && r.actorId !== authz.userId) throw missing();
   try {
     await visibleConversation(tx, authz, r.conversationId);
   } catch {
     throw missing();
   }
-  return groupCommandDto(r);
+  if (r.kind !== 'link' || r.status !== 'confirmed') return groupCommandDto(r);
+  const res = r.result as { enabled?: boolean; url_enc?: string };
+  const fresh = !!r.finishedAt && now.getTime() - r.finishedAt.getTime() <= LINK_VISIBLE_MS;
+  const url = fresh && res.url_enc && key ? decryptSecret(Buffer.from(res.url_enc, 'base64'), key) : null;
+  return groupCommandDto(r, { enabled: !!res.enabled, url: res.enabled ? url : null });
 }
 
 /** Ứng viên thêm vào nhóm (hội thoại 1-1 cùng tài khoản, trong scope người xem), keyset theo id. */

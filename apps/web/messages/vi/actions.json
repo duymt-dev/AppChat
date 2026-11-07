@@ -76,6 +76,10 @@
     }
   },
   "group": {
+    "copy_link": {
+      "title": "Sao chép link nhóm",
+      "desc": "Đọc link tham gia nhóm Zalo để chính bạn sao chép (không bật link)."
+    },
     "set_ai_policy": {
       "title": "Đổi chính sách AI của nhóm"
     },

@@ -29,7 +29,7 @@ model ConversationGroupState {
 /// Đã đặt chỗ (`dispatch_reserved`) rồi sập / hết giờ → `unknown`, không gọi lại.
 model GroupCommand {
   id               String                 @id @db.Uuid
-  /// `add_members` | `update` | `set_mute` | `refresh`.
+  /// `add_members` | `update` | `set_mute` | `refresh` | `link` (đọc link tham gia — kết quả chỉ URL mã hoá, TIP-025b §A.6).
   kind             String
   channelAccountId String                 @map("channel_account_id") @db.Uuid
   conversationId   String                 @map("conversation_id") @db.Uuid

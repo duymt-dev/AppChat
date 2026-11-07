@@ -68,6 +68,21 @@ export const groupSetMute = defineAction({
   invalidates: ['inbox'],
 });
 
+export const groupCopyLink = defineAction({
+  id: 'group.copy_link',
+  module: 'inbox',
+  title: 'actions.group.copy_link.title',
+  description:
+    'Queue reading the current invite link of a Zalo group so the requesting person can copy it (only that person sees it, for 10 minutes; never enables the link). UI only — not for AI. Example: {"conversation_id":"0190…"}',
+  input: z.object({ conversation_id: convId }),
+  output: queued,
+  permission: 'inbox.manage',
+  risk: 'read',
+  agentGrantable: false,
+  requiresConnector: 'zalo_personal',
+  invalidates: [],
+});
+
 export const groupRefresh = defineAction({
   id: 'group.refresh',
   module: 'inbox',

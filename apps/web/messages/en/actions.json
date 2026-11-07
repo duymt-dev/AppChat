@@ -76,6 +76,10 @@
     }
   },
   "group": {
+    "copy_link": {
+      "title": "Copy group link",
+      "desc": "Read the Zalo group invite link for you to copy (never turns it on)."
+    },
     "set_ai_policy": {
       "title": "Change group AI policy"
     },

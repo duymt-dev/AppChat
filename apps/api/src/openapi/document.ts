@@ -3,7 +3,7 @@
 // `{ data }` / `{ data, next_cursor }` / `{ error: { code, message, fields? } }`. Bảo mật: bearer JWT + `x-workspace-id`; route công khai
 // (auth, trang ký / xem báo giá công khai, health, widget) khai `security: []`. Không chứa secret / URL nội bộ.
 import type { ActionDef } from '@appchat/actions';
-import { approvalRowSchema, channelContactSyncSchema, channelFriendSchema, channelHistoryRunSchema, channelLookupSchema, channelOperationSchema, contactEditContextSchema, groupCandidatesSchema, groupCommandSchema, groupStateSchema, threadAroundSchema, threadSearchPageSchema } from '@appchat/shared';
+import { approvalRowSchema, assigneeCandidatesSchema, groupBoardSchema, channelContactSyncSchema, channelFriendSchema, channelHistoryRunSchema, channelLookupSchema, channelOperationSchema, contactEditContextSchema, groupCandidatesSchema, groupCommandSchema, groupStateSchema, threadAroundSchema, threadSearchPageSchema } from '@appchat/shared';
 import { z } from 'zod';
 import type { ScannedRoute } from './route-scan';
 import { ACTION_COMPONENTS, actionOperation, jsonSchemaOf } from './action-ops';
@@ -42,6 +42,8 @@ const TYPED: Record<string, () => Schema> = {
   // TIP-025b
   'get /v1/conversations/{id}/messages/search-page': () => jsonSchemaOf(threadSearchPageSchema, 'output'),
   'get /v1/conversations/{id}/messages/around/{messageId}': () => jsonSchemaOf(threadAroundSchema, 'output'),
+  'get /v1/conversations/{id}/assignees': () => ({ type: 'object', required: ['data'], properties: jsonSchemaOf(assigneeCandidatesSchema, 'output').properties as object }),
+  'get /v1/conversations/{id}/group/board': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(groupBoardSchema, 'output') } }),
   'get /v1/conversations/{id}/approvals': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(z.object({ items: z.array(approvalRowSchema), pending: z.number().int() }), 'output') } }),
   'get /v1/conversations/{id}/group': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(groupStateSchema, 'output') } }),
   'get /v1/conversations/{id}/group/candidates': () => jsonSchemaOf(groupCandidatesSchema, 'output'),
