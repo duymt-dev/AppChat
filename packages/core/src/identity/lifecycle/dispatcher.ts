@@ -2,7 +2,7 @@
 // restore). Job lạ → lỗi (không ACK như xong). Job lifecycle chỉ là tín hiệu: lệnh bền ở `workspace_lifecycle_job`; ngoài ra quét định kỳ
 // (30 giây) nhặt lệnh đến hạn / lease hết hạn (Redis mất tín hiệu, worker chết giữa chừng). Dừng phiên kênh trước dump bằng pub/sub `stop`
 // cho từng tài khoản route `connected` của workspace (worker ROLE=channels nhả lease Zalo / IMAP). Pha 2: job lặp `tenant.archive-scan`
-// (mỗi ngày — quét gói Miễn phí không hoạt động) + consumer `lifecycle.activity` (mốc hoạt động).
+// (mỗi ngày — quét gói Miễn phí không hoạt động, rồi purge bản sao lưu xoá hết hạn — pha 3) + consumer `lifecycle.activity`.
 import { hostname } from 'node:os';
 import { randomUUID } from 'node:crypto';
 import { Inject, Injectable, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
@@ -19,6 +19,8 @@ import { CHANNEL_CONTROL } from '../../channels/services/control';
 import { PROVISION_JOB, TENANT_QUEUE, provisionWorkspace, tenantSeedDb, type ProvisionDeps } from '../jobs/tenant-provision.processor';
 import { installActivityConsumer } from './activity';
 import { scanArchiveCandidates } from './archive-scan';
+import { purgeExpired } from './purge';
+import { STORAGE, type Storage } from '../../kernel/files/storage';
 import { LifecycleJobs } from './jobs';
 import { TENANT_LIFECYCLE_JOB } from './lifecycle.providers';
 import { processLifecycleJob, type LifecycleRunDeps } from './recovery';
@@ -44,6 +46,7 @@ export class TenantQueueDispatcher implements OnApplicationBootstrap, OnApplicat
     @Optional() @Inject(DB_ENV) private readonly env: DbEnv | undefined,
     @Optional() @Inject(LIFECYCLE_INFRA) private readonly infra: LifecycleInfra | null,
     @Optional() @Inject(LIFECYCLE_QUEUE) private readonly wake: LifecycleWake | null,
+    @Optional() @Inject(STORAGE) private readonly files: Storage | null,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
   ) {}
@@ -94,6 +97,9 @@ export class TenantQueueDispatcher implements OnApplicationBootstrap, OnApplicat
           const wake = this.wake;
           const r = await scanArchiveCandidates({ platform, resolver: this.resolver!, kv: redis, now: () => this.clock.now(), wake: async (id) => wake?.wake(id) });
           this.log.info({ job: ARCHIVE_SCAN_JOB, ...r }, 'archive scan');
+          // Purge bản sao lưu xoá đã quá 30 ngày (chỉ workspace tombstone, không legal hold) + tệp workspace khi hết bản sao lưu.
+          const p = await purgeExpired({ platform, infra: this.lifecycle.infra, files: this.files, now: () => this.clock.now() });
+          if (p.manifests || p.workspaceFiles || p.skipped) this.log.info({ job: ARCHIVE_SCAN_JOB, purge: p }, 'deletion purge');
           return;
         }
         throw new Error(`job lạ trên queue tenant: ${job.name}`);

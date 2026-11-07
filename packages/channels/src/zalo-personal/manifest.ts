@@ -15,8 +15,8 @@ export const zaloPersonalManifest: ChannelManifest = {
     createGroup: true,
     mentions: true,
     reactions: true,
-    // TIP-014b — chỉ thao tác đã map SDK zca-js 2.2.0 (provider-capabilities.md); cần ACK nhà cung cấp.
-    operations: { recall: 'remote', react: 'remote', group_info: 'remote', group_members: 'remote', group_link: 'remote', group_add_members: 'remote', profiles: 'remote', friends: 'remote', friend_requests: 'remote', find_user: 'remote' },
+    // TIP-014b (+ TIP-025b group_settings / group_mute) — chỉ thao tác đã map SDK zca-js 2.2.0 (provider-capabilities.md); cần ACK nhà cung cấp.
+    operations: { recall: 'remote', react: 'remote', group_info: 'remote', group_members: 'remote', group_link: 'remote', group_add_members: 'remote', group_settings: 'remote', group_mute: 'remote', profiles: 'remote', friends: 'remote', friend_requests: 'remote', find_user: 'remote' },
     send: ['text', 'image', 'file', 'sticker'],
     maxTextLength: 2000,
     markdown: 'rich',

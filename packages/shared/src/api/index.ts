@@ -24,6 +24,8 @@ export * from './contract-appendix';
 export * from './orders';
 export * from './channels';
 export * from './inbox';
+export * from './inbox-thread';
+export * from './inbox-groups';
 export * from './conversation-groups';
 export * from './channel-operations';
 export * from './webchat';

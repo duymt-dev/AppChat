@@ -3,7 +3,7 @@
 // TIP-014b: bật `selfListen` — tin tự gửi mang `cliMsgId` (sendMessage chỉ trả msgId) → tách sang `onSelfMessage`, không vào pipeline
 // tin khách. Lệnh thu hồi / cảm xúc / nhóm: lỗi `ZaloApiError` (nhà cung cấp trả lỗi rõ) → ChannelOperationError('rejected'); lỗi
 // mạng giữ nguyên để core ghi `unknown`. Ma trận năng lực: provider-capabilities.md.
-import { AvatarSize, CloseReason, FriendEventType, LoginQRCallbackEventType, ThreadType, Zalo, ZaloApiError, type API, type Credentials, type Message, type Reactions, type Style } from 'zca-js';
+import { AvatarSize, CloseReason, FriendEventType, LoginQRCallbackEventType, MuteAction, MuteDuration, ThreadType, Zalo, ZaloApiError, type API, type Credentials, type Message, type Reactions, type Style } from 'zca-js';
 import { ChannelOperationError } from '../operations';
 import { ChannelAuthError, type LoginEvent } from '../types';
 import { zaloId } from './provider-refs';
@@ -184,7 +184,7 @@ class ZcaSession implements ZaloSession {
     const r = await rejected(() => this.api.getGroupInfo(groupId));
     const g = r.gridInfoMap?.[groupId];
     if (!g) throw new ChannelOperationError('forbidden', 'group_not_visible');
-    return { groupId, name: g.name, totalMember: Number.isInteger(g.totalMember) ? g.totalMember : null, memberIds: g.memberIds ?? [] };
+    return { groupId, name: g.name, totalMember: Number.isInteger(g.totalMember) ? g.totalMember : null, memberIds: g.memberIds ?? [], creatorId: g.creatorId, adminIds: g.adminIds, version: g.version };
   }
 
   async groupMembers(memberIds: string[]): Promise<{ id: string; displayName: string; avatar?: string }[]> {
@@ -214,6 +214,19 @@ class ZcaSession implements ZaloSession {
     const err = r.error_data ?? {};
     const codeOf = (id: string) => Object.entries(err).find(([, ids]) => ids.includes(id))?.[0] ?? 'failed';
     return { failed: (r.errorMembers ?? []).map((id) => ({ id, error: codeOf(id) })) };
+  }
+
+  async changeGroupName(groupId: string, name: string) {
+    await rejected(() => this.api.changeGroupName(name, groupId));
+  }
+
+  async setGroupLink(groupId: string, enabled: boolean) {
+    if (enabled) await rejected(() => this.api.enableGroupLink(groupId));
+    else await rejected(() => this.api.disableGroupLink(groupId));
+  }
+
+  async setGroupMute(groupId: string, muted: boolean) {
+    await rejected(() => this.api.setMute({ action: muted ? MuteAction.MUTE : MuteAction.UNMUTE, duration: MuteDuration.FOREVER }, groupId, ThreadType.Group));
   }
 }
 

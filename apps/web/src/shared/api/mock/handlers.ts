@@ -2,7 +2,10 @@
 import type { MockDb } from './store';
 import { dashboardHandlers } from './domains/dashboard';
 import { workspaceLifecycleHandlers } from './domains/workspace-lifecycle';
+import { workspaceDangerHandlers } from './domains/workspace-danger';
 import { inboxHandlers } from './domains/inbox';
+import { inboxBulkHandlers } from './domains/inbox-bulk';
+import { inboxGroupHandlers } from './domains/inbox-groups';
 import { customersHandlers } from './domains/customers';
 import { assistantHandlers } from './domains/assistant';
 import { aiTasksHandlers } from './domains/ai-tasks';
@@ -97,8 +100,11 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
     },
   },
   ...workspaceLifecycleHandlers,
+  ...workspaceDangerHandlers,
   ...dashboardHandlers,
   ...inboxHandlers,
+  ...inboxBulkHandlers,
+  ...inboxGroupHandlers,
   ...customersHandlers,
   ...dataJobsHandlers,
   ...listExportsHandlers,
