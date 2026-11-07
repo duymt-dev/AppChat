@@ -1202,6 +1202,12 @@
       },
       "resume": {
         "title": "Resume workspace (platform admin)"
+      },
+      "archive": {
+        "title": "Archive workspace (platform admin)"
+      },
+      "restore": {
+        "title": "Restore archived workspace (platform admin)"
       }
     },
     "agent_template": {

@@ -4,6 +4,7 @@ import pg from 'pg';
 import { readFileSync } from 'node:fs';
 import { withDatabase } from './env';
 import { quoteIdent } from './db-name';
+import { TENANT_BASE_TEMPLATE } from './lifecycle/restore';
 import {
   PLATFORM_MIGRATIONS_DIR,
   TENANT_BOOTSTRAP_SQL,
@@ -17,6 +18,8 @@ export interface ClusterSetupOptions {
   adminUrl: string;
   platformDb: string;
   templateDb: string;
+  /** Template nền chỉ có extension cho khôi phục (TIP-041) — mặc định `appchat_tenant_base`. */
+  baseTemplateDb?: string;
   /** Mật khẩu 4 role (dev / test). */
   passwords: Record<'platform_app' | 'tenant_app' | 'provisioner' | 'migrator', string>;
 }
@@ -64,6 +67,22 @@ async function ensureDb(admin: pg.Client, name: string, owner: string): Promise<
   return true;
 }
 
+/** Extension của bootstrap (không gồm hàm f_unaccent — hàm nằm trong bản lưu trữ). */
+const extensionsSql = () =>
+  readFileSync(TENANT_BOOTSTRAP_SQL, 'utf8')
+    .split(/\r?\n/)
+    .filter((l) => /^CREATE EXTENSION/i.test(l))
+    .join('\n');
+
+async function ensureBaseTemplate(adminUrl: string, name: string): Promise<void> {
+  await withClient(adminUrl, async (admin) => {
+    await ensureDb(admin, name, ROLES.migrator);
+    await admin.query(`UPDATE pg_database SET datistemplate = true WHERE datname = $1`, [name]);
+    await admin.query(`REVOKE CONNECT ON DATABASE ${quoteIdent(name)} FROM PUBLIC`);
+  });
+  await withClient(withDatabase(adminUrl, name), (c) => c.query(extensionsSql()));
+}
+
 export async function setupCluster(o: ClusterSetupOptions): Promise<{ platform: string[]; template: string[] }> {
   await withClient(o.adminUrl, async (admin) => {
     await ensureRoles(admin, o.passwords);
@@ -78,6 +97,8 @@ export async function setupCluster(o: ClusterSetupOptions): Promise<{ platform: 
   // Extension cần superuser (vector không trusted) → chạy bằng admin trên template.
   const templateAdmin = withDatabase(o.adminUrl, o.templateDb);
   await withClient(templateAdmin, (c) => c.query(readFileSync(TENANT_BOOTSTRAP_SQL, 'utf8')));
+  // Template nền chỉ có extension (TIP-041): khôi phục bản lưu trữ clone DB tạm từ đây — role provisioner không tự tạo được `vector`.
+  await ensureBaseTemplate(o.adminUrl, o.baseTemplateDb ?? TENANT_BASE_TEMPLATE);
 
   const migrator = (db: string) => {
     const u = new URL(withDatabase(o.adminUrl, db));

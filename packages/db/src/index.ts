@@ -17,3 +17,9 @@ export * from './tenant-migrate';
 export * from './platform-recorder';
 export * from './setup';
 export * from './test-env';
+// Vòng đời DB tenant (TIP-041): khoá thao tác theo cluster, bản lưu trữ mã hoá, khôi phục vào DB tạm.
+export * from './lifecycle/pg-process';
+export * from './lifecycle/archive-storage';
+export * from './lifecycle/operation-lock';
+export * from './lifecycle/archive';
+export * from './lifecycle/restore';

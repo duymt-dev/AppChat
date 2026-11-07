@@ -1202,6 +1202,12 @@
       },
       "resume": {
         "title": "Mở lại workspace (quản trị nền tảng)"
+      },
+      "archive": {
+        "title": "Lưu trữ workspace (quản trị nền tảng)"
+      },
+      "restore": {
+        "title": "Khôi phục workspace đã lưu trữ (quản trị nền tảng)"
       }
     },
     "agent_template": {

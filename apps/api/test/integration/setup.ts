@@ -62,6 +62,8 @@ export const env: Record<string, string> = {
   // Lượt Trợ lý chạy trong tiến trình API (không có worker ROLE=ai ở harness này) — đường queue có test riêng ở apps/worker (DC-316).
   ASSISTANT_DISPATCH: 'inline',
   FILES_DIR: join(tmpdir(), 'appchat-test-files'),
+  // Bản lưu trữ DB tenant của test vòng đời (TIP-041) — thư mục tạm, không đụng `.data/archives` của demo.
+  ARCHIVE_DIR: join(tmpdir(), 'appchat-test-archives'),
   TAX_LOOKUP_PROVIDER: 'mock',
   COOKIE_SECURE: 'true',
   JWT_SECRET: 'test-secret-0123456789-0123456789-abcdef',

@@ -9,7 +9,7 @@ const ROOT = join(import.meta.dirname, '..', 'prisma');
 const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   platform: {
     ops: '002', routing: '002', identity: '004', billing: '009', 'billing-payments': '010', 'billing-lifecycle': '039',
-    integrations: '012', 'ai-config': '019', templates: '021', notify: '006', 'commerce-links': '032b', 'action-operations': '045b',
+    integrations: '012', 'ai-config': '019', templates: '021', notify: '006', 'commerce-links': '032b', 'action-operations': '045b', 'workspace-lifecycle': '041',
   },
   tenant: {
     kernel: '002', authz: '005', integrations: '012', channels: '014', 'channels-webchat': '017', 'channels-email': '018', crm: '015',
@@ -26,7 +26,7 @@ describe('prisma stubs', () => {
     expect(files.sort()).toEqual(Object.keys(OWNERS[kind]).sort());
   });
 
-  it('43 file, mỗi file ghi đúng TIP chủ ở dòng đầu', () => {
+  it('44 file, mỗi file ghi đúng TIP chủ ở dòng đầu', () => {
     let n = 0;
     for (const kind of ['platform', 'tenant'] as const) {
       for (const [file, tip] of Object.entries(OWNERS[kind])) {
@@ -35,6 +35,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(43);
+    expect(n).toBe(44);
   });
 });

@@ -33,6 +33,9 @@ export interface PlatformExecDeps {
   alwaysPreview?: ReadonlySet<string>;
 }
 
+/** Action quản trị luôn xem trước trước khi chạy (Blueprint §2.0 bước 5 — lưu trữ / khôi phục DB tenant, TIP-041). */
+export const PLATFORM_ALWAYS_PREVIEW: ReadonlySet<string> = new Set(['admin.workspace.archive', 'admin.workspace.restore']);
+
 /** Workspace "trống" của ngữ cảnh nền tảng khi đi qua port quyền / confirm_token (không bao giờ dùng để mở DB tenant). */
 const NO_WORKSPACE = 'platform';
 
@@ -69,7 +72,7 @@ export async function executePlatformAction<O>(
     }
   }
 
-  if (d.alwaysPreview?.has(def.id) && !(await d.confirm.consume(pc, def.id, input, ctx.confirmToken))) {
+  if ((d.alwaysPreview ?? PLATFORM_ALWAYS_PREVIEW).has(def.id) && !(await d.confirm.consume(pc, def.id, input, ctx.confirmToken))) {
     const preview = await handler.previewPlatform(ctx, input, d.platform);
     const { token, expiresAt } = await d.confirm.issue(pc, def.id, input, d.clock.now().getTime());
     return { status: 202, data: { status: 'preview_required', preview, confirm_token: token, expires_at: expiresAt.toISOString() } };

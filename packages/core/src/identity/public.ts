@@ -9,5 +9,14 @@ export { InvitesService, INVITE_TTL_MS } from './services/invites.service';
 export { SettingsReadService, ONLINE_WINDOW_MS } from './settings/settings-read.service';
 export { IDENTITY_ENV, MAIL_PROVIDER, RATE_LIMITER, TAX_LOOKUP, TENANT_PROVISION_QUEUE } from './services/identity.tokens';
 export { hashPassword, verifyPassword, normalizeEmail, sha256 } from './services/secrets';
-export { provisionWorkspace, tenantSeedDb, BullProvisionQueue, TenantProvisionWorker, TENANT_QUEUE, PROVISION_JOB, type ProvisionDeps } from './jobs/tenant-provision.processor';
+export { provisionWorkspace, tenantSeedDb, BullProvisionQueue, TENANT_QUEUE, PROVISION_JOB, type ProvisionDeps } from './jobs/tenant-provision.processor';
+// Vòng đời workspace (TIP-041).
+export { TenantQueueDispatcher } from './lifecycle/dispatcher';
+export { LifecycleModule } from './lifecycle/lifecycle.module';
+export { LifecycleJobs, createLifecycleJob } from './lifecycle/jobs';
+export { processLifecycleJob, lifecycleErrorCode, type LifecycleRunDeps } from './lifecycle/recovery';
+export { runArchive, rollbackArchive, ArchiveBusyError, type ArchiveRunDeps } from './lifecycle/archive-run';
+export { runRestore, NoArchiveError, type RestoreRunDeps } from './lifecycle/restore-run';
+export { lifecycleInfraFromEnv, archiveKeysFromEnv, BullLifecycleWake, TENANT_LIFECYCLE_JOB } from './lifecycle/lifecycle.providers';
+export { LIFECYCLE_INFRA, LIFECYCLE_QUEUE, LIFECYCLE_MAX_ATTEMPTS, type LifecycleInfra, type LifecycleJobRow } from './lifecycle/types';
 export { workingHoursOf, type WorkingHours } from './settings/workspace-settings';
