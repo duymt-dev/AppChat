@@ -176,6 +176,10 @@
     }
   },
   "contact": {
+    "history_export": {
+      "title": "Xuất lịch sử khách",
+      "desc": "Xuất lịch sử một khách ra CSV theo khoảng ngày / loại sự kiện / cột."
+    },
     "get_edit_context": {
       "title": "Xem ngữ cảnh sửa khách",
       "desc": "Đọc các trường được sửa, phiên bản hiện tại và người phụ trách của một khách (trường ẩn bị bỏ)."

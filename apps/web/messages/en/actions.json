@@ -176,6 +176,10 @@
     }
   },
   "contact": {
+    "history_export": {
+      "title": "Export customer history",
+      "desc": "Export one customer's history to CSV by date range / event type / columns."
+    },
     "get_edit_context": {
       "title": "Read contact edit context",
       "desc": "Read the editable fields, current version and owner of one contact (hidden fields are omitted)."

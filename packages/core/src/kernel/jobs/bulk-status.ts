@@ -16,7 +16,8 @@ const XLSX_MIME = 'application/vnd.openxmlformats-officedocument.spreadsheetml.s
 type Viewer = { workspaceId: string; userId: string; authz: AuthzContext };
 
 /** Dấu quyền của tệp xuất theo kind (chính sách trường / scope đổi so với lúc xuất → tệp cũ không tải nữa). Domain đăng ký kind của mình. */
-type ExportStamp = (db: TenantDb, a: AuthzContext) => Promise<string>;
+/** `job.input` cho kind cần kiểm lại bản ghi gốc (lịch sử một khách — TIP-025b: không còn thấy khách → dấu khác → 410). */
+type ExportStamp = (db: TenantDb, a: AuthzContext, job: { input: unknown }) => Promise<string>;
 const STAMPS = new Map<string, ExportStamp>([['contact.export', async (db, a) => policyStamp(await fieldView(db, 'contact', a))]]);
 export const registerExportStamp = (kind: string, s: ExportStamp) => void STAMPS.set(kind, s);
 
@@ -43,10 +44,10 @@ export class DataJobStatusService {
   }
 
   /** Tệp còn tải được: còn hạn + chính sách trường như lúc xuất. */
-  private async downloadable(db: TenantDb, a: AuthzContext, job: { kind: string; fileKey: string | null; expiresAt: Date | null; fieldPolicy: string }): Promise<boolean> {
+  private async downloadable(db: TenantDb, a: AuthzContext, job: { kind: string; fileKey: string | null; expiresAt: Date | null; fieldPolicy: string; input: unknown }): Promise<boolean> {
     if (!job.fileKey || !job.expiresAt || job.expiresAt <= this.now()) return false;
     const stamp = STAMPS.get(job.kind);
-    return !stamp || (await stamp(db, a)) === job.fieldPolicy;
+    return !stamp || (await stamp(db, a, job)) === job.fieldPolicy;
   }
 
   async status(v: Viewer, id: string): Promise<DataJobDto> {

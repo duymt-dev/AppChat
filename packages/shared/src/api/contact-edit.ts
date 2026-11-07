@@ -5,6 +5,10 @@ import { z } from 'zod';
 
 export const CONTACT_EDIT_FIELDS = ['full_name', 'title', 'type', 'group', 'phone', 'email', 'zalo', 'city', 'district', 'address', 'birthday', 'gender', 'source', 'status'] as const;
 
+/** Xuất lịch sử khách (TIP-025b §D.6): loại sự kiện (enum `timeline_type`) + cột được chọn. */
+export const TIMELINE_TYPES = ['message', 'quote', 'contract', 'order', 'invoice', 'payment', 'appointment', 'ticket', 'note', 'ai_action', 'loyalty', 'campaign', 'stage', 'owner', 'merge'] as const;
+export const TIMELINE_EXPORT_COLUMNS = ['at', 'type', 'text', 'ref', 'actor'] as const;
+
 export const contactEditContextSchema = z.object({
   id: z.string(),
   code: z.string(),
