@@ -3,7 +3,7 @@
 // vận chuyển, đã thu và đi tiếp theo ORDER_FLOW (không lùi trạng thái cuối). Khách khớp theo `contact_identity(marketplace, buyer_id)`
 // — sàn che SĐT. Dòng khớp sản phẩm theo SKU (`product.code` / `product_variant.sku`) để trừ kho; không khớp vẫn nhập (không trừ kho).
 import { lockContactRow } from '../../../kernel/ownership/root-lock';
-import { nextState, ORDER_FLOW, serverMessages, interpolate } from '@appchat/shared';
+import { AppError, nextState, ORDER_FLOW, serverMessages, interpolate } from '@appchat/shared';
 import type { ExternalOrder, MappedStatus } from '@appchat/integrations';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
@@ -92,11 +92,15 @@ export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: Ex
     return { created: false, orderId: o.id, events: changed ? [{ topic: 'order.external_updated', payload: orderPayload(o) }, ...moved] : [] };
   }
 
-  const { contactId, events: contactEvents } = await identities.resolve(
+  const r = await identities.resolve(
     tx,
     { channelType: 'marketplace', channelAccountId: conn.id, externalId: ext.buyer.id, displayName: ext.buyer.name || null, phone: ext.buyer.phone ?? null },
     now,
   );
+  // TIP-015f §3.4: người mua đã biết mà khách gốc đã xoá / chuỗi gộp hỏng → không tạo đơn / khách mới, không đếm đã nhập. Lỗi để nguồn
+  // giữ nguyên (cursor / processedAt không tiến) — thử lại sau khi khôi phục.
+  if (r.state !== 'active' || !r.contactId) throw new AppError('CONFLICT', 409, { contact: r.state === 'soft_deleted' ? 'deleted' : 'unavailable' });
+  const { contactId, events: contactEvents } = { contactId: r.contactId, events: r.events };
   // Khách gốc khoá trước khi chụp người phụ trách (TIP-015d thứ tự khách → đơn) — không chụp người cũ sau một lần chuyển đồng thời.
   await lockContactRow(tx, contactId);
   const contact = await tx.contact.findUniqueOrThrow({ where: { id: contactId }, select: { ownerUserId: true, teamId: true } });

@@ -1,6 +1,6 @@
 # TIP-015f — Completion Report
 
-**STATUS:** ĐANG LÀM — 1 / 4 pha. P1 DC-397 (lõi server xoá mềm / khôi phục / thùng rác, 7 port phụ thuộc). Còn: P2 ingress + danh tính + đơn sàn bị chặn + hàng rào gửi AI; P3 UI thùng rác; P4 xác minh native + ai:live 8 ca.
+**STATUS:** ĐANG LÀM — 2 / 5 pha. P1 DC-397 (lõi server xoá mềm / khôi phục / thùng rác, 7 port phụ thuộc, PR #137); P2 DC-398 (danh tính khách đã xoá, tin vào không làm giàu CRM / không kích agent, hàng rào AI, dấu Hộp thư). Còn: P3 biên nhận đơn sàn bị chặn + khoá gốc tài chính + cổng sống writer + hoàn tác tạo không xoá cứng; P4 UI thùng rác + DeletedContactPanel; P5 xác minh native + ai:live 8 ca.
 
 **MIGRATION:** tenant `20261108090000_contact_lifecycle` → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker. (Manifest ghi `20261102001560_…` — đổi tên theo thứ tự chuỗi migration, DV-071.)
 
@@ -52,3 +52,41 @@
 | `events/outbox.md` | `contact.deleted` / `contact.restored` cùng transaction (undo ghi outbox trong tx) |
 | `i18n/i18n.md` | vi + en, không tuần tự lại JSON |
 | `code/file-size-module-layout.md` | file mới ≤ 120 dòng; file quá trần chỉ còn facade; test file riêng |
+
+---
+
+## Pha 2 — danh tính khách đã xoá, tin vào giữ nhưng không làm giàu CRM, hàng rào AI, dấu Hộp thư (§3.1–§3.3, §4.1–§4.3; AC3, AC5 lõi) — DC-398, DV-072
+
+**Rà trước khi làm (code thật)**
+- `matchIdentity` coi khách gốc đã xoá như không có identity → rơi sang SĐT → `resolve` TẠO khách mới và `upsert` gắn lại identity sang khách mới (mất liên kết cũ, khách đã xoá "tái sinh").
+- Pipeline đọc khách không xét `deleted_at`: hội thoại mới gán người phụ trách / nhóm / agent mặc định theo hồ sơ CRM; VIP + tiêu đề lấy tên CRM; `agentReply` vẫn bật.
+- `buildReplyContext` nạp hồ sơ + ghi nhớ không xét xoá; `finishResumedTurn` lấy epoch mới (không so epoch lượt gốc).
+- `importExternal` dùng cùng `resolve` → đơn sàn của người mua đã xoá tạo khách + đơn mới.
+- DTO hội thoại không có dấu vòng đời khách.
+
+**FILES CHANGED** (lệch manifest ở DV-072)
+- core: `crm/lifecycle/identity-state.ts` (mới); `crm/services/identity-match.ts`, `identity.service.ts`; `inbox/services/pipeline.ts`, `read.service.ts`, `view.ts`; `ai/reply/reply-context.ts`, `reply.service.ts`; `sales/orders/services/order-import.ts`.
+- shared: `api/inbox.ts` (`contact_deleted`), `events.ts` (`message.received.contact_deleted`).
+- test mới: core `contact-lifecycle-identity.test.ts` (3); api `contact-lifecycle-inbound.test.ts` (5).
+
+**Giả định đã chọn (gap-filling)**
+- Hội thoại MỚI của khách đã xoá vẫn gắn id khách cũ (giữ liên kết lịch sử) nhưng vào hàng chung: không người phụ trách / nhóm / agent.
+- Tiêu đề hội thoại của khách đã xoá = tên người gửi theo kênh / "Khách" (tên người gửi trong tin là lịch sử tin, không phải hồ sơ CRM).
+- Đơn sàn mới của người mua đã xoá: chưa có bảng biên nhận chặn → fail closed 409 cho lô (nguồn giữ để thử lại, không mất đơn) — biên nhận bền làm ở P3.
+
+**TEST (cổng khi làm — D59)**
+- Integration native: `contact-lifecycle-inbound` 5/5; ma trận `contact.delete` / `contact.restore` 9/9; hồi quy channel-sync-policy, hardening-takeover, inbox-ui, lead-routing (+ contract), inbox, inbox-vertical-context, inbox-assignees, orders, webchat — xanh; `agent-reply` 13/14 — ca A→B→A đỏ có sẵn (đã kiểm khi gỡ thay đổi `ai/reply` vẫn đỏ) → Q-059.
+- core unit `contact-lifecycle-identity` 3/3 + `channel-sync-identity` 2/2; turbo lint / typecheck / test core / shared / api / worker / web xanh; build api + worker, `check:bundle` OK; depcheck 0 lỗi.
+- E2E mock inbox 11/11.
+
+**ĐỐI CHIẾU STANDARDS (P2)**
+
+| Standard | Kết quả |
+|---|---|
+| `channels/omnichannel-adapter.md` | tin vào luôn lưu đúng một lần (chống trùng sẵn có); không tạo khách / gắn lại identity cho khách đã xoá |
+| `domain/concurrency.md` | đọc trạng thái khách SAU `lockContactRow` (xoá / khôi phục tuần tự với tin vào) |
+| `ai/agent-gateway.md` | không kích agent / không nạp ngữ cảnh CRM của khách đã xoá; chạy tiếp sau duyệt bỏ qua; rào epoch giữ nguyên ở ghi tin + đặt chỗ gửi |
+| `authz/rbac-permissions.md` | không đổi quyền; Hộp thư giữ lịch sử theo quyền Hộp thư |
+| `api/response-envelope.md` | DTO thêm trường tuỳ chọn; đơn sàn 409 CONFLICT `contact: deleted / unavailable` |
+| `events/outbox.md` | `message.received` thêm cờ tuỳ chọn, không đổi topic |
+| `code/file-size-module-layout.md` | file mới 35 dòng; pipeline 230, reply.service 325 dòng |

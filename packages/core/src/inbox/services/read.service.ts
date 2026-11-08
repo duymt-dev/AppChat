@@ -143,7 +143,7 @@ export class InboxReadService {
     const accountIds = [...new Set(convs.map((c) => c.channelAccountId))];
     const groupIds = convs.filter((c) => c.kind === 'group').map((c) => c.id);
     const [contacts, accounts, links, members] = await Promise.all([
-      contactIds.length ? tx.contact.findMany({ where: { id: { in: contactIds } }, select: { id: true, name: true, avatarUrl: true } }) : [],
+      contactIds.length ? tx.contact.findMany({ where: { id: { in: contactIds } }, select: { id: true, name: true, avatarUrl: true, deletedAt: true } }) : [],
       tx.channelAccount.findMany({ where: { id: { in: accountIds } }, select: { id: true, name: true } }),
       tx.conversationTag.findMany({ where: { conversationId: { in: ids } }, orderBy: { createdAt: 'asc' } }),
       groupIds.length ? tx.conversationParticipant.groupBy({ by: ['conversationId'], where: { conversationId: { in: groupIds } }, _count: { _all: true } }) : [],
@@ -156,7 +156,9 @@ export class InboxReadService {
       if (t) (tags.get(l.conversationId) ?? tags.set(l.conversationId, []).get(l.conversationId)!).push({ name: t.name, color: t.color, emoji: t.emoji });
     }
     const x: ConvExtras = {
-      contactName: new Map(contacts.map((c) => [c.id, c.name])),
+      // TIP-015f: khách đã xoá không cho tên CRM làm tiêu đề (dấu `contact_deleted` thay).
+      contactName: new Map(contacts.filter((c) => !c.deletedAt).map((c) => [c.id, c.name])),
+      deletedContacts: new Set(contacts.filter((c) => c.deletedAt).map((c) => c.id)),
       accountName: new Map(accounts.map((a) => [a.id, a.name])),
       tags,
       members: new Map(members.map((m) => [m.conversationId, m._count._all])),

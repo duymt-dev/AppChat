@@ -20,8 +20,11 @@ export interface InboundIdentity {
 }
 
 export interface ResolvedContact {
-  contactId: string;
+  /** null = định danh đã biết nhưng chuỗi gộp hỏng (`unavailable`) — không đoán khách. */
+  contactId: string | null;
   created: boolean;
+  /** TIP-015f: `soft_deleted` = giữ gắn khách đã xoá (không làm giàu CRM / không kích agent); `unavailable` = không gắn khách. */
+  state: 'active' | 'soft_deleted' | 'unavailable';
   /** Sự kiện cần ghi outbox (pipeline ghi cùng transaction). */
   events: { topic: string; payload: Record<string, unknown> }[];
 }
@@ -32,7 +35,10 @@ export class ContactIdentityService {
     const key = { channelAccountId_externalId: { channelAccountId: i.channelAccountId, externalId: i.externalId } };
     // Khớp chắc chắn dùng chung với chế độ chỉ-khớp (identity-match.ts). SĐT trùng nhiều khách → không tự chọn → khách nháp mới (gộp tay).
     const m = await matchIdentity(tx, i);
-    if (m.kind === 'known') return { contactId: m.contactId, created: false, events: [] };
+    if (m.kind === 'known') return { contactId: m.contactId, created: false, state: 'active', events: [] };
+    // TIP-015f §3.1–§3.3: không tạo / gắn lại identity, không cập nhật last_interaction_at để khách đã xoá trông như còn sống.
+    if (m.kind === 'deleted') return { contactId: m.contactId, created: false, state: 'soft_deleted', events: [] };
+    if (m.kind === 'unavailable') return { contactId: null, created: false, state: 'unavailable', events: [] };
     const phone = normalizePhone(i.phone);
     const byPhone = m.kind === 'phone' ? { id: m.contactId } : null;
     let contactId = byPhone?.id;
@@ -53,7 +59,7 @@ export class ContactIdentityService {
     });
     if (o.forward) await tx.$executeRaw`UPDATE contact SET last_interaction_at = ${now} WHERE id = ${contactId}::uuid AND (last_interaction_at IS NULL OR last_interaction_at < ${now})`;
     else await tx.contact.update({ where: { id: contactId }, data: { lastInteractionAt: now } });
-    return { contactId, created: !byPhone, events };
+    return { contactId, created: !byPhone, state: 'active', events };
   }
 
   /** Chế độ chỉ-khớp (TIP-014b D — tài khoản tắt tự tạo khách): không tạo khách / identity. */

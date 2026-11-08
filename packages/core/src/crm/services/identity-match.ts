@@ -2,10 +2,19 @@
 // tạo khách, không gắn identity mới. Cùng thứ tự với ContactIdentityService.resolve: 1) identity (tài khoản, id phía kênh) đã có → khách
 // còn hiệu lực (đi theo merged_into_id); 2) SĐT chuẩn hoá khớp ĐÚNG MỘT khách → khách đó; nhiều khách cùng SĐT → `ambiguous` (không tự
 // chọn, không gộp theo tên). Email / tên không bao giờ dùng để khớp.
+// TIP-015f §3.1: identity đã gắn khách gốc đã xoá mềm → `deleted` (giữ gắn + id, KHÔNG fallback SĐT / tạo khách mới); chuỗi gộp hỏng →
+// `unavailable` (không đoán khách).
 import { normalizePhone } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { identityState } from '../lifecycle/identity-state';
 
-export type IdentityMatch = { kind: 'known'; contactId: string } | { kind: 'phone'; contactId: string } | { kind: 'ambiguous' } | { kind: 'none' };
+export type IdentityMatch =
+  | { kind: 'known'; contactId: string }
+  | { kind: 'phone'; contactId: string }
+  | { kind: 'deleted'; contactId: string }
+  | { kind: 'unavailable' }
+  | { kind: 'ambiguous' }
+  | { kind: 'none' };
 
 /** Khách còn hiệu lực — bản đã gộp đi theo `merged_into_id` (tối đa 5 bước). */
 export async function liveContact(tx: Pick<TenantTx, 'contact'>, id: string): Promise<string | null> {
@@ -19,11 +28,10 @@ export async function liveContact(tx: Pick<TenantTx, 'contact'>, id: string): Pr
 }
 
 export async function matchIdentity(tx: Pick<TenantTx, 'contact' | 'contactIdentity'>, i: { channelAccountId: string; externalId: string; phone?: string | null }): Promise<IdentityMatch> {
-  const known = await tx.contactIdentity.findUnique({ where: { channelAccountId_externalId: { channelAccountId: i.channelAccountId, externalId: i.externalId } }, select: { contactId: true } });
-  if (known) {
-    const live = await liveContact(tx, known.contactId);
-    if (live) return { kind: 'known', contactId: live };
-  }
+  const st = await identityState(tx, i);
+  if (st.kind === 'active') return { kind: 'known', contactId: st.contactId };
+  if (st.kind === 'soft_deleted') return { kind: 'deleted', contactId: st.contactId };
+  if (st.kind === 'unavailable') return { kind: 'unavailable' };
   const phone = normalizePhone(i.phone);
   if (!phone) return { kind: 'none' };
   const hits = await tx.contact.findMany({ where: { phoneNorm: phone, deletedAt: null }, select: { id: true }, take: 2 });
