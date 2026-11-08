@@ -18,6 +18,11 @@ export function orderScopeSql(authz: AuthzContext, mode: AccessMode = 'read'): P
   return recordScopeSql(authz, POLICIES.sales, mode, COLS);
 }
 
+/** KPI doanh số (TIP-038 / 032c §3.3): nhánh own theo NGƯỜI TẠO (`owner_user_id`) — đổi người phụ trách không chuyển doanh số. */
+export function orderAttributionScopeSql(authz: AuthzContext): Prisma.Sql {
+  return recordScopeSql(authz, POLICIES.sales, 'read', docColumns('o'));
+}
+
 export type OrderRecord = NonNullable<Awaited<ReturnType<TenantTx['order']['findUnique']>>>;
 
 /** Đơn người gọi thấy được (chưa xoá) — `mode = write` cho handler ghi / preview của action ghi. */

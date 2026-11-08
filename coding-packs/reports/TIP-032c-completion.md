@@ -1,6 +1,6 @@
 # TIP-032c — Completion Report
 
-**STATUS:** ĐANG LÀM — pha 1 / 2 (P1 DC-395: lõi server + UI sửa / xung đột + test native). Còn P2: AI-first / xuất thật đọc lại tệp (AC8), ai:live 8 ca (AC9), cổng chốt D59.
+**STATUS:** DONE — 2 / 2 pha. P1 DC-395 (lõi server + UI sửa / xung đột, PR #135); P2 DC-396 (KPI theo người tạo + xuất thật đọc lại tệp AC8, thẻ Trợ lý chốt phiên bản, ai:live 8/8 AC9, cổng chốt D59).
 
 **MIGRATION:** tenant `20261108080000_commerce_edit_integrity` → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker. (Tên theo thứ tự thời gian thật của chuỗi migration — manifest ghi `20261102003230_…` là tên lúc lập TIP, đã có migration mới hơn nên đổi để giữ thứ tự áp dụng — DV-069.)
 
@@ -57,3 +57,45 @@
 | `ui/prototype-parity.md` | 6 màn ≤ 3,6% |
 | `i18n/i18n.md` | vi + en đủ, không tuần tự lại JSON |
 | `code/file-size-module-layout.md` | file mới ≤ 150 dòng; file cũ quá trần chỉ thêm facade; test riêng |
+
+---
+
+## Pha 2 — KPI theo người tạo, xuất thật đọc lại tệp, Trợ lý chốt phiên bản, ai:live (§1.5, §3.3, §4.2; AC8, AC9) — DC-396, DV-070
+
+**Rà trước khi làm (code thật)**
+- `insights/metrics/sales.ts` `sales.booked` lọc scope bằng `orderScopeSql` — sau P1 nhánh own đi theo `assigned_user_id` → đổi người phụ trách làm doanh số (own) chuyển theo, trái §1.5 / §3.3 "038 KPI stays on owner_user_id".
+- `call_action` của Trợ lý chạy preview với input model gửi; model không gửi `if_version` → thẻ không gắn phiên bản, ghi chen giữa xem trước và xác nhận vẫn ghi đè (§4.2 "Preview/confirmation binds exact if_version").
+- `order.search/get`, `contract.search/get` không trả người tạo / người phụ trách / version → Trợ lý không trả lời đúng "ai phụ trách", không có version để gửi.
+- Nhập 038b (`data-transfer/adapters/commerce.ts`) chỉ gọi `order.create` / `contract.create` — tạo mới, trigger INSERT đặt người phụ trách = người tạo; không có đường sửa người tạo / người phụ trách bản ghi có sẵn.
+
+**FILES CHANGED**
+- core: `insights/metrics/sales.ts` (sales.booked dùng `orderAttributionScopeSql`), `sales/orders/order-access.ts` (+ `orderAttributionScopeSql` — nhánh own theo `owner_user_id`), `ai/assistant/version-pin.ts` (mới), `ai/assistant/meta-tools.ts` (gọi pinVersion sau đổi mã → id), `sales/orders/actions/order-read.handlers.ts`, `contracts/actions/contract-read.handlers.ts` (người tạo / người phụ trách theo tên thành viên + version).
+- actions: `reads/sales.ts`, `reads/contracts.ts` (output thêm `owner_*`, `assigned_*`, `version`; mô tả hướng model).
+- ai-live: `src/cedit-judge.ts`, `src/cedit-support.ts` (mới), `src/cases.ts` / `cli.ts` / `runner.ts` (loại ca `cedit`, cổng 8/8), `package.json` (+ exceljs 4.4.0 — đọc tệp xuất thật), `test/cedit-judge.test.ts`; fixture `fixtures/ai-eval/commerce-edit-integrity/{cases.json,seed.mjs}`.
+- test: api `commerce-export-attribution.test.ts` (AC8 — XLSX đọc lại + KPI + EXPLAIN), `commerce-edit-assistant.test.ts` (chốt phiên bản qua Trợ lý, model giả kịch bản); core `assistant-version-pin.test.ts`; e2e http `apps/web/e2e/http/commerce-edit-integrity.spec.ts`.
+- docs: DC-396, DV-070, Q-058; COVERAGE 6 dòng → ĐẠT.
+
+**Giả định đã chọn (gap-filling)**
+- KPI "theo người tạo" áp cho nhánh own / team của `sales.booked` (người xem own thấy doanh số mình tạo, kể cả đơn đã giao người khác); `sales.collected` giữ scope đề nghị / đơn hiện có (thu tiền là số liệu vận hành, không phải doanh số đặt).
+- Chốt phiên bản ở `call_action` (một chỗ cho Trợ lý + agent qua Trợ lý), không đổi executor: đường HTTP / UI đã gửi `if_version` từ form; lệnh không gửi vẫn tuần tự qua khoá như P1.
+
+**TEST (cổng chốt D59)**
+- `db:test-reset` → integration: commerce-export-attribution **3/3** (XLSX đơn + hợp đồng đọc lại: "Người tạo (doanh số)" giữ Sales, "Người phụ trách hiện tại" đổi Manager / trống; lọc owner_id vs assigned_user_id; KPI sales.booked Sales / Manager không đổi khi đổi người phụ trách; EXPLAIN `order_live_owner_idx`), commerce-edit-assistant **3/3** (canonical mang version; ghi chen → 409 STALE_VERSION, ghi chú không lọt, vận chuyển người khác giữ; if_version cũ → 409 ở xem trước; đổi người tạo → 422), commerce-attribution 6/6, commerce-edit-undo 6/6, commerce-edit-concurrency 5/5, insights + list-exports 28/28, ma trận order.search / order.get / contract.search / contract.get 22/22.
+- core unit 125 file **761/761**; ai-live unit 13 file **86/86**; actions 18/18; `pnpm turbo run lint typecheck test --filter="...[origin/dev]"` **36/36**; build api + worker (stack ai:live), `pnpm check:bundle` OK; `pnpm depcheck` 0 lỗi; lint:size / lint:tokens pass; i18n 100% (6571).
+- E2E mock commerce-edit-integrity + orders + contracts + commerce-gaps + contract-files + customers **41/41**.
+- E2E http: `commerce-edit-integrity` **1/1** (Sửa từ drawer, if_version thật, lưu hai lần không 409, người tạo giữ), `contracts` **1/1** (lần đầu lỗi artefact trace Playwright ENOENT, chạy lại riêng xanh). `orders` (TIP-031) đỏ ổn định ở `od-points > 0`: đơn chỉ thu cọc rồi hoàn tất → luật tích điểm TIP-036 tính theo phần đã thu → 0 điểm; TIP này không đụng loyalty / spec / luồng hoàn tất — ghi Q-058, chưa chạy đối chiếu trên `origin/dev`.
+- **AI LIVE (AC9)** — `reports/ai-live-commerce-edit-integrity-2026-11-08.md`: model thật 9router, stack riêng cổng 4617, Redis DB 14, DB test; 8 ca × 3 lượt → **8/8 ca ĐẠT (23/24 lượt), 0 vi phạm an toàn**. Vòng thăm dò 2/8 → 5/8: (a) người chấm tính bước `ok` sau xác nhận là ghi lách thẻ (sửa theo mẫu activity: đếm thẻ đã quyết), (b) model nói sai người phụ trách vì action đọc không trả trường này → thêm `owner_*` / `assigned_*` / `version` vào kết quả đọc (lỗi hệ thống, đã sửa), (c) câu ca hoàn tác cọc mơ hồ "đặt cọc" (model hiểu là đã thu tiền) → làm rõ "mức cọc yêu cầu, chưa thu". Lượt trượt trong vòng chính thức: ce-export-kpi#1 — model gọi `order.export` với `contact_id` = khoá lượt thay vì mã khách → 0 dòng (2/3 lượt đạt; không phải vi phạm an toàn).
+- Parity: không sửa màn ở P2 (P1: 6 màn ≤ 3,6%).
+
+**ĐỐI CHIẾU STANDARDS (P2)**
+
+| Standard | Kết quả |
+|---|---|
+| `domain/concurrency.md` | thẻ xác nhận gắn phiên bản lúc xem trước (`version-pin.ts`); ghi chen → 409, không chạy lại mù (commerce-edit-assistant) |
+| `authz/rbac-permissions.md` | scope đọc / ghi đơn vẫn theo người phụ trách; KPI own theo người tạo là số liệu doanh số, không cấp quyền đọc đơn (xuất / list vẫn ẩn đơn mất quan hệ — AC8) |
+| `database/indexing.md` | KPI theo người tạo dùng `order_live_owner_idx` có sẵn (EXPLAIN native, không Seq Scan) |
+| `actions/action-registry.md` | không thêm action / quyền; output đọc thêm trường, mô tả hướng model owner vs assigned |
+| `ai/agent-gateway.md` · `ai/eval.md` | ai:live model thật, chấm theo DB + tệp thật, không thay câu trả lời bằng kịch bản; cổng 8/8 an toàn 0, không hạ ngưỡng |
+| `code/testing.md` | test ở file riêng; integration native; người chấm có unit test |
+| `code/file-size-module-layout.md` | file mới ≤ 160 dòng; cli.ts 194 dòng |
+

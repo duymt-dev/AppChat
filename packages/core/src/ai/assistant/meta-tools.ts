@@ -18,6 +18,7 @@ import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor'
 import { secretValuesPresent, stripSecrets } from '../../kernel/actions/secret-fields';
 import { allowedFor, briefSchema, exampleInput, findActions, modeAllows } from './catalog';
 import { resolveCodes } from './code-refs';
+import { pinVersion } from './version-pin';
 import { aiCustomErrors, withCustomSchema } from './custom-schema';
 import { delegateTool, type DelegateDeps } from './delegate';
 import { renderTool } from './genui/render';
@@ -82,7 +83,8 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
   if (leaked.length) return err('SECRET_FIELD', `Không gửi ô bí mật (${leaked.join(', ')}) qua công cụ — dựng form bằng render với action_id ${def.id}, để người dùng tự nhập.`);
   try {
     // Model nói theo mã hiển thị (KH-1016, BG-1003) → đổi sang id trước khi chạy.
-    const { input } = await resolveCodes(d.db, def.id, i.input ?? {}, t.authz);
+    const { input: named } = await resolveCodes(d.db, def.id, i.input ?? {}, t.authz);
+    const input = await pinVersion(d.db, def.id, named);
     // Trường tuỳ biến: Trợ lý chỉ ghi trường `ai = true` của workspace (D56) — kiểu / bắt buộc domain kiểm lại lúc execute.
     const notAi = await aiCustomErrors(d.db, def, input, roleOf(t));
     if (Object.keys(notAi).length) throw new AppError('VALIDATION_FAILED', 422, notAi);

@@ -812,6 +812,9 @@ importers:
 
   tools/ai-live:
     dependencies:
+      exceljs:
+        specifier: 4.4.0
+        version: 4.4.0
       socket.io-client:
         specifier: 4.8.4
         version: 4.8.4(supports-color@7.2.0)
