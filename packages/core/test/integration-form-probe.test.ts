@@ -19,7 +19,7 @@ const entry = (test?: () => Promise<void>, schema?: z.ZodObject): ConnectorEntry
       auth: { kind: 'basic', fields: [{ key: 'host' }, { key: 'email', optional: true }, { key: 'port' }, { key: 'pass', secret: true }, { key: 'odd' }], schema },
       modes: ['live'],
     },
-    adapter: test ? { test } : undefined,
+    adapters: test ? { sandbox: { test } } : undefined,
   }) as unknown as ConnectorEntry;
 
 describe('formFields', () => {

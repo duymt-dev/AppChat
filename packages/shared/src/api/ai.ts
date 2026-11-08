@@ -50,8 +50,12 @@ export const runRowSchema = z.object({
   task: z.string(),
   agent: z.string(),
   meta: z.string(),
-  pct: z.number().int().min(0).max(100),
+  /** Tiến độ ước theo bước (run đang chạy); null khi run đã dừng / đang chờ — không giả 100% (TIP-019b §5.4). */
+  pct: z.number().int().min(0).max(100).nullable(),
   status: z.enum(['running', 'waiting_approval', 'done']),
+  /** Trạng thái thật (DC-380) — `status` giữ 3 nhóm cho tương thích. */
+  lifecycle: z.enum(['queued', 'running', 'waiting_approval', 'waiting_child', 'waiting_operation', 'waiting_usage', 'completed', 'failed', 'cancelled', 'handoff']),
+  stop_reason: z.string().nullable(),
   approval_id: z.string().optional(),
 });
 export const runsListSchema = z.object({ data: z.array(runRowSchema) });

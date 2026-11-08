@@ -93,7 +93,9 @@ model TenantBankFeed {
   lastTxAt     DateTime? @map("last_tx_at") @db.Timestamptz(6)
   createdAt    DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  txs BankTx[]
+  txs      BankTx[]
+  receipts BankReceipt[]
+  pulls    BankPullState[]
 
   @@map("tenant_bank_feed")
 }
@@ -116,7 +118,8 @@ model BankTx {
   paymentId          String?      @map("payment_id") @db.Uuid
   createdAt          DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
-  feed TenantBankFeed @relation(fields: [feedId], references: [id], onDelete: Restrict)
+  feed     TenantBankFeed @relation(fields: [feedId], references: [id], onDelete: Restrict)
+  receipts BankReceipt[]
 
   @@unique([feedId, externalId])
   @@map("bank_tx")
@@ -125,38 +128,38 @@ model BankTx {
 /// Đề nghị thanh toán (mã `TT-…`, tên kỹ thuật invoice — COMMERCE §5, state-machine §6). `status` lưu để lọc / nhắc: draft / void đặt
 /// bởi action; còn lại tính lại (`invoiceStatusOf`) mỗi lần đổi số đã thu và khi quét quá hạn. Không bao giờ xoá — chỉ huỷ.
 model Invoice {
-  id            String        @id @db.Uuid
-  code          String        @unique
-  orderId       String?       @map("order_id") @db.Uuid
-  contactId     String        @map("contact_id") @db.Uuid
+  id             String        @id @db.Uuid
+  code           String        @unique
+  orderId        String?       @map("order_id") @db.Uuid
+  contactId      String        @map("contact_id") @db.Uuid
   /// Theo đơn (hoặc người tạo nếu không gắn đơn) — data scope sales.
-  ownerUserId   String?       @map("owner_user_id") @db.Uuid
+  ownerUserId    String?       @map("owner_user_id") @db.Uuid
   /// Nhóm của bản ghi — scope `team` (DC-299, TIP-042c); chụp lúc tạo, không đổi theo nhóm người phụ trách. Null = mơ hồ.
-  teamId        String?       @map("team_id") @db.Uuid
-  kind          InvoiceKind   @default(full)
-  status        InvoiceStatus @default(draft)
-  title         String        @default("")
-  amount        BigInt
+  teamId         String?       @map("team_id") @db.Uuid
+  kind           InvoiceKind   @default(full)
+  status         InvoiceStatus @default(draft)
+  title          String        @default("")
+  amount         BigInt
   /// Tổng khoản thu dương đã xác nhận (hoàn tiền không mở lại đề nghị — ghi ở đơn + sổ khoản thu).
-  paidAmount    BigInt        @default(0) @map("paid_amount")
+  paidAmount     BigInt        @default(0) @map("paid_amount")
   /// Hạn thanh toán (ngày theo giờ workspace) — mặc định +7 ngày.
-  dueDate       DateTime      @map("due_date") @db.Date
+  dueDate        DateTime      @map("due_date") @db.Date
   /// `[{ key: 'T-1' | 'T+1' | 'T+7' | 'manual', at, channel, by }]` — mỗi mốc tự động nhắc một lần.
-  remindersSent Json          @default("[]") @map("reminders_sent")
-  sentAt        DateTime?     @map("sent_at") @db.Timestamptz(6)
-  sentChannel   String?       @map("sent_channel")
-  sentById      String?       @map("sent_by_id")
-  conversationId String?      @map("conversation_id") @db.Uuid
-  fileId        String?       @map("file_id") @db.Uuid
-  voidReason    String        @default("") @map("void_reason")
-  voidedAt      DateTime?     @map("voided_at") @db.Timestamptz(6)
-  voidedById    String?       @map("voided_by_id")
-  note          String        @default("")
-  createdByType String        @default("user") @map("created_by_type")
-  createdById   String?       @map("created_by_id")
-  version       Int           @default(1)
-  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  remindersSent  Json          @default("[]") @map("reminders_sent")
+  sentAt         DateTime?     @map("sent_at") @db.Timestamptz(6)
+  sentChannel    String?       @map("sent_channel")
+  sentById       String?       @map("sent_by_id")
+  conversationId String?       @map("conversation_id") @db.Uuid
+  fileId         String?       @map("file_id") @db.Uuid
+  voidReason     String        @default("") @map("void_reason")
+  voidedAt       DateTime?     @map("voided_at") @db.Timestamptz(6)
+  voidedById     String?       @map("voided_by_id")
+  note           String        @default("")
+  createdByType  String        @default("user") @map("created_by_type")
+  createdById    String?       @map("created_by_id")
+  version        Int           @default(1)
+  createdAt      DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime      @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   payments CustomerPayment[]
 

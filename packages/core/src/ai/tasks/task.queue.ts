@@ -13,8 +13,11 @@ export interface TaskJob {
   task_id: string;
   /** Run `queued` đã tạo cho lần chạy này. */
   run_id: string;
-  /** Sự kiện kích hoạt (tác vụ theo sự kiện). */
-  event?: { topic: string; payload: Record<string, unknown> };
+  /**
+   * Sự kiện kích hoạt (tác vụ theo sự kiện). TIP-012b P4: chỉ topic + id outbox nguồn — runTask đọc lại payload từ `outbox_event` (không
+   * mang dữ liệu / quyền qua queue). `payload` giữ cho job cũ còn trong hàng đợi lúc nâng cấp.
+   */
+  event?: { topic: string; source_event_id?: string; payload?: Record<string, unknown> };
 }
 
 export class TaskQueue {

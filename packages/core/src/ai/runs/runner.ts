@@ -7,7 +7,8 @@ import { recordLlmError, recordLlmUsage } from '../../kernel/metrics/ai';
 import { AppError, utcToWall } from '@appchat/shared';
 import type { CreditMeter } from '../../billing/public';
 import type { AppLogger } from '../../kernel/logger/logger';
-import type { RunRow, RunStore } from './run.store';
+import { WAITING, type RunRow, type RunStore, type WaitStatus } from './run.store';
+import type { KeyValueStore } from '../../kernel/redis';
 import { toolActionId } from './tools';
 import { attemptHooks } from './attempt-hooks';
 import { ensureRootBudget } from './root-budget';
@@ -27,7 +28,8 @@ export interface RunSpec {
 }
 
 export interface RunResult {
-  status: 'completed' | 'failed' | 'cancelled' | 'waiting_approval';
+  /** `waiting_child` (TIP-019b §4.3): run con đang chờ — run này dừng, chạy tiếp khi con kết thúc; không phải xong. */
+  status: 'completed' | 'failed' | 'cancelled' | 'waiting_approval' | 'waiting_child';
   text: string;
   creditsUsed: number;
   stopReason?: string;
@@ -53,6 +55,8 @@ export interface RunnerDeps {
   clock?: { now: () => Date; timeZone: (ws: string) => Promise<string> };
   /** Workspace còn hoạt động (TIP-040, DC-373) — kiểm trước MỖI bước model; tạm dừng → dừng run (lỗi 423), bước đã gửi không thu hồi. */
   assertOpen?: (ws: string) => Promise<void>;
+  /** Đánh dấu outbox bẩn sau khi ghi sự kiện run (relay phát `run.step` / `run.done` ngay — TIP-019b §5.3). */
+  kv?: Pick<KeyValueStore, 'sadd'> | null;
 }
 
 export class AiRunner {
@@ -67,7 +71,8 @@ export class AiRunner {
   }
 
   /** Chạy run `queued` từ đầu. */
-  async start(ws: string, store: RunStore, run: RunRow, spec: RunSpec): Promise<RunResult> {
+  async start(ws: string, base: RunStore, run: RunRow, spec: RunSpec): Promise<RunResult> {
+    const store = base.observed(ws, this.d.kv);
     if (!(await store.claim(run.id, ['queued']))) throw new AppError('INVALID_STATE', 409, { run: run.status });
     return this.loop(ws, store, run, spec, spec.messages, 0);
   }
@@ -76,10 +81,11 @@ export class AiRunner {
    * Chạy tiếp run `waiting_approval` với kết quả của tool đang chờ (đã chạy sau khi người duyệt / xác nhận, hoặc bị từ chối).
    * Idempotent: run không còn chờ (đã chạy tiếp / huỷ) → null.
    */
-  async resume(ws: string, store: RunStore, runId: string, outcome: ToolOutcome, spec: Omit<RunSpec, 'messages'>): Promise<RunResult | null> {
+  async resume(ws: string, base: RunStore, runId: string, outcome: ToolOutcome, spec: Omit<RunSpec, 'messages'>): Promise<RunResult | null> {
+    const store = base.observed(ws, this.d.kv);
     const run = await store.get(runId);
-    if (!run || run.status !== 'waiting_approval' || !run.state) return null;
-    if (!(await store.claim(run.id, ['waiting_approval']))) return null;
+    if (!run || !(WAITING as readonly string[]).includes(run.status) || !run.state) return null;
+    if (!(await store.claim(run.id, [run.status as WaitStatus]))) return null;
     const state = run.state as unknown as PausedState;
     const idx = await store.nextIdx(run.id);
     await store.step(run.id, { idx, type: 'tool', actionId: toolActionId(state.pendingToolCall.toolName), input: state.pendingToolCall.input, output: outcome, status: outcome.kind === 'error' ? 'error' : 'ok', meta: { resumed: true } });
@@ -149,12 +155,17 @@ export class AiRunner {
         spec.onEvent?.(e);
         if (e.type === 'delta') text += e.text;
         else if (e.type === 'usage') creditsUsed += e.credits;
-        else if (e.type === 'tool_result' && e.outcome.kind !== 'needs_confirmation' && e.outcome.kind !== 'needs_approval') {
+        else if (e.type === 'tool_result' && e.outcome.kind !== 'needs_confirmation' && e.outcome.kind !== 'needs_approval' && e.outcome.kind !== 'waiting_child') {
           const idx = await store.nextIdx(run.id);
           await store.step(run.id, { idx, type: 'tool', actionId: toolActionId(e.call.toolName), input: e.call.input, output: e.outcome, status: e.outcome.kind === 'error' ? 'error' : 'ok', latencyMs: e.latencyMs });
         } else if (e.type === 'paused') {
           const idx = await store.nextIdx(run.id);
           await store.step(run.id, { idx, type: 'tool', actionId: toolActionId(e.state.pendingToolCall.toolName), input: e.state.pendingToolCall.input, output: e.outcome, status: 'paused' });
+          if (e.outcome.kind === 'waiting_child') {
+            // Run con đang chờ: run này dừng `waiting_child`, state giữ lời gọi delegate — con kết thúc thì chạy tiếp đúng một lần.
+            await store.wait(run.id, 'waiting_child', { ...e.state, child_run_id: e.outcome.runId });
+            return { status: 'waiting_child', text, creditsUsed, paused: e };
+          }
           await store.pause(run.id, e.state, e.outcome.kind === 'needs_approval' ? e.outcome.approvalId : undefined);
           return { status: 'waiting_approval', text, creditsUsed, paused: e };
         } else if (e.type === 'error' && (e.code === 'CANCELLED' || e.code === 'BUDGET')) {
@@ -165,8 +176,7 @@ export class AiRunner {
             await store.finish(run.id, 'cancelled');
             return { status: 'cancelled', text, creditsUsed, stopReason: reason };
           }
-          await store.finish(run.id, 'completed', { output: { text, stop: reason } });
-          return { status: 'completed', text, creditsUsed, stopReason: reason };
+          return safetyStop(store, run.id, text, creditsUsed, reason);
         } else if (e.type === 'error') {
           recordLlmError(undefined, undefined, spec.source ?? run.kind);
           await store.stopReason(run.id, e.code === 'CREDIT_EXHAUSTED' ? 'credit_exhausted' : e.code === 'USAGE_UNKNOWN' ? 'usage_unknown' : 'provider_error');
@@ -178,6 +188,8 @@ export class AiRunner {
             await store.finish(run.id, 'cancelled');
             return { status: 'cancelled', text: e.text, creditsUsed, stopReason: e.reason };
           }
+          // Chỉ dừng tự nhiên (model trả lời xong) là thành công; max_steps / loop_guard / budget là dừng an toàn (DC-380).
+          if (e.reason !== 'stop') return safetyStop(store, run.id, e.text, creditsUsed, e.reason);
           await store.finish(run.id, 'completed', { output: { text: e.text, stop: e.reason } });
           return { status: 'completed', text: e.text, creditsUsed, stopReason: e.reason };
         }
@@ -193,3 +205,14 @@ export class AiRunner {
     }
   }
 }
+
+/** Mã lỗi theo lý do dừng an toàn — người gọi (Trợ lý: lỗi có lý do; agent trực kênh: chuyển người 022b; tác vụ: lỗi) đọc mã này. */
+const SAFETY_CODE: Record<string, string> = { max_steps: 'MAX_STEPS', loop_guard: 'LOOP_GUARD', budget: 'BUDGET' };
+
+/** Dừng an toàn → `failed` + `stop_reason` + chữ đã có (không bao giờ là `completed`). */
+async function safetyStop(store: RunStore, runId: string, text: string, creditsUsed: number, reason: string): Promise<RunResult> {
+  const code = SAFETY_CODE[reason] ?? 'STOPPED';
+  await store.finish(runId, 'failed', { output: { text, stop: reason }, error: code });
+  return { status: 'failed', text, creditsUsed, stopReason: reason, error: { code, message: reason } };
+}
+

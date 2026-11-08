@@ -5,6 +5,14 @@
 // thông điệp provider). Không có adapter / `coming_soon` → `unsupported` rõ ràng, không bao giờ `ok`. Không gọi URL tuỳ ý.
 import type { AuthField, ConnectionCtx, ConnectorEntry, ConnectorRegistry } from '@appchat/integrations';
 import { AppError, type AuthFieldDto } from '@appchat/shared';
+import {
+  ProviderError,
+  adapterFor,
+  isProviderError,
+  type BankFeedProvider,
+  type ProviderHttp,
+} from '@appchat/integrations';
+import { providerHttp } from '../operations/provider-http';
 
 export const PROBE_TIMEOUT_MS = 10_000;
 
@@ -13,7 +21,10 @@ type FieldType = FormField['type'];
 
 /** Manifest khai `auth.schema` có hình ngoài phép chiếu hỗ trợ — lỗi của connector, không phải của người dùng. */
 export class UnsupportedAuthSchema extends Error {
-  constructor(readonly provider: string, readonly field: string) {
+  constructor(
+    readonly provider: string,
+    readonly field: string,
+  ) {
     super(`auth.schema ${provider}.${field}: unsupported shape`);
   }
 }
@@ -22,7 +33,13 @@ const KNOWN_CHECKS = new Set(['string_format', 'max_length', 'min_length']);
 
 interface ZodLike {
   type?: string;
-  _zod?: { def?: { type?: string; checks?: { _zod?: { def?: { check?: string; format?: string; maximum?: number } } }[]; innerType?: ZodLike } };
+  _zod?: {
+    def?: {
+      type?: string;
+      checks?: { _zod?: { def?: { check?: string; format?: string; maximum?: number } } }[];
+      innerType?: ZodLike;
+    };
+  };
   def?: { type?: string };
   shape?: Record<string, ZodLike>;
 }
@@ -64,18 +81,41 @@ export function connectorEntry(registry: ConnectorRegistry, provider: string): C
   return e;
 }
 
-export type ProbeResult = { status: 'ok' } | { status: 'failed'; reason: 'rejected' | 'timeout' } | { status: 'unsupported'; reason: 'coming_soon' | 'no_test' } | { status: 'not_connected' };
+export type ProbeResult =
+  | { status: 'ok' }
+  | { status: 'failed'; reason: 'rejected' | 'timeout' }
+  | { status: 'unsupported'; reason: 'coming_soon' | 'no_test' }
+  | { status: 'not_connected' };
 
 /** Gọi `adapter.test` với hạn 10 giây; lỗi → `failed` đã làm sạch. */
-export async function probe(e: ConnectorEntry, conn: ConnectionCtx, timeoutMs = PROBE_TIMEOUT_MS): Promise<ProbeResult> {
+export async function probe(
+  e: ConnectorEntry,
+  conn: ConnectionCtx,
+  timeoutMs = PROBE_TIMEOUT_MS,
+  http: ProviderHttp = providerHttp(),
+): Promise<ProbeResult> {
   if (e.manifest.status === 'coming_soon') return { status: 'unsupported', reason: 'coming_soon' };
-  if (!e.adapter?.test) return { status: 'unsupported', reason: 'no_test' };
+  const adapter = adapterFor(e, conn.mode);
+  // TIP-012b P5 §4.1 A: adapter ngân hàng không có `test` nhưng có thăm dò đọc thật (`probe` qua safeFetch, host cố định) → dùng nó;
+  // thiếu khoá đọc → unsupported rõ (không bao giờ "ok" giả).
+  const bank = adapter as BankFeedProvider | null;
+  const run = adapter?.test
+    ? () => adapter.test!(conn)
+    : bank?.probe
+      ? () =>
+          bank.probe!(conn, http).then((r) => {
+            if (!r.account_found) throw new ProviderError('auth_failed', 'account');
+          })
+      : null;
+  if (!run) return { status: 'unsupported', reason: 'no_test' };
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<'timeout'>((r) => (timer = setTimeout(() => r('timeout'), timeoutMs)));
   try {
-    const r = await Promise.race([e.adapter.test(conn).then(() => 'ok' as const), timeout]);
+    const r = await Promise.race([run().then(() => 'ok' as const), timeout]);
     return r === 'ok' ? { status: 'ok' } : { status: 'failed', reason: 'timeout' };
-  } catch {
+  } catch (err) {
+    if (isProviderError(err) && err.code === 'unsupported')
+      return { status: 'unsupported', reason: 'no_test' };
     // Thông điệp provider có thể chứa dữ liệu nhạy cảm → không trả.
     return { status: 'failed', reason: 'rejected' };
   } finally {

@@ -32,3 +32,6 @@ export const contactBulkPatch = contactFields.omit({ full_name: true, owner_user
   add_tags: z.array(z.string().min(1).max(40)).max(10).optional(),
   remove_tags: z.array(z.string().min(1).max(40)).max(10).optional(),
 });
+
+/** Nguồn hội thoại / tin tuỳ chọn của hoạt động CRM (TIP-026b) — server kiểm thuộc đúng khách + người gọi thấy được. */
+export const activitySource = z.object({ source_conversation_id: z.string().min(1).max(64).optional(), source_message_id: z.string().min(1).max(64).optional() });

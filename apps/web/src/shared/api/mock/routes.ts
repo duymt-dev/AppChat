@@ -24,6 +24,7 @@ import { settingsRoutes } from './domains/settings';
 import { authzMgmtRoutes } from './domains/authz-management';
 import { leadRoutingRoutes } from './domains/lead-routing';
 import { settingsAppsRoutes } from './domains/settings-apps';
+import { integrationRuntimeRoutes } from './domains/integration-runtime';
 import { profileLayoutRoutes } from './domains/profile-layout';
 import { settingsDataRoutes } from './domains/settings-data';
 import { settingsAiRoutes } from './domains/settings-ai';
@@ -89,6 +90,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...authzMgmtRoutes,
   ...leadRoutingRoutes,
   ...settingsAppsRoutes,
+  ...integrationRuntimeRoutes,
   ...profileLayoutRoutes,
   ...settingsDataRoutes,
   ...settingsAiRoutes,

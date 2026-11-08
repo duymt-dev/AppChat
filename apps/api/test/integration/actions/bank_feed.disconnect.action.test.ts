@@ -19,7 +19,7 @@ describe('bank_feed.disconnect', () => {
   });
 
   it('preview Trợ lý → xác nhận', async () => {
-    const feed = (await m.seed('bank_feed.connect', { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071000123456' } })).feed_id;
+    const feed = (await m.seed('bank_feed.connect', { provider: 'sepay', fields: { api_key: 'sk_tenant', account_number: '0071000123456' }, mode: 'sandbox' })).feed_id;
     const { preview, done } = await m.confirm({ provider: 'sepay' });
     expect(preview).toEqual({ summary: 'SePay · 0071000123456', risk: 'config', changes: [{ entity: 'bank_feed', id: feed, before: { provider: 'sepay', status: 'active' }, after: { status: 'disconnected' } }], warnings: ['auto_match_off'] });
     expect(done.status, JSON.stringify(done.body)).toBe(200);

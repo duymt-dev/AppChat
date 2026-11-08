@@ -13,9 +13,9 @@ afterAll(() => m?.close());
 
 describe('integration.connect', () => {
   it('403 sales · Sắp có / thiếu trường → 422', async () => {
-    expect((await m.act({ provider: 'casso', fields: { api_key: 'k' } }, m.sales)).status).toBe(403);
+    expect((await m.act({ provider: 'casso', fields: { webhook_secret: 'k', account_number: '0071000555666' }, mode: 'sandbox' }, m.sales)).status).toBe(403);
     expect((await m.act({ provider: 'kiotviet', fields: {} }, undefined, { 'x-action-source': 'assistant' })).body.error.fields).toEqual({ provider: 'coming_soon' });
-    expect((await m.act({ provider: 'sepay', fields: { api_key: 'sk_1' } }, undefined, { 'x-action-source': 'assistant' })).body.error.fields).toEqual({ account_number: 'required' });
+    expect((await m.act({ provider: 'sepay', fields: { api_key: 'sk_1' }, mode: 'sandbox' }, undefined, { 'x-action-source': 'assistant' })).body.error.fields).toEqual({ account_number: 'required' });
   });
 
   it('preview Trợ lý → xác nhận (không lộ bí mật); kết nối lại → cảnh báo', async () => {

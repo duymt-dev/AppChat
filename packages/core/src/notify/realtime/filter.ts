@@ -6,6 +6,7 @@ import { can, type AuthzContext } from '@appchat/shared';
 import { inScope } from '../../authz/scope';
 import { decide, grantAllows, type ContactGrant } from '../../authz/data-access';
 import type { RealtimeEnvelope } from './envelope';
+import { runGuard } from './run-guard';
 
 export interface SocketIdentity {
   workspaceId: string;
@@ -38,7 +39,7 @@ function recordDecision(s: SocketIdentity, env: RealtimeEnvelope, grant?: Contac
 
 /** Bộ lọc đồng bộ (không tra quan hệ khách — chỉ đúng khi envelope không có `require.record` cần quan hệ). */
 export function allowedFor(s: SocketIdentity, env: RealtimeEnvelope): boolean {
-  return base(s, env) && recordDecision(s, env) === true;
+  return base(s, env) && recordDecision(s, env) === true && !env.require?.run;
 }
 
 /** Lọc danh sách socket cho một envelope — tra quan hệ khách gom một lần cho những socket cần. */
@@ -47,5 +48,14 @@ export async function filterRecipients<T extends SocketIdentity>(list: readonly 
   const need = pre.filter((x) => x.d === 'grant').map((x) => x.s.userId);
   const contact = env.require?.record?.ref.contact;
   const grants = need.length && contact && lookup ? await lookup(env.ws, contact, [...new Set(need)]).catch(() => new Map<string, ContactGrant>()) : new Map<string, ContactGrant>();
-  return pre.filter((x) => (x.d === 'grant' ? recordDecision(x.s, env, grants.get(x.s.userId) ?? null) === true : x.d === true)).map((x) => x.s);
+  const passed = pre.filter((x) => (x.d === 'grant' ? recordDecision(x.s, env, grants.get(x.s.userId) ?? null) === true : x.d === true)).map((x) => x.s);
+  const run = env.require?.run;
+  if (!run || !passed.length) return passed;
+  // Run AI: quyền đọc run hiện tại (runScope theo người khởi tạo gốc) — một lần mỗi user; chưa có guard / lỗi tra → không gửi.
+  const g = runGuard();
+  if (!g) return [];
+  const byUser = new Map(passed.map((s) => [s.userId, s]));
+  const okUsers = new Set<string>();
+  await Promise.all([...byUser.values()].map(async (s) => (await g({ workspaceId: s.workspaceId, userId: s.userId, authz: s.authz, runId: run.runId }).catch(() => false)) && okUsers.add(s.userId)));
+  return passed.filter((s) => okUsers.has(s.userId));
 }

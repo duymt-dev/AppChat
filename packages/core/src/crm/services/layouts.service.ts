@@ -35,6 +35,7 @@ export async function layoutsData(db: Db, names: (ids: string[]) => Promise<Map<
       tabs: tabsOf(l.tabs),
       roles: SYSTEM_ROLES.filter((r) => assign[r] === l.id),
       created_by: l.isSystem ? sys : (l.createdByUserId ? (who.get(l.createdByUserId) ?? '') : ''),
+      version: l.version,
     })),
     role_assignments: assign,
   };

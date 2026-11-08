@@ -660,6 +660,9 @@
     "interested": "Registered",
     "field": {
       "api_key": "API key / Token",
+      "hmac_secret": "HMAC secret key (if using signatures)",
+      "webhook_secret": "Webhook V2 security key",
+      "api_token": "SePay API token (read-only check, optional)",
       "account_number": "Receiving account number",
       "host": "SMTP host",
       "username": "Username",
@@ -673,6 +676,79 @@
       "connect": "Connect",
       "disconnect": "Disconnect",
       "connectedD": "Connected and syncing. Disconnecting stops sync; synced data is kept."
+    },
+    "detail": {
+      "title": "Connection details",
+      "close": "Close",
+      "manage": "Manage connection",
+      "sync": "Sync now",
+      "syncing": "Syncing…",
+      "webhookOnly": "This connection only receives webhooks — the provider does not support a safe transaction pull yet.",
+      "pending": "Sync request accepted ({status}) — results update when it finishes.",
+      "mode": "Mode",
+      "caps": "Capabilities",
+      "probeAt": "Last read check",
+      "lastSync": "Last sync",
+      "lastEvent": "Last webhook",
+      "binding": "Payment matching",
+      "bindingOn": "On",
+      "bindingOff": "Off",
+      "bind": "Enable payment matching",
+      "never": "Never",
+      "none": "None",
+      "lastError": "Last error: {reason}",
+      "log": "Call log",
+      "logEmpty": "No calls yet.",
+      "logMore": "Load more",
+      "modeV": {
+        "live": "Live",
+        "sandbox": "Sandbox (simulated)"
+      },
+      "cap": {
+        "webhook": "Webhook",
+        "probe": "Read check",
+        "pull": "Transaction pull"
+      },
+      "health": {
+        "verified": "Verified",
+        "probing": "Checking",
+        "configured_unverified": "Configured, unverified",
+        "degraded": "Error",
+        "disconnected": "Disconnected",
+        "sandbox": "Sandbox"
+      },
+      "probe": {
+        "verified": "Valid",
+        "failed": "Failed",
+        "unsupported": "Unsupported",
+        "stale": "old key"
+      },
+      "call": {
+        "queued": "Queued",
+        "running": "Running",
+        "succeeded": "Done",
+        "failed": "Failed",
+        "unknown": "Unknown outcome",
+        "cancelled": "Cancelled"
+      },
+      "op": {
+        "bank__pull": "Transaction pull",
+        "connection__probe": "Read check"
+      },
+      "reason": {
+        "auth_failed": "key rejected",
+        "rate_limited": "rate limited",
+        "timeout": "timed out",
+        "unsupported": "unsupported",
+        "provider_unavailable": "provider unavailable",
+        "invalid_payload": "invalid provider data",
+        "superseded": "key changed",
+        "internal": "system error",
+        "no_probe": "no read check available",
+        "no_read_key": "no read key entered",
+        "account_not_found": "receiving account not found",
+        "unsupported_op": "unsupported operation"
+      }
     }
   },
   "widget": {
@@ -887,12 +963,17 @@
       "addSave": "Add tab",
       "reset": "Reset to default",
       "resetConfirm": "Reset this entire 360° Profile layout to default?",
-      "resetDone": "Layout reset to default",
       "done": "Done",
       "minOneTabFlip": "Keep at least one tab visible",
       "minOneTabDel": "Keep at least one tab",
       "delBuiltinConfirm": "Delete default tab \"{name}\" from this template? You can add it back later.",
-      "addDone": "Added tab \"{name}\" to template {tpl}"
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveError": "Not saved — edit again to retry",
+      "conflict": "Someone just edited this template. Your draft is kept.",
+      "conflictReload": "Reload",
+      "conflictOverwrite": "Overwrite with mine",
+      "pendingClose": "Changes are still saving — close anyway?"
     }
   },
   "fields": {

@@ -1,7 +1,7 @@
 // Mock Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5): GET /assistant/home, /action-logs, /approvals (tác vụ tự chủ: ai-tasks.ts);
 // POST /assistant/messages (kịch bản thay SSE: trả danh sách event) + /assistant/confirm. Dữ liệu = prototype L1178–1504
 // (fixture sinh bởi tools/scripts/fixtures/gen-assistant.py).
-import { ApiRequestError, can, authzForRole, type PermissionKey } from '@appchat/shared';
+import { ApiRequestError, can, authzForRole, type PermissionKey, type RunLifecycle } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/assistant.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -51,8 +51,11 @@ export interface Run {
   task: string;
   agent: string;
   meta: string;
-  pct: number;
+  pct: number | null;
   status: 'running' | 'waiting_approval' | 'done';
+  /** Trạng thái thật (TIP-019b, DC-380). */
+  lifecycle: RunLifecycle;
+  stop_reason: string | null;
   approval_id?: string;
 }
 
@@ -67,19 +70,21 @@ export interface AssistantState {
 
 /** 4 hàng mẫu của prototype (R0, L11420) — Operations/Sales/Support/Marketing Agent. */
 const seedRuns = (): Run[] => [
-  { id: 'run_1', root_run_id: 'run_root_1', task: 'Nhắc công nợ 6 khách quá hạn', agent: 'Operations Agent', meta: 'Misa · Zalo ZBS', pct: 60, status: 'running' },
+  { id: 'run_1', root_run_id: 'run_root_1', task: 'Nhắc công nợ 6 khách quá hạn', agent: 'Operations Agent', meta: 'Misa · Zalo ZBS', pct: 60, status: 'running', lifecycle: 'running', stop_reason: null },
   {
     id: 'run_2',
     root_run_id: 'run_root_1',
     task: 'Soạn tin chốt 6 báo giá còn treo',
     agent: 'Sales Agent',
     meta: 'Bảng giá & Báo giá · Zalo ZBS',
-    pct: 100,
+    pct: null,
     status: 'waiting_approval',
+    lifecycle: 'waiting_approval',
+    stop_reason: null,
     approval_id: 'ap_4',
   },
-  { id: 'run_3', root_run_id: 'run_root_1', task: 'Phân loại 18 hội thoại mới', agent: 'Support Agent', meta: 'Phân tích ý định', pct: 35, status: 'running' },
-  { id: 'run_4', root_run_id: 'run_root_1', task: 'Gửi ZNS nhắc lịch hẹn 42 khách', agent: 'Marketing Agent', meta: 'Zalo ZBS', pct: 100, status: 'done' },
+  { id: 'run_3', root_run_id: 'run_root_1', task: 'Phân loại 18 hội thoại mới', agent: 'Support Agent', meta: 'Phân tích ý định', pct: 35, status: 'running', lifecycle: 'running', stop_reason: null },
+  { id: 'run_4', root_run_id: 'run_root_1', task: 'Gửi ZNS nhắc lịch hẹn 42 khách', agent: 'Marketing Agent', meta: 'Zalo ZBS', pct: null, status: 'done', lifecycle: 'completed', stop_reason: null },
 ];
 
 const seedRunApproval = (): Approval => ({
@@ -252,7 +257,7 @@ export const assistantHandlers: Record<string, MockHandler> = {
       const seed = db.assistant.logs.find((l) => l.action_id === a.action_id && l.status === 'pending');
       if (seed) seed.status = 'done';
       const run = db.assistant.runs.find((r) => r.approval_id === a.id);
-      if (run) run.status = 'done';
+      if (run) Object.assign(run, { status: 'done', lifecycle: 'completed', pct: null });
       return { approval_id: a.id, status: a.status };
     },
   },
@@ -263,7 +268,7 @@ export const assistantHandlers: Record<string, MockHandler> = {
       a.status = 'edited';
       a.note = i.note;
       const run = db.assistant.runs.find((r) => r.approval_id === a.id);
-      if (run) run.status = 'done';
+      if (run) Object.assign(run, { status: 'done', lifecycle: 'completed', pct: null });
       return { approval_id: a.id, status: a.status };
     },
   },
@@ -279,8 +284,7 @@ export const assistantHandlers: Record<string, MockHandler> = {
     execute: (db, i: { run_id: string }) => {
       const r = db.assistant.runs.find((x) => x.id === i.run_id);
       if (!r) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.run_id });
-      r.status = 'done';
-      r.pct = 100;
+      Object.assign(r, { status: 'done', lifecycle: 'cancelled', stop_reason: 'cancelled', pct: null });
       return { run_id: r.id, status: r.status };
     },
   },

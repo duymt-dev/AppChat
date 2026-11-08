@@ -1,6 +1,7 @@
-// TIP-010 AC8: adapter SePay — header `Authorization: Apikey <key>`, payload SePay → BankTransaction.
+// TIP-010 AC8 / TIP-012b: adapter SePay — header `Authorization: Apikey <key>`, payload SePay → BankTransaction (chuẩn hoá chặt).
 import { describe, expect, it } from 'vitest';
 import { SepayBankFeed, sepayTime } from '../src/connectors/sepay/adapter';
+import { ProviderError } from '../src/provider-errors';
 import { sepayManifest } from '../src/connectors/sepay/manifest';
 import type { ConnectionCtx } from '../src/types';
 
@@ -35,7 +36,8 @@ describe('SePay bank feed', () => {
       { external_id: '92704', account_number: '0071000888999', amount: '1000000', direction: 'in', content: 'MBVCB.123 APPCHAT INV20261001 CT', occurred_at: '2026-10-30T07:02:37.000Z' },
     ]);
     expect(a.parseTransactions(conn, { ...body, transferType: 'out', transferAmount: '250000' })[0]).toMatchObject({ direction: 'out', amount: '250000' });
-    expect(a.parseTransactions(conn, { ...body, transferAmount: 'abc' })).toEqual([]);
-    expect(sepayTime('2026-01-01T00:00:00Z')).toBe('2026-01-01T00:00:00.000Z');
+    // TIP-012b: tiền / giờ sai → lỗi invalid_payload (cả request bị từ chối), không bỏ qua im lặng, không rơi về giờ máy chủ.
+    expect(() => a.parseTransactions(conn, { ...body, transferAmount: 'abc' })).toThrow(ProviderError);
+    expect(() => sepayTime('2026-01-01T00:00:00Z')).toThrow(ProviderError);
   });
 });

@@ -7,20 +7,20 @@
 
 /// Trạng thái nhóm (1-1 với hội thoại nhóm, tạo khi đọc / ghi lần đầu). `policy_revision` tăng mỗi lần đổi chính sách AI (CAS if_version).
 model ConversationGroupState {
-  conversationId   String    @id @map("conversation_id") @db.Uuid
-  policyRevision   Int       @default(0) @map("policy_revision")
+  conversationId  String    @id @map("conversation_id") @db.Uuid
+  policyRevision  Int       @default(0) @map("policy_revision")
   /// Ảnh chụp nhóm phía kênh (lần đọc gần nhất qua worker): null = chưa từng đọc.
-  providerName     String?   @map("provider_name")
-  providerTotal    Int?      @map("provider_total")
+  providerName    String?   @map("provider_name")
+  providerTotal   Int?      @map("provider_total")
   /// `owner` | `admin` | `member` | null (chưa biết) — vai trò của TÀI KHOẢN kênh trong nhóm.
-  accountRole      String?   @map("account_role")
-  linkEnabled      Boolean?  @map("link_enabled")
+  accountRole     String?   @map("account_role")
+  linkEnabled     Boolean?  @map("link_enabled")
   /// Tắt thông báo của TÀI KHOẢN Zalo đang kết nối (không phải tắt cho mọi người dùng AppChat).
-  muted            Boolean?
-  providerVersion  String?   @map("provider_version")
-  complete         Boolean   @default(false)
-  fetchedAt        DateTime? @map("fetched_at") @db.Timestamptz(6)
-  updatedAt        DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  muted           Boolean?
+  providerVersion String?   @map("provider_version")
+  complete        Boolean   @default(false)
+  fetchedAt       DateTime? @map("fetched_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("conversation_group_state")
 }

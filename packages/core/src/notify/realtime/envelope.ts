@@ -24,6 +24,8 @@ export interface RealtimeRequire {
    * riêng của module (hội thoại: phụ trách khách; ticket: người tạo).
    */
   record?: { policy: ModulePolicy; ref: RecordRef; mineUserId?: string | null };
+  /** Run AI người nhận phải còn đọc được (TIP-019b, `registerRunGuard`) — tra lại lúc phát, một lần mỗi user. */
+  run?: { runId: string };
 }
 
 export interface RealtimeEnvelope {

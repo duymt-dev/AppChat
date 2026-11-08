@@ -17,8 +17,9 @@ test.describe('nền tảng kết nối (http)', () => {
     await page.locator('[data-connector="casso"]').click();
     const m = page.getByTestId('st-int-modal');
     await m.getByTestId('st-int-save').click();
-    await expect(m).toBeVisible(); // thiếu api_key → 422 required, hộp vẫn mở
-    await m.getByTestId('st-int-f-api_key').fill('ck_live_e2e');
+    await expect(m).toBeVisible(); // thiếu webhook_secret → 422 required, hộp vẫn mở
+    await m.getByTestId('st-int-f-webhook_secret').fill('ck_live_e2e');
+    await m.getByTestId('st-int-f-account_number').fill('0071000123456');
     await m.getByTestId('st-int-save').click();
     await expect(m).toHaveCount(0);
     await expect(page.locator('[data-connector="casso"]')).toContainText('Thiết lập');
@@ -34,9 +35,10 @@ test.describe('nền tảng kết nối (http)', () => {
     await page.getByTestId('st-int-cat-all').click();
     await expect(page.getByTestId('st-int-interest-kiotviet')).toBeDisabled();
 
-    // Ngắt kết nối từ hộp đã kết nối.
+    // Ngắt kết nối: thẻ đã kết nối mở drawer chi tiết (TIP-012b P3) → "Quản lý kết nối" → hộp kết nối.
     await page.getByTestId('st-int-cat-payments').click();
     await page.locator('[data-connector="casso"]').click();
+    await page.getByTestId('st-int-drawer').getByTestId('st-int-manage').click();
     await page.getByTestId('st-int-modal').getByTestId('st-int-save').click();
     await expect(page.getByTestId('st-int-modal')).toHaveCount(0);
     await expect(page.locator('[data-connector="casso"]')).not.toContainText('Thiết lập');

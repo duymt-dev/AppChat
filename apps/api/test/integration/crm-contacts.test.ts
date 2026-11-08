@@ -108,7 +108,7 @@ describe('tạo khách + chống giành khách', () => {
     expect((await act('contact.update', { contact_id: lan, patch: { owner_user_id: salesB.id } }, as(salesA))).status).toBe(403);
 
     const st = await act('contact.set_stage', { contact_id: lan, stage: 'consulting' }, as(salesA));
-    expect(st.body.data.result).toEqual({ stage: 'consulting' });
+    expect(st.body.data.result).toEqual({ stage: 'consulting', version: expect.any(Number) });
     expect(await outbox('contact.stage_changed')).toContainEqual(expect.objectContaining({ contact_id: lan, from: 'lead', to: 'consulting', manual: true }));
     const tl = (await get(`/contacts/${lan}/timeline`, salesA)).body;
     expect(timelinePageSchema.parse(tl).data[0]).toMatchObject({ text: 'Đổi giai đoạn: Lead mới → Đang tư vấn', icon: 'ic-trend' });

@@ -2,7 +2,7 @@
 // xác nhận, nhật ký hành động, khung điều phối (run đang sống / theo run gốc).
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { z } from 'zod';
-import { actionLogsPageSchema, assistantConfirmSchema, assistantHomeSchema, assistantTurnSchema, runsListSchema } from '@appchat/shared';
+import { actionLogsPageSchema, assistantConfirmSchema, assistantHomeSchema, assistantTurnSchema, runChildrenResponseSchema, runDetailResponseSchema, runStepsResponseSchema, runsListSchema } from '@appchat/shared';
 import { mockTransport } from './mock-transport';
 import { setMockRole } from './store';
 
@@ -21,6 +21,15 @@ describe('mock Trợ lý — shape FE ↔ BE', () => {
     expect(issues(runsListSchema, live)).toEqual([]);
     expect(live.data.every((r) => r.status !== 'done')).toBe(true);
     expect(issues(runsListSchema, await mockTransport.get('/runs', { root_run_id: 'run_root_1' }))).toEqual([]);
+  });
+
+  it('GET /runs/:id · /steps · /children (TIP-019b) đúng schema; run không có → 404', async () => {
+    for (const id of ['run_1', 'run_2', 'run_4']) {
+      expect(issues(runDetailResponseSchema, await mockTransport.get(`/runs/${id}`))).toEqual([]);
+      expect(issues(runStepsResponseSchema, await mockTransport.get(`/runs/${id}/steps`))).toEqual([]);
+      expect(issues(runChildrenResponseSchema, await mockTransport.get(`/runs/${id}/children`))).toEqual([]);
+    }
+    await expect(mockTransport.get('/runs/nope')).rejects.toMatchObject({ status: 404 });
   });
 
   it('POST /assistant/messages → thẻ xác nhận → /assistant/confirm (xác nhận / huỷ)', async () => {

@@ -16,6 +16,9 @@ enum AiRunStatus {
   queued
   running
   waiting_approval
+  waiting_child
+  waiting_operation
+  waiting_usage
   completed
   failed
   cancelled
@@ -78,6 +81,11 @@ model AiRun {
   maxCredits         Int?        @map("max_credits")
   /// Lý do dừng (TIP-019b): success · max_steps · loop_guard · budget · cancelled · provider_error · credit_exhausted · usage_unknown …
   stopReason         String?     @map("stop_reason")
+  /// Lineage bền (TIP-019b §4.1): số lần chuyển agent + agent đã ghé trong lượt khách — không đặt lại khi chạy tiếp.
+  transferCount      Int         @default(0) @map("transfer_count")
+  visitedAgents      String[]    @default([]) @map("visited_agents")
+  /// Số thứ tự sự kiện cuối của cây (chỉ dòng run gốc dùng — TIP-019b §5.3).
+  eventSeq           Int         @default(0) @map("event_seq")
   startedAt          DateTime    @default(now()) @map("started_at") @db.Timestamptz(6)
   finishedAt         DateTime?   @map("finished_at") @db.Timestamptz(6)
 

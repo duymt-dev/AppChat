@@ -14,11 +14,11 @@ export const CONTRACT_CASES: readonly ContractCase[] = [
   { action: 'notification.mark_read', input: { ids: 'all' }, tip: '003' },
   { action: 'onboarding.toggle_step', input: { step: 'channel', done: true }, tip: '011' },
   // TIP-012: kết nối Casso (mock FE: trường api_key) → Đăng ký quan tâm thẻ "Sắp có" → ngắt.
-  { action: 'integration.connect', input: { provider: 'casso', fields: { api_key: 'ck_contract_1' } }, tip: '012' },
+  { action: 'integration.connect', input: { provider: 'casso', fields: { webhook_secret: 'ck_contract_1', account_number: '0071000123456' }, mode: 'sandbox' }, tip: '012' },
   { action: 'integration.register_interest', input: { provider: 'kiotviet' }, tip: '012' },
   // TIP-023c G3: metadata form + thăm dò connector (bản nháp, không lưu) — trước khi ngắt.
   { action: 'integration.form_schema', input: { provider: 'sepay' }, tip: '023c' },
-  { action: 'integration.test', input: { provider: 'sepay', fields: { api_key: 'sk_contract', account_number: '0123' } }, tip: '023c' },
+  { action: 'integration.test', input: { provider: 'sepay', fields: { api_key: 'sk_contract', account_number: '0123' }, mode: 'sandbox' }, tip: '023c' },
   { action: 'integration.disconnect', input: { provider: 'casso' }, tip: '012' },
   // TIP-013: Cài đặt › Tổng quan / Ngôn ngữ (không đụng business_profile — workspace test chưa khai báo) + Giờ làm việc.
   { action: 'workspace.update', input: { website: 'https://contract.vn', support_phone: '0281234567', timezone: 'Asia/Ho_Chi_Minh', date_format: 'DD/MM/YYYY' }, tip: '013' },

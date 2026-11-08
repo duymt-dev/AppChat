@@ -66,6 +66,8 @@ function routingOf(db: MockDb, accountId: string) {
     : { source: 'none' as const, rule_id: null, enabled: false, mode: 'manual', version: 0 };
 }
 
+const OPTIONAL: Record<string, string[]> = { sepay: ['api_key', 'hmac_secret', 'api_token'], casso: ['api_key'] };
+
 const connector = (db: MockDb, key: string) => {
   const c = db.settingsApps.connectors.find((x) => x.key === key);
   if (!c) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: key });
@@ -266,7 +268,9 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
     execute: (db, i: { provider: string; fields: Record<string, string> }) => {
       const c = connector(db, i.provider);
       if (c.status !== 'ga') throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'coming_soon', fields: { provider: 'coming_soon' } });
-      const missing = c.fields.find((f) => !i.fields[f]?.trim());
+      // Trường tuỳ chọn theo manifest (SePay: API key HOẶC khoá HMAC; Casso: API key gọi ra) — như splitFields + validate của server.
+      const optional = OPTIONAL[c.key] ?? [];
+      const missing = c.fields.find((f) => !optional.includes(f) && !i.fields[f]?.trim()) ?? (c.key === 'sepay' && !i.fields.api_key?.trim() && !i.fields.hmac_secret?.trim() ? 'api_key' : undefined);
       if (missing) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: missing, fields: { [missing]: 'required' } });
       c.connected = true;
       return { connection_id: `conn_${c.key}`, status: 'connected' };

@@ -660,6 +660,9 @@
     "interested": "Đã đăng ký",
     "field": {
       "api_key": "API key / Token",
+      "hmac_secret": "Khoá bí mật HMAC (nếu dùng chữ ký)",
+      "webhook_secret": "Key bảo mật Webhook V2",
+      "api_token": "API Token SePay (chỉ để kiểm tra đọc, tuỳ chọn)",
       "account_number": "Số tài khoản nhận",
       "host": "SMTP host",
       "username": "Tài khoản",
@@ -673,6 +676,79 @@
       "connect": "Kết nối",
       "disconnect": "Ngắt kết nối",
       "connectedD": "Đang kết nối và đồng bộ. Ngắt kết nối sẽ dừng đồng bộ; dữ liệu đã đồng bộ được giữ nguyên."
+    },
+    "detail": {
+      "title": "Chi tiết kết nối",
+      "close": "Đóng",
+      "manage": "Quản lý kết nối",
+      "sync": "Đồng bộ ngay",
+      "syncing": "Đang đồng bộ…",
+      "webhookOnly": "Kết nối này chỉ nhận webhook — nhà cung cấp chưa hỗ trợ kéo giao dịch an toàn.",
+      "pending": "Đã nhận yêu cầu đồng bộ ({status}) — kết quả cập nhật khi xong.",
+      "mode": "Chế độ",
+      "caps": "Khả năng",
+      "probeAt": "Kiểm tra đọc gần nhất",
+      "lastSync": "Đồng bộ gần nhất",
+      "lastEvent": "Webhook gần nhất",
+      "binding": "Đối soát tiền",
+      "bindingOn": "Đang bật",
+      "bindingOff": "Đã tắt",
+      "bind": "Bật đối soát tiền",
+      "never": "Chưa có",
+      "none": "Không",
+      "lastError": "Lỗi gần nhất: {reason}",
+      "log": "Nhật ký gọi",
+      "logEmpty": "Chưa có lệnh gọi nào.",
+      "logMore": "Xem thêm",
+      "modeV": {
+        "live": "Thật",
+        "sandbox": "Thử nghiệm (giả lập)"
+      },
+      "cap": {
+        "webhook": "Webhook",
+        "probe": "Kiểm tra đọc",
+        "pull": "Kéo giao dịch"
+      },
+      "health": {
+        "verified": "Đã xác minh",
+        "probing": "Đang kiểm tra",
+        "configured_unverified": "Đã cấu hình, chưa xác minh",
+        "degraded": "Có lỗi",
+        "disconnected": "Đã ngắt",
+        "sandbox": "Thử nghiệm"
+      },
+      "probe": {
+        "verified": "Hợp lệ",
+        "failed": "Không đạt",
+        "unsupported": "Không hỗ trợ",
+        "stale": "khoá cũ"
+      },
+      "call": {
+        "queued": "Đang chờ",
+        "running": "Đang chạy",
+        "succeeded": "Xong",
+        "failed": "Lỗi",
+        "unknown": "Không rõ kết quả",
+        "cancelled": "Đã huỷ"
+      },
+      "op": {
+        "bank__pull": "Kéo giao dịch",
+        "connection__probe": "Kiểm tra đọc"
+      },
+      "reason": {
+        "auth_failed": "khoá bị từ chối",
+        "rate_limited": "vượt giới hạn gọi",
+        "timeout": "quá thời gian",
+        "unsupported": "không hỗ trợ",
+        "provider_unavailable": "nhà cung cấp tạm lỗi",
+        "invalid_payload": "dữ liệu nhà cung cấp không hợp lệ",
+        "superseded": "khoá đã đổi",
+        "internal": "lỗi hệ thống",
+        "no_probe": "chưa có cách kiểm tra đọc",
+        "no_read_key": "chưa nhập khoá đọc",
+        "account_not_found": "không thấy tài khoản nhận",
+        "unsupported_op": "thao tác không hỗ trợ"
+      }
     }
   },
   "widget": {
@@ -887,12 +963,17 @@
       "addSave": "Thêm tab",
       "reset": "Đặt lại mặc định",
       "resetConfirm": "Đặt lại toàn bộ mẫu bố cục Hồ sơ 360° về mặc định?",
-      "resetDone": "Đã đặt lại bố cục mặc định",
       "done": "Xong",
       "minOneTabFlip": "Cần giữ lại ít nhất một tab hiển thị",
       "minOneTabDel": "Cần giữ lại ít nhất một tab",
       "delBuiltinConfirm": "Xoá tab mặc định \"{name}\" khỏi mẫu này? Có thể thêm lại sau.",
-      "addDone": "Đã thêm tab \"{name}\" vào mẫu {tpl}"
+      "saving": "Đang lưu…",
+      "saved": "Đã lưu",
+      "saveError": "Chưa lưu được — sửa tiếp để thử lại",
+      "conflict": "Mẫu vừa được người khác sửa. Bản nháp của bạn vẫn giữ.",
+      "conflictReload": "Tải lại",
+      "conflictOverwrite": "Ghi đè bằng bản của tôi",
+      "pendingClose": "Còn thay đổi đang lưu — vẫn đóng?"
     }
   },
   "fields": {

@@ -22,10 +22,10 @@ export class RunCancelHandler implements Handler<ActionInput<typeof runCancel>, 
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(_ctx: ActionContext, input: ActionInput<typeof runCancel>, tx: TenantTx): Promise<HandlerOutcome<{ run_id: string; status: string }>> {
+  async execute(ctx: ActionContext, input: ActionInput<typeof runCancel>, tx: TenantTx): Promise<HandlerOutcome<{ run_id: string; status: string }>> {
     const run = UUID.test(input.run_id) ? await tx.aiRun.findUnique({ where: { id: input.run_id }, select: { id: true, status: true } }) : null;
     if (!run) throw new AppError('NOT_FOUND', 404, { run_id: 'not_found' });
-    const ids = await new RunStore(tx, () => this.clock.now()).cancelTree(run.id);
+    const ids = await new RunStore(tx, () => this.clock.now()).observed(ctx.workspaceId).cancelTree(run.id);
     const status = ids.includes(run.id) ? 'cancelled' : run.status;
     return {
       result: { run_id: run.id, status },

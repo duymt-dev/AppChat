@@ -78,6 +78,9 @@ enum TimelineType {
   stage
   owner
   merge
+  comment
+  contact_task
+  contact_opportunity
 
   @@map("timeline_type")
 }
@@ -178,16 +181,16 @@ model ContactAccessRequest {
 
 /// Thẻ dùng chung khách + hội thoại (Blueprint §2.2). Tên duy nhất không phân biệt hoa thường (unique lower(name) ở migration).
 model Tag {
-  id              String    @id @db.Uuid
+  id              String   @id @db.Uuid
   name            String
-  color           String    @default("#6B7280")
-  emoji           String    @default("")
-  description     String    @default("")
-  scope           TagScope  @default(all)
-  createdByUserId String?   @map("created_by_user_id") @db.Uuid
-  updatedByUserId String?   @map("updated_by_user_id") @db.Uuid
-  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  color           String   @default("#6B7280")
+  emoji           String   @default("")
+  description     String   @default("")
+  scope           TagScope @default(all)
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  updatedByUserId String?  @map("updated_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("tag")
 }
@@ -282,12 +285,21 @@ model TimelineEvent {
   @@map("timeline_event")
 }
 
+/// Ghi chú nội bộ (kind note) / bình luận đồng nghiệp (kind comment) trên khách — không bao giờ gửi ra kênh (TIP-026b DC253).
+/// Ghi chú cũ giữ note. Tác giả: người (author_user_id) hoặc agent kênh (actor_type / actor_id, author null).
 model ContactNote {
-  id           String   @id @db.Uuid
-  contactId    String   @map("contact_id") @db.Uuid
-  body         String
-  authorUserId String   @map("author_user_id") @db.Uuid
-  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  id                   String          @id @db.Uuid
+  contactId            String          @map("contact_id") @db.Uuid
+  kind                 ContactNoteKind @default(note)
+  body                 String
+  authorUserId         String?         @map("author_user_id") @db.Uuid
+  actorType            String          @default("user") @map("actor_type")
+  actorId              String?         @map("actor_id")
+  sourceConversationId String?         @map("source_conversation_id") @db.Uuid
+  sourceMessageId      String?         @map("source_message_id") @db.Uuid
+  version              Int             @default(1)
+  deletedAt            DateTime?       @map("deleted_at") @db.Timestamptz(6)
+  createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([contactId, createdAt(sort: Desc)])
   @@map("contact_note")
@@ -328,6 +340,8 @@ model ProfileLayout {
   name            String
   isSystem        Boolean  @default(false) @map("is_system")
   tabs            Json     @default("[]")
+  /// Phiên bản lạc quan (TIP-026b §4.5) — trigger `profile_layout_bump_version` tăng khi đổi tên / tab; không ghi tay.
+  version         Int      @default(1)
   createdByUserId String?  @map("created_by_user_id") @db.Uuid
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)

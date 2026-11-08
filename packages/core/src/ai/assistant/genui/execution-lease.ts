@@ -58,4 +58,4 @@ export class ExecutionLease {
 
 /** Trạng thái sổ yêu cầu theo kết quả run. */
 export const execStateOf = (status: string): ExecState =>
-  status === 'completed' ? 'succeeded' : status === 'waiting_approval' ? 'waiting_approval' : status === 'cancelled' ? 'cancelled' : status === 'waiting_external' ? 'waiting_external' : 'failed';
+  status === 'completed' ? 'succeeded' : status === 'waiting_approval' ? 'waiting_approval' : status === 'cancelled' ? 'cancelled' : status === 'waiting_external' || status === 'waiting_child' || status === 'waiting_operation' || status === 'waiting_usage' ? 'waiting_external' : 'failed';

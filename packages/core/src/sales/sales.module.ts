@@ -13,6 +13,7 @@ import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers'
 import { AiModule } from '../ai/ai.module';
 import { ChannelsModule } from '../channels/channels.module';
 import { widgetUrlsFor } from '../channels/public';
+import { registerBankIngressSink } from '../integrations/public';
 import { CrmModule } from '../crm/crm.module';
 import { CrmMembers } from '../crm/public';
 import { DocumentsModule } from '../documents/documents.module';
@@ -44,8 +45,9 @@ import { InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler } from './p
 import { PaymentRefundApproveHandler, PaymentRefundHandler, PaymentRefundRejectHandler } from './payments/actions/refund.handlers';
 import { PackageAdjustHandler, PackageExtendHandler } from './payments/actions/package.handlers';
 import { BankFeedConnectHandler, BankFeedDisconnectHandler, PaymentAccountUpdateHandler } from './payments/actions/finance-config.handlers';
+import { BankFeedIngestHandler } from './payments/actions/bank-ingest.handler';
 import { InvoicesReadService } from './payments/services/invoices-read.service';
-import { TenantBankHook } from './payments/services/bank-feed';
+import { TenantBankHook, genericBankSink } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer) => ({ token, optional: true });
@@ -62,7 +64,7 @@ const HANDLERS = [
   OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderFromAppointmentHandler,
   InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
   PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler, PackageSearchHandler,
-  PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler,
+  PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler, BankFeedIngestHandler,
   // Đọc bản ghi cho Trợ lý / agent (TIP-023b R2).
   QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
   // Gửi chứng từ cho khách (TIP-032b P2).
@@ -101,8 +103,12 @@ const HANDLERS = [
     {
       provide: TenantBankHook,
       inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), opt(ENC_KEY), ORDER_SYNC_KV, CLOCK],
-      useFactory: (t: TenantDbResolver | undefined, p: PlatformDb | undefined, k: Buffer | undefined, kv: Redis | null, c: Clock) =>
-        t && p && k ? new TenantBankHook({ tenants: t, platform: p, registry: connectorRegistry, key: k, kv, now: () => c.now() }) : null,
+      useFactory: (t: TenantDbResolver | undefined, p: PlatformDb | undefined, k: Buffer | undefined, kv: Redis | null, c: Clock) => {
+        if (!t || !p || !k) return null;
+        // Hook generic `/hooks/integrations` của kết nối ngân hàng có feed đang bật → cùng ingress chuẩn tắc (TIP-012b §2.4 mục 4).
+        registerBankIngressSink(genericBankSink(kv));
+        return new TenantBankHook({ tenants: t, platform: p, registry: connectorRegistry, key: k, kv, now: () => c.now() });
+      },
     },
     {
       provide: QuotesReadService,

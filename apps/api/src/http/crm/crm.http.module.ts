@@ -5,10 +5,11 @@ import { CrmModule } from '@appchat/core';
 import { ActorModule } from '../kernel/actor.module';
 import { ContactsController } from './contacts.controller';
 import { CrmSettingsController } from './crm-settings.controller';
+import { ContactActivitiesController } from './contact-activities.controller';
 
 @Module({ imports: [CrmModule] })
 export class CrmHttpModule {
   static register(): DynamicModule {
-    return { module: CrmHttpModule, imports: [CrmModule, ActorModule], controllers: [ContactsController, CrmSettingsController] };
+    return { module: CrmHttpModule, imports: [CrmModule, ActorModule], controllers: [ContactsController, CrmSettingsController, ContactActivitiesController] };
   }
 }

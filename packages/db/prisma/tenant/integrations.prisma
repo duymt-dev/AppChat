@@ -18,10 +18,15 @@ enum IntegrationStatus {
   @@map("integration_status")
 }
 
+/// queued → running → succeeded | failed | unknown (thao tác ghi ra ngoài không rõ kết quả — không thử mù) | cancelled (kết nối đổi
+/// khoá / ngắt trước khi chạy). TIP-012b P3.
 enum IntegrationCallStatus {
   running
   succeeded
   failed
+  queued
+  unknown
+  cancelled
 
   @@map("integration_call_status")
 }
@@ -38,8 +43,20 @@ model IntegrationConnection {
   /// Trường không bí mật của form (account_number, host, username…).
   config       Json              @default("{}")
   secretEnc    Bytes?            @map("secret_enc")
+  /// Chỉ cập nhật khi một lần KÉO thật sự hoàn tất (TIP-012b §4.4) — không phải mỗi lần gọi ra ngoài.
   lastSyncAt   DateTime?         @map("last_sync_at") @db.Timestamptz(6)
+  /// Mã lỗi đã làm sạch (auth_failed / rate_limited / …) — không nguyên văn provider.
   lastError    String?           @map("last_error")
+  /// Phiên bản khoá (tăng mỗi lần kết nối / kết nối lại) — rào việc cũ + `if_version` của integration.sync_now.
+  credentialRev Int              @default(1) @map("credential_rev")
+  /// Thăm dò đọc gần nhất: verified | failed | unsupported (+ lý do đã làm sạch) — bằng chứng, không suy từ "đã lưu khoá".
+  lastProbeAt     DateTime?      @map("last_probe_at") @db.Timestamptz(6)
+  lastProbeStatus String?        @map("last_probe_status")
+  lastProbeReason String?        @map("last_probe_reason")
+  /// Phiên bản khoá đã thăm dò (khác credentialRev → cần thăm dò lại).
+  probedRev       Int?           @map("probed_rev")
+  /// Webhook đã xác thực gần nhất.
+  lastEventAt     DateTime?      @map("last_event_at") @db.Timestamptz(6)
   createdBy    String?           @map("created_by") @db.Uuid
   createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
@@ -74,11 +91,25 @@ model IntegrationCallLog {
   status         IntegrationCallStatus
   attempts       Int                   @default(0)
   latencyMs      Int?                  @map("latency_ms")
+  /// Mã lỗi đã làm sạch (ProviderError code / `internal`) — không thông điệp provider.
   error          String?
+  /// Phiên bản khoá lúc nhận việc — khác credential_rev hiện tại khi chạy → cancelled (TIP-012b §4.4).
+  configRev      Int?                  @map("config_rev")
+  /// Thế hệ claim (CAS): worker cũ không ghi đè kết quả của lượt mới.
+  generation     Int                   @default(0)
+  leaseUntil     DateTime?             @map("lease_until") @db.Timestamptz(6)
+  nextAttemptAt  DateTime?             @map("next_attempt_at") @db.Timestamptz(6)
+  /// read (GET / thăm dò — thử lại an toàn) | mutation (ghi ra ngoài — lỗi giữa chừng → unknown, không thử mù).
+  safety         String                @default("read")
+  /// Kết quả an toàn (đếm trang / giao dịch) — không dữ liệu khách.
+  outcome        Json?
+  /// Người / nguồn yêu cầu (user id | `scheduler`) — không phải quyền: lượt chạy đọc lại quyền hiện tại.
+  requestedBy    String?               @map("requested_by")
+  finishedAt     DateTime?             @map("finished_at") @db.Timestamptz(6)
   createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt      DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-  @@index([connectionId, createdAt(sort: Desc)])
+  // Index log + hàng chờ viết SQL trong migration (INCLUDE / partial — TIP-012b §5.3).
   @@map("integration_call_log")
 }
 

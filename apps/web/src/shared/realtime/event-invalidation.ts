@@ -24,10 +24,19 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   'agent.changed': [['agents']],
   'channel.status': [['channels']],
   'kb.source': [['kb']],
+  // sự kiện run đã commit (TIP-019b — chỉ id + seq + trạng thái, người còn đọc được run) → khung điều phối + drawer chi tiết tải lại
+  'run.step': [['runs']],
+  'run.done': [['runs']],
+  // nối lại WS sau khi rớt → khung điều phối / drawer run đọc lại (sự kiện lỡ không phát lại)
+  'realtime.reconnected': [['runs'], qk.navBadges()],
   // chiến dịch đổi trạng thái / gửi xong lô (TIP-037 — chỉ id + trạng thái, người có campaign.view)
   'campaign.updated': [['marketing']],
   // đổi định nghĩa / vai trò được thấy của trường tuỳ biến (TIP-045b annex C) → mọi danh sách + chi tiết tải lại (REST chiếu theo quyền)
   'fields.changed': [[]],
+  // kết nối / lỗi gọi ra ngoài (TIP-012b P3 — chỉ id + mã lỗi đã làm sạch) → thẻ + drawer chi tiết kết nối tải lại
+  'integration.connected': [['integrations']],
+  'integration.disconnected': [['integrations']],
+  'integration.error': [['integrations']],
 };
 
 /** Khoá cần làm mới của một sự kiện (sự kiện hội thoại → theo `conversation_id`). */

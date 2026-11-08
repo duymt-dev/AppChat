@@ -8,6 +8,7 @@ import { useKanbanCardStyles } from '../styles/kanban.styles';
 import { useCrmUi } from '../crm-store';
 import { avatarBg } from '../tones';
 import { RowActions } from '../columns';
+import { KanbanCustomFields } from './KanbanCustomFields';
 import type { ContactRow, CrmStats } from '../types';
 
 // dải "website" theo vị trí khách (prototype KAN_WEBBG) — gradient token
@@ -43,6 +44,7 @@ export function KanbanCard({ c, tagDefs }: { c: ContactRow; tagDefs: CrmStats['t
           </div>
           <RowActions c={c} variant="kanban" />
         </div>
+        <KanbanCustomFields custom={c.custom} />
         <div className={styles.chan}>
           <span className={styles.chanDot} style={{ background: c.source_color }} />
           <span className={styles.chanName}>{c.source_label}</span>

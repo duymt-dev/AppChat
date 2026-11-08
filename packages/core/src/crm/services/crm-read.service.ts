@@ -1,11 +1,12 @@
 // Đọc domain crm cho apps/api (Blueprint §4.4 crm — shape packages/shared/src/api/crm.ts). Mỗi lệnh đọc mở một transaction
 // chỉ-đọc trên DB tenant của workspace (TenantDbResolver) và áp scope crm của người xem (rbac §5 — không có đường vòng).
-import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, utcToWall, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
+import { AppError, CONTACT_STAGES, STAGE_COLOR, STAGE_LOST_COLOR, createFmt, tagTone, utcToWall, type ActivityKind, type AuthzContext, type CustomFieldEntity } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
-import { boardIds, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
+import { boardCounts, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
+import { BOARD_DEFAULT, BOARD_MAX, boardColumnIds, decodeBoardCursor } from '../repos/board-page';
 import { UUID, visibleContact } from './access';
-import { contact360 } from './contact360';
+import { contact360, withActivities } from './contact360';
 import { ROW_SELECT, loadRowExtras, toRow, type ContactRecord } from './contact-view';
 import { nextActions } from '../insights/next-action';
 import { crmAi, insights360 } from '../insights/read';
@@ -19,6 +20,7 @@ import type { FileLinks } from '../../kernel/files/file-links';
 import { renderTimeline } from './timeline.service';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { contactEditContext } from './contact-edit';
+import { activityPage, activitySummary } from '../activities/read.service';
 
 export interface Viewer {
   workspaceId: string;
@@ -27,8 +29,8 @@ export interface Viewer {
 }
 
 const MAX_LIMIT = 100;
-/** Số thẻ tối đa mỗi cột kanban (đếm vẫn đủ). */
-export const BOARD_PER_STAGE = 50;
+/** Số thẻ trang đầu mỗi cột kanban (đếm vẫn đủ; trang sau qua `next_cursor` — TIP-026b). */
+export const BOARD_PER_STAGE = BOARD_DEFAULT;
 const TL_PAGE = 30;
 
 export class CrmReadService {
@@ -85,18 +87,31 @@ export class CrmReadService {
     });
   }
 
-  /** Kanban (TIP-026): cột theo giai đoạn, đếm theo bộ lọc + scope, ≤ BOARD_PER_STAGE thẻ / cột; "Thất bại" chỉ khi có khách. */
+  /** Kanban (TIP-026 / 026b §4.1): cột theo giai đoạn, đếm theo bộ lọc + scope, trang đầu ≤ 50 thẻ + `next_cursor` mỗi cột. */
   async board(v: Viewer, f: ContactFilter) {
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
       assertQueryFields(await fieldView(tx, 'contact', v.authz), f.custom);
-      const { ids, counts } = await boardIds(tx, v.authz, f, BOARD_PER_STAGE);
-      const rows = await this.rowsOf(tx, v, pl, ids.map((r) => r.id));
+      const counts = await boardCounts(tx, v.authz, f);
       const keys = CONTACT_STAGES.filter((k) => k !== 'lost' || (counts.lost ?? 0) > 0);
+      const pages = await Promise.all(keys.map((k) => ((counts[k] ?? 0) > 0 ? boardColumnIds(tx, v.authz, f, k, null, BOARD_PER_STAGE) : { ids: [], next: null })));
+      const rows = await this.rowsOf(tx, v, pl, pages.flatMap((p) => p.ids));
       return {
-        columns: keys.map((key) => ({ key, color: key === 'lost' ? STAGE_LOST_COLOR : STAGE_COLOR[key], total: counts[key] ?? 0, rows: rows.filter((r) => r.stage === key) })),
+        columns: keys.map((key, i) => ({ key, color: key === 'lost' ? STAGE_LOST_COLOR : STAGE_COLOR[key], total: counts[key] ?? 0, rows: rows.filter((r) => r.stage === key), next_cursor: pages[i]!.next })),
         limit: BOARD_PER_STAGE,
       };
+    });
+  }
+
+  /** Một trang của một cột (TIP-026b §4.1): `GET /contacts/board/:stage?cursor=&limit=` — mặc định 50, tối đa 100; cursor gắn cột + bộ lọc. */
+  async boardColumn(v: Viewer, f: ContactFilter, stage: string, q: { cursor?: string; limit?: number }) {
+    if (!(CONTACT_STAGES as readonly string[]).includes(stage)) throw new AppError('VALIDATION_FAILED', 400, { stage: 'invalid' });
+    const pl = await this.place(v);
+    return this.tx(v, async (tx) => {
+      assertQueryFields(await fieldView(tx, 'contact', v.authz), f.custom);
+      const cursor = decodeBoardCursor(q.cursor, stage, f);
+      const page = await boardColumnIds(tx, v.authz, f, stage, cursor, Math.min(Math.max(q.limit ?? BOARD_DEFAULT, 1), BOARD_MAX));
+      return { data: await this.rowsOf(tx, v, pl, page.ids), next_cursor: page.next };
     });
   }
 
@@ -131,14 +146,22 @@ export class CrmReadService {
     const pl = await this.place(v);
     const role = await this.members.roleOf(v.workspaceId, v.userId);
     return this.tx(v, async (tx) => {
-      await visibleContact(tx, v.authz, id);
-      const [p360, ins, fv] = await Promise.all([
+      const { writable } = await visibleContact(tx, v.authz, id);
+      const [p360, ins, fv, acts] = await Promise.all([
         contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role), links: { files: this.links, ws: v.workspaceId } }),
         insights360(tx, v.authz, id, { ...pl, now: this.now() }),
         fieldView(tx, 'contact', v.authz),
+        // TIP-026b: hoạt động CRM thật theo quyền người xem (cùng reader với GET /contacts/:id/activities).
+        activitySummary(tx, id, writable, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)) }),
       ]);
-      return { ...p360, custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
+      return { ...withActivities(p360, acts, pl), custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
     });
+  }
+
+  /** `GET /v1/contacts/:id/activities` (TIP-026b) — cùng reader với action contact_activity.list. */
+  async activities(v: Viewer, id: string, q: { kind: ActivityKind; cursor?: string; limit?: number; activityId?: string }) {
+    const pl = await this.place(v);
+    return this.tx(v, (tx) => activityPage(tx, id, q, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)) }));
   }
 
   /** `GET /v1/contacts/:id/edit-context` (TIP-025b §D.3) — cùng reader với action contact.get_edit_context. */

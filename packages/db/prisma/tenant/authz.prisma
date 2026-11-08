@@ -5,18 +5,18 @@
 /// Vai trò = tập permission + data scope (D27). Vai trò hệ thống (5, seed khi tenant.provision) không sửa / xoá;
 /// vai trò tuỳ biến `custom:*` (P1 — TIP-042). Resolver lấy định nghĩa vai trò hệ thống từ code (DC-024).
 model Role {
-  id          String   @id @db.Uuid
-  key         String   @unique
+  id          String    @id @db.Uuid
+  key         String    @unique
   name        String
-  isSystem    Boolean  @default(false) @map("is_system")
-  permissions String[] @default([])
-  dataScope   Json     @default("{}") @map("data_scope")
+  isSystem    Boolean   @default(false) @map("is_system")
+  permissions String[]  @default([])
+  dataScope   Json      @default("{}") @map("data_scope")
   /// CAS (TIP-042) — tăng mỗi lần sửa / hoàn tác.
-  version     Int      @default(1)
+  version     Int       @default(1)
   /// Xoá mềm (TIP-042): tombstone không resolve / gán / mời / nhận lời mời; key không dùng lại.
   deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("role")
 }

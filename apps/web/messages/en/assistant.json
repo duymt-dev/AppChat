@@ -94,6 +94,56 @@
         "stop": "Stop",
         "approveSend": "Approve & send",
         "viewResult": "View result"
+      },
+      "life": {
+        "queued": "Queued",
+        "running": "Running",
+        "waiting_approval": "Awaiting your approval",
+        "waiting_child": "Waiting for sub-agent",
+        "waiting_operation": "Waiting for background operation",
+        "waiting_usage": "Reconciling usage",
+        "completed": "Completed",
+        "failed": "Stopped with error",
+        "cancelled": "Stopped",
+        "handoff": "Handed to a person"
+      },
+      "stopReason": {
+        "max_steps": "Step limit reached",
+        "loop_guard": "Repeated the same action",
+        "budget": "Run credit budget exhausted",
+        "cancelled": "You stopped it",
+        "approval_expired": "Approval expired",
+        "other": "Reason: {reason}"
+      },
+      "detail": {
+        "title": "Task details",
+        "agent": "Agent",
+        "started": "Started",
+        "finished": "Finished",
+        "credits": "Task credits",
+        "subtree": "Including sub-tasks",
+        "unbilled": "Unbilled usage",
+        "pending": "Reconciling credits",
+        "result": "Result",
+        "error": "Error code",
+        "steps": "Steps ({n})",
+        "children": "Sub-tasks ({n})",
+        "noSteps": "No steps yet",
+        "more": "Load more",
+        "loadFailed": "Could not load task details",
+        "stepLlm": "Model reasoning",
+        "stepTool": "Called {action}",
+        "stepOther": "Step {type}",
+        "outcome": {
+          "ok": "Done",
+          "needs_approval": "Needs approval",
+          "needs_confirmation": "Needs confirmation",
+          "job_accepted": "Running in background",
+          "operation_pending": "Waiting for background operation",
+          "waiting_child": "Waiting for sub-agent",
+          "error": "Error {code}"
+        },
+        "creditsN": "{n} credits"
       }
     },
     "new": {

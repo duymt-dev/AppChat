@@ -232,7 +232,8 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
     await skeletons.settle();
     const events = await eventsOf(d, db, run, r, 0, input.locale, input.session_id, { ws, authz });
     await finishStream(live, events, r, input.session_id);
-    await lease.finish(execStateOf(r.status));
+    // Chờ run con: `waiting_for` có kiểu (lý do + run con) để khôi phục / giao diện biết đang chờ gì (DC-380).
+    await lease.finish(execStateOf(r.status), r.paused?.outcome.kind === 'waiting_child' ? { reason: 'waiting_child', child_run_id: r.paused.outcome.runId } : undefined);
     return { session_id: input.session_id, run_id: run.id, events };
   } catch (e) {
     await live.close().catch(() => undefined);
@@ -270,7 +271,8 @@ const armEvents = async (d: Pick<AssistantDeps, 'kv'>, ws: string) => {
 /** Phát phần còn lại của lượt lên luồng (delta đã phát trực tiếp) + `done`. */
 async function finishStream(live: RunStream, events: TurnEventDto[], r: RunResult, sessionId: string): Promise<void> {
   for (const e of events) if (e.type !== 'delta') await live.emit(e);
-  const status = r.status === 'waiting_approval' ? 'waiting_approval' : r.status === 'completed' ? 'completed' : r.status;
+  // Chờ run con (TIP-019b §4.3) = `waiting_external` của luồng 023c — không thêm trạng thái SSE thứ hai.
+  const status = r.status === 'waiting_child' ? 'waiting_external' : r.status;
   await live.emit({ type: 'done', status, session_id: sessionId });
   await live.close();
 }

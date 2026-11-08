@@ -1,0 +1,385 @@
+{
+  "version": 1,
+  "provider": "casso",
+  "captured": "2026-11-07",
+  "evidence": "provider_documentation",
+  "note": "Không có sandbox Casso / tài khoản thật (Q-004): mẫu tài liệu chính thức + mô phỏng fixture ký bằng khoá test. KHÔNG phải nghiệm thu với provider thật.",
+  "sources": [
+    "https://developer.casso.vn/webhook/thiet-lap-webhook-thu-cong (Webhook V2: header X-Casso-Signature, body {error, data})",
+    "https://github.com/CassoHQ/casso-webhook-v2-verify-signature@b6a21f58a03030a89200b1f54615fe4a3a941826 (README + python.py / javascript.js)",
+    "https://developer.casso.vn (API v2 transactions: amount âm = tiền ra, ví dụ -193000)",
+    "https://developer.casso.vn/casso-api/api-lay-giao-dich (GET /v2/transactions, tham số + response)",
+    "https://developer.casso.vn/casso-api/lay-thong-tin-user (GET /v2/userInfo)"
+  ],
+  "auth": {
+    "header": "X-Casso-Signature",
+    "format": "t=<unix ms>,v1=<hex>",
+    "algorithm": "HMAC-SHA512, key = Key bảo mật của tích hợp Webhook V2",
+    "signed_string": "t + '.' + JSON body (key sắp A→Z đệ quy, không khoảng trắng)",
+    "skew_policy": "Casso không công bố; gửi lại tới 17 lần trong 24 giờ → không chặn theo t, chống lặp bằng data.id",
+    "non_ascii": "mã mẫu Python thoát ký tự ngoài ASCII, mã mẫu JS giữ nguyên → chấp nhận cả hai",
+    "legacy": "Webhook cũ (header secure-token, data mảng) không hỗ trợ"
+  },
+  "identity": {
+    "event": "data.id (0 = sự kiện thử)",
+    "transaction": "data.id",
+    "account": "data.accountNumber",
+    "bank": "data.bankAbbreviation"
+  },
+  "amount": "data.amount số nguyên có dấu (VND); âm = out, dương = in",
+  "timezone": "data.transactionDateTime YYYY-MM-DD HH:mm:ss giờ Việt Nam (+07:00)",
+  "response": "HTTP 200 trong 5 giây",
+  "read_probe": "Xem `read` (pha 3)",
+  "known_gaps": [
+    "Chữ ký mẫu trong javascript.js (id 218897, t=1734924830020) không tái lập được với khoá mẫu theo mọi dạng chuẩn hoá đã thử; mẫu python.py (id 0) tái lập đúng → dùng python.py làm chuẩn."
+  ],
+  "cases": [
+    {
+      "name": "official_python_sample",
+      "source": "casso-webhook-v2-verify-signature/python.py",
+      "secret": "mgExMrjj4i7a1p8Cs6LmFbpCd8lbw4sSX4LZXPag7TKazeIogtR90tvWYTkwQbvs",
+      "signature": "t=1727948258788,v1=ed0a4bd2e826d5cb69988cdb141e6c1a080e21f3b57eb72cd78192220042b9e7dde0868fc667faea8e224900fa7904e7c88dfa098032fb2d6b6996856e8b7ff3",
+      "body": {
+        "error": 0,
+        "data": {
+          "id": 0,
+          "reference": "MA_GIAO_DICH_THU_NGHIEM",
+          "description": "giao dich thu nghiem",
+          "amount": 599000,
+          "runningBalance": 25000000,
+          "transactionDateTime": "2024-10-03 15:06:37",
+          "accountNumber": "88888888",
+          "bankName": "VPBank",
+          "bankAbbreviation": "VPB",
+          "virtualAccountNumber": "",
+          "virtualAccountName": "",
+          "counterAccountName": "NGUYEN VAN A",
+          "counterAccountNumber": "8888888888",
+          "counterAccountBankId": "970415",
+          "counterAccountBankName": "VietinBank"
+        }
+      },
+      "expect": {
+        "verified": true,
+        "event_id": "0",
+        "transactions": []
+      }
+    },
+    {
+      "name": "incoming_fixture",
+      "source": "fixture_simulation",
+      "body": {
+        "error": 0,
+        "data": {
+          "id": 218897,
+          "reference": "FT24364030863634",
+          "description": "CK TT260001 chi Lan",
+          "amount": 16775000,
+          "runningBalance": 16775000,
+          "transactionDateTime": "2024-12-23 07:00:00",
+          "accountNumber": "0071000123456",
+          "bankName": "MBBank",
+          "bankAbbreviation": "MBB",
+          "virtualAccountNumber": "",
+          "virtualAccountName": "",
+          "counterAccountName": "",
+          "counterAccountNumber": "",
+          "counterAccountBankId": "",
+          "counterAccountBankName": ""
+        }
+      },
+      "expect": {
+        "verified": true,
+        "transactions": [
+          {
+            "external_id": "218897",
+            "account_number": "0071000123456",
+            "amount": "16775000",
+            "direction": "in",
+            "content": "CK TT260001 chi Lan",
+            "occurred_at": "2024-12-23T00:00:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "outgoing_fixture",
+      "source": "fixture_simulation",
+      "body": {
+        "error": 0,
+        "data": {
+          "id": 218898,
+          "description": "chi tien",
+          "amount": -193000,
+          "transactionDateTime": "2024-12-23 08:30:00",
+          "accountNumber": "0071000123456",
+          "bankAbbreviation": "MBB"
+        }
+      },
+      "expect": {
+        "verified": true,
+        "transactions": [
+          {
+            "external_id": "218898",
+            "account_number": "0071000123456",
+            "amount": "193000",
+            "direction": "out",
+            "content": "chi tien",
+            "occurred_at": "2024-12-23T01:30:00.000Z"
+          }
+        ]
+      }
+    },
+    {
+      "name": "vietnamese_content_fixture",
+      "source": "fixture_simulation",
+      "body": {
+        "error": 0,
+        "data": {
+          "id": 218899,
+          "description": "Chuyển khoản TT260002 chị Lan",
+          "amount": 500000,
+          "transactionDateTime": "2024-12-23 09:00:00",
+          "accountNumber": "0071000123456"
+        }
+      },
+      "expect": {
+        "verified": true,
+        "ascii_and_raw": true
+      }
+    }
+  ],
+  "invalid": [
+    {
+      "name": "fractional_amount",
+      "data_patch": {
+        "amount": 1000.5
+      },
+      "field": "data.amount"
+    },
+    {
+      "name": "exponent_string",
+      "data_patch": {
+        "amount": "1e6"
+      },
+      "field": "data.amount"
+    },
+    {
+      "name": "unsafe_number",
+      "data_patch": {
+        "amount": 9007199254740993
+      },
+      "field": "data.amount"
+    },
+    {
+      "name": "missing_account",
+      "data_patch": {
+        "accountNumber": ""
+      },
+      "field": "data.accountNumber"
+    },
+    {
+      "name": "bad_date",
+      "data_patch": {
+        "transactionDateTime": "2024-02-30 10:00:00"
+      },
+      "field": "data.transactionDateTime"
+    },
+    {
+      "name": "iso_date_with_zone",
+      "data_patch": {
+        "transactionDateTime": "2024-12-23T07:00:00Z"
+      },
+      "field": "data.transactionDateTime"
+    },
+    {
+      "name": "error_nonzero",
+      "body_patch": {
+        "error": 1
+      },
+      "field": "error"
+    }
+  ],
+  "read": {
+    "version": 1,
+    "evidence": "provider_documentation",
+    "base_url": "https://oauth.casso.vn/v2",
+    "auth": {
+      "header": "Authorization",
+      "format": "Apikey <API_KEY>",
+      "secret_field": "api_key",
+      "note": "API key tách khỏi Key bảo mật webhook"
+    },
+    "probe": {
+      "method": "GET",
+      "path": "/userInfo",
+      "account_field": "data.bankAccs[].bankSubAccId"
+    },
+    "pull": {
+      "method": "GET",
+      "path": "/transactions",
+      "query": {
+        "fromDate": "YYYY-MM-DD (mặc định 7 ngày gần nhất)",
+        "page": "số trang (1)",
+        "pageSize": "mặc định 10; dùng 100",
+        "sort": "ASC | DESC"
+      },
+      "envelope": "{ error: 0, message, data: { page, pageSize, nextPage, prevPage, totalPages, totalRecords, records[] } }",
+      "record": {
+        "id": "số — cùng định danh data.id của webhook",
+        "tid": "mã giao dịch ngân hàng",
+        "description": "nội dung",
+        "amount": "số có dấu (âm = tiền ra)",
+        "when": "YYYY-MM-DD[ |T]HH:mm:ss hoặc YYYY-MM-DD, giờ VN",
+        "bankSubAccId": "tài khoản nhận"
+      },
+      "cursor": "(fromDate, page) — trang cuối → fromDate = ngày giao dịch cuối − 1, page 1 (trùng chỉ tăng deliveries)",
+      "identity_same_as_webhook": true
+    },
+    "errors": {
+      "401": "auth_failed (HTTP hoặc body error 401)",
+      "429": "rate_limited",
+      "other": "provider_unavailable"
+    },
+    "limits": "Casso không công bố rate limit / trần pageSize trong tài liệu API v2",
+    "cases": [
+      {
+        "name": "page_official_shape",
+        "status": 200,
+        "body": {
+          "error": 0,
+          "message": "success",
+          "data": {
+            "page": 1,
+            "pageSize": 100,
+            "nextPage": 2,
+            "prevPage": 0,
+            "totalPages": 2,
+            "totalRecords": 3,
+            "records": [
+              {
+                "id": 5789,
+                "tid": "TF2104152395814062",
+                "description": "Khanhnm chuyen tien",
+                "amount": -193000,
+                "cusum_balance": 1070904,
+                "when": "2021-04-15T00:00:00",
+                "bankSubAccId": "8007041027107"
+              },
+              {
+                "id": 5790,
+                "tid": "TF2104152997602811",
+                "description": "CK TT260001",
+                "amount": 350000,
+                "cusum_balance": 720904,
+                "when": "2021-04-15 10:20:30",
+                "bankSubAccId": "8007041027107"
+              }
+            ]
+          }
+        },
+        "expect": {
+          "has_more": true,
+          "cursor": {
+            "from": "2021-04-10",
+            "page": 2
+          },
+          "transactions": [
+            {
+              "external_id": "5789",
+              "account_number": "8007041027107",
+              "amount": "193000",
+              "direction": "out",
+              "content": "Khanhnm chuyen tien",
+              "occurred_at": "2021-04-14T17:00:00.000Z"
+            },
+            {
+              "external_id": "5790",
+              "account_number": "8007041027107",
+              "amount": "350000",
+              "direction": "in",
+              "content": "CK TT260001",
+              "occurred_at": "2021-04-15T03:20:30.000Z"
+            }
+          ]
+        }
+      },
+      {
+        "name": "last_page",
+        "status": 200,
+        "body": {
+          "error": 0,
+          "message": "success",
+          "data": {
+            "page": 2,
+            "pageSize": 100,
+            "nextPage": null,
+            "prevPage": 1,
+            "totalPages": 2,
+            "totalRecords": 3,
+            "records": [
+              {
+                "id": 5800,
+                "tid": "TF1",
+                "description": "CK",
+                "amount": 100000,
+                "cusum_balance": 1,
+                "when": "2021-04-20 08:00:00",
+                "bankSubAccId": "8007041027107"
+              }
+            ]
+          }
+        },
+        "expect": {
+          "has_more": false,
+          "cursor": {
+            "from": "2021-04-19",
+            "page": 1
+          }
+        }
+      },
+      {
+        "name": "userinfo_official_shape",
+        "status": 200,
+        "body": {
+          "error": 0,
+          "message": "success",
+          "data": {
+            "user": {
+              "id": 1553,
+              "email": "x@example.vn"
+            },
+            "business": {
+              "id": 1540,
+              "name": "DN"
+            },
+            "bankAccs": [
+              {
+                "id": 69,
+                "bank": {
+                  "bin": 970416,
+                  "codeName": "acb_digi"
+                },
+                "bankAccountName": null,
+                "bankSubAccId": "17271687",
+                "connectStatus": 1,
+                "planStatus": 1
+              },
+              {
+                "id": 63,
+                "bank": {
+                  "bin": 970454,
+                  "codeName": "timoplus"
+                },
+                "bankAccountName": null,
+                "bankSubAccId": "8007041023848",
+                "connectStatus": 1,
+                "planStatus": 0
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}

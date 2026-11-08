@@ -1,7 +1,7 @@
 // `delegate(role | agent_id, task, context)` của Trợ lý (Blueprint §5.1, §5.2): run con `kind=delegate` chạy agent chuyên trách đã
 // xuất bản; tool = quyền agent ∩ quyền người ra lệnh (§3.3b — `runToolIds` lọc + `agentAuthz` để executor kiểm lại mỗi lần gọi);
 // độ sâu ≤ 2; ngân sách = phần còn lại của run gốc (cả cây dùng chung). Kết quả: tóm tắt câu trả lời của agent; agent cần duyệt →
-// run con chờ ở hàng chờ duyệt (khung "Trợ lý AI đang điều phối" hiện nút Duyệt), Trợ lý nhận `waiting_approval` và chạy tiếp.
+// run con chờ ở hàng chờ duyệt, run Trợ lý dừng `waiting_child` (TIP-019b) và chạy tiếp khi con kết thúc (runs/child-continuation).
 import { can, type PermissionKey } from '@appchat/shared';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
@@ -66,7 +66,8 @@ export async function runDelegate(d: DelegateDeps, t: AssistantTurnCtx, input: {
   const prompt = context ? `${task}\n\nNgữ cảnh: ${context}` : task;
   const r = await d.runner.start(t.ws, store, row, { system, messages: [{ role: 'user', content: prompt }], tools, maxSteps: MAX_STEPS.agent, source: 'assistant' });
   // Credit của run con đã cộng vào subtree mọi tổ tiên + ngân sách gốc ở lượt quyết toán (TIP-019b) — không cộng tay lần hai.
-  if (r.status === 'waiting_approval') return ok({ agent: a.agent.name, run_id: row.id, status: 'waiting_approval', note: 'Agent cần người duyệt một thao tác — đã đưa vào hàng chờ duyệt.' });
+  // Run con chờ (duyệt / thao tác — TIP-019b §4.3): cha dừng `waiting_child`, không coi là xong; con kết thúc thì cha chạy tiếp.
+  if (r.status === 'waiting_approval' || r.status === 'waiting_child') return { kind: 'waiting_child', runId: row.id };
   if (r.status !== 'completed') return err(r.error?.code ?? 'DELEGATE_FAILED', r.error?.message ?? r.status);
   return ok({ agent: a.agent.name, run_id: row.id, status: 'completed', summary: r.text.slice(0, 2000) });
 }

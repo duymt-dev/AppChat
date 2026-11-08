@@ -20,6 +20,8 @@ export interface ProfileLayout {
   is_system: boolean;
   tabs: LayoutTab[];
   created_by: string;
+  /** CAS (TIP-026b) — thiếu = 1. */
+  version?: number;
 }
 
 export type SystemRoleKey = 'owner' | 'manager' | 'sales' | 'cs' | 'accountant';
@@ -81,6 +83,7 @@ export const profileLayoutRoutes: Record<string, MockRoute> = {
   '/settings/profile-layouts': (db) => ({
     layouts: db.profileLayout.layouts.map((l) => ({
       ...l,
+      version: l.version ?? 1,
       roles: (Object.keys(db.profileLayout.roleAssignments) as SystemRoleKey[]).filter(
         (r) => db.profileLayout.roleAssignments[r] === l.id,
       ),
@@ -89,22 +92,28 @@ export const profileLayoutRoutes: Record<string, MockRoute> = {
   }),
 };
 
+/** CAS (TIP-026b §4.5): if_version lệch → 409 như server. */
+const stale = (l: { version?: number }, ifVersion?: number) => {
+  if (ifVersion !== undefined && ifVersion !== (l.version ?? 1)) throw new ApiRequestError(409, { code: 'STALE_VERSION', message: 'version', fields: { version: String(l.version ?? 1) } });
+};
+
 export const profileLayoutHandlers: Record<string, MockHandler> = {
   'profile_layout.create': {
     execute: (db, i: { name: string; tabs: LayoutTab[] }) => {
       const id = `pl_${++db.profileLayout.seq}`;
-      db.profileLayout.layouts.push({ id, name: i.name, is_system: false, tabs: i.tabs, created_by: 'Bạn' });
-      return { layout_id: id };
+      db.profileLayout.layouts.push({ id, name: i.name, is_system: false, tabs: i.tabs, created_by: 'Bạn', version: 1 });
+      return { layout_id: id, version: 1 };
     },
   },
   'profile_layout.update': {
-    execute: (db, i: { layout_id: string; patch: { name?: string; tabs?: LayoutTab[] } }) => {
+    execute: (db, i: { layout_id: string; if_version?: number; patch: { name?: string; tabs?: LayoutTab[] } }) => {
       const l = layout(db, i.layout_id);
+      stale(l, i.if_version);
       if (i.patch.tabs && !i.patch.tabs.some((t) => t.enabled)) {
         throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'at_least_one_tab', fields: { tabs: 'at_least_one_tab' } });
       }
-      Object.assign(l, i.patch);
-      return { layout_id: l.id };
+      Object.assign(l, i.patch, { version: (l.version ?? 1) + 1 });
+      return { layout_id: l.id, version: l.version };
     },
   },
   'profile_layout.duplicate': {
@@ -116,8 +125,9 @@ export const profileLayoutHandlers: Record<string, MockHandler> = {
     },
   },
   'profile_layout.delete': {
-    execute: (db, i: { layout_id: string }) => {
+    execute: (db, i: { layout_id: string; if_version?: number }) => {
       const l = layout(db, i.layout_id);
+      stale(l, i.if_version);
       if (l.is_system) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'system_template', fields: { layout_id: 'system_template' } });
       db.profileLayout.layouts = db.profileLayout.layouts.filter((x) => x.id !== i.layout_id);
       const fallback = db.profileLayout.layouts.find((x) => x.id === 'pl_default')?.id ?? db.profileLayout.layouts[0]!.id;

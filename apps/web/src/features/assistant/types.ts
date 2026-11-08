@@ -1,6 +1,6 @@
 // Kiểu dữ liệu Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5).
 import type { UiCommand } from '@appchat/actions';
-import type { ActionPreviewDto, AiTaskRowDto, AiTasksPayloadDto, GenUiPart } from '@appchat/shared';
+import type { ActionPreviewDto, AiTaskRowDto, AiTasksPayloadDto, GenUiPart, RunLifecycle } from '@appchat/shared';
 import type { SkeletonNode } from '@/shared/genui';
 export type Tier = 'standard' | 'advanced' | 'max';
 export type Mode = 'chat' | 'cowork';
@@ -112,8 +112,12 @@ export interface Run {
   task: string;
   agent: string;
   meta: string;
-  pct: number;
+  /** Tiến độ ước theo bước — null khi run đang chờ / đã dừng (TIP-019b). */
+  pct: number | null;
   status: 'running' | 'waiting_approval' | 'done';
+  /** Trạng thái thật (DC-380). */
+  lifecycle: RunLifecycle;
+  stop_reason: string | null;
   approval_id?: string;
 }
 

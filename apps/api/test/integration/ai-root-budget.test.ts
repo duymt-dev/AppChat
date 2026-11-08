@@ -53,6 +53,8 @@ describe('ngân sách gốc + biên nhận', () => {
     expect(before - (await balance())).toBe(3);
     const steps = await db.aiRunStep.findMany({ where: { runId: child.id, type: 'llm' } });
     expect(steps.map((x) => x.credits)).toEqual([3]);
+    // Blueprint §5.1: chi phí thô (giá đã chụp, chưa làm tròn) trên bước llm — 1500 + 600 token × 1 credit / 1k = 2,1.
+    expect(Number((steps[0]!.meta as { provider_cost?: string }).provider_cost)).toBeCloseTo(2.1, 6);
   });
 
   it('rào mềm: usage vượt phần còn lại vẫn ghi đủ, sau đó không tool / lời gọi kế (stop budget)', async () => {
@@ -61,10 +63,10 @@ describe('ngân sách gốc + biên nhận', () => {
     const calls: unknown[] = [];
     const t: ToolSpec = { name: 'lookup', description: 'lookup', inputSchema: { type: 'object', properties: {} }, origin: 'action', execute: async (i) => (calls.push(i), { kind: 'ok', output: {} }) };
     const r = await runner([{ tool: 'lookup', input: {}, tokensIn: 4000, tokensOut: 1000 }, { text: 'không tới' }]).start(h.ws, s, root, spec([t]));
-    expect(r).toMatchObject({ status: 'completed', stopReason: 'budget', creditsUsed: 5 });
+    expect(r).toMatchObject({ status: 'failed', stopReason: 'budget', creditsUsed: 5, error: { code: 'BUDGET' } }); // DC-380: dừng an toàn không còn là completed
     expect(calls).toEqual([]);
     const db = await tenant();
-    expect((await db.aiRun.findUniqueOrThrow({ where: { id: root.id } })).stopReason).toBe('budget');
+    expect(await db.aiRun.findUniqueOrThrow({ where: { id: root.id } })).toMatchObject({ status: 'failed', stopReason: 'budget' });
     expect((await db.aiRootBudget.findUniqueOrThrow({ where: { rootRunId: root.id } })).observed).toBe(5);
     // Lượt sau trong cùng gốc bị chặn trước khi gọi model.
     const again = await s.create({ kind: 'delegate', tier: 'standard', input: {}, parentRunId: root.id });

@@ -34,7 +34,7 @@ export const integrationTest = defineAction({
   title: 'actions.integration.test.title',
   description:
     'Check provider credentials without saving anything: either draft fields from a connect form, or the existing connection of the workspace. Returns ok / failed / unsupported. Example: {"provider":"sepay","fields":{"account_number":"…"}}',
-  input: z.object({ provider: z.string().min(1).max(60), fields: z.record(z.string(), z.string().max(2000)).optional() }),
+  input: z.object({ provider: z.string().min(1).max(60), fields: z.record(z.string(), z.string().max(2000)).optional(), mode: z.enum(['live', 'sandbox']).optional() }),
   output: z.object({ status: z.enum(['ok', 'failed', 'unsupported', 'not_connected']), reason: z.string().optional() }),
   permission: 'integrations.manage',
   risk: 'read',

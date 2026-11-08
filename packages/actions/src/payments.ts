@@ -105,8 +105,18 @@ export const bankFeedConnect = defineAction({
   id: 'bank_feed.connect',
   module: 'sales',
   title: 'actions.bank_feed.connect.title',
-  description: 'Connect the business SePay / Casso account so incoming transfers whose content has a TT… code are confirmed automatically. Fields as the connector asks (api_key, account_number).',
-  input: z.object({ provider: z.enum(['sepay', 'casso']), fields: z.record(z.string(), z.string()) }),
+  description:
+    'Connect the business SePay / Casso account so incoming transfers whose content has a TT… code are confirmed automatically. Fields as the connector asks (SePay: api_key or hmac_secret + account_number; Casso: webhook_secret + account_number). mode: live (real provider, default) or sandbox (test only). Or connection_id (+ if_version) of an already-saved SePay / Casso connection instead of fields — stored keys are reused, never re-entered.',
+  input: z
+    .object({
+      provider: z.enum(['sepay', 'casso']),
+      fields: z.record(z.string(), z.string()).optional(),
+      mode: z.enum(['live', 'sandbox']).optional(),
+      /** TIP-012b §5.2: gắn feed vào kết nối ĐÃ CÓ (dùng khoá đã lưu, không gửi lại / không trả bí mật) — loại trừ với `fields`. */
+      connection_id: z.string().uuid().optional(),
+      if_version: z.number().int().min(1).optional(),
+    })
+    .refine((i) => (i.fields === undefined) !== (i.connection_id === undefined), { message: 'fields_xor_connection_id', path: ['connection_id'] }),
   output: z.object({ feed_id: z.string(), webhook_path: z.string() }),
   permission: 'finance.manage',
   risk: 'config',

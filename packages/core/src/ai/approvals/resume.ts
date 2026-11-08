@@ -15,6 +15,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { MAX_STEPS, type AiRunner, type RunResult, type RunSpec } from '../runs/runner';
 import { RunStore, type RunRow } from '../runs/run.store';
+import { childOutcome } from '../runs/child-continuation';
 import { agentAuthz } from '../agents/agent-authz';
 import { connectedKeys, runToolIds } from '../agents/agent-tools';
 import { agentSystem, agentToolSpecs } from '../agents/agent.runtime';
@@ -118,7 +119,10 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
       const run = await db.aiRun.findUnique({ where: { id: a.runId } });
       const hook = run ? EXPIRED.get(run.kind) : undefined;
       if (run && hook) await hook(db, run, d, ws);
-      else await new RunStore(db, d.now).finish(a.runId, 'handoff', { error: serverMessages('vi').ai.approval.expired });
+      else await new RunStore(db, d.now).observed(ws, d.kv).finish(a.runId, 'handoff', { error: serverMessages('vi').ai.approval.expired });
+      await new RunStore(db, d.now).stopReason(a.runId, 'approval_expired');
+      // Run con hết hạn duyệt → cha đang chờ nhận kết quả không thành (không phát lại các tool đã thành công trước đó).
+      await continueParents(d, db, ws, a.runId);
     }
     return 'done';
   }
@@ -155,7 +159,25 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
   const r = await d.runner.resume(ws, new RunStore(db, d.now), run.id, outcome, spec);
   const fresh = r ? await db.aiRun.findUnique({ where: { id: run.id } }) : null;
   if (r && fresh) await FINISH.get(run.kind)?.(db, fresh, r, d, ws);
+  if (fresh) await continueParents(d, db, ws, fresh.id);
   return 'done';
+}
+
+/**
+ * Run con vừa kết thúc → chạy tiếp cha đang `waiting_child` (TIP-019b §4.3), lặp lên tổ tiên (độ sâu ≤ 2). Claim của runner đảm bảo
+ * một lần; cha đã huỷ → không chạy tiếp. Cha là lượt Trợ lý: sổ yêu cầu / luồng do FINISH của loại run xử lý.
+ */
+export async function continueParents(d: ResumeDeps, db: TenantDb, ws: string, childId: string): Promise<void> {
+  for (let id: string | null = childId, guard = 0; id && guard < 3 && d.runner; guard++) {
+    const next = await childOutcome(db, id);
+    if (!next) return;
+    const spec = await (SPECS.get(next.parent.kind) ?? agentSpec)(db, next.parent, d, ws);
+    const r = await d.runner.resume(ws, new RunStore(db, d.now), next.parent.id, next.outcome, spec);
+    if (!r) return;
+    const fresh = await db.aiRun.findUnique({ where: { id: next.parent.id } });
+    if (fresh) await FINISH.get(fresh.kind)?.(db, fresh, r, d, ws);
+    id = r.status === 'waiting_approval' || r.status === 'waiting_child' ? null : next.parent.id;
+  }
 }
 
 /** Kết quả do tiến trình đã chốt duyệt ghi (chờ tối đa ~5 giây); không có → null. */

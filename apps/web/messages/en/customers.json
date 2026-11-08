@@ -126,7 +126,11 @@
     "tagTitle": "Tags",
     "add": "Add card",
     "remove": "Remove tag {tag}",
-    "x": "✕"
+    "x": "✕",
+    "more": "Load more ({n})",
+    "loading": "Loading…",
+    "retry": "Failed — retry",
+    "stale": "Someone just moved this customer — the board was reloaded."
   },
   "empty": "No customers yet",
   "edit": {

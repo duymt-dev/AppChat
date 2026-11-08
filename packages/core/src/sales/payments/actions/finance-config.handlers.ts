@@ -2,6 +2,7 @@
 // tiền = nguồn VietQR của đề nghị thanh toán. Bank feed = kết nối connector port `bank_feed` (bí mật mã hoá ở `integration_connection`,
 // kiểm thông tin qua adapter) + dòng `tenant_bank_feed` + route `tenant_bank_feed_route` ở DB nền tảng (action `db: 'platform'` —
 // nền tảng trước, Blueprint §2.0). Kết nối lại dùng lại feed cũ (giữ link webhook DN đã dán vào SePay / Casso).
+import { accountOrEmpty } from '@appchat/integrations';
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, bankFeedConnect, bankFeedDisconnect, paymentAccountUpdate } from '@appchat/actions';
@@ -10,8 +11,9 @@ import type { ActionContext, PlatformTx, TenantTx } from '../../../kernel/action
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { uuidv7 } from '../../../kernel/ids';
 import { actorUserId } from '../../../crm/public';
-import { ConnectionsService } from '../../../integrations/public';
+import { ConnectionsService, queueProbe, rotated } from '../../../integrations/public';
 import { webhookPathOf } from '../services/bank-feed';
+import { applyBind, bindExisting, type BindPlan } from './bank-feed-bind';
 import { accountPreview, connectPreview, disconnectPreview } from '../previews/finance-config.handlers.preview';
 
 const need = (c: ConnectionsService | null) => {
@@ -52,20 +54,24 @@ export class BankFeedConnectHandler implements Handler<ActionInput<typeof bankFe
   /** Pha nền tảng (TIP-045b): kiểm thông tin + mã hoá + chọn id feed (tenant chỉ đọc). Ghi tenant ở `applyTenant`, route ở `finalizePlatform`. */
   async execute(ctx: ActionContext, input: ActionInput<typeof bankFeedConnect>, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ feed_id: string; webhook_path: string }>> {
     needPtx(ptx);
-    const conn = await need(this.connections).prepareConnect(tx, input.provider, input.fields);
-    const accountNo = String((conn.config as Record<string, unknown>).account_number ?? '').replace(/\D/g, '');
+    if (input.connection_id) return bindExisting(ctx, tx, input.provider, input.connection_id, input.if_version, this.clock.now());
+    const conn = await need(this.connections).prepareConnect(tx, input.provider, input.fields ?? {}, input.mode);
+    const accountNo = accountOrEmpty((conn.config as Record<string, unknown>).account_number);
     const existing = await tx.tenantBankFeed.findUnique({ where: { connectionId: conn.id } });
     const feedId = existing?.id ?? uuidv7(this.clock.now().getTime());
     return {
       result: { feed_id: feedId, webhook_path: webhookPathOf(input.provider, feedId) },
-      after: { provider: input.provider, feed_id: feedId, account_no: accountNo },
+      after: { provider: input.provider, feed_id: feedId, account_no: accountNo, mode: conn.mode },
       tenantPlan: { conn, feedId, accountNo, provider: input.provider, by: actorUserId(ctx) ?? ctx.actor.id, at: this.clock.now().toISOString() },
     };
   }
 
   async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
+    if (plan.bind) return applyBind(tx, plan as unknown as BindPlan);
     const p = plan as { conn: Parameters<ConnectionsService['applyConnect']>[2]; feedId: string; accountNo: string; provider: string; by: string; at: string };
     const row = await need(this.connections).applyConnect(tx, p.by, p.conn);
+    // Thăm dò đọc bền cho khoá mới (worker; quét khôi phục 60 giây đẩy — §4.1 B). Không gọi mạng trong transaction.
+    await queueProbe(tx, row.id, p.by, new Date(p.at));
     const existing = await tx.tenantBankFeed.findUnique({ where: { id: p.feedId } });
     if (existing) await tx.tenantBankFeed.update({ where: { id: p.feedId }, data: { status: 'active', accountNo: p.accountNo, provider: p.provider } });
     else await tx.tenantBankFeed.create({ data: { id: p.feedId, connectionId: row.id, provider: p.provider, accountNo: p.accountNo, createdAt: new Date(p.at) } });
@@ -101,7 +107,10 @@ export class BankFeedDisconnectHandler implements Handler<ActionInput<typeof ban
   async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
     const p = plan as { provider: string; connectionId: string; feedId: string | null };
     const cur = await tx.integrationConnection.findUnique({ where: { id: p.connectionId } });
-    if (cur && cur.status !== 'disconnected') await tx.integrationConnection.update({ where: { id: cur.id }, data: { status: 'disconnected', secretEnc: null } });
+    if (cur && cur.status !== 'disconnected') {
+      await tx.integrationConnection.update({ where: { id: cur.id }, data: { status: 'disconnected', secretEnc: null, credentialRev: { increment: 1 } } });
+      await rotated(tx, cur.id, new Date());
+    }
     if (p.feedId) await tx.tenantBankFeed.updateMany({ where: { id: p.feedId }, data: { status: 'disconnected' } });
     return { events: [{ topic: 'integration.disconnected', payload: { connection_id: p.connectionId, connector_key: cur?.connectorKey ?? p.provider } }] };
   }

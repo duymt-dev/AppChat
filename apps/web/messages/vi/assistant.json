@@ -94,6 +94,56 @@
         "stop": "Dừng",
         "approveSend": "Duyệt & gửi",
         "viewResult": "Xem kết quả"
+      },
+      "life": {
+        "queued": "Đang xếp hàng",
+        "running": "Đang chạy",
+        "waiting_approval": "Chờ bạn duyệt",
+        "waiting_child": "Chờ agent con",
+        "waiting_operation": "Chờ thao tác nền",
+        "waiting_usage": "Chờ đối soát",
+        "completed": "Hoàn tất",
+        "failed": "Dừng lỗi",
+        "cancelled": "Đã dừng",
+        "handoff": "Chuyển người"
+      },
+      "stopReason": {
+        "max_steps": "Chạm giới hạn số bước",
+        "loop_guard": "Lặp lại cùng một thao tác",
+        "budget": "Hết ngân sách credit của lượt",
+        "cancelled": "Bạn đã dừng",
+        "approval_expired": "Duyệt quá hạn",
+        "other": "Lý do: {reason}"
+      },
+      "detail": {
+        "title": "Chi tiết việc",
+        "agent": "Agent",
+        "started": "Bắt đầu",
+        "finished": "Kết thúc",
+        "credits": "Credit của việc",
+        "subtree": "Gồm việc con",
+        "unbilled": "Usage chưa thu",
+        "pending": "Đang đối soát credit",
+        "result": "Kết quả",
+        "error": "Mã lỗi",
+        "steps": "Các bước ({n})",
+        "children": "Việc con ({n})",
+        "noSteps": "Chưa có bước nào",
+        "more": "Tải thêm",
+        "loadFailed": "Không tải được chi tiết việc",
+        "stepLlm": "Mô hình suy nghĩ",
+        "stepTool": "Gọi {action}",
+        "stepOther": "Bước {type}",
+        "outcome": {
+          "ok": "Xong",
+          "needs_approval": "Cần duyệt",
+          "needs_confirmation": "Cần xác nhận",
+          "job_accepted": "Đang chạy nền",
+          "operation_pending": "Chờ thao tác nền",
+          "waiting_child": "Chờ agent con",
+          "error": "Lỗi {code}"
+        },
+        "creditsN": "{n} credit"
       }
     },
     "new": {

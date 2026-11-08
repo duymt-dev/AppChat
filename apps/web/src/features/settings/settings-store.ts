@@ -36,6 +36,8 @@ interface SettingsUi {
   integCat: string;
   /** key connector đang mở hộp kết nối. */
   integModal: string | null;
+  /** Drawer chi tiết kết nối (TIP-012b P3) — id kết nối. */
+  integDetail: string | null;
   tagQ: string;
   /** null = đóng; `{}` = tạo; có id = sửa. */
   tagModal: { id?: string } | null;
@@ -71,6 +73,7 @@ export const useSettingsUi = create<SettingsUi>((setState) => ({
   channelDrawer: null,
   integCat: 'all',
   integModal: null,
+  integDetail: null,
   tagQ: '',
   tagModal: null,
   replyQ: '',

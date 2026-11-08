@@ -5,6 +5,7 @@
 import { CONTRACT_RENEW_NOTICE_DAYS, interpolate, serverMessages, utcToWall, type AuthzContext, type WorkItemDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { contractScopeSql, visibleContract } from '../../contracts/contract-access';
+import { visibleInvoice } from '../../sales/payments/invoice-access';
 
 const DAY = 86_400_000;
 const PER_SOURCE = 5;
@@ -31,10 +32,11 @@ export async function renewalItems(tx: Pick<TenantTx, '$queryRaw'>, a: AuthzCont
 
 /** Tác vụ AI theo sự kiện hợp đồng (`contract.*`): người tạo tác vụ phải còn đọc được hợp đồng đó (scope hiện tại) mới được chạy. */
 export async function eventRecordVisible(tx: TenantTx, commander: AuthzContext, payload: Record<string, unknown>): Promise<boolean> {
+  const ok = (p: Promise<unknown>) => p.then(() => true, () => false);
+  // TIP-012b P4: `payment.confirmed` gắn đề nghị thanh toán — người tạo tác vụ phải còn đọc được theo scope sales HIỆN TẠI (bị thu quyền
+  // → tác vụ không chạy, không lộ số tiền / khách trong prompt).
+  if (typeof payload.invoice_id === 'string' && !(await ok(visibleInvoice(tx, commander, payload.invoice_id)))) return false;
   const id = typeof payload.contract_id === 'string' ? payload.contract_id : null;
   if (!id) return true;
-  return visibleContract(tx, commander, id).then(
-    () => true,
-    () => false,
-  );
+  return ok(visibleContract(tx, commander, id));
 }

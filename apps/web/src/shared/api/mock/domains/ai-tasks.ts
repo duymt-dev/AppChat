@@ -1,7 +1,7 @@
 // Mock Tác vụ tự chủ (TIP-035 — cùng shape `packages/shared/src/api/ai-tasks.ts` với GET /v1/ai-tasks thật): thẻ tác vụ + 6 chỉ số +
 // mẫu chủ động + nhóm dữ liệu / công cụ + agent chọn được + drawer theo tác vụ; ai_task.create / update / pause / delete / run_now theo
 // luật server (cron theo giờ workspace, sự kiện bắt buộc topic, chưa có agent → 422, đang có lượt dở → 409). Dữ liệu thẻ = prototype.
-import { AI_TASK_DATA_KEYS, AI_TASK_TEMPLATES, AI_TASK_TEMPLATE_DEFS, AI_TASK_TOOL_KEYS, ApiRequestError, interpolate, isValidCron, nextCronRun, serverMessages, type AiTaskRowDto, type AiTasksPayloadDto } from '@appchat/shared';
+import { AI_TASK_DATA_KEYS, AI_TASK_TEMPLATES, AI_TASK_TEMPLATE_DEFS, AI_TASK_TOOL_KEYS, ApiRequestError, interpolate, isValidCron, nextCronRun, serverMessages, type AiTaskRowDto, type AiTasksPayloadDto, type RunLifecycle } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/assistant.json';
 
 /**
@@ -9,7 +9,7 @@ import fixture from '../../../../../../../fixtures/prototype-parity/assistant.js
  * routes.ts gộp các bảng dưới đây).
  */
 interface TasksDb {
-  assistant: { tasks: MockTask[]; runs: { id: string; root_run_id: string; task: string; agent: string; meta: string; pct: number; status: 'running' | 'waiting_approval' | 'done' }[]; seq: number };
+  assistant: { tasks: MockTask[]; runs: { id: string; root_run_id: string; task: string; agent: string; meta: string; pct: number | null; status: 'running' | 'waiting_approval' | 'done'; lifecycle: RunLifecycle; stop_reason: string | null }[]; seq: number };
   agents: { agents: { id: string; name: string; status: string; deleted?: boolean }[] };
 }
 type Handler = { execute(db: TasksDb, input: never): unknown; undo?(db: TasksDb, input: never): void };
@@ -192,7 +192,7 @@ export const aiTasksHandlers: Record<string, Handler> = {
       t.runs += 1;
       t.last_run_at = NOW.toISOString();
       const run = `run_t${++db.assistant.seq}`;
-      db.assistant.runs.unshift({ id: run, root_run_id: run, task: t.name, agent: t.agent_name, meta: '0 bước · 0 credit', pct: 5, status: 'running' });
+      db.assistant.runs.unshift({ id: run, root_run_id: run, task: t.name, agent: t.agent_name, meta: '0 bước · 0 credit', pct: 5, status: 'running', lifecycle: 'running', stop_reason: null });
       return { task_id: t.id, run_id: run };
     },
   },

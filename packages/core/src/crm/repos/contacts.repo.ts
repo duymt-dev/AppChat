@@ -1,7 +1,7 @@
 // Danh sách khách (D42 — bảng có số trang, indexing §3–7): bước 1 lấy `id` theo index (scope + lọc + sort, id phụ để ổn định)
 // có OFFSET / LIMIT; bước 2 nạp đủ cột theo PK cho đúng trang (deferred join). Sắp xếp (TIP-026): `recent` = tương tác gần nhất
-// (`contact_live_recent_idx`), `name` / `created` / `value` có index partial riêng (migration 026). Kanban: đếm + N thẻ đầu mỗi
-// giai đoạn bằng `row_number() OVER (PARTITION BY stage …)`. Tìm `q` không dấu dùng đúng biểu thức của index trigram.
+// (`contact_live_recent_idx`), `name` / `created` / `value` có index partial riêng (migration 026). Kanban: đếm theo giai đoạn ở
+// đây, trang thẻ mỗi cột theo cursor ở board-page.ts (TIP-026b). Tìm `q` không dấu dùng đúng biểu thức của index trigram.
 import { TenantSql as Prisma } from '@appchat/db';
 import { foldText, normalizePhone, type AuthzContext, type ContactSort } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
@@ -29,12 +29,13 @@ const ORDER: Record<ContactSort, Prisma.Sql> = {
 };
 const orderOf = (f: ContactFilter) => ORDER[f.sort ?? 'recent'] ?? ORDER.recent;
 
-const STAGES = new Set(['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost']);
+export const STAGES = new Set(['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost']);
 const STATUSES = new Set(['active', 'potential', 'inactive']);
 const GROUPS = new Set(['vip', 'loyal', 'new', 'potential']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function where(authz: AuthzContext, f: ContactFilter): Prisma.Sql {
+/** Điều kiện lọc + scope dùng chung danh sách / kanban / thống kê / xuất (TIP-026b §4.1 — một bộ lọc chuẩn hoá). */
+export function where(authz: AuthzContext, f: ContactFilter): Prisma.Sql {
   const parts: Prisma.Sql[] = [Prisma.sql`c.deleted_at IS NULL`, scopeSql(authz)];
   if (f.stage && STAGES.has(f.stage)) parts.push(Prisma.sql`c.stage = ${f.stage}::contact_stage`);
   if (f.status && STATUSES.has(f.status)) parts.push(Prisma.sql`c.status = ${f.status}::contact_status`);
@@ -85,15 +86,8 @@ export async function stageCounts(tx: TenantTx, authz: AuthzContext): Promise<Re
   return Object.fromEntries(rows.map((r) => [r.stage, Number(r.n)]));
 }
 
-/** Kanban (TIP-026): mỗi giai đoạn đếm theo bộ lọc + `perStage` id đầu theo cùng thứ tự sắp xếp (bỏ lọc `stage` của danh sách). */
-export async function boardIds(tx: TenantTx, authz: AuthzContext, f: ContactFilter, perStage: number) {
-  const w = where(authz, { ...f, stage: undefined });
-  const [ids, counts] = await Promise.all([
-    tx.$queryRaw<{ id: string; stage: string }[]>`
-      SELECT s.id, s.stage FROM (
-        SELECT c.id, c.stage::text AS stage, row_number() OVER (PARTITION BY c.stage ORDER BY ${orderOf(f)}) AS rn FROM contact c WHERE ${w}
-      ) s WHERE s.rn <= ${perStage}`,
-    tx.$queryRaw<{ stage: string; n: bigint }[]>`SELECT c.stage::text AS stage, count(*)::bigint AS n FROM contact c WHERE ${w} GROUP BY c.stage`,
-  ]);
-  return { ids, counts: Object.fromEntries(counts.map((r) => [r.stage, Number(r.n)])) as Record<string, number> };
+/** Kanban: đếm mỗi giai đoạn theo bộ lọc + scope (bỏ lọc `stage` của danh sách) — trang thẻ ở board-page.ts. */
+export async function boardCounts(tx: TenantTx, authz: AuthzContext, f: ContactFilter): Promise<Record<string, number>> {
+  const rows = await tx.$queryRaw<{ stage: string; n: bigint }[]>`SELECT c.stage::text AS stage, count(*)::bigint AS n FROM contact c WHERE ${where(authz, { ...f, stage: undefined })} GROUP BY c.stage`;
+  return Object.fromEntries(rows.map((r) => [r.stage, Number(r.n)]));
 }

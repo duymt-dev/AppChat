@@ -8,8 +8,9 @@ import type { MockDb } from '../store';
 import inboxFixture from '../../../../../../../fixtures/prototype-parity/inbox.json';
 
 const versions = new Map<string, number>();
-const versionOf = (id: string) => versions.get(id) ?? 1;
-const bump = (id: string) => versions.set(id, versionOf(id) + 1).get(id)!;
+/** Version khách của mock (dùng chung contact.update + set_stage + kanban — TIP-026b). */
+export const versionOf = (id: string) => versions.get(id) ?? 1;
+export const bump = (id: string) => versions.set(id, versionOf(id) + 1).get(id)!;
 
 type Row = MockDb['customers']['contacts'][number];
 const find = (db: MockDb, id: string): Row => {

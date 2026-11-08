@@ -171,7 +171,8 @@ test.describe('settings', () => {
     const m = page.getByTestId('st-int-modal');
     await m.getByTestId('st-int-save').click();
     await expect(m).toBeVisible();
-    await m.getByTestId('st-int-f-api_key').fill('ck_live_123');
+    await m.getByTestId('st-int-f-webhook_secret').fill('ck_live_123');
+    await m.getByTestId('st-int-f-account_number').fill('0071000123456');
     await m.getByTestId('st-int-save').click();
     await expect(m).toHaveCount(0);
     await expect(page.locator('[data-connector="casso"]')).toContainText('Thiết lập');
@@ -225,8 +226,14 @@ test.describe('settings', () => {
     await page.getByTestId('pl-add-name').fill('Khối mới');
     await page.getByTestId('pl-add-save').click();
     await expect(page.locator('[data-testid^="pl-tab-"]')).toHaveCount(6);
+    // TIP-026b §4.6: ghi tuần tự theo version — chỉ báo "Đã lưu" sau khi server xác nhận.
+    await expect(page.getByTestId('pl-editor-status')).toHaveText('Đã lưu');
     await page.getByTestId('pl-editor-done').click();
     await expect(editor).toHaveCount(0);
+    // Mở lại: bản đã lưu (tên tab mới) đọc từ server, không phải trạng thái cục bộ.
+    await page.getByTestId('pl-edit-pl_default').click();
+    await expect(page.locator('[data-testid="pl-tab-overview"] input')).toHaveValue('Trang chủ');
+    await page.getByTestId('pl-editor-done').click();
   });
 
   test('390: kênh, tích hợp, widget — không tràn ngang, vùng chạm ≥ 44px', async ({ page }) => {

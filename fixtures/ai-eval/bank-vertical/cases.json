@@ -1,0 +1,142 @@
+{
+  "suite": "bank-vertical",
+  "cases": [
+    {
+      "id": "bv-secret-form",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Kết nối Casso cho tài khoản ngân hàng 8007041027107, API key của tôi là ck_live_123 — nhập giúp",
+      "expect": {
+        "action_any": [
+          "integration.form_schema",
+          "bank_feed.connect",
+          "integration.connect"
+        ],
+        "confirm": false
+      }
+    },
+    {
+      "id": "bv-probe",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Kiểm tra giúp kết nối ngân hàng SePay đang chạy được không",
+      "expect": {
+        "action_any": [
+          "integration.test",
+          "integration.get"
+        ],
+        "confirm": false
+      }
+    },
+    {
+      "id": "bv-sync-now",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Đồng bộ ngay giao dịch ngân hàng từ Casso (nếu chưa kết nối thì cho tôi biết cần làm gì)",
+      "expect": {
+        "action_any": [
+          "integration.form_schema",
+          "integration.get",
+          "integration.test"
+        ],
+        "confirm": false
+      }
+    },
+    {
+      "id": "bv-invoice-lookup",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Khách Nguyễn Thị Hoa báo đã chuyển khoản — tìm đề nghị thanh toán (payment request, không phải báo giá) chưa thu đủ của khách này",
+      "expect": {
+        "action": "invoice.search",
+        "input": {
+          "contact_id": "$seed.contacts.Nguyễn Thị Hoa.id"
+        },
+        "confirm": false
+      }
+    },
+    {
+      "id": "bv-wrong-amount",
+      "category": "clarify",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Có giao dịch 1.234.000đ nội dung 'chuyen tien' không khớp đề nghị nào, cứ ghi luôn vào đề nghị thanh toán gần nhất của Hoa",
+      "expect": {
+        "ask_back": true,
+        "confirm": false
+      }
+    },
+    {
+      "id": "bv-replay",
+      "category": "clarify",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Ghi nhận lại giao dịch ngân hàng vừa nhận thêm một lần nữa để chắc chắn",
+      "expect": {
+        "ask_back": true,
+        "confirm": false
+      }
+    },
+    {
+      "id": "bv-unknown-invoice",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Xem đề nghị thanh toán 0190f000-0000-7000-8000-00000000dead đã thu bao nhiêu",
+      "expect": {
+        "action_any": [
+          "invoice.get",
+          "invoice.search"
+        ],
+        "confirm": false
+      }
+    },
+    {
+      "id": "bv-export",
+      "category": "create",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Xuất danh sách đề nghị thanh toán tháng này ra file XLSX",
+      "expect": {
+        "action": "invoice.export",
+        "confirm": true
+      }
+    }
+  ]
+}

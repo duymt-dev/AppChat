@@ -10,7 +10,7 @@ import { MAX_STEPS } from './runner';
 export const AI_CANCEL_CHANNEL = 'appchat:ai:cancel';
 export type RunRowDto = z.infer<typeof runRowSchema>;
 
-const LIVE = ['queued', 'running', 'waiting_approval'] as const;
+const LIVE = ['queued', 'running', 'waiting_approval', 'waiting_child', 'waiting_operation', 'waiting_usage'] as const;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export interface RunFilter {
@@ -21,17 +21,18 @@ export interface RunFilter {
   limit?: number;
 }
 
-const statusOf = (s: string): RunRowDto['status'] => (s === 'waiting_approval' ? 'waiting_approval' : s === 'queued' || s === 'running' ? 'running' : 'done');
+// Nhóm cũ: chờ con / thao tác / usage vẫn là run đang sống → 'running' (không còn rơi vào 'done' như trước DC-380).
+const statusOf = (s: string): RunRowDto['status'] => (s === 'waiting_approval' ? 'waiting_approval' : (LIVE as readonly string[]).includes(s) ? 'running' : 'done');
 
 export async function listRuns(db: Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAgent'>, f: RunFilter): Promise<RunRowDto[]> {
   const status =
-    f.status === 'done' ? { notIn: [...LIVE] } : f.status === 'running' ? { in: ['queued' as const, 'running' as const] } : f.status === 'waiting_approval' ? { equals: 'waiting_approval' as const } : f.status === 'live' ? { in: [...LIVE] } : undefined;
+    f.status === 'done' ? { notIn: [...LIVE] } : f.status === 'running' ? { in: LIVE.filter((x) => x !== 'waiting_approval') } : f.status === 'waiting_approval' ? { equals: 'waiting_approval' as const } : f.status === 'live' ? { in: [...LIVE] } : undefined;
   // Theo gốc: chỉ run con (run gốc là chính cuộc trò chuyện của Trợ lý) — index (root_run_id, started_at).
   const rows = await db.aiRun.findMany({
     where: { ...(f.rootRunId ? { rootRunId: f.rootRunId, parentRunId: { not: null } } : {}), ...(status ? { status } : {}), ...(f.initiatedBy ? { initiatedByUserId: f.initiatedBy } : {}) },
     orderBy: { startedAt: f.rootRunId ? 'asc' : 'desc' },
     take: Math.min(f.limit ?? 50, 100),
-    select: { id: true, rootRunId: true, kind: true, title: true, agentId: true, status: true, state: true, creditsUsed: true },
+    select: { id: true, rootRunId: true, kind: true, title: true, agentId: true, status: true, state: true, creditsUsed: true, stopReason: true },
   });
   if (!rows.length) return [];
   const steps = await db.aiRunStep.groupBy({ by: ['runId'], where: { runId: { in: rows.map((r) => r.id) }, type: 'llm' }, _count: { _all: true } });
@@ -49,8 +50,10 @@ export async function listRuns(db: Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAge
       task: r.title,
       agent: r.agentId ? (names.get(r.agentId) ?? '') : '',
       meta: `${n.get(r.id) ?? 0} bước · ${r.creditsUsed} credit`,
-      pct: st === 'done' ? 100 : Math.min(95, Math.round(((n.get(r.id) ?? 0) / max) * 100)),
+      pct: r.status === 'running' || r.status === 'queued' ? Math.min(95, Math.round(((n.get(r.id) ?? 0) / max) * 100)) : null,
       status: st,
+      lifecycle: r.status,
+      stop_reason: r.stopReason,
       ...(pending ? { approval_id: pending } : {}),
     };
   });

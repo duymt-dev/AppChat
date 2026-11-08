@@ -11,6 +11,7 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { connectionCtx } from '../services/connections.service';
+import { adapterOf } from '../services/adapter-selection';
 
 export const INTEGRATIONS_QUEUE = 'integrations';
 export const CALL_ATTEMPTS = 5;
@@ -74,7 +75,7 @@ export async function runIntegrationCall(d: CallDeps, j: IntegrationCallJob, att
     if (!row || row.status === 'disconnected') throw new Error('connection không còn kết nối');
     const h = OPS.get(j.op);
     if (!h) throw new Error(`op chưa đăng ký: ${j.op}`);
-    await h({ conn: connectionCtx(row, d.key), adapter: d.registry.get(row.connectorKey)?.adapter ?? null, payload: j.payload, workspaceId: j.workspace_id });
+    await h({ conn: connectionCtx(row, d.key), adapter: adapterOf(d.registry, row.connectorKey, row.mode), payload: j.payload, workspaceId: j.workspace_id });
     await db.integrationCallLog.update({ where: { id: log.id }, data: { status: 'succeeded', latencyMs: Date.now() - started, error: null } });
     await db.integrationConnection.update({ where: { id: j.connection_id }, data: { lastSyncAt: d.now(), lastError: null } });
     return 'succeeded';

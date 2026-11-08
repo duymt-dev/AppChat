@@ -83,15 +83,15 @@ model KbSource {
 }
 
 model KbChunk {
-  id          String                       @id @db.Uuid
-  sourceId    String                       @map("source_id") @db.Uuid
-  ord         Int
-  content     String
-  embedding   Unsupported("vector(1536)")?
-  embedModel  String                       @map("embed_model")
-  tokenCount  Int                          @default(0) @map("token_count")
+  id         String                       @id @db.Uuid
+  sourceId   String                       @map("source_id") @db.Uuid
+  ord        Int
+  content    String
+  embedding  Unsupported("vector(1536)")?
+  embedModel String                       @map("embed_model")
+  tokenCount Int                          @default(0) @map("token_count")
   /// `{ path?: string[], page?: number, row?: number, volatile?: boolean }`
-  meta        Json                         @default("{}")
+  meta       Json                         @default("{}")
 
   source KbSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 

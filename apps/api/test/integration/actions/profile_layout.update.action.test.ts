@@ -19,7 +19,7 @@ describe('profile_layout.update', () => {
     const { preview, done } = await m.confirm({ layout_id: id, patch: { name: 'Spa Kim Cương' } });
     expect(preview).toEqual({ summary: 'Spa VIP', risk: 'config', changes: [{ entity: 'profile_layout', id, before: { name: 'Spa VIP' }, after: { name: 'Spa Kim Cương' } }] });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
-    expect((await m.act({ layout_id: id, patch: { name: 'Spa Kim Cương' } })).body.data.result).toEqual({ layout_id: id });
+    expect((await m.act({ layout_id: id, patch: { name: 'Spa Kim Cương' } })).body.data.result).toEqual({ layout_id: id, version: expect.any(Number) });
   });
 
   it('id lạ → 404 · 403 sales', async () => {

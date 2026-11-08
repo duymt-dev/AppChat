@@ -5,6 +5,7 @@ import type { ActionInput, ActionPreview, integrationConnect } from '@appchat/ac
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { created, preview } from '../../../kernel/actions/preview-kit';
 import { IN_USE, type ConnectionsService } from '../../services/connections.service';
+import { defaultAdapter } from '../../services/adapter-selection';
 
 export async function connectPreview(tx: TenantTx, connections: ConnectionsService | null, i: ActionInput<typeof integrationConnect>): Promise<ActionPreview> {
   if (!connections) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'integrations chưa cấu hình (APP_ENC_KEY)');
@@ -13,6 +14,6 @@ export async function connectPreview(tx: TenantTx, connections: ConnectionsServi
   const existing = await tx.integrationConnection.findFirst({ where: { connectorKey: i.provider, ...IN_USE }, select: { id: true } });
   return preview('config', e.manifest.name, {
     changes: [created('integration_connection', { connector_key: i.provider, ...config }, existing?.id)],
-    warnings: [...(e.adapter?.test ? ['verify_connection'] : []), ...(existing ? ['reconnect'] : [])],
+    warnings: [...(defaultAdapter(e)?.test ? ['verify_connection'] : []), ...(existing ? ['reconnect'] : [])],
   });
 }

@@ -183,4 +183,29 @@ export const useKanbanCardStyles = createStyles(({ css }) => ({
     color: ${color.text3};
     font-family: inherit;
   `,
+  cf: css`
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid ${color.divider};
+  `,
+  cfRow: css`
+    display: flex;
+    gap: 6px;
+    font-size: ${font.scale.s12}px;
+    min-width: 0;
+  `,
+  cfLabel: css`
+    color: ${color.text3};
+    flex-shrink: 0;
+  `,
+  cfValue: css`
+    color: ${color.text};
+    font-weight: ${font.weight.semibold};
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  `,
 }));

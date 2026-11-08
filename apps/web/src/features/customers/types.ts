@@ -38,6 +38,8 @@ export interface ContactRow {
   collaborator_count: number;
   /** Trường tuỳ biến (D56). */
   custom?: CustomValues;
+  /** Phiên bản khách (TIP-026b) — kéo thẻ gửi lại làm if_version. */
+  version?: number;
 }
 
 export interface CrmStats {
@@ -48,7 +50,7 @@ export interface CrmStats {
 
 /** `GET /contacts/board` — kanban theo giai đoạn (đếm theo bộ lọc, ≤ `limit` thẻ / cột). */
 export interface ContactsBoard {
-  columns: { key: Exclude<StageKey, 'all'>; color: string; total: number; rows: ContactRow[] }[];
+  columns: { key: Exclude<StageKey, 'all'>; color: string; total: number; rows: ContactRow[]; next_cursor?: string | null }[];
   limit: number;
 }
 

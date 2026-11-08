@@ -38,6 +38,7 @@ import * as loyaltyPayments from './loyalty-payments';
 import * as settings from './settings';
 import * as authz from './authz';
 import * as leadRouting from './lead-routing';
+import * as bankIngress from './bank-ingress';
 import * as settingsApps from './settings-apps';
 import * as settingsAi from './settings-ai';
 import * as billingLifecycle from './billing-lifecycle';
@@ -61,6 +62,10 @@ import * as channelReads from './reads/channels';
 import * as documentReads from './reads/documents';
 import * as assistantUi from './assistant-ui';
 import * as integrationProbe from './integration-probe';
+import * as integrationRuntime from './integration-runtime';
+import * as contactNotes from './contact-notes';
+import * as contactTasks from './contact-tasks';
+import * as contactOpportunities from './contact-opportunities';
 import * as dataJobs from './data-jobs';
 import * as dataTransfer from './data-transfer';
 import * as crmBulk from './crm-bulk';
@@ -109,6 +114,7 @@ export * from './loyalty-payments';
 export * from './settings';
 export * from './authz';
 export * from './lead-routing';
+export * from './bank-ingress';
 export * from './settings-apps';
 export * from './settings-ai';
 export * from './billing-lifecycle';
@@ -131,6 +137,10 @@ export * from './reads/identity';
 export * from './reads/channels';
 export * from './reads/documents';
 export * from './integration-probe';
+export * from './integration-runtime';
+export * from './contact-notes';
+export * from './contact-tasks';
+export * from './contact-opportunities';
 export * from './data-jobs';
 export * from './data-transfer';
 export * from './crm-bulk';
@@ -179,6 +189,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(settings),
   ...Object.values(authz),
   ...Object.values(leadRouting),
+  ...Object.values(bankIngress),
   ...Object.values(settingsApps),
   ...Object.values(settingsAi),
   ...Object.values(billingLifecycle),
@@ -209,6 +220,10 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(documentReads),
   // TIP-023c G3 (DEF-012-1): metadata form + thăm dò connector, không đổi kết nối.
   ...Object.values(integrationProbe),
+  ...Object.values(integrationRuntime),
+  ...Object.values(contactNotes),
+  ...Object.values(contactTasks),
+  ...Object.values(contactOpportunities),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

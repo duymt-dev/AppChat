@@ -17,25 +17,25 @@ enum ChannelAccountStatus {
 /// Credential chỉ ở `credentials_enc` (AES-256-GCM — ops §2.2), không bao giờ trả API / log.
 /// Một tài khoản kênh đang dùng mỗi (type, external_id): unique partial WHERE status <> 'disconnected' (migration).
 model ChannelAccount {
-  id             String               @id @db.Uuid
-  type           String
-  name           String
-  externalId     String?              @map("external_id")
-  status         ChannelAccountStatus @default(pending)
-  credentialsEnc Bytes?               @map("credentials_enc")
+  id                String               @id @db.Uuid
+  type              String
+  name              String
+  externalId        String?              @map("external_id")
+  status            ChannelAccountStatus @default(pending)
+  credentialsEnc    Bytes?               @map("credentials_enc")
   /// Cấu hình tài khoản (Blueprint §2.2 + REQ-B11): agent_id, ai_mode, hours, greeting, assign_mode, sla_policy,
   /// sync_messages, sync_auto_create_contact, history_days, rate_per_minute?, daily_cap?.
-  settings       Json                 @default("{}")
-  pausedAt       DateTime?            @map("paused_at") @db.Timestamptz(6)
+  settings          Json                 @default("{}")
+  pausedAt          DateTime?            @map("paused_at") @db.Timestamptz(6)
   /// `{ status: connected|degraded|error|expired, detail?, checked_at, failures: [iso…] }` — lỗi gửi bất thường gần đây.
-  health         Json                 @default("{}")
-  lastEventAt    DateTime?            @map("last_event_at") @db.Timestamptz(6)
+  health            Json                 @default("{}")
+  lastEventAt       DateTime?            @map("last_event_at") @db.Timestamptz(6)
   /// Thế hệ phiên (TIP-014b C): tăng mỗi lần worker giành phiên + mỗi lần đổi trạng thái (tạm dừng / ngắt / kết nối lại / hết hạn). Đặt chỗ
   /// gửi / thao tác kiểm đúng thế hệ của worker đang giữ — chủ phiên cũ (mất lease) không gọi kênh được nữa.
-  sessionGeneration Int                 @default(0) @map("session_generation")
-  createdBy      String?              @map("created_by") @db.Uuid
-  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sessionGeneration Int                  @default(0) @map("session_generation")
+  createdBy         String?              @map("created_by") @db.Uuid
+  createdAt         DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("channel_account")
 }

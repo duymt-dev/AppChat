@@ -3,7 +3,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { PORT_KEYS, connectorRegistry, defineConnectors, type PortKey } from '../src';
+import { CassoBankFeed, MockBankFeedProvider, PORT_KEYS, SepayBankFeed, connectorRegistry, defineConnectors, type PortKey } from '../src';
 import { sepayManifest } from '../src/connectors/sepay/manifest';
 
 const fixture = JSON.parse(
@@ -36,11 +36,12 @@ describe('connectorRegistry', () => {
     expect(keysOf('mail').sort()).toEqual(['brevo', 'mailgun', 'smtp']);
   });
 
-  it('kết nối được ⇔ không "Sắp có" (DC-042); bank_feed có adapter mock (sandbox)', () => {
+  it('kết nối được ⇔ không "Sắp có" (DC-042); bank_feed: live = adapter thật, sandbox = giả lập (TIP-012b)', () => {
     for (const m of connectorRegistry.listed()) expect(connectorRegistry.isConnectable(m.key)).toBe(RELEASE.includes(m.key));
     expect(connectorRegistry.isConnectable('nope')).toBe(false);
-    expect(connectorRegistry.get('sepay')?.adapter).toBeDefined();
-    expect(connectorRegistry.get('casso')?.adapter).toBeDefined();
+    expect(connectorRegistry.get('sepay')?.adapters?.live).toBeInstanceOf(SepayBankFeed);
+    expect(connectorRegistry.get('casso')?.adapters?.live).toBeInstanceOf(CassoBankFeed);
+    expect(connectorRegistry.get('sepay')?.adapters?.sandbox).toBeInstanceOf(MockBankFeedProvider);
   });
 
   it('trường form + màu khớp fixture (thẻ FE đọc từ manifest)', () => {
@@ -49,7 +50,8 @@ describe('connectorRegistry', () => {
       const f = fx.find((c) => c.key === m.key)!;
       expect({ key: m.key, color: m.color, name: m.name, fields: m.auth.fields.map((x) => x.key) }).toEqual({ key: f.key, color: f.color, name: f.name, fields: f.fields });
     }
-    expect(connectorRegistry.get('sepay')!.manifest.auth.fields.filter((f) => f.secret).map((f) => f.key)).toEqual(['api_key']);
+    expect(connectorRegistry.get('sepay')!.manifest.auth.fields.filter((f) => f.secret).map((f) => f.key)).toEqual(['api_key', 'hmac_secret', 'api_token']);
+    expect(connectorRegistry.get('casso')!.manifest.auth.fields.filter((f) => f.secret).map((f) => f.key)).toEqual(['webhook_secret', 'api_key']);
   });
 
   it('trùng key / port lạ / adapter lệch → lỗi lúc define', () => {
@@ -57,6 +59,8 @@ describe('connectorRegistry', () => {
     const bad = { ...sepayManifest, key: 'bad', port: 'fax' as PortKey };
     expect(() => defineConnectors([{ manifest: bad }])).toThrow(/Port/);
     const other = { ...sepayManifest, key: 'other' };
-    expect(() => defineConnectors([{ manifest: sepayManifest, adapter: { manifest: other } }])).toThrow(/không khớp/);
+    expect(() => defineConnectors([{ manifest: sepayManifest, adapters: { live: { manifest: other } } }])).toThrow(/không khớp/);
+    const sandboxOnly = { ...sepayManifest, modes: ['sandbox' as const] };
+    expect(() => defineConnectors([{ manifest: sandboxOnly, adapters: { live: { manifest: sandboxOnly } } }])).toThrow(/ngoài manifest/);
   });
 });

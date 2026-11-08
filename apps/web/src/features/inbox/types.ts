@@ -1,4 +1,4 @@
-import type { AgentIntent, ContactInsightsDto, CustomValues, HandoffSummaryDto } from '@appchat/shared';
+import type { ActivitySummaryDto, AgentIntent, ContactInsightsDto, CustomValues, HandoffSummaryDto } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
 
 /** TIP-022b: tóm tắt bàn giao có cấu trúc (chiếu theo quyền người xem). */
@@ -194,6 +194,8 @@ export interface Contact360 {
   layout?: { id: string; name: string; tabs: LayoutTab[] };
   /** Số liệu thật theo quyền người xem (TIP-015b) — null = không xem được (khác 0 / rỗng). */
   insights?: ContactInsightsDto;
+  /** Hoạt động CRM thật (TIP-026b) — ghi chú / bình luận / việc / cơ hội theo quyền người xem. */
+  activities?: ActivitySummaryDto;
 }
 
 /** Tab Hồ sơ 360° (profile_layout.tabs — Cài đặt › Hồ sơ 360°). */

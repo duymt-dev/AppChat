@@ -2,6 +2,7 @@
 // /contacts/:id (Hồ sơ 360°), /contacts/:id/collaborators, /contacts/:id/timeline, /contact-access-requests, /members,
 // /settings/fields?entity=, /settings/profile-layouts. Mock transport (apps/web) và API thật parse cùng các schema này.
 import { z } from 'zod';
+import { activitySummarySchema } from './contact-activities';
 import { contactInsightsSchema } from './contact-memory';
 import { SYSTEM_ROLES } from '../authz/roles';
 import { CUSTOM_FIELD_PLACES } from '../custom-fields/values';
@@ -41,6 +42,8 @@ export const contactRowSchema = z.object({
   my_access: access,
   collaborator_count: z.number().int(),
   custom: customValues.optional(),
+  /** Phiên bản khách (TIP-026b §4.3) — kéo thẻ / đổi giai đoạn gửi lại làm if_version. */
+  version: z.number().int().optional(),
 });
 export type ContactRowDto = z.infer<typeof contactRowSchema>;
 
@@ -63,7 +66,7 @@ export type ContactSort = (typeof CONTACT_SORTS)[number];
 
 /** `GET /contacts/board` — kanban theo giai đoạn: đếm theo bộ lọc + tối đa `limit` thẻ đầu mỗi cột (cột `lost` có khi có khách). */
 export const contactsBoardSchema = z.object({
-  columns: z.array(z.object({ key: stageKey, color: z.string(), total: z.number().int(), rows: z.array(contactRowSchema) })),
+  columns: z.array(z.object({ key: stageKey, color: z.string(), total: z.number().int(), rows: z.array(contactRowSchema), next_cursor: z.string().nullable().optional() })),
   limit: z.number().int(),
 });
 
@@ -145,6 +148,8 @@ export const contact360Schema = z.object({
   custom: customValues.optional(),
   /** Số liệu thật theo quyền người xem (TIP-015b) — công nợ, HĐ hiệu lực, đơn / thu gần nhất, LTV, liên kết chứng từ. */
   insights: contactInsightsSchema.optional(),
+  /** Hoạt động CRM thật (TIP-026b): ghi chú / bình luận / việc chăm sóc / cơ hội — trang đầu theo quyền người xem. */
+  activities: activitySummarySchema.optional(),
   /** Bố cục Hồ sơ 360° của vai trò người xem (Blueprint §4.4 ver2.1). */
   layout: z.object({ id: z.string(), name: z.string(), tabs: z.array(layoutTab) }).optional(),
 });
@@ -166,6 +171,6 @@ export const fieldsDataSchema = z.object({ data: z.array(fieldDef), counts: z.re
 
 const roleKey = z.enum(SYSTEM_ROLES);
 export const profileLayoutsSchema = z.object({
-  layouts: z.array(z.object({ id: z.string(), name: z.string(), is_system: z.boolean(), tabs: z.array(layoutTab), roles: z.array(roleKey), created_by: z.string() })),
+  layouts: z.array(z.object({ id: z.string(), name: z.string(), is_system: z.boolean(), tabs: z.array(layoutTab), roles: z.array(roleKey), created_by: z.string(), version: z.number().int().optional() })),
   role_assignments: z.record(roleKey, z.string()),
 });
