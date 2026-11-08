@@ -16,6 +16,8 @@ import { lockConfig } from '../operations/locks';
 import { hoursPreview, staffCreatePreview, staffDeactivatePreview, staffUpdatePreview } from './previews/booking-config.handlers.preview';
 
 type Fields = ActionInput<typeof staffCreate>;
+/** Sự kiện cấu hình đổi (outbox chuẩn, chỉ id / version — §5.3). */
+const changed = (scope: 'hours' | 'staff', staffId: string | null, version: number) => ({ topic: 'booking.config_changed', payload: { scope, staff_id: staffId, version } });
 const PALETTE = ['#F87171', '#FF8A4C', '#2DC56A', '#7C9CFF', '#A78BFA', '#38BDF8', '#F472B6', '#FBBF24'];
 
 async function checkSkills(tx: TenantTx, ids: string[] | undefined) {
@@ -53,7 +55,7 @@ export class StaffCreateHandler implements Handler<Fields, { staff_id: string; v
     const id = uuidv7(now.getTime());
     await tx.staff.create({ data: { id, name: input.name.trim(), ...cols(input), color: input.color ?? PALETTE[n % PALETTE.length]!, userId: input.user_id ?? null, skills, sort: n, createdAt: now, updatedAt: now } });
     await replaceSchedule(tx, id, input.schedule);
-    return { result: { staff_id: id, version: 1 }, after: { id } };
+    return { result: { staff_id: id, version: 1 }, after: { id }, events: [changed('staff', id, 1)] };
   }
 
   async preview(_ctx: ActionContext, input: Fields, tx: TenantTx) {
@@ -77,7 +79,7 @@ export class StaffUpdateHandler implements Handler<ActionInput<typeof staffUpdat
     const skills = p.skills !== undefined ? await checkSkills(tx, p.skills) : undefined;
     const row = await tx.staff.update({ where: { id: s.id }, data: { ...cols(p), ...(p.user_id !== undefined ? { userId: p.user_id || null } : {}), ...(skills ? { skills } : {}), version: { increment: 1 }, updatedAt: this.clock.now() } });
     await replaceSchedule(tx, s.id, p.schedule);
-    return { result: { staff_id: s.id, version: row.version }, before: { name: s.name, skills: s.skills } };
+    return { result: { staff_id: s.id, version: row.version }, before: { name: s.name, skills: s.skills }, events: [changed('staff', s.id, row.version)] };
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof staffUpdate>, tx: TenantTx) {
@@ -95,7 +97,7 @@ export class StaffDeactivateHandler implements Handler<ActionInput<typeof staffD
     const now = this.clock.now();
     if (await deactivationBlockers(tx, s.id, now)) throw new AppError('INVALID_STATE', 409, { staff_id: 'has_upcoming' });
     const row = await tx.staff.update({ where: { id: s.id }, data: { active: false, version: { increment: 1 }, updatedAt: now } });
-    return { result: { staff_id: s.id, version: row.version } };
+    return { result: { staff_id: s.id, version: row.version }, events: [changed('staff', s.id, row.version)] };
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof staffDeactivate>, tx: TenantTx) {
@@ -120,7 +122,7 @@ export class BusinessHoursUpdateHandler implements Handler<ActionInput<typeof bu
       ...(input.no_show_deducts !== undefined ? { noShowDeducts: input.no_show_deducts } : {}),
     };
     const row = await tx.bookingSetting.update({ where: { id: 1 }, data: { ...set, version: { increment: 1 }, updatedAt: this.clock.now() } });
-    return { result: { ok: true, version: row.version }, before, after: input };
+    return { result: { ok: true, version: row.version }, before, after: input, events: [changed('hours', null, row.version)] };
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof businessHoursUpdate>, tx: TenantTx) {

@@ -17,9 +17,9 @@
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 164 | 11 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 390 | 32 | 1 | 4 | 29 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 56 | 0 | 29 | 0 | 3 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 75 | 7 | 1 | 14 | 27 | 2 | 0 | 0 |
-| **Tổng** | **1177** | **105** | **33** | **49** | **127** | **35** | **69** | **0** |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 57 | 0 | 29 | 0 | 2 | 5 | 0 | 0 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
+| **Tổng** | **1180** | **104** | **33** | **49** | **125** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1560,7 +1560,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-settings-ragdownload | Dữ liệu RAG: nút tải tệp nguồn | docs/06-prototype/AppChat.dc.html:6973 | 020b | ĐẠT | RagSection.tsx nút ⬇ → hooks/useKbDownload.ts → GET /v1/kb/sources/:id/download (kb-management.controller.ts); e2e apps/web/e2e/kb-management.spec.ts + http/kb-management.spec.ts (sha256 khớp) |
 | PRO-settings-tagslearn | Thẻ & nhãn: "Tìm hiểu thêm" | docs/06-prototype/AppChat.dc.html:6420 | 013b | GIẢ | TagsSection.tsx:83 không onClick; TIP-013b nhận (2026-11-02) |
 | PRO-settings-navcounts | Nav Cài đặt: số đếm Thành viên / Vai trò / Thẻ / Câu trả lời mẫu theo dữ liệu thật | docs/06-prototype/AppChat.dc.html:10301 | 013b | GIẢ | apps/web/src/features/settings/registry.ts:32,33,45,46 `n:'12'/'5'/'24'/'48'` cứng; TIP-013b nhận (2026-11-02) |
-| PRO-settings-booking | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | plans/BLUEPRINT.md:1269 | 033b | CHƯA | Action + API có (DV-015) nhưng không FE nào gọi `staff.create`/`business_hours.update`; prototype không vẽ; TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
+| PRO-settings-booking | Cấu hình nhân sự / giờ mở cửa lịch hẹn (staff.*, business_hours.update, /settings/booking) | plans/BLUEPRINT.md:1269 | 033b | ĐẠT | Cài đặt → Lịch hẹn (apps/web/src/features/settings/components/BookingSection.tsx + booking/*): giờ mở cửa 7 thứ, bước lưới / đệm / no-show, nhân sự ca riêng ba trạng thái, if_version; GET /settings/booking trang nhân sự + booking.settings_get; e2e booking-operations.spec.ts 3/3 (DC-416) |
 | PRO-settings-paymentaccount | Cài đặt tài khoản nhận tiền (`payment_account.update`, /settings/payments) | plans/BLUEPRINT.md:1269 | 013b | CHƯA | Action + API có (DV-014); không FE nào gọi `payment_account.update`; TIP-013b nhận (2026-11-02) |
 | PRO-settings-security | Mục Cài đặt "Bảo mật" (2FA, chính sách mật khẩu, khoá sau N lần sai) | docs/06-prototype/AppChat.dc.html:6465 | 004b | CHƯA | Không có trong registry.ts; không nằm trong danh sách ẩn prototype-parity §6 (chỉ ẩn SSO/Compliance); TIP-004b nhận (2026-11-02) |
 | PRO-settings-tokenusage | Mục "Lịch sử chi tiêu Credit" theo module | docs/06-prototype/AppChat.dc.html:6144 | 039 | ĐẠT | WalletLedger.tsx lọc nguồn (module) / kỳ / vào-ra phía server (`GET /v1/billing/ledger` ledger-reader.ts, cursor, index nguồn / loại); test billing-read.test.ts, e2e/http/billing-lifecycle.spec.ts |
@@ -1661,7 +1661,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-032-1 | Khoản thu `points` + `payment.redeem_points` | reports/TIP-032-completion.md:32 | 036 | ĐẠT | payment-write.ts Method points + voidPointsPayment; payment.redeem_points; test loyalty-concurrency.test.ts |
 | DEF-032-2 | Trừ buổi liệu trình khi lịch hẹn hoàn tất (`package_usage`) | reports/TIP-032-completion.md:31 | 033 | ĐẠT | booking/services/appointment-write.ts:66-76; test booking.test.ts:4 |
 | DEF-032-3 | Form chứng từ FE dùng ngày thật (`todayIso`) thay ngày cứng parity | reports/TIP-032-completion.md:25 | 003g | MỘT PHẦN | apps/web/src/shared/time/today.ts:7-11 lấy local date khi http; OrderFormModal.tsx:37, ContractFormModal.tsx:48, InvoiceFormModal.tsx:33, PaymentModals.tsx:19 tính TODAY ở module scope nên tab mở qua nửa đêm vẫn dùng ngày cũ. Chưa có test clock qua ngày / mock giữ 2026-06-24; TIP-003g nhận (2026-11-02) |
-| DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | 033b | CHƯA | Chỉ action + API; FE chỉ có mock domains/calendar-actions.ts (DV-015); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
+| DEF-033-1 | Mục Cài đặt "Đặt lịch": nhân sự / ca / giờ mở cửa (UI) | reports/TIP-033-completion.md:25 | 033b | ĐẠT | Cài đặt → Lịch hẹn (apps/web/src/features/settings/components/BookingSection.tsx + booking/*): giờ mở cửa 7 thứ, bước lưới / đệm / no-show, nhân sự ca riêng ba trạng thái, if_version; GET /settings/booking trang nhân sự + booking.settings_get; e2e booking-operations.spec.ts 3/3 (DC-416) |
 | DEF-034-1 | Xu hướng KPI ticket (`trend`) so kỳ trước | reports/TIP-034-completion.md:25 | 034d | GIẢ | support/services/tickets-read.service.ts:185 trả chuỗi rỗng;034d actual observed prior-date stock/current surviving cohort, privacy interlock and canonical AI read; planning not runtime |
 | DEF-034-2 | Màn cấu hình danh mục ticket | reports/TIP-034-completion.md:26 | 034b | CHƯA | Pending034b: configurable suggestions, free-text/history unchanged, current scoped used labels, canonical config and AI-first/manual file transfer; no runtime acceptance. |
 | DEF-034-3 | Parity `tickets:detail` 4,91% sát ngưỡng — rà lại drawer | reports/TIP-034-completion.md:27 | 046, 001c | MỘT PHẦN | Chưa rà; TG 046 "chạy parity mọi màn"; TIP-001c nhận (2026-11-02) |
@@ -1703,7 +1703,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DV-012 | Duyệt `ConnectorManifest.hidden` + `mock_marketplace` | DEVIATIONS.md:29 | 031 | ĐẠT | packages/integrations/src/connectors/mock/order-sync.ts:19, define.ts:10; test packages/integrations/test/order-sync.test.ts |
 | DV-013 | Duyệt `bank_tx` / `payment_account` / `package_usage` + `payment.refund_approve` / `refund_reject` | DEVIATIONS.md:30 | 032 | ĐẠT | packages/actions/src/payments.ts:33; test payments.test.ts:268 |
 | DV-014 | Duyệt `/invoices/meta`, PDF phiếu thu, `/settings/payments`, phương thức `points` / `marketplace` | DEVIATIONS.md:31 | 032 | ĐẠT | apps/api/src/http/sales/invoices.controller.ts:39; test payments.test.ts |
-| DV-015 | Duyệt bảng booking mới + `/v1/calendar`; thiếu UI cấu hình nhân sự / giờ mở cửa | DEVIATIONS.md:32 | 033b | MỘT PHẦN | Backend ĐẠT (booking.prisma:39,53; calendar.controller.ts:34; booking.test.ts); UI chưa (DEF-033-1); TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
+| DV-015 | Duyệt bảng booking mới + `/v1/calendar`; thiếu UI cấu hình nhân sự / giờ mở cửa | DEVIATIONS.md:32 | 033b | ĐẠT | Backend booking.prisma + calendar.controller; UI cấu hình nhân sự / giờ mở cửa ở Cài đặt → Lịch hẹn (DEF-033-1 ĐẠT, DC-416) |
 | DV-016 | Duyệt `ticket_event` + cột ticket + `/tickets/meta` | DEVIATIONS.md:33 | 034 | ĐẠT | packages/db/prisma/tenant/support.prisma:110; tickets.controller.ts:32; test support.test.ts |
 | DV-017 | Duyệt cột `ai_task` mới + `ai_task.delete` / `run_now` + notify | DEVIATIONS.md:34 | 035 | ĐẠT | packages/actions/src/ai.ts:306; test ai-tasks.test.ts |
 

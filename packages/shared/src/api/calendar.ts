@@ -73,4 +73,7 @@ export const bookingSettingsSchema = z.object({
   version: z.number().int().optional(),
   // schedule: thứ không có = theo giờ mở cửa; open=false = nghỉ tường minh (tri-state).
   staff: z.array(bookingStaffSchema.extend({ active: z.boolean(), skills: z.array(z.string()), user_id: z.string().nullable(), schedule: z.array(z.object({ weekday: z.number().int(), open: z.boolean(), start: z.string(), end: z.string() })), version: z.number().int().optional() })),
+  /** Trang nhân sự kế (TIP-033b §3.6); null = hết. */
+  staff_next_cursor: z.string().nullable().optional(),
 });
+export type BookingSettingsDto = z.infer<typeof bookingSettingsSchema>;

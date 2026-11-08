@@ -31,7 +31,7 @@ export const staffCreate = defineAction({
   permission: 'booking.config',
   risk: 'config',
   agentGrantable: false,
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'settings'],
 });
 
 export const staffUpdate = defineAction({
@@ -44,7 +44,7 @@ export const staffUpdate = defineAction({
   permission: 'booking.config',
   risk: 'config',
   agentGrantable: false,
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'settings'],
 });
 
 export const staffDeactivate = defineAction({
@@ -57,7 +57,7 @@ export const staffDeactivate = defineAction({
   permission: 'booking.config',
   risk: 'config',
   agentGrantable: false,
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'settings'],
 });
 
 export const businessHoursUpdate = defineAction({
@@ -77,7 +77,7 @@ export const businessHoursUpdate = defineAction({
   permission: 'booking.config',
   risk: 'config',
   agentGrantable: false,
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'settings'],
 });
 
 export const orderCreateFromAppointment = defineAction({

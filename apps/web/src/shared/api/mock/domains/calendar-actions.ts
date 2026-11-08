@@ -1,11 +1,12 @@
 // Ghi Lịch hẹn ở mock — cùng bảng APPOINTMENT_FLOW với server (REQ-G02, COMMERCE §6 / 8b): sai bước → INVALID_TRANSITION 409; trùng giờ
 // KTV + đệm → SLOT_TAKEN; huỷ cần lý do; hoàn thành thuộc liệu trình trừ 1 buổi, ngoài liệu trình chỉ gợi ý đơn (order.create_from_appointment
-// tạo đơn một lần). Nhân sự / giờ mở cửa (booking.config) ở mock chỉ xác nhận (fixture prototype cố định).
-import { ApiRequestError, APPOINTMENT_FLOW, assertTransition, toHm, toMin, type AppError } from '@appchat/shared';
+// tạo đơn một lần). Nhân sự / giờ mở cửa (booking.config): booking-config.ts (version, tri-state).
+import { APPOINTMENT_FLOW, assertTransition, toHm, toMin, type AppError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
 import { ME } from './customers';
 import { insertOrder } from './orders-actions';
+import { bookingConfigHandlers } from './booking-config';
 import { assertFree, day, deny, find, hm, isPast, iso, svcOf, type Appointment, type ApptStatus } from './calendar';
 
 const step = (a: Appointment, action: string): ApptStatus => {
@@ -160,14 +161,5 @@ export const calendarHandlers: Record<string, MockHandler> = {
       return { order_id: o.id, code: o.code };
     },
   },
-  'staff.create': { execute: () => ({ staff_id: `s_new_${Date.now()}` }) },
-  'staff.update': { execute: (_db, i: { staff_id: string }) => ({ staff_id: i.staff_id }) },
-  'staff.deactivate': {
-    execute: (db, i: { staff_id: string }) => {
-      if (db.calendar.appointments.some((a) => a.staff_id === i.staff_id && ['pending', 'confirmed', 'in_progress'].includes(a.status) && day(a.start_at) >= '2026-06-24'))
-        throw new ApiRequestError(409, { code: 'INVALID_STATE', message: i.staff_id, fields: { staff_id: 'has_upcoming' } });
-      return { staff_id: i.staff_id };
-    },
-  },
-  'business_hours.update': { execute: () => ({ ok: true }) },
+  ...bookingConfigHandlers,
 };

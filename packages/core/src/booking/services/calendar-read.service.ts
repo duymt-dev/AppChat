@@ -9,6 +9,7 @@ import type { BookingPlace } from './booking-place';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { bookingSetting, slotsFor } from './slots';
 import { assertSlotDate, authorizedExclude } from '../operations/slot-policy';
+import { readBookingSettings, type SettingsPage } from '../operations/settings-read';
 import { calendarFollowUps } from '../../insights/services/calendar-follow-ups';
 
 export interface CalendarViewer {
@@ -191,34 +192,8 @@ export class CalendarReadService {
     });
   }
 
-  async settings(v: CalendarViewer) {
-    return this.tx(v, async (tx) => {
-      const [setting, hours, staff] = await Promise.all([
-        bookingSetting(tx),
-        tx.businessHours.findMany({ orderBy: { weekday: 'asc' } }),
-        tx.staff.findMany({ orderBy: [{ active: 'desc' }, { sort: 'asc' }, { name: 'asc' }], include: { schedules: true } }),
-      ]);
-      return {
-        days: hours.map((h) => ({ weekday: h.weekday, open: h.open, start: h.startTime, end: h.endTime })),
-        slot_step_min: setting.slotStepMin,
-        default_buffer_min: setting.defaultBufferMin,
-        no_show_deducts: setting.noShowDeducts,
-        version: setting.version,
-        staff: staff.map((s) => ({
-          id: s.id,
-          name: s.name,
-          role: s.role,
-          initial: initial(s.name),
-          color: s.color,
-          team: s.team,
-          room: s.room,
-          active: s.active,
-          skills: s.skills,
-          user_id: s.userId,
-          schedule: s.schedules.map((x) => ({ weekday: x.weekday, open: x.open, start: x.startTime, end: x.endTime })),
-          version: s.version,
-        })),
-      };
-    });
+  /** Cài đặt lịch hẹn (TIP-033b §3.6) — metadata + trang nhân sự (operations/settings-read.ts). */
+  async settings(v: CalendarViewer, page: SettingsPage = {}) {
+    return this.tx(v, (tx) => readBookingSettings(tx, page));
   }
 }

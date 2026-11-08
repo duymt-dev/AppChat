@@ -15,3 +15,5 @@ import '../../marketing/events/campaign.rules';
 import '../../crm/events/ownership.rules';
 // TIP-015f: WS vòng đời khách (xoá mềm / khôi phục) — làm mới danh sách / 360 / Hộp thư.
 import '../../crm/events/lifecycle.rules';
+// TIP-033b: WS cấu hình lịch hẹn (giờ mở cửa / nhân sự) — làm mới Cài đặt + lịch.
+import '../../booking/events/config.rules';

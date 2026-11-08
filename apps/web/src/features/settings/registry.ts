@@ -7,7 +7,7 @@ import type { PermissionKey } from '@appchat/shared';
 export type SectionKey =
   | 'general' | 'locale' | 'members' | 'roles' | 'teams' | 'org_sla' | 'channels' | 'web_widget' | 'integrations'
   | 'contacts_fields' | 'tags' | 'replies' | 'profile_360' | 'doc_templates' | 'ai_models' | 'rag_data' | 'ai_gov' | 'ai_audit'
-  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy' | 'routing' | 'email_mkt';
+  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy' | 'routing' | 'email_mkt' | 'booking';
 
 export interface NavItem {
   key: SectionKey;
@@ -69,6 +69,8 @@ export const NAV: NavGroup[] = [
       { key: 'doc_templates', icon: 'ic-doc', badge: 'NEW', perm: 'documents.manage' },
       // Chính sách bán hàng (TIP-032b P1, COMMERCE §3 Q5) — màn mới, cuối nav như doc_templates; Owner sửa, quyền settings.manage xem.
       { key: 'sales_policy', icon: 'ic-shield', badge: 'NEW', perm: 'settings.manage' },
+      // Lịch hẹn (TIP-033b, DEF-033-1): giờ mở cửa + nhân sự / ca riêng — màn mới, cuối nav như doc_templates (prototype-parity §7).
+      { key: 'booking', icon: 'ic-cal', badge: 'NEW', perm: 'booking.config' },
     ],
   },
 ];

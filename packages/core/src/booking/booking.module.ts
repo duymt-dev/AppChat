@@ -15,13 +15,14 @@ import { CalendarReadService } from './services/calendar-read.service';
 
 import { AppointmentGetHandler } from './actions/booking-read.handlers';
 import { ServiceSearchHandler, StaffSearchHandler } from './actions/booking-reference-read.handlers';
+import { BookingSettingsGetHandler } from './actions/booking-read.handler';
 import { AppointmentUpdateHandler } from './actions/appointment-update.handler';
 
 const HANDLERS = [
   AppointmentFindSlotsHandler, AppointmentListHandler, AppointmentCreateHandler, AppointmentRescheduleHandler,
   AppointmentConfirmHandler, AppointmentCheckInHandler, AppointmentCompleteHandler, AppointmentNoShowHandler, AppointmentCancelHandler,
   StaffCreateHandler, StaffUpdateHandler, StaffDeactivateHandler, BusinessHoursUpdateHandler,
-  AppointmentGetHandler, StaffSearchHandler, ServiceSearchHandler, AppointmentUpdateHandler,
+  AppointmentGetHandler, StaffSearchHandler, ServiceSearchHandler, AppointmentUpdateHandler, BookingSettingsGetHandler,
 ];
 
 @Module({

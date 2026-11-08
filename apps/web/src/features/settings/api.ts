@@ -1,7 +1,7 @@
 // Đọc Cài đặt (Blueprint §4.4 settings). Query key đầu = tên trong `invalidates` của action (workspace / members / …). Ghi qua useAction.
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
-import type { BillQuoteDto as BillQuote, SalesPolicyDto, WorkspaceDeletePreviewDto, WorkspaceLifecycleDto } from '@appchat/shared';
+import type { BillQuoteDto as BillQuote, BookingSettingsDto, SalesPolicyDto, WorkspaceDeletePreviewDto, WorkspaceLifecycleDto } from '@appchat/shared';
 import type {
   DocTemplate,
   BillInvoice,
@@ -168,3 +168,12 @@ export const docTemplatesQuery = (kind: string) =>
 /** Chính sách bán hàng — ngưỡng duyệt báo giá (TIP-032b P1, COMMERCE §3 Q5); invalidates `settings` khi Owner đổi. */
 export const salesPolicyQuery = () =>
   queryOptions({ queryKey: ['settings', 'sales-policy'], queryFn: () => transport.get<SalesPolicyDto>('/settings/sales-policy') });
+
+/** Cài đặt lịch hẹn (TIP-033b §3.6): metadata + trang nhân sự (staff_cursor); khoá ['settings','booking'] — WS booking.config làm mới. */
+export const bookingSettingsQuery = () =>
+  infiniteQueryOptions({
+    queryKey: ['settings', 'booking'],
+    queryFn: ({ pageParam }) => transport.get<BookingSettingsDto>('/settings/booking', pageParam ? { staff_cursor: pageParam } : undefined),
+    initialPageParam: '' as string,
+    getNextPageParam: (last) => last.staff_next_cursor ?? undefined,
+  });

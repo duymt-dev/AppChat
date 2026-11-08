@@ -775,6 +775,12 @@
       "desc": "Read one payment request: amount, paid, due date."
     }
   },
+  "booking": {
+    "settings_get": {
+      "title": "View booking settings",
+      "desc": "Read opening hours, slot step, buffer and staff schedules."
+    }
+  },
   "staff": {
     "create": {
       "title": "Add staff",

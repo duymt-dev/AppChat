@@ -40,7 +40,8 @@
     "wallet": "AppChat wallet",
     "profile": "My profile",
     "sales_policy": "Sales policy",
-    "routing": "Lead routing"
+    "routing": "Lead routing",
+    "booking": "Bookings"
   },
   "head": {
     "email_mkt": "Email Marketing",
@@ -68,7 +69,8 @@
     "wallet": "AppChat wallet",
     "profile": "My profile",
     "sales_policy": "Sales policy",
-    "routing": "Routing & assignment"
+    "routing": "Routing & assignment",
+    "booking": "Bookings"
   },
   "headSub": {
     "roles": "Permission sets assigned to members",
@@ -2038,6 +2040,56 @@
         "not_vat": "\"Does not replace a VAT invoice\" line (auto-inserted)"
       },
       "hint": "Warnings only — parties may agree otherwise; you can still save."
+    }
+  },
+  "booking": {
+    "hours": "Booking hours",
+    "open": "Open",
+    "closed": "Closed",
+    "closedHint": "No bookings on this day",
+    "inheritHint": "Follows opening hours",
+    "from": "From",
+    "to": "To",
+    "dash": "–",
+    "step": "Slot step",
+    "minutes": "{n} min",
+    "buffer": "Buffer between bookings (minutes)",
+    "noShow": "A no-show still uses one package session",
+    "futureNote": "Changes apply to future bookings only — existing appointments keep their time, staff and duration.",
+    "reset": "Reset",
+    "save": "Save changes",
+    "staff": "Bookable staff",
+    "addStaff": "Add staff",
+    "noStaff": "No staff yet. Add staff so customers can book — staff are never created automatically.",
+    "more": "Load more",
+    "inactive": "Inactive",
+    "inheritAll": "Follows opening hours",
+    "ownDays": "{closed} days off · {custom} custom days",
+    "close": "Close",
+    "name": "Staff name",
+    "role": "Role",
+    "ownSchedule": "Own schedule",
+    "deactivate": "Stop taking bookings",
+    "wd": {
+      "0": "Monday",
+      "1": "Tuesday",
+      "2": "Wednesday",
+      "3": "Thursday",
+      "4": "Friday",
+      "5": "Saturday",
+      "6": "Sunday"
+    },
+    "mode": {
+      "inherit": "Opening hours",
+      "closed": "Day off",
+      "custom": "Custom hours"
+    },
+    "err": {
+      "from_after_to": "Start must be before end",
+      "invalid_time": "Invalid time",
+      "invalid_day": "Invalid day",
+      "duplicate_day": "Duplicate day",
+      "seven_days": "All 7 days are required"
     }
   },
   "salesPolicy": {

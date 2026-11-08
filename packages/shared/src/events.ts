@@ -320,6 +320,8 @@ export const EVENT_SCHEMAS = {
   'appointment.no_show': appointmentEvent,
   'appointment.cancelled': appointmentEvent,
   'appointment.expired': appointmentEvent,
+  /** Cấu hình lịch hẹn đổi (TIP-033b §5.3): chỉ phạm vi + id / version — không tên / ca / khách. UI Cài đặt + lịch tải lại. */
+  'booking.config_changed': z.object({ ...base, scope: z.enum(['hours', 'staff']), staff_id: uuidOrNull.optional(), version: z.number().int() }),
   'ticket.created': ticketEvent,
   'ticket.assigned': ticketEvent,
   'ticket.updated': ticketEvent,

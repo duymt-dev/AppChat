@@ -775,6 +775,12 @@
       "desc": "Đọc một đề nghị thanh toán: số tiền, đã thu, hạn."
     }
   },
+  "booking": {
+    "settings_get": {
+      "title": "Xem cấu hình lịch hẹn",
+      "desc": "Đọc giờ mở cửa, bước lưới, đệm và ca của nhân sự."
+    }
+  },
   "staff": {
     "create": {
       "title": "Thêm nhân sự",

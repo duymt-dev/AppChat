@@ -40,7 +40,8 @@
     "wallet": "Ví AppChat",
     "profile": "Hồ sơ của tôi",
     "sales_policy": "Chính sách bán hàng",
-    "routing": "Chia lead"
+    "routing": "Chia lead",
+    "booking": "Lịch hẹn"
   },
   "head": {
     "email_mkt": "Email Marketing",
@@ -68,7 +69,8 @@
     "wallet": "Ví AppChat",
     "profile": "Hồ sơ của tôi",
     "sales_policy": "Chính sách bán hàng",
-    "routing": "Routing & assignment"
+    "routing": "Routing & assignment",
+    "booking": "Lịch hẹn"
   },
   "headSub": {
     "roles": "Định nghĩa nhóm quyền và gán cho thành viên",
@@ -2038,6 +2040,56 @@
         "not_vat": "Dòng \"không thay thế hoá đơn GTGT\" (tự chèn)"
       },
       "hint": "Chỉ là cảnh báo — các bên được tự thoả thuận, bạn vẫn lưu được mẫu."
+    }
+  },
+  "booking": {
+    "hours": "Giờ mở cửa nhận lịch",
+    "open": "Mở cửa",
+    "closed": "Nghỉ",
+    "closedHint": "Không nhận lịch ngày này",
+    "inheritHint": "Làm theo giờ mở cửa",
+    "from": "Từ",
+    "to": "Đến",
+    "dash": "–",
+    "step": "Bước lưới giờ hẹn",
+    "minutes": "{n} phút",
+    "buffer": "Thời gian đệm giữa hai lịch (phút)",
+    "noShow": "Khách không đến vẫn trừ 1 buổi liệu trình",
+    "futureNote": "Thay đổi chỉ áp cho lịch đặt sau này — lịch đã có giữ nguyên giờ, nhân sự và thời lượng.",
+    "reset": "Hoàn lại",
+    "save": "Lưu thay đổi",
+    "staff": "Nhân sự nhận lịch",
+    "addStaff": "Thêm nhân sự",
+    "noStaff": "Chưa có nhân sự nào. Thêm nhân sự để khách đặt được lịch — hệ thống không tự tạo nhân sự.",
+    "more": "Tải thêm",
+    "inactive": "Đã ngừng",
+    "inheritAll": "Theo giờ mở cửa",
+    "ownDays": "Nghỉ {closed} ngày · giờ riêng {custom} ngày",
+    "close": "Đóng",
+    "name": "Tên nhân sự",
+    "role": "Vai trò",
+    "ownSchedule": "Ca làm riêng",
+    "deactivate": "Ngừng nhận lịch",
+    "wd": {
+      "0": "Thứ Hai",
+      "1": "Thứ Ba",
+      "2": "Thứ Tư",
+      "3": "Thứ Năm",
+      "4": "Thứ Sáu",
+      "5": "Thứ Bảy",
+      "6": "Chủ nhật"
+    },
+    "mode": {
+      "inherit": "Theo giờ mở cửa",
+      "closed": "Nghỉ",
+      "custom": "Giờ riêng"
+    },
+    "err": {
+      "from_after_to": "Giờ bắt đầu phải trước giờ kết thúc",
+      "invalid_time": "Giờ không hợp lệ",
+      "invalid_day": "Thứ không hợp lệ",
+      "duplicate_day": "Trùng thứ",
+      "seven_days": "Cần đủ 7 ngày"
     }
   },
   "salesPolicy": {
