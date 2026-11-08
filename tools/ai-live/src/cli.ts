@@ -142,6 +142,11 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
       return { ...f, file_id: await dt.attach(api, c, f.name, f.body) };
     } };
   }
+  // Suite chuyển phụ trách (TIP-015d): Sales thật (người nhận) + bộ khách theo khoá lượt (khách chính có báo giá nháp + 2 khách hàng loạt).
+  if (suite.cases.some((x) => x.ctransfer)) {
+    const ct = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'contact-transfer', 'seed.mjs')).href)) as { seedTransfer(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    seed = await ct.seedTransfer(c, seed, { api: env.AI_LIVE_API ?? 'http://localhost:4117/v1', client: (e: string) => seedMod.client(env.AI_LIVE_API ?? 'http://localhost:4117/v1', e), mailDir: env.AI_LIVE_MAIL_DIR, password });
+  }
   // Suite toàn vẹn runtime (TIP-019b AC10): agent Sales (gửi báo giá → duyệt) + agent CSKH (tra cứu) để Trợ lý giao việc.
   if (suite.cases.some((x) => x.runtime)) {
     const rt = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'runtime-seed.mjs')).href)) as { seedRuntime(c: unknown, base: unknown): Promise<unknown> };

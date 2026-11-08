@@ -6,6 +6,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, appointmentUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { lockRootOf } from '../../kernel/ownership/root-lock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers, actorUserId } from '../../crm/public';
@@ -67,6 +68,7 @@ export class AppointmentUpdateHandler implements Handler<In, Out> {
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as Snapshot & { version: number };
+    await lockRootOf(tx, 'appointment', b.id);
     await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${b.id}::uuid FOR UPDATE`;
     const a = await tx.appointment.findUnique({ where: { id: b.id } });
     if (!a || a.deletedAt || a.version !== b.version || (a.status !== 'pending' && a.status !== 'confirmed')) throw new AppError('CONFLICT', 409, { appointment_id: 'changed' });

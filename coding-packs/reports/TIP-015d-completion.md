@@ -1,6 +1,6 @@
 # TIP-015d — Completion Report
 
-**STATUS:** ĐANG LÀM — pha 3 / 4 (P1 DC-391, P2 DC-392, P3 DC-393). P1 lõi server · P2 UI + đọc trạng thái · P3 thông báo hai bên + bulk + duyệt theo domain · P4 khoá gốc writer khác + ai:live + cổng chốt D59.
+**STATUS:** **TIP DONE** sau pha 4 (P1 DC-391, P2 DC-392, P3 DC-393, P4 DC-394). P1 lõi server · P2 UI + đọc trạng thái · P3 thông báo hai bên + bulk + duyệt theo domain · P4 khoá gốc writer khác + ai:live + cổng chốt D59.
 
 **MIGRATION:** tenant `20261108070000_contact_transfer` → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker.
 
@@ -117,4 +117,49 @@
 | `database/indexing.md` | vị từ duyệt dùng PK contact + `contact_collaborator (user_id, contact_id) INCLUDE (role)`; binding tra theo PK notification_id; EXPLAIN 10k ở P4 |
 | `i18n/i18n.md` | biến thể trong `crm_owner` (vi + en), không namespace mới; nhãn action vi + en |
 | `code/file-size-module-layout.md` | file mới ≤ 110 dòng; test riêng |
+
+---
+
+## Pha 4 — khoá gốc writer khác + benchmark / EXPLAIN + ai:live + chốt TIP (§2.3, §2.5; AC3, AC5, AC10; DC-394)
+
+**MIGRATION:** không (P1 `20261108070000_contact_transfer` là migration duy nhất của TIP).
+
+**Rà trước khi làm (code thật)**
+- Writer khác (gán hội thoại đơn / hàng loạt / hoàn tác, tạo báo giá, đặt lịch, gửi email, gửi chứng từ mở chuỗi email, pipeline tin vào) khoá dòng con hoặc không khoá → xen được giữa lúc chuyển phụ trách đọc ứng viên và ghi, đọc người phụ trách cũ trước khoá.
+- Biên nhận 10k dòng qua `createMany` 3,5 s → một lần chuyển khách lớn vượt trần transaction 5 s → 500, rollback (bắt được nhờ benchmark).
+
+**FILES CHANGED** (lệch ghi ở DV-068)
+- core: `kernel/ownership/root-lock.ts` (mới); `sales/quotes/quote-access.ts`, `booking/booking-access.ts`, `booking/actions/{appointment-book,appointment-flow}.handlers.ts`, `booking/actions/appointment-update.handler.ts`, `inbox/actions/{conversation-assign,bulk-update,email-send}.handlers.ts` (bulk-update.handler), `inbox/bulk/bulk-undo.ts`, `inbox/jobs/inbox-bulk.processor.ts`, `inbox/services/pipeline.ts`, `sales/quotes/actions/quote-write.handlers.ts`, `sales/quotes/services/quote-send.ts`; `crm/ownership/receipts.repo.ts` (INSERT unnest), `crm/ownership/read.ts` (lần mới nhất); `ai/assistant/catalog.ts`.
+- actions: `contact-transfer.ts` (`transfer_id` tuỳ chọn), `crm.ts` (mô tả `contact.update` / `transfer_owner`).
+- ai-live: `ctransfer-judge.ts` (mới), `cases.ts`, `cli.ts`, `runner.ts`; `fixtures/ai-eval/contact-transfer/{cases.json,seed.mjs}`.
+- test mới: core `contact-root-lock.test.ts` (4); api `contact-transfer-concurrency.test.ts` (4 — barrier writer khác, đua gán / chuyển, EXPLAIN + benchmark); e2e http `contact-transfer.spec.ts`; ma trận `contact.transfer_status` +1 (lần mới nhất).
+
+**Giả định đã chọn (gap-filling)**
+- Writer con đổi khách trong lúc chờ khoá → 409 CONFLICT (người gọi thử lại), không tự khoá khách thứ hai.
+- `conversation.bulk_update` chỉ khoá gốc khi lô đổi người được gán (đổi trạng thái / thẻ không đụng người phụ trách).
+- Ngân sách một lần chuyển 4,5 s (dưới trần 5 s của transaction tương tác) — đo 2,2 s cho 10k bản ghi trên máy dev.
+
+**TEST (cổng chốt D59)**
+- `db:test-reset` → integration 29 file **173/173**: contact-transfer, contact-transfer-concurrency, contact-transfer-approval-read, crm-ui, crm-contacts, quotes, booking, appointment-update, email, inbox, inbox-bulk-results, inbox-approval-cards, notify, digest, record-scope, list-exports + ma trận contact.transfer_owner / transfer_status / transfer_owner_bulk / approval.* / conversation.assign / bulk_update / quote.create / send / update / appointment.create / contact.send_email.
+- EXPLAIN (30k dòng rải 1.000 khách): ứng viên hội thoại `conversation_contact_id_idx`, báo giá `quote_contact_idx`, lịch hẹn `appointment_open_start_idx` — không Seq Scan (`.data/gate/015d-p4-explain.txt`). Benchmark một khách 10k bản ghi: **2.189 ms**.
+- turbo lint / typecheck / test `...[origin/dev]` **36/36**; core unit root-lock 4/4; build api + worker, `pnpm check:bundle` OK.
+- E2E mock contact-transfer + customers + quotes + inbox + calendar **35/35** (+33 skip bản thiết bị khác); E2E http contact-transfer **1/1** (backend thật: mời Sales, chuyển qua UI, DB + báo giá + thông báo).
+- Parity (mock, 1440×900): customers:table 0,99% · customers:edit 1,30% · customers:360 3,39% · quotes:list 2,38% · quotes:editor 1,80% · quotes:detail 4,00% — đều ≤ 4,2%.
+- i18n 100% (6554); lint:size / lint:tokens pass.
+- **AI LIVE (AC10)** — `reports/ai-live-contact-transfer-2026-11-08.md`: model thật 9router, stack riêng cổng 4617, Redis DB 14, DB test; 8 ca × 3 lượt → **8/8 ca ĐẠT (22/24 lượt), 0 vi phạm an toàn**. Vòng đầu 3/8 (model dùng `contact.update` đổi người phụ trách — server chặn 403, đọc trạng thái bằng xuất lịch sử) → từ khoá `find_actions` + mô tả action + `transfer_status` không cần id → 8/8. Hai lượt trượt trong vòng chính thức: hỏi doanh số không nêu "người tạo" (1/3), model gửi hai lần yêu cầu duyệt rồi người chấm đọc trước khi hàng duyệt cập nhật (1/3) — không phải vi phạm an toàn.
+- Zalo / SePay / Brevo: không cần cho TIP này. **Chưa nghiệm thu với provider thật:** không — LLM 9router thật đã chạy.
+- `assistant-vertical` (mục lục ma trận) đỏ sẵn trên `origin/dev` với action của TIP chưa làm (027 / 032 / 013 / 038b) — ngoài phạm vi.
+
+**ĐỐI CHIẾU STANDARDS (P4 + chốt TIP)**
+
+| Standard | Kết quả |
+|---|---|
+| `domain/concurrency.md` | khoá gốc khách trước con ở mọi writer liên quan; bulk khoá mọi gốc một câu id tăng dần; đọc lại sau khoá; con đổi khách → 409; barrier + đua kiểm native |
+| `database/indexing.md` | ứng viên 3 domain đi index `contact_id` (EXPLAIN 30k); biên nhận ghi set-based (unnest); không N+1 |
+| `actions/action-registry.md` | `transfer_status` input mở rộng tương thích; mô tả action hướng model đúng action (không lách duyệt) |
+| `ai/eval.md` / `ai/agent-gateway.md` | ai:live 8 ca 3 lượt, ca đạt ≥ 2/3, an toàn 8/8; chấm theo DB, không theo câu trả lời |
+| `authz/rbac-permissions.md` | không đổi quyền; Trợ lý luôn qua duyệt (ai:live ct-no-bypass, ct-assistant-approval) |
+| `ui/prototype-parity.md` | 6 màn liên quan ≤ 4,0% |
+| `code/file-size-module-layout.md` | file mới ≤ 220 dòng; test riêng |
+| `workflow/git-flow-ci.md` | nhánh `tip/015d-contact-transfer-p4` xếp chồng #133; PR vào dev |
 

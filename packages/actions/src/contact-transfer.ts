@@ -11,8 +11,8 @@ export const contactTransferStatus = defineAction({
   module: 'crm',
   title: 'actions.contact.transfer_status.title',
   description:
-    'Read the committed result of one contact owner transfer (status applied / undone, from / to owner, moved counts, paged moved records you may see). Use it after approval or an uncertain result — never claim a transfer happened without it. Example: {"contact_id":"0190f000-0000-7000-8000-000000000001","transfer_id":"0190f000-0000-7000-8000-0000000000c1"}',
-  input: z.object({ contact_id: z.string().min(1).max(64), transfer_id: z.string().min(1).max(64), cursor: z.string().max(200).optional(), limit: z.number().int().min(1).max(100).optional() }),
+    'Read the committed result of a contact owner transfer (status applied / undone, from / to owner, moved counts, paged moved records you may see). Omit transfer_id to read the contact\'s latest transfer. Use it after approval, an uncertain result or when asked how many conversations / quotes / appointments moved — never claim a transfer happened without it. Example: {"contact_id":"0190f000-0000-7000-8000-000000000001"}',
+  input: z.object({ contact_id: z.string().min(1).max(64), transfer_id: z.string().min(1).max(64).optional(), cursor: z.string().max(200).optional(), limit: z.number().int().min(1).max(100).optional() }),
   output: contactTransferStatusSchema,
   permission: 'crm.reassign',
   risk: 'read',

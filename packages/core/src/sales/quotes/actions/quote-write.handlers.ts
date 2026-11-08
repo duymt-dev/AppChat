@@ -6,6 +6,7 @@ import { TenantSql } from '@appchat/db';
 import { AppError, QUOTE_FLOW, assertTransition, mergeCustomValues, quoteTotals, type CustomValues, type Discount } from '@appchat/shared';
 import type { ActionInput, quoteComment, quoteCreate, quoteDelete, quoteUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../../kernel/clock';
+import { lockContactRow } from '../../../kernel/ownership/root-lock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { uuidv7 } from '../../../kernel/ids';
@@ -29,6 +30,8 @@ export interface NewQuote extends QuoteFieldsIn {
 
 /** Tạo bản nháp (dùng chung `quote.create` / `quote.draft_from_content`). `offCatalog` chỉ tính cho báo giá AI / agent tạo (§12). */
 export async function insertQuote(ctx: ActionContext, tx: TenantTx, members: CrmMembers, input: NewQuote, now: Date, o: { ai?: boolean } = {}) {
+  // TIP-015d §2.3: khoá khách gốc trước khi đọc quyền / tạo báo giá — chuyển phụ trách đồng thời thấy báo giá mới hoặc xếp hàng sau nó.
+  await lockContactRow(tx, input.contact_id);
   const { ownerUserId } = await checkParties(ctx, tx, members, { contactId: input.contact_id, ownerUserId: input.owner_user_id });
   await checkQuoteCustom(ctx, tx, members, input.custom, 'create');
   const { lines, offCatalog } = await resolveLines(tx, input.items);

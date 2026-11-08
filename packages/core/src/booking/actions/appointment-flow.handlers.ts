@@ -6,6 +6,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AppError, noShowAllowed, type AppointmentStatusKey } from '@appchat/shared';
 import type { ActionInput, appointmentCancel, appointmentCheckIn, appointmentComplete, appointmentConfirm, appointmentMarkNoShow } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { lockRootOf } from '../../kernel/ownership/root-lock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { actorUserId } from '../../crm/public';
@@ -24,6 +25,7 @@ const iso = (s: string | null) => (s ? new Date(s) : null);
 /** Hoàn tác chuyển trạng thái: chỉ khi lịch vẫn ở trạng thái action đã đưa tới; trả buổi nếu đã trừ; về lại trạng thái cũ (EXCLUDE kiểm lại). */
 async function restore(tx: TenantTx, log: ActionLogRow, expect: AppointmentStatusKey, now: Date) {
   const b = log.before as Snap;
+  await lockRootOf(tx, 'appointment', b.id);
   await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${b.id}::uuid FOR UPDATE`;
   const a = await tx.appointment.findUnique({ where: { id: b.id } });
   if (!a || a.status !== expect) throw new AppError('CONFLICT', 409, { appointment_id: 'changed' });

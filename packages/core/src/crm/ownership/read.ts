@@ -16,10 +16,13 @@ function dec(c: string): { domain: string; id: string } {
   return { domain, id };
 }
 
-export async function transferStatus(tx: TenantTx, authz: AuthzContext, contactId: string, transferId: string, q: { cursor?: string; limit?: number } = {}): Promise<ContactTransferStatusDto> {
+/** `transferId` vắng = lần chuyển mới nhất của khách (generation lớn nhất — unique (contact_id, generation)). */
+export async function transferStatus(tx: TenantTx, authz: AuthzContext, contactId: string, transferId: string | undefined, q: { cursor?: string; limit?: number } = {}): Promise<ContactTransferStatusDto> {
   if (!can(authz, 'crm.reassign')) throw new AppError('FORBIDDEN', 403, { permission: 'crm.reassign' });
-  await visibleContact(tx, authz, contactId);
-  const t = UUID.test(transferId) ? await tx.contactTransfer.findUnique({ where: { id: transferId } }) : null;
+  const { contact } = await visibleContact(tx, authz, contactId);
+  const t = transferId === undefined
+    ? await tx.contactTransfer.findFirst({ where: { contactId: contact.id }, orderBy: { generation: 'desc' } })
+    : UUID.test(transferId) ? await tx.contactTransfer.findUnique({ where: { id: transferId } }) : null;
   if (!t || t.contactId !== contactId) throw new AppError('NOT_FOUND', 404, { transfer_id: 'not_found' });
   const limit = Math.min(Math.max(q.limit ?? 30, 1), 100);
   const domains = (Object.keys(DOMAIN_PERM) as Domain[]).filter((d) => can(authz, DOMAIN_PERM[d]));

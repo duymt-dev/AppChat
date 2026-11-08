@@ -49,6 +49,9 @@ const VERB_VI: Record<string, string> = {
   history_export: 'xuat lich su tuong tac csv',
   // TIP-026b: ghi chú / bình luận nội bộ trên khách (không phải sửa trường khách, không gửi tin).
   add_note: 'ghi chu them ghi chu ghi lai luu ghi chu note', add_comment: 'binh luan noi bo trao doi dong nghiep',
+  // TIP-015d: chuyển / giao / đổi người phụ trách khách (không phải sửa trường khách) + đọc kết quả lần chuyển.
+  transfer_owner: 'chuyen phu trach giao khach doi nguoi phu trach ban giao khach chuyen khach cho', transfer_owner_bulk: 'chuyen phu trach nhieu khach hang loat giao nhieu khach',
+  transfer_status: 'ket qua chuyen phu trach lan chuyen gan nhat da chuyen kem bao nhieu',
 };
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */

@@ -8,6 +8,7 @@ import { AppError, holdUntil, normalizePhone, utcToWall, validateCustomValues, w
 import type { ActionInput, appointmentCreate, appointmentFindSlots, appointmentList, appointmentReschedule } from '@appchat/actions';
 import { nextCode } from '../../kernel/sequence';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { lockContactRow, lockRootOf } from '../../kernel/ownership/root-lock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers, actorUserId, createContact, editableContact, fieldDefs } from '../../crm/public';
@@ -26,11 +27,18 @@ const sourceOf = (ctx: ActionContext) => (ctx.actor.type === 'agent' ? 'agent' :
 
 /** Khách của lịch: id có sẵn (phải sửa được) hoặc tìm / tạo theo số điện thoại + tên. */
 async function contactFor(ctx: ActionContext, tx: TenantTx, members: CrmMembers, input: CreateIn, now: Date) {
-  if (input.contact_id) return (await editableContact(tx, ctx.authz, input.contact_id)).contact;
+  // TIP-015d §2.3: khoá khách gốc rồi mới đọc quyền / người phụ trách (ảnh chụp trước khoá không quyết định).
+  if (input.contact_id) {
+    await lockContactRow(tx, input.contact_id);
+    return (await editableContact(tx, ctx.authz, input.contact_id)).contact;
+  }
   const phone = normalizePhone(input.phone);
   if (phone) {
     const found = await tx.contact.findFirst({ where: { phoneNorm: phone, deletedAt: null } });
-    if (found) return (await editableContact(tx, ctx.authz, found.id)).contact;
+    if (found) {
+      await lockContactRow(tx, found.id);
+      return (await editableContact(tx, ctx.authz, found.id)).contact;
+    }
   }
   const me = actorUserId(ctx);
   return createContact(tx, { full_name: input.contact_name, ...(input.phone ? { phone: input.phone } : {}) }, { workspaceId: ctx.workspaceId, authz: ctx.authz, roleKey: ctx.authz.isOwner ? 'owner' : await members.roleOf(ctx.workspaceId, me), actorUserId: me, now, members, skipRequiredCustom: true });
@@ -198,6 +206,7 @@ export class AppointmentRescheduleHandler implements Handler<ActionInput<typeof 
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as { id: string; staff_id: string; start_at: string; end_at: string; block_end_at: string; hold: string | null; reminders: object[] };
+    await lockRootOf(tx, 'appointment', b.id);
     await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${b.id}::uuid FOR UPDATE`;
     const a = await tx.appointment.findUnique({ where: { id: b.id } });
     if (!a || (a.status !== 'pending' && a.status !== 'confirmed')) throw new AppError('CONFLICT', 409, { appointment_id: 'changed' });

@@ -16,6 +16,7 @@ import type { TenantDb } from '@appchat/db';
 import { foldText, interpolate, serverMessages } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
+import { lockContactRow } from '../../kernel/ownership/root-lock';
 import { writeOutbox, type OutboxEventInput } from '../../kernel/outbox/outbox';
 import type { ContactIdentityService } from '../../crm/public';
 import { settingsOf } from '../../channels/public';
@@ -105,6 +106,8 @@ export class InboundPipeline {
       const r = await this.identity.match(tx, who);
       contactId = r.kind === 'known' || r.kind === 'phone' ? r.contactId : (conv0?.contactId ?? null);
     }
+    // TIP-015d §2.3: khoá khách gốc trước khi đọc người phụ trách / tạo / gắn hội thoại (chuyển phụ trách đồng thời không bỏ sót hội thoại mới).
+    await lockContactRow(tx, contactId);
     const contact = contactId ? await tx.contact.findUnique({ where: { id: contactId }, select: { ownerUserId: true, teamId: true, name: true, group: true } }) : null;
 
     // 3. Hội thoại

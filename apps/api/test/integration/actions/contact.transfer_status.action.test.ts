@@ -1,5 +1,5 @@
 // Ma trận contact.transfer_status (TIP-015d §2.8): crm.reassign, read, agentGrantable — cùng reader với GET /contacts/:id/transfers/:id.
-// Owner (cả nguồn Trợ lý — đọc chạy luôn) → trạng thái + số đếm; sales thiếu crm.reassign → 403; transfer lạ → 404.
+// Owner (cả nguồn Trợ lý — đọc chạy luôn) → trạng thái + số đếm; bỏ transfer_id → lần mới nhất; sales thiếu crm.reassign → 403; transfer lạ → 404.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { uuidv7 } from '@appchat/core';
@@ -21,6 +21,13 @@ describe('contact.transfer_status', () => {
     const r = await m.act({ contact_id: contact, transfer_id: transfer }, undefined, { 'x-action-source': 'assistant' });
     expect(r.status, JSON.stringify(r.body)).toBe(200);
     expect(r.body.data.result).toMatchObject({ transfer_id: transfer, status: 'applied', to_user_id: m.sales.id, moved: { conversations: 0, quotes: 0, appointments: 0 }, items: [], next_cursor: null });
+  });
+  it('bỏ transfer_id → lần chuyển mới nhất của khách; khách chưa từng chuyển → 404', async () => {
+    const r = await m.act({ contact_id: contact });
+    expect(r.status, JSON.stringify(r.body)).toBe(200);
+    expect(r.body.data.result).toMatchObject({ transfer_id: transfer, status: 'applied' });
+    const never = (await m.seed('contact.create', { full_name: 'Khách chưa chuyển', phone: '0909400778' })).contact_id;
+    expect((await m.act({ contact_id: never })).status).toBe(404);
   });
   it('sales thiếu crm.reassign → 403; transfer lạ → 404', async () => {
     expect((await m.act({ contact_id: contact, transfer_id: transfer }, m.sales)).status).toBe(403);

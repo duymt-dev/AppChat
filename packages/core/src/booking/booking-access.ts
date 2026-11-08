@@ -5,6 +5,7 @@
 import { TenantSql as Prisma } from '@appchat/db';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../kernel/actions/action-context';
+import { lockRootOf } from '../kernel/ownership/root-lock';
 import { POLICIES, allows, docColumns, guardRecord, recordScopeSql, type AccessMode } from '../authz/data-access';
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -33,6 +34,8 @@ export async function visibleAppointment(tx: TenantTx, authz: AuthzContext, id: 
 
 /** Khoá dòng lịch (concurrency §2) rồi kiểm quyền GHI. */
 export async function lockAppointment(tx: TenantTx, authz: AuthzContext, id: string): Promise<AppointmentRecord> {
+  // TIP-015d §2.3: khách gốc trước, lịch hẹn sau.
+  await lockRootOf(tx, 'appointment', id);
   if (UUID.test(id)) await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${id}::uuid FOR UPDATE`;
   return visibleAppointment(tx, authz, id, 'write');
 }

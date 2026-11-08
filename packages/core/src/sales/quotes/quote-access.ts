@@ -5,6 +5,7 @@
 import { TenantSql as Prisma } from '@appchat/db';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { lockRootOf } from '../../kernel/ownership/root-lock';
 import { POLICIES, docColumns, guardRecord, recordScopeSql, type AccessMode } from '../../authz/data-access';
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,6 +32,8 @@ export async function visibleQuote(tx: TenantTx, authz: AuthzContext, id: string
 
 /** Khoá dòng báo giá cho chuyển trạng thái (concurrency §2) rồi kiểm quyền GHI. */
 export async function lockQuote(tx: TenantTx, authz: AuthzContext, id: string): Promise<QuoteRecord> {
+  // TIP-015d §2.3: khách gốc trước, báo giá sau (cùng thứ tự với chuyển phụ trách — không deadlock ngược).
+  await lockRootOf(tx, 'quote', id);
   if (UUID.test(id)) await tx.$queryRaw`SELECT 1 FROM quote WHERE id = ${id}::uuid FOR UPDATE`;
   return visibleQuote(tx, authz, id, 'write');
 }

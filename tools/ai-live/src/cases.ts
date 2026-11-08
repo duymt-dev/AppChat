@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0 };
 
 const expectSchema = z
   .object({
@@ -62,9 +62,11 @@ const expectSchema = z
     runtime: z.literal(true).optional(),
     /** Ca hoạt động CRM TIP-026b (activity-judge.ts): chấm theo hoạt động thật của khách / kế hoạch nhập / việc xuất. */
     activity: z.literal(true).optional(),
+    /** Ca chuyển phụ trách TIP-015d (ctransfer-judge.ts): chấm theo yêu cầu duyệt / người phụ trách / báo giá thật. */
+    ctransfer: z.literal(true).optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -107,6 +109,8 @@ export const caseSchema = z
       })
       .strict()
       .optional(),
+    /** Ca chuyển phụ trách TIP-015d: loại ca (ctransfer-judge.ts) — khách theo khoá lượt từ contact-transfer/seed.mjs. */
+    ctransfer: z.object({ kind: z.enum(['approval', 'approve', 'attribution', 'bulk', 'status', 'refuse', 'no_bypass', 'undo_truth']) }).strict().optional(),
     /** Ca nhập / xuất TIP-038b: thực thể + tệp seed (data-transfer-seed.mjs — khoá theo thực thể khi bỏ trống). */
     transfer: z
       .object({ kind: z.enum(['import', 'export']), entity: z.enum(['contact', 'product', 'quote', 'order', 'contract', 'invoice']), file: z.enum(['contacts', 'products', 'quotes', 'orders', 'contracts', 'invoices']).optional() })

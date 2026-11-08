@@ -53,7 +53,7 @@ export const contactUpdate = defineAction({
   id: 'contact.update',
   module: 'crm',
   title: 'actions.contact.update.title',
-  description: 'Update contact fields (send if_version from the latest read to avoid overwriting a newer edit). Example: {"contact_id":"ct_lan","patch":{"title":"Chủ shop","city":"TP.HCM"}}',
+  description: 'Update contact fields (send if_version from the latest read to avoid overwriting a newer edit). Never use it to change the owner — that is contact.transfer_owner (always human-approved). Example: {"contact_id":"ct_lan","patch":{"title":"Chủ shop","city":"TP.HCM"}}',
   /** `if_version` (TIP-025b §D.4) — tuỳ chọn để tương thích; lệch → 409 STALE_VERSION. Kết quả trả version mới. */
   input: z.object({ contact_id: contactId, patch: contactFields.partial(), if_version: z.number().int().positive().optional() }),
   output: z.object({ contact_id: z.string(), version: z.number().int() }),
@@ -157,7 +157,7 @@ export const contactTransferOwner = defineAction({
   module: 'crm',
   title: 'actions.contact.transfer_owner.title',
   description:
-    'Transfer the primary owner of a contact (managers only); optionally move open conversations, open quotes (operational assignee only — the creator/KPI owner never changes) and upcoming appointments, all in one atomic step. From the Assistant, an agent or a task this ALWAYS goes to human approval — say it is pending approval, never that it is done. Send if_version from the latest contact read. Example: {"contact_id":"ct_lan","to_user_id":"u_minh","move":{"conversations":true,"quotes":true,"appointments":false}}',
+    'Transfer the primary owner of a contact (managers only); optionally move open conversations, open quotes (operational assignee only — the quote creator keeps the sales credit/KPI forever, transfer never moves revenue) and upcoming appointments, all in one atomic step. From the Assistant, an agent or a task this ALWAYS goes to human approval — say it is pending approval, never that it is done. Send if_version from the latest contact read. Example: {"contact_id":"ct_lan","to_user_id":"u_minh","move":{"conversations":true,"quotes":true,"appointments":false}}',
   input: z.object({
     contact_id: contactId,
     to_user_id: userId,

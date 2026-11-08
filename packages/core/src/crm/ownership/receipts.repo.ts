@@ -46,18 +46,13 @@ export async function insertTransfer(tx: TenantTx, t: TransferRow, items: { doma
     },
   });
   if (!items.length) return;
-  await tx.contactTransferItem.createMany({
-    data: items.map(({ domain, r }) => ({
-      transferId: t.id,
-      domain,
-      entityId: r.entityId,
-      beforeUserId: r.beforeUserId,
-      beforeAgentId: r.beforeAgentId ?? null,
-      beforeTeamId: r.beforeTeamId ?? null,
-      afterTeamId: r.afterTeamId ?? null,
-      afterAssignmentRevision: r.afterRevision,
-    })),
-  });
+  // Một câu INSERT … unnest cho mọi biên nhận (10k dòng ~ vài trăm ms; createMany của Prisma dựng VALUES từng dòng — chậm gấp nhiều lần).
+  const col = <T>(f: (x: (typeof items)[number]) => T) => items.map(f);
+  await tx.$executeRaw`
+    INSERT INTO contact_transfer_item (transfer_id, domain, entity_id, before_user_id, before_agent_id, before_team_id, after_team_id, after_assignment_revision)
+    SELECT ${t.id}::uuid, d, e, bu, ba, bt, at, r
+    FROM unnest(${col((x) => x.domain)}::text[], ${col((x) => x.r.entityId)}::uuid[], ${col((x) => x.r.beforeUserId)}::uuid[], ${col((x) => x.r.beforeAgentId ?? null)}::text[],
+      ${col((x) => x.r.beforeTeamId ?? null)}::uuid[], ${col((x) => x.r.afterTeamId ?? null)}::uuid[], ${col((x) => x.r.afterRevision)}::int[]) AS u(d, e, bu, ba, bt, at, r)`;
 }
 
 /** Biên nhận theo domain của một lần chuyển (cho hoàn tác) — thứ tự id tăng. */

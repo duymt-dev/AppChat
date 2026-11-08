@@ -4,12 +4,19 @@
 import type { AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { writableConversation } from '../services/access';
+import { lockRootsOf } from '../../kernel/ownership/root-lock';
 import type { BulkChange, BulkItemBefore } from '../services/conversation-mutations';
 
 export async function bulkUndo(tx: TenantTx, authz: AuthzContext, items: BulkItemBefore[], ch: BulkChange): Promise<{ restored: number; conflicts: number }> {
   let restored = 0;
   let conflicts = 0;
+  // TIP-015d §2.3: khách gốc khoá trước (id tăng dần); hội thoại đã đổi khách → xung đột, không khôi phục.
+  const moved = ch.assignee_user_id ? await lockRootsOf(tx, 'conversation', items.map((it) => it.conv.id)) : new Set<string>();
   for (const it of items) {
+    if (moved.has(it.conv.id)) {
+      conflicts++;
+      continue;
+    }
     let c;
     try {
       c = await writableConversation(tx, authz, it.conv.id);

@@ -10,6 +10,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { uuidv7 } from '../../kernel/ids';
 import { ChannelSendQueue, openEmailThread } from '../../channels/public';
 import { CrmMembers, editableContact } from '../../crm/public';
+import { lockContactRow } from '../../kernel/ownership/root-lock';
 import { scopeCols } from '../services/access';
 import { enqueueOutgoing, writeOutgoing } from '../services/outbound';
 import { previewOf } from '../services/view';
@@ -30,6 +31,8 @@ export class ContactSendEmailHandler implements Handler<ActionInput<typeof conta
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contactSendEmail>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
+    // TIP-015d §2.3: khoá khách gốc trước khi tạo identity / hội thoại (người phụ trách đọc SAU khoá).
+    await lockContactRow(tx, input.contact_id);
     const { contact } = await editableContact(tx, ctx.authz, input.contact_id);
     const to = input.to.trim().toLowerCase();
     if (!EMAIL.test(to)) throw new AppError('VALIDATION_FAILED', 422, { to: 'invalid' });

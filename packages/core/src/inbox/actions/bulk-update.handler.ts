@@ -19,6 +19,7 @@ import { applyBulkChange, type BulkChange, type BulkItemBefore } from '../servic
 import { me, tagByLabel } from './kit';
 import { bulkPreview } from './previews/conversation-assign.handlers.preview';
 import { bulkUndo } from '../bulk/bulk-undo';
+import { lockRootsOf } from '../../kernel/ownership/root-lock';
 
 type In = ActionInput<typeof conversationBulkUpdate>;
 export type BulkItem = { id: string; status: 'done' | 'skipped' | 'failed'; error: string | null };
@@ -92,9 +93,12 @@ export class ConversationBulkUpdateHandler implements Handler<In, Out> {
     const items: BulkItem[] = [];
     const befores: BulkItemBefore[] = [];
     const events = [];
+    // TIP-015d §2.3: khoá mọi khách gốc một lần (id tăng dần) trước khi đụng hội thoại — hội thoại đổi khách lúc chờ → lỗi riêng nó.
+    const moved = change.assignee_user_id ? await lockRootsOf(tx, 'conversation', ids) : new Set<string>();
     for (const [i, id] of ids.entries()) {
       await tx.$executeRawUnsafe(`SAVEPOINT cbulk_${i}`);
       try {
+        if (moved.has(id)) throw new AppError('CONFLICT', 409, { contact_id: 'changed' });
         const c = await writableConversation(tx, ctx.authz, id);
         const r = await applyBulkChange(tx, c, change, now);
         await tx.$executeRawUnsafe(`RELEASE SAVEPOINT cbulk_${i}`);
