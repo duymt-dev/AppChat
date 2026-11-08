@@ -134,7 +134,9 @@ describe('kênh + nhập / xuất', () => {
     expect(csv).not.toContain('Phạm An');
 
     await undo(done.body.data.action_log_id);
-    expect(await db.contact.findFirst({ where: { name: 'Phạm An' } })).toBeNull();
+    // TIP-015f §5.2: hoàn tác nhập = xoá mềm (giữ dòng + biên nhận).
+    expect(await db.contact.findFirst({ where: { name: 'Phạm An', deletedAt: null } })).toBeNull();
+    expect((await db.contact.findFirstOrThrow({ where: { name: 'Phạm An' } })).deletedAt).not.toBeNull();
 
     expect((await act('contact.send_email', { contact_id: own, from: 'cskh@spa.vn', to: 'x@y.vn', subject: 'Chào', body: 'Nội dung' }, idem())).body.error).toMatchObject({ code: 'INVALID_STATE', fields: { connector: 'email' } });
   });

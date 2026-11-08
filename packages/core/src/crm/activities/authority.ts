@@ -6,6 +6,7 @@ import { AppError, type AuthzContext } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { editableContact, visibleContact, actorUserId, UUID } from '../services/access';
 import { canSeeConversation, messageOf } from '../../inbox/services/access';
+import { lockContactRow } from '../../kernel/ownership/root-lock';
 
 /** Người thấy giá trị kỳ vọng của cơ hội. */
 export const canReadAmount = (a: AuthzContext) => a.isOwner || a.permissions.has('quote.view');
@@ -13,7 +14,11 @@ export const canReadAmount = (a: AuthzContext) => a.isOwner || a.permissions.has
 export const canWriteAmount = (a: AuthzContext) => a.isOwner || a.permissions.has('quote.create');
 
 /** Khách cha cho ghi (thấy + sửa được); xoá / gộp → 404. */
-export const writableParent = (tx: TenantTx, authz: AuthzContext, contactId: string) => editableContact(tx, authz, contactId);
+// TIP-015f §2.8: khoá khách gốc trước khi tạo / gắn ghi chú, việc, cơ hội (tuần tự với xoá và hoàn tác tạo nguyên trạng).
+export const writableParent = async (tx: TenantTx, authz: AuthzContext, contactId: string) => {
+  await lockContactRow(tx, contactId);
+  return editableContact(tx, authz, contactId);
+};
 /** Khách cha cho đọc. */
 export const readableParent = (tx: TenantTx, authz: AuthzContext, contactId: string) => visibleContact(tx, authz, contactId);
 

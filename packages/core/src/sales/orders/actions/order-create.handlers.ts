@@ -20,6 +20,7 @@ import { EMPTY_SHIPPING, actorOf, checkOrderCustom, logEvent, orderPayload, payC
 import { snapshotTeam } from '../../../authz/data-access';
 import { createdReceipt, undoOrderCreate } from '../editing/order-create-undo';
 import { orderVersion } from '../editing/order-version';
+import { lockRootOf } from '../../../kernel/ownership/root-lock';
 
 type Out = { order_id: string; code: string };
 
@@ -185,6 +186,8 @@ export class OrderFromContractHandler implements Handler<ActionInput<typeof orde
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof orderCreateFromContract>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
+    // TIP-015f §2.5: khách → hợp đồng → đơn.
+    await lockRootOf(tx, 'contract', input.contract_id);
     const c = UUID.test(input.contract_id) ? await tx.contract.findUnique({ where: { id: input.contract_id } }) : null;
     if (!c || c.deletedAt) throw new AppError('NOT_FOUND', 404, { contract_id: 'not_found' });
     if (c.status !== 'signed') throw new AppError('INVALID_TRANSITION', 409, { status: c.status });

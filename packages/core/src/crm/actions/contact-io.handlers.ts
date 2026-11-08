@@ -19,6 +19,8 @@ import { policyStamp } from '../../kernel/jobs/bulk-status';
 import { jobAccepted } from '../../kernel/actions/job-accepted';
 import { CrmMembers } from '../services/members.service';
 import { classifyImport, importPreview } from './previews/contact-io.handlers.preview';
+import { createdReceipt, undoCreated } from '../lifecycle/create-undo';
+import { writeOutbox } from '../../kernel/outbox/outbox';
 
 type ExportIn = ActionInput<typeof contactExport>;
 type ExportOut = { file_name: string; mime: 'text/csv'; rows: number; content: string };
@@ -87,12 +89,17 @@ export class ContactImportHandler implements Handler<ImportIn, ImportOut> {
     const n = (k: string) => rows.filter((x) => x.kind === k).length;
     return {
       result: { created: ids.length, duplicates: n('dup'), owned: n('owned'), invalid: n('invalid'), contact_ids: ids },
-      after: { ids },
+      // TIP-015f §5.2: biên nhận từng khách tạo (lô ≤ 500) — hoàn tác tất cả hoặc 409, chỉ xoá mềm.
+      after: { ids, receipts: await Promise.all(ids.map((id) => createdReceipt(tx, id))) },
       events: ids.map((id) => ({ topic: 'contact.created', payload: { contact_id: id, owner_user_id: me, source: 'manual' } })),
     };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await tx.contact.deleteMany({ where: { id: { in: (log.after as { ids: string[] }).ids } } });
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    const a = log.after as { ids: string[]; receipts?: unknown[] };
+    // Log trước 015f không có biên nhận → undoCreated trả 409 legacy (không xoá cứng).
+    const now = this.clock.now();
+    const events = await undoCreated(tx, ctx.authz, a.receipts ?? a.ids.map((id) => ({ id })), { logId: log.id, actorUserId: actorUserId(ctx), now });
+    await writeOutbox(tx, ctx.workspaceId, events, now);
   }
 }

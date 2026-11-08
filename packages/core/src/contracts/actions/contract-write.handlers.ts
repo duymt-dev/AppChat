@@ -22,6 +22,7 @@ import { createPreview, deletePreview, fromQuotePreview, renewPreview, updatePre
 import { ContractDeps } from '../services/contract-deps';
 import { guardUpload, sourceCols } from '../files/source';
 import { createdAfter, insertContract, undoCreate } from './contract-create';
+import { lockRootOf } from '../../kernel/ownership/root-lock';
 
 type Out = { contract_id: string; code: string };
 
@@ -149,6 +150,8 @@ export class ContractRenewHandler implements Handler<ActionInput<typeof contract
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contractRenew>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
+    // TIP-015f §2.5: khách → hợp đồng cũ → hợp đồng gia hạn.
+    await lockRootOf(tx, 'contract', input.contract_id);
     const old = await lockContract(tx, ctx.authz, input.contract_id);
     if (!CONTRACT_RENEWABLE.includes(old.status)) throw new AppError('INVALID_TRANSITION', 409, { status: old.status });
     const iso = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : undefined);

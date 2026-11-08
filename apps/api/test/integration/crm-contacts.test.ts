@@ -77,7 +77,8 @@ describe('tạo khách + chống giành khách', () => {
 
     const tmp = await create({ full_name: 'Tạm', phone: '0911000003' });
     expect((await undo(tmp.body.data.action_log_id)).status).toBe(200);
-    expect(await (await tenant()).contact.findUnique({ where: { id: tmp.body.data.result.contact_id } })).toBeNull();
+    // TIP-015f §5.1: hoàn tác tạo = xoá mềm (giữ dòng + biên nhận), không DELETE.
+    expect((await (await tenant()).contact.findUniqueOrThrow({ where: { id: tmp.body.data.result.contact_id } })).deletedAt).not.toBeNull();
   });
 
   it('AC3 role-isolation: sales B không thấy / không sửa khách của A; collaborator thấy + sửa; watcher chỉ đọc; mine gồm khách đồng phụ trách', async () => {

@@ -1,6 +1,6 @@
 # TIP-015f — Completion Report
 
-**STATUS:** ĐANG LÀM — 3 / 6 pha. P1 DC-397 (xoá mềm / khôi phục / thùng rác, 7 port, PR #137); P2 DC-398 (danh tính khách đã xoá, tin vào, hàng rào AI, PR #138); P3 DC-399 (biên nhận đơn sàn bị chặn, payload runtime, sync_now imported / blocked / failed). Còn: P4 khoá gốc tài chính + cổng sống writer quan hệ + hoàn tác tạo không xoá cứng; P5 UI thùng rác + DeletedContactPanel; P6 xác minh native + ai:live 8 ca.
+**STATUS:** ĐANG LÀM — 4 / 6 pha. P1 DC-397 (xoá mềm / khôi phục / thùng rác, 7 port, PR #137); P2 DC-398 (danh tính khách đã xoá, tin vào, hàng rào AI, PR #138); P3 DC-399 (biên nhận đơn sàn bị chặn, payload runtime, PR #139); P4 DC-400 (khoá khách gốc ở writer tạo mới, hoàn tác tạo / nhập = xoá mềm nguyên trạng). Còn: P5 UI thùng rác + DeletedContactPanel; P6 xác minh native + ai:live 8 ca.
 
 **MIGRATION:** tenant `20261108090000_contact_lifecycle` (P1) + `20261108100000_blocked_external_order` (P3) → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker. (Manifest ghi `20261102001560_…` — đổi tên theo thứ tự chuỗi migration, DV-071.)
 
@@ -129,3 +129,35 @@
 | `actions/action-registry.md` | output `order.sync_now` thêm trường có mặc định, không đổi quyền |
 | `i18n/i18n.md` | vi + en, không tuần tự lại JSON |
 | `code/file-size-module-layout.md` | file mới ≤ 75 dòng; order-sync 140, order-import 175 dòng |
+
+---
+
+## Pha 4 — khoá khách gốc ở writer tạo nghiệp vụ mới, hoàn tác tạo / nhập không xoá cứng (§2.5, §2.8, §5.1–§5.2; AC2 lõi, AC7) — DC-400, DV-074
+
+**Rà trước khi làm (code thật)**
+- `checkParties` / `checkContractParties` / `writableParent` / ghi nhớ / đề nghị thanh toán: chỉ `editableContact` (đọc không khoá) → xoá khách và tạo chứng từ chạy song song có thể lọt (đọc "còn sống" trước khi xoá commit).
+- Báo giá → đơn / hợp đồng, đơn từ hợp đồng / lịch hẹn, gia hạn: khoá chứng từ con trước, không khoá khách.
+- `contact.create` / `contact.import` undo = `tx.contact.deleteMany` (xoá cứng, mất biên nhận / dữ liệu; không kiểm quan hệ sau đó).
+
+**FILES CHANGED** (lệch manifest ở DV-074)
+- core: `crm/lifecycle/create-undo.ts` (mới); `crm/actions/contact-write.handlers.ts`, `contact-io.handlers.ts` (biên nhận tạo + undo xoá mềm); `kernel/ownership/root-lock.ts`; `sales/quotes/services/{quote-write,conversion-lock}.ts`; `sales/orders/actions/{order-create.handlers,order-from-appointment.handler}.ts`; `contracts/services/contract-write.ts`; `contracts/actions/contract-write.handlers.ts`; `sales/payments/actions/invoice-write.handlers.ts`; `crm/activities/authority.ts`; `crm/memory/handlers.ts`.
+- test: api `contact-lifecycle.test.ts` (mới, 3); ma trận `contact.create` (+ ca có quan hệ / bị sửa → 409), `contact.import` (xoá mềm).
+
+**Giả định đã chọn (gap-filling)**
+- "Nguyên trạng" = đúng `version` lúc tạo (mọi sửa sau đó làm hoàn tác 409) + không quan hệ nào qua 7 port + ghi chú CRM khớp đúng tập lúc tạo.
+- Đề nghị thanh toán đi theo đơn vẫn yêu cầu khách sống (tạo đề nghị mới là nghiệp vụ mới — §2.7); thu / hoàn tiền chứng từ có sẵn không đổi ở pha này.
+
+**TEST (cổng khi làm — D59)**
+- Integration native: `contact-lifecycle` 3/3 (8 writer → 404 sau xoá; khôi phục → tạo lại được; xoá ↔ tạo đơn 4 vòng không có đơn mở trên khách đã xoá); ma trận `contact.create` / `contact.import` xanh; hồi quy booking, commerce-*, contact-memory, contract-files, contracts, orders, payments, quotes, record-scope, watcher-write-denial, crm-contacts, crm-settings, contact-activities, contact-activity-transfer, contact-edit-version, ai-tasks, data-transfer (+ assistant) — xanh (crm-contacts AC2 / crm-settings AC11 sửa kỳ vọng xoá cứng → xoá mềm). E2E mock customers 8/8; build api + worker, `check:bundle` OK; `turbo lint typecheck test --filter="...[origin/dev]"` 36/36.
+- core unit 773/773; api unit 11/11; lint / typecheck core + api xanh.
+
+**ĐỐI CHIẾU STANDARDS (P4)**
+
+| Standard | Kết quả |
+|---|---|
+| `domain/concurrency.md` | khách → báo giá / hợp đồng / lịch hẹn → đơn → đề nghị; đọc lại sau khoá; tranh chấp xoá ↔ tạo đơn kiểm thật |
+| `domain/state-machine.md` | hoàn tác tạo đi qua dịch vụ vòng đời (deleted, biên nhận), không xoá dòng |
+| `authz/rbac-permissions.md` | hoàn tác tạo cần crm.delete + quyền xoá hiện tại (không chỉ quyền action gốc) |
+| `events/outbox.md` | hoàn tác ghi `contact.deleted` cùng transaction |
+| `actions/action-registry.md` | không đổi khai báo action; `after` mang biên nhận tạo |
+| `code/file-size-module-layout.md` | file mới 70 dòng; file sửa ≤ 224 dòng |

@@ -12,6 +12,7 @@ import { inSalesScope } from '../../payments/invoice-access';
 import { UUID } from '../order-access';
 import { createdAfter, insertOrder, undoCreate } from './order-create.handlers';
 import { fromAppointmentPreview } from '../previews/order-from-appointment.handler.preview';
+import { lockRootOf } from '../../../kernel/ownership/root-lock';
 
 type Out = { order_id: string; code: string };
 
@@ -25,6 +26,8 @@ export class OrderFromAppointmentHandler implements Handler<ActionInput<typeof o
 
   async execute(ctx: ActionContext, input: ActionInput<typeof orderCreateFromAppointment>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     // Đọc lịch trực tiếp (không import domain booking — tránh vòng sales ↔ booking); quyền theo scope sales của người phụ trách.
+    // TIP-015f §2.5: khách → lịch hẹn → đơn.
+    await lockRootOf(tx, 'appointment', input.appointment_id);
     if (UUID.test(input.appointment_id)) await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${input.appointment_id}::uuid FOR UPDATE`;
     const a = UUID.test(input.appointment_id) ? await tx.appointment.findUnique({ where: { id: input.appointment_id } }) : null;
     if (!a || a.deletedAt || !(await inSalesScope(tx, ctx.authz, { owner: a.ownerUserId, team: a.teamId, contact: a.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { appointment_id: 'not_found' });

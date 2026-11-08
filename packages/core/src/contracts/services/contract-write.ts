@@ -6,6 +6,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { uuidv7 } from '../../kernel/ids';
 import { actorUserId, editableContact, type CrmMembers } from '../../crm/public';
 import type { ContractRecord } from '../contract-access';
+import { lockContactRow } from '../../kernel/ownership/root-lock';
 
 export type ContractFields = Partial<Omit<ActionInput<typeof contractCreate>, 'conversation_id' | 'source_message_id'>>;
 
@@ -32,6 +33,8 @@ export function checkDates(start: Date | null | undefined, end: Date | null | un
 }
 
 export async function checkContractParties(ctx: ActionContext, tx: TenantTx, members: CrmMembers, f: { contactId: string; ownerUserId?: string }) {
+  // TIP-015f §2.5: khoá khách gốc TRƯỚC khoá con / ghi quan hệ mới — tuần tự với xoá khách (không tạo nghiệp vụ mới trên khách vừa xoá).
+  await lockContactRow(tx, f.contactId);
   const { contact } = await editableContact(tx, ctx.authz, f.contactId);
   if (f.ownerUserId) await members.assertMember(ctx.workspaceId, f.ownerUserId, 'owner_user_id');
   const owner = f.ownerUserId ?? (ctx.actor.type === 'user' ? actorUserId(ctx) : null) ?? contact.ownerUserId ?? actorUserId(ctx);

@@ -14,6 +14,8 @@ import { writeTimeline } from '../services/timeline.service';
 import { tagByName, tagNames } from '../services/contact-tags';
 import { changedFields, lockContactVersion, updateAtVersion } from '../services/contact-version';
 import * as pv from './previews/contact-write.handlers.preview';
+import { createdReceipt, undoCreated } from '../lifecycle/create-undo';
+import { writeOutbox } from '../../kernel/outbox/outbox';
 
 const actor = (ctx: ActionContext) => ({ type: ctx.actor.type, id: actorUserId(ctx) });
 
@@ -51,14 +53,16 @@ export class ContactCreateHandler implements Handler<ActionInput<typeof contactC
     if (input.note?.trim()) await tx.contactNote.create({ data: { id: uuidv7(now.getTime()), contactId: c.id, body: input.note.trim(), authorUserId: me, actorType: me ? 'user' : ctx.actor.type, actorId: me ? null : ctx.actor.id, createdAt: now } });
     return {
       result: { contact_id: c.id, code: c.code },
-      after: { id: c.id },
+      // TIP-015f §5.1: biên nhận tạo (phiên bản + ghi chú ban đầu) — hoàn tác chỉ xoá mềm bản còn nguyên trạng.
+      after: await createdReceipt(tx, c.id),
       events: [{ topic: 'contact.created', payload: { contact_id: c.id, owner_user_id: c.ownerUserId, source: c.source } }],
     };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const id = (log.after as { id: string }).id;
-    await tx.contact.deleteMany({ where: { id } });
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    const now = this.clock.now();
+    const events = await undoCreated(tx, ctx.authz, [log.after], { logId: log.id, actorUserId: actorUserId(ctx), now });
+    await writeOutbox(tx, ctx.workspaceId, events, now);
   }
 }
 

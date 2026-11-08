@@ -9,6 +9,7 @@ import type { ActionContext } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
 import { actorUserId, editableContact, fieldDefs, type CrmMembers } from '../../../crm/public';
 import { UUID, type QuoteRecord } from '../quote-access';
+import { lockContactRow } from '../../../kernel/ownership/root-lock';
 
 export interface LineIn {
   product_id?: string;
@@ -103,6 +104,8 @@ export async function reasonsOf(tx: TenantTx, q: QuoteRecord, ctx?: Pick<ActionC
 
 /** Khách ghi được (owner / collaborator / scope) + id phụ trách hợp lệ. */
 export async function checkParties(ctx: ActionContext, tx: TenantTx, members: CrmMembers, f: { contactId: string; ownerUserId?: string }) {
+  // TIP-015f §2.5: khoá khách gốc TRƯỚC khoá con / ghi quan hệ mới — tuần tự với xoá khách (không tạo nghiệp vụ mới trên khách vừa xoá).
+  await lockContactRow(tx, f.contactId);
   const { contact } = await editableContact(tx, ctx.authz, f.contactId);
   if (f.ownerUserId) await members.assertMember(ctx.workspaceId, f.ownerUserId, 'owner_user_id');
   // Mặc định: người tạo (người dùng) → phụ trách của khách → trống.

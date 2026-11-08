@@ -7,8 +7,9 @@ import { TenantSql as Prisma } from '@appchat/db';
 import type { TenantTx } from '../actions/action-context';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-export type RootChild = 'conversation' | 'quote' | 'appointment';
-const TABLE: Record<RootChild, Prisma.Sql> = { conversation: Prisma.raw('conversation'), quote: Prisma.raw('quote'), appointment: Prisma.raw('appointment') };
+// TIP-015f §2.5: thêm hợp đồng (gia hạn / tạo đơn từ hợp đồng khoá khách trước hợp đồng).
+export type RootChild = 'conversation' | 'quote' | 'appointment' | 'contract';
+const TABLE: Record<RootChild, Prisma.Sql> = { conversation: Prisma.raw('conversation'), quote: Prisma.raw('quote'), appointment: Prisma.raw('appointment'), contract: Prisma.raw('contract') };
 
 /** Khoá dòng khách tới hết transaction (id không hợp lệ / null → không làm gì). */
 export async function lockContactRow(tx: Pick<TenantTx, '$queryRaw'>, contactId: string | null | undefined): Promise<void> {
