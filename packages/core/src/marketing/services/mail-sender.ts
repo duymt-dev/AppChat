@@ -93,10 +93,19 @@ export const CHANNEL_SENDER: SenderData = { senderKind: 'channel_account', mailC
  * Kiểm lại người gửi mail đã chốt (gửi duyệt / duyệt): còn đúng kết nối + định danh + phiên bản và dùng được — kết nối lại / sửa người gửi /
  * ngắt / thăm dò hỏng → 409 (chọn lại người gửi rồi gửi duyệt lại; không bao giờ đổi sang kết nối khác).
  */
-export async function assertMailSenderCurrent(tx: Db, c: Pick<SenderCols, 'mailConnectionId' | 'mailSenderId' | 'mailSenderRev'>): Promise<MailSenderDto> {
+type SenderRef = Pick<SenderCols, 'mailConnectionId' | 'mailSenderId' | 'mailSenderRev'>;
+
+async function currentOf(tx: Db, c: SenderRef): Promise<{ s: MailSenderDto | null; reason: string | null }> {
   const s = c.mailConnectionId && c.mailSenderId ? await findMailSender(tx, c.mailConnectionId, c.mailSenderId) : null;
   const gone = !s && c.mailConnectionId && UUID.test(c.mailConnectionId) ? await tx.integrationConnection.findUnique({ where: { id: c.mailConnectionId }, select: { status: true } }) : null;
-  const reason = !s ? (gone?.status === 'disconnected' ? 'disconnected' : 'not_found') : s.sender_rev !== c.mailSenderRev ? 'sender_changed' : s.reason;
+  return { s, reason: !s ? (gone?.status === 'disconnected' ? 'disconnected' : 'not_found') : s.sender_rev !== c.mailSenderRev ? 'sender_changed' : s.reason };
+}
+
+/** Lý do người gửi đã chốt không còn dùng được (null = dùng được) — dispatch giữ / tạm dừng theo lý do này. */
+export const mailSenderProblem = async (tx: Db, c: SenderRef) => (await currentOf(tx, c)).reason;
+
+export async function assertMailSenderCurrent(tx: Db, c: SenderRef): Promise<MailSenderDto> {
+  const { s, reason } = await currentOf(tx, c);
   if (reason || !s) throw new AppError('INVALID_STATE', 409, { sender: reason ?? 'not_found' }, `The campaign's mail sender changed or is not usable (${reason}) — pick a sender again with campaign.update, then resubmit.`);
   return s;
 }

@@ -2,6 +2,8 @@
 // TIP-010 / 031 / 032) và test. Một dòng re-export ở src/index.ts (facade).
 export { ConnectionsService, connectionCtx, rotated } from './services/connections.service';
 export { queueProbe, probeOp, PROBE_OP } from './operations/probe';
+export { MAIL_SEND_OP, MAIL_MAX_ATTEMPTS, mailSendOp, queueMailSend, registerMailDomain, unregisterMailDomain, type MailDomain } from './mail/dispatch';
+export { mailTransports, type MailTransportOptions } from './mail/module';
 export { BANK_PULL_OP, bankPullOp, activeFeed, type StageReceipts } from './operations/bank-pull';
 export { registerCallOp, unregisterCallOp, executeCall, IntegrationOps, INTEGRATION_OPS_QUEUE, type CallOpSpec } from './operations/call-runner';
 export { upsertCall, claimCall, finishCall, callIdem } from './operations/call-receipt';

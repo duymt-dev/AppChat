@@ -1,8 +1,8 @@
 // TIP-012c P2 (§2.1–§2.3, AC3) trên Postgres 16 thật: người gửi mail của DN chọn TƯỜNG MINH cho chiến dịch email — GET
 // /v1/campaigns/mail-senders + campaign.mail_senders cho campaign.manage (không cần integrations.manage, không lộ khoá / cấu hình), người
 // gửi lạ / kết nối khác / SMTP chưa xác nhận / kênh Zalo → 422; băm bản duyệt chốt kết nối + định danh + phiên bản; kết nối lại giữa gửi
-// duyệt và duyệt → 409 (không đổi sang kết nối khác); email cũ chỉ có tài khoản kênh giữ nguyên; dispatch mail của DN chưa có cầu gửi →
-// giữ, không gọi kênh. Kết nối Brevo / SMTP ghi thẳng DB tenant kèm bằng chứng thăm dò (adapter + thăm dò thật đã kiểm ở integrations).
+// duyệt và duyệt → 409 (không đổi sang kết nối khác); email cũ chỉ có tài khoản kênh giữ nguyên; dispatch mail của DN tạo biên nhận
+// giao thư (không gọi kênh). Kết nối Brevo / SMTP ghi thẳng DB tenant kèm bằng chứng thăm dò (adapter + thăm dò thật đã kiểm ở integrations).
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { campaignDetailSchema, mailSenderDtoSchema } from '@appchat/shared';
@@ -90,7 +90,7 @@ describe('chọn người gửi cho chiến dịch', () => {
     expect(z.body.error.fields).toEqual({ sender: 'email_only' });
   });
 
-  it('chọn → gửi duyệt → duyệt: DTO hiện người gửi đã chốt; snapshot theo địa chỉ email; dispatch chưa có cầu gửi → giữ', async () => {
+  it('chọn → gửi duyệt → duyệt: DTO hiện người gửi đã chốt; snapshot theo địa chỉ email; dispatch tạo biên nhận giao thư', async () => {
     const a = await mk.contact({ email: 'b@khach.vn' });
     const noMail = await mk.contact();
     const c = await emailCampaign({ kind: 'tenant_mail', connection_id: brevo, sender_id: '7' }, [a, noMail], marketer);
@@ -107,11 +107,11 @@ describe('chọn người gửi cho chiến dịch', () => {
     const d = await mk.get(`/campaigns/${id}`);
     expect(campaignDetailSchema.safeParse(d.body.data).success).toBe(true);
     expect(d.body.data.sender).toEqual({ kind: 'tenant_mail', connection_id: brevo, sender_id: '7', sender_rev: 2, email: 'news@shop.vn', name: 'Shop News', usable: true, reason: null });
+    // P3: dispatch tạo biên nhận giao thư (không gọi hàng gửi kênh, chưa gửi tới khi runner integrations chạy — tenant-mail-dispatch.test).
     await mk.tick();
-    const held = await db.campaignEvent.findMany({ where: { campaignId: id, kind: 'held' } });
-    expect(held.map((e) => (e.detail as { reason: string }).reason)).toEqual(['mail_dispatch_unavailable']);
-    expect((await mk.recipients(id)).every((r) => r.status !== 'sent' && !r.claimedAt)).toBe(true);
-    expect((await mk.act('campaign.send_test', { campaign_id: id })).status).toBe(409);
+    const deliveries = await db.tenantMailDelivery.findMany({ where: { campaignId: id } });
+    expect(deliveries.map((d) => [d.state, d.connectionId, d.senderId])).toEqual([['queued', brevo, '7']]);
+    expect((await mk.recipients(id)).every((r) => r.status !== 'sent')).toBe(true);
   });
 
   it('kết nối lại giữa gửi duyệt và duyệt → 409 sender_changed; từ chối → chọn lại → gửi duyệt lại khớp phiên bản mới', async () => {

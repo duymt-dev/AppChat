@@ -8,6 +8,7 @@ export { segmentSql, countAudience } from './services/segments.service';
 export { contentErrors, renderContent, variantOf, statsOf, allowedActions as campaignAllowed, CHANNEL_CAPS } from './services/campaign-policy';
 export { tickCampaigns, tickWorkspace, CAMPAIGN_TICK_JOB, MARKETING_SCHEDULER_QUEUE } from './jobs/campaign-scheduler';
 export { campaignSendGuard } from './jobs/campaign-results';
+export { campaignMailDomain, enqueueMailBatch } from './jobs/campaign-mail';
 export { reserveRecipient, buildMessage, refOf as campaignRef, RECIPIENT_REF_PREFIX } from './jobs/campaign-dispatch';
 export { MarketingScheduler, MarketingSendInstaller } from './jobs/marketing.jobs.providers';
 export { MarketingSchedulerModule } from './jobs/marketing-scheduler.module';

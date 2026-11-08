@@ -46,7 +46,8 @@ export async function tickWorkspace(d: TickDeps, ws: string): Promise<{ dispatch
     const stale = await staleClaims(db, c.id, new Date(now.getTime() - STALE_CLAIM_MS), 200);
     if (!stale.length) continue;
     const row = await db.campaign.findUnique({ where: { id: c.id } });
-    if (!row || row.status !== 'running') continue;
+    // Mail của DN không đi hàng gửi kênh — biên nhận gọi integrations tự khôi phục (quét 60 giây).
+    if (!row || row.status !== 'running' || row.senderKind === 'tenant_mail') continue;
     for (const s of stale) {
       const m = await buildMessage(db, row, s, d.links, ws, now);
       if (!m) continue;

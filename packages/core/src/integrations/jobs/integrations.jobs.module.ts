@@ -19,6 +19,7 @@ import { INTEGRATION_OPS_QUEUE, IntegrationOps, executeCall, registerCallOp, unr
 import { PROBE_OP, probeOp } from '../operations/probe';
 import { providerHttp } from '../operations/provider-http';
 import { mailTransports } from '../mail/module';
+import { MAIL_SEND_OP, mailSendOp } from '../mail/dispatch';
 import { OPS_SCHEDULER_QUEUE, OPS_SWEEP_JOB, SWEEP_EVERY_MS, sweepIntegrationOps } from './bank-sync.scheduler';
 
 class IntegrationsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -40,6 +41,8 @@ class IntegrationsJobsRunner implements OnApplicationBootstrap, OnApplicationShu
     const now = () => this.clock.now();
     this.workers.push(startIntegrationsWorker(this.redis, { tenants: this.tenants, registry: connectorRegistry, key: this.key, kv: this.redis, now }, this.log));
     registerCallOp(PROBE_OP, probeOp);
+    // TIP-012c: gửi mail của DN (bộ xử lý miền do marketing đăng ký ở cùng ROLE=jobs — thiếu thì op hoãn, không giả gửi).
+    registerCallOp(MAIL_SEND_OP, mailSendOp);
     const deps = { tenants: this.tenants, registry: connectorRegistry, key: this.key, http: providerHttp(), mail: mailTransports(), kv: this.redis, now };
     this.workers.push(
       new Worker(
@@ -67,6 +70,7 @@ class IntegrationsJobsRunner implements OnApplicationBootstrap, OnApplicationShu
 
   async onApplicationShutdown(): Promise<void> {
     unregisterCallOp(PROBE_OP);
+    unregisterCallOp(MAIL_SEND_OP);
     await Promise.all(this.workers.map((w) => w.close()));
     await this.sched?.close();
   }

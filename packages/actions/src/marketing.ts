@@ -131,7 +131,7 @@ export const campaignSendTest = defineAction({
   title: 'actions.campaign.send_test.title',
   description: 'Send a test message of the campaign to yourself.',
   input: z.object({ campaign_id: campaignId }),
-  output: z.object({ sent_to: z.string() }),
+  output: z.object({ sent_to: z.string(), /** TIP-012c: biên nhận gửi thử qua mail của DN (`ct_…`). */ delivery_ref: z.string().optional() }),
   permission: 'campaign.manage',
   risk: 'send',
   agentGrantable: false,

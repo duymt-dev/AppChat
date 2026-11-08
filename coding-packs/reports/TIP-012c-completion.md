@@ -75,3 +75,36 @@
 | `domain/state-machine.md` + `concurrency.md` | bản duyệt chốt người gửi (băm), kiểm lại ở gửi duyệt / duyệt dưới khoá dòng chiến dịch; 409 khi lệch |
 | `ops/observability-security.md` | DTO / bằng chứng không khoá / host / cấu hình (test canary) |
 | `api/response-envelope.md` | `{ data }` cho GET; lỗi `{ error: { code, message, fields } }` với thông điệp đọc được cho Trợ lý |
+
+## Pha 3 — gửi qua biên nhận gọi integrations, kết quả trung thực, thử lại có giới hạn, gửi thử (§2.4–§2.5, §3.1–§3.4; AC4) — DC-410, DV-084
+
+**Rà trước khi làm (code thật)**
+- campaign.dispatch chỉ đẩy `ChannelSendQueue` (ROLE=channels); campaign-results ghi kết quả qua campaign.record_delivery; scheduler đẩy lại người nhận treo qua hàng gửi kênh.
+- Runner biên nhận gọi (`executeCall`) đã huỷ khi khoá đổi + mutation lỗi → unknown; quét 60 giây khôi phục biên nhận đến hạn.
+- `reserveRecipient` (kiểm lại chiến dịch đang chạy / khách huỷ / xoá + đặt chỗ) dùng được cho mọi kênh.
+
+**FILES CHANGED** (lệch manifest ở DV-084)
+- core: `integrations/mail/{receipts,dispatch}.ts` (mới), `integrations/jobs/integrations.jobs.module.ts`, `integrations/public.ts`; `marketing/jobs/campaign-mail.ts` (mới), `marketing/services/mail-test.ts` (mới), `marketing/actions/campaign-system.handlers.ts`, `campaign-extras.handlers.ts`, `marketing/services/mail-sender.ts`, `marketing/jobs/{campaign-scheduler,marketing.jobs.providers}.ts`, `marketing/public.ts`.
+- actions: `marketing.ts` (campaign.send_test trả `delivery_ref`).
+- test: api `tenant-mail-dispatch.test.ts` (mới), `tenant-mail.test.ts` (dispatch tạo biên nhận).
+
+**Giả định đã chọn (gap-filling)**
+- Trần thử lại 3 lượt (TIP ghi "bounded"); lùi theo `backoffAt` chung + Retry-After.
+- HTML thư = văn bản đã duyệt được escape trong `white-space:pre-wrap` (renderer 037 chỉ có văn bản thuần) — không chèn HTML từ người dùng.
+- Message-ID SMTP `<campaign-<recipient>@<tên miền người gửi>>` (gửi thử `<ct_…@…>`); Brevo trả mã riêng làm tham chiếu.
+
+**TEST (cổng khi làm — D59)**
+- api integration `tenant-mail-dispatch.test.ts` **6/6** (biên nhận digest + accepted + không gửi đôi + chiến dịch hoàn tất; mã rỗng / 502 / đứt → unknown không gửi lại; 429 ×3 → failed chắc chắn, mỗi lượt biên nhận gọi riêng, người nhận nhả đặt chỗ giữa các lượt; reserved → unknown không gọi provider; khoá đổi → cancelled; thiếu bộ xử lý miền → hoãn; khách huỷ nhận sau nhận lô → skipped; gửi thử biên nhận riêng không người nhận).
+- cùng lượt: `tenant-mail` 7/7 + hồi quy marketing / integrations — tổng **61/61**.
+- turbo lint / typecheck / test (CI) **36/36**; depcheck sạch; lint:size sạch. Không đổi UI / mock (E2E marketing giữ kết quả P2). Chưa nghiệm thu với provider thật (Q-004).
+
+**ĐỐI CHIẾU STANDARDS (P3)**
+
+| Standard | Kết quả |
+|---|---|
+| `integrations/provider-ports.md` | gửi qua runner biên nhận gọi chung (claim CAS / thế hệ / huỷ khi khoá đổi), không producer / worker mail thứ hai |
+| `events/outbox.md` | kết quả qua campaign.record_delivery (Executor: audit + outbox), idempotent theo ref + kết quả |
+| `domain/concurrency.md` | CAS trạng thái biên nhận; reserved trước provider; sập giữa chừng → unknown; không gửi lại unknown |
+| `domain/state-machine.md` | queued → reserved → accepted / failed_before_accept / unknown; chỉ failed_before_accept được xếp lại |
+| `ops/observability-security.md` | hàng đợi / biên nhận chỉ id + digest (test: không có địa chỉ trong biên nhận / lượt gọi); khoá đọc lúc gửi |
+| `code/testing.md` | transport giả theo hợp đồng Brevo, không mạng thật |

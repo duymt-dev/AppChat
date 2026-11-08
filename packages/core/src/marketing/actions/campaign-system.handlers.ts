@@ -16,6 +16,8 @@ import { claimBatch, hasOpen, releaseTouch, touchSent } from '../repos/recipient
 import type { SendJob } from '../../channels/public';
 import { buildMessage, recipientOfRef, refOf } from '../jobs/campaign-dispatch';
 import { MarketingDeps } from '../services/marketing-deps';
+import { mailSenderProblem } from '../services/mail-sender';
+import { enqueueMailBatch } from '../jobs/campaign-mail';
 import { MARKETING_ACTORS, assertSystem } from '../services/marketing-system';
 
 /** Người nhận một lần quét / chiến dịch — hàng gửi của tài khoản tự giãn theo tốc độ + jitter (không dồn cả chiến dịch vào Redis). */
@@ -64,10 +66,14 @@ export class CampaignDispatchHandler implements Handler<ActionInput<typeof campa
     };
     // Người duyệt bị thu hồi quyền duyệt / rời workspace → dừng chờ người có quyền xem lại (không gửi nhân danh quyền đã mất).
     if (!approverOk) return c.status === 'approved' ? this.hold(tx, c, now, 'approver_revoked') : pause('approver_revoked');
-    // TIP-012c: mail của DN gửi qua hàng gọi integrations (pha 3) — chưa có cầu gửi thì giữ, không lùi sang tài khoản kênh.
-    if (c.senderKind === 'tenant_mail') return c.status === 'approved' ? this.hold(tx, c, now, 'mail_dispatch_unavailable') : pause('mail_dispatch_unavailable');
-    const acc = c.accountId ? await tx.channelAccount.findUnique({ where: { id: c.accountId }, select: { status: true, pausedAt: true } }) : null;
-    if (!acc || acc.status !== 'connected' || acc.pausedAt) return c.status === 'approved' ? this.hold(tx, c, now, `account_${acc ? (acc.pausedAt ? 'paused' : acc.status) : 'missing'}`) : pause(`account_${acc ? (acc.pausedAt ? 'paused' : acc.status) : 'missing'}`);
+    // TIP-012c: mail của DN — người gửi đã chốt phải còn đúng phiên bản + dùng được (không lùi sang tài khoản kênh / kết nối khác).
+    if (c.senderKind === 'tenant_mail') {
+      const why = await mailSenderProblem(tx, c);
+      if (why) return c.status === 'approved' ? this.hold(tx, c, now, `sender_${why}`) : pause(`sender_${why}`);
+    } else {
+      const acc = c.accountId ? await tx.channelAccount.findUnique({ where: { id: c.accountId }, select: { status: true, pausedAt: true } }) : null;
+      if (!acc || acc.status !== 'connected' || acc.pausedAt) return c.status === 'approved' ? this.hold(tx, c, now, `account_${acc ? (acc.pausedAt ? 'paused' : acc.status) : 'missing'}`) : pause(`account_${acc ? (acc.pausedAt ? 'paused' : acc.status) : 'missing'}`);
+    }
     if (c.status !== 'running') {
       cur = await casUpdate(tx, c, { status: stepOf(c, 'campaign.start'), startedAt: c.startedAt ?? now, updatedAt: now });
       await logEvent(tx, c.id, 'started', SYSTEM, now);
@@ -77,7 +83,17 @@ export class CampaignDispatchHandler implements Handler<ActionInput<typeof campa
     const inFlight = await tx.campaignRecipient.count({ where: { campaignId: c.id, status: 'pending', claimedAt: { not: null } } });
     const { claimed, skipped } = inFlight >= DISPATCH_BATCH * 2 ? { claimed: [], skipped: 0 } : await claimBatch(tx, c.id, DISPATCH_BATCH, now);
     const jobs: SendJob[] = [];
-    for (const r of claimed) {
+    let mailQueued = 0;
+    if (cur.senderKind === 'tenant_mail') {
+      // Biên nhận giao thư + lượt gọi integrations (quét 60 giây của ROLE=jobs nhặt) — không qua hàng gửi của tài khoản kênh.
+      const m = await enqueueMailBatch(tx, cur, claimed, now);
+      mailQueued = m.queued;
+      for (const id of m.noEndpoint) {
+        await tx.campaignRecipient.update({ where: { id }, data: { status: 'skipped', skipReason: 'no_endpoint', claimedAt: null, updatedAt: now } });
+        await releaseTouch(tx, id);
+      }
+    }
+    for (const r of cur.senderKind === 'tenant_mail' ? [] : claimed) {
       const m = await buildMessage(tx, cur, r, this.d.links, ctx.workspaceId, now);
       if (!m) {
         await tx.campaignRecipient.update({ where: { id: r.id }, data: { status: 'skipped', skipReason: 'no_endpoint', claimedAt: null, updatedAt: now } });
@@ -94,7 +110,7 @@ export class CampaignDispatchHandler implements Handler<ActionInput<typeof campa
     }
     const send = this.d.send;
     return {
-      result: { claimed: jobs.length, skipped: skipped + claimed.length - jobs.length, done },
+      result: { claimed: jobs.length + mailQueued, skipped: skipped + claimed.length - jobs.length - mailQueued, done },
       events,
       // Hàng vắng (thiếu Redis) / đẩy lỗi: người nhận giữ `claimed_at`, vòng quét đẩy lại sau (staleClaims) — không mất, không gửi đôi (jobId = ref).
       ...(jobs.length && send ? { afterCommit: async () => void (await Promise.all(jobs.map((j) => send.enqueue(j)))) } : {}),
