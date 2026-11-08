@@ -12,12 +12,15 @@ import { UUID, visibleConversation } from '../services/access';
 
 type ConvRow = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 
-function hit(c: ConvRow, contactName: string | undefined) {
+// TIP-015f §4: khách đã xoá mềm → không trả tên CRM cũ, gắn `contact_deleted` để Trợ lý nói đúng trạng thái (khôi phục trước khi tạo nghiệp vụ
+// mới) thay vì đoán là "không tìm thấy" rồi tạo khách trùng.
+function hit(c: ConvRow, contact: { name: string; deleted: boolean } | undefined) {
   return {
     id: c.id,
-    title: c.title || contactName || '',
+    title: c.title || (contact && !contact.deleted ? contact.name : '') || '',
     channel: c.channelType,
     contact_id: c.contactId,
+    ...(contact?.deleted ? { contact_deleted: true } : {}),
     status: c.status,
     assignee_user_id: c.assigneeUserId,
     unread: c.unreadCount,
@@ -27,8 +30,8 @@ function hit(c: ConvRow, contactName: string | undefined) {
 
 async function names(tx: TenantTx, rows: ConvRow[]) {
   const ids = [...new Set(rows.map((r) => r.contactId).filter((x): x is string => !!x))];
-  const cs = ids.length ? await tx.contact.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : [];
-  return new Map(cs.map((c) => [c.id, c.name]));
+  const cs = ids.length ? await tx.contact.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, deletedAt: true } }) : [];
+  return new Map(cs.map((c) => [c.id, { name: c.name, deleted: !!c.deletedAt }]));
 }
 
 type SearchOut = { conversations: ReturnType<typeof hit>[] };

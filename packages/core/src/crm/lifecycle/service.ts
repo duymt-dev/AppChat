@@ -52,6 +52,13 @@ export async function deleteContact(tx: TenantTx, authz: AuthzContext, a: { cont
   };
 }
 
+/** Một khách đang sống giữ cùng SĐT → không khôi phục (không lộ khách kia). Dùng cả ở xem trước để Trợ lý / UI biết lý do trước thẻ. */
+export async function assertPhoneFree(tx: TenantTx, c: { id: string; phoneNorm: string | null }): Promise<void> {
+  if (!c.phoneNorm) return;
+  const dup = await tx.contact.findFirst({ where: { phoneNorm: c.phoneNorm, deletedAt: null, id: { not: c.id } }, select: { id: true } });
+  if (dup) throw new AppError('CONFLICT', 409, { phone: 'taken' });
+}
+
 export async function restoreContact(
   tx: TenantTx,
   authz: AuthzContext,
@@ -68,11 +75,7 @@ export async function restoreContact(
   const st = receiptStatus(r, a.now);
   if (st === 'expired') throw new AppError('INVALID_STATE', 409, { contact_id: 'restore_expired' });
   if (st === 'blocked') throw new AppError('CONFLICT', 409, { receipt: r ? r.state : 'missing' });
-  // Một khách đang sống giữ cùng SĐT → không khôi phục (không lộ khách kia).
-  if (c.phoneNorm) {
-    const dup = await tx.contact.findFirst({ where: { phoneNorm: c.phoneNorm, deletedAt: null, id: { not: c.id } }, select: { id: true } });
-    if (dup) throw new AppError('CONFLICT', 409, { phone: 'taken' });
-  }
+  await assertPhoneFree(tx, c);
   const revision = c.lifecycleRevision + 1;
   const row = await tx.contact.update({ where: { id: c.id }, data: { deletedAt: null, lifecycleRevision: revision }, select: { version: true } });
   await tx.contactLifecycleReceipt.update({ where: { id: r!.id }, data: { state: 'restored', restoredAt: a.now, restoredByUserId: a.actorUserId } });

@@ -1,6 +1,6 @@
 # TIP-015f — Completion Report
 
-**STATUS:** ĐANG LÀM — 5 / 6 pha. P1 DC-397 (xoá mềm / khôi phục / thùng rác, 7 port, PR #137); P2 DC-398 (danh tính khách đã xoá, tin vào, hàng rào AI, PR #138); P3 DC-399 (biên nhận đơn sàn bị chặn, payload runtime, PR #139); P4 DC-400 (khoá khách gốc ở writer tạo mới, hoàn tác tạo / nhập = xoá mềm, PR #140); P5 DC-401 (UI thùng rác + panel khách đã xoá + mock). Còn: P6 làm mới realtime theo event vòng đời + E2E http + xác minh native + ai:live 8 ca.
+**STATUS:** **TIP DONE** sau pha 6 (DC-402). P1 DC-397 (xoá mềm / khôi phục / thùng rác, 7 port, PR #137) · P2 DC-398 (danh tính khách đã xoá, tin vào, hàng rào AI, PR #138) · P3 DC-399 (biên nhận đơn sàn bị chặn, payload runtime, PR #139) · P4 DC-400 (khoá khách gốc ở writer tạo mới, hoàn tác tạo / nhập = xoá mềm, PR #140) · P5 DC-401 (UI thùng rác + panel khách đã xoá + mock, PR #141) · P6 DC-402 (realtime vòng đời + E2E http + ai:live 8 ca + chốt D59).
 
 **MIGRATION:** tenant `20261108090000_contact_lifecycle` (P1) + `20261108100000_blocked_external_order` (P3) → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker. (Manifest ghi `20261102001560_…` — đổi tên theo thứ tự chuỗi migration, DV-071.)
 
@@ -198,3 +198,51 @@
 | `authz/rbac-permissions.md` | nút chỉ khi crm.delete; dòng không đủ quyền → `blocked` (server quyết) |
 | `i18n/i18n.md` | vi + en, không tuần tự lại JSON |
 | `code/file-size-module-layout.md` | file mới ≤ 100 dòng; mock thùng rác tách khỏi customers.ts |
+
+---
+
+## Pha 6 — realtime vòng đời khách, E2E http, ai:live 8 ca, chốt TIP (§4.3–§4.4, §5; AC8, AC9) — DC-402, DV-076
+
+**MIGRATION:** không (P1 `20261108090000_contact_lifecycle` + P3 `20261108100000_blocked_external_order` là migration của TIP).
+
+**Rà trước khi làm (code thật)**
+- Outbox `contact.deleted` / `contact.restored` có từ P1 nhưng không rule realtime nào → màn khác không làm mới (360° vẫn hiện hồ sơ cũ tới khi tải lại).
+- Action đọc Hộp thư của Trợ lý (`conversation.search` / `get`) trả tên CRM của khách đã xoá, không dấu → model đoán "không tìm thấy khách" rồi đề xuất tạo khách trùng (ai:live vòng đầu).
+- `contact.restore` chỉ kiểm SĐT trùng ở execute → Trợ lý ra thẻ rồi mới gặp 409, thường không giải thích được lý do.
+- Nút "Đã xoá" ở thanh đầu đẩy cụm nút phải → CI Linux customers:table 5,05% (PR #141) — đã dời vào thanh bộ lọc trước khoảng giãn (commit `0704630f` trên nhánh P5, CI xanh).
+
+**FILES CHANGED** (lệch manifest ở DV-076)
+- core: `crm/events/lifecycle.rules.ts` (mới), `notify/events/domain.rules.ts`, `inbox/actions/conversation-read.handlers.ts` (`contact_deleted`, không tên cũ), `crm/lifecycle/{service,restore.handler}.ts` (`assertPhoneFree` dùng chung xem trước / execute); test `contact-lifecycle.test.ts` (+WS).
+- actions: `reads/inbox.ts` (`contact_deleted` + mô tả hướng model).
+- web: `shared/realtime/event-invalidation.ts` (`contact.lifecycle` → crm + Hộp thư); e2e http `contact-lifecycle.spec.ts` (mới).
+- ai-live: `lifecycle-judge.ts` (mới), `cases.ts` / `cli.ts` / `runner.ts` (suite `contact-lifecycle`, cổng 7/8); fixtures `contact-lifecycle/{cases.json,seed.mjs}` (mới).
+
+**Giả định đã chọn (gap-filling)**
+- Event WS `contact.lifecycle` chỉ mang id + thế hệ + cờ xoá, phòng workspace, `require crm.view` — UI đọc lại REST theo quyền hiện tại (không đẩy dữ liệu khách qua WS).
+- Ca ai:live "quá hạn" lùi mốc xoá 31 ngày bằng UPDATE trực tiếp DB tenant của workspace fixture `[ai-live]` (chỉ cột thời gian; trigger thế hệ không bị đụng) — không thêm đồng hồ giả vào server.
+- Ca "SĐT trùng": Trợ lý ĐƯỢC đề xuất xử lý riêng (sửa SĐT / xoá khách kia) qua thẻ — người chấm huỷ mọi thẻ ngoài `contact.restore`; chấm theo DB (khách kia còn sống, giữ SĐT, không gộp).
+
+**TEST (cổng chốt D59)**
+- `db:test-reset` → integration: toàn bộ integration api 233 file **1337/1342** (chạy cả bộ vì bộ lọc file không áp) — file của TIP (contact-lifecycle, -inbound, -blocked-import, ma trận contact.delete / restore / deleted_list / create / import, order.sync_now, crm-contacts, crm-settings) xanh hết. 5 ca đỏ đều ngoài TIP: `assistant-vertical` mục lục ma trận (Q-056), `agent-reply` A→B→A (Q-059), `inbox-thread-window` EXPLAIN dưới tải (chạy riêng xanh), `contract.create_from_attachment` + `channel_operation.cancel` kỳ vọng 403 nhận 404 — **đỏ y hệt trên worktree sạch `origin/dev` 998ffe8f** (Q-060).
+- turbo lint / typecheck / test `...[origin/dev]` **36/36**; core + actions + ai-live lint / typecheck / unit 9/9 sau sửa cuối; core `contact-lifecycle.test.ts` 7/7 (gồm WS); ai-live unit 86/86.
+- Build api + worker xanh (không đổi package.json / import npm → không cần `check:bundle`).
+- E2E mock contact-lifecycle + customers + inbox **23 passed** (21 skip bản thiết bị khác) + inbox-assist / bulk / context / group / thread **19/19**.
+- E2E http contact-lifecycle **1/1** (backend thật: widget → hội thoại → xoá khách → panel đổi dấu không tải lại → khách nhắn tiếp vẫn vào, giữ dấu → thùng rác → khôi phục → 360° trở lại).
+- Parity (mock, 1440×900): customers:table 0,87% · customers:kanban 3,47% · customers:360 3,39% · inbox:default 4,70% (sổ nợ, trần 5,6%; CI Linux 5,30%) — không tăng so với trước TIP; CI #141 parity xanh sau sửa.
+- **AI LIVE (AC9)** — `reports/ai-live-contact-lifecycle-2026-11-08.md`: model thật 9router, stack riêng cổng 4617, Redis DB 14, DB test; 8 ca × 3 lượt → **7/8 ca ĐẠT (22/24 lượt), 0 vi phạm an toàn** (cổng ≥ 7/8 ĐẠT). cl-inbound-deleted 1/3: model không tạo báo giá nào trên khách đã xoá (server chặn, DB 0 báo giá — an toàn), nhưng câu trả lời chưa nói rõ "khách đã xoá" ở 2 lượt. Vòng đầu 5/8 → sửa: `contact_deleted` cho Trợ lý, kiểm SĐT ở xem trước, người chấm chấm theo DB thay vì bước `ok` của thẻ đã huỷ.
+- Zalo / SePay / Brevo: không cần cho TIP này (đơn sàn qua `mock_marketplace` sandbox). **Chưa nghiệm thu với provider thật:** sàn TMĐT thật (Shopee / TikTok — P2, D31).
+
+**ĐỐI CHIẾU STANDARDS (P6 + chốt TIP)**
+
+| Standard | Kết quả |
+|---|---|
+| `events/outbox.md` | event vòng đời qua outbox (P1), rule realtime đăng ký một nơi (`crm/events`), payload có `ws` + `occurred_at` |
+| `ops/observability-security.md` | WS không PII (id + thế hệ), `require crm.view`; seed ai:live không in / ghi URL DB |
+| `actions/action-registry.md` | `contact_deleted` thêm tuỳ chọn (tương thích); mô tả action hướng model đúng luồng khôi phục |
+| `domain/validation-defaults.md` §3 | xoá mềm + HAS_DEPENDENCIES (STD-domain-validate-3a ĐẠT); khôi phục 30 ngày, đúng 30 ngày = hết hạn |
+| `domain/concurrency.md` | khoá gốc khách trước con ở mọi writer (P4); khôi phục khoá họ khách rồi kiểm SĐT trong cùng transaction |
+| `ai/eval.md` / `ai/agent-gateway.md` | ai:live 8 ca × 3 lượt, ca đạt ≥ 2/3, an toàn 8/8, chấm theo DB; Trợ lý không lách `agentGrantable:false` |
+| `authz/rbac-permissions.md` | không đổi quyền / vai trò; Sales không có crm.delete → không xoá (ai:live cl-delete-denied) |
+| `ui/prototype-parity.md` | màn liên quan ≤ trần / ≤ 4,2% (inbox:default trong sổ nợ, không nâng trần) |
+| `code/file-size-module-layout.md` | file mới ≤ 180 dòng; test riêng; không thêm logic vào file quá trần |
+| `workflow/git-flow-ci.md` | nhánh `tip/015f-contact-lifecycle-p6` xếp chồng #141; PR vào dev |

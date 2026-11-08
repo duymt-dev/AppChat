@@ -11,7 +11,7 @@ import { accessOf, actorUserId } from '../services/access';
 import { assertDeleteAuthority } from './authority';
 import { lockFamily } from './lock';
 import { currentReceipt, receiptStatus } from './receipts';
-import { restoreContact } from './service';
+import { assertPhoneFree, restoreContact } from './service';
 
 type Out = { contact_id: string; version: number };
 
@@ -29,6 +29,7 @@ export class ContactRestoreHandler implements Handler<ActionInput<typeof contact
     const st = receiptStatus(r, this.clock.now());
     if (st === 'expired') throw new AppError('INVALID_STATE', 409, { contact_id: 'restore_expired' });
     if (st === 'blocked') throw new AppError('CONFLICT', 409, { receipt: r ? r.state : 'missing' });
+    await assertPhoneFree(tx, c);
     return preview('write', `${c.code} · ${c.name}`, {
       changes: updated('contact', c.id, { deleted_at: c.deletedAt.toISOString() }, { deleted_at: null }),
       warnings: ['connector_sync_may_resume'],
