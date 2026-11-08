@@ -4,7 +4,7 @@
 
 ## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
 
-**Mới nhất (2026-11-08, 026b DONE).** TIP-026b pha 4 / 4 (nhánh `tip/026b-crm-activities-p4` từ `origin/dev` `998ffe8f`): nhập / xuất AI-first 3 tập `contact_notes` / `contact_tasks` / `contact_opportunities` qua 038b — `transfer_plan.dataset` + `dataset_schema_version` bất biến (trigger; 409 khác tập / lược đồ cũ), CSV / XLSX thật, ánh xạ AI + thủ công, mỗi dòng một action canonical, xuất qua khung list-export (cột tiền theo quote.view); ai:live crm-activities 10/10 (30/30 lượt, 0 vi phạm an toàn, model 9router thật) — DC-390, DV-064. Migration tenant `20261108060000_transfer_dataset`. **TIP-026b DONE** (report `reports/TIP-026b-completion.md`). PR mới chưa merge kể từ `998ffe8f`: 1 / 30.
+**Mới nhất (2026-11-08, 026b DONE).** TIP-026b pha 4 / 4 = PR #130 (nhánh `tip/026b-crm-activities-p4`, `267bd9cf`, từ `origin/dev` `998ffe8f`): nhập / xuất AI-first 3 tập `contact_notes` / `contact_tasks` / `contact_opportunities` qua 038b — `transfer_plan.dataset` + `dataset_schema_version` bất biến (trigger; 409 khác tập / lược đồ cũ), CSV / XLSX thật, ánh xạ AI + thủ công, mỗi dòng một action canonical, xuất qua khung list-export (cột tiền theo quote.view); ai:live crm-activities 10/10 (30/30 lượt, 0 vi phạm an toàn, model 9router thật) — DC-390, DV-064. Migration tenant `20261108060000_transfer_dataset`. **TIP-026b DONE** (report `reports/TIP-026b-completion.md`). PR mới chưa merge kể từ `998ffe8f`: 1 / 30.
 
 **Việc kế tiếp:** TIP-015d theo bảng Thứ tự GOAL-RELEASE.md (xếp chồng trên PR 026b P4 nếu chưa merge), rồi 032c → 015f → 015e → 012c → …
 
