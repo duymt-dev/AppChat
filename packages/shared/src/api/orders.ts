@@ -41,6 +41,11 @@ export const orderRowSchema = z.object({
   phone: z.string(),
   owner_user_id: z.string(),
   owner_name: z.string(),
+  /** Người phụ trách vận hành (TIP-032c) — khác người tạo `owner_*` (doanh số, bất biến). */
+  assigned_user_id: z.string(),
+  assigned_name: z.string(),
+  /** Phiên bản dòng — gửi lại làm `if_version` khi sửa. */
+  version: z.number().int(),
   quote_id: z.string().nullable(),
   quote_code: z.string(),
   contract_id: z.string().nullable(),

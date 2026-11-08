@@ -60,12 +60,12 @@ export class PackageSearchHandler implements Handler<ActionInput<typeof packageS
     // Như tab Liệu trình của hồ sơ khách: khách ngoài scope → NOT_FOUND; từng gói áp scope bán hàng theo người phụ trách đơn sinh ra gói.
     const { contact } = await visibleContact(tx, ctx.authz, i.contact_id);
     const rows = await tx.customerPackage.findMany({ where: { contactId: contact.id, ...(i.status ? { status: i.status } : {}) }, orderBy: { createdAt: 'desc' }, take: 100 });
-    const orders = rows.length ? await tx.order.findMany({ where: { id: { in: rows.map((r) => r.orderId) } }, select: { id: true, ownerUserId: true, teamId: true } }) : [];
+    const orders = rows.length ? await tx.order.findMany({ where: { id: { in: rows.map((r) => r.orderId) } }, select: { id: true, assignedUserId: true, teamId: true } }) : [];
     const owner = new Map(orders.map((o) => [o.id, o]));
     const packages: PackageOut['packages'] = [];
     for (const p of rows) {
       if (packages.length >= (i.limit ?? 10)) break;
-      if (await inSalesScope(tx, ctx.authz, { owner: owner.get(p.orderId)?.ownerUserId ?? null, team: owner.get(p.orderId)?.teamId ?? null, contact: p.contactId }))
+      if (await inSalesScope(tx, ctx.authz, { owner: owner.get(p.orderId)?.assignedUserId ?? null, team: owner.get(p.orderId)?.teamId ?? null, contact: p.contactId }))
         packages.push({ id: p.id, name: p.name, used_sessions: p.usedSessions, total_sessions: p.totalSessions, expires_at: p.expiresAt?.toISOString() ?? null, status: p.status });
     }
     return { result: { packages } };

@@ -48,6 +48,7 @@ function idFields(s: JsonSchema, path = ''): string[] {
 /** Tên ô → thực thể tra (ô người / agent / mẫu không mang tên thực thể). */
 const ALIAS: Record<string, string> = {
   owner_user_id: 'member',
+  assigned_user_id: 'member',
   assignee_user_id: 'member',
   to_user_id: 'member',
   user_id: 'member',

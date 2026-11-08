@@ -100,6 +100,8 @@ function Footer({ c }: { c: Contract }) {
   const can = (action: string) => nextState(CONTRACT_FLOW, c.status, action) !== null;
   const sent = !!c.sent_at;
   const acts = [
+    // Sửa nháp (TIP-032c): form sửa đúng hợp đồng này kèm version đã mở.
+    can('contract.update') && btn('edit', t('edit'), () => set({ form: 'edit', editId: c.id, prefill: null }), undefined, !canDraft),
     // Còn điều khoản AI chờ Giữ / Bỏ → chưa trình duyệt được (server cũng chặn — TIP-030b spec 11).
     can('contract.submit') && btn('submit', t('submit'), () => void submit.run({ contract_id: c.id }), styles.actPrimary, !canDraft || (c.ai_suggestions ?? []).some((x) => x.status === 'pending')),
     can('contract.request_changes') &&
@@ -169,6 +171,11 @@ function Header({ c }: { c: Contract }) {
         <div>
           <div className={styles.byL}>{t('detail.by')}</div>
           <div className={styles.byV}>{c.owner_name}</div>
+          {c.assigned_name && c.assigned_user_id !== c.owner_user_id ? (
+            <div className={styles.byV} data-testid="ct-assigned">
+              {`${t('form.assigned')}: ${c.assigned_name}`}
+            </div>
+          ) : null}
         </div>
       </div>
     </>

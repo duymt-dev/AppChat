@@ -12,6 +12,7 @@ export const ordersQuery = (f: OrderFilter, pg?: PageState) =>
       transport.get<Paged<Order>>('/orders', {
         chip: f.chip,
         owner_id: f.owner_id,
+        ...(f.assigned_user_id && f.assigned_user_id !== 'all' ? { assigned_user_id: f.assigned_user_id } : {}),
         value: f.value,
         source: f.source,
         ...(f.q ? { q: f.q } : {}),

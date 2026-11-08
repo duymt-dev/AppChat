@@ -12,8 +12,7 @@ import type { ActionContext, TenantTx } from '../../../kernel/actions/action-con
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { applyStageRule, writeTimeline } from '../../../crm/public';
 import { lockOrder, type OrderRecord } from '../order-access';
-import { actorOf, deductStock, logEvent, moveOrder, returnStock, type Actor } from '../services/order-write';
-import { orderPayload } from './order-create.handlers';
+import { actorOf, deductStock, logEvent, moveOrder, orderPayload, returnStock, type Actor } from '../services/order-write';
 import { refundCancelled } from '../../payments/services/order-refund';
 import { cancelPreview, completePreview, confirmPreview } from '../previews/order-flow.handlers.preview';
 import { earnSnapshot, reverseCompletion } from '../../../loyalty/services/order-points';

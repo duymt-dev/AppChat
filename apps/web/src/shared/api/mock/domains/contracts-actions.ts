@@ -10,6 +10,7 @@ import { MOCK_NOW, enrich as enrichQuote } from './quotes';
 import { bad, deny, fileSource, findContract, logEvent, mockGuard, visible, type Contract } from './contracts';
 import { assertResolved, contractDraftHandlers } from './contracts-draft';
 import { contractAppendixMock } from './contracts-appendix';
+import { applyAssigned, checkOwnerEcho, checkVersion } from './commerce-edit';
 
 const DAY = 86_400_000;
 /** OTP "Duyệt & ký" của mock (server gửi email tới người ký). */
@@ -61,6 +62,9 @@ const insert = (db: MockDb, i: Fields & { contact_id: string }, extra: Partial<C
     end_date: i.end_date ?? null,
     owner_user_id: owner,
     owner_name: NAMES[owner] ?? owner,
+    assigned_user_id: owner,
+    assigned_name: NAMES[owner] ?? owner,
+    version: 1,
     status: 'draft',
     created_at: MOCK_NOW,
     sent_at: null,
@@ -214,13 +218,17 @@ export const contractsHandlers: Record<string, MockHandler> = {
     },
   },
   'contract.update': {
-    execute: (db, i: { contract_id: string; patch: Fields }) => {
+    execute: (db, i: { contract_id: string; if_version?: number; patch: Partial<Fields> & { assigned_user_id?: string | null } }) => {
       const c = mine(db, i.contract_id);
+      checkVersion(c, i.if_version);
       step(c, 'contract.update');
+      const { owner_user_id, assigned_user_id, ...patch } = i.patch;
+      checkOwnerEcho(c, owner_user_id);
       if (i.patch.contact_id && i.patch.contact_id !== c.contact_id) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'contact_id', fields: { contact_id: 'immutable' } });
-      checkDates(i.patch.start_date ?? c.start_date, i.patch.end_date ?? c.end_date);
-      Object.assign(c, i.patch);
-      return { contract_id: c.id };
+      checkDates(patch.start_date ?? c.start_date, patch.end_date ?? c.end_date);
+      Object.assign(c, patch);
+      applyAssigned(c, assigned_user_id, NAMES);
+      return { contract_id: c.id, version: c.version };
     },
   },
   'contract.submit': {
@@ -299,8 +307,9 @@ export const contractsHandlers: Record<string, MockHandler> = {
     undo: drop,
   },
   'contract.delete': {
-    execute: (db, i: { contract_id: string }) => {
+    execute: (db, i: { contract_id: string; if_version?: number }) => {
       const c = mine(db, i.contract_id);
+      checkVersion(c, i.if_version);
       step(c, 'contract.delete');
       c.deleted = true;
       return { contract_id: c.id };

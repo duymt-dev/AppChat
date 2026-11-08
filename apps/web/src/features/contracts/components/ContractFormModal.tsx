@@ -18,6 +18,8 @@ import { todayIso } from '@/shared/time/today';
 import { useContractSource } from '../hooks/useContractSource';
 import { ContractFileInput, ContractSourceStep } from './files/ContractSourceStep';
 import { AiDraftPanel } from './draft/AiDraftPanel';
+import { ContractEditConflict } from './ContractEditConflict';
+import { useContractEditVersion } from '../hooks/useContractEditVersion';
 
 const toPrefill = (c: Contract): Record<string, unknown> => ({
   contact_id: c.contact_id,
@@ -30,6 +32,7 @@ const toPrefill = (c: Contract): Record<string, unknown> => ({
   start_date: c.start_date ?? '',
   end_date: c.end_date ?? '',
   owner_user_id: c.owner_user_id,
+  assigned_user_id: c.assigned_user_id,
   file_name: c.file_name,
   note: c.note,
 });
@@ -61,19 +64,24 @@ export function ContractFormModal() {
 /** Nạp hợp đồng hiện có trước khi mở form sửa (REQ-F11: Nháp → Cập nhật tại chỗ). */
 function ContractEditLoader({ id }: { id: string }) {
   const c = useQuery(contractQuery(id)).data;
+  const [nonce, setNonce] = useState(0);
   if (!c) return null;
-  return <ContractForm key={id} mode="edit" editId={id} editCode={c.code} editPrefill={toPrefill(c)} />;
+  return <ContractForm key={`${id}:${nonce}`} onReloaded={() => setNonce((n) => n + 1)} mode="edit" editId={id} editCode={c.code} editVersion={c.version} editPrefill={toPrefill(c)} />;
 }
 
 function ContractForm({
   mode,
   editId,
   editCode,
+  editVersion,
   editPrefill,
+  onReloaded,
 }: {
   mode: 'create' | 'edit';
   editId?: string;
   editCode?: string;
+  editVersion?: number;
+  onReloaded?: () => void;
   editPrefill?: Record<string, unknown>;
 }) {
   const t = useTranslations('contracts');
@@ -88,6 +96,7 @@ function ContractForm({
   const update = useAction<{ contract_id: string }>('contract.update');
   const [err, setErr] = useState('');
   const src = useContractSource();
+  const ver = useContractEditVersion(editId ?? '', editVersion, onReloaded);
   const close = () => ui.set({ form: null, prefill: null, editId: null });
   /** "Dùng" giá trị đề xuất từ tệp (người dùng xác nhận từng ô). */
   const useValue = (k: 'title' | 'party_b' | 'value' | 'start_date' | 'end_date', v: string) => {
@@ -111,12 +120,12 @@ function ContractForm({
     const quoteId = 'quote_id' in f.input ? f.input.quote_id : undefined;
     const res =
       mode === 'edit' && editId
-        ? await update.run({ contract_id: editId, patch: f.input })
+        ? await update.run({ contract_id: editId, if_version: ver.ifVersion, patch: f.patch }, { onError: ver.onError })
         : quoteId
           ? await fromQuote
               .run({ quote_id: quoteId })
               .then(async (r) =>
-                r && (await update.run({ contract_id: r.result.contract_id, patch: f.input })) ? r : null,
+                r && (await update.run({ contract_id: r.result.contract_id, patch: { ...f.patch, assigned_user_id: f.d.owner_user_id || undefined } })) ? r : null,
               )
           : await create.run({ ...(src.source ? { ...f.input, file_name: src.file?.name, source: src.source } : f.input), ...(mode === 'edit' ? {} : sourceLinkOf(ui.prefill)) });
     if (res)
@@ -167,6 +176,7 @@ function ContractForm({
         </>
       }
     >
+      {ver.conflict ? <ContractEditConflict onReload={() => void ver.reload()} /> : null}
       {err ? (
         <div className={styles.err} data-testid="ct-form-err">
           {err}
@@ -256,11 +266,11 @@ function ContractForm({
             </select>,
           )}
           {field(
-            t('form.owner'),
+            mode === 'edit' ? t('form.assigned') : t('form.owner'),
             <select
               className={cx(styles.input, styles.select)}
-              value={f.d.owner_user_id}
-              onChange={(e) => f.set('owner_user_id', e.target.value)}
+              value={mode === 'edit' ? f.d.assigned_user_id : f.d.owner_user_id}
+              onChange={(e) => f.set(mode === 'edit' ? 'assigned_user_id' : 'owner_user_id', e.target.value)}
             >
               <option value="">{t('form.lookup')}</option>
               {members.map((m) => (

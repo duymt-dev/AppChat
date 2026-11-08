@@ -12,7 +12,7 @@ import { created, preview } from '../../kernel/actions/preview-kit';
 import { CrmMembers, editableContact } from '../../crm/public';
 import { pendingOf, type AiSuggestion, type DraftContent } from '../files/draft-content';
 import { proposalActor } from '../files/suggestions';
-import { insertContract, undoCreate } from './contract-create';
+import { createdAfter, insertContract, undoCreate } from './contract-create';
 
 type In = ActionInput<typeof contractDraftFromContent>;
 type Out = { contract_id: string; code: string; pending_suggestions: number };
@@ -60,7 +60,7 @@ export class ContractDraftFromContentHandler implements Handler<In, Out> {
     await tx.contract.update({ where: { id: c.id }, data: { draftProposalId: p.id, aiSuggestions: suggestions as never } });
     const used = await tx.contractDraftProposal.updateMany({ where: { id: p.id, consumedContractId: null }, data: { consumedContractId: c.id, consumedAt: now } });
     if (!used.count) throw new AppError('CONFLICT', 409, { proposal_id: 'consumed' });
-    return { result: { contract_id: c.id, code: c.code, pending_suggestions: suggestions.length }, after: { id: c.id } };
+    return { result: { contract_id: c.id, code: c.code, pending_suggestions: suggestions.length }, after: await createdAfter(tx, c.id) };
   }
 
   async preview(ctx: ActionContext, input: In, tx: TenantTx) {
@@ -74,7 +74,7 @@ export class ContractDraftFromContentHandler implements Handler<In, Out> {
     });
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await undoCreate(log, tx, this.clock.now());
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 }

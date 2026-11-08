@@ -61,6 +61,14 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
             ],
           },
           {
+            key: 'assigned_user_id',
+            label: t('filter.assigned'),
+            options: [
+              { value: 'all', label: t('filter.assignedAll') },
+              ...members.map((m) => ({ value: m.id, label: m.name })),
+            ],
+          },
+          {
             key: 'value',
             label: t('filter.value'),
             options: [
@@ -80,6 +88,7 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
         ]}
         value={{
           owner_id: ui.filter.owner_id,
+          assigned_user_id: ui.filter.assigned_user_id ?? 'all',
           value: ui.filter.value,
           source: ui.filter.source,
           ...customFilterValue(ui.filter.custom),
@@ -87,6 +96,7 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
         onApply={(v) =>
           ui.setFilter({
             owner_id: v.owner_id ?? 'all',
+            assigned_user_id: v.assigned_user_id ?? 'all',
             value: v.value ?? 'all',
             source: v.source ?? 'all',
             custom: pickCustomFilter(v),

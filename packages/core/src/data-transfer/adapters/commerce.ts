@@ -73,12 +73,12 @@ export function classifyDocs(entity: TransferEntity): Classifier {
 async function linkOrder(tx: TenantTx, who: Parameters<Classifier>[1], r: CheckedRow) {
   const o = await tx.order.findFirst({
     where: { code: r.data.order_code, deletedAt: null },
-    select: { id: true, contactId: true, ownerUserId: true, teamId: true },
+    select: { id: true, contactId: true, assignedUserId: true, teamId: true },
   });
   if (
     !o ||
     !(await allows(tx, who.authz, POLICIES.sales, 'write', {
-      owner: o.ownerUserId,
+      owner: o.assignedUserId,
       team: o.teamId,
       contact: o.contactId,
     }))

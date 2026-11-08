@@ -68,6 +68,8 @@ export const insights = {
       contact: 'Khách hàng',
       status: 'Trạng thái',
       owner: 'Người phụ trách',
+      createdBy: 'Người tạo (doanh số)',
+      assigned: 'Người phụ trách hiện tại',
       subtotal: 'Tạm tính (VND)',
       discount: 'Giảm giá (VND)',
       tax: 'Thuế (VND)',

@@ -8,7 +8,7 @@ import type { OrderFilter } from './types';
 
 /** `prefill:order.form` — đăng ký MỘT lần ở FormCommandHost toàn cục (TIP-025b §D.3), không theo màn: Trợ lý điền form khi màn chưa mở. */
 export function prefillOrdersForm(cmd: UiCommand) {
-  if (cmd.type === 'prefill') useOrdersUi.getState().set({ prefill: cmd.values, form: 'create' });
+  if (cmd.type === 'prefill') useOrdersUi.getState().set({ prefill: cmd.values, form: 'create', editId: null });
 }
 
 export function useOrdersUiCommands() {

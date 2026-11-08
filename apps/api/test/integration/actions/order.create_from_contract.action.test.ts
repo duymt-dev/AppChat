@@ -35,7 +35,8 @@ describe('order.create_from_contract', () => {
     expect(preview).toEqual({ summary: 'Chị Lan ĐH · 18.000.000₫', risk: 'write', changes: [{ entity: 'order', after: { contact: 'Chị Lan ĐH', owner: 'Chủ Spa', source: 'contract', from: contract.code, items: 1, total: '18000000' } }] });
     const id = done.body.data.result.order_id;
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
-    expect(await db.order.count({ where: { id } })).toBe(0);
+    // TIP-032c: hoàn tác tạo = huỷ giữ lịch sử (không xoá đơn).
+    expect((await db.order.findUniqueOrThrow({ where: { id } })).status).toBe('cancelled');
   });
 
   it('ô không áp dụng có lý do', () => {

@@ -16,7 +16,7 @@ const int = (v: string | undefined, field: string) => {
   return n;
 };
 
-export const contractFilterOf = (q: Record<string, string | undefined>): ContractFilter => ({ status: q.status, ownerId: q.owner_id, contactId: q.contact_id, value: q.value, q: q.q?.slice(0, 100) });
+export const contractFilterOf = (q: Record<string, string | undefined>): ContractFilter => ({ status: q.status, ownerId: q.owner_id, assignedId: q.assigned_user_id, contactId: q.contact_id, value: q.value, q: q.q?.slice(0, 100) });
 
 @Controller('contracts')
 export class ContractsController {

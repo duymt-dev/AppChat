@@ -1,7 +1,7 @@
 // order.create · create_from_quote · create_from_contract (Blueprint §3.4 sales; COMMERCE §4, §8b). Mã `DH-{n}` (D52) theo sequence,
 // tổng theo quoteTotals, người phụ trách lúc tạo ghi `owner_user_id` (doanh số). Từ báo giá: chỉ báo giá đã chốt, mỗi báo giá một đơn
 // (gọi lại trả đơn cũ), đánh dấu `quote.order_id`. Từ hợp đồng: hợp đồng đã ký, dòng hàng lấy từ báo giá nguồn (nếu có) hoặc một dòng
-// "tên hợp đồng × giá trị"; một hợp đồng sinh được nhiều đơn. Hoàn tác trong 24h khi đơn còn `new` — xoá hẳn đơn.
+// "tên hợp đồng × giá trị"; một hợp đồng sinh được nhiều đơn. Hoàn tác trong 24h khi đơn còn nguyên trạng — huỷ giữ lịch sử (TIP-032c).
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, type CustomValues, type Discount } from '@appchat/shared';
 import type { ActionInput, orderCreate, orderCreateFromContract, orderCreateFromQuote } from '@appchat/actions';
@@ -16,8 +16,10 @@ import { checkParties, creatorOf, linesOf, resolveLines, type LineIn } from '../
 import { lockConversion } from '../../quotes/services/conversion-lock';
 import { UUID } from '../order-access';
 import { createPreview, fromContractPreview, fromQuotePreview } from '../previews/order-create.handlers.preview';
-import { EMPTY_SHIPPING, actorOf, checkOrderCustom, logEvent, payCols, totalCols, totalsOf, writeItems, type Actor } from '../services/order-write';
+import { EMPTY_SHIPPING, actorOf, checkOrderCustom, logEvent, orderPayload, payCols, totalCols, totalsOf, writeItems, type Actor } from '../services/order-write';
 import { snapshotTeam } from '../../../authz/data-access';
+import { createdReceipt, undoOrderCreate } from '../editing/order-create-undo';
+import { orderVersion } from '../editing/order-version';
 
 type Out = { order_id: string; code: string };
 
@@ -37,14 +39,6 @@ export interface NewOrder {
   conversation_id?: string | null;
   channel?: string;
 }
-
-const orderPayload = (o: { id: string; contactId: string; code: string; source: string; total: bigint }) => ({
-  order_id: o.id,
-  contact_id: o.contactId,
-  code: o.code,
-  source: o.source,
-  total: String(o.total),
-});
 
 /** Nhóm của bản ghi nguồn của đơn (báo giá → hợp đồng → lịch hẹn) — lineage rõ (DC-299). */
 async function orderSourceTeam(tx: TenantTx, i: { quote_id?: string | null; contract_id?: string | null; appointment_id?: string | null }): Promise<string | null> {
@@ -103,15 +97,13 @@ export async function insertOrder(ctx: ActionContext, tx: TenantTx, members: Crm
   return { row, events: [{ topic: 'order.created', payload: orderPayload(row) }] };
 }
 
-/** Hoàn tác tạo: chỉ khi đơn còn `new` (chưa trừ kho / thu tiền) — xoá đơn, gỡ liên kết báo giá. */
-export async function undoCreate(log: ActionLogRow, tx: TenantTx) {
-  const id = (log.after as { id: string }).id;
-  const o = await tx.order.findUnique({ where: { id }, select: { status: true, paidTotal: true, quoteId: true } });
-  if (!o) return;
-  if (o.status !== 'new' || o.paidTotal > 0n) throw new AppError('INVALID_TRANSITION', 409, { status: o.status });
-  if (o.quoteId) await tx.quote.updateMany({ where: { id: o.quoteId, orderId: id }, data: { orderId: null } });
-  await tx.order.delete({ where: { id } });
+/** Hoàn tác tạo (TIP-032c): huỷ giữ lịch sử khi đơn còn nguyên trạng — `editing/order-create-undo.ts`. */
+export async function undoCreate(ctx: ActionContext, log: ActionLogRow, tx: TenantTx, now: Date) {
+  await undoOrderCreate(ctx, log, tx, now);
 }
+
+/** `after` của action tạo: id + phiên bản cuối sau toàn bộ đường tạo (biên nhận hoàn tác). */
+export const createdAfter = async (tx: TenantTx, id: string) => createdReceipt(id, await orderVersion(tx, id));
 
 @Injectable()
 @ActionHandler('order.create')
@@ -128,11 +120,11 @@ export class OrderCreateHandler implements Handler<ActionInput<typeof orderCreat
     }
     const link = await linkConversation(tx, ctx.authz, input.contact_id, input, { served: ctx.servedConversationId });
     const { row, events } = await insertOrder(ctx, tx, this.members, { ...input, contact_id: link.contactId!, conversation_id: link.conversationId, source: input.contract_id ? 'contract' : 'manual' }, this.clock.now());
-    return { result: { order_id: row.id, code: row.code }, after: { id: row.id }, events };
+    return { result: { order_id: row.id, code: row.code }, after: await createdAfter(tx, row.id), events };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await undoCreate(log, tx);
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof orderCreate>, tx: TenantTx) {
@@ -172,11 +164,11 @@ export class OrderFromQuoteHandler implements Handler<ActionInput<typeof orderCr
       now,
     );
     await tx.quote.update({ where: { id: q.id }, data: { orderId: row.id, updatedAt: now } });
-    return { result: { order_id: row.id, code: row.code }, after: { id: row.id }, events };
+    return { result: { order_id: row.id, code: row.code }, after: await createdAfter(tx, row.id), events };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await undoCreate(log, tx);
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromQuote>, tx: TenantTx) {
@@ -214,11 +206,11 @@ export class OrderFromContractHandler implements Handler<ActionInput<typeof orde
       },
       this.clock.now(),
     );
-    return { result: { order_id: row.id, code: row.code }, after: { id: row.id }, events };
+    return { result: { order_id: row.id, code: row.code }, after: await createdAfter(tx, row.id), events };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await undoCreate(log, tx);
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromContract>, tx: TenantTx) {

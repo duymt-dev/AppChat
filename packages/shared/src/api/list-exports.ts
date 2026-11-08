@@ -38,6 +38,8 @@ export const quoteExportFilter = z.object({
 export const orderExportFilter = z.object({
   chip: text(20),
   owner_id: text(64),
+  /** Người phụ trách vận hành (TIP-032c) — `owner_id` = người tạo. */
+  assigned_user_id: text(64),
   contact_id: text(64),
   value: text(10),
   source: text(20),
@@ -47,6 +49,8 @@ export const orderExportFilter = z.object({
 export const contractExportFilter = z.object({
   status: text(20),
   owner_id: text(64),
+  /** Người phụ trách vận hành (TIP-032c) — `owner_id` = người tạo. */
+  assigned_user_id: text(64),
   contact_id: text(64),
   value: text(10),
   q: text(100),

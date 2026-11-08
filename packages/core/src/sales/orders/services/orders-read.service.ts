@@ -41,7 +41,7 @@ export class OrdersReadService {
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
     const [contacts, codes] = await Promise.all([contactsOf(tx, rows.map((r) => r.contactId)), sourceCodes(tx, rows)]);
-    const names = await this.d.members.names([...rows.map((r) => r.ownerUserId), ...actorIds(events.values())]);
+    const names = await this.d.members.names([...rows.flatMap((r) => [r.ownerUserId, r.assignedUserId]), ...actorIds(events.values())]);
     const ctx: ViewCtx = { ...base, names };
     // Trường tuỳ biến chỉ còn key người xem được thấy (FieldPolicy — TIP-045b annex C).
     return rows.map((o) => {

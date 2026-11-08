@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import { defineAction } from './define';
 import { docChannel, money, sourceLink } from './sales-schemas';
+import { assignedUserId, ifVersion, ownerEcho } from './commerce-edit-schemas';
 
 const contractId = z.string().min(1);
 const day = z.string().regex(/^\d{4}-\d{2}-\d{2}$/);
@@ -74,9 +75,10 @@ export const contractUpdate = defineAction({
   id: 'contract.update',
   module: 'sales',
   title: 'actions.contract.update.title',
-  description: 'Edit a draft contract. Example: {"contract_id":"ct_1182","patch":{"value":"20000000"}}',
-  input: z.object({ contract_id: contractId, patch: fields.partial() }),
-  output: z.object({ contract_id: z.string() }),
+  description:
+    'Edit a draft contract. owner_user_id is the creator (sales attribution) and can never change; set the responsible person with assigned_user_id (member id or null). Send if_version = version you read. Example: {"contract_id":"ct_1182","if_version":3,"patch":{"value":"20000000","assigned_user_id":"u_lan"}}',
+  input: z.object({ contract_id: contractId, if_version: ifVersion, patch: fields.partial().extend({ owner_user_id: ownerEcho, assigned_user_id: assignedUserId }) }),
+  output: z.object({ contract_id: z.string(), version: z.number().int().optional() }),
   permission: 'contract.draft',
   risk: 'write',
   agentGrantable: true,
@@ -217,7 +219,7 @@ export const contractDelete = defineAction({
   module: 'sales',
   title: 'actions.contract.delete.title',
   description: 'Delete a draft contract that was never signed. Example: {"contract_id":"ct_1182"}',
-  input: z.object({ contract_id: contractId }),
+  input: z.object({ contract_id: contractId, if_version: ifVersion }),
   output: z.object({ contract_id: z.string() }),
   permission: 'contract.draft',
   risk: 'delete',

@@ -9,7 +9,8 @@ import { POLICIES, docColumns, guardRecord, recordScopeSql, type AccessMode } fr
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const COLS = docColumns('c');
+// TIP-032c §1.5: nhánh own theo người phụ trách VẬN HÀNH (`assigned_user_id`), không theo người tạo (doanh số không phải quyền ghi vĩnh viễn).
+const COLS = { ...docColumns('c'), owner: Prisma.raw('c.assigned_user_id') };
 const NF = { contract_id: 'not_found' };
 
 /** Điều kiện SQL (alias `c`) cho danh sách theo scope sales. */
@@ -23,7 +24,7 @@ export type ContractRecord = NonNullable<Awaited<ReturnType<TenantTx['contract']
 export async function visibleContract(tx: TenantTx, authz: AuthzContext, id: string, mode: AccessMode = 'read'): Promise<ContractRecord> {
   const c = UUID.test(id) ? await tx.contract.findUnique({ where: { id } }) : null;
   if (!c || c.deletedAt) throw new AppError('NOT_FOUND', 404, NF);
-  await guardRecord(tx, authz, POLICIES.sales, mode, { owner: c.ownerUserId, team: c.teamId, contact: c.contactId }, NF);
+  await guardRecord(tx, authz, POLICIES.sales, mode, { owner: c.assignedUserId, team: c.teamId, contact: c.contactId }, NF);
   return c;
 }
 

@@ -13,6 +13,15 @@ import type { LineIn } from '../../quotes/services/quote-write';
 export type Actor = { type: string; id: string | null };
 export const actorOf = (ctx: ActionContext): Actor => ({ type: ctx.actor.type, id: ctx.actor.type === 'agent' ? ctx.actor.id : actorUserId(ctx) });
 
+/** Payload chung của event đơn (order.created / confirmed / …). */
+export const orderPayload = (o: { id: string; contactId: string; code: string; source: string; total: bigint }) => ({
+  order_id: o.id,
+  contact_id: o.contactId,
+  code: o.code,
+  source: o.source,
+  total: String(o.total),
+});
+
 export const EMPTY_SHIPPING = { carrier: '', tracking: '', eta: '', address: '', receiver: '', receiver_phone: '' };
 export type Shipping = typeof EMPTY_SHIPPING;
 

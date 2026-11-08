@@ -1,6 +1,5 @@
 // Tạo bản nháp hợp đồng dùng chung (create / create_from_quote / renew / create_from_attachment — TIP-030 + 030b). Mã `HĐ-{n}` theo
 // sequence; nguồn mẫu ghi mẫu theo loại (spec 8); nguồn tệp ghi cột nguồn bất biến (`files/source.ts`) và không gắn mẫu.
-import { AppError } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import type { ActionLogRow } from '../../kernel/actions/handler';
 import { uuidv7 } from '../../kernel/ids';
@@ -10,6 +9,8 @@ import { pickContractTemplate } from '../../documents/public';
 import { actorNameOf, checkContractParties, checkDates, fieldCols, logSignEvent, type ContractFields } from '../services/contract-write';
 import type { SourceCols } from '../files/source';
 import { snapshotTeam } from '../../authz/data-access';
+import { undoContractCreate } from '../editing/contract-create-undo';
+import { contractVersion } from '../editing/contract-version';
 
 export interface NewContract extends Omit<ContractFields, 'source'> {
   contact_id: string;
@@ -63,11 +64,10 @@ export async function insertContract(ctx: ActionContext, tx: TenantTx, members: 
   return { id, code };
 }
 
-/** Hoàn tác tạo: chỉ khi vẫn là nháp — nhật ký ký là chỉ thêm nên xoá mềm thay vì xoá dòng. */
-export async function undoCreate(log: ActionLogRow, tx: TenantTx, now: Date) {
-  const id = (log.after as { id: string }).id;
-  const c = await tx.contract.findUnique({ where: { id }, select: { status: true, quoteId: true } });
-  if (c && c.status !== 'draft') throw new AppError('INVALID_TRANSITION', 409, { status: c.status });
-  // Gỡ liên kết báo giá để báo giá tạo được hợp đồng lại (unique quote_id).
-  await tx.contract.updateMany({ where: { id }, data: { deletedAt: now, quoteId: null } });
+/** Hoàn tác tạo (TIP-032c): nháp nguyên trạng, quyền + scope hiện tại, không phụ thuộc — xoá mềm (`editing/contract-create-undo.ts`). */
+export async function undoCreate(ctx: ActionContext, log: ActionLogRow, tx: TenantTx, now: Date) {
+  await undoContractCreate(ctx, log, tx, now);
 }
+
+/** `after` của action tạo: id + phiên bản cuối sau toàn bộ đường tạo (gồm cả ghi sau insert như gắn đề xuất AI). */
+export const createdAfter = async (tx: TenantTx, id: string) => ({ id, after_version: await contractVersion(tx, id) });

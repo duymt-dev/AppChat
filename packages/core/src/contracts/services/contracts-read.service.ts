@@ -47,7 +47,7 @@ export class ContractsReadService {
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
     const [contacts, x] = await Promise.all([contactsOf(tx, rows.map((r) => r.contactId)), extrasOf(tx, rows, this.d, base.now)]);
-    const names = await this.d.members.names(rows.map((r) => r.ownerUserId));
+    const names = await this.d.members.names(rows.flatMap((r) => [r.ownerUserId, r.assignedUserId]));
     const ctx: ViewCtx = { ...base, names };
     return rows.map((c) => toContractRow(c, { contact: contacts.get(c.contactId), events: x.ev.get(c.id) ?? [], token: x.tok.get(c.id) ?? null, quoteCode: (c.quoteId && x.qc.get(c.quoteId)) || '' }, ctx));
   }
@@ -78,7 +78,7 @@ export class ContractsReadService {
       const empty = { crm: { ltv: '0', total: 0, tier: '', debt: '0', others: [] }, insight: '', suggestions: [] as string[], files: [] as never[] };
       if (!contractId || !UUID.test(contractId)) return { counts: k.counts, stats: k.stats, ...empty, ai_runs: runs };
       const c = await visibleContract(tx, v.authz, contractId);
-      const names = await this.d.members.names([c.ownerUserId]);
+      const names = await this.d.members.names([c.ownerUserId, c.assignedUserId]);
       return { counts: k.counts, stats: k.stats, ...(await contractInsights(tx, v.authz, c, base, names)), ai_runs: runs };
     });
   }

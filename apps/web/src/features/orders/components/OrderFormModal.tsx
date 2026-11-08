@@ -54,7 +54,7 @@ function OrderForm() {
   const create = useAction<{ order_id: string }>('order.create');
   const [err, setErr] = useState('');
   const cf = useCustomDraft('order');
-  const close = () => ui.set({ form: null, prefill: null });
+  const close = () => ui.set({ form: null, prefill: null, editId: null });
 
   const save = async () => {
     if (!f.valid) return setErr(t('form.required'));

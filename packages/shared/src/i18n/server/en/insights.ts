@@ -72,6 +72,8 @@ export const insights = {
       contact: 'Customer',
       status: 'Status',
       owner: 'Owner',
+      createdBy: 'Created by (sales attribution)',
+      assigned: 'Current responsible person',
       subtotal: 'Subtotal (VND)',
       discount: 'Discount (VND)',
       tax: 'Tax (VND)',

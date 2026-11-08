@@ -18,7 +18,7 @@ import { actorNameOf, logSignEvent } from '../services/contract-write';
 import { guardAttachment, resolveAttachment } from '../files/attachment-source';
 import { extractContract } from '../files/extraction';
 import { guardUpload, sourceCols } from '../files/source';
-import { insertContract, undoCreate } from './contract-create';
+import { createdAfter, insertContract, undoCreate } from './contract-create';
 
 type Db = Awaited<ReturnType<NonNullable<ContractDeps['tenants']>['get']>>;
 
@@ -143,11 +143,11 @@ export class ContractFromAttachmentHandler implements Handler<FromAttIn, { contr
       originAttachmentIdx: ref.idx,
     });
     await tx.file.updateMany({ where: { id: g.fileId }, data: { confirmed: true } });
-    return { result: { contract_id: c.id, code: c.code }, after: { id: c.id } };
+    return { result: { contract_id: c.id, code: c.code }, after: await createdAfter(tx, c.id) };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await undoCreate(log, tx, this.clock.now());
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: FromAttIn, tx: TenantTx) {

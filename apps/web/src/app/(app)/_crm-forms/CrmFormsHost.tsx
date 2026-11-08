@@ -7,7 +7,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { QuoteFormModal } from '@/features/quotes';
 import { ContractDrawer, ContractFormModal, contractsMetaQuery, useContractsUi } from '@/features/contracts';
-import { OrderFormModal } from '@/features/orders';
+import { OrderEditModal, OrderFormModal } from '@/features/orders';
 import { TicketFormModal, ticketsMetaQuery, useTicketsUi } from '@/features/tickets';
 import { AppointmentFormModal, calendarMetaQuery, useCalendarUi } from '@/features/calendar';
 import { EmailComposeModal } from './EmailComposeModal';
@@ -45,6 +45,7 @@ export function CrmFormsHost() {
       <ContractFormModal />
       <ContractDrawerHost />
       <OrderFormModal />
+      <OrderEditModal />
       <TicketFormHost />
       <AppointmentFormHost />
       <EmailComposeModal />

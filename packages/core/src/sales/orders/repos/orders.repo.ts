@@ -10,6 +10,8 @@ export interface OrderFilter {
   /** Chip: all | paid | deposit | pending | cancelled. */
   chip?: string;
   ownerId?: string;
+  /** Người phụ trách vận hành (TIP-032c) — `owner_id` giữ nghĩa người tạo. */
+  assignedId?: string;
   contactId?: string;
   /** lt5 | 5to20 | gt20 */
   value?: string;
@@ -36,6 +38,7 @@ function where(authz: AuthzContext, f: OrderFilter): Prisma.Sql {
   const parts: Prisma.Sql[] = [LIVE, orderScopeSql(authz)];
   if (f.chip && f.chip !== 'all') parts.push(chipSql(f.chip));
   if (f.ownerId && f.ownerId !== 'all') parts.push(UUID.test(f.ownerId) ? Prisma.sql`o.owner_user_id = ${f.ownerId}::uuid` : Prisma.sql`FALSE`);
+  if (f.assignedId && f.assignedId !== 'all') parts.push(UUID.test(f.assignedId) ? Prisma.sql`o.assigned_user_id = ${f.assignedId}::uuid` : Prisma.sql`FALSE`);
   if (f.contactId) parts.push(UUID.test(f.contactId) ? Prisma.sql`o.contact_id = ${f.contactId}::uuid` : Prisma.sql`FALSE`);
   if (f.value && f.value !== 'all' && VALUE[f.value]) parts.push(VALUE[f.value]!);
   if (f.source && f.source !== 'all') parts.push((ORDER_SOURCES as readonly string[]).includes(f.source) ? Prisma.sql`o.source = ${f.source}::order_source` : Prisma.sql`FALSE`);

@@ -79,7 +79,7 @@ describe('migration 031 + tạo / sửa', () => {
     }
   });
 
-  it('create: DH-001001, cọc → Chờ cọc, nhật ký + timeline; cọc > tổng → 422; hoàn tác xoá đơn', async () => {
+  it('create: DH-001001, cọc → Chờ cọc, nhật ký + timeline; cọc > tổng → 422; hoàn tác = huỷ giữ lịch sử', async () => {
     h.clock.advance(1000);
     const d = ok(await act('order.create', { contact_id: ids.lan, items: [line('Serum B5', '600000', 2, ids.serum), line('HIFU', '12000000', 1, ids.hifu)], deposit_amount: '3000000' }));
     ids.o1 = d.result.order_id;
@@ -93,7 +93,8 @@ describe('migration 031 + tạo / sửa', () => {
     expect((await act('order.create', { contact_id: ids.lan, items: [line('X', '100')], deposit_amount: '200' })).status).toBe(422);
     const tmp = ok(await act('order.create', { contact_id: ids.lan, items: [line('Tạm', '1000')] }));
     expect((await undo(tmp.action_log_id)).status).toBe(200);
-    expect(await (await tenant()).order.count({ where: { id: tmp.result.order_id } })).toBe(0);
+    // TIP-032c: hoàn tác tạo = huỷ giữ lịch sử, không DELETE.
+    expect(await (await tenant()).order.findUniqueOrThrow({ where: { id: tmp.result.order_id } })).toMatchObject({ status: 'cancelled', cancelReason: 'undo_create' });
   });
 
   it('update ở new + hoàn tác; đổi khách 422; set_deposit tắt cọc → Chưa thanh toán; vận chuyển + hoàn tác', async () => {
@@ -187,7 +188,7 @@ describe('xác nhận → kho; hoàn tất → điểm; huỷ', () => {
 });
 
 describe('từ báo giá / hợp đồng', () => {
-  it('báo giá chưa chốt 409; đã chốt → đơn (dòng + chiết khấu), quote.order_id, gọi lại trả cùng đơn; hoàn tác gỡ liên kết', async () => {
+  it('báo giá chưa chốt 409; đã chốt → đơn (dòng + chiết khấu), quote.order_id, gọi lại trả cùng đơn; hoàn tác huỷ đơn, giữ liên kết', async () => {
     const q = ok(await act('quote.create', { contact_id: ids.lan, items: [line('Serum B5', '600000', 2, ids.serum)], header_discount: { kind: 'pct', value: 10 } })).result.quote_id;
     expect((await act('order.create_from_quote', { quote_id: q })).status).toBe(409);
     const db = await tenant();
@@ -199,7 +200,9 @@ describe('từ báo giá / hợp đồng', () => {
     expect((await db.quote.findUniqueOrThrow({ where: { id: q } })).orderId).toBe(d.result.order_id);
     expect(ok(await act('order.create_from_quote', { quote_id: q })).result.order_id).toBe(d.result.order_id);
     expect((await undo(d.action_log_id)).status).toBe(200);
-    expect((await db.quote.findUniqueOrThrow({ where: { id: q } })).orderId).toBeNull();
+    // TIP-032c: đơn huỷ giữ liên kết báo giá (không thành lần chuyển đổi thứ hai âm thầm).
+    expect((await db.quote.findUniqueOrThrow({ where: { id: q } })).orderId).toBe(d.result.order_id);
+    expect((await db.order.findUniqueOrThrow({ where: { id: d.result.order_id } })).status).toBe('cancelled');
   });
 
   it('hợp đồng chưa ký 409; đã ký → nhiều đơn, dòng từ báo giá nguồn hoặc một dòng giá trị hợp đồng', async () => {
