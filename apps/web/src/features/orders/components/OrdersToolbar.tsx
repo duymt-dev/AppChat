@@ -31,7 +31,7 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
   const exp = useListExport('order.export');
   const cfFilters = useCustomFilterFields('order');
   const canSync = useCan('integrations.manage');
-  const sync = useAction<{ imported: number }>('order.sync_now');
+  const sync = useAction<{ imported: number; blocked?: number; failed?: number }>('order.sync_now');
   return (
     <div className={styles.bar}>
       <div className={styles.chips} data-testid="od-chips">
@@ -122,7 +122,8 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
           className={styles.tool}
           onClick={async () => {
             const r = await sync.run({}, { silent: true });
-            if (r) void message.info(t('synced'));
+            // TIP-015f: báo riêng nhập / bị chặn (khách đã xoá) / lỗi.
+            if (r) void message.info(r.result.imported || r.result.blocked || r.result.failed ? t('syncedCounts', { imported: r.result.imported, blocked: r.result.blocked ?? 0, failed: r.result.failed ?? 0 }) : t('synced'));
           }}
           data-testid="od-sync"
         >

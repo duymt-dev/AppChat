@@ -69,6 +69,7 @@
   "exporting": "Exporting orders…",
   "sync": "Sync marketplaces",
   "synced": "Synced — no new marketplace orders",
+  "syncedCounts": "Synced — {imported} new · {blocked} on hold (customer deleted) · {failed} failed",
   "layout": {
     "list": "List",
     "kanban": "Kanban"

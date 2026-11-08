@@ -235,7 +235,7 @@ export const ordersHandlers: Record<string, MockHandler> = {
   },
   'order.sync_now': {
     // Mock OrderSyncProvider: chưa có kết nối sàn thật (adapter P2) — không có đơn mới.
-    execute: () => ({ imported: 0 }),
+    execute: () => ({ imported: 0, blocked: 0, failed: 0 }),
   },
   'order.send_confirmation': { execute: (db, i: { order_id: string; channel?: string }) => sendOrderConfirmation(findOrder(db, i.order_id), i.channel) },
 };

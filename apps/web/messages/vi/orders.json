@@ -69,6 +69,7 @@
   "exporting": "Đang xuất danh sách đơn hàng…",
   "sync": "Đồng bộ sàn",
   "synced": "Đã đồng bộ — không có đơn mới từ sàn",
+  "syncedCounts": "Đã đồng bộ — {imported} đơn mới · {blocked} đơn chờ (khách đã xoá) · {failed} đơn lỗi",
   "layout": {
     "list": "Danh sách",
     "kanban": "Kanban"

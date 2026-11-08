@@ -13,12 +13,22 @@ import type { OrderRecord } from '../order-access';
 import { cancelOrder, completeOrder } from '../actions/order-flow.handlers';
 import { recordMarketplacePaid } from '../../payments/services/order-refund';
 import { EMPTY_SHIPPING, deductStock, logEvent, moveOrder, orderPayload, payCols, writeItems, type Actor, type Shipping } from './order-write';
+import { recordBlocked, settleBlocked, type BlockOutcome } from './blocked-imports';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
 export interface SyncConnection {
   id: string;
   createdBy: string | null;
 }
+
+/** Bản đã kiểm của đơn (external-order-payload.ts) — cần cho biên nhận chặn (TIP-015f). */
+export interface CheckedMeta {
+  hash: string;
+  updatedAt: Date;
+  sourceEventId: string | null;
+}
+
+export type ImportResult = { created: boolean; orderId: string; events: Ev[]; blocked?: undefined } | { created: false; orderId: null; events: Ev[]; blocked: BlockOutcome };
 
 const SYSTEM: Actor = { type: 'system', id: null };
 const identities = new ContactIdentityService();
@@ -75,7 +85,7 @@ async function markPaid(tx: TenantTx, id: string, paid: boolean, now: Date) {
 }
 
 /** Nhập một đơn sàn. Trả `created` + event cho outbox (người gọi ghi cùng transaction). */
-export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: ExternalOrder, mapped: MappedStatus, now: Date): Promise<{ created: boolean; orderId: string; events: Ev[] }> {
+export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: ExternalOrder, mapped: MappedStatus, now: Date, meta?: CheckedMeta): Promise<ImportResult> {
   const key = { externalConnectionId_externalId: { externalConnectionId: conn.id, externalId: ext.external_id } };
   const ship = { carrier: ext.shipping?.carrier ?? '', tracking: ext.shipping?.tracking ?? '', eta: ext.shipping?.eta ?? '' };
   const hit = await tx.order.findUnique({ where: key, select: { id: true } });
@@ -97,9 +107,14 @@ export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: Ex
     { channelType: 'marketplace', channelAccountId: conn.id, externalId: ext.buyer.id, displayName: ext.buyer.name || null, phone: ext.buyer.phone ?? null },
     now,
   );
-  // TIP-015f §3.4: người mua đã biết mà khách gốc đã xoá / chuỗi gộp hỏng → không tạo đơn / khách mới, không đếm đã nhập. Lỗi để nguồn
-  // giữ nguyên (cursor / processedAt không tiến) — thử lại sau khi khôi phục.
-  if (r.state !== 'active' || !r.contactId) throw new AppError('CONFLICT', 409, { contact: r.state === 'soft_deleted' ? 'deleted' : 'unavailable' });
+  // TIP-015f §3.4: người mua đã biết mà khách gốc đã xoá / chuỗi gộp hỏng → không tạo đơn / khách, không đếm đã nhập. Có bản đã kiểm →
+  // biên nhận chặn bền (thử lại sau khôi phục); gọi thẳng không qua kiểm → 409 (không bao giờ tạo đơn ma).
+  if (r.state !== 'active' || !r.contactId) {
+    const reason = r.state === 'soft_deleted' ? 'contact_deleted' : 'identity_unavailable';
+    if (!meta) throw new AppError('CONFLICT', 409, { contact: r.state === 'soft_deleted' ? 'deleted' : 'unavailable' });
+    const blocked = await recordBlocked(tx, { connectionId: conn.id, order: ext, hash: meta.hash, providerUpdatedAt: meta.updatedAt, contactRef: r.contactId, reason, sourceEventId: meta.sourceEventId }, now);
+    return { created: false, orderId: null, events: [], blocked };
+  }
   const { contactId, events: contactEvents } = { contactId: r.contactId, events: r.events };
   // Khách gốc khoá trước khi chụp người phụ trách (TIP-015d thứ tự khách → đơn) — không chụp người cũ sau một lần chuyển đồng thời.
   await lockContactRow(tx, contactId);
@@ -145,5 +160,6 @@ export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: Ex
   await writeTimeline(tx, { contactId, type: 'order', key: 'order_imported', params: { code, platform: m[ext.platform] ?? ext.platform, total: String(total) }, actor: SYSTEM, ref: { type: 'order', id }, at: now });
   await markPaid(tx, id, mapped.paid, now);
   const moved = await advance(tx, id, mapped.status, ext.platform_status, now);
+  await settleBlocked(tx, conn.id, ext.external_id, id, now);
   return { created: true, orderId: id, events: [...contactEvents, { topic: 'order.imported', payload: orderPayload(o) }, ...moved] };
 }

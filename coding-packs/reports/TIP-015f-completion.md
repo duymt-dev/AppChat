@@ -1,8 +1,8 @@
 # TIP-015f — Completion Report
 
-**STATUS:** ĐANG LÀM — 2 / 5 pha. P1 DC-397 (lõi server xoá mềm / khôi phục / thùng rác, 7 port phụ thuộc, PR #137); P2 DC-398 (danh tính khách đã xoá, tin vào không làm giàu CRM / không kích agent, hàng rào AI, dấu Hộp thư). Còn: P3 biên nhận đơn sàn bị chặn + khoá gốc tài chính + cổng sống writer + hoàn tác tạo không xoá cứng; P4 UI thùng rác + DeletedContactPanel; P5 xác minh native + ai:live 8 ca.
+**STATUS:** ĐANG LÀM — 3 / 6 pha. P1 DC-397 (xoá mềm / khôi phục / thùng rác, 7 port, PR #137); P2 DC-398 (danh tính khách đã xoá, tin vào, hàng rào AI, PR #138); P3 DC-399 (biên nhận đơn sàn bị chặn, payload runtime, sync_now imported / blocked / failed). Còn: P4 khoá gốc tài chính + cổng sống writer quan hệ + hoàn tác tạo không xoá cứng; P5 UI thùng rác + DeletedContactPanel; P6 xác minh native + ai:live 8 ca.
 
-**MIGRATION:** tenant `20261108090000_contact_lifecycle` → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker. (Manifest ghi `20261102001560_…` — đổi tên theo thứ tự chuỗi migration, DV-071.)
+**MIGRATION:** tenant `20261108090000_contact_lifecycle` (P1) + `20261108100000_blocked_external_order` (P3) → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker. (Manifest ghi `20261102001560_…` — đổi tên theo thứ tự chuỗi migration, DV-071.)
 
 ---
 
@@ -90,3 +90,42 @@
 | `api/response-envelope.md` | DTO thêm trường tuỳ chọn; đơn sàn 409 CONFLICT `contact: deleted / unavailable` |
 | `events/outbox.md` | `message.received` thêm cờ tuỳ chọn, không đổi topic |
 | `code/file-size-module-layout.md` | file mới 35 dòng; pipeline 230, reply.service 325 dòng |
+
+---
+
+## Pha 3 — biên nhận đơn sàn bị chặn, hợp đồng payload runtime, sync_now báo riêng (§3.4–§3.7; AC4) — DC-399, DV-073
+
+**Rà trước khi làm (code thật)**
+- `ExternalOrder` chỉ là interface; adapter mock `JSON.parse` thẳng — payload không được kiểm (số thực / chuỗi tuỳ ý vào thẳng `BigInt`, `Number`).
+- `importBatch` không bắt lỗi từng đơn: một đơn hỏng làm hỏng cả kết nối, `failed` đếm theo KẾT NỐI; `order.sync_now` bỏ `failed`.
+- Sau P2, đơn của người mua đã xoá → 409 cho cả lô (an toàn nhưng không có biên nhận / không thử lại).
+
+**FILES CHANGED** (lệch manifest ở DV-073)
+- db: migration `20261108100000_blocked_external_order`; `sales-orders.prisma` (enum `BlockedOrderState` / `BlockedOrderReason`, model `BlockedExternalOrder`).
+- core: `sales/orders/services/{external-order-payload,blocked-imports}.ts` (mới); `order-import.ts` (biên nhận khi chặn, `settleBlocked` khi tạo đơn); `order-sync.ts` (kiểm từng đơn, đếm, cursor / processedAt không tiến qua lỗi, thử lại pending); `order-sync.handler.ts`.
+- actions: `orders.ts` (`order.sync_now` output imported / blocked / failed).
+- web: `OrdersToolbar.tsx` (thông báo đếm riêng), mock `orders-actions.ts`, i18n `orders.json` vi / en (`syncedCounts`).
+- test mới: core `contact-lifecycle-payload.test.ts` (3); api `contact-lifecycle-blocked-import.test.ts` (4).
+
+**Giả định đã chọn (gap-filling)**
+- qty tối đa 1.000.000 / dòng (spec chỉ ghi "trong biên action đơn" — action đơn không có trần; chọn trần rộng để không chặn đơn thật).
+- Thử lại biên nhận chạy cuối mỗi lần kéo thành công của kết nối (poll / sync_now), lô 100; không thử lại trong transaction khôi phục.
+- Đơn bị chặn KHÔNG giữ cursor (đã có biên nhận bền); chỉ đơn hỏng / lỗi ghi giữ cursor.
+
+**TEST (cổng khi làm — D59)**
+- `db:test-reset` → integration native: `contact-lifecycle-blocked-import` 4/4 (một biên nhận khi giao lại; mới hơn thay / cũ hơn bỏ qua / cùng mốc khác hash → conflict; đơn hỏng → failed + sự kiện chưa xử lý; khôi phục → đúng một đơn từ payload mới nhất); hồi quy orders, commerce-attribution, contact-lifecycle-inbound — 30/30.
+- core unit `contact-lifecycle-payload` 3/3; `turbo lint typecheck test --filter="...[origin/dev]"` 36/36; build api + worker, `check:bundle` OK; depcheck 0 lỗi; lint:size OK; i18n 100% (6576).
+- E2E mock orders 7/7.
+
+**ĐỐI CHIẾU STANDARDS (P3)**
+
+| Standard | Kết quả |
+|---|---|
+| `integrations/provider-ports.md` | payload sàn kiểm runtime trước mọi ghi; không đổi port / adapter; không bịa event id cho poll |
+| `domain/money-time-numbering.md` | tiền chuỗi số nguyên VND, không qua số thực; thời điểm ISO có múi giờ, so theo UTC |
+| `domain/validation-defaults.md` | biên kích thước / độ dài / số dòng; trường lạ từ chối; lỗi che giá trị |
+| `database/indexing.md` | unique (kết nối, mã ngoài); index thử lại (kết nối, trạng thái, received_at, id), lấy id trước rồi payload |
+| `ops/observability-security.md` | payload không vào log / action log / lỗi / last_error (chỉ mã lý do) |
+| `actions/action-registry.md` | output `order.sync_now` thêm trường có mặc định, không đổi quyền |
+| `i18n/i18n.md` | vi + en, không tuần tự lại JSON |
+| `code/file-size-module-layout.md` | file mới ≤ 75 dòng; order-sync 140, order-import 175 dòng |
