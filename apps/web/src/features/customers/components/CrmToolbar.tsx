@@ -33,6 +33,7 @@ export function CrmToolbar({ allSelected, selected, onSelectAll }: { allSelected
   const tagDefs = useQuery(crmStatsQuery()).data?.tag_defs ?? [];
   const canReassign = useCan('crm.reassign');
   const canFields = useCan('crm.fields_manage');
+  const canDelete = useCan('crm.delete');
   const f = ui.filter;
   const cfFilters = useCustomFilterFields('contact');
 
@@ -56,6 +57,12 @@ export function CrmToolbar({ allSelected, selected, onSelectAll }: { allSelected
           {t(`bulk.${k}` as never)}
         </button>
       ))}
+      {/* TIP-015f: thùng rác — nút chỉ-icon trước khoảng giãn (prototype không có; không đẩy lệch bộ lọc / thanh đầu). */}
+      {canDelete ? (
+        <button type="button" className={cx(styles.bulk, styles.hideMd)} onClick={() => ui.open('trash')} aria-label={t('trash.title')} title={t('trash.title')} data-testid="crm-trash-open">
+          <Icon name="ic-trash" size={13} color={color.text3} />
+        </button>
+      ) : null}
       <span className={cx(styles.grow, styles.hideMd)} />
       <FilterSelect
         strong

@@ -16,7 +16,6 @@ export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
   const canFields = useCan('crm.fields_manage');
   const canImport = useCan('crm.import');
   const canExport = useCan('crm.export');
-  const canDelete = useCan('crm.delete');
   const exportCsv = useExportContacts();
 
   return (
@@ -61,12 +60,6 @@ export function CrmHeaderActions({ dupCount }: { dupCount: number }) {
         <button type="button" className={styles.btnp} onClick={() => ui.open('create')} data-testid="crm-create">
           <Icon name="ic-plus" size={13} color={color.forestDeep} strokeWidth={2} />
           {t('create')}
-        </button>
-      ) : null}
-      {/* TIP-015f: thùng rác — nút chỉ-icon (prototype không có; giữ thanh đầu một dòng). */}
-      {canDelete ? (
-        <button type="button" className={cx(styles.chip, styles.chipIcon, styles.hideMd)} onClick={() => ui.open('trash')} aria-label={t('trash.title')} title={t('trash.title')} data-testid="crm-trash-open">
-          <Icon name="ic-trash" size={14} color={color.text3} />
         </button>
       ) : null}
       <AiButton label={tc('aiButton')} module={t('title')} onClick={() => ui.open('ai')} testId="crm-ai" />

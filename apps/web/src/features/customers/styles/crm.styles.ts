@@ -44,12 +44,6 @@ export const useCrmStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
-  /** Nút chỉ-icon (TIP-015f "Đã xoá") — vuông 36. */
-  chipIcon: css`
-    padding: 6px;
-    width: 36px;
-    justify-content: center;
-  `,
   chip: css`
     display: inline-flex;
     align-items: center;
