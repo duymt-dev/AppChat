@@ -1,6 +1,6 @@
 # TIP-015f — Completion Report
 
-**STATUS:** ĐANG LÀM — 4 / 6 pha. P1 DC-397 (xoá mềm / khôi phục / thùng rác, 7 port, PR #137); P2 DC-398 (danh tính khách đã xoá, tin vào, hàng rào AI, PR #138); P3 DC-399 (biên nhận đơn sàn bị chặn, payload runtime, PR #139); P4 DC-400 (khoá khách gốc ở writer tạo mới, hoàn tác tạo / nhập = xoá mềm nguyên trạng). Còn: P5 UI thùng rác + DeletedContactPanel; P6 xác minh native + ai:live 8 ca.
+**STATUS:** ĐANG LÀM — 5 / 6 pha. P1 DC-397 (xoá mềm / khôi phục / thùng rác, 7 port, PR #137); P2 DC-398 (danh tính khách đã xoá, tin vào, hàng rào AI, PR #138); P3 DC-399 (biên nhận đơn sàn bị chặn, payload runtime, PR #139); P4 DC-400 (khoá khách gốc ở writer tạo mới, hoàn tác tạo / nhập = xoá mềm, PR #140); P5 DC-401 (UI thùng rác + panel khách đã xoá + mock). Còn: P6 làm mới realtime theo event vòng đời + E2E http + xác minh native + ai:live 8 ca.
 
 **MIGRATION:** tenant `20261108090000_contact_lifecycle` (P1) + `20261108100000_blocked_external_order` (P3) → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker. (Manifest ghi `20261102001560_…` — đổi tên theo thứ tự chuỗi migration, DV-071.)
 
@@ -161,3 +161,40 @@
 | `events/outbox.md` | hoàn tác ghi `contact.deleted` cùng transaction |
 | `actions/action-registry.md` | không đổi khai báo action; `after` mang biên nhận tạo |
 | `code/file-size-module-layout.md` | file mới 70 dòng; file sửa ≤ 224 dòng |
+
+---
+
+## Pha 5 — UI thùng rác khách, panel khách đã xoá ở Hộp thư, mock kịch bản (§4.4, §5.3–§5.4; AC8 mock) — DC-401, DV-075
+
+**Rà trước khi làm (code thật)**
+- Màn Khách hàng không có lối xem / khôi phục khách đã xoá; xoá chỉ có hoàn tác trong cửa sổ toast.
+- Hộp thư mở Hồ sơ 360° theo `contact_id` bất kể khách đã xoá (nút báo giá / lịch hẹn / chia sẻ từ hồ sơ cũ).
+- Mock `contact.delete` chỉ bật cờ `deleted`, không mốc / hạn.
+
+**FILES CHANGED** (lệch manifest ở DV-075)
+- web customers: `components/DeletedContactsDrawer.tsx`, `hooks/useDeletedContacts.ts` (+ `.test.tsx`), `styles/trash.styles.ts` (mới); `CrmHeaderActions.tsx` (nút "Đã xoá"), `CrmOverlays.tsx`, `crm-store.ts` (`modal = 'trash'`).
+- web inbox: `components/DeletedContactPanel.tsx` (mới); `screens/InboxScreen.tsx`, `types.ts` (`contact_deleted`).
+- mock: `domains/contact-lifecycle.ts` (mới), `domains/customers.ts` (mốc xoá / hạn), `domains/inbox.ts` (`?inbox=deleted_contact`), `routes.ts`, `handlers.ts`.
+- i18n: `customers.json` (`trash.*`), `inbox.json` (`deletedContact.*`) vi + en.
+- e2e: `e2e/contact-lifecycle.spec.ts` (4 ca desktop).
+- prototype DEVIATIONS: mục TIP-015f (mở rộng chức năng).
+
+**Giả định đã chọn (gap-filling)**
+- Nút "Đã xoá" là nút chỉ-icon ẩn < md như các nút phụ khác (mobile vào qua Trợ lý / màn rộng).
+- Panel khách đã xoá thay toàn bộ khối 360° (không giữ tab nào của hồ sơ cũ) — đơn giản và chắc chắn không lộ dữ liệu CRM cũ.
+
+**TEST (cổng khi làm — D59)**
+- web unit 445/445 (gồm `useDeletedContacts` 3/3); lint / typecheck web xanh; lint:size / lint:tokens OK; i18n 100%.
+- E2E mock `contact-lifecycle` 4/4 (xoá → thùng rác → khôi phục; quá hạn không nút; Sales không thấy nút; khung 390 không tràn; Hộp thư panel khách đã xoá); `customers` + `inbox` 19/19.
+- Parity (mock 1440×900, bản build mới): customers:table 1,44% · customers:kanban 4,04% · inbox:default 4,70% (≤ trần sổ 5,6%). Nút "Đã xoá" là nút chỉ-icon để thanh đầu màn giữ một dòng (bản chip có chữ đẩy thanh xuống 2 dòng → kanban 10%).
+
+**ĐỐI CHIẾU STANDARDS (P5)**
+
+| Standard | Kết quả |
+|---|---|
+| `ui/frontend-structure.md` | component / hook / style riêng; màn chỉ thêm 1–2 dòng; store giữ trạng thái mở |
+| `ui/prototype-parity.md` | mở rộng chức năng ghi `docs/06-prototype/DEVIATIONS.md`; màn mặc định không đổi bố cục |
+| `ui/interaction-patterns.md` | khôi phục có xác nhận; lỗi 409 giải thích tại dòng, giữ drawer mở; "Xem thêm" theo cursor |
+| `authz/rbac-permissions.md` | nút chỉ khi crm.delete; dòng không đủ quyền → `blocked` (server quyết) |
+| `i18n/i18n.md` | vi + en, không tuần tự lại JSON |
+| `code/file-size-module-layout.md` | file mới ≤ 100 dòng; mock thùng rác tách khỏi customers.ts |

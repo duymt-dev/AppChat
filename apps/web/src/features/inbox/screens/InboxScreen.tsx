@@ -19,6 +19,7 @@ import { CreateGroupModal } from '../components/CreateGroupModal';
 import { GroupInfoPanel } from '../components/GroupInfoPanel';
 import { InboxAiModal } from '../components/InboxAiModal';
 import { Panel360 } from '../components/Panel360';
+import { DeletedContactPanel } from '../components/DeletedContactPanel';
 import { TopTabs } from '../components/TopTabs';
 import { useInboxUiCommands } from '../ui-commands';
 import { useAssistantContext } from '../hooks/useAssistantContext';
@@ -58,7 +59,7 @@ export function InboxScreen() {
           {conv ? (
             <>
               <ChatPanel key={conv.id} conv={conv} channel={channels?.[conv.channel]} className={cx(!ui.mobileChat && styles.hideMobile)} />
-              {ui.show360 ? conv.kind === 'group' ? <GroupInfoPanel conv={conv} /> : conv.contact_id ? <Panel360 contactId={conv.contact_id} conversationId={conv.id} /> : null : null}
+              {ui.show360 ? conv.kind === 'group' ? <GroupInfoPanel conv={conv} /> : conv.contact_deleted ? <DeletedContactPanel /> : conv.contact_id ? <Panel360 contactId={conv.contact_id} conversationId={conv.id} /> : null : null}
             </>
           ) : (
             <div className={cx(styles.empty, styles.hideMobile)} data-testid="inbox-empty">

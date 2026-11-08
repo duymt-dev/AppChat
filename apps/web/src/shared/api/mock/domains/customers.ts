@@ -11,9 +11,10 @@ import { paginate } from '../paginate';
 import { memoryHandlers, memoryRoute, seedMemory, type MemoryStore } from './contact-memory';
 import { bump, versionOf } from './contact-edit';
 import { activityHandlers, activityRoute, activitySummary, seedActivities, type ActivityStore } from './contact-activities';
+import { markDeleted, type LifecycleFields } from './contact-lifecycle';
 
 export type CustomersFixture = typeof fixture;
-type Contact = CustomersFixture['contacts'][number] & { deleted?: boolean };
+type Contact = CustomersFixture['contacts'][number] & LifecycleFields;
 type Collab = { user_id: string; role: 'collaborator' | 'watcher' };
 type AccessRequest = { id: string; contact_id: string; requester_user_id: string; status: 'pending' | 'approved' | 'rejected'; note?: string };
 
@@ -275,12 +276,12 @@ export const customersHandlers: Record<string, MockHandler> = {
   },
   'contact.delete': {
     execute: (db, i: Ci) => {
-      contact(db, i.contact_id).deleted = true;
-      // TIP-015f: cùng hình kết quả với API (biên nhận + hạn khôi phục 30 ngày).
-      return { deleted: true, status: 'deleted', receipt_id: `rc_${i.contact_id}`, version: 1, restore_until: new Date(Date.now() + 30 * 86_400_000).toISOString() };
+      // TIP-015f: cùng hình kết quả với API (biên nhận + hạn khôi phục 30 ngày); thùng rác ở domains/contact-lifecycle.
+      const { restore_until } = markDeleted(contact(db, i.contact_id));
+      return { deleted: true, status: 'deleted', receipt_id: `rc_${i.contact_id}`, version: 1, restore_until };
     },
     undo: (db, i: Ci) => {
-      contact(db, i.contact_id).deleted = false;
+      Object.assign(contact(db, i.contact_id), { deleted: false, deleted_at: undefined, restore_until: undefined });
     },
   },
   'contact.merge': {

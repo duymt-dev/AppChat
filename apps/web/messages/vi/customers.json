@@ -192,6 +192,33 @@
     "mine": "Khách này đã có trong danh sách của bạn.",
     "open": "Mở hồ sơ khách"
   },
+  "trash": {
+    "open": "Đã xoá",
+    "title": "Khách đã xoá",
+    "close": "Đóng",
+    "search": "Tìm tên, SĐT, mã khách…",
+    "hint": "Khách đã xoá giữ 30 ngày để khôi phục. Khôi phục không đổi người phụ trách hay dữ liệu khác; đồng bộ kết nối đang chờ có thể chạy tiếp ở lần đồng bộ sau.",
+    "loading": "Đang tải…",
+    "error": "Không tải được danh sách — thử lại sau",
+    "empty": "Không có khách nào đã xoá trong phạm vi của bạn",
+    "deletedAt": "Xoá lúc {at}",
+    "until": "khôi phục được tới {at}",
+    "expiredAt": "hết hạn từ {at}",
+    "restore": "Khôi phục",
+    "cancel": "Huỷ",
+    "more": "Xem thêm",
+    "confirmTitle": "Khôi phục {name}?",
+    "confirmBody": "Khách trở lại danh sách với người phụ trách và dữ liệu như trước khi xoá.",
+    "status": {
+      "expired": "Hết hạn",
+      "blocked": "Không khôi phục được"
+    },
+    "problem": {
+      "expired": "Đã quá 30 ngày — không khôi phục được nữa",
+      "phone_taken": "Số điện thoại đang thuộc một khách khác đang dùng — xử lý khách đó trước",
+      "changed": "Khách vừa thay đổi — danh sách đã được làm mới, thử lại"
+    }
+  },
   "dd": {
     "title": "Kiểm tra trùng lặp",
     "search": "Nhập MST, tên khách, công ty, SĐT hoặc email để kiểm tra trùng…",

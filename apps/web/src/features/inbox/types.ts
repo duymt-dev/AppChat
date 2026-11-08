@@ -44,6 +44,8 @@ export interface Conversation {
   members?: number;
   online_count?: number;
   contact_id: string | null;
+  /** TIP-015f: khách đã xoá mềm — panel dấu vòng đời thay Hồ sơ 360° (không hồ sơ CRM cũ). */
+  contact_deleted?: boolean;
   presence?: string;
   pinned_note?: string;
   pinned: boolean;

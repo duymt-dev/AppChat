@@ -192,6 +192,33 @@
     "mine": "This customer is already in your list.",
     "open": "Open customer profile"
   },
+  "trash": {
+    "open": "Deleted",
+    "title": "Deleted customers",
+    "close": "Close",
+    "search": "Search name, phone, code…",
+    "hint": "Deleted customers are kept for 30 days for restore. Restoring does not change the owner or other data; pending connector sync may resume on the next sync.",
+    "loading": "Loading…",
+    "error": "Could not load the list — try again later",
+    "empty": "No deleted customers in your scope",
+    "deletedAt": "Deleted {at}",
+    "until": "restorable until {at}",
+    "expiredAt": "expired since {at}",
+    "restore": "Restore",
+    "cancel": "Cancel",
+    "more": "Load more",
+    "confirmTitle": "Restore {name}?",
+    "confirmBody": "The customer returns to the list with the same owner and data as before deletion.",
+    "status": {
+      "expired": "Expired",
+      "blocked": "Cannot restore"
+    },
+    "problem": {
+      "expired": "More than 30 days have passed — it can no longer be restored",
+      "phone_taken": "The phone number belongs to another active customer — resolve that customer first",
+      "changed": "The customer just changed — the list was refreshed, try again"
+    }
+  },
   "dd": {
     "title": "Duplicate check",
     "search": "Enter tax ID, name, company, phone or email to check…",

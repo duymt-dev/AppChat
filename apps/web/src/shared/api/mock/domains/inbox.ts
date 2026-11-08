@@ -97,6 +97,8 @@ function filteredCounts(s: InboxState, match: (c: Row) => boolean, byChannel: (c
 
 /** ?inbox=empty (parity / e2e `inbox:empty`): workspace chưa có hội thoại nào. */
 const isEmptySeed = () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('inbox') === 'empty';
+/** ?inbox=deleted_contact (TIP-015f §5.4): kịch bản khách của các hội thoại đã xoá mềm — dấu `contact_deleted`, không đổi fixture gốc. */
+const deletedSeed = () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('inbox') === 'deleted_contact';
 
 export const inboxRoutes: Record<string, MockRoute> = {
   // Cùng tham số với API (TIP-025): folder · channel · channel_account_id · q (không dấu) · sort · cursor (vị trí, 50 / trang).
@@ -108,7 +110,8 @@ export const inboxRoutes: Record<string, MockRoute> = {
     if (p.sort === 'unread') rows = [...rows.filter((c) => c.unread > 0), ...rows.filter((c) => c.unread === 0)];
     const from = Number(p.cursor ?? 0) || 0;
     const page = rows.slice(from, from + PAGE);
-    return { data: page, next_cursor: from + PAGE < rows.length ? String(from + PAGE) : null };
+    const marked = deletedSeed() ? page.map((c) => (c.contact_id ? { ...c, contact_deleted: true } : c)) : page;
+    return { data: marked, next_cursor: from + PAGE < rows.length ? String(from + PAGE) : null };
   },
   // Số liệu prototype; "Nhắc đến tôi" cộng các lần @nhắc mới trong phiên mock.
   '/conversations/counts': (db, p) => {

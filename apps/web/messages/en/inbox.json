@@ -308,6 +308,12 @@
       "insert": "Insert"
     }
   },
+  "deletedContact": {
+    "title": "Deleted customer",
+    "close": "Close",
+    "body": "This conversation's customer was deleted. Messages are kept and you can still reply under Inbox permissions; profile, quotes, bookings and AI auto-reply are paused until the customer is restored.",
+    "openTrash": "Open deleted customers"
+  },
   "p360": {
     "title": "360° profile",
     "close": "Close profile",
