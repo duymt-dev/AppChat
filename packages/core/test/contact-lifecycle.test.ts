@@ -7,6 +7,8 @@ import { LIFECYCLE_DOMAINS } from '../src/kernel/contact-lifecycle/ports';
 import { lifecyclePorts, registerLifecyclePort, registeredLifecycleDomains, unregisterLifecyclePort } from '../src/kernel/contact-lifecycle/registry';
 import { RESTORE_WINDOW_MS, receiptStatus, type LifecycleReceipt } from '../src/crm/lifecycle/receipts';
 import { assertDeleteAuthority, canDeleteContact } from '../src/crm/lifecycle/authority';
+import '../src/notify/events/domain.rules';
+import { realtimeEnvelopes, realtimeTopics } from '../src/notify/rules';
 
 afterEach(() => registerContactLifecyclePorts());
 
@@ -52,5 +54,14 @@ describe('quyền xoá khách', () => {
   it('đọc được mà không đủ quyền → 403; không đọc được → 404', () => {
     expect(() => assertDeleteAuthority(az('own'), row, true)).toThrow(expect.objectContaining({ httpStatus: 403 }));
     expect(() => assertDeleteAuthority(az('own'), row, false)).toThrow(expect.objectContaining({ httpStatus: 404 }));
+  });
+});
+
+describe('WS vòng đời khách', () => {
+  it('contact.deleted / contact.restored → contact.lifecycle chỉ id + thế hệ, cần crm.view; nạp ở domain.rules', () => {
+    expect(realtimeTopics()).toEqual(expect.arrayContaining(['contact.deleted', 'contact.restored']));
+    const id = '0190f000-0000-7000-8000-000000000001';
+    const env = realtimeEnvelopes({ id: 'e1', topic: 'contact.deleted', workspaceId: 'w1', traceId: null, payload: { contact_id: id, lifecycle_revision: 2, receipt_id: id, ws: id, occurred_at: '2026-11-08T00:00:00.000Z' } });
+    expect(env).toEqual([expect.objectContaining({ event: 'contact.lifecycle', data: { contact_id: id, lifecycle_revision: 2, deleted: true }, require: { permission: 'crm.view' } })]);
   });
 });

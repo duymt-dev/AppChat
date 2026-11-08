@@ -13,3 +13,5 @@ import '../../sales/payments/events/package-notification.rules';
 import '../../marketing/events/campaign.rules';
 // TIP-015d: thông báo chuyển phụ trách hai bên (chiếu theo quyền hiện tại).
 import '../../crm/events/ownership.rules';
+// TIP-015f: WS vòng đời khách (xoá mềm / khôi phục) — làm mới danh sách / 360 / Hộp thư.
+import '../../crm/events/lifecycle.rules';
