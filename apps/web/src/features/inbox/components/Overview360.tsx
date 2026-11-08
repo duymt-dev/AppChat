@@ -16,8 +16,10 @@ import { HistoryCsvButton } from './HistoryCsvButton';
 import { useCan } from '@/shared/authz/useCan';
 import { useContactEditUi } from '@/shared/crm-forms/contact-edit-command';
 import { DealCard } from '@/shared/contact-activities';
+import { CustomerPackagesCard } from '@/shared/customer-packages';
 
-export function Overview360({ c }: { c: Contact360 }) {
+/** `packages` = hiện thẻ Liệu trình (TIP-033b §4.4); tắt khi tab Tổng quan đã cấu hình khối `packages` để không trùng thẻ. */
+export function Overview360({ c, packages = true }: { c: Contact360; packages?: boolean }) {
   // TIP-025b §D.3: "Sửa" mở form sửa toàn cục (ContactFormHost) — ẩn khi không có crm.edit; host kiểm lại quyền ghi theo bản ghi.
   const canEdit = useCan('crm.edit');
   const openEdit = useContactEditUi((s) => s.open);
@@ -127,6 +129,7 @@ export function Overview360({ c }: { c: Contact360 }) {
         </div>
       </div>
       <DealCard contactId={c.id} a={c.activities} />
+      {packages ? <CustomerPackagesCard contactId={c.id} /> : null}
       <div className={styles.card}>
         <div className={styles.cardHead}>
           <span className={styles.eyebrow}>{t('history')}</span>

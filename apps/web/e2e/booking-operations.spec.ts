@@ -59,3 +59,17 @@ test.describe('booking-operations · Cài đặt Lịch hẹn', () => {
     await expectTouchTargets(page.getByTestId('st-bk-hours').locator('select, button'));
   });
 });
+
+// TIP-033b P4 — thẻ Liệu trình dùng chung ở Hồ sơ 360° (Khách hàng): đã dùng / tổng / còn lại của server, trạng thái, không số tiền.
+test.describe('booking-operations · Liệu trình ở Hồ sơ 360°', () => {
+  test('mở 360° chị Lan → tab Tổng quan có thẻ Liệu trình 3/10 · còn 7', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto('/customers?session=authed,declared,trialSeen');
+    await page.locator('[data-contact="ct_lan"]').click();
+    const card = page.getByTestId('crm-360').getByTestId('pk-card');
+    await expect(card).toContainText('Liệu trình chăm sóc da 10 buổi');
+    await expect(card).toContainText('Đã dùng 3/10 buổi · còn 7');
+    await expect(card).toContainText('Đang dùng');
+    await expect(card).not.toContainText('₫');
+  });
+});

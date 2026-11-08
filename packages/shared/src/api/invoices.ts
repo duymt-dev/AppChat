@@ -2,7 +2,7 @@
 // kèm thẻ CRM / tệp của đề nghị đó), /invoices/:id/pdf, /invoices/receipts/:paymentId/pdf, /settings/payments (tài khoản nhận + bank feed).
 // Mock transport (apps/web) và API thật parse cùng schema. Tiền là string VND.
 import { z } from 'zod';
-import { INVOICE_KINDS, INVOICE_STATUSES, PACKAGE_STATUSES } from '../sales/invoice-state';
+import { INVOICE_KINDS, INVOICE_STATUSES } from '../sales/invoice-state';
 
 export const vietQrSchema = z.object({
   bank: z.string(),
@@ -114,18 +114,6 @@ export const invoicesMetaSchema = z.object({
   /** Thẻ CRM của khách: số đề nghị, tỉ lệ đúng hạn, công nợ theo khách (TIP-015b — cùng công thức Hồ sơ 360°). */
   crm: z.object({ total: z.number().int(), on_time: z.string(), debt: z.string().optional(), overdue: z.string().optional() }),
   files: z.array(z.object({ name: z.string(), ext: z.string(), by: z.string(), at: z.string(), size: z.string(), url: z.string().optional() })),
-});
-
-export const customerPackageSchema = z.object({
-  id: z.string(),
-  contact_id: z.string(),
-  product_id: z.string(),
-  order_id: z.string(),
-  name: z.string(),
-  total: z.number().int(),
-  used: z.number().int(),
-  expires_at: z.string(),
-  status: z.enum(PACKAGE_STATUSES),
 });
 
 export const paymentSettingsSchema = z.object({

@@ -252,5 +252,23 @@
       "save": "Save",
       "cancel": "Cancel"
     }
+  },
+  "packages": {
+    "title": "Packages",
+    "loading": "Loading packages…",
+    "error": "Couldn't load packages.",
+    "retry": "Retry",
+    "denied": "You no longer have access to this customer's packages.",
+    "empty": "This customer has no packages yet.",
+    "more": "Load more",
+    "usage": "Used {used}/{total} sessions · {remaining} left",
+    "expires": "expires {date}",
+    "remainingNote": "\"Left\" counts unused sessions, not sessions still bookable.",
+    "status": {
+      "active": "Active",
+      "exhausted": "Used up",
+      "expired": "Expired",
+      "refunded": "Refunded"
+    }
   }
 }

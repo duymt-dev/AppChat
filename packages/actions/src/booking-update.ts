@@ -33,6 +33,6 @@ export const appointmentUpdate = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
   uiTarget: (o) => ({ type: 'open', entity: 'appointment', id: o.appointment_id, view: 'drawer' }),
 });

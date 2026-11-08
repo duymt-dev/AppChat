@@ -1398,6 +1398,10 @@
     "adjust_sessions": {
       "title": "Điều chỉnh số buổi liệu trình"
     },
+    "list_for_contact": {
+      "title": "Xem liệu trình của khách",
+      "desc": "Danh sách liệu trình của một khách: đã dùng / tổng / còn lại, trạng thái, hạn dùng (không số tiền)."
+    },
     "search": {
       "title": "Tìm liệu trình của khách",
       "desc": "Tra liệu trình: số buổi đã dùng, hạn, trạng thái."

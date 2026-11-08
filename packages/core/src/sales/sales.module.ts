@@ -49,6 +49,7 @@ import { PackageAdjustHandler, PackageExtendHandler } from './payments/actions/p
 import { BankFeedConnectHandler, BankFeedDisconnectHandler, PaymentAccountUpdateHandler } from './payments/actions/finance-config.handlers';
 import { BankFeedIngestHandler } from './payments/actions/bank-ingest.handler';
 import { InvoicesReadService } from './payments/services/invoices-read.service';
+import { PackagesReadModule } from './payments/packages/read.module';
 import { TenantBankHook, genericBankSink } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
 
@@ -74,7 +75,7 @@ const HANDLERS = [
 ];
 
 @Module({
-  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule, SalesSettingsModule, SalesDocumentsModule],
+  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule, SalesSettingsModule, SalesDocumentsModule, PackagesReadModule],
   providers: [
     ...HANDLERS,
     {
@@ -118,7 +119,7 @@ const HANDLERS = [
       useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
     },
   ],
-  exports: [SalesSettingsModule, SalesDocumentsModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
+  exports: [SalesSettingsModule, SalesDocumentsModule, PackagesReadModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
 })
 export class SalesModule implements OnModuleInit {
   /** Port chuyển phụ trách báo giá (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Sales. */

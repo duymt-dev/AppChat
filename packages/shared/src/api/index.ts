@@ -43,6 +43,7 @@ export * from './ai-runs';
 export * from './agent-channel-behavior';
 export * from './assistant';
 export * from './invoices';
+export * from './customer-packages';
 export * from './calendar';
 export * from './tickets';
 export * from './ai-tasks';

@@ -1,5 +1,5 @@
 // Bố cục Hồ sơ 360° (REQ-F12, M05 — prototype L690–735, L8631–8653, L6397–6415): 3 mẫu hệ thống + gán 5 vai trò mặc định,
-// thư viện 12 khối. Seed tenant (TIP-015) và mock FE dùng chung.
+// thư viện 13 khối (TIP-033b thêm `packages` — Liệu trình). Seed tenant (TIP-015) và mock FE dùng chung.
 import type { SystemRole } from '../authz/roles';
 
 export interface LayoutTabDto {
@@ -11,7 +11,7 @@ export interface LayoutTabDto {
   blocks: string[];
 }
 
-export const LAYOUT_BLOCKS = ['contact', 'fields', 'ticket', 'sla', 'csat', 'careNote', 'quotes', 'orders', 'appts', 'loyalty', 'signals', 'summary'] as const;
+export const LAYOUT_BLOCKS = ['contact', 'fields', 'ticket', 'sla', 'csat', 'careNote', 'quotes', 'orders', 'appts', 'loyalty', 'signals', 'summary', 'packages'] as const;
 export type LayoutBlock = (typeof LAYOUT_BLOCKS)[number];
 
 const BUILTIN: [string, string][] = [

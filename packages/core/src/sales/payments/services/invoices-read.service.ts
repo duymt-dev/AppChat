@@ -6,7 +6,7 @@ import { TenantContexts } from '@appchat/db';
 import { AppError, interpolate, serverMessages, utcToWall, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import type { QuoteDeps } from '../../quotes/services/quote-deps';
-import { UUID, inSalesScope, visibleInvoice } from '../invoice-access';
+import { UUID, visibleInvoice } from '../invoice-access';
 import { invoiceStats, listInvoiceIds, type InvoiceFilter } from '../repos/invoices.repo';
 import { webhookPathOf } from './bank-feed';
 import { invoiceDocData, renderDocPdf } from './invoice-doc';
@@ -14,6 +14,7 @@ import { ensureReceiptPdf } from './receipt-file';
 import { qrPng, readInvoiceQr } from './invoice-qr';
 import { invoiceActorIds, paymentsByInvoice, toInvoiceRow, type InvoiceViewCtx } from './invoice-view';
 import { customerDebt } from '../../../crm/insights/customer-debt';
+import { listPackages, type PackageListInput } from '../packages/read.service';
 
 export interface InvoiceViewer {
   workspaceId: string;
@@ -166,18 +167,8 @@ export class InvoicesReadService {
     });
   }
 
-  /** Liệu trình của khách (Hồ sơ 360°, lịch hẹn). Khách ngoài scope sales của người xem → rỗng. */
-  async packages(v: InvoiceViewer, contactId: string) {
-    return this.tx(v, async (tx) => {
-      if (!UUID.test(contactId)) return [];
-      const rows = await tx.customerPackage.findMany({ where: { contactId }, orderBy: { createdAt: 'desc' } });
-      const orders = rows.length ? await tx.order.findMany({ where: { id: { in: rows.map((r) => r.orderId) } }, select: { id: true, assignedUserId: true, teamId: true } }) : [];
-      const owner = new Map(orders.map((o) => [o.id, o]));
-      const out = [];
-      for (const p of rows)
-        if (await inSalesScope(tx, v.authz, { owner: owner.get(p.orderId)?.assignedUserId ?? null, team: owner.get(p.orderId)?.teamId ?? null, contact: p.contactId }))
-          out.push({ id: p.id, contact_id: p.contactId, product_id: p.productId, order_id: p.orderId, name: p.name, total: p.totalSessions, used: p.usedSessions, expires_at: p.expiresAt?.toISOString() ?? '', status: p.status });
-      return out;
-    });
+  /** Liệu trình của khách (TIP-033b) — PackagesRead dùng chung (packages/read.service.ts): khách ngoài scope CRM → 404, gói theo scope bán hàng. */
+  async packages(v: InvoiceViewer, i: PackageListInput) {
+    return this.tx(v, (tx) => listPackages(tx, v.authz, i));
   }
 }

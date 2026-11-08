@@ -28,3 +28,6 @@ export { sweepPayments, paymentPackagesConsumer, PAYMENT_SWEEP_JOB } from './job
 export { PublicDocumentService } from './documents/public-document';
 export { issueDocumentLink, type DocumentKind } from './documents/document-link';
 export { redactLink } from './documents/public-token';
+// TIP-033b: reader liệu trình dùng chung (HTTP / lịch hẹn / tệp xuất).
+export { listPackages, packagesFor, PACKAGE_LIMIT, PACKAGE_MAX, type PackageListInput } from './payments/packages/read.service';
+export type { PackageDto } from './payments/packages/projection';

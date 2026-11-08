@@ -27,3 +27,5 @@ export { LEAD_ROUTING_ACTOR, LEAD_ROUTING_TOPIC } from './routing/routing-apply.
 export { deletedContacts } from './lifecycle/read';
 export { duplicateCandidates } from './merge/candidates';
 export { purgeMergeReceiptPayloads } from './merge/purge';
+// TIP-033b: đọc liệu trình theo họ khách (gốc + nguồn đã gộp).
+export { inFamilySql } from './lifecycle/family-sql';

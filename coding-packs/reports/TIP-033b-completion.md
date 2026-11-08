@@ -123,3 +123,46 @@
 | `events/outbox.md` | sự kiện khai EVENT_SCHEMAS, phát qua outbox của action, payload chỉ id / version |
 | `actions/action-registry.md` | `booking.settings_get` read, booking.config, agentGrantable=false; cấu hình invalidates đúng khoá |
 | `database/indexing.md` | trang nhân sự seek theo `staff_page_idx`, chọn id trước rồi nạp payload |
+
+## Pha 4 — PackagesRead dùng chung + thẻ Liệu trình ở Hồ sơ 360° (§1.3, §4.1–§4.4, §5.2; AC5; COM-6-10) — DC-417, DV-091
+
+**Rà trước khi làm (code thật)**
+- GET /contacts/:id/packages trả mảng thô, lọc scope bằng vòng `inSalesScope` từng dòng sau khi tải, không trang, không remaining; order_id luôn lộ.
+- Không có action đọc liệu trình cho Trợ lý / agent; FE không gọi API này (chỉ mock test) — COM-6-10 MỘT PHẦN.
+- CalendarReadService nạp gói trực tiếp theo quyền booking → người xem lịch thấy tên / số buổi gói dù không đọc được đơn.
+- LAYOUT_BLOCKS 12 khối chép tay ở ProfileLayoutEditor; schema blocks max 12.
+
+**FILES CHANGED** (lệch manifest ở DV-091)
+- core: `sales/payments/packages/{projection,repository,read.service,read.handler,read.module}.ts` (mới); `sales.module.ts`, `sales/public.ts`, `crm/public.ts`, `payments/services/invoices-read.service.ts`, `booking/services/calendar-read.service.ts`, `kernel/actions/tip-owners.ts`.
+- api: `http/sales/invoices.controller.ts` (status / service_id / cursor / limit, `{ data, next_cursor }`).
+- actions: `customer-packages.ts` (mới), `index.ts`; `booking.ts`, `booking-update.ts`, `payments.ts`, `settings-apps.ts` (invalidates `packages`, blocks max 13).
+- shared: `api/customer-packages.ts` (mới), `api/index.ts`, `api/invoices.ts` (bỏ schema cũ), `crm/layouts.ts` (+`packages`).
+- web: `shared/customer-packages/{types,api,index}.ts`, `hooks/useCustomerPackages.ts`, `components/{CustomerPackagesCard,PackageRow}.tsx` (mới); `inbox/components/{Overview360,Blocks360,Profile360Content}.tsx`, `settings/components/ProfileLayoutEditor.tsx`; mock `invoices-actions.ts`; i18n common / settings vi + en.
+- test: api `customer-packages.test.ts`, `actions/package.list_for_contact.action.test.ts` (mới), `payments.test.ts`; web `CustomerPackagesCard.test.tsx` (mới), `invoices-shape.test.ts`; e2e `booking-operations.spec.ts` (+ ca 360).
+
+**Giả định đã chọn (gap-filling)**
+- Prototype không vẽ thẻ Liệu trình → khung thẻ theo thẻ 360 sẵn có (eyebrow + dòng), đặt sau thẻ Giao dịch ở Tổng quan; không số tiền.
+- Không còn quyền đọc khách (404 / 403) → "Bạn không còn quyền xem liệu trình"; rỗng thật tách riêng.
+- Gói / lịch hẹn không có sự kiện WS riêng → làm mới qua `invalidates` của action (không thêm sự kiện mới).
+
+**TEST (cổng khi làm — D59)**
+- api integration customer-packages **6/6** (scope sales own / cs 0 gói / 404, order_id theo order.view, remaining, cursor 409, gộp khách một lần, lịch hẹn package=null, EXPLAIN 10k dùng `customer_package_contact_*idx` không seq scan) + package.list_for_contact **6/6** + payments.
+- web unit CustomerPackagesCard **3/3**, invoices-shape **4/4**; web typecheck OK.
+- turbo lint / typecheck / test `...[origin/dev]` — xem mục cổng dưới; depcheck 0 lỗi; lint:size / lint:tokens OK; i18n 100% (6773).
+- api integration (affected): customer-packages, package.list_for_contact, payments, commerce-packages, booking, booking-operations, profile_layout.* — **12 files / 72 tests**.
+- turbo lint / typecheck / test `...[origin/dev]` **39/39** (lần đầu đỏ: shared lint import thừa + agent-tools thiếu i18n `actions.package.list_for_contact` → đã sửa, chạy lại phần ảnh hưởng xanh).
+- E2E mock booking-operations (+ ca thẻ Liệu trình ở 360° Khách hàng), customers, inbox, inbox-context, settings-profile — **28 passed / 26 skipped** (ca desktop / mobile tách).
+- Parity (mock `next start -p 3464`): customers:360 3,39%, customers:table 0,97%, inbox:ai-panel 3,76%, settings:profile-360 2,80%, inbox:default 4,70% (trong sổ nợ, trần 5,6% — mức Win cũ).
+
+**ĐỐI CHIẾU STANDARDS (P4)**
+
+| Standard | Kết quả |
+|---|---|
+| `authz/rbac-permissions.md` | khách kiểm CRM trước (404 đồng nhất), gói lọc theo scope đơn trong SQL (none → 0), order_id chỉ khi order.view; không vòng quyền sau LIMIT |
+| `database/indexing.md` | seek (created_at DESC, id DESC) qua `customer_package_contact_page_idx`; id trước rồi payload; EXPLAIN 10k không seq scan |
+| `api/response-envelope.md` | `{ data, next_cursor }`; cursor hỏng 422, cursor khác khách / bộ lọc 409 |
+| `actions/action-registry.md` | `package.list_for_contact` read, crm.view, agentGrantable (không tự cấp), TIP chủ 033b; ghi lịch / gói invalidates `packages` |
+| `ui/frontend-structure.md` | thẻ ở `shared/customer-packages` (types / api / hook / components), CRM + Hộp thư qua Profile360Content, không import chéo feature; file < 100 dòng |
+| `ui/interaction-patterns.md` | đang tải / lỗi + thử lại / không còn quyền / rỗng thật / Tải thêm tách bạch; không số dư giả |
+| `i18n/i18n.md` | `common.packages.*`, `settings.profile360.blocks.packages`, `actions.package.list_for_contact` vi + en, 100% |
+| `plans/COMMERCE-DECISIONS.md` | COM-6-10 thẻ Liệu trình + agent đọc được; không đổi luật gói / tiền |

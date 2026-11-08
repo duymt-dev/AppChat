@@ -1398,6 +1398,10 @@
     "adjust_sessions": {
       "title": "Adjust package sessions"
     },
+    "list_for_contact": {
+      "title": "View a customer's packages",
+      "desc": "List a customer's packages: used / total / remaining, status, expiry (no amounts)."
+    },
     "search": {
       "title": "Find customer packages",
       "desc": "Look up packages: sessions used, expiry, status."

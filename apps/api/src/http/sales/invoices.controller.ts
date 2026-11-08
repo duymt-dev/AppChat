@@ -68,9 +68,12 @@ export class InvoicesController {
     sendPdf(res, r.name, r.pdf, 'inline');
   }
 
+  // TIP-033b §1.3: cùng PackagesRead với action package.list_for_contact — { data, next_cursor }, crm.view (không đổi sang package.manage).
   @Get('contacts/:id/packages')
-  async packages(@Req() req: IncomingMessage, @Param('id') id: string) {
-    return { data: await this.read.packages(await this.viewer(req, ['crm.view']), id) };
+  async packages(@Req() req: IncomingMessage, @Param('id') id: string, @Query() q: Record<string, string | undefined>) {
+    const limit = q.limit ? Number(q.limit) : undefined;
+    const r = await this.read.packages(await this.viewer(req, ['crm.view']), { contactId: id, status: q.status || undefined, serviceId: q.service_id || undefined, cursor: q.cursor || undefined, limit: Number.isFinite(limit) ? limit : undefined });
+    return { data: r.packages, next_cursor: r.next_cursor };
   }
 
   @Get('settings/payments')

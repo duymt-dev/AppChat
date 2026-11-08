@@ -225,7 +225,7 @@ describe('bank feed SePay của DN (adapter mock)', () => {
     const pk = await (await tenant()).customerPackage.findFirstOrThrow({ where: { orderId: ids.o2 } });
     expect(pk).toMatchObject({ totalSessions: 10, usedSessions: 0, status: 'active', contactId: ids.lan });
     ids.pk = pk.id;
-    expect((await get(`/contacts/${ids.lan}/packages`)).body.data).toEqual([expect.objectContaining({ id: pk.id, total: 10, used: 0 })]);
+    expect((await get(`/contacts/${ids.lan}/packages`)).body.data).toEqual([expect.objectContaining({ id: pk.id, total: 10, used: 0, remaining: 10 })]);
   });
 
   it('resolve_bank_match: gán giao dịch thiếu mã cho đề nghị → ghi nhận + hoàn tác trả về hàng đối soát', async () => {

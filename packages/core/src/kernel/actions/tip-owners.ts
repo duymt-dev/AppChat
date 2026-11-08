@@ -1,6 +1,7 @@
 // Action → TIP chủ cài handler (02-TASK-GRAPH.md: bản đồ sở hữu + mục "Action có trong code nhưng chưa có trong Blueprint").
 // Dùng cho NotImplementedHandler (501 kèm TIP) và test boot "mọi action có handler".
 const BY_ID: Record<string, string> = {
+  'package.list_for_contact': '033b',
   'workspace.switch': '004',
   'notification.update_prefs': '006',
   'onboarding.toggle_step': '011',

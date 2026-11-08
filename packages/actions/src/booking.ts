@@ -81,7 +81,7 @@ export const appointmentCreate = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
   uiTarget: opened,
 });
 
@@ -97,7 +97,7 @@ export const appointmentConfirm = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentReschedule = defineAction({
@@ -112,7 +112,7 @@ export const appointmentReschedule = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentCancel = defineAction({
@@ -126,7 +126,7 @@ export const appointmentCancel = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentCheckIn = defineAction({
@@ -140,7 +140,7 @@ export const appointmentCheckIn = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentComplete = defineAction({
@@ -158,7 +158,7 @@ export const appointmentComplete = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentMarkNoShow = defineAction({
@@ -172,5 +172,5 @@ export const appointmentMarkNoShow = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
