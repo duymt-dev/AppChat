@@ -90,7 +90,7 @@ async function applyUnit(
   try {
     const out = await d.executor.execute(
       systemCtx(ws, plan, authz, unit.key),
-      unit.action ?? transferSpec(target).writeAction,
+      unit.action ?? transferSpec(target).writeAction!,
       unit.input,
     );
     if (out.status !== 200)

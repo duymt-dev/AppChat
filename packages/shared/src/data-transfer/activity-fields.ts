@@ -49,3 +49,15 @@ export const CONTACT_OPPORTUNITY_FIELDS: readonly TransferField[] = [
   f('expected_close_date', 'date', ['ngay chot du kien', 'du kien chot', 'expected close', 'close date']),
   EXPORTED_ID,
 ];
+
+/** Cột tệp xuất liệu trình (TIP-033b §5.1 — tập chỉ xuất, không ánh xạ nhập): mô tả cột cho năng lực / Trợ lý, không có tiền. */
+export const CUSTOMER_PACKAGE_FIELDS: readonly TransferField[] = [
+  ...PARTY.slice(0, 1),
+  f('name', 'text', ['ten lieu trinh', 'lieu trinh', 'goi', 'package'], { max: 200 }),
+  f('total', 'number', ['tong buoi', 'so buoi', 'total sessions']),
+  f('used', 'number', ['da dung', 'used sessions']),
+  f('remaining', 'number', ['con lai', 'remaining']),
+  f('status', 'enum', ['trang thai', 'status'], { options: ['active', 'exhausted', 'expired', 'refunded'] }),
+  f('expires_at', 'date', ['han dung', 'het han', 'expires']),
+  EXPORTED_ID,
+];

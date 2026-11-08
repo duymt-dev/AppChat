@@ -1398,6 +1398,10 @@
     "adjust_sessions": {
       "title": "Adjust package sessions"
     },
+    "export": {
+      "title": "Export a customer's packages",
+      "desc": "CSV / XLSX file of one customer's packages: total / used / left, status, expiry — no amounts. Export only; balances cannot be imported."
+    },
     "list_for_contact": {
       "title": "View a customer's packages",
       "desc": "List a customer's packages: used / total / remaining, status, expiry (no amounts)."

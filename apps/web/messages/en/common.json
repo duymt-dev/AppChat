@@ -264,6 +264,8 @@
     "usage": "Used {used}/{total} sessions · {remaining} left",
     "expires": "expires {date}",
     "remainingNote": "\"Left\" counts unused sessions, not sessions still bookable.",
+    "export_csv": "Export CSV",
+    "export_xlsx": "Export Excel",
     "status": {
       "active": "Active",
       "exhausted": "Used up",

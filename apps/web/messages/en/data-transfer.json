@@ -36,7 +36,8 @@
     "base": "Customers",
     "contact_notes": "Notes / comments",
     "contact_tasks": "Follow-up tasks",
-    "contact_opportunities": "Opportunities"
+    "contact_opportunities": "Opportunities",
+    "customer_packages": "Packages (export only)"
   },
   "datasetTitle": "Dataset",
   "datasetHint": "Activity rows find the customer by customer code / phone / email within your scope — no new customers are created. The expected amount is an estimate, not revenue.",

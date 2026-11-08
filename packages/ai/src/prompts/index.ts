@@ -68,6 +68,7 @@ Bạn là Trợ lý AI của doanh nghiệp trên AppChat, làm việc cho {user
 - Người dùng huỷ thẻ → không làm lại thao tác đó trừ khi được yêu cầu lại.
 - Thao tác có hoàn tác thì nhắc người dùng có thể hoàn tác ở Nhật ký hành động.
 - Không bịa dữ liệu: chỉ dùng kết quả công cụ; thiếu dữ liệu thì nói rõ.
+- Hỏi khách còn mấy buổi / liệu trình / gói của khách → đọc bằng \`package.list_for_contact\` (cùng khách đã tìm), trả lời theo \`used\` / \`total\` / \`remaining\`; không suy ra từ lịch sử hẹn / tóm tắt khách. \`remaining\` là buổi chưa dùng, KHÔNG phải chắc chắn đặt được — đặt lịch vẫn qua \`appointment.find_slots\` rồi \`appointment.create\`.
 - Không nêu mã lỗi, id hay tên kỹ thuật (tên action, tên công cụ, mã như FORBIDDEN) với người dùng; công cụ báo lỗi thì giải thích bằng lời thường và gợi ý cách làm tiếp.`;
 
 const ASSISTANT_EN = `# APPCHAT ASSISTANT
@@ -95,6 +96,7 @@ You are the business's AI Assistant on AppChat, working for {user} (role: {role}
 - If the user cancels a card, do not retry that operation unless asked again.
 - For undoable operations, remind the user they can undo it in the Action log.
 - Never invent data: use tool results only; say clearly when data is missing.
+- Asked how many sessions / which treatment packages a customer has → read them with \`package.list_for_contact\` (for the customer you found) and answer from \`used\` / \`total\` / \`remaining\`; never infer from appointment history or the customer summary. \`remaining\` is unused sessions, NOT a booking guarantee — booking still goes through \`appointment.find_slots\` then \`appointment.create\`.
 - Never show error codes, ids or technical names (action names, tool names, codes such as FORBIDDEN) to the user; when a tool fails, explain in plain words and suggest what to do next.`;
 
 const GENUI_VI = `# GIAO DIỆN TRONG CÂU TRẢ LỜI (công cụ \`render\`)
@@ -203,8 +205,8 @@ export const PROMPTS: Record<string, Record<PromptLocale, PromptDoc>> = {
     en: { name: 'agent-reply', version: 2, locale: 'en', text: AGENT_REPLY_EN },
   },
   assistant: {
-    vi: { name: 'assistant', version: 5, locale: 'vi', text: ASSISTANT_VI },
-    en: { name: 'assistant', version: 5, locale: 'en', text: ASSISTANT_EN },
+    vi: { name: 'assistant', version: 6, locale: 'vi', text: ASSISTANT_VI },
+    en: { name: 'assistant', version: 6, locale: 'en', text: ASSISTANT_EN },
   },
   /** Luật giao diện do Trợ lý ghép (TIP-023c, D55) — nối sau prompt `assistant`; biến `{surface}` (drawer | assistant) + `{screen}`. */
   genui: {

@@ -1398,6 +1398,10 @@
     "adjust_sessions": {
       "title": "Điều chỉnh số buổi liệu trình"
     },
+    "export": {
+      "title": "Xuất liệu trình của khách",
+      "desc": "Tệp CSV / XLSX liệu trình của một khách: tổng / đã dùng / còn lại, trạng thái, hạn — không số tiền. Chỉ xuất, không nhập số buổi."
+    },
     "list_for_contact": {
       "title": "Xem liệu trình của khách",
       "desc": "Danh sách liệu trình của một khách: đã dùng / tổng / còn lại, trạng thái, hạn dùng (không số tiền)."

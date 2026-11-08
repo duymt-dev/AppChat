@@ -5,8 +5,8 @@ import type { ActionInput, invoiceGet, invoiceSearch, packageSearch } from '@app
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { contactsOf } from '../../quotes/services/quote-view';
-import { inSalesScope, visibleInvoice, type InvoiceRecord } from '../invoice-access';
-import { visibleContact } from '../../../crm/public';
+import { visibleInvoice, type InvoiceRecord } from '../invoice-access';
+import { listPackages } from '../packages/read.service';
 import { listInvoiceIds } from '../repos/invoices.repo';
 
 function hit(v: InvoiceRecord, contact: string) {
@@ -57,17 +57,10 @@ type PackageOut = { packages: { id: string; name: string; used_sessions: number;
 @ActionHandler('package.search')
 export class PackageSearchHandler implements Handler<ActionInput<typeof packageSearch>, PackageOut> {
   async execute(ctx: ActionContext, i: ActionInput<typeof packageSearch>, tx: TenantTx): Promise<HandlerOutcome<PackageOut>> {
-    // Như tab Liệu trình của hồ sơ khách: khách ngoài scope → NOT_FOUND; từng gói áp scope bán hàng theo người phụ trách đơn sinh ra gói.
-    const { contact } = await visibleContact(tx, ctx.authz, i.contact_id);
-    const rows = await tx.customerPackage.findMany({ where: { contactId: contact.id, ...(i.status ? { status: i.status } : {}) }, orderBy: { createdAt: 'desc' }, take: 100 });
-    const orders = rows.length ? await tx.order.findMany({ where: { id: { in: rows.map((r) => r.orderId) } }, select: { id: true, assignedUserId: true, teamId: true } }) : [];
-    const owner = new Map(orders.map((o) => [o.id, o]));
-    const packages: PackageOut['packages'] = [];
-    for (const p of rows) {
-      if (packages.length >= (i.limit ?? 10)) break;
-      if (await inSalesScope(tx, ctx.authz, { owner: owner.get(p.orderId)?.assignedUserId ?? null, team: owner.get(p.orderId)?.teamId ?? null, contact: p.contactId }))
-        packages.push({ id: p.id, name: p.name, used_sessions: p.usedSessions, total_sessions: p.totalSessions, expires_at: p.expiresAt?.toISOString() ?? null, status: p.status });
-    }
+    // Cùng PackagesRead với package.list_for_contact / tab Liệu trình (TIP-033b §4.3): khách ngoài scope → NOT_FOUND, gói lọc theo scope
+    // đơn trong SQL, họ khách gộp một lần — không vòng kiểm từng gói. Giữ shape cũ (used_sessions / total_sessions) cho tool đã cấp.
+    const r = await listPackages(tx, ctx.authz, { contactId: i.contact_id, status: i.status, limit: i.limit ?? 10 });
+    const packages = r.packages.map((p) => ({ id: p.id, name: p.name, used_sessions: p.used, total_sessions: p.total, expires_at: p.expires_at, status: p.status }));
     return { result: { packages } };
   }
 }

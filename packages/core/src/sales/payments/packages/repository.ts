@@ -41,6 +41,18 @@ export async function packagePage(tx: TenantTx, authz: AuthzContext, q: PackageQ
   return ids.length ? rowsOf(tx, authz, ids.map((r) => r.id)) : [];
 }
 
+/** Tập id chốt cho tệp xuất (TIP-033b §5.1): cùng điều kiện trang theo khách (họ + scope đơn trong SQL), không seek, tối đa `cap`. */
+export async function packageIds(tx: TenantTx, authz: AuthzContext, q: { rootId: string; status?: string; cap: number }): Promise<string[]> {
+  const status = q.status ? Prisma.sql`AND p.status = ${q.status}::"package_status"` : Prisma.empty;
+  const rows = await tx.$queryRaw<{ id: string }[]>`
+    SELECT p.id FROM customer_package p
+    JOIN "order" o ON o.id = p.order_id
+    WHERE ${inFamilySql('p.contact_id', q.rootId)} AND ${salesSql(authz)} ${status}
+    ORDER BY p.created_at DESC, p.id DESC
+    LIMIT ${q.cap}`;
+  return rows.map((r) => r.id);
+}
+
 /** Payload cho tập id đã lọc quyền (giữ thứ tự created_at DESC, id DESC). */
 async function rowsOf(tx: TenantTx, authz: AuthzContext, ids: readonly string[]): Promise<PackageRow[]> {
   const orderOk = canSeeOrder(authz);

@@ -264,6 +264,8 @@
     "usage": "Đã dùng {used}/{total} buổi · còn {remaining}",
     "expires": "hạn {date}",
     "remainingNote": "\"Còn\" là số buổi chưa dùng, không phải số buổi còn đặt được.",
+    "export_csv": "Xuất CSV",
+    "export_xlsx": "Xuất Excel",
     "status": {
       "active": "Đang dùng",
       "exhausted": "Hết buổi",

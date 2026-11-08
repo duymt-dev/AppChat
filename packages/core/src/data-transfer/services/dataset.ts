@@ -4,6 +4,7 @@
 import {
   AppError,
   datasetAllowed,
+  exportOnly,
   targetOf,
   transferSpec,
   type TransferDataset,
@@ -11,11 +12,14 @@ import {
   type TransferTarget,
 } from '@appchat/shared';
 
-/** Thực thể + tập (bỏ trống = base) → khoá registry. Tập không thuộc thực thể → 422. */
+/** Thực thể + tập (bỏ trống = base) → khoá registry NHẬP. Tập không thuộc thực thể / tập chỉ xuất → 422. */
 export function resolveTarget(entity: TransferEntity, dataset: TransferDataset | undefined | null): TransferTarget {
   const d = dataset ?? 'base';
   if (!datasetAllowed(entity, d)) throw new AppError('VALIDATION_FAILED', 422, { dataset: 'unsupported' });
-  return targetOf(entity, d);
+  const t = targetOf(entity, d);
+  // Tập chỉ xuất (liệu trình — TIP-033b §5.1): mọi đường nhập (xem mẫu / lập kế hoạch / AI / xác nhận) dừng ở đây, trước khi đọc tệp hay ghi.
+  if (exportOnly(t)) throw new AppError('VALIDATION_FAILED', 422, { dataset: 'export_only' });
+  return t;
 }
 
 type PlanIdentity = { entity: string; dataset: string; datasetSchemaVersion: number };

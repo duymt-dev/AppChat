@@ -4,10 +4,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import type { CustomerPackage } from '../types';
 
-const state = vi.hoisted(() => ({ hook: {} as Record<string, unknown> }));
+const state = vi.hoisted(() => ({ hook: {} as Record<string, unknown>, can: true, start: vi.fn() }));
 vi.mock('next-intl', () => ({ useTranslations: () => (k: string, v?: Record<string, unknown>) => (v ? `${k}:${JSON.stringify(v)}` : k) }));
 vi.mock('../../i18n/useFmt', () => ({ useFmt: () => ({ date: (d: string) => d.slice(0, 10) }) }));
 vi.mock('../hooks/useCustomerPackages', () => ({ useCustomerPackages: () => state.hook }));
+vi.mock('../../authz/useCan', () => ({ useCan: () => state.can }));
+vi.mock('../../actions/useListExport', () => ({ useListExport: () => ({ start: state.start, busy: false, label: null }) }));
 
 import { CustomerPackagesCard } from './CustomerPackagesCard';
 
@@ -54,5 +56,17 @@ describe('CustomerPackagesCard', () => {
       expect(screen.queryByText(/usage:/)).toBeNull();
       r.unmount();
     }
+  });
+
+  it('xuất CSV / Excel (TIP-033b §5.1): gửi package.export đúng khách + định dạng; không crm.export → không nút', () => {
+    hook({ items: [pkg()] });
+    const { unmount } = render(<CustomerPackagesCard contactId="k1" />);
+    fireEvent.click(screen.getByTestId('pk-export-csv'));
+    expect(state.start).toHaveBeenCalledWith({ contact_id: 'k1', format: 'csv' });
+    unmount();
+    state.can = false;
+    render(<CustomerPackagesCard contactId="k1" />);
+    expect(screen.queryByTestId('pk-export-xlsx')).toBeNull();
+    state.can = true;
   });
 });

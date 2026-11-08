@@ -57,7 +57,12 @@ const VERB_VI: Record<string, string> = {
 };
 
 /** Từ riêng của một action khi đối tượng không có action `search` (TIP-012c: "tìm chiến dịch" → campaign.get — tra theo id / mã / tên). */
-const ACTION_VI: Record<string, string> = { 'campaign.get': 'tim tim kiem tra cuu danh sach nguoi nhan ket qua gui giao thu da mo' };
+const ACTION_VI: Record<string, string> = {
+  'campaign.get': 'tim tim kiem tra cuu danh sach nguoi nhan ket qua gui giao thu da mo',
+  // TIP-033b: "giờ mở cửa / giờ nhận lịch của tiệm" = giờ đặt lịch (business_hours); "giờ làm việc của nhân viên / SLA" = working_hours.
+  'business_hours.update': 'gio mo cua gio nhan lich gio hoat dong cua tiem cua hang mo cua dong cua chu nhat ngay nghi lich hen',
+  'working_hours.update': 'gio lam viec nhan vien tinh sla tra loi hoi thoai',
+};
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */
 const ENTITY_VI: Record<string, string> = {
@@ -72,6 +77,8 @@ const ENTITY_VI: Record<string, string> = {
   contact_opportunity: 'co hoi co hoi ban hang nhu cau gia tri ky vong xac suat chot deal',
   contact_activity: 'hoat dong ghi chu binh luan viec cham soc co hoi gia tri ky vong cua khach xem co hoi',
   contact_note: 'ghi chu binh luan cua khach',
+  // TIP-033b: liệu trình của khách — xem / xuất (chỉ xuất, không nhập số buổi).
+  package: 'lieu trinh goi buoi so buoi con lai da dung het han xuat lieu trinh',
 };
 
 /**

@@ -65,7 +65,7 @@ export const businessHoursUpdate = defineAction({
   module: 'booking',
   title: 'actions.business_hours.update.title',
   description:
-    'Set booking opening hours per weekday (0 = Monday), slot grid step and default buffer, and whether a no-show deducts a package session. Example (days = 7 entries, 0 = Monday): {"days":[{"weekday":0,"open":true,"start":"08:00","end":"19:00"},{"weekday":1,"open":true,"start":"08:00","end":"19:00"},{"weekday":2,"open":true,"start":"08:00","end":"19:00"},{"weekday":3,"open":true,"start":"08:00","end":"19:00"},{"weekday":4,"open":true,"start":"08:00","end":"19:00"},{"weekday":5,"open":true,"start":"08:00","end":"19:00"},{"weekday":6,"open":false,"start":"08:00","end":"19:00"}],"slot_step_min":30}',
+    'Set the shop OPENING hours = booking hours (giờ mở cửa / giờ nhận lịch) per weekday (0 = Monday, 6 = Sunday) — always send all 7 days, copying unchanged days from booking.settings_get, slot grid step and default buffer, and whether a no-show deducts a package session. Example (days = 7 entries, 0 = Monday): {"days":[{"weekday":0,"open":true,"start":"08:00","end":"19:00"},{"weekday":1,"open":true,"start":"08:00","end":"19:00"},{"weekday":2,"open":true,"start":"08:00","end":"19:00"},{"weekday":3,"open":true,"start":"08:00","end":"19:00"},{"weekday":4,"open":true,"start":"08:00","end":"19:00"},{"weekday":5,"open":true,"start":"08:00","end":"19:00"},{"weekday":6,"open":false,"start":"08:00","end":"19:00"}],"slot_step_min":30}',
   input: z.object({
     days: z.array(day).length(7),
     slot_step_min: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20), z.literal(30), z.literal(60)]).optional(),

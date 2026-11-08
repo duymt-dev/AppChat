@@ -54,7 +54,9 @@ const rows = (target: Parameters<typeof transferSpec>[0], cols: string[], data: 
 
 describe('tập dữ liệu — registry + danh tính bất biến', () => {
   it('chỉ khách có 3 tập hoạt động; tập lạ / sai thực thể → 422', () => {
-    expect(DATASETS_OF.contact).toEqual(['base', 'contact_notes', 'contact_tasks', 'contact_opportunities']);
+    expect(DATASETS_OF.contact).toEqual(['base', 'contact_notes', 'contact_tasks', 'contact_opportunities', 'customer_packages']);
+    // TIP-033b §5.1: liệu trình là tập chỉ xuất — mọi đường nhập dừng ở resolveTarget.
+    expect(code(() => resolveTarget('contact', 'customer_packages'))).toEqual({ status: 422, fields: { dataset: 'export_only' } });
     expect(resolveTarget('contact', undefined)).toBe('contact');
     expect(resolveTarget('contact', 'contact_tasks')).toBe('contact_tasks');
     expect(code(() => resolveTarget('quote', 'contact_notes'))).toEqual({ status: 422, fields: { dataset: 'unsupported' } });

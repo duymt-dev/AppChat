@@ -4,7 +4,7 @@
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { visibleContact } from '../../../crm/public';
-import { packagePage, packagesById } from './repository';
+import { packageIds, packagePage, packagesById } from './repository';
 import { toPackageDto, type PackageDto } from './projection';
 
 export const PACKAGE_LIMIT = 30;
@@ -46,4 +46,18 @@ export async function listPackages(tx: TenantTx, authz: AuthzContext, i: Package
 export async function packagesFor(tx: TenantTx, authz: AuthzContext, ids: readonly (string | null)[]): Promise<Map<string, PackageDto>> {
   const rows = await packagesById(tx, authz, ids.filter((x): x is string => !!x && UUID.test(x)));
   return new Map(rows.map((r) => [r.id, toPackageDto(r)]));
+}
+
+const STATUSES = new Set(['active', 'exhausted', 'expired', 'refunded']);
+
+/** Tập id chốt của tệp xuất liệu trình một khách: khách thấy được theo CRM (ngoài scope → 404), rồi gói theo scope đơn — cùng PackagesRead. */
+export async function packageExportIds(tx: TenantTx, authz: AuthzContext, i: { contactId: string; status?: string; cap: number }): Promise<string[]> {
+  const { contact } = await visibleContact(tx, authz, i.contactId);
+  return packageIds(tx, authz, { rootId: contact.id, status: i.status && STATUSES.has(i.status) ? i.status : undefined, cap: i.cap });
+}
+
+/** Dòng tệp theo lô id: chiếu lại dưới quyền HIỆN TẠI (khách CRM + đơn sales) — gói đã ra ngoài scope vắng mặt. */
+export async function packageExportRows(tx: TenantTx, authz: AuthzContext, ids: readonly string[]) {
+  const rows = await packagesById(tx, authz, ids);
+  return rows.map((r) => ({ dto: toPackageDto(r), createdAt: r.created_at }));
 }

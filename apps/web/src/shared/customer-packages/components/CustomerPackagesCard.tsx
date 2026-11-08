@@ -7,6 +7,7 @@ import { createStyles } from 'antd-style';
 import { color, font, radius } from '@appchat/ui';
 import { useCustomerPackages } from '../hooks/useCustomerPackages';
 import { PackageRow } from './PackageRow';
+import { PackagesExport } from './PackagesExport';
 
 const useStyles = createStyles(({ css }) => ({
   card: css`
@@ -70,6 +71,7 @@ export function CustomerPackagesCard({ contactId, bare = false }: { contactId: s
           </button>
         ) : null}
         <div className={styles.small}>{t('remainingNote')}</div>
+        <PackagesExport contactId={contactId} />
       </>
     );
   if (bare) return <div data-testid="pk-card">{body}</div>;

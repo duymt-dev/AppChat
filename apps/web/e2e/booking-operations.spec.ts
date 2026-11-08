@@ -71,5 +71,17 @@ test.describe('booking-operations · Liệu trình ở Hồ sơ 360°', () => {
     await expect(card).toContainText('Đã dùng 3/10 buổi · còn 7');
     await expect(card).toContainText('Đang dùng');
     await expect(card).not.toContainText('₫');
+    // P5 (§5.1): xuất CSV liệu trình của khách — tệp thật tải về đúng tên / số buổi / còn lại.
+    const dl = page.waitForEvent('download');
+    await card.getByTestId('pk-export-csv').click();
+    const d = await dl;
+    expect(d.suggestedFilename()).toMatch(/^lieu-trinh-.*\.csv$/);
+    const file = await d.createReadStream();
+    const text = await new Promise<string>((ok) => {
+      let b = '';
+      file.on('data', (c) => (b += c));
+      file.on('end', () => ok(b));
+    });
+    expect(text).toContain('Liệu trình chăm sóc da 10 buổi,10,3,7,active');
   });
 });

@@ -1,5 +1,5 @@
 // Bảng adapter theo thực thể (TIP-038b): phân loại + chia đơn vị ghi + ghép kết quả. Thực thể chưa nối nhập không có ở đây — registry
-// `importReady: false` chặn trước (422 `entity: unsupported`).
+// `importReady: false` chặn trước (422 `entity: unsupported`); tập chỉ xuất (customer_packages) chặn ở resolveTarget (422 `dataset: export_only`).
 import { AppError, type TransferTarget } from '@appchat/shared';
 import { activityAdapter } from './activities';
 import { classifyProducts, commitProducts } from './catalog';
@@ -17,7 +17,7 @@ const doc = (e: TransferTarget, grouped = false): Adapter => ({
   resolve: docResolve(e),
 });
 
-const ADAPTERS: Record<TransferTarget, Adapter> = {
+const ADAPTERS: Partial<Record<TransferTarget, Adapter>> = {
   contact: { classify: classifyContacts, batch: 500, units: contactUnits, resolve: resolveContacts },
   product: { classify: classifyProducts, batch: 1, whole: commitProducts },
   quote: doc('quote', true),

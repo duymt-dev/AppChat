@@ -36,7 +36,8 @@
     "base": "Khách hàng",
     "contact_notes": "Ghi chú / bình luận",
     "contact_tasks": "Việc chăm sóc",
-    "contact_opportunities": "Cơ hội"
+    "contact_opportunities": "Cơ hội",
+    "customer_packages": "Liệu trình (chỉ xuất)"
   },
   "datasetTitle": "Tập dữ liệu",
   "datasetHint": "Dòng hoạt động tìm khách theo mã khách / SĐT / email trong phạm vi của bạn — không tạo khách mới. Giá trị kỳ vọng là ước tính, không phải doanh thu.",

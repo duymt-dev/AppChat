@@ -15,7 +15,13 @@ export const LIST_EXPORT_KINDS = [
   'contact_note.export',
   'contact_task.export',
   'contact_opportunity.export',
+  // TIP-033b §5.1 — liệu trình của một khách (tập chỉ xuất customer_packages; CSV hoặc XLSX).
+  'package.export',
 ] as const;
+/** Xuất toàn workspace (Cài đặt › Xuất dữ liệu): bỏ loại phải chọn một khách. */
+export const WORKSPACE_EXPORT_KINDS = LIST_EXPORT_KINDS.filter((k) => k !== 'package.export');
+export const LIST_EXPORT_FORMATS = ['xlsx', 'csv'] as const;
+export type ListExportFormat = (typeof LIST_EXPORT_FORMATS)[number];
 export type ListExportKind = (typeof LIST_EXPORT_KINDS)[number];
 
 /** ≤ ngưỡng: dựng tệp ngay trong action; > ngưỡng: việc nền (concurrency §7 — cùng ngưỡng sửa hàng loạt). */
@@ -105,4 +111,10 @@ export const contactOpportunityExportFilter = z.object({
   ...contactScope,
   opp_stage: z.enum(['open', 'qualified', 'proposal', 'won', 'lost']).optional(),
   archived: z.boolean().optional(),
+});
+/** Xuất liệu trình (TIP-033b §5.1): bắt buộc MỘT khách (PackagesRead — CRM trước, scope đơn trong SQL), trạng thái tuỳ chọn, CSV / XLSX. */
+export const packageExportFilter = z.object({
+  contact_id: z.string().trim().min(1).max(64),
+  status: z.enum(['active', 'exhausted', 'expired', 'refunded']).optional(),
+  format: z.enum(LIST_EXPORT_FORMATS).optional(),
 });

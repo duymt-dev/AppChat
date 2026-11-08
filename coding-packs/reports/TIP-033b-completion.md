@@ -166,3 +166,53 @@
 | `ui/interaction-patterns.md` | đang tải / lỗi + thử lại / không còn quyền / rỗng thật / Tải thêm tách bạch; không số dư giả |
 | `i18n/i18n.md` | `common.packages.*`, `settings.profile360.blocks.packages`, `actions.package.list_for_contact` vi + en, 100% |
 | `plans/COMMERCE-DECISIONS.md` | COM-6-10 thẻ Liệu trình + agent đọc được; không đổi luật gói / tiền |
+
+## Pha 5 — tập chỉ xuất customer_packages, package.export CSV / XLSX, ai:live 8 ca, chốt TIP (§4.5, §5.1, §5.3; AC7, AC8) — DC-418, DV-092
+
+**Rà trước khi làm (code thật)**
+- Registry 038b chỉ có thực thể + 3 tập hoạt động; mọi tập đều nhập được, `writeAction` bắt buộc; không có khái niệm tập chỉ xuất.
+- Khung xuất 038 chỉ dựng XLSX; tải về đã suy MIME theo đuôi tệp (CSV dùng được nếu tên tệp `.csv`).
+- `package.search` (tool đã cấp) lọc gói bằng vòng `inSalesScope` từng gói sau khi tải 100 dòng — khác PackagesRead (P4).
+- Trợ lý lẫn "giờ mở cửa" (business_hours) với "giờ làm việc nhân viên / SLA" (working_hours); không có quy tắc đọc liệu trình → trả lời số buổi từ lịch sử hẹn / tóm tắt.
+
+**FILES CHANGED** (lệch manifest ở DV-092)
+- shared: `data-transfer/{registry,activity-fields}.ts` (tập `customer_packages` chỉ xuất, `exportOnly`), `api/list-exports.ts` (`package.export`, `packageExportFilter`, `LIST_EXPORT_FORMATS`, `WORKSPACE_EXPORT_KINDS`), i18n server insights vi / en.
+- actions: `customer-packages.ts` (`package.export`), `settings.ts` / `booking-config.ts` (mô tả phân biệt giờ mở cửa ↔ giờ làm việc).
+- core: `insights/exports/{package-reader,export-csv}.ts` (mới), `export-runner.ts`, `actions/export.handlers.ts`, `insights.providers.ts`; `sales/payments/packages/{repository,read.service}.ts`, `sales/public.ts`; `sales/payments/actions/invoice-read.handlers.ts` (`package.search` qua PackagesRead); `data-transfer/{services/dataset,adapters/index,jobs/transfer.runner,assistant-extension}.ts`; `ai/assistant/catalog.ts`; `kernel/actions/tip-owners.ts`.
+- ai: prompt `assistant.{vi,en}.md` + `index.ts` v6 (đọc liệu trình bằng package.list_for_contact).
+- web: `shared/customer-packages/components/PackagesExport.tsx` (mới), `CustomerPackagesCard.tsx`, `settings/components/WorkspaceExportModal.tsx`; mock `list-exports.ts`, `data-transfer.ts`; i18n common / actions / data-transfer vi + en.
+- test: api `package-export.test.ts`, `actions/package.export.action.test.ts` (mới); core `export-csv.test.ts` (mới), `contact-activity-transfer.test.ts`; ai prompt test; web `CustomerPackagesCard.test.tsx`, `data-transfer-shape.test.ts`; e2e mock `booking-operations.spec.ts` (+ tải CSV), e2e http `booking-operations.spec.ts` (mới).
+- ai:live: `fixtures/ai-eval/booking-operations/{cases.json,seed.mjs}`, `tools/ai-live/src/{booking-judge,cases,runner,cli}.ts`, `tools/ai-live/test/cases-cli.test.ts`.
+
+**Giả định đã chọn (gap-filling)**
+- Tập chỉ xuất không có kế hoạch nhập → không migration, không đổi CHECK `transfer_plan`; mọi đường nhập dừng ở `resolveTarget` 422 `dataset: export_only`.
+- `package.export` bắt buộc một khách (PackagesRead theo khách); xuất toàn workspace của liệu trình để sau (không có trong TIP).
+- CSV có BOM + dòng chú thích múi giờ như XLSX (hai định dạng cùng bố cục, đọc lại được bằng cùng logic).
+
+**TEST (cổng chốt — D59)**
+- `db:test-reset` đầu cổng.
+- api integration phạm vi TIP: booking* + customer-packages + package-export + commerce-packages + payments + contact-activity-transfer + actions appointment.* / staff.* / business_hours.* / booking.* / package.* / profile_layout.* / transfer.* — **36 files / 165 tests**.
+- turbo lint / typecheck / test / build `...[tip/033b-booking-operations-p4]` **39/39** (lần đầu đỏ: kiểu header test package-export → sửa, chạy lại xanh); depcheck 0 lỗi; lint:size / lint:tokens / lint:masks OK; i18n 100 % (6780).
+- core unit: export-csv 2/2, contact-activity-transfer 11/11, catalog 14/14; ai prompt 70/70; ai-live harness 87/87.
+- E2E mock booking-operations (+ tải CSV liệu trình) + data-transfer + list-exports + workspace-danger + customers + inbox-context **27 passed / 23 skipped**.
+- E2E http booking-operations (mới — Cài đặt Lịch hẹn lưu sau reload; liệu trình sinh thật từ đơn thu đủ → thẻ 360 → tải CSV thật; nhập số dư 422) + calendar **3 passed / 3 skipped** (mobile).
+- Parity (mock `next start -p 3464`) `--done` đạt; customers:360 3,39 %, settings:profile-360 2,80 %, settings:shell 0,34 %, inbox:ai-panel 3,76 %, calendar:appointment 4,46 % (mức cũ, màn không đổi ở P5).
+- **ai:live booking-operations 8/8, an toàn 0, ĐẠT** (3 lượt mỗi ca, 9router `ag/gemini-3-flash`) — `reports/ai-live-booking-operations-2026-11-08.md`. Các lượt trước 3/8 → 5/8 → 5/8 → 7/8 lộ lỗi hệ thống thật, đã sửa (không hạ ngưỡng): Trợ lý lẫn giờ mở cửa với giờ làm việc SLA (mô tả action + từ khoá catalog), không đọc liệu trình khi hỏi số buổi (prompt assistant v6), `package.search` vòng quyền từng gói (chuyển qua PackagesRead); seed cố định giờ / tạo agent theo lượt gây trùng giờ / trần gói (seed theo khung trống thật, agent fixture dùng lại).
+- Chưa nghiệm thu với provider thật cho kênh Zalo (ca lịch hẹn qua Trợ lý; không cần provider).
+
+**ĐỐI CHIẾU STANDARDS (P5)**
+
+| Standard | Kết quả |
+|---|---|
+| `actions/action-registry.md` | `package.export` risk write, crm.export, agentGrantable=false, TIP chủ 033b, preview đếm dòng; i18n title + desc |
+| `authz/rbac-permissions.md` | tệp xuất theo PackagesRead (CRM trước → 404, scope đơn trong SQL); dấu quyền thêm scope crm + order.view; tải chỉ người tạo |
+| `database/indexing.md` | tập id chốt seek `customer_package_contact_page_idx` (cùng truy vấn trang P4, EXPLAIN 10k ở customer-packages.test) |
+| `api/response-envelope.md` | 422 `dataset: export_only` / `contact_id`; 404 khách ngoài scope; 403 thiếu crm.export |
+| `ops/observability-security.md` | CSV chống chèn công thức (`'`), XLSX ô chữ; không cột tiền / giá |
+| `ai/agent-gateway.md` · `ai/eval.md` | Trợ lý ghi chỉ qua thẻ; prompt v6 có version; ai:live 8 ca × 3 lượt chấm theo trạng thái thật / tệp thật, an toàn 0 |
+| `ui/frontend-structure.md` · `i18n/i18n.md` | nút xuất tách `PackagesExport.tsx` (< 50 dòng), chuỗi qua i18n vi + en 100 % |
+| `plans/COMMERCE-DECISIONS.md` | không nhập số buổi / đã dùng; điều chỉnh vẫn package.adjust_sessions có duyệt; luật gói / tiền không đổi |
+
+## Kết luận TIP-033b — DONE (P1–P5, PR #154–#158)
+
+AC1–AC8 có test chạy thật và xanh: AC1 (P1 xác nhận lại), AC2 (P1–P2 khoá / đua), AC3 (P2–P3 cấu hình tri-state + CAS), AC4 (P2 slot theo block_end, ngày / giờ đổi giờ), AC5 (P4 PackagesRead + EXPLAIN 10k), AC6 (P1–P2 hoàn tác ràng buộc version), AC7 (P5 tệp thật CSV / XLSX + nhập bị từ chối), AC8 (P5 ai:live 8/8). Migration tenant `20261109010000_booking_operations` (P2) → sau merge `db:migrate-tenants` + build api / worker.

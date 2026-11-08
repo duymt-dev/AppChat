@@ -8,13 +8,13 @@ import { IDENTITY_ENV, MAIL_PROVIDER } from '../identity/services/identity.token
 import { DIGEST_MAIL, DigestDispatchHandler, type DigestMail } from './actions/digest.handlers';
 import { InsightQueryHandler } from './actions/insight-query.handler';
 import { FollowUpCompleteHandler, FollowUpReconcileHandler } from './actions/follow-up.handlers';
-import { ContactNoteExportHandler, ContactOpportunityExportHandler, ContactTaskExportHandler, ContractExportHandler, InvoiceExportHandler, OrderExportHandler, ProductExportHandler, QuoteExportHandler, TicketExportHandler } from './actions/export.handlers';
+import { ContactNoteExportHandler, ContactOpportunityExportHandler, ContactTaskExportHandler, ContractExportHandler, PackageExportHandler, InvoiceExportHandler, OrderExportHandler, ProductExportHandler, QuoteExportHandler, TicketExportHandler } from './actions/export.handlers';
 import { DashboardService } from './services/dashboard.service';
 import { InsightsService } from './metrics/registry';
 import { InsightsReadService } from './services/insights-read.service';
 
 export const INSIGHTS_PROVIDERS: Provider[] = [InsightsService, InsightsReadService, InsightQueryHandler, DashboardService, FollowUpCompleteHandler, FollowUpReconcileHandler,
-  QuoteExportHandler, OrderExportHandler, ContractExportHandler, TicketExportHandler, ProductExportHandler, InvoiceExportHandler, ContactNoteExportHandler, ContactTaskExportHandler, ContactOpportunityExportHandler, DigestDispatchHandler,
+  QuoteExportHandler, OrderExportHandler, ContractExportHandler, TicketExportHandler, ProductExportHandler, InvoiceExportHandler, ContactNoteExportHandler, ContactTaskExportHandler, ContactOpportunityExportHandler, PackageExportHandler, DigestDispatchHandler,
   {
     provide: DIGEST_MAIL,
     inject: [MAIL_PROVIDER, IDENTITY_ENV],

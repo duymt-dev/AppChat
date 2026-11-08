@@ -5,7 +5,7 @@
 import { foldText } from '../crm/phone';
 import type { TransferField, TransferFieldType } from './field-types';
 import { CONTRACT_FIELDS, INVOICE_FIELDS, ORDER_FIELDS, PRODUCT_FIELDS, QUOTE_FIELDS } from './fields';
-import { CONTACT_NOTE_FIELDS, CONTACT_OPPORTUNITY_FIELDS, CONTACT_TASK_FIELDS } from './activity-fields';
+import { CONTACT_NOTE_FIELDS, CONTACT_OPPORTUNITY_FIELDS, CONTACT_TASK_FIELDS, CUSTOMER_PACKAGE_FIELDS } from './activity-fields';
 
 export const TRANSFER_ENTITIES = ['contact', 'product', 'quote', 'order', 'contract', 'invoice'] as const;
 export type TransferEntity = (typeof TRANSFER_ENTITIES)[number];
@@ -13,14 +13,14 @@ export type TransferEntity = (typeof TRANSFER_ENTITIES)[number];
  * Tập dữ liệu dưới một thực thể (TIP-026b §5): `base` = bản ghi chính của thực thể (038b); khách hàng có thêm 3 tập hoạt động CRM. Chọn
  * tường minh, cố định từ lúc lập kế hoạch (đổi tập = kế hoạch mới) — không trộn vào nhập khách, không bảng tuỳ ý.
  */
-export const TRANSFER_DATASETS = ['base', 'contact_notes', 'contact_tasks', 'contact_opportunities'] as const;
+export const TRANSFER_DATASETS = ['base', 'contact_notes', 'contact_tasks', 'contact_opportunities', 'customer_packages'] as const;
 export type TransferDataset = (typeof TRANSFER_DATASETS)[number];
-export type ActivityDataset = Exclude<TransferDataset, 'base'>;
+export type ActivityDataset = 'contact_notes' | 'contact_tasks' | 'contact_opportunities';
 /** Khoá registry: thực thể (tập base) hoặc tập con. */
-export type TransferTarget = TransferEntity | ActivityDataset;
+export type TransferTarget = TransferEntity | Exclude<TransferDataset, 'base'>;
 /** Tập hợp lệ theo thực thể — server suy enum từ đây, người dùng không chọn adapter tuỳ ý. */
 export const DATASETS_OF: Record<TransferEntity, readonly TransferDataset[]> = {
-  contact: ['base', 'contact_notes', 'contact_tasks', 'contact_opportunities'],
+  contact: ['base', 'contact_notes', 'contact_tasks', 'contact_opportunities', 'customer_packages'],
   product: ['base'],
   quote: ['base'],
   order: ['base'],
@@ -45,8 +45,13 @@ export interface TransferEntitySpec {
   /** Quyền action phải có thêm (nhập tập con: crm.import ∩ crm.edit) — không cấp gì mới. */
   alsoRequires?: readonly string[];
   exportAction: string;
-  /** Action nghiệp vụ mỗi nhóm dòng đi qua (ActionExecutor). */
-  writeAction: string;
+  /** Action nghiệp vụ mỗi nhóm dòng đi qua (ActionExecutor) — vắng ở tập chỉ xuất. */
+  writeAction?: string;
+  /**
+   * `export` = tập chỉ xuất (TIP-033b §5.1 — liệu trình: tổng / đã dùng / trạng thái không nhập được): nhập bị từ chối TRƯỚC khi đọc tệp /
+   * lập kế hoạch AI / ghi (422 `dataset: export_only`); điều chỉnh buổi là quy trình package.adjust_sessions riêng.
+   */
+  direction?: 'both' | 'export';
   fields: readonly TransferField[];
   /** Nhập đã nối ở pha nào; chưa nối → `unsupported` + lý do. */
   importReady: boolean;
@@ -196,7 +201,20 @@ export const TRANSFER_REGISTRY: Record<TransferTarget, TransferEntitySpec> = {
     fields: CONTACT_OPPORTUNITY_FIELDS,
     importReady: true,
   },
+  // TIP-033b §5.1 — liệu trình của khách: CHỈ XUẤT (CSV / XLSX qua package.export, cùng PackagesRead + quyền hiện tại).
+  customer_packages: {
+    entity: 'contact',
+    dataset: 'customer_packages',
+    schemaVersion: 1,
+    importPermission: 'crm.import',
+    exportAction: 'package.export',
+    fields: CUSTOMER_PACKAGE_FIELDS,
+    importReady: false,
+    direction: 'export',
+  },
 };
+/** Tập chỉ xuất — nhập bị từ chối trước khi đọc tệp. */
+export const exportOnly = (t: TransferTarget) => TRANSFER_REGISTRY[t].direction === 'export';
 
 export const transferSpec = (e: TransferTarget) => TRANSFER_REGISTRY[e];
 export const transferField = (e: TransferTarget, key: string) =>

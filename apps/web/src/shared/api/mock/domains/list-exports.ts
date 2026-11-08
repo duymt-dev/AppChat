@@ -46,6 +46,12 @@ const LIST: Record<string, [MockRoute, string, (r: Row) => unknown[]]> = {
     'co-hoi',
     (r) => [r.id, r.contact_id, r.title, ...(r.money ? [r.amount_vnd] : []), r.stage, r.probability],
   ],
+  // TIP-033b §5.1: liệu trình MỘT khách (chỉ xuất) — tổng / đã dùng / còn lại / trạng thái / hạn, không tiền.
+  'package.export': [
+    (db, q) => ({ data: db.invoices.packages.filter((p) => p.contact_id === q.contact_id && (!q.status || p.status === q.status)).map((p) => ({ ...p, code: p.id })) }),
+    'lieu-trinh',
+    (r) => [r.id, r.contact_id, r.name, r.total, r.used, Math.max(Number(r.total) - Number(r.used), 0), r.status, r.expires_at],
+  ],
 };
 
 const cell = (v: unknown) => {
@@ -87,7 +93,7 @@ export const listExportsHandlers: Record<string, Handler> = Object.fromEntries(
         const CRLF = String.fromCharCode(13, 10);
         const body =
           String.fromCharCode(0xfeff) + rows.map((r) => LIST[kind]![2](r).map(cell).join(',')).join(CRLF);
-        const name = `${LIST[kind]![1]}-${new Date().toISOString().slice(0, 10)}.xlsx`;
+        const name = `${LIST[kind]![1]}-${new Date().toISOString().slice(0, 10)}.${i.format === 'csv' ? 'csv' : 'xlsx'}`;
         const sync = rows.length <= LIST_EXPORT_SYNC_MAX;
         const job = exportJob(
           kind,

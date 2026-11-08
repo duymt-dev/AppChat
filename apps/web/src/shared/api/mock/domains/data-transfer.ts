@@ -5,6 +5,7 @@
 import {
   ApiRequestError,
   DATASETS_OF,
+  exportOnly,
   TRANSFER_ENTITIES,
   datasetAllowed,
   foldText,
@@ -27,7 +28,10 @@ const targetOfPlan = (p: Pick<TransferPlanDto, 'entity' | 'dataset'>) => targetO
 function resolve(entity: TransferEntity, dataset?: TransferDataset): TransferTarget {
   const d = dataset ?? 'base';
   if (!datasetAllowed(entity, d)) throw bad(422, 'VALIDATION_FAILED', { dataset: 'unsupported' });
-  return targetOf(entity, d);
+  const t = targetOf(entity, d);
+  // Tập chỉ xuất (liệu trình — TIP-033b §5.1): nhập dừng trước khi đọc tệp, như server.
+  if (exportOnly(t)) throw bad(422, 'VALIDATION_FAILED', { dataset: 'export_only' });
+  return t;
 }
 const sameDataset = (p: Plan, sent?: TransferDataset) => {
   if (sent !== undefined && sent !== p.dataset) throw bad(409, 'CONFLICT', { dataset: 'mismatch' });
@@ -221,7 +225,7 @@ export function dataTransferRoute(path: string) {
           return {
             entity,
             dataset,
-            import: { supported: true, reason: null, formats: ['xlsx', 'csv'], fields: spec.fields.map((f) => ({ key: f.key, required: !!f.required })) },
+            import: { supported: spec.importReady, reason: spec.importReady ? null : 'not_available', formats: ['xlsx', 'csv'], fields: spec.fields.map((f) => ({ key: f.key, required: !!f.required })) },
             export: { supported: true, reason: null, action_id: spec.exportAction },
           };
         }),

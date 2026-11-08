@@ -3,7 +3,7 @@
 // hơn chạy nền rồi tải qua link có xác thực (useListExport). Khách hàng dùng `contact.export` (CSV).
 'use client';
 import { useTranslations } from 'next-intl';
-import { LIST_EXPORT_KINDS, type DataJobDto, type ListExportKind } from '@appchat/shared';
+import { WORKSPACE_EXPORT_KINDS, type DataJobDto, type ListExportKind } from '@appchat/shared';
 import { useAction } from '@/shared/actions/useAction';
 import { useListExport } from '@/shared/actions/useListExport';
 import { transport } from '@/shared/api/client';
@@ -67,7 +67,7 @@ export function WorkspaceExportModal({ onClose }: { onClose: () => void }) {
       <div className={s.muted}>{t('hint')}</div>
       <div className={styles.grid}>
         <ContactRow />
-        {LIST_EXPORT_KINDS.map((k) => (
+        {WORKSPACE_EXPORT_KINDS.map((k) => (
           <ListRow key={k} kind={k} />
         ))}
       </div>
