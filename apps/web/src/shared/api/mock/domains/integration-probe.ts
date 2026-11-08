@@ -5,9 +5,9 @@ import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
 
 /** Ô bí mật theo manifest backend (api_key / hmac_secret / webhook_secret của bank_feed, api_key mail, password smtp). */
-const SECRET_KEYS = new Set(['api_key', 'password', 'hmac_secret', 'webhook_secret', 'api_token']);
+const SECRET_KEYS = new Set(['api_key', 'password', 'hmac_secret', 'webhook_secret', 'api_token', 'webhook_token']);
 /** Ô tuỳ chọn theo manifest (SePay: API key HOẶC khoá HMAC — kiểm riêng; Casso: API key gọi ra). */
-const OPTIONAL: Record<string, string[]> = { sepay: ['api_key', 'hmac_secret', 'api_token'], casso: ['api_key'] };
+const OPTIONAL: Record<string, string[]> = { sepay: ['api_key', 'hmac_secret', 'api_token'], casso: ['api_key'], brevo: ['sender_name', 'reply_to', 'webhook_token'], smtp: ['port', 'sender_email', 'sender_name', 'reply_to', 'sender_confirmed'] };
 
 const connector = (db: MockDb, key: string) => {
   const c = db.settingsApps.connectors.find((x) => x.key === key);

@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "provider": "brevo",
+  "captured": "2026-11-08",
+  "evidence": "provider_documentation",
+  "note": "Không có tài khoản Brevo thật (Q-004): hợp đồng chép từ tài liệu công khai Brevo, fixture tự dựng không chứa khoá / người nhận thật. KHÔNG phải nghiệm thu với provider thật.",
+  "sources": [
+    "https://developers.brevo.com/reference/sendtransacemail (POST /v3/smtp/email)",
+    "https://developers.brevo.com/reference/get-senders (GET /v3/senders)",
+    "https://developers.brevo.com/docs/transactional-webhooks (sự kiện / trường payload)",
+    "https://developers.brevo.com/docs/username-and-password-authentication (bảo vệ webhook)",
+    "https://developers.brevo.com/reference/create-webhook (auth bearer / headers / batched)"
+  ],
+  "auth": { "header": "api-key", "alt": "Authorization: Bearer <oauth2> — không dùng" },
+  "send": {
+    "method": "POST",
+    "url": "https://api.brevo.com/v3/smtp/email",
+    "body_fields": ["sender{email,name}", "to[{email}]", "subject", "htmlContent", "textContent", "replyTo{email,name}", "tags[]"],
+    "accepted_status": 201,
+    "accepted_body": { "messageId": "<201798300811.5787683@relay.domain.com>" },
+    "scheduled_status": 202,
+    "error_status": [400, 401, 403, 429, 500],
+    "error_body": { "code": "invalid_parameter", "message": "…" },
+    "idempotency_key": "không có trong tài liệu → không gửi lại khi kết quả không rõ"
+  },
+  "senders": {
+    "method": "GET",
+    "url": "https://api.brevo.com/v3/senders",
+    "body": { "senders": [{ "id": 1, "name": "Spa Hoa", "email": "hello@spahoa.vn", "active": true, "ips": [] }] },
+    "active_meaning": "true = sender đã kích hoạt (Brevo chỉ kích hoạt sau khi xác minh email / domain) — dùng làm bằng chứng sender_verified của tài khoản"
+  },
+  "webhook": {
+    "signature": "KHÔNG có HMAC / chữ ký trong tài liệu",
+    "auth_supported": ["basic (user:pass trong URL)", "auth {type:'bearer', token}", "headers [{key,value}] tuỳ biến", "IP allowlist"],
+    "auth_used": "auth {type:'bearer', token} → header `Authorization: Bearer <token>`; token là bí mật webhook riêng (secrets.webhook_token), KHÔNG phải api_key gửi thư",
+    "events": ["request", "delivered", "deferred", "soft_bounce", "hard_bounce", "spam", "opened", "unique_opened", "click", "invalid_email", "blocked", "error", "unsubscribed", "proxy_open", "unique_proxy_open"],
+    "fields": ["event", "email", "id", "date", "ts", "ts_event", "ts_epoch", "message-id", "tag|tags", "subject", "contact_id"],
+    "id_meaning": "`id` = id của webhook (không đổi theo URL) — KHÔNG phải id sự kiện",
+    "dedupe_key": "message-id + event + ts_epoch (hoặc ts_event) + digest(email)",
+    "batched": "tuỳ chọn khi tạo webhook — mảng sự kiện; tài liệu không mô tả trần lô / thử lại",
+    "status_query": "không dùng (không có tra trạng thái theo messageId đủ tin cậy trong tài liệu đã đọc)"
+  },
+  "fixtures": {
+    "accepted": { "status": 201, "body": "{\"messageId\":\"<202611081200.1@smtp-relay.mailin.fr>\"}" },
+    "empty_message_id": { "status": 201, "body": "{}" },
+    "bad_request": { "status": 400, "body": "{\"code\":\"invalid_parameter\",\"message\":\"sender is invalid\"}" },
+    "auth_failed": { "status": 401, "body": "{\"code\":\"unauthorized\",\"message\":\"Key not found\"}" },
+    "rate_limited": { "status": 429, "headers": { "retry-after": "30" }, "body": "{}" },
+    "senders": { "status": 200, "body": "{\"senders\":[{\"id\":1,\"name\":\"Spa Hoa\",\"email\":\"hello@spahoa.vn\",\"active\":true,\"ips\":[]},{\"id\":2,\"name\":\"Cũ\",\"email\":\"old@spahoa.vn\",\"active\":false,\"ips\":[]}]}" },
+    "webhook_delivered": "{\"event\":\"delivered\",\"email\":\"khach@example.test\",\"id\":42,\"date\":\"2026-11-08 12:00:05\",\"ts\":1794139205,\"ts_event\":1794139205,\"ts_epoch\":1794139205123,\"message-id\":\"<202611081200.1@smtp-relay.mailin.fr>\",\"tags\":[\"appchat\"]}",
+    "webhook_batch": "[{\"event\":\"opened\",\"email\":\"khach@example.test\",\"id\":42,\"ts_epoch\":1794139300000,\"message-id\":\"<202611081200.1@smtp-relay.mailin.fr>\"},{\"event\":\"hard_bounce\",\"email\":\"b@example.test\",\"id\":42,\"ts_epoch\":1794139301000,\"message-id\":\"<202611081200.2@smtp-relay.mailin.fr>\"}]"
+  }
+}

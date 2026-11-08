@@ -9,10 +9,13 @@ import {
   ProviderError,
   adapterFor,
   isProviderError,
+  isTenantMail,
   type BankFeedProvider,
+  type MailTransports,
   type ProviderHttp,
 } from '@appchat/integrations';
 import { providerHttp } from '../operations/provider-http';
+import { mailTransports } from '../mail/module';
 
 export const PROBE_TIMEOUT_MS = 10_000;
 
@@ -93,15 +96,20 @@ export async function probe(
   conn: ConnectionCtx,
   timeoutMs = PROBE_TIMEOUT_MS,
   http: ProviderHttp = providerHttp(),
+  mail: MailTransports = mailTransports(),
 ): Promise<ProbeResult> {
   if (e.manifest.status === 'coming_soon') return { status: 'unsupported', reason: 'coming_soon' };
   const adapter = adapterFor(e, conn.mode);
   // TIP-012b P5 §4.1 A: adapter ngân hàng không có `test` nhưng có thăm dò đọc thật (`probe` qua safeFetch, host cố định) → dùng nó;
   // thiếu khoá đọc → unsupported rõ (không bao giờ "ok" giả).
   const bank = adapter as BankFeedProvider | null;
+  // TIP-012c: mail của DN — thăm dò KHÔNG gửi (Brevo: GET senders; SMTP: TLS + đăng nhập). Người gửi chưa xác minh vẫn là `ok` về kết nối;
+  // trạng thái người gửi đọc riêng (campaign.mail_senders).
   const run = adapter?.test
     ? () => adapter.test!(conn)
-    : bank?.probe
+    : isTenantMail(adapter)
+      ? () => adapter.probe(conn, mail).then(() => undefined)
+      : bank?.probe
       ? () =>
           bank.probe!(conn, http).then((r) => {
             if (!r.account_found) throw new ProviderError('auth_failed', 'account');

@@ -669,7 +669,13 @@
       "account_number": "Số tài khoản nhận",
       "host": "SMTP host",
       "username": "Tài khoản",
-      "password": "Mật khẩu ứng dụng"
+      "password": "Mật khẩu ứng dụng",
+      "port": "Cổng SMTP (465 TLS / 587 STARTTLS)",
+      "sender_email": "Email người gửi",
+      "sender_name": "Tên người gửi",
+      "reply_to": "Email nhận trả lời (tuỳ chọn)",
+      "webhook_token": "Token webhook (bearer — để nhận sự kiện giao thư)",
+      "sender_confirmed": "Xác nhận đây là địa chỉ của doanh nghiệp (true)"
     },
     "modal": {
       "title": "Kết nối {n}",

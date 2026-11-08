@@ -23,10 +23,11 @@ describe('sức khoẻ kết nối', () => {
     expect(healthOf({ ...base, status: 'disconnected' })).toBe('disconnected');
   });
 
-  it('khả năng theo adapter đúng chế độ: Casso live kéo được, SePay live không kéo; connector không adapter → tất cả false', () => {
+  it('khả năng theo adapter đúng chế độ: Casso live kéo được, SePay live không kéo; connector không adapter → tất cả false; Brevo (TIP-012c) có webhook + thăm dò mail, không kéo', () => {
     expect(capabilitiesOf(connectorRegistry.get('casso'), 'live')).toEqual({ webhook: true, probe: true, pull: true });
     expect(capabilitiesOf(connectorRegistry.get('sepay'), 'live')).toEqual({ webhook: true, probe: true, pull: false });
-    expect(capabilitiesOf(connectorRegistry.get('brevo'), 'live')).toEqual({ webhook: false, probe: false, pull: false });
+    expect(capabilitiesOf(connectorRegistry.get('brevo'), 'live')).toEqual({ webhook: true, probe: true, pull: false });
+    expect(capabilitiesOf(connectorRegistry.get('kiotviet'), 'live')).toEqual({ webhook: false, probe: false, pull: false });
     expect(maskAccount('0071000123456')).toBe('••3456');
   });
 });

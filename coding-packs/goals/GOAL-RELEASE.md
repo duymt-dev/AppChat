@@ -111,7 +111,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 27 | [032c](../tips/TIP-032c-commerce-edit-integrity.md) | W8 | **DONE** (pha 2/2 — P1 người tạo bất biến + người phụ trách + CAS + hoàn tác theo trường / tạo giữ lịch sử (#135, DC-395); P2 KPI theo người tạo + xuất XLSX đọc lại + thẻ Trợ lý chốt phiên bản + ai:live `commerce-edit-integrity` 8/8, an toàn 0 (#136, DC-396, DV-069…070)) | `tip/032c-attribution` · `-p2` | `7d59f52b` · `c769ab18` | #135 · #136 (xếp chồng #135) | P1 tenant `20261108080000_commerce_edit_integrity` |
 | 28 | [015f](../tips/TIP-015f-contact-lifecycle.md) | W8 | **DONE** (pha 6/6 — P1 DC-397 · P2 DC-398 · P3 DC-399 · P4 DC-400 · P5 DC-401 · P6 DC-402; ai:live contact-lifecycle 7/8, an toàn 0) | `tip/015f-contact-lifecycle` · `-p2` … `-p6` | `4df7f0e2` · `b574ccb4` · `69237ab7` · `f43ba4ef` · `0704630f` · P6 xem PR | #137 · #138 · #139 · #140 · #141 · #142 |
 | 29 | [015e](../tips/TIP-015e-contact-merge-integrity.md) | W8 | DONE | `tip/015e-contact-merge-p5` | report TIP-015e-completion.md | #143–#147 |
-| 30 | [012c](../tips/TIP-012c-tenant-mail.md) | W8 | chờ | `tip/012c-tenant-mail` | | |
+| 30 | [012c](../tips/TIP-012c-tenant-mail.md) | W8 | đang làm (P1 / 6) | `tip/012c-tenant-mail` | P1 xem PR | #148 |
 | 31 | [033b](../tips/TIP-033b-booking-operations.md) | W8 | chờ | `tip/033b-booking-operations` | | |
 | 32 | [019c](../tips/TIP-019c-ai-utilities.md) | W8 | chờ | `tip/019c-ai-utilities` | | |
 | 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | chờ | `tip/015c-contact-privacy` | | |

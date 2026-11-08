@@ -669,7 +669,13 @@
       "account_number": "Receiving account number",
       "host": "SMTP host",
       "username": "Username",
-      "password": "App password"
+      "password": "App password",
+      "port": "SMTP port (465 TLS / 587 STARTTLS)",
+      "sender_email": "Sender email",
+      "sender_name": "Sender name",
+      "reply_to": "Reply-to email (optional)",
+      "webhook_token": "Webhook token (bearer — for delivery events)",
+      "sender_confirmed": "Confirm this address belongs to the business (true)"
     },
     "modal": {
       "title": "Connect {n}",

@@ -422,7 +422,11 @@
       "connected": true,
       "opens": null,
       "fields": [
-        "api_key"
+        "api_key",
+        "sender_email",
+        "sender_name",
+        "reply_to",
+        "webhook_token"
       ],
       "interest": false
     },
@@ -437,7 +441,12 @@
       "fields": [
         "host",
         "username",
-        "password"
+        "password",
+        "port",
+        "sender_email",
+        "sender_name",
+        "reply_to",
+        "sender_confirmed"
       ],
       "interest": false
     },

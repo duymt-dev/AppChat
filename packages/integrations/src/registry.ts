@@ -10,10 +10,13 @@ import { MockBankFeedProvider } from './connectors/mock/bank-feed';
 import { SepayBankFeed } from './connectors/sepay/adapter';
 import { CassoBankFeed } from './connectors/casso/adapter';
 import { MockOrderSyncProvider, mockMarketplaceManifest } from './connectors/mock/order-sync';
+import { BrevoTenantMail } from './connectors/brevo/tenant-adapter';
+import { SmtpTenantMail } from './connectors/smtp/tenant-adapter';
 
 export const connectorRegistry = defineConnectors([
-  { manifest: brevoManifest }, // adapter: BrevoMailProvider (TIP-004)
-  { manifest: smtpManifest }, // adapter: TIP-006 (DC-018)
+  // TIP-012c: adapter mail của DN (kết nối tenant). Thư hệ thống nền tảng vẫn BrevoMailProvider / SmtpMailProvider qua env (tách hẳn).
+  { manifest: brevoManifest, adapters: { live: new BrevoTenantMail(brevoManifest) } },
+  { manifest: smtpManifest, adapters: { live: new SmtpTenantMail(smtpManifest) } },
   // TIP-012b: live = adapter thật (không lùi về mock); sandbox = giả lập HMAC `x-mock-signature` chỉ cho test / dev (core chặn ở production).
   { manifest: sepayManifest, adapters: { live: new SepayBankFeed(sepayManifest), sandbox: new MockBankFeedProvider(sepayManifest) } },
   { manifest: cassoManifest, adapters: { live: new CassoBankFeed(cassoManifest), sandbox: new MockBankFeedProvider(cassoManifest) } },

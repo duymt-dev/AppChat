@@ -19,7 +19,8 @@ describe('chọn adapter bank_feed theo chế độ', () => {
     const reg = defineConnectors([{ manifest: sepayManifest, adapters: { sandbox: new MockBankFeedProvider(sepayManifest) } }]);
     expect(adapterFor(reg.get('sepay'), 'live')).toBeUndefined();
     expect(adapterFor(connectorRegistry.get('mock_marketplace'), 'live')).toBeUndefined();
-    expect(adapterFor(connectorRegistry.get('brevo'), 'live')).toBeUndefined();
+    // TIP-012c: brevo có adapter mail tenant live — không có sandbox (không lùi).
+    expect(adapterFor(connectorRegistry.get('brevo'), 'sandbox')).toBeUndefined();
     expect(adapterFor(undefined, 'live')).toBeUndefined();
   });
 
