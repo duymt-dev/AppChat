@@ -13,6 +13,7 @@ export const quotesQuery = (f: QuoteFilter, pg?: PageState) =>
       transport.get<Paged<Quote>>('/quotes', {
         status: f.status,
         owner_id: f.owner_id,
+        ...(f.assigned_user_id && f.assigned_user_id !== 'all' ? { assigned_user_id: f.assigned_user_id } : {}),
         returning: f.returning,
         ...(f.q ? { q: f.q } : {}),
         ...customParams(f.custom),

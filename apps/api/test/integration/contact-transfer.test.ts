@@ -190,3 +190,32 @@ describe('chuyển phụ trách atomic (TIP-015d)', () => {
     expect((await db.contact.findUniqueOrThrow({ where: { id: c } })).transferGeneration).toBe(1);
   });
 });
+
+describe('đọc trạng thái + DTO báo giá (TIP-015d P2)', () => {
+  it('GET /contacts/:id/transfers/:id + contact.transfer_status: số đếm + bản ghi theo quyền; sales không crm.reassign → 403; khác khách → 404', async () => {
+    const c = await contact('Chị Yến Trạng thái');
+    await conv(c);
+    const q = await quote(c, { status: 'sent' });
+    const r = await act('contact.transfer_owner', { contact_id: c, to_user_id: sales.id, move: ALL });
+    const tid = r.body.data.result.transfer_id;
+    const http = await call(h, `/contacts/${c}/transfers/${tid}?limit=1`).then(json);
+    expect(http.status, JSON.stringify(http.body)).toBe(200);
+    expect(http.body.data).toMatchObject({ transfer_id: tid, status: 'applied', from_user_id: h.user, to_user_id: sales.id, moved: { conversations: 1, quotes: 1, appointments: 0 } });
+    expect(http.body.data.items).toHaveLength(1);
+    const page2 = await call(h, `/contacts/${c}/transfers/${tid}?cursor=${http.body.data.next_cursor}`).then(json);
+    expect([...http.body.data.items, ...page2.body.data.items].map((i: { domain: string }) => i.domain).sort()).toEqual(['conversation', 'quote']);
+    const viaAction = await act('contact.transfer_status', { contact_id: c, transfer_id: tid });
+    expect(viaAction.body.data.result.moved).toEqual(http.body.data.moved);
+    expect((await call(h, `/contacts/${c}/transfers/${tid}`, undefined, as(sales)).then(json)).status).toBe(403);
+    const other = await contact('Khách khác');
+    expect((await call(h, `/contacts/${other}/transfers/${tid}`).then(json)).status).toBe(404);
+    expect((await call(h, `/contacts/${c}/transfers/${tid}?cursor=x`).then(json)).status).toBe(400);
+    // DTO báo giá: người tạo giữ nguyên, người phụ trách vận hành = sales; bộ lọc assigned_user_id riêng.
+    const row = (await call(h, `/quotes/${q}`).then(json)).body.data;
+    expect([row.owner_user_id, row.assigned_user_id, row.assigned_name]).toEqual([h.user, sales.id, 'sales']);
+    const byAssigned = (await call(h, `/quotes?assigned_user_id=${sales.id}&limit=100`).then(json)).body.data.map((x: { id: string }) => x.id);
+    const byOwner = (await call(h, `/quotes?owner_id=${sales.id}&limit=100`).then(json)).body.data.map((x: { id: string }) => x.id);
+    expect(byAssigned).toContain(q);
+    expect(byOwner).not.toContain(q);
+  });
+});

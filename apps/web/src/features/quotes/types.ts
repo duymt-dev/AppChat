@@ -34,6 +34,9 @@ export interface Quote {
   returning: boolean;
   owner_user_id: string;
   owner_name: string;
+  /** Người phụ trách vận hành hiện tại (TIP-015d) — '' = chưa giao. */
+  assigned_user_id: string;
+  assigned_name: string;
   status: QuoteStatus;
   items: QuoteItem[];
   header_discount: Discount | null;
@@ -72,7 +75,10 @@ export interface QuotesMeta {
 
 export interface QuoteFilter {
   status: string;
+  /** Người báo giá (người tạo — doanh số). */
   owner_id: string;
+  /** Người phụ trách vận hành hiện tại (TIP-015d) — bộ lọc riêng, không suy từ owner_id. */
+  assigned_user_id?: string;
   returning: string;
   q: string;
   custom?: Record<string, string>;

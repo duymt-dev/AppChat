@@ -20,7 +20,7 @@ export function ContactFormHost() {
   if (!target || !c || c.id !== target.contactId) return null;
   if (target.mode === 'transfer') {
     if (!c.can_transfer) return null;
-    return <TransferOwnerModal key={`t-${c.id}`} contact={{ id: c.id, owner_user_id: c.owner_user_id, owner_name: c.owner_name }} toUserId={target.toUserId} onClose={close} />;
+    return <TransferOwnerModal key={`t-${c.id}`} contact={{ id: c.id, owner_user_id: c.owner_user_id, owner_name: c.owner_name, version: c.version }} toUserId={target.toUserId} onClose={close} />;
   }
   if (!c.editable) return null;
   const v = c.values;

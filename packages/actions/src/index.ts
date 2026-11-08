@@ -64,6 +64,7 @@ import * as assistantUi from './assistant-ui';
 import * as integrationProbe from './integration-probe';
 import * as integrationRuntime from './integration-runtime';
 import * as contactNotes from './contact-notes';
+import * as contactTransfer from './contact-transfer';
 import * as contactTasks from './contact-tasks';
 import * as contactOpportunities from './contact-opportunities';
 import * as dataJobs from './data-jobs';
@@ -139,6 +140,7 @@ export * from './reads/documents';
 export * from './integration-probe';
 export * from './integration-runtime';
 export * from './contact-notes';
+export * from './contact-transfer';
 export * from './contact-tasks';
 export * from './contact-opportunities';
 export * from './data-jobs';
@@ -222,6 +224,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(integrationProbe),
   ...Object.values(integrationRuntime),
   ...Object.values(contactNotes),
+  ...Object.values(contactTransfer),
   ...Object.values(contactTasks),
   ...Object.values(contactOpportunities),
 ] as ActionDef[];

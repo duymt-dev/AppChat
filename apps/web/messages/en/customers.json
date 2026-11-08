@@ -321,7 +321,17 @@
     "submit": "Transfer owner",
     "close": "Close",
     "bulkTitle": "Assign {count} customers",
-    "bulkDone": "Transferred {count} customers"
+    "bulkDone": "Transferred {count} customers",
+    "stop": "Stop",
+    "result": {
+      "transferred": "transferred",
+      "skipped": "already owner",
+      "pending": "awaiting approval",
+      "errors": "failed",
+      "cancelled": "not run (stopped)",
+      "moved": "Moved along: {conversations} conversations · {quotes} quotes · {appointments} appointments",
+      "pendingHint": "Sent for approval — the owner does not change until it is approved."
+    }
   },
   "unit": "customers",
   "sorts": {

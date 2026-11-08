@@ -321,7 +321,17 @@
     "submit": "Chuyển phụ trách",
     "close": "Đóng",
     "bulkTitle": "Gán phụ trách cho {count} khách",
-    "bulkDone": "Đã chuyển {count} khách"
+    "bulkDone": "Đã chuyển {count} khách",
+    "stop": "Dừng",
+    "result": {
+      "transferred": "khách đã chuyển",
+      "skipped": "đã là người phụ trách",
+      "pending": "chờ duyệt",
+      "errors": "lỗi",
+      "cancelled": "chưa chạy (đã dừng)",
+      "moved": "Chuyển kèm: {conversations} hội thoại · {quotes} báo giá · {appointments} lịch hẹn",
+      "pendingHint": "Yêu cầu đã gửi người duyệt — chưa đổi người phụ trách cho tới khi được duyệt."
+    }
   },
   "unit": "khách hàng",
   "sorts": {

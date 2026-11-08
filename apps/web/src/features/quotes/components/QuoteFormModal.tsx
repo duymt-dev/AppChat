@@ -177,7 +177,11 @@ function QuoteForm({
             <select
               className={styles.input}
               value={f.d.owner_user_id}
+              // TIP-015d: người báo giá (doanh số) chọn lúc tạo, bất biến khi sửa — đổi người phụ trách qua Chuyển phụ trách khách.
+              disabled={mode === 'edit'}
+              title={mode === 'edit' ? t('ownerImmutable') : undefined}
               onChange={(e) => f.set('owner_user_id', e.target.value)}
+              data-testid="q-owner"
             >
               <option value="">{t('contactPh')}</option>
               {members.map((m) => (

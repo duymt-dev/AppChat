@@ -9,6 +9,7 @@ import { ENV_SOURCE } from '../kernel/kernel.module';
 import { fileLinksFrom } from '../kernel/files/file-links';
 import './seeds';
 import { ContactAddCollaboratorHandler, ContactDecideAccessHandler, ContactRemoveCollaboratorHandler, ContactRequestAccessHandler, ContactTransferOwnerHandler } from './actions/contact-owner.handlers';
+import { ContactTransferStatusHandler } from './ownership/status.handler';
 import { ContactExportHandler, ContactImportHandler } from './actions/contact-io.handlers';
 import { ContactMergeHandler } from './actions/contact-merge.handler';
 import { ContactCreateHandler, ContactDeleteHandler, ContactSetStageHandler, ContactTagHandler, ContactUpdateHandler } from './actions/contact-write.handlers';
@@ -38,7 +39,7 @@ const HANDLERS = [
   ContactGetHandler,
   ContactGet360Handler,
   ContactCreateHandler, ContactUpdateHandler, ContactSetStageHandler, ContactTagHandler, ContactDeleteHandler, ContactMergeHandler,
-  ContactAddCollaboratorHandler, ContactRemoveCollaboratorHandler, ContactTransferOwnerHandler, ContactRequestAccessHandler, ContactDecideAccessHandler,
+  ContactAddCollaboratorHandler, ContactRemoveCollaboratorHandler, ContactTransferOwnerHandler, ContactTransferStatusHandler, ContactRequestAccessHandler, ContactDecideAccessHandler,
   ContactExportHandler, ContactImportHandler,
   // TIP-045b annex D: sửa hàng loạt (≤ 50 ngay, > 50 việc nền).
   ContactBulkUpdateHandler,

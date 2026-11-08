@@ -21,6 +21,7 @@ import { renderTimeline } from './timeline.service';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { contactEditContext } from './contact-edit';
 import { activityPage, activitySummary } from '../activities/read.service';
+import { transferStatus } from '../ownership/read';
 
 export interface Viewer {
   workspaceId: string;
@@ -162,6 +163,11 @@ export class CrmReadService {
   async activities(v: Viewer, id: string, q: { kind: ActivityKind; cursor?: string; limit?: number; activityId?: string }) {
     const pl = await this.place(v);
     return this.tx(v, (tx) => activityPage(tx, id, q, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)) }));
+  }
+
+  /** `GET /v1/contacts/:id/transfers/:transferId` (TIP-015d) — cùng reader với action contact.transfer_status. */
+  async transfer(v: Viewer, id: string, transferId: string, q: { cursor?: string; limit?: number }) {
+    return this.tx(v, (tx) => transferStatus(tx, v.authz, id, transferId, q));
   }
 
   /** `GET /v1/contacts/:id/edit-context` (TIP-025b §D.3) — cùng reader với action contact.get_edit_context. */

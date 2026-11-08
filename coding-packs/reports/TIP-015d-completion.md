@@ -1,6 +1,6 @@
 # TIP-015d — Completion Report
 
-**STATUS:** ĐANG LÀM — pha 1 / 4 (DC-391). P1 lõi server · P2 UI + đọc trạng thái · P3 thông báo hai bên + bulk + duyệt theo domain · P4 khoá gốc writer khác + ai:live + cổng chốt D59.
+**STATUS:** ĐANG LÀM — pha 2 / 4 (P1 DC-391, P2 DC-392). P1 lõi server · P2 UI + đọc trạng thái · P3 thông báo hai bên + bulk + duyệt theo domain · P4 khoá gốc writer khác + ai:live + cổng chốt D59.
 
 **MIGRATION:** tenant `20261108070000_contact_transfer` → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker.
 
@@ -49,3 +49,27 @@
 | `api/response-envelope.md` | 409 STALE_VERSION / CONFLICT, 422 immutable, 503 port thiếu |
 | `code/file-size-module-layout.md` | file mới ≤ 110 dòng; handler cũ thành facade 2 dòng; test riêng |
 | COMMERCE §8b | doanh số theo người tạo — `owner_user_id` bất biến; lịch hẹn sắp tới tuỳ chọn; không đổi luật tiền |
+
+---
+
+## Pha 2 — đọc trạng thái + UI kết quả thật + báo giá hai người (§2.8, §3.2, §3.4, §4.4–4.5; DC-392)
+
+**MIGRATION:** không.
+
+**FILES CHANGED** (lệch ghi ở DV-066)
+- actions: `contact-transfer.ts` (mới — `contact.transfer_status`), `index.ts`.
+- shared: `api/contact-transfer.ts` (mới — DTO trạng thái), `api/index.ts`, `api/quotes.ts` (`assigned_user_id`, `assigned_name`).
+- core: `crm/ownership/read.ts` + `status.handler.ts` (mới), `crm/crm.module.ts`, `crm/services/crm-read.service.ts` (`transfer()`), `kernel/actions/tip-owners.ts`; báo giá: `quote-view.ts`, `quotes-read.service.ts` (tên người phụ trách), `repos/quotes.repo.ts` (lọc `assignedId`).
+- api: `http/crm/contact-activities.controller.ts` (GET transfers), `http/sales/quotes.controller.ts` (`assigned_user_id`).
+- web: `customers/hooks/useContactTransfer.ts` + `components/TransferResult.tsx` + `styles/transfer-result.styles.ts` (mới); `TransferOwnerModal.tsx`, `BulkTransferModal.tsx` (kết quả thật, Dừng); `_crm-forms/ContactFormHost.tsx` (version); báo giá: `types.ts`, `api.ts`, `QuotesToolbar.tsx` (lọc Phụ trách hiện tại), `QuoteFormModal.tsx` (Người báo giá khoá khi sửa), `OverviewTab.tsx` (Phụ trách hiện tại); mock `quotes.ts` / `quotes-actions.ts` (assigned, owner bất biến); i18n vi + en (`customers`, `quotes`, `actions`).
+- test mới: `useContactTransfer.test.tsx` (3), `e2e/contact-transfer.spec.ts` (2), ma trận `contact.transfer_status` (3), `contact-transfer.test.ts` +1 (trạng thái HTTP / action, phân trang, 403 / 404 / 400, DTO + bộ lọc báo giá).
+
+**Giả định đã chọn (gap-filling)**
+- Danh sách báo giá giữ cột "Người BG" = người tạo (prototype); người phụ trách hiện tại chỉ hiện ở Tổng quan khi khác người tạo + bộ lọc riêng — không thêm cột mới vào bảng prototype.
+- Hộp chuyển một khách: chuyển thật / bỏ qua → đóng (toast + Hoàn tác như cũ); chờ duyệt / lỗi → giữ hộp với kết quả (người dùng tự đóng).
+
+**TEST (P2)**
+- Integration: contact-transfer 7/7, ma trận transfer_status 3/3, quotes + list-exports + quote.export + quote.update 33/33.
+- turbo lint / typecheck / test `...[origin/dev]` 36/36; web unit hook 3/3; i18n 100% (6552); lint:size, lint:tokens pass; depcheck không lỗi mới.
+- E2E mock: contact-transfer 2/2; customers + quotes 15/15 (+15 skip bản thiết bị khác).
+

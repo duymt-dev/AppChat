@@ -35,6 +35,9 @@ export type Quote = Omit<
   Fixed,
   'status' | 'items' | 'header_discount' | 'sent_at' | 'converted' | 'comments'
 > & {
+  /** Người phụ trách vận hành (TIP-015d) — fixture prototype không có → mặc định = người tạo. */
+  assigned_user_id?: string;
+  assigned_name?: string;
   comments: { who: string; text: string; at: string }[];
   status: QuoteStatus;
   items: QuoteItem[];
@@ -65,7 +68,7 @@ export const MOCK_NOW = '2026-06-24T09:00:00+07:00';
 const visible = (db: MockDb, q: Quote) => {
   if (q.deleted || q.status === 'superseded') return false;
   const scope = ROLE_DEFS[db.role].scope.sales;
-  return scope === 'all' || (scope === 'own' && q.owner_user_id === ME);
+  return scope === 'all' || (scope === 'own' && (q.assigned_user_id ?? q.owner_user_id) === ME);
 };
 
 /** Cuối ngày (mốc + N) theo giờ VN — mock đồng hồ cố định (server dùng dayEndAfter theo giờ workspace). */
@@ -79,6 +82,8 @@ export const enrich = (q: Quote, policy?: ApprovalPolicy): QuoteRow => {
   const { converted, valid_until_at, viewed_at: _v, deleted: _d, ...rest } = q;
   return {
     ...rest,
+    assigned_user_id: q.assigned_user_id ?? q.owner_user_id,
+    assigned_name: q.assigned_name ?? q.owner_name,
     ...totals,
     converted: converted?.kind ?? null,
     valid_until: valid_until_at ?? validUntilOf(q.sent_at ?? MOCK_NOW, q.valid_days),
@@ -102,6 +107,7 @@ export const quotesRoutes: Record<string, MockRoute> = {
         visible(db, q) &&
         (!p.status || p.status === 'all' || q.status === p.status) &&
         (!p.owner_id || p.owner_id === 'all' || q.owner_user_id === p.owner_id) &&
+        (!p.assigned_user_id || p.assigned_user_id === 'all' || (q.assigned_user_id ?? q.owner_user_id) === p.assigned_user_id) &&
         (!p.contact_id || q.contact_id === p.contact_id) &&
         (!p.returning || p.returning === 'all' || String(q.returning) === String(p.returning === 'old')) &&
         (!s || [q.code, q.contact_name, q.items[0]?.name ?? ''].some((v) => v.toLowerCase().includes(s))),

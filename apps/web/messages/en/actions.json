@@ -285,6 +285,10 @@
       "title": "Transfer owner",
       "desc": "Propose a new owner for a contact; a manager must approve."
     },
+    "transfer_status": {
+      "title": "View owner transfer result",
+      "desc": "Read a committed owner transfer: status and moved record counts."
+    },
     "request_access": {
       "title": "Request access"
     },

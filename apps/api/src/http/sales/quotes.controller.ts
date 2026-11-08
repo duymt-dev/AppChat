@@ -1,5 +1,5 @@
 // Đọc Báo giá (Blueprint §4.4 sales, TIP-029 — shape packages/shared/src/api/quotes.ts): /v1/quotes (D42 page + limit, `status` /
-// `owner_id` / `contact_id` / `returning` (old | new) / `q` không dấu / `cf.*`), /quotes/meta (?quote_id= kèm số liệu một báo giá),
+// `owner_id` (người tạo) / `assigned_user_id` (người phụ trách vận hành — TIP-015d) / `contact_id` / `returning` (old | new) / `q` không dấu / `cf.*`), /quotes/meta (?quote_id= kèm số liệu một báo giá),
 // /quotes/:id, /quotes/:id/versions, /quotes/:id/pdf. Quyền `quote.view`; data scope sales trong service (không thấy → 404). Ghi qua
 // action quote.*.
 import { Controller, Get, Inject, Param, Query, Req, Res } from '@nestjs/common';
@@ -17,7 +17,7 @@ const int = (v: string | undefined, field: string) => {
 
 export function quoteFilterOf(q: Record<string, string | undefined>): QuoteFilter {
   const custom = Object.fromEntries(Object.entries(q).filter(([k, x]) => k.startsWith('cf.') && x).map(([k, x]) => [k.slice(3), String(x).slice(0, 100)]));
-  return { status: q.status, ownerId: q.owner_id, contactId: q.contact_id, returning: q.returning, q: q.q?.slice(0, 100), custom };
+  return { status: q.status, ownerId: q.owner_id, assignedId: q.assigned_user_id, contactId: q.contact_id, returning: q.returning, q: q.q?.slice(0, 100), custom };
 }
 
 export function sendPdf(res: ServerResponse, name: string, pdf: Buffer, disposition: 'inline' | 'attachment') {
