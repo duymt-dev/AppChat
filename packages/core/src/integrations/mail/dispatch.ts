@@ -11,6 +11,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { backoffAt, upsertCall, type CallRow } from '../operations/call-receipt';
 import type { CallOpSpec } from '../operations/call-runner';
 import { callRefOf, dispatchRefOfCall, moveDelivery, type DeliveryRow } from './receipts';
+import { reconcileDelivery } from './results';
 
 export const MAIL_SEND_OP = 'mail.send';
 export const MAIL_MAX_ATTEMPTS = 3;
@@ -97,7 +98,11 @@ export const mailSendOp: CallOpSpec = {
       return { state: 'retry', reason: out.reason };
     }
     const data = out.state === 'accepted' ? { state: out.state, providerMessageRef: out.providerMessageRef, acceptedAt: t, reason: null, nextAttemptAt: null } : { state: out.state, reason: out.reason, nextAttemptAt: null };
-    if (await moveDelivery(a.db, d.id, 'reserved', data, t)) await dom.result({ ws: a.workspaceId, delivery: d, outcome: out, now: t });
+    if (await moveDelivery(a.db, d.id, 'reserved', data, t)) {
+      await dom.result({ ws: a.workspaceId, delivery: d, outcome: out, now: t });
+      // Callback đến trước phản hồi provider → sự kiện `unresolved` cùng mã thư được ghép + áp ngay.
+      if (out.state === 'accepted') await a.db.$transaction((tx) => reconcileDelivery(tx, a.workspaceId, d.id, t));
+    }
     return { state: out.state };
   },
 };

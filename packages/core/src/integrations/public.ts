@@ -4,6 +4,8 @@ export { ConnectionsService, connectionCtx, rotated } from './services/connectio
 export { queueProbe, probeOp, PROBE_OP } from './operations/probe';
 export { MAIL_SEND_OP, MAIL_MAX_ATTEMPTS, mailSendOp, queueMailSend, registerMailDomain, unregisterMailDomain, type MailDomain } from './mail/dispatch';
 export { mailTransports, type MailTransportOptions } from './mail/module';
+export { purgeMailBindings } from './mail/purge';
+export { captureBinding } from './mail/bindings';
 export { BANK_PULL_OP, bankPullOp, activeFeed, type StageReceipts } from './operations/bank-pull';
 export { registerCallOp, unregisterCallOp, executeCall, IntegrationOps, INTEGRATION_OPS_QUEUE, type CallOpSpec } from './operations/call-runner';
 export { upsertCall, claimCall, finishCall, callIdem } from './operations/call-receipt';

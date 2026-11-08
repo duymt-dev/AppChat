@@ -108,3 +108,34 @@
 | `domain/state-machine.md` | queued → reserved → accepted / failed_before_accept / unknown; chỉ failed_before_accept được xếp lại |
 | `ops/observability-security.md` | hàng đợi / biên nhận chỉ id + digest (test: không có địa chỉ trong biên nhận / lượt gọi); khoá đọc lúc gửi |
 | `code/testing.md` | transport giả theo hợp đồng Brevo, không mạng thật |
+
+## Pha 4 — callback xác thực, biên nhận sự kiện, binding sau ngắt kết nối (§4.1–§4.5, §6; AC5) — DC-411, DV-085
+
+**Rà trước khi làm (code thật)**
+- webhook.service: route `disconnected` → 404 cho mọi port; adapter `verifyWebhook` + `integration_event` thô + outbox — không có biên nhận sự kiện mail / ghép.
+- connections.service connect / disconnect thay / xoá `secret_enc` cùng transaction, route nền tảng upsert giữ dòng `disconnected`.
+- Brevo không ký HMAC (P1) → token webhook riêng là vật liệu xác thực duy nhất giữ được mà không giữ khoá gửi.
+
+**FILES CHANGED** (lệch manifest ở DV-085)
+- core: `integrations/mail/{ingress,results,bindings,purge}.ts` (mới), `integrations/mail/dispatch.ts` (đối soát khi accepted), `integrations/services/{webhook.service,connections.service}.ts`, `integrations/jobs/bank-sync.scheduler.ts`, `integrations/public.ts`; `marketing/events/mail-events.ts` (mới), `marketing/marketing.providers.ts`.
+- test: api `tenant-mail-callbacks.test.ts` (mới).
+
+**Giả định đã chọn (gap-filling)**
+- `account_ref` Brevo chưa có trong hợp đồng công khai → chuỗi rỗng (ghép theo kết nối + mã thư + digest — mã thư Brevo duy nhất toàn cục).
+- Trần sự kiện chưa ghép 10.000 / kết nối; quá 30 ngày → ignored (không xoá — bằng chứng).
+- Lỗi cứng / khiếu nại dùng chính sách huỷ nhận 037 (`marketing_opt_out`) vì 037 chưa có bảng chặn riêng theo kênh; huỷ nhận từ provider không áp (chỉ link ký).
+
+**TEST (cổng khi làm — D59)**
+- api integration `tenant-mail-callbacks.test.ts` **5/5** (401 sai token / api_key / không bearer, 404 route lạ, 400 thân hỏng; lô không thứ tự + lặp → cờ đúng, duplicate, read_at một lần; hard không bị soft hạ, khiếu nại → huỷ nhận đúng khách; callback trước phản hồi → ghép khi accepted, thư lạ unresolved; ngắt → binding (không api_key, đã mã hoá) xác thực callback muộn, token sai 404, hết hạn + purge → 404, bằng chứng còn).
+- cùng lượt: tenant-mail / dispatch + marketing ×4 + integrations / detail + bank-connectors / convergence / ingress + payments — **100/100**.
+- turbo lint / typecheck / test (CI) **36/36**; depcheck, lint:size sạch. Chưa nghiệm thu với provider thật (Q-004).
+
+**ĐỐI CHIẾU STANDARDS (P4)**
+
+| Standard | Kết quả |
+|---|---|
+| `integrations/provider-ports.md` §6 | route chung, xác thực trong adapter trên byte gốc, sai → từ chối đồng nhất; port khác giữ 404 khi ngắt |
+| `events/outbox.md` / idempotency | sự kiện chỉ thêm, unique theo khoá provider; tiêu thụ + tác dụng miền cùng transaction |
+| `domain/concurrency.md` | khoá sự kiện + biên nhận (FOR UPDATE); đối soát CAS `delivery_id`; purge SKIP LOCKED |
+| `database/indexing.md` | event unique + unresolved partial + delivery idx; binding expiry INCLUDE + purge partial; lô 100 id trước |
+| `ops/observability-security.md` | token đã mã hoá, không giữ khoá gửi; không địa chỉ trong sự kiện (digest) |

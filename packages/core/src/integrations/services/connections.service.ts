@@ -6,6 +6,7 @@ import type { PlatformDb } from '@appchat/db';
 import { openSecrets, sealSecrets } from '../../kernel/crypto';
 import { uuidv7 } from '../../kernel/ids';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { captureBinding } from '../mail/bindings';
 import { adapterOf, pickMode } from './adapter-selection';
 import { cancelPending } from '../operations/call-receipt';
 
@@ -96,6 +97,7 @@ export class ConnectionsService {
       secretEnc: new Uint8Array(sealSecrets(secrets, this.key)),
       lastError: null,
     };
+    if (existing) await this.retain(tx, id);
     const row = existing
       ? await tx.integrationConnection.update({ where: { id }, data: { ...data, credentialRev: { increment: 1 } } })
       : await tx.integrationConnection.create({ data: { id, connectorKey: provider, createdBy: userId, ...data } });
@@ -129,6 +131,7 @@ export class ConnectionsService {
     const data = { name: p.name, port: p.port, mode: p.mode, status: 'connected' as const, config: p.config, secretEnc: new Uint8Array(Buffer.from(p.secretEnc, 'base64')), lastError: null };
     const existing = await tx.integrationConnection.findUnique({ where: { id: p.id }, select: { id: true } });
     if (!existing) return tx.integrationConnection.create({ data: { id: p.id, connectorKey: p.provider, createdBy: userId, ...data } });
+    await this.retain(tx, p.id);
     const row = await tx.integrationConnection.update({ where: { id: p.id }, data: { ...data, credentialRev: { increment: 1 } } });
     await rotated(tx, p.id, this.now());
     return row;
@@ -142,10 +145,20 @@ export class ConnectionsService {
   async disconnect(tx: TenantTx, ws: string, provider: string) {
     const row = await tx.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE } });
     if (!row) throw new AppError('NOT_FOUND', 404, { provider: 'not_connected' });
+    await this.retain(tx, row.id);
     await tx.integrationConnection.update({ where: { id: row.id }, data: { status: 'disconnected', secretEnc: null, credentialRev: { increment: 1 } } });
     await rotated(tx, row.id, this.now());
     await this.route(ws, row.id, provider, 'disconnected');
     return row;
+  }
+
+  /**
+   * TIP-012c §4.5: kết nối mail — chụp token webhook của phiên bản sắp thay / xoá (TRƯỚC khi đổi bí mật, cùng transaction) để callback
+   * muộn của thư đã nhận vẫn xác thực được (≤ 30 ngày). Không chụp khoá gửi. Thao tác phục hồi cùng phiên bản → không nhân đôi.
+   */
+  private async retain(tx: TenantTx, connectionId: string) {
+    const c = await tx.integrationConnection.findUnique({ where: { id: connectionId }, select: { credentialRev: true, port: true } });
+    if (c?.port === 'mail') await captureBinding(tx, connectionId, `${connectionId}:rev:${c.credentialRev}`, this.key, this.now());
   }
 
   /** Route webhook ở DB nền tảng (`tenant_integration_route`) — idempotent theo connection_id. */
