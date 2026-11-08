@@ -1,3 +1,4 @@
+// tenant/contact-lifecycle.prisma — sở hữu: TIP-015f (02-TASK-GRAPH.md → Bản đồ sở hữu file).
 // Vòng đời khách (TIP-015f): biên nhận mỗi lần xoá mềm — hạn khôi phục 30 × 24h tính từ lúc xoá thật; không PII (dữ liệu nằm ở dòng
 // hiện tại). Unique (contact_id, lifecycle_revision) + (operation_id). `erased` dành cho 015c (đóng cửa khôi phục vĩnh viễn).
 
