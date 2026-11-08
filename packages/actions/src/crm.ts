@@ -1,6 +1,6 @@
 // Khách hàng (Blueprint §3.4 crm, D32 phụ trách + đồng phụ trách). Prototype L2451–2984.
 import { z } from 'zod';
-import { CONTACT_SORTS } from '@appchat/shared';
+import { CONTACT_SORTS, contactDeleteResultSchema } from '@appchat/shared';
 import { defineAction } from './define';
 import { contactFields } from './crm-schemas';
 
@@ -96,9 +96,10 @@ export const contactDelete = defineAction({
   id: 'contact.delete',
   module: 'crm',
   title: 'actions.contact.delete.title',
-  description: 'Soft-delete a contact (restorable for 30 days). Example: {"contact_id":"kh_1002"}',
-  input: z.object({ contact_id: contactId }),
-  output: z.object({ deleted: z.boolean() }),
+  description:
+    'Soft-delete a contact (restorable for 30 days via contact.restore). Blocked (HAS_DEPENDENCIES) while the customer has open orders / contracts, receivables, draft payment requests or pending payments / refunds. Conversations and closed documents are kept. Not a privacy erasure or unsubscribe. Example: {"contact_id":"kh_1002","if_version":3}',
+  input: z.object({ contact_id: contactId, if_version: z.number().int().positive().optional() }),
+  output: contactDeleteResultSchema,
   permission: 'crm.delete',
   risk: 'delete',
   agentGrantable: false,

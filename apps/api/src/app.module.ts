@@ -1,6 +1,6 @@
 // Module gốc của API: kernel + health + route kernel (TIP-003) + 19 domain HTTP module (đăng ký sẵn ở TIP-001 — TIP sau KHÔNG sửa).
 import { Module, type DynamicModule } from '@nestjs/common';
-import { KernelModule } from '@appchat/core';
+import { ContactLifecycleModule, KernelModule } from '@appchat/core';
 import { HealthModule } from './http/health/health.module';
 import { KernelHttpModule } from './http/kernel/kernel.http.module';
 import { IdentityHttpModule } from './http/identity/identity.http.module';
@@ -54,6 +54,6 @@ const withActions = (env: Record<string, string | undefined>) =>
 @Module({})
 export class AppModule {
   static forRoot(env: Record<string, string | undefined> = process.env): DynamicModule {
-    return { module: AppModule, imports: [KernelModule.forRoot(env), HealthModule, ...withActions(env), ...DOMAIN_HTTP_MODULES] };
+    return { module: AppModule, imports: [KernelModule.forRoot(env), HealthModule, ContactLifecycleModule, ...withActions(env), ...DOMAIN_HTTP_MODULES] };
   }
 }

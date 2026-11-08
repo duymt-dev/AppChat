@@ -1,0 +1,31 @@
+// Vòng đời khách (TIP-015f): biên nhận mỗi lần xoá mềm — hạn khôi phục 30 × 24h tính từ lúc xoá thật; không PII (dữ liệu nằm ở dòng
+// hiện tại). Unique (contact_id, lifecycle_revision) + (operation_id). `erased` dành cho 015c (đóng cửa khôi phục vĩnh viễn).
+
+enum ContactLifecycleState {
+  deleted
+  restored
+  expired
+  erased
+
+  @@map("contact_lifecycle_state")
+}
+
+model ContactLifecycleReceipt {
+  id                String                @id @db.Uuid
+  contactId         String                @map("contact_id") @db.Uuid
+  operationId       String                @unique(map: "contact_lifecycle_receipt_operation_key") @map("operation_id")
+  lifecycleRevision Int                   @map("lifecycle_revision")
+  deletedAt         DateTime              @map("deleted_at") @db.Timestamptz(6)
+  restoreUntil      DateTime              @map("restore_until") @db.Timestamptz(6)
+  actionId          String                @map("action_id")
+  state             ContactLifecycleState @default(deleted)
+  deletedByUserId   String?               @map("deleted_by_user_id") @db.Uuid
+  restoredAt        DateTime?             @map("restored_at") @db.Timestamptz(6)
+  restoredByUserId  String?               @map("restored_by_user_id") @db.Uuid
+  /// Biên nhận dựng từ deleted_at của khách xoá trước TIP-015f — không có người xoá / quyền hoàn tác log cũ.
+  legacy            Boolean               @default(false)
+  createdAt         DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([contactId, lifecycleRevision], map: "contact_lifecycle_receipt_generation_key")
+  @@map("contact_lifecycle_receipt")
+}

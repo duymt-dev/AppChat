@@ -2,7 +2,7 @@
 // Ghi trong transaction của executor; timeline + outbox cùng transaction.
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, mergeCustomValues, type CustomValues } from '@appchat/shared';
-import type { ActionInput, contactCreate, contactDelete, contactSetStage, contactTag, contactUpdate } from '@appchat/actions';
+import type { ActionInput, contactCreate, contactSetStage, contactTag, contactUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
@@ -178,23 +178,5 @@ export class ContactTagHandler implements Handler<ActionInput<typeof contactTag>
   }
 }
 
-@Injectable()
-@ActionHandler('contact.delete')
-export class ContactDeleteHandler implements Handler<ActionInput<typeof contactDelete>, { deleted: boolean }> {
-  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
-
-  async preview(ctx: ActionContext, input: ActionInput<typeof contactDelete>, tx: TenantTx) {
-    return pv.deletePreview(tx, ctx.authz, input);
-  }
-
-  async execute(ctx: ActionContext, input: ActionInput<typeof contactDelete>, tx: TenantTx): Promise<HandlerOutcome<{ deleted: boolean }>> {
-    const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
-    await tx.contact.update({ where: { id: c.id }, data: { deletedAt: this.clock.now() } });
-    return { result: { deleted: true }, before: { id: c.id }, after: { id: c.id, deleted: true } };
-  }
-
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const id = (log.before as { id: string }).id;
-    await restoreOr409(() => tx.contact.update({ where: { id }, data: { deletedAt: null } }));
-  }
-}
+// contact.delete chuyển về crm/lifecycle (TIP-015f) — facade giữ tên import cũ.
+export { ContactDeleteHandler } from '../lifecycle/delete.handler';

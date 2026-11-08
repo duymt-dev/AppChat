@@ -309,6 +309,9 @@ export const EVENT_SCHEMAS = {
   'product.import_requested': z.object({ ...base, import_id: z.string().uuid() }),
   /** Trí nhớ / dữ liệu tóm tắt của khách đổi (TIP-015b) — chỉ là gợi ý làm mới cache; bản sửa thật ở contact_revision. */
   'contact.memory_changed': z.object({ ...base, contact_id: z.string().uuid(), memory_rev: z.number().int() }),
+  /** Vòng đời khách (TIP-015f): xoá mềm / khôi phục — chỉ id + thế hệ (không PII); UI làm mới danh sách / 360 / Hộp thư. */
+  'contact.deleted': z.object({ ...base, contact_id: z.string().uuid(), lifecycle_revision: z.number().int(), receipt_id: z.string().uuid() }),
+  'contact.restored': z.object({ ...base, contact_id: z.string().uuid(), lifecycle_revision: z.number().int() }),
   'appointment.created': appointmentEvent,
   'appointment.confirmed': appointmentEvent,
   'appointment.rescheduled': appointmentEvent,

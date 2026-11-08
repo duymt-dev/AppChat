@@ -229,6 +229,14 @@
     }
   },
   "contact": {
+    "restore": {
+      "title": "Khôi phục khách đã xoá",
+      "desc": "Khôi phục một khách đã xoá trong vòng 30 ngày (đúng lần xoá hiện tại, không trùng SĐT với khách đang dùng)."
+    },
+    "deleted_list": {
+      "title": "Xem khách đã xoá",
+      "desc": "Liệt kê khách đã xoá trong phạm vi của bạn, kèm hạn khôi phục."
+    },
     "history_export": {
       "title": "Xuất lịch sử khách",
       "desc": "Xuất lịch sử một khách ra CSV theo khoảng ngày / loại sự kiện / cột."

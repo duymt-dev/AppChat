@@ -131,6 +131,8 @@ model Contact {
   version            Int           @default(1)
   /// TIP-015d: tăng mỗi lần đổi phụ trách thật qua contact.transfer_owner (no-op không tăng) — hoàn tác chỉ áp lần chuyển mới nhất.
   transferGeneration Int           @default(0) @map("transfer_generation")
+  /// TIP-015f: chỉ tăng khi xoá / khôi phục (trigger `contact_lifecycle_guard` chặn đặt lùi / nhảy) — khác `version`.
+  lifecycleRevision  Int           @default(1) @map("lifecycle_revision")
 
   @@map("contact")
 }

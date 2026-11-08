@@ -276,7 +276,8 @@ export const customersHandlers: Record<string, MockHandler> = {
   'contact.delete': {
     execute: (db, i: Ci) => {
       contact(db, i.contact_id).deleted = true;
-      return { deleted: true };
+      // TIP-015f: cùng hình kết quả với API (biên nhận + hạn khôi phục 30 ngày).
+      return { deleted: true, status: 'deleted', receipt_id: `rc_${i.contact_id}`, version: 1, restore_until: new Date(Date.now() + 30 * 86_400_000).toISOString() };
     },
     undo: (db, i: Ci) => {
       contact(db, i.contact_id).deleted = false;

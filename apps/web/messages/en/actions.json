@@ -229,6 +229,14 @@
     }
   },
   "contact": {
+    "restore": {
+      "title": "Restore deleted customer",
+      "desc": "Restore a customer deleted within the last 30 days (current deletion only, no phone conflict with a live customer)."
+    },
+    "deleted_list": {
+      "title": "View deleted customers",
+      "desc": "List customers deleted within your scope, with their restore deadline."
+    },
     "history_export": {
       "title": "Export customer history",
       "desc": "Export one customer's history to CSV by date range / event type / columns."

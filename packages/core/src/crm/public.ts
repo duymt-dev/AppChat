@@ -23,3 +23,5 @@ export { CONTACT_BULK_KIND } from './actions/contact-bulk.handler';
 export { LeadRoutingReadService } from './routing/routing-read.service';
 export { LEAD_ROUTING_CONSUMER, leadRoutingConsumer, leadRoutingCtx } from './routing/routing-consumer';
 export { LEAD_ROUTING_ACTOR, LEAD_ROUTING_TOPIC } from './routing/routing-apply.handler';
+// TIP-015f: thùng rác khách (cùng reader với action contact.deleted_list).
+export { deletedContacts } from './lifecycle/read';

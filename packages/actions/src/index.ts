@@ -65,6 +65,7 @@ import * as integrationProbe from './integration-probe';
 import * as integrationRuntime from './integration-runtime';
 import * as contactNotes from './contact-notes';
 import * as contactTransfer from './contact-transfer';
+import * as contactLifecycle from './contact-lifecycle';
 import * as contactTasks from './contact-tasks';
 import * as contactOpportunities from './contact-opportunities';
 import * as dataJobs from './data-jobs';
@@ -84,6 +85,7 @@ export * from './inbox';
 export * from './inbox-aliases';
 export * from './inbox-groups';
 export * from './crm';
+export * from './contact-lifecycle';
 export * from './ai';
 export * from './catalog';
 export * from './catalog-operations';
@@ -225,6 +227,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(integrationRuntime),
   ...Object.values(contactNotes),
   ...Object.values(contactTransfer),
+  ...Object.values(contactLifecycle),
   ...Object.values(contactTasks),
   ...Object.values(contactOpportunities),
 ] as ActionDef[];
