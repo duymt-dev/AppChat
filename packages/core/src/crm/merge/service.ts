@@ -82,6 +82,8 @@ export async function mergeUnit(tx: TenantTx, authz: AuthzContext, u: Unit, o: {
 
 /** Hoàn tác một biên nhận — mọi điều kiện kiểm TRƯỚC khi ghi; lệch → 409 và không đổi gì. */
 export async function undoMerge(tx: TenantTx, authz: AuthzContext, receiptId: string, now: Date): Promise<void> {
+  // Khoá biên nhận trước (job dọn dùng SKIP LOCKED → không xoá payload khi đang hoàn tác), rồi mới khoá khách.
+  await tx.$queryRaw`SELECT id FROM contact_merge_receipt WHERE id = ${receiptId}::uuid FOR UPDATE`;
   const r = await tx.contactMergeReceipt.findUnique({ where: { id: receiptId }, include: { items: true } });
   if (!r) throw new AppError('UNDO_NOT_SUPPORTED', 409, { merge: 'receipt_missing' });
   if (r.state !== 'merged') throw new AppError('UNDO_EXPIRED', 409, { merge: r.state });

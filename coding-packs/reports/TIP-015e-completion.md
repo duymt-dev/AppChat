@@ -79,3 +79,32 @@
 | `database/tenant-db.md` · `indexing.md` | bảng tenant không workspace_id; index (primary_id), partial hết hạn `state='merged'` |
 | `events/outbox.md` | `contact.merged` mỗi đơn vị trong cùng giao dịch |
 | `code/testing.md` | test ở file riêng, Postgres thật |
+
+---
+
+## Pha 3 — dọn biên nhận hết hạn + rào đồng thời (§4.2–§4.4; AC2, AC5) — DC-405, DV-079
+
+**Rà trước khi làm (code thật)**
+- Job `crm.memory-receipt-purge` (015b) mỗi giờ dọn `contact_memory_merge`; biên nhận gộp khách P2 chưa có ai dọn → payload riêng tư sống mãi.
+- `undoMerge` P2 khoá khách nhưng không khoá biên nhận → job dọn có thể xoá dòng con giữa lúc hoàn tác kiểm điều kiện.
+
+**FILES CHANGED**
+- core: `crm/merge/purge.ts` (mới), `crm/merge/service.ts` (khoá biên nhận trước), `crm/jobs/crm.jobs.module.ts` (chung job), `crm/public.ts`.
+- test: `apps/api/test/integration/contact-merge-concurrency.test.ts` (mới).
+
+**Giả định đã chọn (gap-filling)**
+- Dọn = giữ dòng biên nhận tối thiểu (`expired`, id, primary / source, thời điểm) để action log còn tham chiếu; xoá phần riêng tư.
+- Nhịp 1 giờ chung job 015b thay vì scheduler 10 phút riêng (không có bảng plan xem trước cần dọn).
+
+**TEST (cổng khi làm — D59)**
+- `contact-merge-concurrency` **3/3** (gộp tranh cùng bản phụ → một thắng; sửa sau xem trước → 409 STALE_VERSION; biên nhận đang khoá không bị dọn, chưa hết hạn không dọn, hết hạn dọn một lần, hoàn tác sau đó 409, ghi chú vẫn ở bản chính); `contact-merge-authority` 5/5, ma trận `contact.merge` 3/3, `contact-memory` 15/15.
+- turbo lint / typecheck / test `...[origin/dev]` **36/36**.
+
+**ĐỐI CHIẾU STANDARDS (P3)**
+
+| Standard | Kết quả |
+|---|---|
+| `domain/concurrency.md` | thứ tự khoá biên nhận → khách tăng dần id; SKIP LOCKED cho job; kiểm lại dưới khoá |
+| `database/indexing.md` | quét qua index một phần `(expires_at,id) WHERE state='merged'`, lô id trước 100 |
+| `ops/observability-security.md` | payload riêng tư xoá sau hạn; log job chỉ số đếm |
+| `code/testing.md` | test riêng, Postgres thật, rào khoá thật bằng giao dịch song song |

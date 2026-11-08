@@ -4,7 +4,9 @@
 
 ## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
 
-**Mới nhất (2026-11-08, 015e P2).** PR #144 = TIP-015e pha 2 / 5 (`tip/015e-contact-merge-p2`, xếp chồng #143): `contact.merge` gắn phiên bản (`expected_versions`), khoá họ, chỉ gộp cùng chủ + cùng ACL (không hợp quyền), biên nhận lineage `contact_merge_receipt(_item)`, hoàn tác 7 ngày có điều kiện; đơn / báo giá giữ id khách gốc — DC-404, DV-078. Migration tenant `20261108120000_contact_merge_lineage`. PR mới chưa merge: 15 / 30 (#130–#144). Kế tiếp: 015e P3 (job dọn biên nhận hết hạn + rào đồng thời).
+**Mới nhất (2026-11-08, 015e P3).** PR #145 = TIP-015e pha 3 / 5 (`tip/015e-contact-merge-p3`, xếp chồng #144): job dọn payload biên nhận gộp hết hạn (chung `crm.memory-receipt-purge`), hoàn tác khoá biên nhận trước khách, rào gộp ↔ gộp / sửa / dọn — DC-405, DV-079. Không migration. PR mới chưa merge: 16 / 30 (#130–#145). Kế tiếp: 015e P4 (chiếu theo họ ở commerce / booking / loyalty / 360°; thôi dời timeline).
+
+**Trước đó (2026-11-08, 015e P2).** PR #144 = TIP-015e pha 2 / 5 (`tip/015e-contact-merge-p2`, xếp chồng #143): `contact.merge` gắn phiên bản (`expected_versions`), khoá họ, chỉ gộp cùng chủ + cùng ACL (không hợp quyền), biên nhận lineage `contact_merge_receipt(_item)`, hoàn tác 7 ngày có điều kiện; đơn / báo giá giữ id khách gốc — DC-404, DV-078. Migration tenant `20261108120000_contact_merge_lineage`. PR mới chưa merge: 15 / 30 (#130–#144). Kế tiếp: 015e P3 (job dọn biên nhận hết hạn + rào đồng thời).
 
 **Trước đó (2026-11-08, 015e P1).** PR #143 = TIP-015e pha 1 / 5 (`tip/015e-contact-merge-integrity`, xếp chồng #142): `contact.duplicate_candidates` + GET /contacts/duplicates/candidates (cặp cả hai phía trong scope, hạng luật, cursor có dấu thế hệ), migration `20261108110000_contact_duplicate_keys` (2 index), modal trùng chọn cặp / bản chính thật — DC-403, DV-077. PR mới chưa merge: 14 / 30 (#130–#143). Kế tiếp: 015e P2 (kế hoạch gộp gắn phiên bản + quyền cùng chủ / ACL + lineage / biên nhận).
 

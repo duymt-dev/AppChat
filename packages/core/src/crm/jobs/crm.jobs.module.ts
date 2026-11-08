@@ -1,5 +1,5 @@
 // Worker ROLE=jobs của domain `crm`. TIP-015b: scheduler `crm.memory-receipt-purge` mỗi giờ trên queue riêng `crm-scheduler` — xoá biên nhận
-// gộp trí nhớ hết cửa sổ hoàn tác 7 ngày (lô id trước, SKIP LOCKED; replay idempotent). TIP-045b: `crm.custom-field-prune` mỗi 6 giờ —
+// gộp trí nhớ hết cửa sổ hoàn tác 7 ngày (lô id trước, SKIP LOCKED; replay idempotent); TIP-015e: cùng job dọn payload biên nhận gộp khách. TIP-045b: `crm.custom-field-prune` mỗi 6 giờ —
 // giá trị trường tuỳ biến đã xoá quá 30 ngày (custom-field-prune.ts). Lỗi một workspace không chặn workspace khác. TIP-045b annex D:
 // việc dữ liệu nặng (DataJobsModule — consumer `data_job.requested` + quét) với kind contact.export / contact.bulk_update. TIP-042b: consumer
 // `crm.lead-routing` (`lead.routing_requested` → `lead_routing.apply` nguồn system) — routing/routing-consumer.ts.
@@ -16,6 +16,7 @@ import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { CrmModule } from '../crm.module';
 import { purgeMergeReceipts } from '../memory/merge';
+import { purgeMergeReceiptPayloads } from '../merge/purge';
 import { pruneDeletedFields } from './custom-field-prune';
 import { STORAGE, type Storage } from '../../kernel/files/storage';
 import { DataJobsModule } from '../../kernel/jobs/data-jobs/data-jobs.module';
@@ -37,7 +38,9 @@ export async function purgeMemoryReceipts(d: { platform: Pick<PlatformDb, 'works
   let purged = 0;
   for (const w of wss) {
     try {
-      purged += await purgeMergeReceipts(await d.tenants.get(TenantContexts.system(w.id, MEMORY_RECEIPT_PURGE_JOB)), d.now());
+      const db = await d.tenants.get(TenantContexts.system(w.id, MEMORY_RECEIPT_PURGE_JOB));
+      // TIP-015e: payload riêng tư của biên nhận gộp khách hết hạn — cùng nhịp quét.
+      purged += (await purgeMergeReceipts(db, d.now())) + (await purgeMergeReceiptPayloads(db, d.now()));
     } catch (err) {
       d.onError?.(w.id, err);
     }
