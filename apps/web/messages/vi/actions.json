@@ -911,6 +911,10 @@
     "draft_content": {
       "title": "AI viết lại nội dung chiến dịch"
     },
+    "get": {
+      "title": "Xem chiến dịch",
+      "desc": "Đọc một chiến dịch: trạng thái, người gửi đã chốt, kết quả giao thư thật theo từng trạng thái."
+    },
     "mail_senders": {
       "title": "Người gửi mail của doanh nghiệp"
     },

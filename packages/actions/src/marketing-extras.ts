@@ -104,7 +104,7 @@ export const campaignRecipientExport = defineAction({
   id: 'campaign.recipient_export',
   module: 'marketing',
   title: 'actions.campaign.recipient_export.title',
-  description: 'Export the recipients of a campaign (current status filter) to CSV — only customers you can see; download link is authenticated and expires. Example: {"campaign_id":"0190f000-0000-7000-8000-000000000101","status":"sent"}',
+  description: 'Export the recipients of a campaign (current status filter) to CSV with the actual email delivery result per recipient — only customers you can see; download link is authenticated and expires. campaign_id is the uuid: given a campaign name or code, call campaign.get first and use its id. Example: {"campaign_id":"0190f000-0000-7000-8000-000000000101","status":"sent"}',
   input: z.object({ campaign_id: campaignId, status: z.string().max(20).optional() }),
   output: z.object({ file_id: z.string(), rows: z.number().int(), url: z.string() }),
   permission: 'campaign.view',

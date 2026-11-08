@@ -178,3 +178,49 @@
 | `authz/rbac-permissions.md` | mục và danh sách người gửi theo `campaign.manage`; không lộ khoá / host |
 | `integrations/provider-ports.md` | SMTP không bao giờ hiện là đã xác minh tên miền; trạng thái từ bằng chứng thăm dò hiện tại |
 
+## Pha 6 — ghép gốc thật, Trợ lý / tệp xuất trung thực, ai:live 8 ca, chốt TIP (§2.5, §5.2–§5.4; AC6, AC7, AC8) — DC-413, DV-087
+
+**Rà trước khi làm (code thật)**
+- Registry op `mail.send` / bộ xử lý miền / sink sự kiện là biến theo tiến trình; chưa có test chứng minh ROLE nào giữ cái nào. Áp sự kiện khi thiếu sink chỉ bỏ qua tác dụng miền rồi đánh dấu `applied` (mất tác dụng âm thầm).
+- Trợ lý không có action đọc chiến dịch → không thấy bằng chứng giao thư; `find_actions` không có từ "chiến dịch". Xuất người nhận chưa có kết quả giao thư.
+- Stack ai:live / E2E http không có Brevo — cần transport giả không mạng (không gửi thư thật).
+
+**FILES CHANGED** (lệch manifest ở DV-087)
+- core: `integrations/mail/{results,module}.ts`, `integrations/public.ts`, `marketing/actions/campaign-get.handler.ts` (mới), `marketing/marketing.providers.ts`, `marketing/services/recipient-export.ts`, `marketing/public.ts`, `ai/assistant/{catalog,turn.service}.ts`.
+- actions: `tenant-mail.ts` (`campaign.get`), `marketing-extras.ts` (mô tả recipient_export). ai: prompts `index.ts` + `assistant.*.md` (v5) + `genui.*.md` (v4).
+- web: mock `marketing-extras.ts` (`campaign.get`), i18n actions vi / en; e2e http `tenant-mail.spec.ts` (mới).
+- test: worker `tenant-mail-composition.test.ts` (mới), core `tenant-mail-fake.test.ts` (mới) + `assistant-unit` / `genui-context`, api `tenant-mail-callbacks.test.ts`, ai prompt tests.
+- ai:live: `fixtures/ai-eval/tenant-mail/{cases.json,seed.mjs}`, `tools/ai-live/src/{tenant-mail-judge,cases,runner,cli}.ts`; `tools/scripts/{ai-live-stack,e2e-http}.mjs` bật `TENANT_MAIL_TRANSPORT=fake`.
+
+**Giả định đã chọn (gap-filling)**
+- Thiếu sink miền → 503 (provider gửi lại) thay vì lưu sự kiện chờ: đúng luật "missing port fails 503, not accepted 0" của TIP; không có tiến trình API nào thiếu sink trong cấu hình chuẩn.
+- `campaign.get` nhận id / mã / đúng tên (không tìm mờ) — chiến dịch không có action search; trùng tên → bản mới nhất.
+- Số mở chỉ đếm từ sự kiện Brevo; SMTP → `null` (không phải 0).
+
+**TEST (cổng chốt — D59)**
+- `db:test-reset` đầu cổng.
+- api integration phạm vi TIP: tenant-mail ×3 + marketing ×4 + integrations + integration-detail **67/67**; actions campaign.* / integration.* **39/39**.
+- worker integration `tenant-mail-composition` + `ai-runtime-domain-handlers` **5/5** (jobs có op + miền + sink, gỡ khi đóng; channels / ai không op gọi provider).
+- turbo lint / typecheck / test / build `...[nhánh nền]` **27/27**; lint / typecheck / test lần cuối **24/24**; depcheck, lint:size, lint:tokens, lint:masks, i18n 100 % (6709).
+- E2E mock assistant + tenant-mail + marketing + settings **32 passed, 28 skipped**; (lượt trước) + integration-runtime 27/23.
+- E2E http tenant-mail + integrations + marketing **3 passed** (mobile skip) — Brevo giả, thăm dò bền ở worker jobs, nháp giữ người gửi sau tải lại.
+- parity `settings:email-mkt` 3,25 % (P5, UI không đổi ở P6).
+- **ai:live tenant-mail 8/8, an toàn 0, ĐẠT** (3 lượt mỗi ca, 9router `ag/gemini-3-flash`) — `reports/ai-live-tenant-mail-2026-11-08.md`. Lượt trước 4/8 → 5/8 → 6/8 lộ lỗi hệ thống thật (không action đọc chiến dịch, không từ khoá "chiến dịch", prompt kiểm tra kết nối / khoá dán chat, kết quả huỷ thẻ mơ hồ) — đã sửa, không hạ ngưỡng.
+- Chưa nghiệm thu với provider thật (Brevo / SMTP — Q-004).
+
+**ĐỐI CHIẾU STANDARDS (P6)**
+
+| Standard | Kết quả |
+|---|---|
+| `integrations/provider-ports.md` | op gọi provider chỉ ở ROLE=jobs; thiếu cổng miền → 503, không thành công giả; transport giả cấm production |
+| `ai/agent-gateway.md` | Trợ lý đọc qua action có quyền (campaign.view); ghi chỉ qua thẻ xác nhận; huỷ thẻ trả `executed:false` |
+| `ai/eval.md` | ai:live 8 ca × 3 lượt, chấm theo DB / API / tệp thật; an toàn tuyệt đối 0; không hạ ngưỡng |
+| `actions/action-registry.md` | `campaign.get` read, agentGrantable, handler thật; i18n title + desc |
+| `authz/rbac-permissions.md` | người nhận / số liệu trong scope CRM người hỏi; người gửi không lộ khoá |
+| `ops/observability-security.md` | khoá dán chat không lặp ở trả lời / thẻ / đầu vào tool (judge kiểm); tệp xuất không khoá / token |
+| `code/testing.md` | composition test dựng module production; transport giả theo hợp đồng Brevo, không mạng |
+
+## Kết luận TIP-012c — DONE (P1–P6, PR #148–#153)
+
+AC1–AC8 có test chạy thật và xanh (AC1–2 P1, AC3 P2, AC4 P3, AC5 P4, AC6 P6, AC7 P5–P6, AC8 P6). Chưa nghiệm thu với provider thật (Brevo / SMTP — Q-004).
+

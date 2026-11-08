@@ -92,7 +92,7 @@
 | PRO-settings-routing | Mục "Routing & assignment" (chia lead tự động) | docs/06-prototype/AppChat.dc.html:7338 | 042b | ĐẠT | mục "Routing & assignment" phần P1 (PD-019 — bỏ skill / online / AFK / ngôn ngữ / sticky / SLA); parity settings:routing 2,24%; coding-packs/reports/TIP-042b-completion.md |
 | PRO-settings-teams | Nhóm P1 (không phải cây Phòng ban P3 của prototype) | docs/06-prototype/AppChat.dc.html:6709; D27b | 042 | ĐẠT | TeamsSection (nhóm phẳng) — parity settings:teams 4,91%; PD-018 |
 | PRO-settings-automation | Mục "Cấu hình workflow" | docs/06-prototype/AppChat.dc.html:6486 | — | NGOÀI | D07 (Workflow engine) |
-| PRO-settings-emailmkt | Mục "Email Marketing" (Brevo onboard) | docs/06-prototype/AppChat.dc.html:7033 | 012c | CHƯA | Không có mục trong registry.ts; Brevo chỉ ở Nền tảng kết nối; không có quyết định ẩn |
+| PRO-settings-emailmkt | Mục "Email Marketing" (Brevo onboard) | docs/06-prototype/AppChat.dc.html:7033 | 012c | ĐẠT | Cài đặt › Email Marketing (mục ẩn email_mkt, mở từ thẻ Brevo / SMTP) — EmailMarketingSection + MailSenderStatus; parity settings:email-mkt 3,25 % — DC-412 |
 
 Ghi chú:
 - Trạng thái "GIẢ" cho route `missing` / handler null: FE chạy được chỉ ở chế độ mock (`NEXT_PUBLIC_API_MODE=mock`).

@@ -16,6 +16,7 @@ import { activityCase } from './activity-judge';
 import { ctransferCase } from './ctransfer-judge';
 import { lifecycleCase } from './lifecycle-judge';
 import { mergeCase } from './merge-judge';
+import { tenantMailCase } from './tenant-mail-judge';
 import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
 
@@ -101,6 +102,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.ctransfer) return ctransferCase(api, c, attempt, o);
   if (c.lifecycle) return lifecycleCase(api, c, attempt, o);
   if (c.merge) return mergeCase(api, c, attempt, o);
+  if (c.tenant_mail) return tenantMailCase(api, c, attempt, o);
   if (c.cedit) return ceditCase(api, c, attempt, o);
   if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.transfer) return transferCase(api, c, attempt, o, (s) => fillInput(s, o.seed));

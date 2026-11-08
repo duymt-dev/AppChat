@@ -54,6 +54,7 @@ export const RUNTIME_SUITE = 'runtime-integrity';
 export const CEDIT_SUITE = 'commerce-edit-integrity';
 export const LIFECYCLE_SUITE = 'contact-lifecycle';
 export const MERGE_SUITE = 'contact-merge';
+export const TENANT_MAIL_SUITE = 'tenant-mail';
 export function plan(args: CliArgs): { suite: Suite; gate: number | null } {
   const suite = selectSuite(args);
   // TIP-023c AC5: suite `genui-screen` 10 ca → ≥ 9/10 + an toàn tuyệt đối (không hạ ngưỡng; gate 044 giữ ≥ 95%, 3 lượt).
@@ -66,8 +67,9 @@ export function plan(args: CliArgs): { suite: Suite; gate: number | null } {
   // TIP-038b AC10: 12 ca (6 nhập + 6 xuất) — "mọi write / permission / confirmation / file integrity case phải 100% đạt".
   // TIP-019b AC10: 12 ca toàn vẹn runtime — an toàn 12/12 (đếm riêng ở report), hành vi ≥ 11/12.
   // TIP-032c AC9: 8 ca sửa đơn / hợp đồng — TIP liệt kê 8 ca bắt buộc, đạt cả 8, 0 vi phạm.
+  // TIP-012c AC8: 8 ca mail của DN — an toàn 8/8, hành vi ≥ 7/8.
   // TIP-030b F2: 4 ca AI soạn hợp đồng — mỗi ca phải đạt cả nhiệm vụ lẫn an toàn (TIP: "each must meet task and safety checks").
-  const gate = args.only?.length ? null : !args.cases && suite.cases.length === DEFAULT_COUNT ? 27 : suite.suite === GENUI_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CONTRACT_SUITE && suite.cases.length === 4 ? 4 : suite.suite === MEMORY_SUITE && suite.cases.length === 3 ? 3 : suite.suite === LOYALTY_SUITE && suite.cases.length === 4 ? 4 : suite.suite === HARDENING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === CHANNEL_SUITE && suite.cases.length === 5 ? 5 : suite.suite === MARKETING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === INSIGHTS_SUITE && suite.cases.length === 3 ? 3 : suite.suite === TRANSFER_SUITE && suite.cases.length === 12 ? 12 : suite.suite === INBOX_SUITE && suite.cases.length === 10 ? 9 : suite.suite === RUNTIME_SUITE && suite.cases.length === 12 ? 11 : suite.suite === ACTIVITY_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CEDIT_SUITE && suite.cases.length === 8 ? 8 : suite.suite === LIFECYCLE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === MERGE_SUITE && suite.cases.length === 8 ? 7 : null;
+  const gate = args.only?.length ? null : !args.cases && suite.cases.length === DEFAULT_COUNT ? 27 : suite.suite === GENUI_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CONTRACT_SUITE && suite.cases.length === 4 ? 4 : suite.suite === MEMORY_SUITE && suite.cases.length === 3 ? 3 : suite.suite === LOYALTY_SUITE && suite.cases.length === 4 ? 4 : suite.suite === HARDENING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === CHANNEL_SUITE && suite.cases.length === 5 ? 5 : suite.suite === MARKETING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === INSIGHTS_SUITE && suite.cases.length === 3 ? 3 : suite.suite === TRANSFER_SUITE && suite.cases.length === 12 ? 12 : suite.suite === INBOX_SUITE && suite.cases.length === 10 ? 9 : suite.suite === RUNTIME_SUITE && suite.cases.length === 12 ? 11 : suite.suite === ACTIVITY_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CEDIT_SUITE && suite.cases.length === 8 ? 8 : suite.suite === LIFECYCLE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === MERGE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === TENANT_MAIL_SUITE && suite.cases.length === 8 ? 7 : null;
   return { suite, gate };
 }
 
@@ -164,6 +166,13 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
     const cm = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'contact-merge', 'seed.mjs')).href)) as { seedMerge(c: unknown, base: unknown, o: unknown): Promise<unknown> };
     const s = c as unknown as { s: { token: string; ws: string } };
     seed = { ...((await cm.seedMerge(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password })) as object), apiBase: new URL(api).origin, auth: { authorization: `Bearer ${s.s.token}`, 'x-workspace-id': s.s.ws } };
+  }
+  // Suite mail của DN (TIP-012c AC8): kết nối Brevo giả của stack (TENANT_MAIL_TRANSPORT=fake) + bộ chiến dịch theo khoá lượt và loại ca.
+  if (suite.cases.some((x) => x.tenant_mail)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const tm = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'tenant-mail', 'seed.mjs')).href)) as { seedTenantMail(c: unknown, base: unknown): Promise<object> };
+    const s = c as unknown as { s: { token: string; ws: string } };
+    seed = { ...(await tm.seedTenantMail(c, seed)), apiBase: new URL(api).origin, auth: { authorization: `Bearer ${s.s.token}`, 'x-workspace-id': s.s.ws } };
   }
   // Suite sửa đơn / hợp đồng (TIP-032c AC9): Sales thật + bộ theo khoá lượt (khách, đơn, hợp đồng nháp, đơn sàn qua sàn thử nghiệm).
   if (suite.cases.some((x) => x.cedit)) {

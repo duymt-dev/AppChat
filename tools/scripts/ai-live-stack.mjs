@@ -36,6 +36,8 @@ const env = {
   COOKIE_SECURE: 'false',
   WIDGET_API_URL: `http://localhost:${PORT}`,
   MAIL_TRANSPORT: 'fake',
+  // TIP-012c: mail của DN (Brevo) giả trong bộ nhớ — không mạng / không thư thật (suite tenant-mail).
+  TENANT_MAIL_TRANSPORT: 'fake',
   FILES_DIR: filesDir,
   TENANT_POOL_MAX: '2',
   TENANT_CLIENT_IDLE_MS: '20000',

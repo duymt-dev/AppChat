@@ -52,10 +52,16 @@ const VERB_VI: Record<string, string> = {
   // TIP-015d: chuyển / giao / đổi người phụ trách khách (không phải sửa trường khách) + đọc kết quả lần chuyển.
   transfer_owner: 'chuyen phu trach giao khach doi nguoi phu trach ban giao khach chuyen khach cho', transfer_owner_bulk: 'chuyen phu trach nhieu khach hang loat giao nhieu khach',
   transfer_status: 'ket qua chuyen phu trach lan chuyen gan nhat da chuyen kem bao nhieu',
+  // TIP-012c: chiến dịch email — người nhận / kết quả giao thư / người gửi mail của DN.
+  recipient_export: 'xuat danh sach nguoi nhan file nguoi nhan ket qua giao thu ket qua gui csv', mail_senders: 'nguoi gui email nguoi gui mail brevo smtp dia chi gui',
 };
+
+/** Từ riêng của một action khi đối tượng không có action `search` (TIP-012c: "tìm chiến dịch" → campaign.get — tra theo id / mã / tên). */
+const ACTION_VI: Record<string, string> = { 'campaign.get': 'tim tim kiem tra cuu danh sach nguoi nhan ket qua gui giao thu da mo' };
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */
 const ENTITY_VI: Record<string, string> = {
+  campaign: 'chien dich marketing ban tin email hang loat gui hang loat',
   product: 'dich vu goi lieu trinh hang hoa mat hang gia ban', stock: 'kho ton kho con hang nhap kho', contact: 'khach nguoi lien he so dien thoai',
   quote: 'bao gia', appointment: 'lich dat lich hen', ticket: 'khieu nai phan nan yeu cau ho tro', order: 'don don hang',
   tag: 'nhan the', conversation: 'hoi thoai tin nhan chat', invoice: 'thanh toan thu tien', loyalty: 'diem tich diem hang khach than thiet', payment: 'thanh toan thu tien',
@@ -74,7 +80,7 @@ const ENTITY_VI: Record<string, string> = {
  */
 function tiersOf(a: ActionDef): [string, string, string] {
   const verb = a.id.slice(a.id.indexOf('.') + 1);
-  const name = [a.id.replaceAll('.', ' ').replaceAll('_', ' '), VERB_VI[verb] ?? VERB_VI[verb.split('_')[0]!] ?? '', ENTITY_VI[entityOf(a.id)] ?? ''];
+  const name = [a.id.replaceAll('.', ' ').replaceAll('_', ' '), VERB_VI[verb] ?? VERB_VI[verb.split('_')[0]!] ?? '', ENTITY_VI[entityOf(a.id)] ?? '', ACTION_VI[a.id] ?? ''];
   const mod: string[] = [a.module];
   for (const l of ['vi', 'en']) {
     const m = serverMessages(l).ai.assistant;

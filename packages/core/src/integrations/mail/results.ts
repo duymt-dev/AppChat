@@ -4,6 +4,7 @@
 // của nó, không tác dụng miền. Đối soát: biên nhận vừa có mã thư → ghép các sự kiện `unresolved` cùng (kết nối, tài khoản, mã, digest).
 import type { MailEventType } from '@appchat/integrations';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { AppError } from '@appchat/shared';
 
 type Facts = { delivered?: boolean; bounced?: 'soft' | 'hard'; complained?: boolean; opened?: number; clicked?: number; deferred?: boolean };
 
@@ -11,6 +12,7 @@ export type MailEventSink = (tx: TenantTx, a: { ws: string; delivery: { id: stri
 let sink: MailEventSink | null = null;
 export const registerMailEventSink = (s: MailEventSink) => void (sink = s);
 export const unregisterMailEventSink = () => void (sink = null);
+export const mailEventSinkRegistered = () => !!sink;
 
 function next(f: Facts, t: MailEventType): Facts {
   switch (t) {
@@ -46,6 +48,8 @@ export async function applyEvent(tx: TenantTx, ws: string, eventId: string, now:
     await tx.tenantMailEvent.update({ where: { id: eventId }, data: { state: 'ignored' } });
     return false;
   }
+  // Thiếu sink miền ở tiến trình này → 503 (transaction lùi, provider gửi lại), không đánh dấu đã áp khi chưa có tác dụng miền.
+  if (d.subjectKind === 'campaign_recipient' && !sink) throw new AppError('WORKSPACE_UNAVAILABLE', 503, { mail_events: 'port_unavailable' });
   const facts = next((d.facts ?? {}) as Facts, e.type as MailEventType);
   await tx.tenantMailDelivery.update({ where: { id: d.id }, data: { facts, lastEventAt: d.lastEventAt && d.lastEventAt > e.occurredAt ? d.lastEventAt : e.occurredAt, updatedAt: now } });
   if (d.subjectKind === 'campaign_recipient' && sink) await sink(tx, { ws, delivery: { id: d.id, dispatchRef: d.dispatchRef, campaignId: d.campaignId, recipientId: d.recipientId }, type: e.type as MailEventType, occurredAt: e.occurredAt, now });

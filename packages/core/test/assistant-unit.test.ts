@@ -30,6 +30,8 @@ describe('find_actions', () => {
     expect(find(owner, 'cowork', 'tạo khách hàng').map((a) => a.id)).toEqual(['contact.create']);
     expect(find(owner, 'cowork', 'sửa khách hàng').map((a) => a.id)).toContain('contact.update');
     expect(find(owner, 'chat', 'tìm khách hàng').map((a) => a.id)).toEqual(['contact.search']);
+    // TIP-012c: chiến dịch không có action search → "tìm chiến dịch" ra campaign.get (tra theo tên / mã).
+    expect(find(owner, 'chat', 'tìm chiến dịch').map((a) => a.id)).toContain('campaign.get');
   });
 
   it('Chat chỉ action read; Cowork có ghi', () => {

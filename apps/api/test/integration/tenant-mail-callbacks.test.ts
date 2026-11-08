@@ -7,7 +7,7 @@
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { connectorRegistry, recipientDigest, type MailTransports } from '@appchat/integrations';
-import { ActionExecutor, MAIL_SEND_OP, MarketingDeps, campaignMailDomain, executeCall, mailSendOp, parseEncKey, providerHttp, registerCallOp, registerMailDomain, unregisterCallOp, unregisterMailDomain, uuidv7 } from '@appchat/core';
+import { ActionExecutor, MAIL_SEND_OP, MarketingDeps, campaignMailDomain, executeCall, mailSendOp, parseEncKey, providerHttp, registerCallOp, registerMailDomain, unregisterCallOp, unregisterMailDomain, registerMailEventSink, unregisterMailEventSink, campaignMailEvents, uuidv7 } from '@appchat/core';
 import { env, startApi, type Harness } from './setup';
 import { Mk } from './helpers/marketing-fixtures';
 
@@ -66,6 +66,8 @@ async function campaign(emails: string[], send = true) {
   if (send) for (const d of deliveries) await executeCall(deps(), h.ws, (await db.integrationCallLog.findFirstOrThrow({ where: { op: MAIL_SEND_OP, refId: `${d.dispatchRef}#${d.attempts}` } })).id);
   return { id, contacts, deliveries: await db.tenantMailDelivery.findMany({ where: { campaignId: id }, orderBy: { id: 'asc' } }) };
 }
+const CRLF = String.fromCharCode(13, 10);
+const campaignOf = async (id: string) => (await (await mk.db()).tenantMailDelivery.findUniqueOrThrow({ where: { id } })).campaignId;
 const facts = async (id: string) => ((await (await mk.db()).tenantMailDelivery.findUniqueOrThrow({ where: { id } })).facts ?? {}) as Record<string, unknown>;
 
 describe('xác thực callback', () => {
@@ -129,6 +131,30 @@ describe('sự kiện giao thư', () => {
     expect(await facts(d.id)).toEqual({ delivered: true });
     const stray = await db.tenantMailEvent.findFirstOrThrow({ where: { connectionId: conn, providerMessageRef: '<la@la>' } });
     expect(stray).toMatchObject({ state: 'unresolved', deliveryId: null, recipientDigest: recipientDigest('zz@la.vn') });
+  });
+});
+
+describe('thiếu sink miền', () => {
+  it('tiến trình không có sink sự kiện marketing → 503, sự kiện không đánh dấu đã áp; có sink lại → áp một lần', async () => {
+    const { deliveries } = await campaign(['s1@khach.vn']);
+    const d = deliveries[0]!;
+    const batch = [ev('hard_bounce', 's1@khach.vn', d.providerMessageRef!, 7000)];
+    unregisterMailEventSink();
+    try {
+      expect((await hook(batch)).status).toBe(503);
+      expect(await facts(d.id)).toEqual({});
+      expect(await (await mk.db()).tenantMailEvent.count({ where: { deliveryId: d.id } })).toBe(0);
+    } finally {
+      registerMailEventSink(campaignMailEvents);
+    }
+    expect(((await (await hook(batch)).json()) as Ack).data).toMatchObject({ accepted: 1 });
+    expect(await facts(d.id)).toEqual({ bounced: 'hard' });
+    const ex = await mk.act('campaign.recipient_export', { campaign_id: (await campaignOf(d.id)) });
+    const csv = await (await fetch(`${h.base}/v1/files/${ex.body.data.result.file_id}`, { headers: { 'x-workspace-id': h.ws, authorization: `Bearer ${h.tokenFor(h.user)}` } })).text();
+    expect(csv.split(CRLF)[0]).toContain('Giao thư');
+    expect(csv.split(CRLF)[1]).toContain(',bounced,');
+    const g = await mk.act('campaign.get', { campaign_id: await campaignOf(d.id) });
+    expect(g.body.data.result).toMatchObject({ recipients: 1, delivery: { bounced: 1 }, opened: 0, sender: { kind: 'tenant_mail', usable: true } });
   });
 });
 

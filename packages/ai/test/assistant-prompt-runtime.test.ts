@@ -9,9 +9,9 @@ const md = (locale: string) => readFileSync(new URL(`../src/prompts/assistant.${
 describe('prompt assistant — runtime', () => {
   it('version 4 ở cả vi / en; registry khớp từng chữ file .md (dòng đầu = version)', () => {
     for (const locale of ['vi', 'en'] as const) {
-      expect(PROMPTS.assistant![locale].version).toBe(4);
+      expect(PROMPTS.assistant![locale].version).toBe(5);
       const [head, ...body] = md(locale).trimEnd().split('\n');
-      expect(head).toBe(`<!-- prompt: assistant · version: 4 · locale: ${locale} -->`);
+      expect(head).toBe(`<!-- prompt: assistant · version: 5 · locale: ${locale} -->`);
       expect(body.join('\n')).toBe(PROMPTS.assistant![locale].text);
     }
   });
@@ -30,6 +30,6 @@ describe('prompt assistant — runtime', () => {
   });
 
   it('locale lạ → tiếng Việt cùng version', () => {
-    expect(prompt('assistant', 'fr')).toMatchObject({ locale: 'vi', version: 4 });
+    expect(prompt('assistant', 'fr')).toMatchObject({ locale: 'vi', version: 5 });
   });
 });

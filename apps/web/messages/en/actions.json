@@ -911,6 +911,10 @@
     "draft_content": {
       "title": "AI rewrite campaign content"
     },
+    "get": {
+      "title": "View campaign",
+      "desc": "Read one campaign: status, the approved sender and actual email delivery results per state."
+    },
     "mail_senders": {
       "title": "Business mail senders"
     },

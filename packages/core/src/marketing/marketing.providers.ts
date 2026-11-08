@@ -24,6 +24,7 @@ import { CampaignAnalyzeHandler, CampaignDraftContentHandler, CampaignStoreAnaly
 import { CampaignDispatchHandler, CampaignRecordDeliveryHandler } from './actions/campaign-system.handlers';
 import { CampaignRecordMetricHandler, CampaignUnsubscribeHandler } from './actions/campaign-metric.handlers';
 import { CampaignMailSendersHandler } from './actions/mail-senders.handler';
+import { CampaignGetHandler } from './actions/campaign-get.handler';
 import { ANALYZE_CONSUMER, CampaignAnalyzeQueue, analyzeConsumer } from './ai/marketing-ai.jobs';
 import { ATTRIBUTION_CONSUMER, attributionConsumer } from './events/campaign-attribution';
 import { CampaignReadService } from './services/campaign-read.service';
@@ -42,6 +43,7 @@ export const MARKETING_HANDLERS = [
   CampaignAudienceImportHandler, CampaignRecipientExportHandler, CampaignSuggestHandler, CampaignAnalyzeHandler, CampaignDraftContentHandler,
   CampaignStoreAnalysisHandler, CampaignDispatchHandler, CampaignRecordDeliveryHandler, CampaignRecordMetricHandler, CampaignUnsubscribeHandler,
   CampaignMailSendersHandler,
+  CampaignGetHandler,
 ];
 
 /** Đăng ký consumer marketing một lần mỗi tiến trình (nhiều app Nest trong cùng tiến trình test dùng chung bản đầu). */
