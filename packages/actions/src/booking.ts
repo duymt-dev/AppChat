@@ -89,9 +89,10 @@ export const appointmentConfirm = defineAction({
   id: 'appointment.confirm',
   module: 'booking',
   title: 'actions.appointment.confirm.title',
-  description: 'Confirm a pending appointment (pending → confirmed). Example: {"appointment_id":"ap_1215"}',
-  input: z.object({ appointment_id: apptId }),
-  output: out,
+  description:
+    'Confirm a pending appointment, or reconfirm an expired hold for the SAME slot (same staff / time / package) when it is still free and in the future — never moves it; if the slot or package is no longer valid it fails (409) and a new booking is needed. Pass if_version (the appointment version you saw) to refuse a stale change. Example: {"appointment_id":"ap_1215","if_version":2}',
+  input: z.object({ appointment_id: apptId, if_version: z.number().int().positive().optional() }),
+  output: out.extend({ version: z.number().int().optional() }),
   permission: 'booking.manage',
   risk: 'write',
   agentGrantable: true,

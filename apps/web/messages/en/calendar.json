@@ -115,6 +115,8 @@
     "time": "{time} · {dur}",
     "reschedule": "Reschedule",
     "confirm": "Confirm",
+    "reconfirm": "Reconfirm",
+    "expiredHint": "The hold has expired — reconfirming keeps the same code, time and staff if the slot is still free.",
     "checkIn": "Checked in",
     "complete": "Complete",
     "more": "More actions",

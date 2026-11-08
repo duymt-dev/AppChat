@@ -29,6 +29,8 @@ export const appointmentRowSchema = z.object({
   package: z.object({ id: z.string(), name: z.string(), used: z.number().int(), total: z.number().int() }).nullable(),
   reminders: z.array(z.object({ kind: z.string(), at: z.string() })),
   custom: customValuesSchema.optional(),
+  /** Phiên bản lịch (TIP-033b) — client mới gửi `if_version` khi xác nhận / xác nhận lại. */
+  version: z.number().int().optional(),
 });
 export type AppointmentRow = z.infer<typeof appointmentRowSchema>;
 

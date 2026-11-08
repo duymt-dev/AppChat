@@ -15,6 +15,13 @@ describe('APPOINTMENT_FLOW', () => {
     expect(nextState(APPOINTMENT_FLOW, 'confirmed', 'appointment.expire')).toBeNull();
     for (const s of ['done', 'no_show', 'cancelled', 'expired'] as const) expect(nextState(APPOINTMENT_FLOW, s, 'appointment.reschedule')).toBeNull();
   });
+
+  it('TIP-033b: hết giữ chỗ chỉ xác nhận lại hoặc huỷ — không dời / check-in / hoàn thành trực tiếp; cuối = done / no_show / cancelled', () => {
+    expect(nextState(APPOINTMENT_FLOW, 'expired', 'appointment.confirm')).toBe('confirmed');
+    expect(nextState(APPOINTMENT_FLOW, 'expired', 'appointment.cancel')).toBe('cancelled');
+    for (const a of ['appointment.check_in', 'appointment.complete', 'appointment.mark_no_show', 'appointment.expire']) expect(nextState(APPOINTMENT_FLOW, 'expired', a)).toBeNull();
+    expect([...APPOINTMENT_FLOW.terminal].sort()).toEqual(['cancelled', 'done', 'no_show']);
+  });
 });
 
 describe('giữ chỗ / ân hạn / nhắc', () => {

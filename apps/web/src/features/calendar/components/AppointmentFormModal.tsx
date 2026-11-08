@@ -44,7 +44,8 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
   const cf = useCustomDraft('appointment');
   const close = () => set({ form: null, prefill: null });
   const onError = (e: { error: { code: string } }) => {
-    if (e.error.code !== 'CONFLICT') return false;
+    // TIP-033b (DC-261): trùng khung giờ là SLOT_TAKEN; CONFLICT cũ vẫn nhận trong lúc chuyển.
+    if (e.error.code !== 'SLOT_TAKEN' && e.error.code !== 'CONFLICT') return false;
     setErr(t('conflict'));
     return true;
   };

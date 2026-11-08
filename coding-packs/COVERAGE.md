@@ -14,12 +14,12 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 153 | 6 | 2 | 13 | 14 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 130 | 8 | 0 | 2 | 13 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 11 | 0 | 9 | 11 | 11 | 21 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 164 | 11 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 390 | 32 | 1 | 4 | 29 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 56 | 0 | 29 | 0 | 3 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 75 | 7 | 1 | 14 | 27 | 2 | 0 | 0 |
-| **Tổng** | **1176** | **105** | **33** | **49** | **128** | **35** | **69** | **0** |
+| **Tổng** | **1177** | **105** | **33** | **49** | **127** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -617,7 +617,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D52a | Mã đơn `DH-000123`, ticket `TKT-` | 01-REQUIREMENTS-MATRIX.md:301 | 031, 034 | ĐẠT | packages/shared/src/codes.ts:7,11 · test flow.test.ts, orders.test.ts |
 | D52b | Ticket đóng tự mở lại khi khách nhắn trong 7 ngày | 01-REQUIREMENTS-MATRIX.md:301 | 034 | ĐẠT | support/services/support-system.ts:99 · test support.test.ts:151 |
 | D52c | `approval_request` hết hạn 72 giờ (cấu hình được) | 01-REQUIREMENTS-MATRIX.md:301 | 021 | ĐẠT | ai/approvals/approval.gateway.ts:48 · test agents.test.ts:248 |
-| D52d | Lịch hẹn `expired` xác nhận lại nếu còn chỗ | 01-REQUIREMENTS-MATRIX.md:301 | 033b | CHƯA | APPOINTMENT_FLOW: `expired: {}` terminal (packages/shared/src/booking/appointment-state.ts:42-43) trái state-machine.md:79; TIP033b scoped tasks/manifest/AC now own correction; runtime still pending |
+| D52d | Lịch hẹn `expired` xác nhận lại nếu còn chỗ | 01-REQUIREMENTS-MATRIX.md:301 | 033b | ĐẠT | APPOINTMENT_FLOW expired → confirmed / cancelled (packages/shared/src/booking/appointment-state.ts); xác nhận lại đúng khung cũ booking/operations/confirm.ts; SLOT_TAKEN / INVALID_STATE / STALE_VERSION; hoàn tác về expired (operations/undo.ts); api test/integration/booking-operations.test.ts 6/6; FE ReconfirmAppointment (DC-414) |
 | D52e | Huỷ chiến dịch ở mọi trạng thái chưa kết thúc | 01-REQUIREMENTS-MATRIX.md:301 | 037 | ĐẠT | CAMPAIGN_FLOW cancel ở draft / pending / approved / scheduled / paused (packages/shared/src/marketing/state.ts:36); running tạm dừng trước; matrix campaign.cancel + marketing.test.ts AC2 |
 | D52f | Chặn xoá agent đang phụ trách kênh / hội thoại mở | 01-REQUIREMENTS-MATRIX.md:301 | 021 | ĐẠT | test agents.test.ts:108 "xoá khi đang gán kênh → 409" |
 | D52g | Báo giá `expired` gia hạn được về `sent` nếu chưa có version mới | 01-REQUIREMENTS-MATRIX.md:301 | 029 | ĐẠT | quote-send.handlers.ts:117-134 · test quotes.test.ts "gia hạn expired → sent" |

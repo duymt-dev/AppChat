@@ -17,7 +17,7 @@ export async function assertSlot(tx: TenantTx, q: { serviceId: string; staffId: 
   const s = UUID.test(q.staffId) ? await tx.staff.findFirst({ where: { id: q.staffId, active: true }, select: { name: true } }) : null;
   if (!s) throw new AppError('NOT_FOUND', 404, { staff_id: 'not_found' });
   const slots = await slotsFor(tx, q);
-  if (!slots.some((x) => x.start === q.start && x.staff_ids.includes(q.staffId))) throw new AppError('CONFLICT', 409, { start: 'slot_taken' });
+  if (!slots.some((x) => x.start === q.start && x.staff_ids.includes(q.staffId))) throw new AppError('SLOT_TAKEN', 409, { start: 'slot_taken' });
   return s.name;
 }
 

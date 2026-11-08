@@ -27,14 +27,14 @@ export async function serviceOf(tx: TenantTx, id: string): Promise<ServiceInfo> 
   return { id: p.id, name: p.name, price: p.price, taxRate: p.taxRate, duration: p.durationMin, buffer: s.defaultBufferMin };
 }
 
-interface StaffRow {
+export interface StaffRow {
   id: string;
   skills: string[];
   schedules: { weekday: number; startTime: string; endTime: string }[];
 }
 
 /** Khung làm việc của nhân sự trong ngày (ca riêng ∩ giờ mở cửa); null = nghỉ. */
-function windowOf(st: StaffRow, open: { open: boolean; startTime: string; endTime: string } | null, weekday: number) {
+export function windowOf(st: StaffRow, open: { open: boolean; startTime: string; endTime: string } | null, weekday: number) {
   if (!open?.open) return null;
   const own = st.schedules.find((x) => x.weekday === weekday);
   const start = own && own.startTime > open.startTime ? own.startTime : open.startTime;

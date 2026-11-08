@@ -2,12 +2,13 @@
 // trước / sau; hoàn thành thuộc liệu trình → số buổi trước / sau (hết buổi → 409 như execute), ngoài liệu trình → cảnh báo gợi ý tạo đơn;
 // không đến trong ân hạn → 409, có trừ buổi khi bật `no_show_deducts`; huỷ nêu lý do. Chỉ đọc — không trừ buổi.
 import type { ActionInput, ActionPreview, appointmentCancel, appointmentCheckIn, appointmentComplete, appointmentConfirm, appointmentMarkNoShow } from '@appchat/actions';
-import { AppError, noShowAllowed, utcToWall } from '@appchat/shared';
+import { AppError, assertVersion, noShowAllowed, utcToWall } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { line, preview, updated, type Change } from '../../../kernel/actions/preview-kit';
 import { visibleAppointment, type AppointmentRecord } from '../../booking-access';
 import { step } from '../../services/appointment-write';
 import { bookingSetting } from '../../services/slots';
+import { assertReacquirable, effectiveOf } from '../../operations/confirm';
 
 async function flowOf(ctx: ActionContext, tx: TenantTx, id: string, action: string, timeZone: string) {
   const a = await visibleAppointment(tx, ctx.authz, id, 'write');
@@ -33,7 +34,15 @@ const simple = (action: string) => async (ctx: ActionContext, tx: TenantTx, i: {
   return preview('write', name, { changes: updated('appointment', a.id, { status: a.status }, { status: to }) });
 };
 
-export const confirmPreview: (ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof appointmentConfirm>, tz: string) => Promise<ActionPreview> = simple('appointment.confirm');
+/** Xác nhận / xác nhận lại (TIP-033b): hết giữ chỗ → kiểm lại đúng khung + gói như execute (chỉ đọc), cảnh báo `reconfirm`; if_version lệch → 409. */
+export async function confirmPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof appointmentConfirm>, timeZone: string, now: Date): Promise<ActionPreview> {
+  const a = await visibleAppointment(tx, ctx.authz, i.appointment_id, 'write');
+  assertVersion(a.version, i.if_version);
+  const prior = effectiveOf(a, now);
+  if (prior === 'expired') await assertReacquirable(tx, a, now, timeZone);
+  const { name } = await flowOf(ctx, tx, i.appointment_id, 'appointment.confirm', timeZone);
+  return preview('write', name, { changes: updated('appointment', a.id, { status: prior }, { status: 'confirmed' }), ...(prior === 'expired' ? { warnings: ['reconfirm'] } : {}) });
+}
 export const checkInPreview: (ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof appointmentCheckIn>, tz: string) => Promise<ActionPreview> = simple('appointment.check_in');
 
 export async function completePreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof appointmentComplete>, timeZone: string): Promise<ActionPreview> {

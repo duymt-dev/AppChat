@@ -21,6 +21,8 @@ export interface Appointment {
   note: string;
   cancel_reason: string;
   reschedule_count: number;
+  /** Phiên bản dòng (TIP-033b) — gửi kèm if_version khi xác nhận. */
+  version?: number;
   package_id: string | null;
   order_id?: string | null;
   package: { id: string; name: string; used: number; total: number } | null;

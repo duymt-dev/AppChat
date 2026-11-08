@@ -12,6 +12,7 @@ export type Appointment = Omit<Fixed, 'status' | 'package_id' | 'order_id'> & {
   status: ApptStatus;
   package_id: string | null;
   order_id: string | null;
+  version?: number;
   deleted?: boolean;
 };
 type Pkg = (typeof fixture.packages)[number];
@@ -43,6 +44,8 @@ export const HOLDS: ApptStatus[] = ['pending', 'confirmed', 'in_progress'];
 export const day = (iso: string) => iso.slice(0, 10);
 export const hm = (iso: string) => iso.slice(11, 16);
 export const iso = (d: string, t: string) => `${d}T${t}:00+07:00`;
+/** Giờ hẹn đã qua theo đồng hồ fixture (hôm nay của prototype, 09:00 — cùng mốc `not_before` của slots). */
+export const isPast = (a: Appointment) => `${day(a.start_at)} ${hm(a.start_at)}` < `${fixture.today} 09:00`;
 export const svcOf = (id: string) => fixture.services.find((s) => s.id === id)!;
 
 const visible = (db: MockDb, a: Appointment) => {
@@ -77,7 +80,7 @@ export const slotsFor = (db: MockDb, serviceId: string, date: string, staffId?: 
 };
 export const assertFree = (db: MockDb, serviceId: string, date: string, start: string, staffId: string, except?: string) => {
   const ok = slotsFor(db, serviceId, date, staffId, except).some((x) => x.start === start);
-  if (!ok) deny('CONFLICT', `${staffId} ${date} ${start}`);
+  if (!ok) deny('SLOT_TAKEN', `${staffId} ${date} ${start}`);
 };
 
 const enrich = (db: MockDb, a: Appointment) => {

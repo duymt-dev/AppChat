@@ -115,6 +115,8 @@
     "time": "{time} · {dur}",
     "reschedule": "Đổi giờ",
     "confirm": "Xác nhận",
+    "reconfirm": "Xác nhận lại",
+    "expiredHint": "Lịch đã hết giữ chỗ — xác nhận lại giữ nguyên mã, giờ và KTV nếu khung còn trống.",
     "checkIn": "Khách đã đến",
     "complete": "Hoàn thành",
     "more": "Thao tác khác",

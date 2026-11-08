@@ -2,6 +2,7 @@
 // lại cho người khác); nhắc hẹn 24 giờ / 2 giờ trước giờ hẹn qua kênh khách đã dùng (hội thoại gắn lịch, hoặc hội thoại gần nhất còn gửi
 // được của khách — Zalo cá nhân / web chat / email), mỗi mốc một lần (`reminders_sent`). Khách không có kênh nào → bỏ qua mốc đó.
 // Đọc lại + khoá dòng trong transaction (state-machine §1.4); lỗi một lịch không chặn lịch khác.
+import { lockAppointmentChain } from '../operations/locks';
 import { dueReminder, interpolate, nextState, serverMessages, utcToWall, APPOINTMENT_FLOW } from '@appchat/shared';
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import type { ActionContext } from '../../kernel/actions/action-context';
@@ -21,7 +22,8 @@ export async function expireHolds(db: TenantDb, ws: string, now: Date, timeZone:
   let n = 0;
   for (const { id } of due) {
     const moved = await db.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${id}::uuid FOR UPDATE`;
+      // TIP-033b §2.1: cùng chuỗi khoá với xác nhận (khách → gói → nhân sự → lịch) — một bên thắng, không deadlock.
+      if (!(await lockAppointmentChain(tx, id))) return false;
       const a = await tx.appointment.findUnique({ where: { id } });
       if (!a || !a.holdExpiresAt || a.holdExpiresAt > now || nextState(APPOINTMENT_FLOW, a.status, 'appointment.expire') !== 'expired') return false;
       const row = await tx.appointment.update({ where: { id }, data: { status: 'expired', holdExpiresAt: null, version: { increment: 1 }, updatedAt: now } });

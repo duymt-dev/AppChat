@@ -1,10 +1,11 @@
-// appointment.confirm · check_in · complete · mark_no_show · cancel (REQ-G02, COMMERCE §6 / 8b; APPOINTMENT_FLOW). Hoàn thành: thuộc liệu
+// appointment.check_in · complete · mark_no_show · cancel (REQ-G02, COMMERCE §6 / 8b; APPOINTMENT_FLOW). Xác nhận / xác nhận lại:
+// appointment-confirm.handler.ts (TIP-033b) — re-export dưới đây giữ đường import cũ. Hoàn thành: thuộc liệu
 // trình → trừ 1 buổi (`package_usage`), ngoài liệu trình → chỉ GỢI Ý tạo đơn (`suggest_order`, không tự tạo) — không cộng điểm. Không
 // đến: chỉ sau ân hạn 20 phút từ giờ hẹn; mặc định không trừ buổi (cấu hình `no_show_deducts`). Huỷ: lý do bắt buộc. Hoàn tác 24 giờ
 // (trả buổi); huỷ không hoàn tác (khung giờ có thể đã có người đặt — đặt lại lịch mới).
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, noShowAllowed, type AppointmentStatusKey } from '@appchat/shared';
-import type { ActionInput, appointmentCancel, appointmentCheckIn, appointmentComplete, appointmentConfirm, appointmentMarkNoShow } from '@appchat/actions';
+import type { ActionInput, appointmentCancel, appointmentCheckIn, appointmentComplete, appointmentMarkNoShow } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { lockRootOf } from '../../kernel/ownership/root-lock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
@@ -14,7 +15,8 @@ import { BookingPlace } from '../services/booking-place';
 import { bookingSetting } from '../services/slots';
 import { lockAppointment, type AppointmentRecord } from '../booking-access';
 import { eventOf, guarded, revertSession, step, timeline, useSession } from '../services/appointment-write';
-import { cancelPreview, checkInPreview, completePreview, confirmPreview, noShowPreview } from './previews/appointment-flow.handlers.preview';
+import { cancelPreview, checkInPreview, completePreview, noShowPreview } from './previews/appointment-flow.handlers.preview';
+export { AppointmentConfirmHandler } from './appointment-confirm.handler';
 
 type Out = { appointment_id: string; status: string };
 type Snap = { id: string; status: AppointmentStatusKey; hold: string | null; confirmed_at: string | null; checked_in_at: string | null; done_at: string | null };
@@ -48,27 +50,6 @@ abstract class FlowBase {
     const row = await tx.appointment.update({ where: { id: a.id }, data: { status: to, version: { increment: 1 }, updatedAt: now, ...data(a, now) } });
     const { timeZone } = await this.place.of(ctx.workspaceId);
     return { before: a, row, now, timeZone };
-  }
-}
-
-@Injectable()
-@ActionHandler('appointment.confirm')
-export class AppointmentConfirmHandler extends FlowBase implements Handler<ActionInput<typeof appointmentConfirm>, Out> {
-  constructor(@Inject(BookingPlace) place: BookingPlace, @Inject(CLOCK) clock: Clock) {
-    super(place, clock);
-  }
-
-  async execute(ctx: ActionContext, input: ActionInput<typeof appointmentConfirm>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
-    const { before, row, timeZone } = await this.move(ctx, tx, input.appointment_id, 'appointment.confirm', (_a, now) => ({ holdExpiresAt: null, confirmedAt: now }));
-    return { result: { appointment_id: row.id, status: row.status }, before: snap(before), events: [{ topic: 'appointment.confirmed', payload: eventOf(row, timeZone) }] };
-  }
-
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx) {
-    await restore(tx, log, 'confirmed', this.clock.now());
-  }
-
-  async preview(ctx: ActionContext, input: ActionInput<typeof appointmentConfirm>, tx: TenantTx) {
-    return confirmPreview(ctx, tx, input, (await this.place.of(ctx.workspaceId)).timeZone);
   }
 }
 

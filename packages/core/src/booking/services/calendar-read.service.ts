@@ -79,6 +79,7 @@ export class CalendarReadService {
         reminders: [...(a.confirmedAt ? [{ kind: 'confirm', at: utcToWall(a.confirmedAt, timeZone).iso }] : []), ...sent],
         // Chỉ key người xem được thấy (FieldPolicy — TIP-045b annex C).
         custom: projectCustom(fv, a.custom) as AppointmentRow['custom'],
+        version: a.version,
       };
     });
   }

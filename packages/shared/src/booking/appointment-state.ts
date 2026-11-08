@@ -1,5 +1,5 @@
 // Trạng thái lịch hẹn (REQ-G02, Blueprint §2.2 appointment, COMMERCE §6 / 8b): bảng chuyển dùng chung BE + mock FE + nút drawer + Trợ lý.
-// Chờ xác nhận (giữ chỗ 2 giờ — hết giữ chỗ → expired) → Đã xác nhận → Đã đến → Hoàn thành; Không đến chỉ sau ân hạn 20 phút từ giờ hẹn;
+// Chờ xác nhận (giữ chỗ 2 giờ — hết giữ chỗ → expired, xác nhận lại được nếu khung + gói còn hợp lệ — TIP-033b) → Đã xác nhận → Đã đến → Hoàn thành; Không đến chỉ sau ân hạn 20 phút từ giờ hẹn;
 // Huỷ bắt buộc lý do; đổi giờ giữ cùng mã (reschedule_count + 1). Lịch còn chiếm chỗ nhân sự: pending / confirmed / in_progress.
 import { defineFlow } from '../state/flow';
 
@@ -39,8 +39,9 @@ export const APPOINTMENT_FLOW = defineFlow<AppointmentStatusKey>({
   done: {},
   no_show: {},
   cancelled: {},
-  expired: {},
-  terminal: ['done', 'no_show', 'cancelled', 'expired'],
+  // TIP-033b (D52d, state-machine §8): hết giữ chỗ không phải trạng thái cuối — xác nhận lại đúng khung cũ (kiểm lại chỗ / gói) hoặc huỷ.
+  expired: { 'appointment.confirm': 'confirmed', 'appointment.cancel': 'cancelled' },
+  terminal: ['done', 'no_show', 'cancelled'],
 });
 
 /** Hạn giữ chỗ: tạo + 2 giờ, nhưng không quá giờ hẹn. */
