@@ -8,6 +8,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { crmScopeSql, type CrmMembers } from '../../crm/public';
 import { countsFor } from '../repos/recipients.repo';
 import { CHANNEL_CAPS, allowedActions, emptyCounts, statsOf } from './campaign-policy';
+import { listMailSenders, senderKey, senderView } from './mail-sender';
 
 export interface MarketingViewer {
   workspaceId: string;
@@ -47,6 +48,7 @@ export class CampaignReadService {
     const picked = new Map(audience.map((a) => [a.campaignId, a._count._all]));
     const events = withHistory ? await tx.campaignEvent.findMany({ where: { campaignId: { in: rows.map((r) => r.id) } }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] }) : [];
     const names = await this.members.names(rows.map((r) => r.approvedByUserId));
+    const mail = rows.some((r) => r.senderKind === 'tenant_mail') ? new Map((await listMailSenders(tx)).map((m) => [senderKey(m), m])) : new Map();
     return rows.map((r) => {
       const ch = r.channel as CampaignChannel;
       const content = r.content as CampaignDto['content'];
@@ -64,6 +66,7 @@ export class CampaignReadService {
         version: r.version,
         account_id: r.accountId,
         account_name: r.accountId ? (accounts.get(r.accountId) ?? '') : '',
+        sender: senderView(r, mail),
         segment: [...segNames, ...(n ? [`+${n}`] : [])].join(', '),
         segment_ids: r.segmentIds,
         est_recipients: r.estRecipients,
@@ -184,6 +187,11 @@ export class CampaignReadService {
   }
 
   /** Meta màn Marketing — số đo thật từ người nhận; chỉ số kênh không hỗ trợ (đọc / click) = null. Nhãn là khoá (FE dịch). */
+  /** TIP-012c: người gửi mail của DN (quyền campaign.manage kiểm ở controller — cùng bộ đọc với action campaign.mail_senders). */
+  async mailSenders(v: MarketingViewer) {
+    return this.tx(v, (tx) => listMailSenders(tx));
+  }
+
   async meta(v: MarketingViewer) {
     const now = this.now();
     return this.tx(v, async (tx) => {

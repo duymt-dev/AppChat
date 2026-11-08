@@ -73,6 +73,7 @@ export const marketingRoutes: Record<string, MockRoute> = {
     );
     return paginate(rows.map(dto), p);
   },
+  '/campaigns/mail-senders': () => [],
   '/campaigns/meta': (db) => {
     const live = db.marketing.campaigns.filter((c) => !c.deleted);
     const sum = (k: 'sent' | 'replied' | 'converted', ch?: string) => live.filter((c) => !ch || c.channel === ch).reduce((s, c) => s + c.stats[k], 0);

@@ -911,6 +911,9 @@
     "draft_content": {
       "title": "AI rewrite campaign content"
     },
+    "mail_senders": {
+      "title": "Business mail senders"
+    },
     "recipient_export": {
       "title": "Export recipients"
     },

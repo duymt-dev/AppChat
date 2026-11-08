@@ -15,6 +15,7 @@ import { nextCode } from '../../kernel/sequence';
 import { CrmMembers, crmScopeSql } from '../../crm/public';
 import { actorOf, casUpdate, changed, findCampaign, lockCampaign, logEvent, senderAccount, stepOf, type CampaignRow } from '../repos/campaigns.repo';
 import { assertContent, parseSchedule } from '../services/campaign-policy';
+import { CHANNEL_SENDER, mailSenderData, type SenderChoice } from '../services/mail-sender';
 import { countAudience, segmentFilters, suggestionFilter } from '../services/segments.service';
 
 type CreateIn = ActionInput<typeof campaignCreate>;
@@ -46,13 +47,20 @@ async function setAudience(tx: TenantTx, campaignId: string, manual: string[], b
   for (let i = 0; i < data.length; i += 1000) await tx.campaignAudience.createMany({ data: data.slice(i, i + 1000), skipDuplicates: true });
 }
 
+/** Người gửi tường minh (TIP-012c): `sender` thắng `account_id`; mail của DN không gắn tài khoản kênh. */
+async function senderOf(tx: TenantTx, channel: CampaignChannel, sender: SenderChoice | undefined, accountId: string | undefined) {
+  if (sender?.kind === 'tenant_mail') return { accountId: null, mail: await mailSenderData(tx, channel, sender) };
+  const id = sender?.kind === 'channel_account' ? sender.account_id : accountId;
+  return { accountId: (await senderAccount(tx, CAMPAIGN_ACCOUNT_TYPE[channel], id))?.id ?? null, mail: CHANNEL_SENDER };
+}
+
 /** Ước tính = phân khúc ∪ khách đã lưu (chọn tay + lô nhập) ∪ bộ lọc của gợi ý AI nguồn (nếu có). */
 const estimate = async (tx: TenantTx, ctx: ActionContext, campaignId: string, segmentIds: string[], channel: CampaignChannel, now: Date, suggestionId: string | null) =>
   countAudience(tx, ctx.authz, { segmentIds, campaignId, filter: await suggestionFilter(tx, suggestionId) }, channel, now);
 
-type Snap = { id: string; name: string; content: unknown; ab: unknown; account_id: string | null; segment_ids: string[]; send_mode: string; scheduled_at: string | null; status: string; reject_reason: string | null; version: number };
+type Snap = { id: string; name: string; content: unknown; ab: unknown; account_id: string | null; sender_kind: string; mail_connection_id: string | null; mail_sender_id: string | null; mail_sender_rev: number | null; segment_ids: string[]; send_mode: string; scheduled_at: string | null; status: string; reject_reason: string | null; version: number };
 const snap = (c: CampaignRow): Snap => ({
-  id: c.id, name: c.name, content: c.content, ab: c.ab, account_id: c.accountId, segment_ids: c.segmentIds, send_mode: c.sendMode,
+  id: c.id, name: c.name, content: c.content, ab: c.ab, account_id: c.accountId, sender_kind: c.senderKind, mail_connection_id: c.mailConnectionId, mail_sender_id: c.mailSenderId, mail_sender_rev: c.mailSenderRev, segment_ids: c.segmentIds, send_mode: c.sendMode,
   scheduled_at: c.scheduledAt?.toISOString() ?? null, status: c.status, reject_reason: c.rejectReason, version: c.version,
 });
 
@@ -77,7 +85,7 @@ export class CampaignCreateHandler implements Handler<CreateIn, { campaign_id: s
     await segmentFilters(tx, input.segment_ids ?? []);
     await assertVisibleContacts(tx, ctx, input.contact_ids ?? []);
     const batch = await batchContacts(tx, ctx, input.audience_batch_id);
-    const account = await senderAccount(tx, CAMPAIGN_ACCOUNT_TYPE[input.channel], input.account_id);
+    const sender = await senderOf(tx, input.channel, input.sender, input.account_id);
     const scheduledAt = input.send === 'schedule' || input.send === 'ai_time' ? (input.scheduled_at ? parseSchedule(input.scheduled_at, now) : null) : null;
     const suggestion = input.suggestion_id && /^[0-9a-f-]{36}$/i.test(input.suggestion_id) ? await tx.campaignSuggestion.findUnique({ where: { id: input.suggestion_id } }) : null;
     const id = uuidv7(now.getTime());
@@ -85,7 +93,7 @@ export class CampaignCreateHandler implements Handler<CreateIn, { campaign_id: s
     const actor = await actorOf(ctx, this.members);
     await tx.campaign.create({
       data: {
-        id, code, name: input.name, kind: input.kind ?? suggestion?.kind ?? 'manual', channel: input.channel, accountId: account?.id ?? null,
+        id, code, name: input.name, kind: input.kind ?? suggestion?.kind ?? 'manual', channel: input.channel, accountId: sender.accountId, ...sender.mail,
         segmentIds: [...new Set(input.segment_ids ?? [])], content, ab: ab ?? undefined, sendMode: input.send ?? 'now', scheduledAt,
         suggestionId: suggestion?.id ?? null, createdByUserId: actor.userId, createdAt: now, updatedAt: now,
       },
@@ -124,7 +132,7 @@ export class CampaignUpdateHandler implements Handler<UpdateIn, Out> {
 
   async preview(_ctx: ActionContext, input: UpdateIn, tx: TenantTx): Promise<ActionPreview> {
     const c = await findCampaign(tx, input.campaign_id);
-    return preview('write', line(c.code, c.name), { changes: updated('campaign', c.id, { name: c.name, content: c.content, account_id: c.accountId }, { name: input.name, content: input.content, account_id: input.account_id }) });
+    return preview('write', line(c.code, c.name), { changes: updated('campaign', c.id, { name: c.name, content: c.content, account_id: c.accountId }, { name: input.name, content: input.content, account_id: input.account_id, ...(input.sender ? { sender: input.sender } : {}) }) });
   }
 
   async execute(ctx: ActionContext, input: UpdateIn, tx: TenantTx): Promise<HandlerOutcome<Out>> {
@@ -143,13 +151,13 @@ export class CampaignUpdateHandler implements Handler<UpdateIn, Out> {
       await assertVisibleContacts(tx, ctx, input.contact_ids);
       await setAudience(tx, c.id, input.contact_ids, null, now);
     }
-    const account = input.account_id ? await senderAccount(tx, CAMPAIGN_ACCOUNT_TYPE[channel], input.account_id) : null;
+    const sender = input.sender || input.account_id ? await senderOf(tx, channel, input.sender, input.account_id) : null;
     const send = input.send ?? c.sendMode;
     const scheduledAt = send === 'now' ? null : input.scheduled_at === undefined ? c.scheduledAt : input.scheduled_at === null ? null : parseSchedule(input.scheduled_at, now);
     const est = await estimate(tx, ctx, c.id, segmentIds, channel, now, c.suggestionId);
     const actor = await actorOf(ctx, this.members);
     const row = await casUpdate(tx, c, {
-      name: input.name ?? c.name, content, ab: ab ?? TenantSql.DbNull, accountId: account?.id ?? c.accountId, segmentIds,
+      name: input.name ?? c.name, content, ab: ab ?? TenantSql.DbNull, ...(sender ? { accountId: sender.accountId, ...sender.mail } : {}), segmentIds,
       sendMode: send, scheduledAt, status: to, rejectReason: null, estRecipients: est.reachable, updatedAt: now,
     });
     await logEvent(tx, c.id, c.status === 'rejected' ? 'reopened' : 'edited', actor, now);

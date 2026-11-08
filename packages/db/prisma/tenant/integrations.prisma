@@ -57,6 +57,8 @@ model IntegrationConnection {
   probedRev       Int?           @map("probed_rev")
   /// Webhook đã xác thực gần nhất.
   lastEventAt     DateTime?      @map("last_event_at") @db.Timestamptz(6)
+  /// TIP-012c: thăm dò mail (người gửi + trạng thái) cho phiên bản `probed_rev`: { state, senders:[{id,email,name,state}], events, account_ref }.
+  mailSenders     Json?          @map("mail_senders")
   createdBy    String?           @map("created_by") @db.Uuid
   createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)

@@ -3,6 +3,7 @@
 // số đo từ bằng chứng. Không I/O — dùng chung handler, worker và test.
 import { createHash } from 'node:crypto';
 import { AppError, CAMPAIGN_DELETABLE, CAMPAIGN_EDITABLE, CAMPAIGN_FLOW, allowedActions as flowActions, type CampaignChannel, type CampaignStatusKey } from '@appchat/shared';
+import { senderHashPart } from './mail-sender';
 
 /** Biến cho phép trong nội dung — chỉ dữ liệu khách mà chiến dịch được dùng (tên, mã khách, hạng thành viên). */
 export const CONTENT_VARS = ['ten', 'ma_khach', 'hang'] as const;
@@ -65,9 +66,14 @@ export function variantOf(campaignId: string, contactId: string): 'a' | 'b' {
 
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 
-/** Băm phần được duyệt: nội dung + A/B + tài khoản gửi + kênh + giờ hẹn. Đổi bất kỳ phần nào → bản duyệt không còn khớp. */
-export function contentHash(x: { channel: string; content: unknown; ab: unknown; accountId: string | null; scheduledAt: Date | null }): string {
-  return sha(JSON.stringify([x.channel, x.content, x.ab ?? null, x.accountId, x.scheduledAt?.toISOString() ?? null]));
+/**
+ * Băm phần được duyệt: nội dung + A/B + tài khoản gửi + kênh + giờ hẹn (+ người gửi mail của DN: kết nối / định danh / phiên bản — TIP-012c).
+ * Đổi bất kỳ phần nào → bản duyệt không còn khớp. Chiến dịch kênh giữ công thức cũ (bản chờ duyệt trước migration vẫn khớp).
+ */
+export function contentHash(x: { channel: string; content: unknown; ab: unknown; accountId: string | null; scheduledAt: Date | null } & Partial<Parameters<typeof senderHashPart>[0]>): string {
+  const base = [x.channel, x.content, x.ab ?? null, x.accountId, x.scheduledAt?.toISOString() ?? null];
+  const mail = senderHashPart(x);
+  return sha(JSON.stringify(mail ? [...base, mail] : base));
 }
 
 /** Giờ hẹn: ISO 8601 CÓ múi giờ (không đoán theo giờ máy), sau `now` ít nhất 1 phút. */

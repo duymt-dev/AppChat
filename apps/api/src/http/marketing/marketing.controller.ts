@@ -1,5 +1,5 @@
 // Đọc Marketing (TIP-037, Blueprint §4.4 — shape packages/shared/src/api/marketing.ts): /v1/campaigns?status=&channel=&q=&page=&limit= (D42),
-// /campaigns/meta (trước :id), /campaigns/:id (+ trang người nhận đầu), /campaigns/:id/recipients?status=&page=&limit=, /segments,
+// /campaigns/meta + /campaigns/mail-senders (trước :id; mail-senders cần campaign.manage — TIP-012c), /campaigns/:id (+ trang người nhận đầu), /campaigns/:id/recipients?status=&page=&limit=, /segments,
 // /campaign-suggestions, /campaign-analyses/:run_id (trạng thái lượt phân tích của chính người xem). Quyền `campaign.view`; khách chỉ hiện trong scope CRM người xem (service). Ghi qua action segment.* / campaign.*.
 import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
@@ -33,6 +33,14 @@ export class MarketingController {
   async meta(@Req() req: IncomingMessage) {
     const { v, read } = await this.viewer(req);
     return { data: await read.meta(v) };
+  }
+
+  /** TIP-012c §2.3: người gửi mail của DN — campaign.manage (không cần integrations.manage), không khoá / cấu hình. Trước `:id`. */
+  @Get('campaigns/mail-senders')
+  async mailSenders(@Req() req: IncomingMessage) {
+    const { v, read } = await this.viewer(req);
+    if (!v.authz.isOwner && !v.authz.permissions.has('campaign.manage')) throw new AppError('FORBIDDEN', 403, { permission: 'campaign.manage' });
+    return { data: await read.mailSenders(v) };
   }
 
   @Get('campaigns/:id')

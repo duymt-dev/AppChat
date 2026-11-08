@@ -2,7 +2,7 @@
 // Kênh chỉ Zalo cá nhân + Email. draft → pending_approval → approved/scheduled → running → completed; rejected / paused / cancelled.
 // campaign.approve là lệnh gửi hàng loạt — luôn xác nhận (risk send).
 import { z } from 'zod';
-import { segmentFilterSchema } from '@appchat/shared';
+import { campaignSenderInputSchema as campaignSenderInput, segmentFilterSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const campaignId = z.string().min(1);
@@ -57,13 +57,15 @@ export const campaignCreate = defineAction({
   module: 'marketing',
   title: 'actions.campaign.create.title',
   description:
-    'Create a draft campaign for a segment on Zalo personal or Email. Example: {"name":"Win-back 60 ngày","channel":"zalo","segment_ids":["0190f000-0000-7000-8000-000000000001"],"content":{"text":"Chào {ten}…"}}',
+    'Create a draft campaign for a segment on Zalo personal or Email. For Email you may send through the business mail connection: pass sender {"kind":"tenant_mail",...} picked from campaign.mail_senders. Example: {"name":"Win-back 60 ngày","channel":"zalo","segment_ids":["0190f000-0000-7000-8000-000000000001"],"content":{"text":"Chào {ten}…"}}',
   input: z.object({
     name: z.string().trim().min(1).max(160),
     kind: z.enum(['reactivation', 'upsell', 'conversion', 'aftercare', 'manual']).optional(),
     channel,
     /** Tài khoản gửi cụ thể (bắt buộc trước khi gửi duyệt; vắng → tài khoản đang kết nối đầu tiên của kênh). */
     account_id: z.string().uuid().optional(),
+    /** TIP-012c: người gửi tường minh — email có thể chọn mail của DN (campaign.mail_senders); có `sender` thì bỏ qua account_id. */
+    sender: campaignSenderInput.optional(),
     segment_ids: z.array(z.string().uuid()).max(10).optional(),
     contact_ids: z.array(z.string().uuid()).max(5000).optional(),
     /** Lô nhập danh sách đã kiểm (campaign.audience_import) — id khách thật, không phải file. */
@@ -95,6 +97,7 @@ export const campaignUpdate = defineAction({
     content: content.optional(),
     ab: z.object({ text_b: z.string().max(4000) }).nullable().optional(),
     account_id: z.string().uuid().optional(),
+    sender: campaignSenderInput.optional(),
     segment_ids: z.array(z.string().uuid()).max(10).optional(),
     contact_ids: z.array(z.string().uuid()).max(5000).optional(),
     send: z.enum(['now', 'schedule', 'ai_time']).optional(),

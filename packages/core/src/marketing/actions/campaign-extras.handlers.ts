@@ -39,6 +39,8 @@ export class CampaignSendTestHandler implements Handler<ActionInput<typeof campa
     const c = await findCampaign(tx, input.campaign_id);
     const me = await this.d.userEmail(actorUserId(ctx));
     if (!me?.email) throw new AppError('VALIDATION_FAILED', 422, { user: 'no_email' });
+    // TIP-012c: chiến dịch dùng mail của DN không gửi thử qua tài khoản kênh khác (biên nhận gửi thử qua kết nối ở pha 3).
+    if (c.senderKind === 'tenant_mail') throw new AppError('INVALID_STATE', 409, { sender: 'mail_dispatch_unavailable' });
     const acc = c.channel === 'email' && c.accountId ? await tx.channelAccount.findUnique({ where: { id: c.accountId } }) : await tx.channelAccount.findFirst({ where: { type: 'email', status: 'connected', pausedAt: null }, orderBy: { createdAt: 'asc' } });
     if (!acc || acc.type !== 'email' || acc.status !== 'connected' || acc.pausedAt) throw new AppError('INVALID_STATE', 409, { connector: 'email' });
     if (!this.d.send) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'Hàng gửi chưa cấu hình');

@@ -14,7 +14,8 @@ export const SNAPSHOT_MAX = 50_000;
 export interface SnapshotInput {
   campaignId: string;
   channel: CampaignChannel;
-  accountId: string;
+  /** Null = mail của DN (TIP-012c — email theo địa chỉ, không gắn hội thoại kênh). */
+  accountId: string | null;
   segmentIds: string[];
   /** Bộ lọc của gợi ý AI nguồn (chiến dịch tạo từ gợi ý). */
   filter?: SegmentNode;

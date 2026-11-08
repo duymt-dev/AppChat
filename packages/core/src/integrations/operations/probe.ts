@@ -2,16 +2,30 @@
 // (không gọi mạng trong transaction), ghi bằng chứng `last_probe_*` + `probed_rev` cho ĐÚNG phiên bản khoá đã thăm dò (đổi khoá giữa
 // chừng → không ghi). Không có khả năng thăm dò đọc → `unsupported` (không bao giờ "xanh" giả). Khác `integration.test` (chế độ A —
 // thăm dò nháp, không ghi gì). Không gửi thư / tạo giao dịch.
-import { ProviderError, isProviderError, type BankFeedProvider } from '@appchat/integrations';
+import { ProviderError, isProviderError, isTenantMail, type BankFeedProvider } from '@appchat/integrations';
 import type { CallOpSpec, OpRunArgs } from './call-runner';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { upsertCall } from './call-receipt';
 
 export const PROBE_OP = 'connection.probe';
 
-type ProbeRecord = { status: 'verified' | 'failed' | 'unsupported'; reason: string | null };
+type MailProbeRecord = { state: string; account_ref: string | null; events: boolean; senders: { id: string; email: string; name: string; state: string }[] };
+type ProbeRecord = { status: 'verified' | 'failed' | 'unsupported'; reason: string | null; mail?: MailProbeRecord };
 
 async function attempt(a: OpRunArgs): Promise<ProbeRecord> {
+  // TIP-012c §1.5: mail của DN — thăm dò KHÔNG gửi, ghi người gửi + trạng thái cho đúng phiên bản khoá (bằng chứng cho campaign.mail_senders).
+  if (isTenantMail(a.adapter)) {
+    if (!a.mail) throw new ProviderError('provider_unavailable', 'mail');
+    try {
+      const r = await a.adapter.probe(a.conn, a.mail);
+      const ok = r.state === 'sender_verified' || r.state === 'authenticated_transport';
+      const mail = { state: r.state, account_ref: r.accountRef, events: r.events, senders: r.senders.map((x) => ({ id: x.id, email: x.email, name: x.name, state: x.state })) };
+      return { status: ok ? 'verified' : 'failed', reason: ok ? null : (r.reason ?? r.state), mail };
+    } catch (e) {
+      if (isProviderError(e) && e.code === 'auth_failed') return { status: 'failed', reason: 'auth_failed', mail: { state: 'degraded', account_ref: null, events: false, senders: [] } };
+      throw e;
+    }
+  }
   const bank = a.adapter as BankFeedProvider | null;
   if (!bank?.probe) return { status: 'unsupported', reason: 'no_probe' };
   try {
@@ -34,7 +48,7 @@ export const probeOp: CallOpSpec = {
     const t = a.now();
     await a.db.integrationConnection.updateMany({
       where: { id: a.conn.id, credentialRev: rev, status: { not: 'disconnected' } },
-      data: { lastProbeAt: t, lastProbeStatus: r.status, lastProbeReason: r.reason, probedRev: rev, ...(r.status === 'verified' ? { lastError: null } : {}) },
+      data: { lastProbeAt: t, lastProbeStatus: r.status, lastProbeReason: r.reason, probedRev: rev, ...(r.mail ? { mailSenders: r.mail } : {}), ...(r.status === 'verified' ? { lastError: null } : {}) },
     });
     return { probe: r.status, ...(r.reason ? { reason: r.reason } : {}) };
   },

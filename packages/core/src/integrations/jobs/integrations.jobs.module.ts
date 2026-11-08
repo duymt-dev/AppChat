@@ -18,6 +18,7 @@ import { startIntegrationsWorker } from './integration-call.processor';
 import { INTEGRATION_OPS_QUEUE, IntegrationOps, executeCall, registerCallOp, unregisterCallOp, type OpsJob } from '../operations/call-runner';
 import { PROBE_OP, probeOp } from '../operations/probe';
 import { providerHttp } from '../operations/provider-http';
+import { mailTransports } from '../mail/module';
 import { OPS_SCHEDULER_QUEUE, OPS_SWEEP_JOB, SWEEP_EVERY_MS, sweepIntegrationOps } from './bank-sync.scheduler';
 
 class IntegrationsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -39,7 +40,7 @@ class IntegrationsJobsRunner implements OnApplicationBootstrap, OnApplicationShu
     const now = () => this.clock.now();
     this.workers.push(startIntegrationsWorker(this.redis, { tenants: this.tenants, registry: connectorRegistry, key: this.key, kv: this.redis, now }, this.log));
     registerCallOp(PROBE_OP, probeOp);
-    const deps = { tenants: this.tenants, registry: connectorRegistry, key: this.key, http: providerHttp(), kv: this.redis, now };
+    const deps = { tenants: this.tenants, registry: connectorRegistry, key: this.key, http: providerHttp(), mail: mailTransports(), kv: this.redis, now };
     this.workers.push(
       new Worker(
         INTEGRATION_OPS_QUEUE,

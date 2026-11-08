@@ -51,6 +51,7 @@ export * from './public-commerce-document';
 export * from './product-import';
 export * from './loyalty';
 export * from './marketing';
+export * from './tenant-mail';
 export * from './kb-management';
 export * from './kb-suggestions';
 export * from './insights';

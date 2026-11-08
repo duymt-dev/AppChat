@@ -32,6 +32,7 @@ import * as channelFriends from './channel-friends';
 import * as support from './support';
 import * as marketing from './marketing';
 import * as marketingExtras from './marketing-extras';
+import * as tenantMail from './tenant-mail';
 import * as loyalty from './loyalty';
 import * as loyaltySystem from './loyalty-system';
 import * as loyaltyPayments from './loyalty-payments';
@@ -112,6 +113,7 @@ export * from './channel-friends';
 export * from './support';
 export * from './marketing';
 export * from './marketing-extras';
+export * from './tenant-mail';
 export * from './loyalty';
 export * from './loyalty-reasons';
 export * from './loyalty-system';
@@ -189,6 +191,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(support),
   ...Object.values(marketing),
   ...Object.values(marketingExtras),
+  ...Object.values(tenantMail),
   ...Object.values(loyalty),
   ...Object.values(loyaltySystem),
   ...Object.values(loyaltyPayments),

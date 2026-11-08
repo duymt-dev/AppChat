@@ -64,6 +64,8 @@ export class CampaignDispatchHandler implements Handler<ActionInput<typeof campa
     };
     // Người duyệt bị thu hồi quyền duyệt / rời workspace → dừng chờ người có quyền xem lại (không gửi nhân danh quyền đã mất).
     if (!approverOk) return c.status === 'approved' ? this.hold(tx, c, now, 'approver_revoked') : pause('approver_revoked');
+    // TIP-012c: mail của DN gửi qua hàng gọi integrations (pha 3) — chưa có cầu gửi thì giữ, không lùi sang tài khoản kênh.
+    if (c.senderKind === 'tenant_mail') return c.status === 'approved' ? this.hold(tx, c, now, 'mail_dispatch_unavailable') : pause('mail_dispatch_unavailable');
     const acc = c.accountId ? await tx.channelAccount.findUnique({ where: { id: c.accountId }, select: { status: true, pausedAt: true } }) : null;
     if (!acc || acc.status !== 'connected' || acc.pausedAt) return c.status === 'approved' ? this.hold(tx, c, now, `account_${acc ? (acc.pausedAt ? 'paused' : acc.status) : 'missing'}`) : pause(`account_${acc ? (acc.pausedAt ? 'paused' : acc.status) : 'missing'}`);
     if (c.status !== 'running') {

@@ -911,6 +911,9 @@
     "draft_content": {
       "title": "AI viết lại nội dung chiến dịch"
     },
+    "mail_senders": {
+      "title": "Người gửi mail của doanh nghiệp"
+    },
     "recipient_export": {
       "title": "Xuất danh sách người nhận"
     },

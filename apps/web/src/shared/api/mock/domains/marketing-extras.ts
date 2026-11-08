@@ -102,6 +102,8 @@ export const marketingExtraHandlers: Record<string, MockHandler> = {
       return { file_id: id, rows: rows.length, url: `/v1/files/${id}` };
     },
   },
+  // TIP-012c: mock chưa có kết nối mail của DN (Cài đặt Email Marketing ở pha 5) → danh sách rỗng, không bịa người gửi.
+  'campaign.mail_senders': { execute: () => ({ senders: [] }) },
   'campaign.analyze': {
     execute: (db) => {
       const run = MOCK_UUID(Object.keys(db.marketing.analyses).length + 2, 9600);
