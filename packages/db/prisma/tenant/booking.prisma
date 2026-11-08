@@ -27,6 +27,8 @@ model Staff {
   skills    String[] @default([]) @db.Uuid
   active    Boolean  @default(true)
   sort      Int      @default(0)
+  /// CAS cấu hình (TIP-033b).
+  version   Int      @default(1)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -35,13 +37,14 @@ model Staff {
   @@map("staff")
 }
 
-/// Ca riêng của nhân sự theo thứ (0 = Thứ Hai). Không có dòng cho thứ đó → theo giờ mở cửa.
+/// Ca riêng của nhân sự theo thứ (0 = Thứ Hai). Không có dòng → theo giờ mở cửa; `open = false` → nghỉ (TIP-033b tri-state).
 model StaffSchedule {
-  id        String @id @db.Uuid
-  staffId   String @map("staff_id") @db.Uuid
+  id        String  @id @db.Uuid
+  staffId   String  @map("staff_id") @db.Uuid
   weekday   Int
-  startTime String @map("start_time")
-  endTime   String @map("end_time")
+  open      Boolean @default(true)
+  startTime String  @map("start_time")
+  endTime   String  @map("end_time")
 
   staff Staff @relation(fields: [staffId], references: [id], onDelete: Cascade)
 
@@ -65,6 +68,7 @@ model BookingSetting {
   defaultBufferMin Int      @default(10) @map("default_buffer_min")
   slotStepMin      Int      @default(30) @map("slot_step_min")
   noShowDeducts    Boolean  @default(false) @map("no_show_deducts")
+  version          Int      @default(1)
   updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("booking_setting")

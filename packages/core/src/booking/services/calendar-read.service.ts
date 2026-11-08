@@ -8,6 +8,7 @@ import { UUID, bookingScopeSql, visibleAppointment, type AppointmentRecord } fro
 import type { BookingPlace } from './booking-place';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { bookingSetting, slotsFor } from './slots';
+import { assertSlotDate, authorizedExclude } from '../operations/slot-policy';
 import { calendarFollowUps } from '../../insights/services/calendar-follow-ups';
 
 export interface CalendarViewer {
@@ -121,7 +122,12 @@ export class CalendarReadService {
 
   async slots(v: CalendarViewer, q: { serviceId: string; date: string; staffId?: string; excludeId?: string }) {
     const { timeZone } = await this.place.of(v.workspaceId);
-    return this.tx(v, async (tx) => ({ slots: await slotsFor(tx, { ...q, timeZone, now: this.now() }) }));
+    // TIP-033b §3.5: exclude_id chỉ khi người xem sửa được lịch đó (404 đồng nhất), cùng chính sách với tool find_slots.
+    return this.tx(v, async (tx) => {
+      assertSlotDate(q.date);
+      const excludeId = await authorizedExclude(tx, v.authz, q.excludeId);
+      return { slots: await slotsFor(tx, { ...q, excludeId, timeZone, now: this.now() }) };
+    });
   }
 
   async meta(v: CalendarViewer, appointmentId?: string) {
@@ -197,6 +203,7 @@ export class CalendarReadService {
         slot_step_min: setting.slotStepMin,
         default_buffer_min: setting.defaultBufferMin,
         no_show_deducts: setting.noShowDeducts,
+        version: setting.version,
         staff: staff.map((s) => ({
           id: s.id,
           name: s.name,
@@ -208,7 +215,8 @@ export class CalendarReadService {
           active: s.active,
           skills: s.skills,
           user_id: s.userId,
-          schedule: s.schedules.map((x) => ({ weekday: x.weekday, open: true, start: x.startTime, end: x.endTime })),
+          schedule: s.schedules.map((x) => ({ weekday: x.weekday, open: x.open, start: x.startTime, end: x.endTime })),
+          version: s.version,
         })),
       };
     });

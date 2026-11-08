@@ -124,6 +124,7 @@
     "cancel": "Cancel booking",
     "cancelReason": "Reason (required)",
     "cancelled": "Cancelled: {reason}",
+    "undoCreate": "Booking was undone",
     "suggest": "Create an order for this visit?",
     "suggestHint": "This visit is not part of a package — create an order to collect payment (only after you confirm).",
     "suggestBtn": "Create order",

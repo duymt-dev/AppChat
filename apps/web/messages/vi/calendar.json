@@ -124,6 +124,7 @@
     "cancel": "Huỷ lịch hẹn",
     "cancelReason": "Lý do huỷ (bắt buộc)",
     "cancelled": "Đã huỷ: {reason}",
+    "undoCreate": "Hoàn tác thao tác đặt lịch",
     "suggest": "Tạo đơn cho buổi này?",
     "suggestHint": "Buổi hẹn không thuộc liệu trình — tạo đơn để thu tiền (chỉ tạo khi bạn xác nhận).",
     "suggestBtn": "Tạo đơn",

@@ -69,5 +69,8 @@ export const bookingSettingsSchema = z.object({
   slot_step_min: z.number().int(),
   default_buffer_min: z.number().int(),
   no_show_deducts: z.boolean(),
-  staff: z.array(bookingStaffSchema.extend({ active: z.boolean(), skills: z.array(z.string()), user_id: z.string().nullable(), schedule: z.array(z.object({ weekday: z.number().int(), open: z.boolean(), start: z.string(), end: z.string() })) })),
+  /** TIP-033b: phiên bản cấu hình (CAS cho business_hours.update). */
+  version: z.number().int().optional(),
+  // schedule: thứ không có = theo giờ mở cửa; open=false = nghỉ tường minh (tri-state).
+  staff: z.array(bookingStaffSchema.extend({ active: z.boolean(), skills: z.array(z.string()), user_id: z.string().nullable(), schedule: z.array(z.object({ weekday: z.number().int(), open: z.boolean(), start: z.string(), end: z.string() })), version: z.number().int().optional() })),
 });

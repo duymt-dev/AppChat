@@ -3,7 +3,10 @@
 import { z } from 'zod';
 import { defineAction } from './define';
 
-const hm = z.string().regex(/^[0-2]\d:[0-5]\d$/);
+// TIP-033b §3.2: giờ 00–23:00–59 (không nhận 29:00); open=false là nghỉ (giờ bỏ qua); if_version tuỳ chọn (lệch → STALE_VERSION).
+const hm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
+const ifVersion = z.number().int().positive().optional();
+const version = z.number().int().optional();
 const day = z.object({ weekday: z.number().int().min(0).max(6), open: z.boolean(), start: hm, end: hm });
 const staffFields = z.object({
   name: z.string().trim().min(1).max(80),
@@ -14,7 +17,7 @@ const staffFields = z.object({
   user_id: z.string().optional(),
   /** Dịch vụ làm được (id sản phẩm loại service); rỗng = mọi dịch vụ. */
   skills: z.array(z.string()).max(200).optional(),
-  /** Ca riêng theo thứ (0 = Thứ Hai); thứ không có = theo giờ mở cửa. */
+  /** Ca riêng theo thứ (0 = Thứ Hai): thứ không có = theo giờ mở cửa; open=false = nghỉ; open=true = giờ riêng (∩ giờ mở cửa). */
   schedule: z.array(day).max(7).optional(),
 });
 
@@ -24,7 +27,7 @@ export const staffCreate = defineAction({
   title: 'actions.staff.create.title',
   description: 'Add a staff member who performs services. Example: {"name":"KTV. Mai Lan","role":"KTV da","skills":["<service id>"]}',
   input: staffFields,
-  output: z.object({ staff_id: z.string() }),
+  output: z.object({ staff_id: z.string(), version }),
   permission: 'booking.config',
   risk: 'config',
   agentGrantable: false,
@@ -35,9 +38,9 @@ export const staffUpdate = defineAction({
   id: 'staff.update',
   module: 'booking',
   title: 'actions.staff.update.title',
-  description: 'Update a staff member (name, role, color, team, room, services, own schedule).',
-  input: z.object({ staff_id: z.string().min(1), patch: staffFields.partial() }),
-  output: z.object({ staff_id: z.string() }),
+  description: 'Update a staff member (name, role, color, team, room, services, own schedule). schedule replaces all own days: omitted weekday = follows opening hours, open=false = day off.',
+  input: z.object({ staff_id: z.string().min(1), patch: staffFields.partial(), if_version: ifVersion }),
+  output: z.object({ staff_id: z.string(), version }),
   permission: 'booking.config',
   risk: 'config',
   agentGrantable: false,
@@ -48,9 +51,9 @@ export const staffDeactivate = defineAction({
   id: 'staff.deactivate',
   module: 'booking',
   title: 'actions.staff.deactivate.title',
-  description: 'Deactivate a staff member (no new bookings; existing appointments stay). Rejected while they still have upcoming appointments.',
-  input: z.object({ staff_id: z.string().min(1) }),
-  output: z.object({ staff_id: z.string() }),
+  description: 'Deactivate a staff member (no new bookings; existing appointments stay). Rejected while they have an appointment in progress or an upcoming held one.',
+  input: z.object({ staff_id: z.string().min(1), if_version: ifVersion }),
+  output: z.object({ staff_id: z.string(), version }),
   permission: 'booking.config',
   risk: 'config',
   agentGrantable: false,
@@ -68,8 +71,9 @@ export const businessHoursUpdate = defineAction({
     slot_step_min: z.union([z.literal(5), z.literal(10), z.literal(15), z.literal(20), z.literal(30), z.literal(60)]).optional(),
     default_buffer_min: z.number().int().min(0).max(240).optional(),
     no_show_deducts: z.boolean().optional(),
+    if_version: ifVersion,
   }),
-  output: z.object({ ok: z.boolean() }),
+  output: z.object({ ok: z.boolean(), version }),
   permission: 'booking.config',
   risk: 'config',
   agentGrantable: false,

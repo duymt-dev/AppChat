@@ -6,7 +6,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, appointmentUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
-import { lockRootOf } from '../../kernel/ownership/root-lock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers, actorUserId } from '../../crm/public';
@@ -34,7 +33,8 @@ export class AppointmentUpdateHandler implements Handler<In, Out> {
 
   async execute(ctx: ActionContext, input: In, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
-    const a = await lockAppointment(tx, ctx.authz, input.appointment_id);
+    // TIP-033b §2.1: đổi dịch vụ có thể gắn gói khác của khách → khoá mọi liệu trình còn hiệu lực; đổi nhân sự → khoá cả nhân sự đích.
+    const a = await lockAppointment(tx, ctx.authz, input.appointment_id, { staffIds: input.patch.staff_id ? [input.patch.staff_id] : [], contactPackages: input.patch.service_id !== undefined });
     const { timeZone } = await this.place.of(ctx.workspaceId);
     const plan = await planEdit(tx, a, input.patch, { timeZone, now, role: await this.role(ctx), ifVersion: input.if_version });
     const row = await guarded(() =>
@@ -66,10 +66,9 @@ export class AppointmentUpdateHandler implements Handler<In, Out> {
     };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as Snapshot & { version: number };
-    await lockRootOf(tx, 'appointment', b.id);
-    await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${b.id}::uuid FOR UPDATE`;
+    await lockAppointment(tx, ctx.authz, b.id, { staffIds: [b.staff_id], contactPackages: true });
     const a = await tx.appointment.findUnique({ where: { id: b.id } });
     if (!a || a.deletedAt || a.version !== b.version || (a.status !== 'pending' && a.status !== 'confirmed')) throw new AppError('CONFLICT', 409, { appointment_id: 'changed' });
     await guarded(() =>

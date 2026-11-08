@@ -112,7 +112,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 28 | [015f](../tips/TIP-015f-contact-lifecycle.md) | W8 | **DONE** (pha 6/6 — P1 DC-397 · P2 DC-398 · P3 DC-399 · P4 DC-400 · P5 DC-401 · P6 DC-402; ai:live contact-lifecycle 7/8, an toàn 0) | `tip/015f-contact-lifecycle` · `-p2` … `-p6` | `4df7f0e2` · `b574ccb4` · `69237ab7` · `f43ba4ef` · `0704630f` · P6 xem PR | #137 · #138 · #139 · #140 · #141 · #142 |
 | 29 | [015e](../tips/TIP-015e-contact-merge-integrity.md) | W8 | DONE | `tip/015e-contact-merge-p5` | report TIP-015e-completion.md | #143–#147 |
 | 30 | [012c](../tips/TIP-012c-tenant-mail.md) | W8 | DONE | `tip/012c-tenant-mail` | P1–P6 xem PR | #148–#153 |
-| 31 | [033b](../tips/TIP-033b-booking-operations.md) | W8 | đang làm (P1 / 5) | `tip/033b-booking-operations` | #154 | |
+| 31 | [033b](../tips/TIP-033b-booking-operations.md) | W8 | đang làm (P2 / 5) | `tip/033b-booking-operations` | #154, #155 | |
 | 32 | [019c](../tips/TIP-019c-ai-utilities.md) | W8 | chờ | `tip/019c-ai-utilities` | | |
 | 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | chờ | `tip/015c-contact-privacy` | | |
 | 34 | [023d](../tips/TIP-023d-assistant-plans.md) | W8 | chờ | `tip/023d-assistant-plans` | | |

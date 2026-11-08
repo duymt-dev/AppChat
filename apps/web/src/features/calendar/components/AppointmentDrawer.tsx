@@ -16,6 +16,8 @@ import { AppointmentHeader } from './AppointmentHeader';
 import { AppointmentFooter } from './AppointmentFooter';
 
 const SP = ' ';
+/** Lý do kiểm toán khi hoàn tác tạo lịch (TIP-033b — server giữ bản ghi, chuyển cancelled). */
+const UNDO_CREATE = 'undo_create';
 const initialOf = (name: string) => name.split(SP).at(-1)?.charAt(0) ?? SP;
 
 export function AppointmentDrawer({ meta }: { meta: CalendarMeta }) {
@@ -119,7 +121,7 @@ export function AppointmentDrawer({ meta }: { meta: CalendarMeta }) {
           <div className={styles.sec}>{t('detail.note')}</div>
           <div className={styles.note}>
             {a.status === 'cancelled'
-              ? t('detail.cancelled', { reason: a.cancel_reason })
+              ? t('detail.cancelled', { reason: a.cancel_reason === UNDO_CREATE ? t('detail.undoCreate') : a.cancel_reason })
               : a.note || t('detail.noNote')}
           </div>
           <div className={styles.sec}>{t('detail.history')}</div>

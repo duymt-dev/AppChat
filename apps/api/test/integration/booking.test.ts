@@ -115,10 +115,10 @@ describe('đặt lịch', () => {
     ).rejects.toThrow(/appointment_no_overlap|exclusion/i);
   });
 
-  it('hoàn tác tạo (xoá mềm, trả khung giờ); đổi giờ giữ mã + tăng lần dời + hoàn tác', async () => {
+  it('hoàn tác tạo (giữ bản ghi → cancelled có lý do, trả khung giờ — TIP-033b §2.6); đổi giờ giữ mã + tăng lần dời + hoàn tác', async () => {
     const c = ok(await act('appointment.create', { contact_id: ids.lan, contact_name: 'x', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '14:00' }));
     expect((await undo(c.action_log_id)).status).toBe(200);
-    expect((await get(`/calendar/${c.result.appointment_id}`)).status).toBe(404);
+    expect(await appt(c.result.appointment_id)).toMatchObject({ status: 'cancelled', cancel_reason: 'undo_create' });
     ok(await act('appointment.create', { contact_id: ids.lan, contact_name: 'x', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '14:00' }));
     const before = await appt(a1);
     const m = ok(await act('appointment.reschedule', { appointment_id: a1, date: TOMORROW, start: '16:00' }));

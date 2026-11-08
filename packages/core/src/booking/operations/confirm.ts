@@ -9,7 +9,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { lockAppointmentChain } from './locks';
 import { visibleAppointment, type AppointmentRecord } from '../booking-access';
 import { guarded, step } from '../services/appointment-write';
-import { windowOf } from '../services/slots';
+import { SCHEDULE_SELECT, windowOf } from '../services/slots';
 
 export type PriorState = 'pending' | 'expired';
 export interface ConfirmResult {
@@ -30,7 +30,7 @@ export const effectiveOf = (a: Pick<AppointmentRecord, 'status' | 'holdExpiresAt
 /** Kiểm lại đúng khung cũ còn hợp lệ cho việc chiếm lại (không đổi giờ / thời lượng / đệm). */
 export async function assertReacquirable(tx: TenantTx, a: AppointmentRecord, now: Date, timeZone: string): Promise<void> {
   if (a.startAt <= now) reject('start', 'in_past');
-  const st = await tx.staff.findUnique({ where: { id: a.staffId }, select: { id: true, active: true, skills: true, schedules: { select: { weekday: true, startTime: true, endTime: true } } } });
+  const st = await tx.staff.findUnique({ where: { id: a.staffId }, select: { id: true, active: true, skills: true, schedules: { select: SCHEDULE_SELECT } } });
   if (!st?.active) reject('staff_id', 'inactive');
   if (st!.skills.length && !st!.skills.includes(a.serviceId)) reject('staff_id', 'not_skilled');
   const svc = await tx.product.findUnique({ where: { id: a.serviceId }, select: { status: true, deletedAt: true, type: true } });

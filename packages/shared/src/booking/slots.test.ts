@@ -28,4 +28,13 @@ describe('findSlots (appointment.find_slots)', () => {
     const s = findSlots({ ...base, busy, not_before: '10:05' });
     expect(s[0]!.start).toBe('10:30');
   });
+
+  it('TIP-033b: block_end đã lưu thay cho end + đệm hiện hành (đệm tăng không làm lịch cũ chiếm thêm)', () => {
+    const q = { open: { start: '08:00', end: '19:00' }, duration: 60, buffer: 60, staff_ids: ['s1'], step: 30 };
+    const old = findSlots({ ...q, busy: [{ staff_id: 's1', start: '14:00', end: '15:00' }] }).map((s) => s.start);
+    const kept = findSlots({ ...q, busy: [{ staff_id: 's1', start: '14:00', end: '15:00', block_end_min: 15 * 60 + 10 }] }).map((s) => s.start);
+    expect(old).not.toContain('15:30');
+    expect(kept).toContain('15:30');
+    expect(kept).not.toContain('15:00');
+  });
 });

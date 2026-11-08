@@ -12,6 +12,7 @@ export * from './time/wall-clock';
 export * from './commerce/vietqr';
 export * from './booking/slots';
 export * from './booking/appointment-state';
+export * from './booking/input';
 export * from './documents/variables';
 export * from './documents/template-text';
 export * from './documents/vnd-words';
