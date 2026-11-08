@@ -29,6 +29,7 @@ import { ProfileSection } from '../components/ProfileSection';
 import { DocTemplatesSection } from '../components/DocTemplatesSection';
 import { SalesPolicySection } from '../components/SalesPolicySection';
 import { LeadRoutingSection } from '../components/LeadRoutingSection';
+import { EmailMarketingSection } from '../components/EmailMarketingSection';
 import { resolveSection, type NavItem, type SectionKey } from '../registry';
 import { useSettingsUiCommands } from '../ui-commands';
 
@@ -58,6 +59,7 @@ const SECTIONS: Partial<Record<SectionKey, ComponentType>> = {
   doc_templates: DocTemplatesSection,
   sales_policy: SalesPolicySection,
   routing: LeadRoutingSection,
+  email_mkt: EmailMarketingSection,
 };
 
 /** Mục có phụ đề dưới tiêu đề (prototype L5775). */

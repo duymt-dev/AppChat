@@ -4,6 +4,7 @@
 import { ApiRequestError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
+import { mockMailSenders } from './tenant-mail';
 import { importTexts } from './product-import';
 import { CUSTOMERS, MOCK_UUID, NOW, SEGMENTS } from './marketing-seed';
 
@@ -102,8 +103,8 @@ export const marketingExtraHandlers: Record<string, MockHandler> = {
       return { file_id: id, rows: rows.length, url: `/v1/files/${id}` };
     },
   },
-  // TIP-012c: mock chưa có kết nối mail của DN (Cài đặt Email Marketing ở pha 5) → danh sách rỗng, không bịa người gửi.
-  'campaign.mail_senders': { execute: () => ({ senders: [] }) },
+  // TIP-012c: người gửi suy từ thẻ connector Brevo / SMTP của mock (tenant-mail.ts).
+  'campaign.mail_senders': { execute: (db) => ({ senders: mockMailSenders(db) }) },
   'campaign.analyze': {
     execute: (db) => {
       const run = MOCK_UUID(Object.keys(db.marketing.analyses).length + 2, 9600);

@@ -139,3 +139,42 @@
 | `domain/concurrency.md` | khoá sự kiện + biên nhận (FOR UPDATE); đối soát CAS `delivery_id`; purge SKIP LOCKED |
 | `database/indexing.md` | event unique + unresolved partial + delivery idx; binding expiry INCLUDE + purge partial; lô 100 id trước |
 | `ops/observability-security.md` | token đã mã hoá, không giữ khoá gửi; không địa chỉ trong sự kiện (digest) |
+
+## Pha 5 — Cài đặt Email Marketing, chọn người gửi ở wizard, giao thư ở chi tiết (§5; AC7) — DC-412, DV-086
+
+**Rà trước khi làm (code thật)**
+- Prototype L7033 có mục `email_mkt` (thanh 6 nền tảng + form khoá API); app chưa có mục này, thẻ Brevo / SMTP ở Nền tảng kết nối chỉ mở modal kết nối.
+- Wizard Email chỉ chọn tài khoản kênh (`account_id`); chi tiết người nhận chỉ có trạng thái chiến dịch, không có kết quả giao thư.
+- Mock `settings-apps.ts` OPTIONAL lệch `integration-probe` (thiếu trường tuỳ chọn Brevo / SMTP) → kết nối SMTP mock 422.
+
+**FILES CHANGED** (lệch manifest ở DV-086)
+- core: `marketing/services/mail-sender.ts` (`deliveryOf`), `marketing/services/campaign-read.service.ts` (người nhận `delivery`), `integrations/services/read.service.ts` (`opens` theo port mail).
+- shared: `api/marketing.ts` (recipient `delivery`).
+- web settings: `components/EmailMarketingSection.tsx`, `components/email-marketing/MailSenderStatus.tsx`, `hooks/useTenantMail.ts`, `styles/email-marketing.styles.ts` (mới), `registry.ts`, `screens/SettingsScreen.tsx`.
+- web marketing: `components/MailSenderPicker.tsx` (mới), `api.ts`, `hooks/useWizard.ts`, `components/WizardSteps.tsx`, `components/DetailTabs.tsx`.
+- mock: `domains/tenant-mail.ts` (mới), `marketing.ts`, `marketing-extras.ts`, `settings-apps.ts`; fixture `prototype-parity/settings.json`.
+- i18n vi / en `settings.json`, `marketing.json`; parity `tools/parity/modules/tenant-mail.ts` (mới) + manifest; e2e `tenant-mail.spec.ts` (mới); test api `tenant-mail.test.ts`, `tenant-mail-callbacks.test.ts`.
+
+**Giả định đã chọn (gap-filling)**
+- Mục Email Marketing ẩn khỏi nav (chỉ mở từ thẻ connector) — prototype đặt trong nhóm Ứng dụng nhưng V2 đã gom kết nối vào Nền tảng kết nối; một điểm vào duy nhất.
+- Thanh nhà cung cấp chỉ Brevo / SMTP (D28); nền tảng khác của prototype không hiện.
+- `delivery` của người nhận lấy biên nhận mới nhất (theo lượt gửi) và cờ sự kiện cao nhất; chưa gọi provider → `queued`, provider không nhận → `failed`, không biết → `unknown`.
+
+**TEST (cổng khi làm — D59)**
+- api integration `tenant-mail.test.ts` + `tenant-mail-dispatch.test.ts` + `tenant-mail-callbacks.test.ts` **22/22** (thêm: thẻ Brevo / SMTP `opens: email_mkt`; người nhận `delivery` bounced / complained sau callback).
+- E2E mock `tenant-mail` + `marketing` + `settings` + `integration-runtime`: **27 passed, 23 skipped** (skip = luồng desktop trên mobile-390 và ngược lại).
+- parity `settings:email-mkt` **3,25 %** (≤ 4,2 %), `settings:integrations` 0,07 %.
+- turbo lint / typecheck / test (CI) **39/39**; depcheck, lint:size, lint:tokens, i18n-check 100 % (6707). Chưa nghiệm thu với provider thật (Q-004).
+
+**ĐỐI CHIẾU STANDARDS (P5)**
+
+| Standard | Kết quả |
+|---|---|
+| `ui/frontend-structure.md` | màn Cài đặt chỉ map mục; component / hook / style tách file, đều ≤ 250 dòng |
+| `ui/prototype-parity.md` | khung L7033 so ≤ 5 % (3,25 %); lệch D28 ghi trong module parity, không thêm vào sổ nợ |
+| `ui/interaction-patterns.md` | kết nối dùng lại modal tích hợp; người gửi chưa dùng được khoá kèm lý do; mobile 390 không tràn, vùng chạm ≥ 44px |
+| `i18n/i18n.md` | mọi chuỗi qua vi + en, i18n-check 100 % |
+| `actions/action-registry.md` | ghi chỉ qua `useAction` (campaign.create / update mang `sender`, integration.connect); đọc người gửi qua `campaign.mail_senders` / GET |
+| `authz/rbac-permissions.md` | mục và danh sách người gửi theo `campaign.manage`; không lộ khoá / host |
+| `integrations/provider-ports.md` | SMTP không bao giờ hiện là đã xác minh tên miền; trạng thái từ bằng chứng thăm dò hiện tại |
+

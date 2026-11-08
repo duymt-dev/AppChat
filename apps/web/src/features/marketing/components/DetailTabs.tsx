@@ -96,9 +96,10 @@ export function RecipientsTab({ c }: { c: CampaignDetail }) {
         </div>
         {rows.map((r) => {
           const [fg, bg] = REC_TONE[r.status] ?? REC_TONE.sent!;
-          const label = r.outcome === 'unknown' ? t('rst.unknown') : r.status === 'skipped' && r.skip_reason ? t(`skip.${r.skip_reason}`) : t(`rst.${r.status}`);
+          // TIP-012c: mail của DN — nhãn theo bằng chứng giao thư (accepted ≠ delivered; SMTP không có sự kiện → "không hỗ trợ").
+          const label = r.delivery && r.status !== 'skipped' ? t(`delivery.${r.delivery}`) : r.outcome === 'unknown' ? t('rst.unknown') : r.status === 'skipped' && r.skip_reason ? t(`skip.${r.skip_reason}`) : t(`rst.${r.status}`);
           return (
-            <div key={r.id} className={styles.row} data-rec={r.status}>
+            <div key={r.id} className={styles.row} data-rec={r.status} data-delivery={r.delivery}>
               <span />
               <div className={styles.who}>
                 <span className={styles.av} style={{ background: avColor(r.name) }}>
@@ -138,7 +139,7 @@ export function ContentTab({ c }: { c: CampaignDetail }) {
           <span className={styles.chIcSm} style={{ background: tone }}>
             {g}
           </span>
-          {`${t(`chanLabel.${c.channel}`)} · ${c.account_name}`}
+          {`${t(`chanLabel.${c.channel}`)} · ${c.sender?.kind === 'tenant_mail' ? c.sender.email || t('detail.senderGone') : c.account_name}`}
           <span className={styles.grow} />
           {c.approved_at ? <span className={styles.cardN}>{t('detail.approved')}</span> : null}
         </div>

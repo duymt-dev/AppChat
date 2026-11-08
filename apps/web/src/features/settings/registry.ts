@@ -7,7 +7,7 @@ import type { PermissionKey } from '@appchat/shared';
 export type SectionKey =
   | 'general' | 'locale' | 'members' | 'roles' | 'teams' | 'org_sla' | 'channels' | 'web_widget' | 'integrations'
   | 'contacts_fields' | 'tags' | 'replies' | 'profile_360' | 'doc_templates' | 'ai_models' | 'rag_data' | 'ai_gov' | 'ai_audit'
-  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy' | 'routing';
+  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy' | 'routing' | 'email_mkt';
 
 export interface NavItem {
   key: SectionKey;
@@ -73,10 +73,12 @@ export const NAV: NavGroup[] = [
   },
 ];
 
-/** Mục không có dòng nav (vào từ nơi khác): widget từ Nền tảng kết nối, billing từ ví / Nâng cấp, hồ sơ từ menu avatar. */
+/** Mục không có dòng nav (vào từ nơi khác): widget / Email Marketing từ Nền tảng kết nối, billing từ ví / Nâng cấp, hồ sơ từ menu avatar. */
 const HIDDEN: Record<string, NavItem> = {
   web_widget: { key: 'web_widget', icon: 'ic-globe', perm: 'channels.manage' },
   billing: { key: 'billing', icon: 'ic-dollar', perm: 'billing.manage' },
+  // TIP-012c (prototype L7033 `email_mkt`): vào từ thẻ Brevo / SMTP ở Nền tảng kết nối hoặc chọn người gửi ở wizard chiến dịch.
+  email_mkt: { key: 'email_mkt', icon: 'ic-mail', perm: 'campaign.manage' },
   profile: { key: 'profile', icon: 'ic-users' },
 };
 

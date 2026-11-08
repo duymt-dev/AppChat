@@ -4,6 +4,7 @@
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
+import { MailSenderPicker } from './MailSenderPicker';
 import { useWizardStyles } from '../styles/wizard.styles';
 import { useStepStyles } from '../styles/steps.styles';
 import { useComposeStyles } from '../styles/compose.styles';
@@ -199,7 +200,8 @@ export function StepSchedule({ meta, d, patch, audience }: { meta: MarketingMeta
           );
         })}
       </div>
-      <div className={w.field}>
+      {d.channel === 'email' ? <MailSenderPicker meta={meta} value={d.sender || (d.account_id ? `acc:${d.account_id}` : '')} onChange={(v) => patch({ sender: v })} /> : null}
+      <div className={w.field} hidden={d.channel === 'email'}>
         <div className={w.label}>{t('account')}</div>
         <select className={w.input} value={d.account_id} onChange={(e) => patch({ account_id: e.target.value })} aria-label={t('account')} data-testid="mk-wiz-account">
           {accounts.length ? null : <option value="">{t('noAccount')}</option>}

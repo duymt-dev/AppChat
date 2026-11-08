@@ -15,6 +15,7 @@
     "automation": "AUTOMATION"
   },
   "nav": {
+    "email_mkt": "Email Marketing",
     "general": "Overview",
     "locale": "Language & region",
     "members": "Members",
@@ -42,6 +43,7 @@
     "routing": "Lead routing"
   },
   "head": {
+    "email_mkt": "Email Marketing",
     "general": "Overview",
     "locale": "Language & region",
     "members": "Members",
@@ -620,6 +622,109 @@
       "save": "Save changes",
       "saved": "Settings saved"
     }
+  },
+  "emailMkt": {
+    "lead": "Connect an email sending platform to run campaigns & automation. Pick a provider below.",
+    "providers": "Email providers",
+    "name": {
+      "brevo": "Brevo",
+      "smtp": "SMTP (Google Workspace / Gmail / own server)"
+    },
+    "av": {
+      "brevo": "B",
+      "smtp": "@"
+    },
+    "title": {
+      "brevo": "Connect Brevo",
+      "smtp": "Connect an SMTP server"
+    },
+    "sub": {
+      "brevo": "Sendinblue · email + marketing automation",
+      "smtp": "Send through your business mail server (port 465 / 587, TLS required)"
+    },
+    "connected": "● Connected",
+    "connect": "Connect",
+    "manage": "Manage",
+    "needManage": "Managing integrations is required to connect or change provider. You can still pick a configured sender when creating a campaign.",
+    "stepsT": "Connection guide (5 steps)",
+    "steps": {
+      "brevo": {
+        "1": {
+          "t": "Create a v3 API key",
+          "d": "Brevo › SMTP & API › API keys › Generate a new API key."
+        },
+        "2": {
+          "t": "Verify the sender",
+          "d": "Brevo › Senders & IP › add the sender address and confirm the email (status Active)."
+        },
+        "3": {
+          "t": "Authenticate the domain",
+          "d": "Add the DKIM / SPF / DMARC records Brevo provides to your domain DNS, then click Authenticate in Brevo."
+        },
+        "4": {
+          "t": "Enter it in AppChat",
+          "d": "Click Connect, paste the API key, the sender email and (optional) a webhook token of at least 16 characters."
+        },
+        "5": {
+          "t": "Enable delivery webhooks",
+          "d": "Brevo › Webhooks › add AppChat's callback URL with Bearer token = the webhook token you entered to receive delivered / opened / bounce events."
+        }
+      },
+      "smtp": {
+        "1": {
+          "t": "Get server details",
+          "d": "SMTP host name, port 465 (TLS) or 587 (STARTTLS) — port 25 / unencrypted is not supported."
+        },
+        "2": {
+          "t": "Create an app password",
+          "d": "Google Workspace / Gmail: turn on 2-step verification, then create an app password for AppChat."
+        },
+        "3": {
+          "t": "Enter it in AppChat",
+          "d": "Click Connect, enter host, port, account, password and sender address."
+        },
+        "4": {
+          "t": "Confirm the sender",
+          "d": "Set \"Sender confirmed\" when this address truly belongs to the business — SMTP login does not prove domain ownership."
+        },
+        "5": {
+          "t": "Check",
+          "d": "AppChat probes the connection (no email sent). SMTP has no delivered / opened / clicked events — reports say \"not supported\"."
+        }
+      }
+    },
+    "sendersT": "Senders",
+    "noSender": "No sender yet — connect a provider above.",
+    "pendingSender": "Waiting for the connection probe",
+    "transport": {
+      "provider_api": "Provider API",
+      "authenticated_transport": "SMTP login + TLS (not domain verification)"
+    },
+    "events": "delivery events",
+    "noEvents": "no delivery events",
+    "probedAt": "probed {at}",
+    "state": {
+      "configured": "Confirmed",
+      "unverified": "Unverified",
+      "authenticated_transport": "Login works",
+      "sender_verified": "Verified",
+      "unsupported": "Not supported",
+      "degraded": "Error"
+    },
+    "reason": {
+      "probe_pending": "Waiting for probe",
+      "probe_failed": "Probe failed",
+      "sender_inactive": "Sender not active",
+      "sender_unconfirmed": "Sender not confirmed",
+      "sandbox": "Sandbox mode",
+      "disconnected": "Disconnected",
+      "connection_error": "Connection error",
+      "sender_changed": "Connection changed",
+      "not_found": "Sender no longer exists",
+      "unusable": "Not usable yet"
+    },
+    "noteBrevo": "AppChat receives delivered / opened / clicked / bounce status from Brevo through the authenticated webhook for Marketing reports. Customer replies go to the reply-to address — to read them in AppChat, connect the Email channel in Inbox.",
+    "noteSmtp": "SMTP only confirms the server accepted the email — no delivered / opened / clicked data. Customer replies do not come back to AppChat; connect the Email channel in Inbox if you need to read replies."
   },
   "integrations": {
     "heroT": "App integrations",

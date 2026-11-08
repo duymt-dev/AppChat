@@ -86,6 +86,11 @@ export const recipientDtoSchema = z.object({
   replied_at: z.string().nullable(),
   /** null = kênh không có xác nhận đọc (không khẳng định "chưa đọc"). */
   read_at: z.string().nullable(),
+  /**
+   * TIP-012c: bằng chứng giao thư của mail DN — accepted (provider nhận) ≠ delivered (sự kiện giao). `unavailable` = provider không có sự
+   * kiện (SMTP); vắng = không gửi qua mail DN.
+   */
+  delivery: z.enum(['queued', 'accepted', 'delivered', 'unknown', 'failed', 'bounced', 'complained', 'unavailable']).optional(),
 });
 export type RecipientDto = z.infer<typeof recipientDtoSchema>;
 

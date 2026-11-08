@@ -200,6 +200,22 @@
     }
   },
   "wiz": {
+    "sender": "Người gửi",
+    "senderInbox": "Tài khoản Email (Hộp thư)",
+    "senderMail": "Mail của doanh nghiệp (Brevo / SMTP)",
+    "senderHint": "Người gửi chốt cùng bản duyệt — đổi người gửi hoặc kết nối thay đổi sau khi gửi duyệt thì phải gửi duyệt lại.",
+    "senderReason": {
+      "probe_pending": "đang chờ thăm dò",
+      "probe_failed": "thăm dò thất bại",
+      "sender_inactive": "người gửi chưa kích hoạt",
+      "sender_unconfirmed": "chưa xác nhận người gửi",
+      "sandbox": "chế độ thử",
+      "disconnected": "đã ngắt kết nối",
+      "connection_error": "kết nối lỗi",
+      "sender_changed": "kết nối đã đổi",
+      "not_found": "không còn người gửi",
+      "unusable": "chưa dùng được"
+    },
     "titleNew": "Tạo chiến dịch Broadcast",
     "titleAi": "Chiến dịch từ đề xuất AI",
     "sub": "Gửi tin tới khách hàng qua Zalo cá nhân hoặc Email — chọn từ phân khúc có sẵn hoặc danh sách đã lưu.",
@@ -315,6 +331,17 @@
     "errAt": "Chọn thời điểm gửi"
   },
   "detail": {
+    "senderGone": "Người gửi không còn",
+    "delivery": {
+      "queued": "Chờ gửi",
+      "accepted": "Nhà cung cấp đã nhận",
+      "delivered": "Đã giao",
+      "unknown": "Chưa rõ",
+      "failed": "Thất bại",
+      "bounced": "Bị trả về",
+      "complained": "Bị báo spam",
+      "unavailable": "Đã gửi · không có dữ liệu giao"
+    },
     "back": "Quay lại",
     "export": "Xuất danh sách",
     "resend": "Gửi lại người chưa phản hồi",

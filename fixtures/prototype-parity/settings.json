@@ -420,7 +420,7 @@
       "color": "#0B996E",
       "status": "ga",
       "connected": true,
-      "opens": null,
+      "opens": "email_mkt",
       "fields": [
         "api_key",
         "sender_email",
@@ -437,7 +437,7 @@
       "color": "#4285F4",
       "status": "ga",
       "connected": false,
-      "opens": null,
+      "opens": "email_mkt",
       "fields": [
         "host",
         "username",

@@ -200,6 +200,22 @@
     }
   },
   "wiz": {
+    "sender": "Sender",
+    "senderInbox": "Email account (Inbox)",
+    "senderMail": "Business mail (Brevo / SMTP)",
+    "senderHint": "The sender is locked with the approval — changing it, or a connection change after submitting, requires resubmitting.",
+    "senderReason": {
+      "probe_pending": "waiting for probe",
+      "probe_failed": "probe failed",
+      "sender_inactive": "sender not active",
+      "sender_unconfirmed": "sender not confirmed",
+      "sandbox": "sandbox mode",
+      "disconnected": "disconnected",
+      "connection_error": "connection error",
+      "sender_changed": "connection changed",
+      "not_found": "sender no longer exists",
+      "unusable": "not usable yet"
+    },
     "titleNew": "Create broadcast campaign",
     "titleAi": "Campaign from AI suggestion",
     "sub": "Send to customers via Zalo personal or Email — pick from existing segments or saved lists.",
@@ -315,6 +331,17 @@
     "errAt": "Pick a send time"
   },
   "detail": {
+    "senderGone": "Sender no longer exists",
+    "delivery": {
+      "queued": "Queued",
+      "accepted": "Accepted by provider",
+      "delivered": "Delivered",
+      "unknown": "Unknown",
+      "failed": "Failed",
+      "bounced": "Bounced",
+      "complained": "Marked as spam",
+      "unavailable": "Sent · no delivery data"
+    },
     "back": "Back",
     "export": "Export list",
     "resend": "Resend to non-responders",

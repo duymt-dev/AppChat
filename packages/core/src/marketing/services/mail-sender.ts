@@ -3,7 +3,7 @@
 // khoá / cấu hình bí mật. `sender_rev` = credential_rev lúc chọn: kết nối lại / sửa người gửi / ngắt → tăng rev → bản duyệt cũ không khớp.
 // Brevo: chỉ người gửi provider báo `active` (sender_verified). SMTP: chỉ người gửi tích hợp viên đã xác nhận (`configured`) qua kết nối
 // đăng nhập + TLS (authenticated_transport — không phải xác minh tên miền).
-import { AppError, type CampaignSender, type MailSenderDto, type MailSenderState } from '@appchat/shared';
+import { AppError, type CampaignSender, type MailSenderDto, type MailSenderState, type RecipientDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 
 type Db = Pick<TenantTx, 'integrationConnection'>;
@@ -108,4 +108,25 @@ export async function assertMailSenderCurrent(tx: Db, c: SenderRef): Promise<Mai
   const { s, reason } = await currentOf(tx, c);
   if (reason || !s) throw new AppError('INVALID_STATE', 409, { sender: reason ?? 'not_found' }, `The campaign's mail sender changed or is not usable (${reason}) — pick a sender again with campaign.update, then resubmit.`);
   return s;
+}
+
+type Delivery = NonNullable<RecipientDto['delivery']>;
+
+/**
+ * Bằng chứng giao thư của trang người nhận (TIP-012c §5.2): biên nhận theo dispatch_ref `cr_<id>` (một truy vấn cho cả trang, index
+ * dispatch unique). Không suy "đã mở" từ accepted; SMTP (không sự kiện) đã nhận → `unavailable` cho bước giao.
+ */
+export async function deliveryOf(tx: Pick<TenantTx, 'tenantMailDelivery' | 'integrationConnection'>, campaignId: string, recipientIds: string[]): Promise<Map<string, Delivery>> {
+  if (!recipientIds.length) return new Map();
+  const rows = await tx.tenantMailDelivery.findMany({ where: { campaignId, dispatchRef: { in: recipientIds.map((id) => `cr_${id}`) } }, select: { dispatchRef: true, connectionId: true, state: true, facts: true } });
+  if (!rows.length) return new Map();
+  const conns = await tx.integrationConnection.findMany({ where: { id: { in: [...new Set(rows.map((r) => r.connectionId))] } }, select: { id: true, connectorKey: true } });
+  const smtp = new Set(conns.filter((c) => c.connectorKey === 'smtp').map((c) => c.id));
+  return new Map(rows.map((r) => {
+    const f = (r.facts ?? {}) as { delivered?: boolean; bounced?: string; complained?: boolean };
+    const v: Delivery =
+      r.state === 'accepted' ? (f.complained ? 'complained' : f.bounced === 'hard' ? 'bounced' : f.delivered ? 'delivered' : smtp.has(r.connectionId) ? 'unavailable' : 'accepted')
+      : r.state === 'failed_before_accept' ? 'failed' : r.state === 'unknown' ? 'unknown' : 'queued';
+    return [r.dispatchRef.slice(3), v];
+  }));
 }

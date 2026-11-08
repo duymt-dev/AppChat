@@ -15,6 +15,7 @@
     "automation": "TỰ ĐỘNG HOÁ"
   },
   "nav": {
+    "email_mkt": "Email Marketing",
     "general": "Tổng quan",
     "locale": "Ngôn ngữ & vùng",
     "members": "Thành viên",
@@ -42,6 +43,7 @@
     "routing": "Chia lead"
   },
   "head": {
+    "email_mkt": "Email Marketing",
     "general": "Tổng quan",
     "locale": "Ngôn ngữ & vùng",
     "members": "Thành viên",
@@ -620,6 +622,109 @@
       "save": "Lưu thay đổi",
       "saved": "Đã lưu cấu hình"
     }
+  },
+  "emailMkt": {
+    "lead": "Kết nối nền tảng gửi email để chạy chiến dịch & automation. Chọn nhà cung cấp bên dưới.",
+    "providers": "Nhà cung cấp email",
+    "name": {
+      "brevo": "Brevo",
+      "smtp": "SMTP (Google Workspace / Gmail / máy chủ riêng)"
+    },
+    "av": {
+      "brevo": "B",
+      "smtp": "@"
+    },
+    "title": {
+      "brevo": "Kết nối Brevo",
+      "smtp": "Kết nối máy chủ SMTP"
+    },
+    "sub": {
+      "brevo": "Sendinblue · email + automation marketing",
+      "smtp": "Gửi qua máy chủ thư của doanh nghiệp (cổng 465 / 587, bắt buộc TLS)"
+    },
+    "connected": "● Đã kết nối",
+    "connect": "Kết nối",
+    "manage": "Quản lý",
+    "needManage": "Cần quyền Quản lý tích hợp để kết nối hoặc đổi nhà cung cấp. Bạn vẫn chọn được người gửi đã cấu hình khi tạo chiến dịch.",
+    "stepsT": "Hướng dẫn kết nối (5 bước)",
+    "steps": {
+      "brevo": {
+        "1": {
+          "t": "Tạo API key v3",
+          "d": "Brevo › SMTP & API › API keys › Generate a new API key."
+        },
+        "2": {
+          "t": "Xác thực người gửi",
+          "d": "Brevo › Senders & IP › thêm địa chỉ người gửi và xác nhận email (trạng thái Active)."
+        },
+        "3": {
+          "t": "Xác thực tên miền",
+          "d": "Thêm bản ghi DKIM / SPF / DMARC Brevo cung cấp vào DNS tên miền rồi bấm Authenticate trong Brevo."
+        },
+        "4": {
+          "t": "Nhập vào AppChat",
+          "d": "Bấm Kết nối, dán API key, email người gửi và (tuỳ chọn) token webhook ít nhất 16 ký tự."
+        },
+        "5": {
+          "t": "Bật webhook giao thư",
+          "d": "Brevo › Webhooks › thêm URL callback của AppChat, chọn Bearer token = token webhook đã nhập để nhận sự kiện giao / mở / bounce."
+        }
+      },
+      "smtp": {
+        "1": {
+          "t": "Lấy thông tin máy chủ",
+          "d": "Tên máy chủ SMTP, cổng 465 (TLS) hoặc 587 (STARTTLS) — không hỗ trợ cổng 25 / không mã hoá."
+        },
+        "2": {
+          "t": "Tạo mật khẩu ứng dụng",
+          "d": "Google Workspace / Gmail: bật xác minh 2 bước rồi tạo mật khẩu ứng dụng cho AppChat."
+        },
+        "3": {
+          "t": "Nhập vào AppChat",
+          "d": "Bấm Kết nối, nhập máy chủ, cổng, tài khoản, mật khẩu và địa chỉ người gửi."
+        },
+        "4": {
+          "t": "Xác nhận người gửi",
+          "d": "Đặt \"Đã xác nhận người gửi\" khi địa chỉ này đúng là của doanh nghiệp — đăng nhập SMTP không chứng minh quyền sở hữu tên miền."
+        },
+        "5": {
+          "t": "Kiểm tra",
+          "d": "AppChat thăm dò kết nối (không gửi thư). SMTP không có sự kiện giao / mở / nhấp — báo cáo ghi \"không hỗ trợ\"."
+        }
+      }
+    },
+    "sendersT": "Người gửi",
+    "noSender": "Chưa có người gửi nào — kết nối nhà cung cấp ở trên.",
+    "pendingSender": "Đang chờ thăm dò kết nối",
+    "transport": {
+      "provider_api": "API nhà cung cấp",
+      "authenticated_transport": "Đăng nhập SMTP + TLS (không phải xác minh tên miền)"
+    },
+    "events": "có sự kiện giao thư",
+    "noEvents": "không có sự kiện giao thư",
+    "probedAt": "thăm dò {at}",
+    "state": {
+      "configured": "Đã xác nhận",
+      "unverified": "Chưa xác minh",
+      "authenticated_transport": "Đăng nhập được",
+      "sender_verified": "Đã xác minh",
+      "unsupported": "Không hỗ trợ",
+      "degraded": "Lỗi"
+    },
+    "reason": {
+      "probe_pending": "Đang chờ thăm dò",
+      "probe_failed": "Thăm dò thất bại",
+      "sender_inactive": "Người gửi chưa kích hoạt",
+      "sender_unconfirmed": "Chưa xác nhận người gửi",
+      "sandbox": "Chế độ thử",
+      "disconnected": "Đã ngắt kết nối",
+      "connection_error": "Kết nối lỗi",
+      "sender_changed": "Kết nối đã đổi",
+      "not_found": "Không còn người gửi",
+      "unusable": "Chưa dùng được"
+    },
+    "noteBrevo": "AppChat nhận trạng thái giao / mở / click / bounce từ Brevo qua webhook đã xác thực để báo cáo Marketing. Thư khách trả lời về địa chỉ trả lời — muốn đọc trong AppChat hãy kết nối kênh Email ở Hộp thư.",
+    "noteSmtp": "SMTP chỉ xác nhận máy chủ đã nhận thư — không có dữ liệu giao / mở / click. Thư khách trả lời không tự về AppChat; kết nối kênh Email ở Hộp thư nếu cần đọc phản hồi."
   },
   "integrations": {
     "heroT": "Tích hợp ứng dụng",

@@ -104,6 +104,12 @@ describe('sự kiện giao thư', () => {
     await hook([ev('hard_bounce', 'b1@khach.vn', d1.providerMessageRef!, 2000), ev('soft_bounce', 'b1@khach.vn', d1.providerMessageRef!, 3000), ev('spam', 'b2@khach.vn', d2.providerMessageRef!, 2000)]);
     expect(await facts(d1.id)).toMatchObject({ bounced: 'hard' });
     expect(await facts(d2.id)).toMatchObject({ complained: true });
+    // P5: trang người nhận chiếu bằng chứng giao thư (accepted ≠ delivered; bounce / spam).
+    const camp = (await (await mk.db()).tenantMailDelivery.findUniqueOrThrow({ where: { id: d1.id } })).campaignId;
+    const page = await mk.get(`/campaigns/${camp}/recipients`);
+    const byId = Object.fromEntries(page.body.data.map((r: { id: string; delivery?: string }) => [r.id, r.delivery]));
+    expect(byId[d1.recipientId!]).toBe('bounced');
+    expect(byId[d2.recipientId!]).toBe('complained');
     const db = await mk.db();
     const ks = await db.contact.findMany({ where: { id: { in: contacts } }, select: { id: true, marketingOptOut: true } });
     expect(ks.every((k) => k.marketingOptOut)).toBe(true);

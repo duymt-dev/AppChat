@@ -66,6 +66,9 @@ describe('người gửi dùng được', () => {
     expect(a.status, JSON.stringify(a.body)).toBe(200);
     expect(a.body.data.result.senders).toEqual(r.body.data);
     expect((await mk.act('campaign.mail_senders', {}, viewer)).status).toBe(403);
+    // P5: thẻ Brevo / SMTP ở Nền tảng kết nối mở Cài đặt › Email Marketing.
+    const cards = (await mk.get('/settings/integrations')).body.data as { key: string; opens: string | null }[];
+    expect(cards.filter((c) => c.key === 'brevo' || c.key === 'smtp').map((c) => c.opens)).toEqual(['email_mkt', 'email_mkt']);
   });
 
   it('thăm dò chưa có cho phiên bản khoá hiện tại → probe_pending (không suy người gửi từ cấu hình)', async () => {

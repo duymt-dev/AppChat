@@ -40,7 +40,8 @@ export class IntegrationsReadService {
         color: m.color,
         status: m.status,
         connected: on.has(m.key),
-        opens: null,
+        // TIP-012c: Brevo / SMTP mở Cài đặt › Email Marketing (prototype L10856 `email_mkt`) — kết nối vẫn qua hộp kết nối chung.
+        opens: m.port === 'mail' ? 'email_mkt' : null,
         fields: m.auth.fields.map((f) => f.key),
         auth: formFields({ manifest: m }),
         interest: wanted.has(m.key),
