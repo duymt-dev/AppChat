@@ -1,6 +1,6 @@
 // Kiểm tra trùng (TIP-015e §1.3): đọc ứng viên thật GET /contacts/duplicates/candidates (scope hiện tại, hạng LUẬT — không %, cursor
 // "Xem thêm"), tìm theo tên / email (Enter / nút Kiểm tra), giữ lựa chọn cặp + bản chính. Gộp chỉ gửi cặp đã chọn theo bản chính người dùng
-// chọn (`<chính>~<phụ>`), không bao giờ gửi mọi dòng. Đổi tìm → bỏ chọn cũ. 409 → giữ lựa chọn, tải lại để xem trước lại (không tự thử lại).
+// chọn (`<chính>~<phụ>`) kèm phiên bản đã xem (`expected_versions`), không bao giờ gửi mọi dòng. Đổi tìm → bỏ chọn cũ. 409 → giữ lựa chọn, tải lại để xem trước lại (không tự thử lại).
 import { useState } from 'react';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import type { DuplicateCandidate } from '@appchat/shared';
@@ -49,7 +49,7 @@ export function useDedupe() {
     if (!chosen.length) return false;
     setConflict(false);
     const r = await merge.run(
-      { group_ids: chosen.map((c) => groupId(c, primaryOf(c))) },
+      { group_ids: chosen.map((c) => groupId(c, primaryOf(c))), expected_versions: Object.fromEntries(chosen.flatMap((c) => [[c.a.id, c.a.version], [c.b.id, c.b.version]])) },
       {
         onError: (e) => {
           if (e.status !== 409) return false;

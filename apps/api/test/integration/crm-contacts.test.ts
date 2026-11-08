@@ -163,7 +163,9 @@ describe('tạo khách + chống giành khách', () => {
     const db = await tenant();
     // Bản trùng email từ kênh (không qua create — chống trùng chặn ở create).
     const b = uuidv7();
-    await db.contact.create({ data: { id: b, code: 'KH-9001', name: 'Bảo Trần', email: 'bao@gmail.com', phone: '0938000000', phoneNorm: '0938000000', source: 'zalo_personal' } });
+    // Cùng người phụ trách với bản chính (TIP-015e: gộp không hợp quyền — khác chủ / ACL → 409).
+    const owner = (await db.contact.findUniqueOrThrow({ where: { id: a } })).ownerUserId;
+    await db.contact.create({ data: { id: b, code: 'KH-9001', name: 'Bảo Trần', email: 'bao@gmail.com', phone: '0938000000', phoneNorm: '0938000000', source: 'zalo_personal', ownerUserId: owner } });
     await db.contactNote.create({ data: { id: uuidv7(), contactId: b, body: 'Ghi chú bản phụ', authorUserId: h.user } });
     const dup = duplicatesSchema.parse((await get('/contacts/duplicates')).body.data);
     const g = dup.groups.find((x) => x.id === `${a}~${b}`);

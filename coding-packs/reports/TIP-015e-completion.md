@@ -43,3 +43,39 @@
 | `ui/frontend-structure.md` | modal = orchestrator; hook + 2 component con; file ≤ 120 dòng |
 | `ui/prototype-parity.md` | giữ bố cục 880px; nhãn hạng thay % (lý do: không phải xác suất) — customers:dedupe 3,58% |
 | `i18n/i18n.md` | vi + en, thêm khối text, không tuần tự lại JSON |
+
+---
+
+## Pha 2 — gộp gắn phiên bản, không hợp quyền, biên nhận lineage, hoàn tác có điều kiện (§2.1–§2.5, §4; AC2, AC3, AC5) — DC-404, DV-078
+
+**Rà trước khi làm (code thật)**
+- `contact-merge.handler.ts` cũ: không khoá, không phiên bản; thêm phụ trách bản phụ làm collaborator của bản chính (hợp quyền); hoàn tác ghi đè từ snapshot (đè thay đổi sau gộp); dời cả đơn / báo giá sang bản chính (mất lineage).
+
+**FILES CHANGED** (lệch manifest ở DV-078)
+- db: migration `20261108120000_contact_merge_lineage`, `prisma/tenant/contact-merge.prisma`, `test/prisma-stubs.test.ts`.
+- actions: `crm.ts` (`contact.merge` mô tả mới + `expected_versions`).
+- core: `crm/merge/{authority,relations,service,handler}.ts` (mới); `crm/actions/contact-merge.handler.ts` (re-export); gỡ `previews/contact-merge.handler.preview.ts`.
+- web: `hooks/useDedupe.ts` gửi `expected_versions` (+ test).
+- test: ma trận `contact.merge` (viết lại), `contact-merge-authority.test.ts` (mới), `crm-contacts.test.ts` AC7 (bản phụ cùng chủ).
+
+**Giả định đã chọn (gap-filling)**
+- Dấu ACL = chủ + tập user:role của cả họ khách; watcher ≠ collaborator (không nâng).
+- Xem trước báo số mục dời theo từng bản phụ + kế hoạch bộ nhớ (total / duplicates / evicted) — chỉ số đếm, không lộ nội dung.
+- Timeline vẫn dời tạm (có trong biên nhận để hoàn tác) — P4 thay bằng chiếu theo họ.
+
+**TEST (cổng khi làm — D59)**
+- `db:test-reset` → ma trận `contact.merge` **3/3**, `contact-merge-authority` **5/5** (khác chủ / khác ACL → 409 không thêm quyền; cặp cùng bản chính một đơn vị; đơn giữ id gốc; sửa bản chính / thêm collaborator sau gộp → hoàn tác 409 không đổi gì; gộp lại khách đã gộp → 404; chồng chéo → 422), `contact.duplicate_candidates` **6/6**, `crm-contacts` + `contact-memory` **20/20**.
+- web `useDedupe` **4/4**; turbo lint / typecheck / test `...[origin/dev]` **36/36**; lint:size OK.
+- E2E mock `contact-merge` + `customers` **11/11**. UI không đổi bố cục (chỉ gửi thêm `expected_versions`) — parity giữ như P1.
+
+**ĐỐI CHIẾU STANDARDS (P2)**
+
+| Standard | Kết quả |
+|---|---|
+| `authz/rbac-permissions.md` | không hợp quyền, không collaborator mới; quyền sửa mọi phía; agent không được cấp (giữ) |
+| `domain/concurrency.md` | khoá họ tăng dần id; phiên bản người xem → 409 STALE_VERSION; hoàn tác kiểm điều kiện, không ghi đè |
+| `domain/state-machine.md` | biên nhận merged → undone (một lần); hết hạn không hoàn tác |
+| `actions/action-registry.md` | bulk luôn xem trước; xem trước = cùng điều kiện thực thi; undo theo biên nhận |
+| `database/tenant-db.md` · `indexing.md` | bảng tenant không workspace_id; index (primary_id), partial hết hạn `state='merged'` |
+| `events/outbox.md` | `contact.merged` mỗi đơn vị trong cùng giao dịch |
+| `code/testing.md` | test ở file riêng, Postgres thật |

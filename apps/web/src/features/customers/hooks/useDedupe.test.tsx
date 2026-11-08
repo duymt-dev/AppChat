@@ -41,7 +41,7 @@ describe('useDedupe', () => {
     await act(async () => {
       await result.current.mergePicked();
     });
-    expect(s.run.mock.calls[0]![0]).toEqual({ group_ids: ['a1~b1', 'b3~a3'] });
+    expect(s.run.mock.calls[0]![0]).toEqual({ group_ids: ['a1~b1', 'b3~a3'], expected_versions: { a1: 1, b1: 1, a3: 1, b3: 1 } });
     expect(result.current.picked.size).toBe(0);
   });
 

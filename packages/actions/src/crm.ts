@@ -111,8 +111,9 @@ export const contactMerge = defineAction({
   id: 'contact.merge',
   module: 'crm',
   title: 'actions.contact.merge.title',
-  description: 'Merge duplicate groups into their primary record. Example: {"group_ids":["dg1"]}',
-  input: z.object({ group_ids: z.array(z.string().min(1)).min(1).max(50) }),
+  description:
+    'Merge duplicate customers: each group is "<primary_id>~<source_id>" (keys from contact.duplicate_candidates, oriented by the chosen primary). Requires write access to every record AND the same owner and the same explicit collaborators/watchers on both — otherwise 409 (share / transfer first with their own actions; merge never adds access). Send expected_versions {contact_id: version} from the candidate list to avoid merging changed records. Orders, invoices, contracts and loyalty history keep their original customer. Undo within 7 days only if nothing changed since. Example: {"group_ids":["<primary>~<source>"],"expected_versions":{"<primary>":3,"<source>":1}}',
+  input: z.object({ group_ids: z.array(z.string().min(1)).min(1).max(50), expected_versions: z.record(z.string(), z.number().int().positive()).optional() }),
   output: z.object({ merged: z.number().int() }),
   permission: 'crm.edit',
   risk: 'write',
