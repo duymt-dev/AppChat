@@ -9,7 +9,7 @@ export const contactDuplicateCandidates = defineAction({
   module: 'crm',
   title: 'actions.contact.duplicate_candidates.title',
   description:
-    'List possible duplicate customer pairs you can see (both sides in your scope), ranked by matching RULE (email + name > email > tax code > name) — a rule suggestion, never a probability or proof of the same person. Each row: key "<id>~<id>", evidence fields, suggested primary_id (older record), both sides with version. Use the key + chosen primary for contact.merge. Example: {"q":"Lan","limit":20}',
+    'Use this (not contact.search) whenever the user asks to check / find / list duplicate or possibly-duplicate customers. List possible duplicate customer pairs you can see (both sides in your scope), ranked by matching RULE (email + name > email > tax code > name) — a rule suggestion, never a probability or proof of the same person. Each row: key "<id>~<id>", evidence fields, suggested primary_id (older record), both sides with version. Use the key + chosen primary for contact.merge. Example: {"q":"Lan","limit":20}',
   input: z.object({ q: z.string().trim().max(200).optional(), cursor: z.string().max(400).optional(), limit: z.number().int().min(1).max(50).optional() }),
   output: duplicateCandidatesPageSchema,
   permission: 'crm.view',

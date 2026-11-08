@@ -9,6 +9,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { writeTimeline } from '../../crm/public';
 import { earnedBetween, lockMember } from '../repos/ledger.repo';
+import { inFamilySql } from '../../crm/lifecycle/family-sql';
 import { readConfig } from '../services/config.service';
 import { post, restoreDebit, type Actor } from '../services/ledger.service';
 import { activeEarn, pointsChanged, refundShare, reverseEarn } from '../services/order-points';
@@ -56,7 +57,7 @@ export class LoyaltyEarnHandler extends SystemOnly<ActionInput<typeof loyaltyEar
     const m = await lockMember(tx, o.contactId);
     if (!m) return skipped(o.contactId);
     const now = this.clock.now();
-    const p = await post(tx, { contactId: o.contactId, kind: 'earn', delta: BigInt(o.pointsEarned), balance: m.points_balance, actor: ACTOR, now, ref: { type: 'order', id: o.id }, dedupeKey: `earn:${i.completion_id}`, basis: i.basis });
+    const p = await post(tx, { contactId: m.id, kind: 'earn', delta: BigInt(o.pointsEarned), balance: m.points_balance, actor: ACTOR, now, ref: { type: 'order', id: o.id }, dedupeKey: `earn:${i.completion_id}`, basis: i.basis });
     const result: Done = { contact_id: o.contactId, status: p.duplicate ? 'duplicate' : 'posted', delta: safePoints(p.delta), balance_after: safePoints(p.balanceAfter) };
     if (p.duplicate) return { result };
     await writeTimeline(tx, { contactId: o.contactId, type: 'loyalty', key: 'loyalty_earn', params: { points: String(o.pointsEarned), code: o.code }, actor: ACTOR, ref: { type: 'order', id: o.id }, at: now });
@@ -89,7 +90,7 @@ export class LoyaltyReverseHandler extends SystemOnly<ActionInput<typeof loyalty
     if (a) {
       const points = i.cause === 'cancel' ? a.earn.delta - a.reversed : refundShare(a.earn, a.reversed, o.refundedTotal);
       const tag = i.cause === 'cancel' ? 'cancel' : `refund:${o.refundedTotal}`;
-      const r = await reverseEarn(tx, { order: o, earn: a.earn, reversed: a.reversed, points, tag, balance, actor: ACTOR, now });
+      const r = await reverseEarn(tx, { order: o, earn: a.earn, reversed: a.reversed, points, tag, balance, memberId: m.id, actor: ACTOR, now });
       if (r && !r.posted.duplicate) {
         balance = r.posted.balanceAfter;
         delta += r.posted.delta;
@@ -98,7 +99,7 @@ export class LoyaltyReverseHandler extends SystemOnly<ActionInput<typeof loyalty
     }
     if (i.cause === 'cancel' && o.status === 'cancelled') {
       for (const d of await redeemedOf(tx, o.id)) {
-        const p = await restoreDebit(tx, d.id, balance, ACTOR, now, 'order_cancelled');
+        const p = await restoreDebit(tx, d.id, balance, ACTOR, now, 'order_cancelled', m.id);
         if (!p || p.duplicate) continue;
         balance = p.balanceAfter;
         delta += p.delta;
@@ -134,7 +135,7 @@ export class LoyaltyExpireHandler extends SystemOnly<ActionInput<typeof loyaltyE
     if (!m) return skipped();
     const now = this.clock.now();
     const lots = await tx.$queryRaw<{ id: string; remaining: bigint }[]>`
-      SELECT id, remaining FROM loyalty_ledger WHERE contact_id = ${m.id}::uuid AND remaining > 0 AND expires_at <= ${now} ORDER BY expires_at, id FOR UPDATE`;
+      SELECT id, remaining FROM loyalty_ledger WHERE ${inFamilySql('contact_id', m.id)} AND remaining > 0 AND expires_at <= ${now} ORDER BY expires_at, id FOR UPDATE`;
     let balance = m.points_balance;
     let total = 0n;
     const events: Ev[] = [];

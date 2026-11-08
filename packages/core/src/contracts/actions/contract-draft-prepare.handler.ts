@@ -22,6 +22,7 @@ import { guardUpload } from '../files/source';
 import { parseInWorker } from '../files/parse-worker';
 import { DRAFT_TTL_MS, draftByRules, draftContent, draftMessages, hashOf, parseDraftIntent, type DraftIntent } from '../files/draft-content';
 import { proposalActor } from '../files/suggestions';
+import { inSameFamily } from '../../crm/lifecycle/family-sql';
 
 type In = ActionInput<typeof contractPrepareDraft>;
 type Row = Awaited<ReturnType<TenantTx['contractDraftProposal']['findUnique']>>;
@@ -61,7 +62,7 @@ export class ContractPrepareDraftHandler implements Handler<In, unknown> {
     const { quoteLines, quote } = await db.$transaction(async (tx) => {
       await editableContact(tx, ctx.authz, input.contact_id);
       const q = input.quote_id ? await visibleQuote(tx, ctx.authz, input.quote_id) : null;
-      if (q && q.contactId !== input.contact_id) throw new AppError('VALIDATION_FAILED', 422, { quote_id: 'contact_mismatch' });
+      if (q && !(await inSameFamily(tx, q.contactId, input.contact_id))) throw new AppError('VALIDATION_FAILED', 422, { quote_id: 'contact_mismatch' });
       const items = q ? await tx.quoteItem.findMany({ where: { quoteId: q.id }, orderBy: { sort: 'asc' }, select: { name: true, qty: true } }) : [];
       return { quote: q, quoteLines: items.map((i) => `${i.name} x${Number(i.qty)}`) };
     });

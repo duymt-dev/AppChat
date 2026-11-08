@@ -138,3 +138,33 @@
 | `database/indexing.md` | CTE đệ quy qua `contact_merged_into_idx (merged_into_id,id)`; chứng từ dùng index (contact_id, …) sẵn có; EXPLAIN trong test |
 | `domain/state-machine.md` | timeline bất biến (không dời); chứng từ giữ id gốc — lineage |
 | `code/testing.md` | test riêng, Postgres thật |
+
+---
+
+## Pha 5 — điểm / chuyển đổi theo họ, ai:live, chốt TIP (§3.5–§3.7, §5; AC4, AC5, AC8) — DC-407, DV-081
+
+**Rà trước khi làm (code thật)**
+- `lockMember` lọc `deleted_at IS NULL` theo đúng id → đơn / đề nghị cũ của bản phụ đã gộp: tích điểm / đổi điểm / đảo bỏ qua hoặc 404; lô FIFO / điểm tích / lịch sử chỉ theo một id → số dư bản chính không gồm điểm bản phụ.
+- Chuyển đổi chứng từ so `contactId === input.contact_id` → không lập đề nghị / đơn / hợp đồng cho bản chính từ chứng từ cũ của bản phụ.
+- Đặt lịch tra gói theo đúng khách — mở rộng theo họ chạm luật gói → Q-062.
+
+**FILES CHANGED** (lệch manifest ở DV-081): xem DV-081.
+
+**Giả định đã chọn (gap-filling)**
+- Cache số dư gốc = cả họ (cộng khi gộp); cache bản phụ giữ làm lịch sử. Hoàn tác gộp sau bất kỳ ghi sổ nào → 409 (phiên bản bản chính đổi).
+- Chứng từ mới từ cha của bản phụ mang khách gốc còn sống; cha giữ id gốc.
+
+**TEST — cổng chốt (D59)**
+- `db:test-reset` → integration: `contact-merge-loyalty` **2/2** (số dư họ, đổi điểm đề nghị bản phụ trừ FIFO cả họ ghi vào gốc, lịch sử họ, hoàn tác 409 sau ghi sổ; hoàn tác sạch tách số dư đúng; lô bản phụ hết hạn đúng một lần), `contact-merge-lineage` **3/3** (+ chuyển đổi: đề nghị bản chính từ đơn bản phụ, ngoài họ 422, bản phụ 404), hồi quy loyalty / merge / orders **90/91** — đỏ duy nhất `loyalty.attach_file` CS → 403 (đỏ sẵn trước P5, kiểm bằng cách gỡ P5 — Q-061).
+- ai-live unit **86/86**; ai:live contact-merge (9router thật, 3 lượt): **8/8 ĐẠT**, an toàn 0 (lượt 1: 5/8 → sửa thông điệp lỗi acl / mô tả duplicate_candidates / người chấm đọc XLSX thật; lượt 2: 22/24 lượt pass) — reports/ai-live-contact-merge-2026-11-08.md.
+- Cổng chốt sau `db:test-reset`: integration phạm vi TIP (merge / get_360 / crm-contacts / memory / insights / timeline-export / loyalty / redeem / orders / quotes / contracts) **165/166** — đỏ duy nhất Q-061 (đỏ sẵn); turbo lint / typecheck / test `...[origin/dev]` **36/36**; E2E mock contact-merge + customers + loyalty **19/19**. UI không đổi ở P2–P5 → parity giữ như P1 (customers:dedupe 3,58% · customers:table 0,97%).
+
+**ĐỐI CHIẾU STANDARDS (P5)**
+
+| Standard | Kết quả |
+|---|---|
+| `plans/COMMERCE-DECISIONS.md` §7 | không đổi tỉ lệ / ngưỡng / hạn điểm; không cộng / chép bút toán; hết hạn theo lô gốc |
+| `domain/concurrency.md` | khoá gốc còn sống (đọc lại sau khoá, thử lại có giới hạn); thứ tự khách → lô giữ nguyên |
+| `authz/rbac-permissions.md` | chuyển đổi chỉ nới phép bằng khách sang cùng họ; quyền chứng từ cha kiểm như cũ; gói không mở rộng (Q-062) |
+| `ai/eval.md` | suite 8 ca chấm theo DB / tệp thật, cổng 7/8, an toàn 8/8; contact.merge không cấp agent |
+| `code/testing.md` | test riêng, Postgres thật, provider LLM thật |

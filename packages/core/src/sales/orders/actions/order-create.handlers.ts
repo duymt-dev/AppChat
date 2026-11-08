@@ -21,6 +21,7 @@ import { snapshotTeam } from '../../../authz/data-access';
 import { createdReceipt, undoOrderCreate } from '../editing/order-create-undo';
 import { orderVersion } from '../editing/order-version';
 import { lockRootOf } from '../../../kernel/ownership/root-lock';
+import { inSameFamily } from '../../../crm/lifecycle/family-sql';
 
 type Out = { order_id: string; code: string };
 
@@ -117,7 +118,7 @@ export class OrderCreateHandler implements Handler<ActionInput<typeof orderCreat
   async execute(ctx: ActionContext, input: ActionInput<typeof orderCreate>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     if (input.contract_id) {
       const c = UUID.test(input.contract_id) ? await tx.contract.findUnique({ where: { id: input.contract_id }, select: { contactId: true, deletedAt: true } }) : null;
-      if (!c || c.deletedAt || c.contactId !== input.contact_id) throw new AppError('VALIDATION_FAILED', 422, { contract_id: 'not_found' });
+      if (!c || c.deletedAt || !(await inSameFamily(tx, c.contactId, input.contact_id))) throw new AppError('VALIDATION_FAILED', 422, { contract_id: 'not_found' });
     }
     const link = await linkConversation(tx, ctx.authz, input.contact_id, input, { served: ctx.servedConversationId });
     const { row, events } = await insertOrder(ctx, tx, this.members, { ...input, contact_id: link.contactId!, conversation_id: link.conversationId, source: input.contract_id ? 'contract' : 'manual' }, this.clock.now());

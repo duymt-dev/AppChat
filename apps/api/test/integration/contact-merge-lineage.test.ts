@@ -70,3 +70,23 @@ describe('EXPLAIN họ khách', () => {
     expect(text).not.toMatch(/Seq Scan on (contact|"order")/);
   });
 });
+
+describe('chuyển đổi chứng từ cũ của bản phụ', () => {
+  it('đề nghị cho bản chính từ đơn của bản phụ được (cùng họ); khách ngoài họ → 422; đơn giữ id gốc', async () => {
+    const p = (await m.seed('contact.create', { full_name: 'Cô Vy Chính', phone: '0909830011' })).contact_id as string;
+    const s = (await m.seed('contact.create', { full_name: 'Cô Vy Phụ', phone: '0909830012' })).contact_id as string;
+    const x = (await m.seed('contact.create', { full_name: 'Người lạ', phone: '0909830013' })).contact_id as string;
+    const o = (await m.seed('order.create', { contact_id: s, items: [{ name: 'Gói', qty: 1, unit_price: '500000', tax_rate: 0 }] })).order_id as string;
+    await m.seed('order.confirm', { order_id: o });
+    await m.confirm({ group_ids: [`${p}~${s}`] });
+    const inv = await m.seed('invoice.create', { order_id: o, contact_id: p, kind: 'installment', amount: '200000' });
+    const db = await m.db();
+    expect((await db.invoice.findUniqueOrThrow({ where: { id: inv.invoice_id } })).contactId).toBe(p);
+    expect((await db.order.findUniqueOrThrow({ where: { id: o } })).contactId).toBe(s);
+    const bad = await call(m.h, '/actions/invoice.create', { input: { order_id: o, contact_id: x, kind: 'installment', amount: '100000' } }, { 'idempotency-key': uuidv7() });
+    expect(bad.status).toBe(422);
+    // Bản phụ đã gộp không nhận chứng từ mới.
+    const old = await call(m.h, '/actions/invoice.create', { input: { order_id: o, contact_id: s, kind: 'installment', amount: '100000' } }, { 'idempotency-key': uuidv7() });
+    expect(old.status).toBe(404);
+  });
+});

@@ -9,6 +9,7 @@ import { actorUserId, editableContact, type CrmMembers } from '../../../crm/publ
 import { linesOf, type LineIn } from '../../quotes/services/quote-write';
 import { UUID, type OrderRecord } from '../order-access';
 import { totalsOf } from '../services/order-write';
+import { inSameFamily } from '../../../crm/lifecycle/family-sql';
 
 export const money = (v: string | bigint) => createFmt({ locale: 'vi' }).money(String(v));
 
@@ -42,7 +43,7 @@ export async function createPreview(ctx: ActionContext, tx: TenantTx, members: C
   let from: string | undefined;
   if (i.contract_id) {
     const c = UUID.test(i.contract_id) ? await tx.contract.findUnique({ where: { id: i.contract_id }, select: { code: true, contactId: true, deletedAt: true } }) : null;
-    if (!c || c.deletedAt || c.contactId !== i.contact_id) throw new AppError('VALIDATION_FAILED', 422, { contract_id: 'not_found' });
+    if (!c || c.deletedAt || !(await inSameFamily(tx, c.contactId, i.contact_id))) throw new AppError('VALIDATION_FAILED', 422, { contract_id: 'not_found' });
     from = c.code;
   }
   return draftOrderPreview(ctx, tx, members, { ...i, source: i.contract_id ? 'contract' : 'manual', from });

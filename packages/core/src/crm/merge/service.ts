@@ -56,7 +56,9 @@ export async function mergeUnit(tx: TenantTx, authz: AuthzContext, u: Unit, o: {
   }
   const fill = fillOf(primary, sources);
   for (const s of u.sources) await tx.contact.update({ where: { id: s }, data: { deletedAt: o.now, mergedIntoId: primary.id } });
-  const p = await tx.contact.update({ where: { id: primary.id }, data: { ...fill, updatedAt: o.now }, select: { version: true } });
+  // Số dư điểm cache của gốc = cả họ (sổ giữ id gốc, không chép bút toán); cache bản phụ giữ nguyên làm lịch sử, không đọc để tiêu.
+  const pts = sources.reduce((n, s) => n + s.pointsBalance, 0n);
+  const p = await tx.contact.update({ where: { id: primary.id }, data: { ...fill, ...(pts ? { pointsBalance: { increment: pts } } : {}), updatedAt: o.now }, select: { version: true } });
   const after = await tx.contact.findMany({ where: { id: { in: u.sources } }, select: { id: true, version: true } });
   const event = await writeTimeline(tx, { contactId: primary.id, type: 'merge', key: 'merge', params: { count: u.sources.length }, actor: { type: o.actorType, id: o.actorUserId }, at: o.now });
   const receiptId = uuidv7(o.now.getTime());
@@ -121,7 +123,9 @@ export async function undoMerge(tx: TenantTx, authz: AuthzContext, receiptId: st
   for (const s of r.sourceIds) await tx.contact.update({ where: { id: s }, data: { deletedAt: null, mergedIntoId: null } });
   const fill = r.fill as Record<string, string>;
   const clear = Object.fromEntries(Object.entries(fill).filter(([k, v]) => (p as unknown as Record<string, unknown>)[k] === v).map(([k]) => [k, null]));
-  if (Object.keys(clear).length) await tx.contact.update({ where: { id: r.primaryId }, data: clear });
+  // Điểm: không có ghi sổ nào sau gộp (phiên bản bản chính chưa đổi) → trừ lại đúng cache các bản phụ.
+  const back = rows.filter((c) => r.sourceIds.includes(c.id)).reduce((n, c) => n + c.pointsBalance, 0n);
+  if (Object.keys(clear).length || back) await tx.contact.update({ where: { id: r.primaryId }, data: { ...clear, ...(back ? { pointsBalance: { decrement: back } } : {}) } });
   if (r.timelineEventId) await tx.timelineEvent.deleteMany({ where: { id: r.timelineEventId } });
   await tx.contactMergeReceipt.update({ where: { id: r.id }, data: { state: 'undone', undoneAt: now } });
 }

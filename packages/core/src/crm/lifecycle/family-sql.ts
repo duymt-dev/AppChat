@@ -16,3 +16,10 @@ export const familyIdsSql = (rootId: string) => Prisma.sql`(
 
 /** `<cột> IN (họ của rootId)` — thay cho `<cột> = rootId` ở đọc theo khách. */
 export const inFamilySql = (column: string, rootId: string) => Prisma.sql`${Prisma.raw(column)} IN ${familyIdsSql(rootId)}`;
+
+/** `parentContactId` (id gốc lưu trên chứng từ cha) thuộc họ của khách gốc còn sống `rootId` — chuyển đổi chứng từ cũ của bản phụ đã gộp sang bản chính. */
+export async function inSameFamily(tx: { $queryRaw: <T>(q: ReturnType<typeof Prisma.sql>) => Promise<T> }, parentContactId: string, rootId: string): Promise<boolean> {
+  if (parentContactId === rootId) return true;
+  const r = await tx.$queryRaw<{ ok: boolean }[]>(Prisma.sql`SELECT ${parentContactId}::uuid IN ${familyIdsSql(rootId)} AS ok`);
+  return !!r[0]?.ok;
+}

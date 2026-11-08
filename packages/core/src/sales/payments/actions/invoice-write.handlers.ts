@@ -24,6 +24,7 @@ import { localDay } from '../services/payment-write';
 import { createPreview, sendPreview, voidPreview } from '../previews/invoice-write.handlers.preview';
 import { soleTeamOf } from '../../../authz/data-access';
 import { lockContactRow } from '../../../kernel/ownership/root-lock';
+import { inSameFamily } from '../../../crm/lifecycle/family-sql';
 
 const DAY = 86_400_000;
 type St = { invoice_id: string; status: string };
@@ -60,7 +61,7 @@ export class InvoiceCreateHandler implements Handler<ActionInput<typeof invoiceC
     const order = input.order_id ? await lockOrder(tx, ctx.authz, input.order_id) : null;
     if (order) {
       if (order.source === 'marketplace' || order.status === 'cancelled') throw new AppError('INVALID_STATE', 409, { order_id: order.source === 'marketplace' ? 'marketplace' : 'cancelled' });
-      if (order.contactId !== input.contact_id) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'order_mismatch' });
+      if (!(await inSameFamily(tx, order.contactId, input.contact_id))) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'order_mismatch' });
       if (amount > (await orderRoom(tx, order))) throw new AppError('VALIDATION_FAILED', 422, { amount: 'invoice.amount_over' });
     } else await editableContact(tx, ctx.authz, input.contact_id);
     const now = this.clock.now();
