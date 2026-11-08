@@ -23,6 +23,7 @@ const BY_ID: Record<string, string> = {
   'stock.adjust': '027',
   'stock.get': '027',
   'ai.translate': '022',
+  'ai.summarize': '019c', 'ai.detect_intent': '019c', 'ai.extract_info': '019c', 'ai.score_lead': '019c',
   'ai.translate_draft': '025b',
   'run.cancel': '019',
   'run.search': '019',

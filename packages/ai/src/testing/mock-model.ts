@@ -4,6 +4,7 @@
 import { MockLanguageModelV4, convertArrayToReadableStream } from 'ai/test';
 import type { ModelCandidate, ModelSource } from '../gateway/types';
 import { mockKbSuggestion } from './mock-kb-suggestion';
+import { mockUtility } from './mock-utility';
 
 export type MockTurn =
   | { text: string; tokensIn?: number; tokensOut?: number }
@@ -222,6 +223,9 @@ function mockContractDraft(text: string) {
 export const echoScript: MockScript = (ctx) => {
   const { lastUser, system, lastTool } = ctx;
   if (ASSISTANT_MARKS.some((m) => system.includes(m))) return assistantTurn(ctx);
+  // Kỹ năng tiện ích chỉ đọc (TIP-019c): JSON đúng khuôn + bằng chứng offset thật.
+  const util = mockUtility(system, lastUser);
+  if (util) return { text: util };
   // Skill dịch (TIP-025 `ai.translate`, TIP-025b `ai.translate_draft`): tiền tố ngôn ngữ đích + nguyên văn.
   const xl = /^# TRANSLATE[\s\S]*Target: (vi|en|zh|ko|ja)/.exec(system);
   if (xl) return { text: `[${xl[1]!.toUpperCase()}] ${lastUser}` };

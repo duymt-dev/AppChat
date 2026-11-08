@@ -32,6 +32,8 @@ export * from './time/business-time';
 export * from './time/cron';
 export * from './ai-tasks/task-catalog';
 export * from './ai/weekly-schedule';
+export * from './ai/utility-schemas';
+export * from './ai/utility-evidence';
 export * from './crm';
 export * from './catalog';
 export * from './genui';

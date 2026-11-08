@@ -85,6 +85,12 @@ M modify, C create. Future M requires predecessor integration. No directory wild
 | M | `packages/core/src/ai/assistant/genui/stream.ts` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
 | C | `packages/core/test/ai-utilities-publication.test.ts` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
 
+| C | `packages/ai/src/testing/mock-utility.ts` | Model giả kỹ năng tiện ích (AI_ENGINE=mock): JSON đúng khuôn + bằng chứng offset thật cho integration / E2E (thêm khi làm P1) |
+| M | `packages/ai/src/testing/mock-model.ts` | Rẽ nhánh echoScript sang mock-utility (1 dòng) |
+| C | `packages/core/src/ai/skills/sources/types.ts` | Kiểu SourceChunk dùng chung nguồn (tránh vòng import) |
+| M | `packages/core/src/crm/public.ts` | Export `inSameFamily` cho nguồn score_lead (hội thoại thuộc họ khách) |
+| M | `packages/core/src/kernel/actions/tip-owners.ts` | 4 action → TIP 019c |
+
 ## Future M provenance
 
 - `packages/core/src/authz/fields/history-provenance.ts`: TIP-045b-app-hardening.md

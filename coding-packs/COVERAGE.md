@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 153 | 6 | 2 | 13 | 14 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 5 | 0 | 2 | 11 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 165 | 10 | 0 | 9 | 10 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 390 | 32 | 1 | 4 | 29 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 394 | 32 | 1 | 4 | 25 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 57 | 0 | 29 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
-| **Tổng** | **1186** | **100** | **33** | **49** | **123** | **35** | **69** | **0** |
+| **Tổng** | **1190** | **100** | **33** | **49** | **119** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -877,10 +877,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-workspace.freeze_request | `workspace.freeze_request` + `admin.workspace.freeze_decide` — Owner xin đóng băng, admin duyệt | DECISIONS.md:DC245 | 041 | ĐẠT | TIP-041 P3: core/identity/lifecycle/freeze-requests.ts (partial unique một yêu cầu chờ; duyệt = tạm dừng luật 040 CAS cùng transaction; requester mất quyền → cancelled) + GET /v1/admin/freeze-requests + panel /admin?tab=freeze; integration workspace-lifecycle-delete.test.ts |
 | ACT-admin.workspace.resume | `admin.workspace.resume` có trong registry + handler | plans/BLUEPRINT.md:816 | 040 | ĐẠT | registry packages/actions (platform_admin, db platform) + handler packages/core/src/platform/actions/workspace.handlers.ts + previewPlatform; test apps/api/test/integration/platform-workspaces.test.ts (TIP-040) |
 | ACT-admin.workspace.suspend | `admin.workspace.suspend` có trong registry + handler | plans/BLUEPRINT.md:816 | 040 | ĐẠT | registry packages/actions (platform_admin, db platform) + handler packages/core/src/platform/actions/workspace.handlers.ts + previewPlatform; test apps/api/test/integration/platform-workspaces.test.ts (TIP-040) |
-| ACT-ai.detect_intent | `ai.detect_intent` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
-| ACT-ai.extract_info | `ai.extract_info` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
-| ACT-ai.score_lead | `ai.score_lead` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
-| ACT-ai.summarize | `ai.summarize` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | CHƯA | Không có trong packages/actions (actions.json); 015b chỉ có contact.summarize (khác id);019c owns read-only typedutility/sourceguard/runtime/UI tasks andAC, not implemented |
+| ACT-ai.detect_intent | `ai.detect_intent` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | ĐẠT | TIP-019c P1: packages/actions/src/ai-utilities.ts + handler core/src/ai/skills/utility.handlers.ts (nguồn có quyền trước model, đầu ra kiểm bằng chứng); test actions/core/api integration ai-utilities |
+| ACT-ai.extract_info | `ai.extract_info` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | ĐẠT | TIP-019c P1: packages/actions/src/ai-utilities.ts + handler core/src/ai/skills/utility.handlers.ts (nguồn có quyền trước model, đầu ra kiểm bằng chứng); test actions/core/api integration ai-utilities |
+| ACT-ai.score_lead | `ai.score_lead` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | ĐẠT | TIP-019c P1: packages/actions/src/ai-utilities.ts + handler core/src/ai/skills/utility.handlers.ts (nguồn có quyền trước model, đầu ra kiểm bằng chứng); test actions/core/api integration ai-utilities |
+| ACT-ai.summarize | `ai.summarize` có trong registry + handler | plans/BLUEPRINT.md:797 | 019c | ĐẠT | TIP-019c P1: packages/actions/src/ai-utilities.ts + handler core/src/ai/skills/utility.handlers.ts (nguồn có quyền trước model, đầu ra kiểm bằng chứng); test actions/core/api integration ai-utilities |
 | ACT-category.delete | `category.delete` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | ĐẠT | packages/actions/src/catalog-operations.ts + packages/core/src/catalog/actions/category.handlers.ts (còn sản phẩm mọi trạng thái → 409 has_products + số); apps/api/test/integration/actions/category.delete.action.test.ts, catalog-operations.test.ts |
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | ĐẠT | packages/actions/src/catalog-operations.ts + category.handlers.ts (tên trùng không phân biệt hoa thường → 409); actions/category.update.action.test.ts; thêm category.list (đường tra Trợ lý) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | 026b | ĐẠT | TIP-026b P1 (DC-387): packages/actions/src/contact-notes.ts + core crm/activities/notes.handlers.ts (crm.edit, write, agentGrantable true, undo 24h xoá mềm theo version); ma trận contact.add_note.action.test.ts; contact-activities.test.ts |

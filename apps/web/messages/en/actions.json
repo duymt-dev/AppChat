@@ -411,6 +411,22 @@
       "title": "Translate message",
       "desc": "Translate a customer message into Vietnamese."
     },
+    "summarize": {
+      "title": "Summarize",
+      "desc": "Summarize selected messages, pasted text or a contact profile with citations — never saved to CRM."
+    },
+    "detect_intent": {
+      "title": "Detect intent",
+      "desc": "Detect the main intent (pricing, booking, complaint…) with evidence — a suggestion only, never routes."
+    },
+    "extract_info": {
+      "title": "Extract info",
+      "desc": "Extract the fields you declare (dates, VND amounts…) with citations; missing or ambiguous values are explicit."
+    },
+    "score_lead": {
+      "title": "Assess lead fit",
+      "desc": "Assess opportunity fit on 4 evidence-backed criteria — advisory, never changes the contact score."
+    },
     "translate_draft": {
       "title": "Translate draft",
       "desc": "Translate the reply draft into the customer language for preview — never sends."

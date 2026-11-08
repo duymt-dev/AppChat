@@ -411,6 +411,22 @@
       "title": "Dịch tin nhắn",
       "desc": "Dịch một tin nhắn của khách sang tiếng Việt."
     },
+    "summarize": {
+      "title": "Tóm tắt",
+      "desc": "Tóm tắt tin đã chọn, chữ dán vào hoặc hồ sơ khách — có trích dẫn, không lưu vào CRM."
+    },
+    "detect_intent": {
+      "title": "Nhận diện ý định",
+      "desc": "Nhận diện ý định chính (hỏi giá, đặt lịch, khiếu nại…) kèm bằng chứng — chỉ gợi ý, không tự chuyển luồng."
+    },
+    "extract_info": {
+      "title": "Trích thông tin",
+      "desc": "Trích các trường bạn khai báo (ngày, số tiền VND…) kèm trích dẫn; thiếu hoặc mơ hồ được ghi rõ."
+    },
+    "score_lead": {
+      "title": "Đánh giá độ phù hợp",
+      "desc": "Đánh giá độ phù hợp cơ hội theo 4 tiêu chí có bằng chứng — tham khảo, không đổi điểm khách."
+    },
     "translate_draft": {
       "title": "Dịch bản nháp",
       "desc": "Dịch bản nháp trả lời sang ngôn ngữ của khách để xem trước — không tự gửi."

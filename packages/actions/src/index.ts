@@ -9,6 +9,7 @@ import * as inboxAliases from './inbox-aliases';
 import * as inboxGroups from './inbox-groups';
 import * as crm from './crm';
 import * as ai from './ai';
+import * as aiUtilities from './ai-utilities';
 import * as catalog from './catalog';
 import * as catalogOperations from './catalog-operations';
 import * as contactMemory from './contact-memory';
@@ -92,6 +93,7 @@ export * from './crm';
 export * from './contact-lifecycle';
 export * from './contact-merge';
 export * from './ai';
+export * from './ai-utilities';
 export * from './catalog';
 export * from './catalog-operations';
 export * from './contact-memory';
@@ -172,6 +174,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(inboxGroups),
   ...Object.values(crm),
   ...Object.values(ai),
+  ...Object.values(aiUtilities),
   ...Object.values(catalog),
   ...Object.values(catalogOperations),
   ...Object.values(contactMemory),

@@ -35,6 +35,7 @@ import { seedAgentTemplates } from './agents/templates.seed';
 import { ApprovalApproveHandler, ApprovalEditAndApproveHandler, ApprovalRejectHandler } from './approvals/approval.handlers';
 import { AiTranslateHandler } from './skills/translate.handler';
 import { AiTranslateDraftHandler } from './skills/draft-translate.handler';
+import { UTILITY_PROVIDERS } from './skills/utility.providers';
 import { ApprovalsInstaller } from './approvals/approvals.installer';
 import { OperationContinuationInstaller } from './approvals/operation-continuation';
 import { ResumeQueue } from './approvals/resume.queue';
@@ -153,6 +154,7 @@ class ProviderSeed implements OnModuleInit {
     GovernanceUpdateHandler,
     AiTranslateHandler,
     AiTranslateDraftHandler,
+    ...UTILITY_PROVIDERS,
     AssistantService,
     // GenUI (TIP-023c): tiếp tục lượt sau kết quả ngoài đã kiểm phía server (khối qr).
     AssistantResumeHandler,
