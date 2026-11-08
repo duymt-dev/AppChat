@@ -1,9 +1,9 @@
 // Chuyển trạng thái báo giá do hệ thống (state-machine §1.4 — cùng bảng QUOTE_FLOW, đọc lại trạng thái trong transaction, UPDATE có
 // điều kiện): khách mở link xem → `viewed` (+ event, timeline); quá `valid_until` → `expired` (+ lùi giai đoạn khách nếu hết báo giá
-// mở); còn ≤ 2 ngày → nhắc người phụ trách một lần cho mỗi lần hiệu lực (`reminded_at`); chuyển phụ trách khách kèm báo giá đang mở
-// (`contact.owner_changed` có move.quotes — COMMERCE §8b). Ghi outbox cùng transaction.
+// mở); còn ≤ 2 ngày → nhắc người phụ trách một lần cho mỗi lần hiệu lực (`reminded_at`). Chuyển phụ trách kèm báo giá: port `quote` (ownership-port.ts, TIP-015d)
+// cùng transaction với khách. Ghi outbox cùng transaction.
 import type { TenantDb } from '@appchat/db';
-import { QUOTE_FLOW, OPEN_QUOTE_STATUSES, dayEndAfter, daysLeft, nextState } from '@appchat/shared';
+import { QUOTE_FLOW, dayEndAfter, daysLeft, nextState } from '@appchat/shared';
 import { writeOutbox, type OutboxEventInput } from '../../../kernel/outbox/outbox';
 import { writeTimeline } from '../../../crm/public';
 import { closeLost } from '../actions/quote-decide.handlers';
@@ -68,7 +68,8 @@ export async function remindExpiring(db: TenantDb, ws: string, now: Date, timeZo
         topic: 'notify.requested',
         payload: {
           kind: 'quote_expiring',
-          to: q.ownerUserId ? { user_ids: [q.ownerUserId] } : { permission: 'quote.send' },
+          // TIP-015d: nhắc người phụ trách VẬN HÀNH hiện tại; chưa giao → ai có quyền gửi báo giá (không quay về người tạo).
+          to: q.assignedUserId ? { user_ids: [q.assignedUserId] } : { permission: 'quote.send' },
           params: { code: q.code, contact: cut(c?.name ?? ''), n: Math.max(0, daysLeft(now, q.validUntil!, timeZone)) },
           link: `/quotes?q=${q.id}`,
         },
@@ -79,10 +80,4 @@ export async function remindExpiring(db: TenantDb, ws: string, now: Date, timeZo
     if (done) n++;
   }
   return n;
-}
-
-/** Chuyển phụ trách khách kèm báo giá đang mở (chưa chốt) sang người mới. */
-export async function moveOpenQuotes(db: TenantDb, contactId: string, to: string, now: Date): Promise<number> {
-  const r = await db.quote.updateMany({ where: { contactId, deletedAt: null, status: { in: [...OPEN_QUOTE_STATUSES] }, NOT: { ownerUserId: to } }, data: { ownerUserId: to, updatedAt: now } });
-  return r.count;
 }

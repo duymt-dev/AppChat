@@ -23,6 +23,7 @@ const seed = async (m: Matrix): Promise<string> => {
       rootQuoteId: id,
       contactId: k,
       ownerUserId: m.h.user,
+      assignedUserId: m.h.user,
       status: 'sent',
       total: 1_000_000n,
     },

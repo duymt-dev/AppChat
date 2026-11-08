@@ -1,0 +1,61 @@
+// tenant/contact-transfer.prisma — sở hữu: TIP-015d (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Biên nhận chuyển phụ trách khách (D32, COMMERCE §8b): một dòng mỗi lần đổi phụ trách thật + một dòng mỗi hội thoại / báo giá / lịch hẹn
+// được chuyển kèm (trước / sau + revision gán lúc sau). Hoàn tác chỉ đụng đúng các id đã ghi, so revision (không so giá trị — chống ABA).
+// Bảng tenant không workspace_id.
+
+/// Một lần chuyển phụ trách đã commit (`generation` = contact.transfer_generation sau lần chuyển).
+model ContactTransfer {
+  id             String    @id @db.Uuid
+  contactId      String    @map("contact_id") @db.Uuid
+  fromUserId     String?   @map("from_user_id") @db.Uuid
+  toUserId       String    @map("to_user_id") @db.Uuid
+  fromTeamId     String?   @map("from_team_id") @db.Uuid
+  toTeamId       String?   @map("to_team_id") @db.Uuid
+  generation     Int
+  /// Cờ người gọi chọn `{ conversations, quotes, appointments }`.
+  move           Json
+  /// Số đã chuyển thật `{ conversations, quotes, appointments }`.
+  counts         Json
+  /// Quan hệ cũ của người nhận với khách (bị gỡ khi nhận) `{ role, added_by }` — hoàn tác trả lại nếu còn khớp.
+  collab         Json?
+  status         String    @default("applied")
+  idempotencyKey String?   @map("idempotency_key")
+  source         String
+  actorId        String?   @map("actor_id")
+  createdAt      DateTime  @map("created_at") @db.Timestamptz(6)
+  undoneAt       DateTime? @map("undone_at") @db.Timestamptz(6)
+
+  items ContactTransferItem[]
+
+  @@unique([contactId, generation])
+  @@map("contact_transfer")
+}
+
+model ContactTransferItem {
+  transferId              String  @map("transfer_id") @db.Uuid
+  /// conversation | quote | appointment
+  domain                  String
+  entityId                String  @map("entity_id") @db.Uuid
+  beforeUserId            String? @map("before_user_id") @db.Uuid
+  beforeAgentId           String? @map("before_agent_id")
+  beforeTeamId            String? @map("before_team_id") @db.Uuid
+  afterTeamId             String? @map("after_team_id") @db.Uuid
+  /// conversation / quote: assignment_revision sau khi chuyển; appointment: version sau khi chuyển.
+  afterAssignmentRevision Int     @map("after_assignment_revision")
+
+  transfer ContactTransfer @relation(fields: [transferId], references: [id])
+
+  @@id([transferId, domain, entityId])
+  @@map("contact_transfer_item")
+}
+
+/// Thông báo của một lần chuyển (người cũ `from` / người mới `to`) — tiêu đề có tên khách chỉ chiếu lúc đọc theo quyền hiện tại.
+model ContactTransferNotice {
+  notificationId  String @id @map("notification_id") @db.Uuid
+  transferId      String @map("transfer_id") @db.Uuid
+  recipientUserId String @map("recipient_user_id") @db.Uuid
+  direction       String
+
+  @@unique([transferId, recipientUserId, direction])
+  @@map("contact_transfer_notice")
+}

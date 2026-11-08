@@ -22,7 +22,7 @@ export async function seedRecords(db: TenantDb, o: { owner: string; team: string
   const ids = { contact: uuidv7(), conversation: uuidv7(), quote: uuidv7(), contract: uuidv7(), order: uuidv7(), invoice: uuidv7(), appointment: uuidv7() };
   await db.contact.create({ data: { id: ids.contact, code: `KH-RS${n}`, name: `Khách scope ${n}`, source: 'manual', ownerUserId: o.owner, teamId: o.team, createdAt: o.at } });
   await db.conversation.create({ data: { id: ids.conversation, channelAccountId: o.account, channelType: 'webchat', externalThreadId: `rs-${n}`, contactId: ids.contact, assigneeUserId: o.owner, teamId: o.team, lastMessageAt: o.at } });
-  await db.quote.create({ data: { id: ids.quote, code: `BG-RS${n}`, rootQuoteId: ids.quote, contactId: ids.contact, ownerUserId: o.owner, teamId: o.team } });
+  await db.quote.create({ data: { id: ids.quote, code: `BG-RS${n}`, rootQuoteId: ids.quote, contactId: ids.contact, ownerUserId: o.owner, assignedUserId: o.owner, teamId: o.team } });
   await db.contract.create({ data: { id: ids.contract, code: `HĐ-RS${n}`, contactId: ids.contact, quoteId: ids.quote, ownerUserId: o.owner, teamId: o.team, title: 'Hợp đồng scope' } });
   await db.order.create({ data: { id: ids.order, code: `DH-RS${n}`, contactId: ids.contact, quoteId: ids.quote, ownerUserId: o.owner, teamId: o.team } });
   await db.invoice.create({ data: { id: ids.invoice, code: `DN-RS${n}`, contactId: ids.contact, orderId: ids.order, ownerUserId: o.owner, teamId: o.team, amount: 1_000_000n, dueDate: o.at } });

@@ -77,6 +77,9 @@ export const contactOwnerChangedEvent = z.object({
   from: z.string().uuid().nullable(),
   to: z.string().uuid(),
   move: z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() }),
+  /** TIP-015d: biên nhận của lần chuyển (đã commit cùng event) — event chỉ là tín hiệu làm mới / thông báo, không consumer nào chuyển lại. */
+  transfer_id: z.string().uuid().optional(),
+  undo: z.boolean().optional(),
 });
 /** Khách vừa tạo từ tin vào 1-1 live (TIP-042b, DC-238) — consumer ROLE=jobs gọi `lead_routing.apply` (system) cấp chủ đầu tiên theo rule. */
 export const leadRoutingRequestedEvent = z.object({ ...contactBase, conversation_id: z.string().uuid(), channel_account_id: z.string().uuid(), message_id: z.string().uuid() });

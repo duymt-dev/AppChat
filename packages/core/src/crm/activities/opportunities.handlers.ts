@@ -27,9 +27,9 @@ function moneyGuard(authz: AuthzContext, p: Partial<Patch>) {
 async function checkQuote(tx: TenantTx, authz: AuthzContext, contactId: string, quoteId: string | null | undefined) {
   if (!quoteId) return;
   if (!(authz.isOwner || authz.permissions.has('quote.view'))) throw new AppError('VALIDATION_FAILED', 422, NF);
-  const q = !UUID.test(quoteId) ? null : await tx.quote.findUnique({ where: { id: quoteId }, select: { contactId: true, ownerUserId: true, teamId: true, deletedAt: true } });
+  const q = !UUID.test(quoteId) ? null : await tx.quote.findUnique({ where: { id: quoteId }, select: { contactId: true, assignedUserId: true, teamId: true, deletedAt: true } });
   if (!q || q.deletedAt || q.contactId !== contactId) throw new AppError('VALIDATION_FAILED', 422, NF);
-  await guardRecord(tx, authz, POLICIES.sales, 'read', { owner: q.ownerUserId, team: q.teamId, contact: q.contactId }, NF).catch(() => {
+  await guardRecord(tx, authz, POLICIES.sales, 'read', { owner: q.assignedUserId, team: q.teamId, contact: q.contactId }, NF).catch(() => {
     throw new AppError('VALIDATION_FAILED', 422, NF);
   });
 }

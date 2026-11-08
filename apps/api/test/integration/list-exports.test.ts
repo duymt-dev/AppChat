@@ -69,6 +69,7 @@ async function quotes(prefix: string, n: number, owner = h.user, extra: Record<s
           rootQuoteId: id,
           contactId: lan,
           ownerUserId: owner,
+          assignedUserId: owner,
           status: 'sent' as const,
           total: 123_456_789_012_345n,
           custom: { hang: 'A', secret: 'x' },

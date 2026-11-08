@@ -316,10 +316,13 @@ export const customersHandlers: Record<string, MockHandler> = {
   'contact.transfer_owner': {
     execute: (db, i: Ci & { to_user_id: string; move: { conversations: boolean; quotes: boolean; appointments: boolean } }) => {
       const c = contact(db, i.contact_id);
+      // TIP-015d: kết quả phân biệt — người nhận đã phụ trách → skip (không biên nhận / hoàn tác).
+      if (c.owner_user_id === i.to_user_id) return { status: 'skipped_already_owner', owner_user_id: i.to_user_id, moved: { conversations: 0, quotes: 0, appointments: 0 }, transfer_id: null, version: 1 };
       c.owner_user_id = i.to_user_id;
       c.owner_name = memberName(i.to_user_id);
       db.customers.collaborators[i.contact_id] = (db.customers.collaborators[i.contact_id] ?? []).filter((x) => x.user_id !== i.to_user_id);
-      return { owner_user_id: i.to_user_id, moved: { conversations: i.move.conversations ? 1 : 0, quotes: i.move.quotes ? 1 : 0, appointments: i.move.appointments ? 1 : 0 } };
+      const moved = { conversations: i.move.conversations ? 1 : 0, quotes: i.move.quotes ? 1 : 0, appointments: i.move.appointments ? 1 : 0 };
+      return { status: 'transferred', owner_user_id: i.to_user_id, moved, transfer_id: `tr_${++db.customers.seq}`, version: 2 };
     },
   },
   'contact.request_access': {

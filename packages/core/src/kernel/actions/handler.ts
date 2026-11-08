@@ -19,6 +19,8 @@ export interface HandlerOutcome<O> {
   before?: unknown;
   after?: unknown;
   events?: { topic: string; payload: Record<string, unknown> }[];
+  /** Lần chạy này không có gì để hoàn tác (no-op — vd. người nhận đã là người phụ trách, TIP-015d): không ghi `undo_until`. */
+  noUndo?: boolean;
   /**
    * Việc chạy SAU khi transaction (nền tảng + tenant) commit — cho bước cần transaction riêng của service khác (vd. kích hoạt gói
    * sau khi admin xác nhận chuyển khoản — TIP-010). Lỗi không làm hỏng kết quả action đã commit; việc phải tự idempotent + có

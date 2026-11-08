@@ -34,6 +34,11 @@ export interface ActionDef<I extends z.ZodTypeAny = z.ZodTypeAny, O extends z.Zo
   /** Key connector/channel cần kết nối để tool chạy được — Builder hiện badge "Cần kết nối X" (D51 §3.3b). */
   requiresConnector?: string;
   undo?: { windowSec: number };
+  /**
+   * Nguồn LUÔN phải qua duyệt thật (TIP-015d, D32) — bất kể risk / autoSend / hội thoại đang phục vụ / thẻ xác nhận. Nguồn lấy từ ngữ
+   * cảnh tin cậy (045b), model / người gọi không tự khai được. Thẻ xác nhận của Trợ lý không thay cho duyệt.
+   */
+  requiredApprovalSources?: readonly ('assistant' | 'agent' | 'task')[];
   invalidates: string[];
   db?: 'platform';
   uiTarget?: (o: z.infer<O>) => UiCommand;

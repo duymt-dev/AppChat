@@ -133,8 +133,8 @@ describe('tạo khách + chống giành khách', () => {
     const move = { conversations: true, quotes: true, appointments: false };
     expect((await act('contact.transfer_owner', { contact_id: lan, to_user_id: salesB.id, move }, as(salesA))).status).toBe(403);
     const r = await act('contact.transfer_owner', { contact_id: lan, to_user_id: salesB.id, move }, as(manager));
-    expect(r.body.data.result).toEqual({ owner_user_id: salesB.id, moved: { conversations: 0, quotes: 0, appointments: 0 } });
-    expect(await outbox('contact.owner_changed')).toContainEqual(expect.objectContaining({ contact_id: lan, from: salesA.id, to: salesB.id, move }));
+    expect(r.body.data.result).toMatchObject({ status: 'transferred', owner_user_id: salesB.id, moved: { conversations: 0, quotes: 0, appointments: 0 } });
+    expect(await outbox('contact.owner_changed')).toContainEqual(expect.objectContaining({ contact_id: lan, from: salesA.id, to: salesB.id, move, transfer_id: r.body.data.result.transfer_id }));
     expect(ids((await get('/contacts', salesA)).body)).not.toContain(lan);
     expect((await get(`/contacts/${lan}`, salesB)).status).toBe(200);
     await undo(r.body.data.action_log_id, manager);

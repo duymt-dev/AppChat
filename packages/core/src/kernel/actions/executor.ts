@@ -16,6 +16,7 @@ import type { ConfirmTokens } from './confirm-token';
 import { hashInput } from './confirm-token';
 import type { ActionHandlerRegistry } from './handler-registry';
 import { decidePolicy, requiresIdempotencyKey } from './policy';
+import { withRequiredApproval } from './required-approval';
 import { maskSecrets } from './secret-fields';
 import { acceptedResponse, replayAccepted } from './job-accepted';
 import { redactDeep, toLogJson } from './executor-redact';
@@ -140,7 +141,7 @@ export class ActionExecutor {
     // Mọi hội thoại mà input chạm tới (nguồn + đích của chuyển tiếp) phải là hội thoại đang phục vụ.
     const io = input as { conversation_id?: unknown; target_conversation_id?: unknown };
     const served = !!ctx.servedConversationId && io.conversation_id === ctx.servedConversationId && (io.target_conversation_id === undefined || io.target_conversation_id === ctx.servedConversationId);
-    const decision = decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk, servedConversation: served, autoSend: ctx.autoSend === true, actionId });
+    const decision = withRequiredApproval(decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk, servedConversation: served, autoSend: ctx.autoSend === true, actionId }), def, ctx.source);
     if (decision === 'forbidden') throw new AppError('FORBIDDEN', 403, { source: ctx.source });
     if (ctx.approvalId && !this.d.approvals) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '021' }, 'approval_request chưa cài');
     if (decision === 'approval' && !ctx.approvalId) {
@@ -184,7 +185,7 @@ export class ActionExecutor {
     const now = this.d.clock.now();
     const traceId = RequestContext.get()?.traceId;
     const logId = uuidv7(now.getTime());
-    const undoUntil = def.undo && handler.undo ? new Date(now.getTime() + def.undo.windowSec * 1000) : undefined;
+    const undoWindow = def.undo && handler.undo ? new Date(now.getTime() + def.undo.windowSec * 1000) : undefined;
     const prepared = handler.prepare ? await handler.prepare(ctx, input) : undefined;
     // Action `db: 'platform'` (TIP-045b annex A1): sổ thao tác xuyên DB — nền tảng commit trước, tenant áp sau với biên nhận, khôi phục
     // theo pha; không còn transaction tenant lồng trong transaction nền tảng. Idempotency theo sổ (workspace + actor + khoá).
@@ -205,6 +206,7 @@ export class ActionExecutor {
     const out = await db.$transaction(async (tx) => {
       await approved(tx);
       const r = await handler.execute(ctx, input, tx, undefined, prepared);
+      const undoUntil = r.noUndo ? undefined : undoWindow;
       // Quyền theo trường (TIP-045b annex C): output không mang key tuỳ biến / trường hệ thống người gọi không được xem.
       const output = await projectActionOutput(tx, actionId, ctx.authz, def.output.parse(r.result) as O);
       const ui = def.uiTarget?.(output as never);

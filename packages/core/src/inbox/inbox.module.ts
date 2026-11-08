@@ -6,6 +6,8 @@ import { operationMode, type ChannelRegistry } from '@appchat/channels';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { can } from '@appchat/shared';
 import { CLOCK, type Clock } from '../kernel/clock';
+import { registerOwnershipPort } from '../kernel/ownership/registry';
+import { conversationOwnershipPort } from './services/ownership-port';
 import { ENC_KEY } from '../kernel/crypto';
 import { ENV_SOURCE } from '../kernel/kernel.module';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
@@ -64,6 +66,8 @@ class ConversationGuardInstaller implements OnModuleInit {
   constructor(@Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined) {}
 
   onModuleInit(): void {
+    // Port chuyển phụ trách hội thoại (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Hộp thư.
+    registerOwnershipPort(conversationOwnershipPort);
     const tenants = this.tenants;
     if (!tenants) return;
     registerConversationGuard(async ({ workspaceId, userId, authz, conversationId }) => {

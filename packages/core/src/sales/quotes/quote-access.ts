@@ -9,7 +9,9 @@ import { POLICIES, docColumns, guardRecord, recordScopeSql, type AccessMode } fr
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const COLS = docColumns('q');
+// TIP-015d §3.4: scope own / nhánh "người phụ trách" theo người phụ trách VẬN HÀNH (`assigned_user_id`), không theo người tạo — người
+// tạo (doanh số) không phải quyền ghi vĩnh viễn. Nhóm + quan hệ khách giữ nguyên luật 042c.
+const COLS = { ...docColumns('q'), owner: Prisma.raw('q.assigned_user_id') };
 const NF = { quote_id: 'not_found' };
 
 /** Điều kiện SQL (alias `q`) cho danh sách theo scope sales. */
@@ -23,7 +25,7 @@ type QuoteRecord = NonNullable<Awaited<ReturnType<TenantTx['quote']['findUnique'
 export async function visibleQuote(tx: TenantTx, authz: AuthzContext, id: string, mode: AccessMode = 'read'): Promise<QuoteRecord> {
   const q = UUID.test(id) ? await tx.quote.findUnique({ where: { id } }) : null;
   if (!q || q.deletedAt) throw new AppError('NOT_FOUND', 404, NF);
-  await guardRecord(tx, authz, POLICIES.sales, mode, { owner: q.ownerUserId, team: q.teamId, contact: q.contactId }, NF);
+  await guardRecord(tx, authz, POLICIES.sales, mode, { owner: q.assignedUserId, team: q.teamId, contact: q.contactId }, NF);
   return q;
 }
 

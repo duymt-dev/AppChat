@@ -129,6 +129,8 @@ model Contact {
   deletedAt          DateTime?     @map("deleted_at") @db.Timestamptz(6)
   /// Phiên bản lạc quan (TIP-025b §D.4) — trigger `contact_bump_version` tăng mỗi UPDATE; không ghi tay.
   version            Int           @default(1)
+  /// TIP-015d: tăng mỗi lần đổi phụ trách thật qua contact.transfer_owner (no-op không tăng) — hoàn tác chỉ áp lần chuyển mới nhất.
+  transferGeneration Int           @default(0) @map("transfer_generation")
 
   @@map("contact")
 }

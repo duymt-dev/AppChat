@@ -45,6 +45,8 @@ export async function insertQuote(ctx: ActionContext, tx: TenantTx, members: Crm
       contactId: input.contact_id,
       conversationId: input.conversation_id ?? null,
       ownerUserId,
+      // TIP-015d: người phụ trách vận hành ban đầu = người tạo được chọn; về sau chỉ đổi qua chuyển phụ trách khách.
+      assignedUserId: ownerUserId,
       // DC-299: nhóm duy nhất của người phụ trách lúc tạo (0 / nhiều nhóm → null).
       teamId: await snapshotTeam(tx, { owner: ownerUserId }),
       templateId: tpl?.id ?? null,
@@ -108,7 +110,8 @@ export class QuoteUpdateHandler implements Handler<UpdateIn, { quote_id: string 
     const now = this.clock.now();
     const p = input.patch;
     if (p.contact_id && p.contact_id !== q.contactId) throw new AppError('VALIDATION_FAILED', 422, { 'patch.contact_id': 'immutable' });
-    if (p.owner_user_id) await checkParties(ctx, tx, this.members, { contactId: q.contactId, ownerUserId: p.owner_user_id });
+    // TIP-015d: người tạo (doanh số) bất biến — gửi lại đúng giá trị thì bỏ qua, khác → 422 (đổi người phụ trách = chuyển phụ trách khách).
+    if (p.owner_user_id !== undefined && p.owner_user_id !== q.ownerUserId) throw new AppError('VALIDATION_FAILED', 422, { 'patch.owner_user_id': 'immutable' });
     await checkQuoteCustom(ctx, tx, this.members, p.custom, 'update');
     const header = p.header_discount !== undefined ? p.header_discount : (q.headerDiscount as Discount | null);
     const lines = p.items ? (await resolveLines(tx, p.items)).lines : null;
@@ -122,7 +125,6 @@ export class QuoteUpdateHandler implements Handler<UpdateIn, { quote_id: string 
         ...totalCols(t),
         offCatalog,
         ...(p.header_discount !== undefined ? { headerDiscount: p.header_discount ? (p.header_discount as object) : TenantSql.DbNull } : {}),
-        ...(p.owner_user_id ? { ownerUserId: p.owner_user_id } : {}),
         ...(p.valid_days !== undefined ? { validDays: p.valid_days } : {}),
         ...(p.note !== undefined ? { note: p.note.trim() } : {}),
         ...(p.gift !== undefined ? { gift: p.gift.trim() } : {}),

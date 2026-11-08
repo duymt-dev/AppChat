@@ -111,6 +111,8 @@ export class QuoteRevisionHandler implements Handler<ActionInput<typeof quoteReq
         // Bản sửa giữ nhóm của bản trước (lineage — DC-299).
         teamId: q.teamId,
         ownerUserId: q.ownerUserId,
+        // Bản sửa chép người tạo + người phụ trách vận hành HIỆN TẠI riêng biệt (TIP-015d).
+        assignedUserId: q.assignedUserId,
         templateId: q.templateId,
         templateVersion: q.templateVersion,
         headerDiscount: (q.headerDiscount ?? undefined) as object | undefined,

@@ -4,7 +4,7 @@ export type { QuoteFilter } from './quotes/repos/quotes.repo';
 export { QuoteDeps } from './quotes/services/quote-deps';
 export { quoteToken, readQuoteToken } from './quotes/services/quote-link';
 export { sweepQuotes, quoteOwnerConsumer, QUOTE_SWEEP_JOB, SALES_SCHEDULER_QUEUE } from './jobs/sales.jobs.module';
-export { expireDue, remindExpiring, markViewed, moveOpenQuotes } from './quotes/services/quote-system';
+export { expireDue, remindExpiring, markViewed } from './quotes/services/quote-system';
 export { intentByRules, matchCatalog, parseIntent } from './quotes/services/quote-draft';
 export { visibleQuote } from './quotes/quote-access';
 export { lockConversion } from './quotes/services/conversion-lock';

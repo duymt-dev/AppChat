@@ -149,24 +149,33 @@ export const contactRemoveCollaborator = defineAction({
   invalidates: ['crm'],
 });
 
+const moveFlags = z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() });
+const movedCounts = z.object({ conversations: z.number(), quotes: z.number(), appointments: z.number() });
+
 export const contactTransferOwner = defineAction({
   id: 'contact.transfer_owner',
   module: 'crm',
   title: 'actions.contact.transfer_owner.title',
   description:
-    'Transfer the primary owner of a contact (managers only); optionally move open conversations, quotes and appointments. Agents may only propose (approval). Example: {"contact_id":"ct_lan","to_user_id":"u_minh","move":{"conversations":true,"quotes":true,"appointments":false}}',
+    'Transfer the primary owner of a contact (managers only); optionally move open conversations, open quotes (operational assignee only — the creator/KPI owner never changes) and upcoming appointments, all in one atomic step. From the Assistant, an agent or a task this ALWAYS goes to human approval — say it is pending approval, never that it is done. Send if_version from the latest contact read. Example: {"contact_id":"ct_lan","to_user_id":"u_minh","move":{"conversations":true,"quotes":true,"appointments":false}}',
   input: z.object({
     contact_id: contactId,
     to_user_id: userId,
-    move: z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() }),
+    move: moveFlags,
     note: z.string().max(500).optional(),
+    if_version: z.number().int().positive().optional(),
   }),
-  output: z.object({ owner_user_id: z.string(), moved: z.object({ conversations: z.number(), quotes: z.number(), appointments: z.number() }) }),
+  // TIP-015d §2.8: kết quả phân biệt — chuyển thật (có transfer_id) / người nhận đã là người phụ trách (no-op, không biên nhận, không hoàn tác).
+  output: z.discriminatedUnion('status', [
+    z.object({ status: z.literal('transferred'), owner_user_id: z.string(), moved: movedCounts, transfer_id: z.string(), version: z.number().int() }),
+    z.object({ status: z.literal('skipped_already_owner'), owner_user_id: z.string(), moved: movedCounts, transfer_id: z.null(), version: z.number().int() }),
+  ]),
   permission: 'crm.reassign',
   risk: 'write',
   agentGrantable: true,
+  requiredApprovalSources: ['assistant', 'agent', 'task'],
   undo: { windowSec: 86_400 },
-  invalidates: ['crm', 'inbox'],
+  invalidates: ['crm', 'inbox', 'quotes', 'calendar'],
 });
 
 export const contactRequestAccess = defineAction({

@@ -157,6 +157,8 @@ model Conversation {
   aiTurnFence        Int                @default(0) @map("ai_turn_fence")
   aiTurnOwner        String?            @map("ai_turn_owner")
   aiTurnUntil        DateTime?          @map("ai_turn_until") @db.Timestamptz(6)
+  /// TIP-015d: trigger tăng mỗi lần đổi người / agent được gán (mọi writer, kể cả hoàn tác) — biên nhận chuyển phụ trách so số này.
+  assignmentRevision Int                @default(0) @map("assignment_revision")
   createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
