@@ -12,6 +12,7 @@ import { memoryHandlers, memoryRoute, seedMemory, type MemoryStore } from './con
 import { bump, versionOf } from './contact-edit';
 import { activityHandlers, activityRoute, activitySummary, seedActivities, type ActivityStore } from './contact-activities';
 import { markDeleted, type LifecycleFields } from './contact-lifecycle';
+import { groupOfMergeId } from './contact-merge';
 
 export type CustomersFixture = typeof fixture;
 type Contact = CustomersFixture['contacts'][number] & LifecycleFields;
@@ -287,7 +288,8 @@ export const customersHandlers: Record<string, MockHandler> = {
   'contact.merge': {
     preview: (_db, i: { group_ids: string[] }) => ({ summary: 'contact.merge', count: i.group_ids.length }),
     execute: (db, i: { group_ids: string[] }) => {
-      db.customers.duplicates = db.customers.duplicates.filter((g) => !i.group_ids.includes(g.id));
+      const ids = new Set(i.group_ids.map(groupOfMergeId));
+      db.customers.duplicates = db.customers.duplicates.filter((g) => !ids.has(g.id));
       return { merged: i.group_ids.length };
     },
     undo: (db) => {

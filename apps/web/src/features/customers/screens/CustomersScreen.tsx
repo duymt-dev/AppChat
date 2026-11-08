@@ -48,7 +48,7 @@ export function CustomersScreen() {
       <PageHeader
         title={t('title')}
         subtitle={t('sub')}
-        actions={<CrmHeaderActions dupCount={dups?.summary.groups ?? 0} />}
+        actions={<CrmHeaderActions dupCount={dups?.count ?? 0} />}
         kpis={stats?.stats.map((k) => ({ ...k, label: t(`stats.${k.key}` as never) }))}
       />
       <StageTabs

@@ -25,3 +25,4 @@ export { LEAD_ROUTING_CONSUMER, leadRoutingConsumer, leadRoutingCtx } from './ro
 export { LEAD_ROUTING_ACTOR, LEAD_ROUTING_TOPIC } from './routing/routing-apply.handler';
 // TIP-015f: thùng rác khách (cùng reader với action contact.deleted_list).
 export { deletedContacts } from './lifecycle/read';
+export { duplicateCandidates } from './merge/candidates';

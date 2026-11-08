@@ -232,8 +232,7 @@
     "rules": "QUY TẮC",
     "rulesVal": "Email · SĐT · Tên+Công ty · Tax ID",
     "aiSuggest": "AI GỢI Ý",
-    "aiSuggestVal": "Hợp nhất tự động {auto}/{groups} nhóm score >90",
-    "pct": "{pct}% trùng",
+    "aiSuggestVal": "{auto}/{groups} cặp khớp luật mạnh — hỏi Trợ lý để xem giải thích",
     "by": "Theo:",
     "booking": "Tạo lịch hẹn",
     "ticket": "Tạo ticket",
@@ -241,6 +240,22 @@
     "merge": "Gộp khách hàng",
     "cancel": "Huỷ",
     "mergeSelected": "Hợp nhất đã chọn",
+    "mergeSelectedN": "Hợp nhất {n} cặp đã chọn",
+    "pick": "Chọn cặp này",
+    "primary": "Giữ {name} làm bản chính",
+    "rank": {
+      "strong": "Khớp mạnh",
+      "medium": "Khớp vừa",
+      "weak": "Khớp yếu"
+    },
+    "ev": {
+      "email": "Email",
+      "tax_code": "MST",
+      "name": "Họ tên"
+    },
+    "conflict": "Dữ liệu khách vừa thay đổi hoặc không đủ điều kiện gộp. Lựa chọn của bạn vẫn giữ — kiểm tra lại rồi gộp lại.",
+    "loadError": "Không tải được danh sách trùng. Thử lại sau.",
+    "more": "Xem thêm",
     "close": "Đóng"
   },
   "cf": {

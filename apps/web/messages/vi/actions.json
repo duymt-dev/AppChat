@@ -233,6 +233,10 @@
       "title": "Khôi phục khách đã xoá",
       "desc": "Khôi phục một khách đã xoá trong vòng 30 ngày (đúng lần xoá hiện tại, không trùng SĐT với khách đang dùng)."
     },
+    "duplicate_candidates": {
+      "title": "Tìm khách trùng",
+      "desc": "Liệt kê các cặp khách có thể trùng (cả hai trong phạm vi của bạn) theo luật khớp email / MST / họ tên — gợi ý, không phải xác suất."
+    },
     "deleted_list": {
       "title": "Xem khách đã xoá",
       "desc": "Liệt kê khách đã xoá trong phạm vi của bạn, kèm hạn khôi phục."

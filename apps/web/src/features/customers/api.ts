@@ -1,8 +1,8 @@
 // Đọc Khách hàng (Blueprint §4.4 crm). Ghi chỉ qua useAction (packages/actions/src/crm.ts).
 import { queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
-import type { ContactEditContextDto } from '@appchat/shared';
-import type { AccessRequest, Collaborators, ContactRow, ContactSort, ContactsBoard, CrmAi, CrmStats, Duplicates, ImportTable, Member, StageKey } from './types';
+import type { ContactEditContextDto, DuplicateCandidate } from '@appchat/shared';
+import type { AccessRequest, Collaborators, ContactRow, ContactSort, ContactsBoard, CrmAi, CrmStats, ImportTable, Member, StageKey } from './types';
 import type { PageState, Paged } from '@/shared/list/paged';
 import { customParams } from '@/shared/custom-fields';
 
@@ -39,7 +39,15 @@ export const importTableQuery = (fileId: string) =>
 
 export const crmStatsQuery = () => queryOptions({ queryKey: ['crm', 'stats'], queryFn: () => transport.get<CrmStats>('/contacts/stats'), ...staticOpts });
 
-export const duplicatesQuery = () => queryOptions({ queryKey: ['crm', 'duplicates'], queryFn: () => transport.get<Duplicates>('/contacts/duplicates') });
+/** Số cặp trùng cho huy hiệu đầu màn (TIP-015e): trang đầu ứng viên theo scope — không dùng service cũ đếm cả khách ẩn. */
+export const duplicatesQuery = () =>
+  queryOptions({
+    queryKey: ['crm', 'duplicates', 'count'],
+    queryFn: async () => {
+      const r = await transport.get<{ data: DuplicateCandidate[]; next_cursor: string | null }>('/contacts/duplicates/candidates', { limit: 50 });
+      return { count: r.data.length, more: !!r.next_cursor };
+    },
+  });
 
 export const membersQuery = () => queryOptions({ queryKey: ['members'], queryFn: () => transport.get<Member[]>('/members'), ...staticOpts });
 

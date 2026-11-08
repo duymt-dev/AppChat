@@ -4,7 +4,7 @@
 // Quyền `crm.view`; scope crm áp trong service. Ghi qua action contact.*.
 import { Controller, Get, Inject, Optional, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { CLOCK, CrmMembers, CrmReadService, FilesService, TENANT_RESOLVER, XlsxTooComplexError, deletedContacts, readTable, type Clock, type ContactFilter } from '@appchat/core';
+import { CLOCK, CrmMembers, CrmReadService, FilesService, TENANT_RESOLVER, XlsxTooComplexError, deletedContacts, duplicateCandidates, readTable, type Clock, type ContactFilter } from '@appchat/core';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError, CONTACT_SORTS, type ContactSort, type PermissionKey } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
@@ -118,6 +118,14 @@ export class ContactsController {
   @Get('contacts/duplicates')
   async duplicates(@Req() req: IncomingMessage) {
     return { data: await this.read.duplicates(await this.viewer(req)) };
+  }
+
+  /** TIP-015e: ứng viên trùng theo scope (cả hai phía thấy được), hạng luật + cursor có dấu thế hệ — cùng reader action contact.duplicate_candidates. */
+  @Get('contacts/duplicates/candidates')
+  async candidates(@Req() req: IncomingMessage, @Query() q: Record<string, string | undefined>) {
+    const a = await this.viewer(req);
+    const db = await this.tenants.get(TenantContexts.fromMembership(a.workspaceId, a.userId));
+    return db.$transaction((tx) => duplicateCandidates(tx, a.authz, { q: q.q?.slice(0, 200), cursor: q.cursor?.slice(0, 400), limit: int(q.limit, 'limit') }));
   }
 
   @Get('contacts/:id')

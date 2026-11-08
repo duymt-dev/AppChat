@@ -233,6 +233,10 @@
       "title": "Restore deleted customer",
       "desc": "Restore a customer deleted within the last 30 days (current deletion only, no phone conflict with a live customer)."
     },
+    "duplicate_candidates": {
+      "title": "Find duplicate customers",
+      "desc": "List possible duplicate customer pairs you can see, ranked by matching rule (email / tax code / name) — a suggestion, not a probability."
+    },
     "deleted_list": {
       "title": "View deleted customers",
       "desc": "List customers deleted within your scope, with their restore deadline."

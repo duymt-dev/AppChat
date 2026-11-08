@@ -7,6 +7,7 @@ import { workspaceDangerRoutes } from './domains/workspace-danger';
 import { inboxRoutes } from './domains/inbox';
 import { customersRoutes } from './domains/customers';
 import { contactLifecycleRoutes } from './domains/contact-lifecycle';
+import { contactMergeRoutes } from './domains/contact-merge';
 import { assistantRoutes } from './domains/assistant';
 import { assistantSessionRoutes } from './domains/assistant-sessions';
 import { aiTasksRoutes } from './domains/ai-tasks';
@@ -74,6 +75,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...inboxRoutes,
   ...customersRoutes,
   ...contactLifecycleRoutes,
+  ...contactMergeRoutes,
   ...assistantRoutes,
   ...assistantSessionRoutes,
   ...aiTasksRoutes,

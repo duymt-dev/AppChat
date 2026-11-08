@@ -15,6 +15,7 @@ export * from './crm';
 export * from './contact-activities';
 export * from './contact-transfer';
 export * from './contact-lifecycle';
+export * from './contact-merge';
 export * from './contact-memory';
 export * from './catalog';
 export * from './field-visibility';

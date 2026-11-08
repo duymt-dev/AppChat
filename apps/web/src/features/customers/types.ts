@@ -61,18 +61,6 @@ export interface ImportTable {
   total: number;
 }
 
-export interface DupSide {
-  name: string;
-  email: string;
-  phone: string;
-  src: string;
-}
-
-export interface Duplicates {
-  summary: { groups: number; records: number; auto: number };
-  groups: { id: string; pct: number; by: string; a: DupSide; b: DupSide }[];
-}
-
 export interface Member {
   id: string;
   name: string;

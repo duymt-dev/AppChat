@@ -232,8 +232,7 @@
     "rules": "RULES",
     "rulesVal": "Email · Phone · Name+Company · Tax ID",
     "aiSuggest": "AI SUGGESTS",
-    "aiSuggestVal": "Auto-merge {auto}/{groups} groups score >90",
-    "pct": "{pct}% match",
+    "aiSuggestVal": "{auto}/{groups} pairs match strong rules — ask the Assistant to explain",
     "by": "By:",
     "booking": "New appointment",
     "ticket": "New ticket",
@@ -241,6 +240,22 @@
     "merge": "Merge",
     "cancel": "Cancel",
     "mergeSelected": "Merge selected",
+    "mergeSelectedN": "Merge {n} selected pairs",
+    "pick": "Select this pair",
+    "primary": "Keep {name} as primary",
+    "rank": {
+      "strong": "Strong match",
+      "medium": "Medium match",
+      "weak": "Weak match"
+    },
+    "ev": {
+      "email": "Email",
+      "tax_code": "Tax ID",
+      "name": "Name"
+    },
+    "conflict": "The customers changed or can no longer be merged. Your selection is kept — review and merge again.",
+    "loadError": "Could not load duplicates. Try again later.",
+    "more": "Load more",
     "close": "Close"
   },
   "cf": {
