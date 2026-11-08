@@ -14,6 +14,7 @@ import type { NotifyPrefsService } from './prefs.service';
 import { toNotificationDto } from './notifications.service';
 import { resolveRecipients } from './recipients';
 import { receiptFor } from '../delivery-receipts';
+import { currentAuthz, genericNoticeTitle, projectNotices } from './ownership-notice';
 
 export interface MailJob {
   notification_id: string;
@@ -54,15 +55,21 @@ export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEven
   if (!to.length) return [];
   const prefs = await d.prefs.loadMany(to.map((r) => r.userId));
   const now = d.now();
+  const notice = intent.ownershipNotice;
   const rows = to.map((r) => ({
-    id: deterministicId(intent.onceKey ? `once|${intent.onceKey}|${intent.kind}` : `${e.id}|${index}|${r.userId}|${intent.kind}`),
+    // Chuyển phụ trách: id theo lần chuyển + chiều + người nhận (event phát lại / event khác cùng lần chuyển không nhân đôi).
+    id: deterministicId(notice ? `notice|${notice.transferId}|${notice.direction}|${r.userId}` : intent.onceKey ? `once|${intent.onceKey}|${intent.kind}` : `${e.id}|${index}|${r.userId}|${intent.kind}`),
     userId: r.userId,
     type: intent.kind,
-    title: notificationTitle(intent.kind, r.locale, intent.params),
-    link: intent.link ?? null,
+    title: notice ? genericNoticeTitle(r.locale) : notificationTitle(intent.kind, r.locale, intent.params),
+    link: notice ? null : (intent.link ?? null),
     createdAt: now,
   }));
-  await db.notification.createMany({ data: rows, skipDuplicates: true });
+  if (notice) {
+    // Dòng gốc + binding cùng transaction; unique (transfer, người nhận, chiều) chặn bản thứ hai.
+    const binds = rows.map((r) => ({ notificationId: r.id, transferId: notice.transferId, recipientUserId: r.userId, direction: notice.direction }));
+    await db.$transaction([db.notification.createMany({ data: rows, skipDuplicates: true }), db.contactTransferNotice.createMany({ data: binds, skipDuplicates: true })]);
+  } else await db.notification.createMany({ data: rows, skipDuplicates: true });
   // Lần chạy lại: dòng đã có giữ nguyên thời điểm cũ → đọc lại để WS / email dùng đúng bản ghi.
   const saved = new Map((await db.notification.findMany({ where: { id: { in: rows.map((r) => r.id) } } })).map((r) => [r.id, r]));
   const sent: string[] = [];
@@ -72,16 +79,24 @@ export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEven
     // Thông báo một lần đã ghi cho người khác (tiến trình trước chết sau khi ghi, Owner đổi sau đó) → chỉ ghi biên nhận, không gửi lại.
     if (once?.receipt) await once.receipt.mark(db, once.id, { eventId: e.id, recipientUserId: row.userId, notificationId: row.id }, now);
     if (row.userId !== r.userId) continue;
+    let shown = row;
+    if (notice) {
+      // Chiếu theo quyền HIỆN TẠI của người nhận lúc gửi WS (bị gỡ → không gửi gì).
+      const v = (await projectNotices(db, d.platform, await currentAuthz(d.platform, d.authz, e.workspaceId, r.userId), [row], r.locale)).get(row.id);
+      if (!v) continue;
+      shown = { ...row, title: v.title, link: v.link };
+    }
     const p = prefs.get(r.userId)!;
     const ch = channelsFor(p, intent.kind);
     d.emitter.publish({
       ws: e.workspaceId,
       rooms: [rooms.user(r.userId)],
       event: 'notification.new',
-      data: { ...toNotificationDto(row, r.locale, timeZone, now.getTime()), toast: ch.desktop && !inQuietHours(p.dnd, now, timeZone), sound: p.sound },
+      data: { ...toNotificationDto(shown, r.locale, timeZone, now.getTime()), toast: ch.desktop && !inQuietHours(p.dnd, now, timeZone), sound: p.sound },
     });
+    // Email chuyển phụ trách chỉ mang id thông báo — worker mail chiếu lại ngay trước khi gửi (không mang PII đã render).
     if (ch.email && d.mail)
-      await d.mail.enqueue({ notification_id: row.id, workspace_id: e.workspaceId, user_id: r.userId, kind: intent.kind, params: intent.params, link: row.link });
+      await d.mail.enqueue({ notification_id: row.id, workspace_id: e.workspaceId, user_id: r.userId, kind: intent.kind, params: notice ? {} : intent.params, link: notice ? null : row.link });
     sent.push(r.userId);
   }
   return sent;

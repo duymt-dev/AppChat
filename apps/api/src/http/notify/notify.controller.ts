@@ -1,5 +1,6 @@
 // GET /v1/notifications?unread=&cursor=&limit= (Blueprint §4.4 misc) · GET /v1/settings/notifications (tuỳ chọn của tôi).
 // Chỉ đọc thông báo của CHÍNH người gọi; `title` đã render theo locale người nhận lúc gửi, `ago` theo locale người xem.
+// Thông báo chuyển phụ trách (TIP-015d) chiếu tên khách / link theo quyền hiện tại của người gọi.
 import { Controller, Get, Inject, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
@@ -35,7 +36,7 @@ export class NotifyController {
       locale: user?.locale ?? 'vi',
       timeZone: ws?.timezone ?? 'Asia/Ho_Chi_Minh',
       nowMs: this.clock.now().getTime(),
-    });
+    }, { platform: this.platform, viewer: a.authz });
   }
 
   @Get('settings/notifications')

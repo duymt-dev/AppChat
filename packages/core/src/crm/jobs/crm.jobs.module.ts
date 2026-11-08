@@ -23,6 +23,7 @@ import { CrmMembers } from '../services/members.service';
 import { registerContactExportKind } from './contact-export.processor';
 import { registerTimelineExportKind } from './contact-timeline-export.processor';
 import './contact-bulk.processor';
+import { registerTransferBulkKind } from '../ownership/bulk-transfer.handler';
 import { LEAD_ROUTING_CONSUMER, leadRoutingConsumer } from '../routing/routing-consumer';
 
 export const CRM_SCHEDULER_QUEUE = 'crm-scheduler';
@@ -111,6 +112,8 @@ class CrmDataJobKinds {
       registerContactExportKind(storage, members);
       registerTimelineExportKind(storage, members);
     }
+    // TIP-015d: chuyển phụ trách hàng loạt > 50 khách (một lần chuyển mỗi khách).
+    if (members) registerTransferBulkKind(members);
   }
 }
 

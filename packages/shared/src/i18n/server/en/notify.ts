@@ -8,7 +8,13 @@ export const notify: Shape<typeof vi> = {
     msg_assigned: { title: 'New conversation assigned to you: {contact}', label: 'New message assigned to me' },
     msg_mention: { title: '{actor} mentioned you in the conversation with {contact}', label: 'Mentioned in a conversation' },
     msg_vip: { title: 'New message from priority customer {contact}', label: 'Message from a VIP / priority customer' },
-    crm_owner: { title: '{actor} assigned customer {contact} to you', label: 'Customer assigned to me' },
+    crm_owner: {
+      title: '{actor} assigned customer {contact} to you',
+      to: '{actor} assigned customer {contact} to you',
+      from: '{actor} reassigned your customer {contact} to {to}',
+      generic: 'Your customer assignment has changed',
+      label: 'Customer assigned to me',
+    },
     crm_access: {
       title: '{actor} asked to co-own customer {contact}',
       approved: '{actor} approved your request to co-own customer {contact}',

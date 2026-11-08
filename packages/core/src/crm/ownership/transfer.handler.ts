@@ -9,8 +9,6 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { writeOutbox } from '../../kernel/outbox/outbox';
-import { actorUserId } from '../services/access';
-import { ownerChangedNotify } from '../services/crm-notify';
 import { CrmMembers } from '../services/members.service';
 import { transferOwnerPreview } from '../actions/previews/contact-owner.handlers.preview';
 import { transferContact, type TransferResult } from './transfer.service';
@@ -38,8 +36,8 @@ export class ContactTransferOwnerHandler implements Handler<In, TransferResult> 
       result: o.result,
       before: { id: o.contact.id, transfer_id: o.result.transfer_id },
       after: { id: o.contact.id, owner: to.id, transfer_id: o.result.transfer_id },
-      // Người nhận được thông báo `crm_owner` (DC-150).
-      events: [...o.events, ...(await ownerChangedNotify(this.members, { actorId: actorUserId(ctx), to: to.id, contact: o.contact }))],
+      // Thông báo hai bên do luật `crm.owner_transfer_notice` dựng từ `contact.owner_changed` (crm/events/ownership.rules).
+      events: o.events,
     };
   }
 

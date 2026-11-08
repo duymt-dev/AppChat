@@ -289,6 +289,10 @@
       "title": "View owner transfer result",
       "desc": "Read a committed owner transfer: status and moved record counts."
     },
+    "transfer_owner_bulk": {
+      "title": "Bulk owner transfer",
+      "desc": "Transfer many contacts to one owner; each contact is its own transfer."
+    },
     "request_access": {
       "title": "Request access"
     },

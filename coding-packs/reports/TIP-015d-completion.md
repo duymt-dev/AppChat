@@ -1,6 +1,6 @@
 # TIP-015d — Completion Report
 
-**STATUS:** ĐANG LÀM — pha 2 / 4 (P1 DC-391, P2 DC-392). P1 lõi server · P2 UI + đọc trạng thái · P3 thông báo hai bên + bulk + duyệt theo domain · P4 khoá gốc writer khác + ai:live + cổng chốt D59.
+**STATUS:** ĐANG LÀM — pha 3 / 4 (P1 DC-391, P2 DC-392, P3 DC-393). P1 lõi server · P2 UI + đọc trạng thái · P3 thông báo hai bên + bulk + duyệt theo domain · P4 khoá gốc writer khác + ai:live + cổng chốt D59.
 
 **MIGRATION:** tenant `20261108070000_contact_transfer` → sau merge chạy `pnpm --filter @appchat/db db:migrate-tenants` + build lại api / worker.
 
@@ -72,4 +72,49 @@
 - Integration: contact-transfer 7/7, ma trận transfer_status 3/3, quotes + list-exports + quote.export + quote.update 33/33.
 - turbo lint / typecheck / test `...[origin/dev]` 36/36; web unit hook 3/3; i18n 100% (6552); lint:size, lint:tokens pass; depcheck không lỗi mới.
 - E2E mock: contact-transfer 2/2; customers + quotes 15/15 (+15 skip bản thiết bị khác).
+
+---
+
+## Pha 3 — duyệt theo domain + thông báo hai bên + chuyển hàng loạt (§1.3, §2.6, §5; AC7, AC9; DC-393)
+
+**MIGRATION:** không (bảng `contact_transfer_notice` đã có từ P1).
+
+**Rà trước khi làm (code thật)**
+- `/approvals` + thẻ duyệt Hộp thư lọc theo `approvals.decide` + permission action gốc — người có quyền duyệt thấy mọi yêu cầu chuyển phụ trách, kể cả khách ngoài scope (lộ tên / ghi chú trong input).
+- `ownerChangedNotify` chỉ báo người nhận, bỏ qua khi người làm = người nhận, ghi tên khách vào tiêu đề + link bền trong `notification` → người mất scope vẫn đọc được tên khách trong lịch sử / email.
+- Chưa có action chuyển hàng loạt phía server (UI P2 gọi từng khách).
+
+**FILES CHANGED** (lệch ghi ở DV-067)
+- actions: `contact-transfer.ts` (`contact.transfer_owner_bulk`).
+- core ai: `approvals/domain-authorization.ts` (mới), `approvals.read.ts` (id chọn bằng SQL có vị từ trước LIMIT), `approval.handlers.ts` + preview (404 / 403 theo domain, checkInput khi sửa), `resume.ts` (người duyệt còn quyết được); inbox `approvals/conversation-approvals.ts`.
+- core crm: `ownership/approval-projection.ts`, `ownership/bulk-transfer.handler.ts`, `events/ownership.rules.ts` (mới); `crm.module.ts` (hook + handler), `jobs/crm.jobs.module.ts` (kind), `ownership/transfer.handler.ts` (bỏ thông báo cũ), `services/crm-notify.ts`.
+- core notify: `services/ownership-notice.ts` (mới), `services/notifier.ts`, `services/notifications.service.ts`, `jobs/notify-mail.processor.ts`, `jobs/notify.jobs.module.ts`, `rules.ts`, `events/domain.rules.ts`; `kernel/actions/tip-owners.ts`.
+- api: `http/notify/notify.controller.ts` (chiếu theo quyền người gọi).
+- shared: `i18n/server/{vi,en}/notify.ts` (biến thể `crm_owner` to / from / generic). web: `messages/{vi,en}/actions.json`.
+- test mới: core `ownership-notice.test.ts` (7), `contact-transfer-approval-read.test.ts` (5); api `contact-transfer-approval-read.test.ts` (3), ma trận `contact.transfer_owner_bulk` (5). Sửa: core `inbox-approval-cards.test.ts`, api `crm-ui.test.ts`.
+
+**Giả định đã chọn (gap-filling)**
+- Yêu cầu duyệt hàng loạt chỉ hiện khi người xem thấy MỌI khách trong yêu cầu (một khách ngoài scope → ẩn cả yêu cầu) — không chiếu từng phần để khỏi lộ số lượng / tên khách khác.
+- Input duyệt hỏng (dữ liệu cũ / sửa tay) ẩn với cả Owner — đóng khi lỗi.
+- Hoàn tác chuyển phụ trách không phát thông báo hai bên (đã có toast + timeline cho người làm); phân bổ tự động (lead routing, không biên nhận) giữ không thông báo như trước.
+- Xem trước bulk không kiểm người nhận; kiểm ở bước chạy (422 `to_user_id: not_member`).
+
+**TEST (P3)**
+- `db:test-reset` → integration 14 file: contact-transfer-approval-read 3/3, contact-transfer, crm-ui, notify, digest, inbox-approval-cards, ai-runtime-lineage, agents-ui, ma trận approval.approve / edit_and_approve / reject / contact.transfer_owner / transfer_status / conversation.approvals — **63 pass, 6 skip**; ma trận `contact.transfer_owner_bulk` 5/5.
+- core unit: ownership-notice 7/7, contact-transfer-approval-read 5/5, inbox-approval-cards 3/3; turbo lint / typecheck / test `...[origin/dev]` **36/36**.
+- i18n 100% (6554); lint:size pass; depcheck không lỗi mới. E2E mock contact-transfer + customers 10/10 (+10 skip bản thiết bị khác).
+- `assistant-vertical` (mục lục ma trận): đỏ sẵn trên `origin/dev` với action của TIP chưa làm (product.export 027, invoice.export 032, workspace.* 013, transfer.* 038b) — không do P3; action mới của P3 có file ma trận.
+
+**ĐỐI CHIẾU STANDARDS (P3)**
+
+| Standard | Kết quả |
+|---|---|
+| `authz/rbac-permissions.md` | không quyền / vai trò mới; hàng duyệt + thông báo theo scope HIỆN TẠI (đọc để thấy, ghi để quyết); 404 không lộ tồn tại, 403 khi thấy mà không được quyết |
+| `actions/action-registry.md` | action bulk zod in / out, crm.reassign, bulk preview kèm số bản ghi, agentGrantable false, requiredApprovalSources; công thức con dùng chung service với action đơn |
+| `events/outbox.md` | event chỉ mang id lần chuyển; dòng thông báo + binding cùng transaction; id tất định chống phát lại; mail job chỉ mang id thông báo |
+| `ops/observability-security.md` | không PII trong outbox / mail job / tiêu đề gốc; chiếu lại trước khi gửi email |
+| `domain/concurrency.md` | bulk: mỗi khách khoá gốc riêng, SAVEPOINT ≤ 50, data_job biên nhận + transaction mỗi khách > 50 |
+| `database/indexing.md` | vị từ duyệt dùng PK contact + `contact_collaborator (user_id, contact_id) INCLUDE (role)`; binding tra theo PK notification_id; EXPLAIN 10k ở P4 |
+| `i18n/i18n.md` | biến thể trong `crm_owner` (vi + en), không namespace mới; nhãn action vi + en |
+| `code/file-size-module-layout.md` | file mới ≤ 110 dòng; test riêng |
 

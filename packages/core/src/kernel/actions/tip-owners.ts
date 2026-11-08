@@ -11,6 +11,7 @@ const BY_ID: Record<string, string> = {
   'billing.contact_sales': '039',
   'follow_up.complete': '038',
   'contact.transfer_status': '015d',
+  'contact.transfer_owner_bulk': '015d',
   'insight.query': '038',
   'follow_up.reconcile': '038',
   'digest.dispatch': '038',

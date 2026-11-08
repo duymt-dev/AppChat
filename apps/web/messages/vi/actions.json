@@ -289,6 +289,10 @@
       "title": "Xem kết quả chuyển phụ trách",
       "desc": "Đọc lần chuyển phụ trách đã ghi: trạng thái, số bản ghi chuyển kèm."
     },
+    "transfer_owner_bulk": {
+      "title": "Chuyển phụ trách hàng loạt",
+      "desc": "Chuyển nhiều khách cho một người phụ trách; mỗi khách một lần chuyển riêng."
+    },
     "request_access": {
       "title": "Xin chia sẻ khách"
     },

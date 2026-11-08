@@ -11,3 +11,5 @@ import '../../ai/events/reply.rules';
 import '../../sales/payments/events/package-notification.rules';
 // TIP-037: chiến dịch chờ duyệt / kết quả duyệt + WS campaign.updated.
 import '../../marketing/events/campaign.rules';
+// TIP-015d: thông báo chuyển phụ trách hai bên (chiếu theo quyền hiện tại).
+import '../../crm/events/ownership.rules';
