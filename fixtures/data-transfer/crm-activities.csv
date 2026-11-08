@@ -1,0 +1,4 @@
+﻿Mã khách,SĐT,Loại,Nội dung
+KH001,0909000001,Ghi chú,"Khách hỏi giá gói chăm sóc da 10 buổi"
+KH002,0909000002,Bình luận,"Nội bộ: hẹn gọi lại thứ 5"
+KH001,0909000001,Ghi chú,"=SUM(A1:A2) giữ nguyên chữ, không công thức"

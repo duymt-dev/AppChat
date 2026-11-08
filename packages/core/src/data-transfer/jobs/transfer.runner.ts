@@ -6,10 +6,11 @@
 // của người khác / lỗi (chính sách only_valid) → skipped, không gộp / không cập nhật bản ghi có sẵn. Sản phẩm: adapter `whole` (một
 // `product.import` trên chính tệp — bộ kiểm 032b).
 import type { TenantDb } from '@appchat/db';
-import { AppError, transferSpec, type AuthzContext, type TransferEntity } from '@appchat/shared';
+import { AppError, transferSpec, type AuthzContext, type TransferTarget } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import type { ActionExecutor } from '../../kernel/actions/executor';
 import { adapterFor } from '../adapters';
+import { planTarget } from '../services/dataset';
 import type { Adapter, PendingRow, WriteUnit } from '../adapters/types';
 
 export interface CommitDeps {
@@ -22,6 +23,8 @@ export interface CommitDeps {
 type Plan = {
   id: string;
   entity: string;
+  dataset: string;
+  datasetSchemaVersion: number;
   actorUserId: string;
   version: number;
   rowPolicy: string;
@@ -77,6 +80,7 @@ async function applyUnit(
   db: TenantDb,
   ws: string,
   plan: Plan,
+  target: TransferTarget,
   a: Adapter,
   authz: AuthzContext,
   unit: WriteUnit,
@@ -86,7 +90,7 @@ async function applyUnit(
   try {
     const out = await d.executor.execute(
       systemCtx(ws, plan, authz, unit.key),
-      transferSpec(plan.entity as TransferEntity).writeAction,
+      unit.action ?? transferSpec(target).writeAction,
       unit.input,
     );
     if (out.status !== 200)
@@ -151,7 +155,18 @@ export async function commitPlan(
   if (!plan) return { status: 'failed', applied: 0, skipped: 0, failed: 0, error: 'not_found' };
   const now = () => d.now();
   await skipNonValid(db, planId, now());
-  const a = adapterFor(plan.entity as TransferEntity);
+  // Phân phối theo tập ĐÃ LƯU của kế hoạch (không theo payload việc nền); lược đồ tập đổi sau khi lập → dừng, không ghi theo luật mới.
+  let target: TransferTarget;
+  try {
+    target = planTarget(plan);
+  } catch {
+    await db.transferRow.updateMany({ where: { planId, status: 'pending' }, data: { status: 'failed', error: 'dataset_schema_stale', updatedAt: now() } });
+    const { applied, skipped, failed } = await tallyPlan(db, planId);
+    const error = 'dataset_schema_stale';
+    await db.transferPlan.update({ where: { id: planId }, data: { status: 'failed', applied, skipped, failed, error, finishedAt: now(), updatedAt: now() } });
+    return { status: 'failed', applied, skipped, failed, error };
+  }
+  const a = adapterFor(target);
   let status: CommitOutcome['status'] = 'completed';
   let error: string | undefined;
   for (;;) {
@@ -181,7 +196,7 @@ export async function commitPlan(
       break;
     }
     for (const unit of a.units!(rows, { userId: plan.actorUserId }))
-      await applyUnit(db, ws, plan, a, authz, unit, d);
+      await applyUnit(db, ws, plan, target, a, authz, unit, d);
   }
   if (status === 'failed')
     await db.transferRow.updateMany({

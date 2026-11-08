@@ -9,6 +9,7 @@ export { writeTimeline, type TimelineInput } from './services/timeline.service';
 export { applyStageRule, type StageRule } from './services/stage-rules';
 export { CRM_SEED } from './seeds';
 export type { ContactFilter } from './repos/contacts.repo';
+export { where as contactWhereSql } from './repos/contacts.repo';
 export { fieldDefs } from './services/fields.service';
 export { createContact } from './services/contacts.service';
 export { MEMORY_CAP, normFact } from './memory/normalize';

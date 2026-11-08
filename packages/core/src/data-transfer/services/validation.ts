@@ -6,7 +6,7 @@ import {
   foldText,
   normalizePhone,
   transferSpec,
-  type TransferEntity,
+  type TransferTarget,
   type TransferField,
 } from '@appchat/shared';
 
@@ -69,7 +69,7 @@ export function normalizeCell(
 
 /** Ánh xạ (trường → tên cột) phải trỏ cột có thật và trường có trong registry — sai → 422 theo trường. */
 export function resolveMapping(
-  entity: TransferEntity,
+  entity: TransferTarget,
   columns: readonly string[],
   mapping: Record<string, string>,
 ): [TransferField, number][] {
@@ -89,7 +89,7 @@ export function resolveMapping(
 
 /** Một dòng nguồn → dữ liệu chuẩn hoá + lỗi theo trường (thiếu trường bắt buộc chưa ánh xạ cũng là `required`). */
 export function checkRow(
-  entity: TransferEntity,
+  entity: TransferTarget,
   cols: [TransferField, number][],
   cells: string[],
   rowNo: number,

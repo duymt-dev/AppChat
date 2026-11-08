@@ -5,38 +5,42 @@
 // chính tệp người tạo đã tải. CHECK + partial index viết tay ở migration 038b.
 
 model TransferPlan {
-  id          String    @id @db.Uuid
-  actorUserId String    @map("actor_user_id") @db.Uuid
+  id                   String    @id @db.Uuid
+  actorUserId          String    @map("actor_user_id") @db.Uuid
   /// contact | product | quote | order | contract | invoice (registry `@appchat/shared` data-transfer).
-  entity      String
-  fileId      String    @map("file_id") @db.Uuid
-  fileSha256  String    @map("file_sha256")
-  fileName    String    @map("file_name")
-  sheet       String?
+  entity               String
+  /// base | contact_notes | contact_tasks | contact_opportunities (TIP-026b §5) — bất biến sau khi tạo (trigger migration 026b P4).
+  dataset              String    @default("base")
+  /// Phiên bản lược đồ cột của tập lúc lập kế hoạch — khác registry hiện tại → phải lập lại.
+  datasetSchemaVersion Int       @default(1) @map("dataset_schema_version")
+  fileId               String    @map("file_id") @db.Uuid
+  fileSha256           String    @map("file_sha256")
+  fileName             String    @map("file_name")
+  sheet                String?
   /// Cột tệp → trường registry `{ full_name: 'Họ tên', phone: 'SĐT', … }` (chỉ tên cột, không dữ liệu).
-  mapping     Json      @default("{}")
+  mapping              Json      @default("{}")
   /// Tăng mỗi lần đổi ánh xạ / chọn dòng → thẻ xác nhận cũ (inputHash có version) hết hiệu lực.
-  version     Int       @default(1)
+  version              Int       @default(1)
   /// all_valid | only_valid — mặc định all_valid: còn dòng lỗi thì không commit (không âm thầm bỏ lỗi).
-  rowPolicy   String    @default("all_valid") @map("row_policy")
+  rowPolicy            String    @default("all_valid") @map("row_policy")
   /// draft | committing | completed | cancelled | failed | expired
-  status      String    @default("draft")
-  total       Int       @default(0)
-  valid       Int       @default(0)
-  invalid     Int       @default(0)
-  duplicates  Int       @default(0)
-  applied     Int       @default(0)
-  skipped     Int       @default(0)
-  failed      Int       @default(0)
+  status               String    @default("draft")
+  total                Int       @default(0)
+  valid                Int       @default(0)
+  invalid              Int       @default(0)
+  duplicates           Int       @default(0)
+  applied              Int       @default(0)
+  skipped              Int       @default(0)
+  failed               Int       @default(0)
   /// Việc nền commit (`data_job`, kind `transfer.commit`) — null khi chạy ngay.
-  jobId       String?   @map("job_id") @db.Uuid
+  jobId                String?   @map("job_id") @db.Uuid
   /// Run Trợ lý tạo plan (TIP-038b P3) — audit nguồn AI.
-  aiRunId     String?   @map("ai_run_id") @db.Uuid
-  error       String?
-  expiresAt   DateTime  @map("expires_at") @db.Timestamptz(6)
-  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  finishedAt  DateTime? @map("finished_at") @db.Timestamptz(6)
+  aiRunId              String?   @map("ai_run_id") @db.Uuid
+  error                String?
+  expiresAt            DateTime  @map("expires_at") @db.Timestamptz(6)
+  createdAt            DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  finishedAt           DateTime? @map("finished_at") @db.Timestamptz(6)
 
   rows TransferRow[]
 

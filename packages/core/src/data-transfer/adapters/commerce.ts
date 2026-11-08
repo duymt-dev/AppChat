@@ -5,7 +5,7 @@
 // giá danh mục ghi cảnh báo `unit_price: catalog_diff` ở dòng (không chặn; ngưỡng duyệt báo giá vẫn do action kiểm — COMMERCE).
 // Nhập lại cùng tệp đã ghi → `duplicate` (khoá dòng ổn định đã applied ở kế hoạch trước của cùng người).
 import type { TenantDb } from '@appchat/db';
-import type { TransferEntity } from '@appchat/shared';
+import type { TransferTarget as TransferEntity } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { CheckedRow } from '../services/validation';
 import { POLICIES, allows } from '../../authz/data-access';

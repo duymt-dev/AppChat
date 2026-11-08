@@ -183,6 +183,11 @@
       "title": "Add internal note"
     }
   },
+  "contact_note": {
+    "export": {
+      "title": "Export customer notes / comments (Excel)"
+    }
+  },
   "contact_activity": {
     "list": {
       "title": "View customer activities",
@@ -190,6 +195,9 @@
     }
   },
   "contact_task": {
+    "export": {
+      "title": "Export follow-up tasks (Excel)"
+    },
     "create": {
       "title": "Create follow-up task",
       "desc": "A reminder for staff to follow up — not an AI task, not an appointment."
@@ -204,6 +212,9 @@
     }
   },
   "contact_opportunity": {
+    "export": {
+      "title": "Export opportunities (Excel)"
+    },
     "create": {
       "title": "Create opportunity",
       "desc": "Record a sales opportunity: need, expected value (not revenue), your own probability estimate."

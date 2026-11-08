@@ -4,10 +4,8 @@
 import { Inject, Injectable } from '@nestjs/common';
 import {
   AppError,
-  can,
   guessTransferMapping,
   transferSpec,
-  type PermissionKey,
   type TransferSampleDto,
 } from '@appchat/shared';
 import type { ActionInput, transferSample } from '@appchat/actions';
@@ -23,6 +21,8 @@ import { TransferDeps } from '../data-transfer.providers';
 import { parseTransferFile } from '../services/file-parser';
 import { TRANSFER_FILE_RULE } from '../services/planner';
 import { maskedSample } from '../services/sample';
+import { resolveTarget } from '../services/dataset';
+import { canImport } from '../services/plan-view';
 
 type In = ActionInput<typeof transferSample>;
 
@@ -32,6 +32,7 @@ export class TransferSampleHandler implements Handler<In, TransferSampleDto> {
   constructor(@Inject(TransferDeps) private readonly d: TransferDeps) {}
 
   async prepare(ctx: ActionContext, i: In): Promise<TransferSampleDto> {
+    const target = resolveTarget(i.entity, i.dataset);
     const userId = actorUserId(ctx);
     if (!userId) throw new AppError('FORBIDDEN', 403, { actor: 'user_required' });
     const db = await this.d.db(ctx.workspaceId, 'transfer.sample');
@@ -40,8 +41,9 @@ export class TransferSampleHandler implements Handler<In, TransferSampleDto> {
     const f = await this.d.files().read(db, g.id);
     if (!f) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'not_found' });
     const t = await parseTransferFile({ name: f.row.name, mime: f.row.mime, body: f.body }, i.sheet);
-    const spec = transferSpec(i.entity);
+    const spec = transferSpec(target);
     return {
+      dataset: spec.dataset,
       file_name: f.row.name,
       sheets: t.sheets,
       sheet: t.sheet,
@@ -55,8 +57,8 @@ export class TransferSampleHandler implements Handler<In, TransferSampleDto> {
         ...(x.options ? { options: [...x.options] } : {}),
         ...(x.scope === 'item' ? { item: true } : {}),
       })),
-      mapping: guessTransferMapping(i.entity, t.columns),
-      import_supported: spec.importReady && can(ctx.authz, spec.importPermission as PermissionKey),
+      mapping: guessTransferMapping(target, t.columns),
+      import_supported: spec.importReady && canImport(ctx.authz, target),
     };
   }
 

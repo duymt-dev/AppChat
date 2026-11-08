@@ -11,6 +11,7 @@ import { ticketsRoutes } from './tickets';
 import { productsRoutes } from './products';
 import { invoicesRoutes } from './invoices';
 import { exportJob } from './data-jobs';
+import { can, authzForRole, type PermissionKey } from '@appchat/shared';
 
 type Row = { id: string; code: string; status: string } & Record<string, unknown>;
 const LIST: Record<string, [MockRoute, string, (r: Row) => unknown[]]> = {
@@ -29,6 +30,22 @@ const LIST: Record<string, [MockRoute, string, (r: Row) => unknown[]]> = {
   // TIP-038b P3: Sản phẩm (giá vốn chỉ khi có quyền — mock bỏ cột) · Đề nghị thanh toán.
   'product.export': [productsRoutes['/products']!, 'san-pham', (r) => [r.code, r.name, r.type, r.status, r.price]],
   'invoice.export': [invoicesRoutes['/invoices']!, 'de-nghi-thanh-toan', (r) => [r.code, r.contact_name, r.status, r.amount]],
+  // TIP-026b §5: hoạt động CRM từ kho mock khách (id / trạng thái chỉ đọc; giá trị kỳ vọng chỉ khi đọc được tiền báo giá).
+  'contact_note.export': [
+    (db, q) => ({ data: db.customers.activities.notes.filter((n) => !n.deleted && (!q.kind || n.kind === q.kind) && (!q.contact_id || n.contact_id === q.contact_id)).map((n) => ({ ...n, code: n.id, status: n.kind })) }),
+    'ghi-chu-khach-hang',
+    (r) => [r.id, r.contact_id, r.kind, r.body],
+  ],
+  'contact_task.export': [
+    (db, q) => ({ data: db.customers.activities.tasks.filter((t) => (!q.state || t.state === q.state) && (!q.contact_id || t.contact_id === q.contact_id)).map((t) => ({ ...t, code: t.id, status: t.state })) }),
+    'viec-cham-soc',
+    (r) => [r.id, r.contact_id, r.title, r.due_at, r.state],
+  ],
+  'contact_opportunity.export': [
+    (db, q) => ({ data: db.customers.activities.opps.filter((o) => !!q.archived === o.archived && (!q.opp_stage || o.stage === q.opp_stage) && (!q.contact_id || o.contact_id === q.contact_id)).map((o) => ({ ...o, code: o.id, status: o.stage, money: can(authzForRole(db.role, 'u_tram'), 'quote.view' as PermissionKey) })) }),
+    'co-hoi',
+    (r) => [r.id, r.contact_id, r.title, ...(r.money ? [r.amount_vnd] : []), r.stage, r.probability],
+  ],
 };
 
 const cell = (v: unknown) => {

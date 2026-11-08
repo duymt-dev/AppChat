@@ -5,9 +5,31 @@
 import { foldText } from '../crm/phone';
 import type { TransferField, TransferFieldType } from './field-types';
 import { CONTRACT_FIELDS, INVOICE_FIELDS, ORDER_FIELDS, PRODUCT_FIELDS, QUOTE_FIELDS } from './fields';
+import { CONTACT_NOTE_FIELDS, CONTACT_OPPORTUNITY_FIELDS, CONTACT_TASK_FIELDS } from './activity-fields';
 
 export const TRANSFER_ENTITIES = ['contact', 'product', 'quote', 'order', 'contract', 'invoice'] as const;
 export type TransferEntity = (typeof TRANSFER_ENTITIES)[number];
+/**
+ * Tập dữ liệu dưới một thực thể (TIP-026b §5): `base` = bản ghi chính của thực thể (038b); khách hàng có thêm 3 tập hoạt động CRM. Chọn
+ * tường minh, cố định từ lúc lập kế hoạch (đổi tập = kế hoạch mới) — không trộn vào nhập khách, không bảng tuỳ ý.
+ */
+export const TRANSFER_DATASETS = ['base', 'contact_notes', 'contact_tasks', 'contact_opportunities'] as const;
+export type TransferDataset = (typeof TRANSFER_DATASETS)[number];
+export type ActivityDataset = Exclude<TransferDataset, 'base'>;
+/** Khoá registry: thực thể (tập base) hoặc tập con. */
+export type TransferTarget = TransferEntity | ActivityDataset;
+/** Tập hợp lệ theo thực thể — server suy enum từ đây, người dùng không chọn adapter tuỳ ý. */
+export const DATASETS_OF: Record<TransferEntity, readonly TransferDataset[]> = {
+  contact: ['base', 'contact_notes', 'contact_tasks', 'contact_opportunities'],
+  product: ['base'],
+  quote: ['base'],
+  order: ['base'],
+  contract: ['base'],
+  invoice: ['base'],
+};
+export const datasetAllowed = (e: TransferEntity, d: TransferDataset) => DATASETS_OF[e].includes(d);
+export const targetOf = (e: TransferEntity, d: TransferDataset | null | undefined): TransferTarget =>
+  !d || d === 'base' ? e : d;
 export const TRANSFER_FORMATS = ['xlsx', 'csv'] as const;
 export type TransferFormat = (typeof TRANSFER_FORMATS)[number];
 
@@ -15,8 +37,13 @@ export type { TransferField, TransferFieldType } from './field-types';
 
 export interface TransferEntitySpec {
   entity: TransferEntity;
+  dataset: TransferDataset;
+  /** Phiên bản lược đồ cột của tập — đổi trường / luật kiểm thì tăng; kế hoạch cũ khác phiên bản phải lập lại (409). */
+  schemaVersion: number;
   /** Quyền action nghiệp vụ ghi (nhập) / đọc (xuất) — kiểm theo người tạo, không suy từ quyền xem. */
   importPermission: string;
+  /** Quyền action phải có thêm (nhập tập con: crm.import ∩ crm.edit) — không cấp gì mới. */
+  alsoRequires?: readonly string[];
   exportAction: string;
   /** Action nghiệp vụ mỗi nhóm dòng đi qua (ActionExecutor). */
   writeAction: string;
@@ -72,9 +99,11 @@ const CONTACT_FIELDS: readonly TransferField[] = [
   }),
 ];
 
-export const TRANSFER_REGISTRY: Record<TransferEntity, TransferEntitySpec> = {
+export const TRANSFER_REGISTRY: Record<TransferTarget, TransferEntitySpec> = {
   contact: {
     entity: 'contact',
+    dataset: 'base',
+    schemaVersion: 1,
     importPermission: 'crm.import',
     exportAction: 'contact.export',
     writeAction: 'contact.import',
@@ -83,6 +112,8 @@ export const TRANSFER_REGISTRY: Record<TransferEntity, TransferEntitySpec> = {
   },
   product: {
     entity: 'product',
+    dataset: 'base',
+    schemaVersion: 1,
     importPermission: 'catalog.manage',
     exportAction: 'product.export',
     writeAction: 'product.import',
@@ -91,6 +122,8 @@ export const TRANSFER_REGISTRY: Record<TransferEntity, TransferEntitySpec> = {
   },
   quote: {
     entity: 'quote',
+    dataset: 'base',
+    schemaVersion: 1,
     importPermission: 'quote.create',
     exportAction: 'quote.export',
     writeAction: 'quote.create',
@@ -100,6 +133,8 @@ export const TRANSFER_REGISTRY: Record<TransferEntity, TransferEntitySpec> = {
   },
   order: {
     entity: 'order',
+    dataset: 'base',
+    schemaVersion: 1,
     importPermission: 'order.manage',
     exportAction: 'order.export',
     writeAction: 'order.create',
@@ -109,6 +144,8 @@ export const TRANSFER_REGISTRY: Record<TransferEntity, TransferEntitySpec> = {
   },
   contract: {
     entity: 'contract',
+    dataset: 'base',
+    schemaVersion: 1,
     importPermission: 'contract.draft',
     exportAction: 'contract.export',
     writeAction: 'contract.create',
@@ -117,16 +154,52 @@ export const TRANSFER_REGISTRY: Record<TransferEntity, TransferEntitySpec> = {
   },
   invoice: {
     entity: 'invoice',
+    dataset: 'base',
+    schemaVersion: 1,
     importPermission: 'invoice.manage',
     exportAction: 'invoice.export',
     writeAction: 'invoice.create',
     fields: INVOICE_FIELDS,
     importReady: true,
   },
+  // TIP-026b §5 — tập hoạt động CRM dưới khách: mỗi dòng MỘT lệnh action canonical (ghi chú / bình luận theo `kind` của dòng).
+  contact_notes: {
+    entity: 'contact',
+    dataset: 'contact_notes',
+    schemaVersion: 1,
+    importPermission: 'crm.import',
+    alsoRequires: ['crm.edit'],
+    exportAction: 'contact_note.export',
+    writeAction: 'contact.add_note',
+    fields: CONTACT_NOTE_FIELDS,
+    importReady: true,
+  },
+  contact_tasks: {
+    entity: 'contact',
+    dataset: 'contact_tasks',
+    schemaVersion: 1,
+    importPermission: 'crm.import',
+    alsoRequires: ['crm.edit'],
+    exportAction: 'contact_task.export',
+    writeAction: 'contact_task.create',
+    fields: CONTACT_TASK_FIELDS,
+    importReady: true,
+  },
+  contact_opportunities: {
+    entity: 'contact',
+    dataset: 'contact_opportunities',
+    schemaVersion: 1,
+    importPermission: 'crm.import',
+    alsoRequires: ['crm.edit'],
+    exportAction: 'contact_opportunity.export',
+    writeAction: 'contact_opportunity.create',
+    fields: CONTACT_OPPORTUNITY_FIELDS,
+    importReady: true,
+  },
 };
 
-export const transferSpec = (e: TransferEntity) => TRANSFER_REGISTRY[e];
-export const transferField = (e: TransferEntity, key: string) =>
+export const transferSpec = (e: TransferTarget) => TRANSFER_REGISTRY[e];
+export const transferField = (e: TransferTarget, key: string) =>
   TRANSFER_REGISTRY[e].fields.find((x) => x.key === key);
 
 /** Kế hoạch nháp sống 24 giờ (tệp tải lên chưa xác nhận cũng sống 24 giờ — file-access 045b). */
@@ -149,7 +222,7 @@ const normHeader = (s: string) =>
 
 /** Đoán ánh xạ tất định từ tên cột: trường → tên cột (mỗi trường tối đa một cột, cột đầu tiên khớp). */
 export function guessTransferMapping(
-  entity: TransferEntity,
+  entity: TransferTarget,
   columns: readonly string[],
 ): Record<string, string> {
   const out: Record<string, string> = {};

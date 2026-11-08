@@ -24,7 +24,7 @@ export interface ExportPlace {
 
 export type ExportDb = Pick<
   TenantTx,
-  '$queryRaw' | 'quote' | 'order' | 'contract' | 'ticket' | 'contact' | 'team' | 'aiAgent' | 'customFieldDef' | 'product' | 'productCategory' | 'invoice'
+  '$queryRaw' | 'quote' | 'order' | 'contract' | 'ticket' | 'contact' | 'team' | 'aiAgent' | 'customFieldDef' | 'product' | 'productCategory' | 'invoice' | 'contactNote' | 'contactTask' | 'contactOpportunity'
 >;
 
 export interface ListReader<F> {
@@ -35,7 +35,8 @@ export interface ListReader<F> {
   filter(input: Record<string, unknown>): F;
   /** Toàn bộ id khớp bộ lọc theo thứ tự danh sách — tối đa `cap`. */
   snapshot(tx: ExportDb, authz: AuthzContext, f: F, cap: number, now: Date): Promise<string[]>;
-  columns(m: ExportLabels): ExportColumn[];
+  /** Cột theo người xuất (`a` có khi dựng tệp — cột tiền chỉ khi được đọc). */
+  columns(m: ExportLabels, a?: AuthzContext): ExportColumn[];
   /** Dòng của một lô id (giữ thứ tự; bản ghi đã xoá / ra ngoài scope HIỆN TẠI thì bỏ) — `ids` = id đã ra dòng. */
   rows(
     tx: ExportDb,

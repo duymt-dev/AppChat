@@ -24,7 +24,7 @@ export const contactOpportunityCreate = defineAction({
   module: 'crm',
   title: 'actions.contact_opportunity.create.title',
   description:
-    'Record a sales opportunity on a customer: need, expected value (VND integer string — an estimate, not revenue), user-entered probability, expected close date. Never guess a probability. Example: {"contact_id":"0190f000-0000-7000-8000-000000000001","title":"Gói chăm sóc da 10 buổi","need":"Muốn bắt đầu tháng sau"}',
+    'Record a sales opportunity on a customer: need, expected value (VND integer string — an estimate, not revenue), user-entered probability, expected close date. Never guess a probability. When the user also wants a quote, create the opportunity FIRST, then open the quote form with ui {"type":"prefill","form":"quote.form","values":{"contact_id":…}} — no invented prices. Example: {"contact_id":"0190f000-0000-7000-8000-000000000001","title":"Gói chăm sóc da 10 buổi","need":"Muốn bắt đầu tháng sau"}',
   input: fields.partial().extend({ contact_id: uuid, title: fields.shape.title }).merge(activitySource),
   output: out,
   permission: 'crm.edit',

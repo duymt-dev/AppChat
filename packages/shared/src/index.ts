@@ -42,3 +42,4 @@ export * from './marketing/events';
 export * from './insights/metrics';
 export * from './kb/suggestion-events';
 export * from './data-transfer/registry';
+export * from './data-transfer/activity-fields';

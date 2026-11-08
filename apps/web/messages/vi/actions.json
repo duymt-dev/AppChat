@@ -183,6 +183,11 @@
       "title": "Thêm ghi chú nội bộ"
     }
   },
+  "contact_note": {
+    "export": {
+      "title": "Xuất ghi chú / bình luận khách (Excel)"
+    }
+  },
   "contact_activity": {
     "list": {
       "title": "Xem hoạt động khách",
@@ -190,6 +195,9 @@
     }
   },
   "contact_task": {
+    "export": {
+      "title": "Xuất việc chăm sóc (Excel)"
+    },
     "create": {
       "title": "Tạo việc chăm sóc",
       "desc": "Việc nhắc nhân viên chăm sóc khách — không phải tác vụ AI, không đặt lịch hẹn."
@@ -204,6 +212,9 @@
     }
   },
   "contact_opportunity": {
+    "export": {
+      "title": "Xuất cơ hội (Excel)"
+    },
     "create": {
       "title": "Tạo cơ hội",
       "desc": "Ghi nhận cơ hội bán: nhu cầu, giá trị kỳ vọng (không phải doanh thu), xác suất do bạn nhập."

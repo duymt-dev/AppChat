@@ -47,6 +47,8 @@ const VERB_VI: Record<string, string> = {
   // TIP-025b: dịch tin / bản nháp, thẻ duyệt theo hội thoại, sửa hàng loạt hội thoại, xuất lịch sử khách.
   translate: 'dich dich sang tieng ngon ngu dich tin nhan ban dich tieng anh tieng trung tieng han tieng nhat', approvals: 'duyet cho duyet yeu cau duyet the duyet', bulk_update: 'hang loat nhieu cung luc gan the giao trang thai',
   history_export: 'xuat lich su tuong tac csv',
+  // TIP-026b: ghi chú / bình luận nội bộ trên khách (không phải sửa trường khách, không gửi tin).
+  add_note: 'ghi chu them ghi chu ghi lai luu ghi chu note', add_comment: 'binh luan noi bo trao doi dong nghiep',
 };
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */
@@ -55,7 +57,12 @@ const ENTITY_VI: Record<string, string> = {
   quote: 'bao gia', appointment: 'lich dat lich hen', ticket: 'khieu nai phan nan yeu cau ho tro', order: 'don don hang',
   tag: 'nhan the', conversation: 'hoi thoai tin nhan chat', invoice: 'thanh toan thu tien', loyalty: 'diem tich diem hang khach than thiet', payment: 'thanh toan thu tien',
   // TIP-038b: nhập dữ liệu dùng chung từ tệp (khách / sản phẩm / báo giá / đơn / hợp đồng / đề nghị thanh toán) — "nhập từ tệp / file / excel".
-  transfer: 'nhap du lieu tep file excel csv bang tinh nhap khach nhap san pham nhap bao gia nhap don nhap hop dong nhap de nghi thanh toan',
+  transfer: 'nhap du lieu tep file excel csv bang tinh nhap khach nhap san pham nhap bao gia nhap don nhap hop dong nhap de nghi thanh toan nhap ghi chu nhap viec cham soc nhap co hoi',
+  // TIP-026b: hoạt động CRM — việc chăm sóc (≠ tác vụ AI / lịch hẹn), cơ hội (giá trị kỳ vọng ≠ doanh thu), xem hoạt động của khách.
+  contact_task: 'viec cham soc viec can lam nhac viec goi lai theo doi follow up han viec',
+  contact_opportunity: 'co hoi co hoi ban hang nhu cau gia tri ky vong xac suat chot deal',
+  contact_activity: 'hoat dong ghi chu binh luan viec cham soc co hoi gia tri ky vong cua khach xem co hoi',
+  contact_note: 'ghi chu binh luan cua khach',
 };
 
 /**

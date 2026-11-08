@@ -6,6 +6,7 @@ import { serverMessages, type AuthzContext, type ListExportKind, type ScopeModul
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import { fieldRoleOf } from '@appchat/shared';
 import { liveDefs } from '../../authz/public';
+import { canReadAmount } from '../../crm/activities/authority';
 import { registerDataJobKind, type KindContext } from '../../kernel/jobs/bulk-dispatch';
 import { registerExportStamp } from '../../kernel/jobs/bulk-status';
 import { dataJobUrl } from '../../kernel/jobs/data-jobs/handlers';
@@ -14,6 +15,7 @@ import { exportCustomKeys, withCustom, workbook } from './export-columns';
 import { contractReader, orderReader, quoteReader } from './sales-readers';
 import { ticketReader } from './ticket-reader';
 import { invoiceReader, productReader } from './catalog-readers';
+import { contactNoteReader, contactOpportunityReader, contactTaskReader } from './activity-readers';
 import type { Cell, ExportDb, ExportPlace, ListReader } from './types';
 
 export const EXPORT_BATCH = 1000;
@@ -26,6 +28,9 @@ export const READERS: Record<ListExportKind, ListReader<unknown>> = {
   'ticket.export': ticketReader as ListReader<unknown>,
   'product.export': productReader as ListReader<unknown>,
   'invoice.export': invoiceReader as ListReader<unknown>,
+  'contact_note.export': contactNoteReader as ListReader<unknown>,
+  'contact_task.export': contactTaskReader as ListReader<unknown>,
+  'contact_opportunity.export': contactOpportunityReader as ListReader<unknown>,
 };
 const MODULE: Record<ListExportKind, ScopeModule> = {
   'quote.export': 'sales',
@@ -35,6 +40,9 @@ const MODULE: Record<ListExportKind, ScopeModule> = {
   // Sản phẩm không có data scope (danh mục chung) — dấu quyền theo cost_view ở fieldRole; đề nghị thanh toán theo scope sales.
   'product.export': 'sales',
   'invoice.export': 'sales',
+  'contact_note.export': 'crm',
+  'contact_task.export': 'crm',
+  'contact_opportunity.export': 'crm',
 };
 
 /** Dấu quyền của tệp: đổi vai trò trường / định nghĩa trường / scope đọc của module / nhóm → tệp cũ không tải nữa. */
@@ -46,7 +54,9 @@ export async function exportStamp(
   const entity = READERS[kind].entity;
   const defs = entity ? (await liveDefs(db, entity)).version : '-';
   const scope = a.isOwner ? 'all' : (a.scope[MODULE[kind]] ?? 'none');
-  return `${fieldRoleOf(a)}|${defs}|${scope}|${[...a.teamIds].sort().join(',')}`;
+  // Cơ hội: cột giá trị kỳ vọng theo quyền đọc tiền báo giá — mất quyền sau khi xuất → tệp cũ không tải nữa.
+  const money = kind === 'contact_opportunity.export' ? `|m${canReadAmount(a) ? 1 : 0}` : '';
+  return `${fieldRoleOf(a)}|${defs}|${scope}|${[...a.teamIds].sort().join(',')}${money}`;
 }
 for (const kind of Object.keys(READERS) as ListExportKind[])
   registerExportStamp(kind, (db, a) => exportStamp(db, kind, a));
@@ -120,7 +130,7 @@ export async function buildExport(
   const body = await workbook(
     m.sheet[kind],
     `${m.sheet[kind]} · ${place.timeZone}`,
-    withCustom(reader.columns(m), place.custom),
+    withCustom(reader.columns(m, a), place.custom),
     rows(),
   );
   return { body, shown, missed, stopped, fileName: exportFileName(kind, place.locale, now) };

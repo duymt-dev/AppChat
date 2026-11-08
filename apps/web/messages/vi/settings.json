@@ -183,7 +183,10 @@
         "contract": "Hợp đồng",
         "ticket": "Ticket hỗ trợ",
         "product": "Sản phẩm",
-        "invoice": "Đề nghị thanh toán"
+        "invoice": "Đề nghị thanh toán",
+        "contact_note": "Ghi chú / bình luận",
+        "contact_task": "Việc chăm sóc",
+        "contact_opportunity": "Cơ hội"
       }
     }
   },

@@ -9,7 +9,7 @@ import {
   TRANSFER_SYNC_DOCS,
   TRANSFER_SYNC_ROWS,
   transferSpec,
-  type TransferEntity,
+  type TransferTarget,
 } from '@appchat/shared';
 import type { ActionInput, ActionPreview, transferCancel, transferCommit } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
@@ -26,6 +26,7 @@ import { actorUserId } from '../../crm/public';
 import { TransferDeps } from '../data-transfer.providers';
 import { ownPlan } from '../services/planner';
 import { commitBlocker, requireImport } from '../services/plan-view';
+import { assertDataset, planTarget } from '../services/dataset';
 import { commitPlan } from '../jobs/transfer.runner';
 import { TRANSFER_COMMIT_KIND } from '../types';
 
@@ -44,7 +45,9 @@ async function draftPlan(tx: TenantTx, ctx: ActionContext, i: CommitIn, now: Dat
   const plan = await ownPlan(tx, i.plan_id, actorUserId(ctx), true);
   if (plan.version !== i.if_version)
     throw new AppError('CONFLICT', 409, { if_version: 'stale', version: String(plan.version) });
-  requireImport(ctx.authz, plan.entity as TransferEntity);
+  // Tập + lược đồ cố định của kế hoạch: gửi kèm tập khác → 409; lược đồ đổi sau khi lập → 409 lập lại (không chạy luật mới trên ánh xạ cũ).
+  assertDataset(plan, i.dataset);
+  requireImport(ctx.authz, planTarget(plan));
   const block = commitBlocker(plan, now);
   // Thông điệp chỉ đường cho Trợ lý / API: còn dòng lỗi với `all_valid` → đổi chính sách (KHÔNG lập kế hoạch mới — kế hoạch mới vẫn lỗi).
   if (block)
@@ -53,17 +56,17 @@ async function draftPlan(tx: TenantTx, ctx: ActionContext, i: CommitIn, now: Dat
 }
 
 /** Số bản ghi sẽ tạo: khách / sản phẩm = số dòng; báo giá / đơn = số nhóm hợp lệ; hợp đồng / đề nghị = số dòng. */
-async function unitCount(tx: TenantTx, plan: { id: string; entity: string; valid: number }) {
-  if (!transferSpec(plan.entity as TransferEntity).grouped) return plan.valid;
+async function unitCount(tx: TenantTx, plan: { id: string; entity: string; dataset: string; datasetSchemaVersion: number; valid: number }) {
+  if (!transferSpec(planTarget(plan) as TransferTarget).grouped) return plan.valid;
   const r = await tx.$queryRaw<
     { n: bigint }[]
   >`SELECT count(DISTINCT group_key) AS n FROM transfer_row WHERE plan_id = ${plan.id}::uuid AND "check" = 'valid'`;
   return Number(r[0]?.n ?? 0);
 }
 
-/** Chạy nền: khách > 500 dòng (lô contact.import); chứng từ > 50 (mỗi chứng từ một action). Sản phẩm luôn qua product.import (tự chạy nền > 500). */
-const runsAsJob = (plan: { entity: string; valid: number }, docs: number) =>
-  plan.entity === 'contact'
+/** Chạy nền: khách > 500 dòng (lô contact.import); chứng từ / hoạt động CRM > 50 (mỗi bản ghi một action). Sản phẩm luôn qua product.import (tự chạy nền > 500). */
+const runsAsJob = (plan: { entity: string; dataset: string; valid: number }, docs: number) =>
+  plan.entity === 'contact' && plan.dataset === 'base'
     ? plan.valid > TRANSFER_SYNC_ROWS
     : plan.entity !== 'product' && docs > TRANSFER_SYNC_DOCS;
 
@@ -89,7 +92,7 @@ export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
     return preview('write', line(plan.fileName, `${plan.valid}`), {
       count: docs,
       changes: sample.map((r) => ({
-        entity: plan.entity,
+        entity: plan.dataset === 'base' ? plan.entity : plan.dataset,
         after: { row: r.rowNo, ...(r.data as Record<string, string>) },
       })),
       warnings: [
@@ -116,6 +119,8 @@ export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
     const audit = {
       plan_id: plan.id,
       entity: plan.entity,
+      dataset: plan.dataset,
+      dataset_schema_version: plan.datasetSchemaVersion,
       version: plan.version,
       file_sha256: plan.fileSha256,
       valid: plan.valid,
@@ -130,7 +135,7 @@ export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
         actionId: 'transfer.commit',
         actorId: plan.actorUserId,
         actionLogId: null,
-        input: { plan_id: plan.id, version: plan.version },
+        input: { plan_id: plan.id, version: plan.version, dataset: plan.dataset },
         targets: [plan.id],
         now,
       });

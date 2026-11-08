@@ -183,7 +183,10 @@
         "contract": "Contracts",
         "ticket": "Support tickets",
         "product": "Products",
-        "invoice": "Payment requests"
+        "invoice": "Payment requests",
+        "contact_note": "Notes / comments",
+        "contact_task": "Follow-up tasks",
+        "contact_opportunity": "Opportunities"
       }
     }
   },

@@ -11,6 +11,10 @@ export const LIST_EXPORT_KINDS = [
   'ticket.export',
   'product.export',
   'invoice.export',
+  // TIP-026b §5 — 3 tập hoạt động CRM (cùng khung tệp / việc / tải có hạn).
+  'contact_note.export',
+  'contact_task.export',
+  'contact_opportunity.export',
 ] as const;
 export type ListExportKind = (typeof LIST_EXPORT_KINDS)[number];
 
@@ -83,3 +87,18 @@ export const listExportResultSchema = z.object({
   expires_at: z.string().nullable(),
 });
 export type ListExportResult = z.infer<typeof listExportResultSchema>;
+
+/** Bộ lọc xuất hoạt động CRM (TIP-026b §5): theo khách (cùng bộ lọc danh sách khách — scope crm hiện tại) + trạng thái / loại của tập. */
+const contactScope = {
+  contact_id: text(64),
+  owner_id: text(64),
+  stage: text(20),
+  q: text(100),
+};
+export const contactNoteExportFilter = z.object({ ...contactScope, kind: z.enum(['note', 'comment']).optional() });
+export const contactTaskExportFilter = z.object({ ...contactScope, state: z.enum(['open', 'done', 'cancelled']).optional() });
+export const contactOpportunityExportFilter = z.object({
+  ...contactScope,
+  opp_stage: z.enum(['open', 'qualified', 'proposal', 'won', 'lost']).optional(),
+  archived: z.boolean().optional(),
+});

@@ -3,6 +3,9 @@
 // workspace). Bộ lọc cùng tham số GET danh sách (allowlist — không SQL / biểu thức cột). Không cấp cho agent (tệp tải về là kênh rò dữ liệu
 // hàng loạt); Trợ lý gọi được với thẻ xác nhận.
 import {
+  contactNoteExportFilter,
+  contactOpportunityExportFilter,
+  contactTaskExportFilter,
   contractExportFilter,
   listExportResultSchema,
   invoiceExportFilter,
@@ -90,6 +93,49 @@ export const invoiceExport = defineAction({
   input: invoiceExportFilter,
   output: listExportResultSchema,
   permission: 'invoice.manage',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
+});
+
+// TIP-026b §5: 3 tập hoạt động CRM qua CÙNG khung xuất 038 (tệp XLSX ô chữ, ≤ 50 ngay / > 50 nền, tải có hạn theo quyền hiện tại). Quyền =
+// crm.export (người xem khách không tự xuất được); dòng theo scope crm HIỆN TẠI. Cột id / thời điểm / trạng thái chỉ đọc (nhập lại → loại).
+const activityNote = `${note} Includes read-only id / created / state columns; re-importing such a file skips those rows (no silent update).`;
+
+export const contactNoteExport = defineAction({
+  id: 'contact_note.export',
+  module: 'crm',
+  title: 'actions.contact_note.export.title',
+  description: `Export CRM notes / comments of the customers visible to the caller (filters: contact_id, owner_id, stage, q, kind note|comment). ${activityNote} Example: {"kind":"note"}`,
+  input: contactNoteExportFilter,
+  output: listExportResultSchema,
+  permission: 'crm.export',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
+});
+
+export const contactTaskExport = defineAction({
+  id: 'contact_task.export',
+  module: 'crm',
+  title: 'actions.contact_task.export.title',
+  description: `Export CRM follow-up tasks (việc chăm sóc — not AI tasks) of the customers visible to the caller (filters: contact_id, owner_id, stage, q, state open|done|cancelled). ${activityNote} Example: {"state":"open"}`,
+  input: contactTaskExportFilter,
+  output: listExportResultSchema,
+  permission: 'crm.export',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
+});
+
+export const contactOpportunityExport = defineAction({
+  id: 'contact_opportunity.export',
+  module: 'crm',
+  title: 'actions.contact_opportunity.export.title',
+  description: `Export CRM opportunities of the customers visible to the caller (filters: contact_id, owner_id, stage = customer stage, q, opp_stage, archived). The amount column is the expected amount (estimate — NOT revenue) and is present only for users allowed to see quote money. ${activityNote} Example: {"opp_stage":"proposal"}`,
+  input: contactOpportunityExportFilter,
+  output: listExportResultSchema,
+  permission: 'crm.export',
   risk: 'write',
   agentGrantable: false,
   invalidates: ['data-jobs'],

@@ -185,3 +185,31 @@ export class InvoiceExportHandler extends ListExportHandler {
     return this.count(ctx, input, tx);
   }
 }
+
+// TIP-026b §5: 3 tập hoạt động CRM — cùng khung (tập id chốt, tệp XLSX, tải có hạn, dấu quyền).
+@Injectable()
+@ActionHandler('contact_note.export')
+export class ContactNoteExportHandler extends ListExportHandler {
+  protected readonly kind = 'contact_note.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}
+
+@Injectable()
+@ActionHandler('contact_task.export')
+export class ContactTaskExportHandler extends ListExportHandler {
+  protected readonly kind = 'contact_task.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}
+
+@Injectable()
+@ActionHandler('contact_opportunity.export')
+export class ContactOpportunityExportHandler extends ListExportHandler {
+  protected readonly kind = 'contact_opportunity.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}

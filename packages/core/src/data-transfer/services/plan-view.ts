@@ -6,13 +6,17 @@ import {
   transferSpec,
   type AuthzContext,
   type PermissionKey,
+  type TransferDataset,
   type TransferEntity,
   type TransferPlanDto,
+  type TransferTarget,
 } from '@appchat/shared';
 
 type PlanRow = {
   id: string;
   entity: string;
+  dataset: string;
+  datasetSchemaVersion: number;
   fileName: string;
   sheet: string | null;
   mapping: unknown;
@@ -32,17 +36,25 @@ type PlanRow = {
   createdAt: Date;
 };
 
-export function requireImport(authz: AuthzContext, entity: TransferEntity) {
+/** Quyền nhập của thực thể / tập trên người gọi hiện tại: quyền nhập + quyền action bổ sung (tập hoạt động: crm.import ∩ crm.edit). */
+export function requireImport(authz: AuthzContext, entity: TransferTarget) {
   const spec = transferSpec(entity);
   if (!spec.importReady) throw new AppError('VALIDATION_FAILED', 422, { entity: 'unsupported' });
-  if (!can(authz, spec.importPermission as PermissionKey))
-    throw new AppError('FORBIDDEN', 403, { permission: spec.importPermission });
+  for (const perm of [spec.importPermission, ...(spec.alsoRequires ?? [])])
+    if (!can(authz, perm as PermissionKey)) throw new AppError('FORBIDDEN', 403, { permission: perm });
 }
+
+export const canImport = (authz: AuthzContext, entity: TransferTarget) => {
+  const spec = transferSpec(entity);
+  return [spec.importPermission, ...(spec.alsoRequires ?? [])].every((perm) => can(authz, perm as PermissionKey));
+};
 
 export function planView(p: PlanRow, columns: string[]): TransferPlanDto {
   return {
     id: p.id,
     entity: p.entity as TransferEntity,
+    dataset: p.dataset as TransferDataset,
+    dataset_schema_version: p.datasetSchemaVersion,
     file_name: p.fileName,
     sheet: p.sheet,
     columns,
@@ -68,7 +80,7 @@ export function planView(p: PlanRow, columns: string[]): TransferPlanDto {
 
 /** Commit được không: nháp, chưa hết hạn, có dòng hợp lệ; all_valid → không còn dòng lỗi (không âm thầm bỏ lỗi). */
 export function commitBlocker(
-  p: Pick<PlanRow, 'status' | 'expiresAt' | 'valid' | 'invalid' | 'rowPolicy' | 'entity'>,
+  p: Pick<PlanRow, 'status' | 'expiresAt' | 'valid' | 'invalid' | 'rowPolicy' | 'entity' | 'dataset'>,
   now: Date,
 ): Record<string, string> | null {
   if (p.status !== 'draft') return { status: p.status };
@@ -76,6 +88,6 @@ export function commitBlocker(
   if (!p.valid) return { rows: 'none_valid' };
   if (p.rowPolicy === 'all_valid' && p.invalid) return { rows: 'has_invalid' };
   // Sản phẩm ghi bằng `product.import` trên CẢ tệp (032b) — không bỏ được riêng dòng lỗi; sửa tệp rồi lập kế hoạch mới.
-  if (p.entity === 'product' && p.invalid) return { rows: 'has_invalid' };
+  if (p.entity === 'product' && p.dataset === 'base' && p.invalid) return { rows: 'has_invalid' };
   return null;
 }

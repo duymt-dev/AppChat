@@ -4,18 +4,34 @@
 // thể khác: mock chỉ đếm applied (không dựng chứng từ). Kiểu cấu trúc, không import store / handlers (tránh vòng).
 import {
   ApiRequestError,
+  DATASETS_OF,
   TRANSFER_ENTITIES,
+  datasetAllowed,
+  foldText,
   guessTransferMapping,
   normalizePhone,
+  targetOf,
   transferSpec,
   type ErrorCode,
+  type TransferDataset,
   type TransferEntity,
+  type TransferTarget,
   type TransferPlanDto,
   type TransferRowDto,
 } from '@appchat/shared';
 import { importTexts } from './product-import';
 
 type Plan = TransferPlanDto & { file_id: string; rows: TransferRowDto[] };
+const targetOfPlan = (p: Pick<TransferPlanDto, 'entity' | 'dataset'>) => targetOf(p.entity, p.dataset);
+/** Tập bỏ trống = base; tập không thuộc thực thể → 422 như server. */
+function resolve(entity: TransferEntity, dataset?: TransferDataset): TransferTarget {
+  const d = dataset ?? 'base';
+  if (!datasetAllowed(entity, d)) throw bad(422, 'VALIDATION_FAILED', { dataset: 'unsupported' });
+  return targetOf(entity, d);
+}
+const sameDataset = (p: Plan, sent?: TransferDataset) => {
+  if (sent !== undefined && sent !== p.dataset) throw bad(409, 'CONFLICT', { dataset: 'mismatch' });
+};
 const plans = new Map<string, Plan>();
 let seq = 0;
 const bad = (status: number, code: ErrorCode, fields: Record<string, string>) =>
@@ -28,7 +44,7 @@ function table(fileId: string) {
   return { name: f.name, columns: head.split(',').map((c) => c.trim()), rows: lines.map((l) => l.split(',').map((c) => c.trim())) };
 }
 
-function check(entity: TransferEntity, columns: string[], cells: string[][], mapping: Record<string, string>): TransferRowDto[] {
+function check(entity: TransferTarget, columns: string[], cells: string[][], mapping: Record<string, string>): TransferRowDto[] {
   const fields = transferSpec(entity).fields;
   for (const [k, c] of Object.entries(mapping)) {
     if (!fields.some((x) => x.key === k)) throw bad(422, 'VALIDATION_FAILED', { [`mapping.${k}`]: 'unknown_field' });
@@ -44,15 +60,23 @@ function check(entity: TransferEntity, columns: string[], cells: string[][], map
         if (f.required) errors[f.key] = 'required';
         continue;
       }
-      const val = f.type === 'phone' ? normalizePhone(v) : f.type === 'email' ? (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? v.toLowerCase() : null) : f.type === 'money' ? (/^[\d.,\s]+$/.test(v) ? v.replace(/\D/g, '') : null) : v;
+      const val = f.type === 'phone' ? normalizePhone(v) : f.type === 'email' ? (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) ? v.toLowerCase() : null) : f.type === 'money' ? (/^[\d.,\s]+$/.test(v) ? v.replace(/\D/g, '') : null) : f.type === 'enum' ? (f.options?.find((o) => o === foldText(v)) ?? f.optionAliases?.[foldText(v)] ?? null) : v;
       if (val === null) errors[f.key] = 'invalid';
       else data[f.key] = val;
     }
     if (entity === 'contact' && !data.phone && !data.email && !Object.keys(errors).length) errors.contact = 'required';
-    const key = data.phone ?? data.email;
+    // Tập hoạt động CRM (TIP-026b §5): khách bằng mã / SĐT / email; việc nhập luôn mở; cơ hội won / lost bị từ chối; dòng có id xuất → loại.
+    if (entity !== 'contact' && entity.startsWith('contact_')) {
+      if (!data.contact_code && !data.contact_phone && !data.contact_email) errors.contact = 'required';
+      if (entity === 'contact_tasks' && data.state && data.state !== 'open') errors.state = 'readonly';
+      if (entity === 'contact_opportunities' && (data.stage === 'won' || data.stage === 'lost')) errors.stage = 'terminal';
+      if (data.id && !Object.keys(errors).length) errors.id_warning = 'exported_record';
+    }
+    const key = entity === 'contact' ? (data.phone ?? data.email) : undefined;
     const dup = !Object.keys(errors).length && !!key && seen.has(key);
     if (key) seen.add(key);
-    return { row_no: i + 1, data, check: Object.keys(errors).length ? 'invalid' : dup ? 'duplicate' : 'valid', errors, status: 'pending', result_id: null, result_code: null };
+    const hard = Object.keys(errors).filter((k) => !k.endsWith('_warning')).length;
+    return { row_no: i + 1, data, check: hard ? 'invalid' : dup || errors.id_warning ? 'duplicate' : 'valid', errors, status: 'pending', result_id: null, result_code: null };
   });
 }
 
@@ -85,10 +109,12 @@ type ImportContacts<D> = (db: D, rows: Record<string, string>[]) => { created: n
 export function dataTransferHandlers<D>(importContacts: ImportContacts<D>) {
   return {
     'transfer.sample': {
-      execute: (_db: unknown, i: { entity: TransferEntity; file_id: string }) => {
+      execute: (_db: unknown, i: { entity: TransferEntity; dataset?: TransferDataset; file_id: string }) => {
+        const target = resolve(i.entity, i.dataset);
         const t = table(i.file_id);
-        const spec = transferSpec(i.entity);
+        const spec = transferSpec(target);
         return {
+          dataset: spec.dataset,
           file_name: t.name,
           sheets: [],
           sheet: null,
@@ -96,21 +122,25 @@ export function dataTransferHandlers<D>(importContacts: ImportContacts<D>) {
           total_rows: t.rows.length,
           sample: t.rows.slice(0, 20),
           fields: spec.fields.map((f) => ({ key: f.key, type: f.type, required: !!f.required })),
-          mapping: guessTransferMapping(i.entity, t.columns),
+          mapping: guessTransferMapping(target, t.columns),
           import_supported: spec.importReady,
         };
       },
     },
     'transfer.plan': {
       preview: (_db: unknown, i: { entity: string }) => ({ summary: `transfer.plan · ${i.entity}` }),
-      execute: (_db: unknown, i: { entity: TransferEntity; file_id: string; mapping?: Record<string, string> }) => {
+      execute: (_db: unknown, i: { entity: TransferEntity; dataset?: TransferDataset; file_id: string; mapping?: Record<string, string> }) => {
+        const target = resolve(i.entity, i.dataset);
         const t = table(i.file_id);
-        const mapping = i.mapping ?? guessTransferMapping(i.entity, t.columns);
-        const rows = check(i.entity, t.columns, t.rows, mapping);
+        const mapping = i.mapping ?? guessTransferMapping(target, t.columns);
+        const rows = check(target, t.columns, t.rows, mapping);
         const now = new Date();
+        const spec = transferSpec(target);
         const p: Plan = {
           id: `0190f000-0000-7000-8000-${String(++seq).padStart(12, '0')}`,
           entity: i.entity,
+          dataset: spec.dataset,
+          dataset_schema_version: spec.schemaVersion,
           file_name: t.name,
           sheet: null,
           columns: t.columns,
@@ -131,33 +161,36 @@ export function dataTransferHandlers<D>(importContacts: ImportContacts<D>) {
       },
     },
     'transfer.update_mapping': {
-      execute: (_db: unknown, i: { plan_id: string; if_version: number; mapping?: Record<string, string>; row_policy?: 'all_valid' | 'only_valid' }) => {
+      execute: (_db: unknown, i: { plan_id: string; if_version: number; dataset?: TransferDataset; mapping?: Record<string, string>; row_policy?: 'all_valid' | 'only_valid' }) => {
         const p = own(i.plan_id);
+        sameDataset(p, i.dataset);
         if (p.status !== 'draft') throw bad(409, 'INVALID_STATE', { status: p.status });
         if (p.version !== i.if_version) throw bad(409, 'CONFLICT', { if_version: 'stale' });
         const t = table(p.file_id);
         if (i.mapping) p.mapping = i.mapping;
         if (i.row_policy) p.row_policy = i.row_policy;
-        p.rows = check(p.entity, t.columns, t.rows, p.mapping);
+        p.rows = check(targetOfPlan(p), t.columns, t.rows, p.mapping);
         p.counts = counts(p.rows);
         p.version += 1;
         return view(p);
       },
     },
     'transfer.commit': {
-      preview: (_db: unknown, i: { plan_id: string }) => {
+      preview: (_db: unknown, i: { plan_id: string; dataset?: TransferDataset }) => {
         const p = own(i.plan_id);
+        sameDataset(p, i.dataset);
         const skip = p.counts.duplicates + (p.row_policy === 'only_valid' ? p.counts.invalid : 0);
         return { summary: `${p.file_name} · ${p.counts.valid}`, count: p.counts.valid, ...(skip ? { warnings: [`skipped:${skip}`] } : {}) };
       },
-      execute: (db: D, i: { plan_id: string; if_version: number }) => {
+      execute: (db: D, i: { plan_id: string; if_version: number; dataset?: TransferDataset }) => {
         const p = own(i.plan_id);
+        sameDataset(p, i.dataset);
         if (p.version !== i.if_version) throw bad(409, 'CONFLICT', { if_version: 'stale' });
         if (p.status !== 'draft') throw bad(409, 'INVALID_STATE', { status: p.status });
         if (!p.counts.valid) throw bad(409, 'INVALID_STATE', { rows: 'none_valid' });
         if (p.row_policy === 'all_valid' && p.counts.invalid) throw bad(409, 'INVALID_STATE', { rows: 'has_invalid' });
         const valid = p.rows.filter((r) => r.check === 'valid');
-        const created = p.entity === 'contact' ? importContacts(db, valid.map((r) => r.data)).created : valid.length;
+        const created = targetOfPlan(p) === 'contact' ? importContacts(db, valid.map((r) => r.data)).created : valid.length;
         let left = created;
         for (const r of p.rows) {
           if (r.check !== 'valid') r.status = 'skipped';
@@ -182,11 +215,17 @@ export function dataTransferHandlers<D>(importContacts: ImportContacts<D>) {
 export function dataTransferRoute(path: string) {
   if (path === '/data-transfer/capabilities')
     return () =>
-      TRANSFER_ENTITIES.map((entity) => ({
-        entity,
-        import: { supported: true, reason: null, formats: ['xlsx', 'csv'], fields: transferSpec(entity).fields.map((f) => ({ key: f.key, required: !!f.required })) },
-        export: { supported: true, reason: null, action_id: transferSpec(entity).exportAction },
-      }));
+      TRANSFER_ENTITIES.flatMap((entity) =>
+        DATASETS_OF[entity].map((dataset) => {
+          const spec = transferSpec(targetOf(entity, dataset));
+          return {
+            entity,
+            dataset,
+            import: { supported: true, reason: null, formats: ['xlsx', 'csv'], fields: spec.fields.map((f) => ({ key: f.key, required: !!f.required })) },
+            export: { supported: true, reason: null, action_id: spec.exportAction },
+          };
+        }),
+      );
   const m = path.match(/^\/data-transfer\/plans\/([^/]+)(\/rows)?$/);
   if (!m) return undefined;
   return (_db: unknown, q: Record<string, unknown> = {}) => {
