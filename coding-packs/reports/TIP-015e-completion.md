@@ -108,3 +108,33 @@
 | `database/indexing.md` | quét qua index một phần `(expires_at,id) WHERE state='merged'`, lô id trước 100 |
 | `ops/observability-security.md` | payload riêng tư xoá sau hạn; log job chỉ số đếm |
 | `code/testing.md` | test riêng, Postgres thật, rào khoá thật bằng giao dịch song song |
+
+---
+
+## Pha 4 — chiếu theo họ khách (§3.4–§3.5; AC4) — DC-406, DV-080
+
+**Rà trước khi làm (code thật)**
+- Mọi đọc theo khách (360°, get_360, liên kết / KPI, công nợ, lọc `contact_id` của báo giá / đơn / đề nghị / hợp đồng, timeline, xuất timeline) lọc `contact_id = X` — sau gộp, chứng từ giữ id bản phụ nên biến mất khỏi hồ sơ bản chính.
+- P2 dời tạm timeline để 360° không mất lịch sử — trái §3.4 (timeline bất biến, giữ id gốc).
+
+**FILES CHANGED** (lệch manifest ở DV-080)
+- core: `crm/lifecycle/family-sql.ts` (mới); `crm/actions/contact-read.handlers.ts`; `crm/insights/{customer-links,customer-kpis,customer-debt}.ts`; `crm/services/{contact360,crm-read.service,contact-timeline-export}.ts`; `crm/merge/relations.ts` (thôi dời timeline); repos báo giá / đơn / đề nghị / hợp đồng.
+- test: `apps/api/test/integration/contact-merge-lineage.test.ts` (mới).
+
+**Giả định đã chọn (gap-filling)**
+- Đọc theo họ chỉ khi đọc theo khách gốc (bản phụ đã gộp → 404 như cũ); không đổi scope từng domain.
+- Loyalty / gói / chuyển đổi chứng từ theo họ là luật tiền / điểm — để P5 với rào khoá riêng.
+
+**TEST (cổng khi làm — D59)**
+- `contact-merge-lineage` **2/2** (đơn / timeline bản phụ giữ id gốc; get_360 bản chính đếm 2 đơn / 1 ticket / 1 đề nghị; `/orders?contact_id` + `/invoices?contact_id` thấy chứng từ bản phụ; KPI công nợ cộng họ; timeline = tổng họ; hoàn tác → tách lại; EXPLAIN câu con họ dùng `contact_merged_into_idx`, không Seq Scan).
+- Hồi quy: merge (authority / concurrency / lineage / ma trận), get_360, crm-contacts, contact-insights, contact-timeline-export, contracts, orders, quotes, contact-memory — **95/95**.
+- turbo lint / typecheck / test `...[origin/dev]` 35/36 lần đầu — `core#test` đỏ một ca `render-isolation` (đo thời gian tiến trình LibreOffice dưới tải, ngoài phạm vi); chạy lại riêng 7/7 và toàn bộ core **774/774**.
+
+**ĐỐI CHIẾU STANDARDS (P4)**
+
+| Standard | Kết quả |
+|---|---|
+| `authz/rbac-permissions.md` | họ chỉ thay phép bằng khách; scope quote / order / invoice / contract / ticket / booking giữ nguyên |
+| `database/indexing.md` | CTE đệ quy qua `contact_merged_into_idx (merged_into_id,id)`; chứng từ dùng index (contact_id, …) sẵn có; EXPLAIN trong test |
+| `domain/state-machine.md` | timeline bất biến (không dời); chứng từ giữ id gốc — lineage |
+| `code/testing.md` | test riêng, Postgres thật |

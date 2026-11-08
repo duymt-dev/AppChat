@@ -9,6 +9,7 @@ import { contractScopeSql } from '../../contracts/contract-access';
 import { orderScopeSql } from '../../sales/orders/order-access';
 import { invoiceScopeSql } from '../../sales/payments/invoice-access';
 import { customerDebt, type Debt } from './customer-debt';
+import { inFamilySql } from '../lifecycle/family-sql';
 
 export interface ContractKpi {
   active: number;
@@ -38,7 +39,7 @@ async function contractKpi(tx: Tx, a: AuthzContext, id: string, today: string): 
   if (!can(a, 'contract.view')) return null;
   const [r] = await tx.$queryRaw<{ n: bigint; value: bigint | null; next_end: Date | null }[]>`
     SELECT count(*)::bigint AS n, sum(c.value)::bigint AS value, min(c.end_date) AS next_end FROM contract c
-    WHERE c.contact_id = ${id}::uuid AND c.deleted_at IS NULL AND c.status = 'signed' AND (c.end_date IS NULL OR c.end_date >= ${today}::date)
+    WHERE ${inFamilySql('c.contact_id', id)} AND c.deleted_at IS NULL AND c.status = 'signed' AND (c.end_date IS NULL OR c.end_date >= ${today}::date)
       AND ${contractScopeSql(a)}`;
   return { active: Number(r?.n ?? 0n), value: String(r?.value ?? 0n), next_end: r?.next_end ? r.next_end.toISOString().slice(0, 10) : '' };
 }
@@ -48,7 +49,7 @@ async function recentOrder(tx: Tx, a: AuthzContext, id: string): Promise<RecentD
   if (!can(a, 'order.view')) return undefined;
   const [o] = await tx.$queryRaw<{ id: string; code: string; status: string; total: bigint; created_at: Date }[]>`
     SELECT o.id, o.code, o.status::text AS status, o.total, o.created_at FROM "order" o
-    WHERE o.contact_id = ${id}::uuid AND o.deleted_at IS NULL AND ${orderScopeSql(a)}
+    WHERE ${inFamilySql('o.contact_id', id)} AND o.deleted_at IS NULL AND ${orderScopeSql(a)}
     ORDER BY o.created_at DESC, o.id DESC LIMIT 1`;
   return o ? { id: o.id, code: o.code, status: o.status, amount: String(o.total), at: o.created_at.toISOString() } : null;
 }
@@ -61,7 +62,7 @@ const paymentScope = (a: AuthzContext) =>
 async function payments(tx: Tx, a: AuthzContext, id: string): Promise<{ recent: RecentDoc | null; ltv: string } | null> {
   if (!can(a, 'invoice.manage') && !can(a, 'payment.record')) return null;
   const from = Prisma.sql`FROM customer_payment p LEFT JOIN invoice i ON i.id = p.invoice_id LEFT JOIN "order" o ON o.id = p.order_id
-    WHERE p.contact_id = ${id}::uuid AND p.status = 'confirmed' AND p.kind <> 'points' AND ${paymentScope(a)}`;
+    WHERE ${inFamilySql('p.contact_id', id)} AND p.status = 'confirmed' AND p.kind <> 'points' AND ${paymentScope(a)}`;
   const [sum, last] = await Promise.all([
     tx.$queryRaw<{ ltv: bigint }[]>`SELECT coalesce(sum(p.amount), 0)::bigint AS ltv ${from}`,
     tx.$queryRaw<{ id: string; code: string | null; kind: string; amount: bigint; paid_at: Date }[]>`

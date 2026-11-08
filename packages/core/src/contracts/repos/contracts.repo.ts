@@ -5,6 +5,7 @@ import { TenantSql as Prisma } from '@appchat/db';
 import { CONTRACT_CHIP_STATUSES, foldText, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { UUID, contractScopeSql } from '../contract-access';
+import { inFamilySql } from '../../crm/lifecycle/family-sql';
 
 export interface ContractFilter {
   /** Chip: all | draft | pending | signed | expired. */
@@ -33,7 +34,7 @@ function where(authz: AuthzContext, f: ContractFilter): Prisma.Sql {
   }
   if (f.ownerId && f.ownerId !== 'all') parts.push(UUID.test(f.ownerId) ? Prisma.sql`c.owner_user_id = ${f.ownerId}::uuid` : Prisma.sql`FALSE`);
   if (f.assignedId && f.assignedId !== 'all') parts.push(UUID.test(f.assignedId) ? Prisma.sql`c.assigned_user_id = ${f.assignedId}::uuid` : Prisma.sql`FALSE`);
-  if (f.contactId) parts.push(UUID.test(f.contactId) ? Prisma.sql`c.contact_id = ${f.contactId}::uuid` : Prisma.sql`FALSE`);
+  if (f.contactId) parts.push(UUID.test(f.contactId) ? inFamilySql('c.contact_id', f.contactId) : Prisma.sql`FALSE`);
   if (f.value && f.value !== 'all' && VALUE[f.value]) parts.push(VALUE[f.value]!);
   const q = f.q?.trim();
   if (q) {

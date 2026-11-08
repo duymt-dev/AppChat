@@ -5,6 +5,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { renderTimeline } from './timeline.service';
 import { contactAvatarLink } from '../../channels/operations/avatar-read';
 import type { FileLinks } from '../../kernel/files/file-links';
+import { familyIds } from '../lifecycle/lock';
 
 interface Ctx {
   locale: string;
@@ -17,7 +18,7 @@ interface Ctx {
 
 export async function contact360(tx: TenantTx, contactId: string, c: Ctx): Promise<Contact360Dto> {
   const k = await tx.contact.findUniqueOrThrow({ where: { id: contactId } });
-  const events = await tx.timelineEvent.findMany({ where: { contactId }, orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }], take: 30, select: { id: true, type: true, summary: true, payload: true, occurredAt: true } });
+  const events = await tx.timelineEvent.findMany({ where: { contactId: { in: await familyIds(tx, contactId) } }, orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }], take: 30, select: { id: true, type: true, summary: true, payload: true, occurredAt: true } });
   const m = serverMessages(c.locale).crm;
   const fmt = createFmt({ locale: c.locale, timeZone: c.timeZone });
   const timeline = renderTimeline(events, c.locale, c.timeZone).map(({ icon, tone, when, text }) => ({ icon, tone, when, text }));

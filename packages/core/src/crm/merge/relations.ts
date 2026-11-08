@@ -1,6 +1,6 @@
 // Dời quan hệ CRM khi gộp (TIP-015e §3.2): identity / ghi chú / việc / cơ hội của bản phụ sang bản chính, thẻ chưa có thì thêm vào bản chính.
-// Ghi lại từng bản ghi đã dời (liên kết gốc) vào biên nhận. Timeline: TẠM dời cùng (ghi biên nhận) để Hồ sơ 360° không mất lịch sử — P4
-// chuyển sang đọc theo họ khách và thôi dời. KHÔNG dời: hội thoại, báo giá / đơn / đề nghị / hợp đồng / gói / sổ điểm / lịch hẹn / ticket
+// Ghi lại từng bản ghi đã dời (liên kết gốc) vào biên nhận. Timeline KHÔNG dời (bất biến, giữ id gốc — đọc theo họ, lifecycle/family-sql.ts);
+// biên nhận cũ (P2) có mục 'timeline' vẫn hoàn tác được. KHÔNG dời: hội thoại, báo giá / đơn / đề nghị / hợp đồng / gói / sổ điểm / lịch hẹn / ticket
 // (giữ id khách gốc — lineage, P4 chiếu theo họ). Không chép collaborator / ACL.
 import type { TenantTx } from '../../kernel/actions/action-context';
 
@@ -29,14 +29,13 @@ const ids = async (rows: Promise<{ id: string }[]>) => (await rows).map((r) => r
 /** Số bản ghi sẽ dời (xem trước). */
 export async function relationCounts(tx: TenantTx, sourceIds: string[]) {
   const where = { contactId: { in: sourceIds } };
-  const [identities, notes, tasks, opportunities, timeline] = await Promise.all([
+  const [identities, notes, tasks, opportunities] = await Promise.all([
     tx.contactIdentity.count({ where }),
     tx.contactNote.count({ where }),
     tx.contactTask.count({ where }),
     tx.contactOpportunity.count({ where }),
-    tx.timelineEvent.count({ where }),
   ]);
-  return { identities, notes, tasks, opportunities, timeline };
+  return { identities, notes, tasks, opportunities };
 }
 
 /** Dời quan hệ của từng bản phụ sang bản chính; trả danh sách bản ghi đã dời (để hoàn tác đúng từng dòng). */
@@ -50,13 +49,11 @@ export async function moveRelations(tx: TenantTx, primaryId: string, sourceIds: 
       ['note', await ids(tx.contactNote.findMany({ where, select: { id: true } }))],
       ['task', await ids(tx.contactTask.findMany({ where, select: { id: true } }))],
       ['opportunity', await ids(tx.contactOpportunity.findMany({ where, select: { id: true } }))],
-      ['timeline', await ids(tx.timelineEvent.findMany({ where, select: { id: true } }))],
     ];
     await tx.contactIdentity.updateMany({ where, data: { contactId: primaryId } });
     await tx.contactNote.updateMany({ where, data: { contactId: primaryId } });
     await tx.contactTask.updateMany({ where, data: { contactId: primaryId } });
     await tx.contactOpportunity.updateMany({ where, data: { contactId: primaryId } });
-    await tx.timelineEvent.updateMany({ where, data: { contactId: primaryId } });
     for (const [kind, list] of groups) for (const entityId of list) items.push({ kind, entityId, fromContactId: from });
     const tags = (await tx.contactTag.findMany({ where, select: { tagId: true } })).map((t) => t.tagId).filter((t) => !have.has(t));
     if (tags.length) await tx.contactTag.createMany({ data: tags.map((tagId) => ({ contactId: primaryId, tagId })), skipDuplicates: true });

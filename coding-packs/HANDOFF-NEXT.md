@@ -4,7 +4,9 @@
 
 ## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
 
-**Mới nhất (2026-11-08, 015e P3).** PR #145 = TIP-015e pha 3 / 5 (`tip/015e-contact-merge-p3`, xếp chồng #144): job dọn payload biên nhận gộp hết hạn (chung `crm.memory-receipt-purge`), hoàn tác khoá biên nhận trước khách, rào gộp ↔ gộp / sửa / dọn — DC-405, DV-079. Không migration. PR mới chưa merge: 16 / 30 (#130–#145). Kế tiếp: 015e P4 (chiếu theo họ ở commerce / booking / loyalty / 360°; thôi dời timeline).
+**Mới nhất (2026-11-08, 015e P4).** PR #146 = TIP-015e pha 4 / 5 (`tip/015e-contact-merge-p4`, xếp chồng #145): đọc theo họ khách (`inFamilySql`) ở get_360 / liên kết + KPI 360° / công nợ / lọc khách của báo giá · đơn · đề nghị · hợp đồng / timeline + xuất timeline; gộp thôi dời timeline — DC-406, DV-080. Không migration. PR mới chưa merge: 17 / 30 (#130–#146). Kế tiếp: 015e P5 (loyalty / gói / chuyển đổi chứng từ theo họ, Trợ lý + ai:live contact-merge 8 ca, chốt TIP D59, COVERAGE).
+
+**Trước đó (2026-11-08, 015e P3).** PR #145 = TIP-015e pha 3 / 5 (`tip/015e-contact-merge-p3`, xếp chồng #144): job dọn payload biên nhận gộp hết hạn (chung `crm.memory-receipt-purge`), hoàn tác khoá biên nhận trước khách, rào gộp ↔ gộp / sửa / dọn — DC-405, DV-079. Không migration. PR mới chưa merge: 16 / 30 (#130–#145). Kế tiếp: 015e P4 (chiếu theo họ ở commerce / booking / loyalty / 360°; thôi dời timeline).
 
 **Trước đó (2026-11-08, 015e P2).** PR #144 = TIP-015e pha 2 / 5 (`tip/015e-contact-merge-p2`, xếp chồng #143): `contact.merge` gắn phiên bản (`expected_versions`), khoá họ, chỉ gộp cùng chủ + cùng ACL (không hợp quyền), biên nhận lineage `contact_merge_receipt(_item)`, hoàn tác 7 ngày có điều kiện; đơn / báo giá giữ id khách gốc — DC-404, DV-078. Migration tenant `20261108120000_contact_merge_lineage`. PR mới chưa merge: 15 / 30 (#130–#144). Kế tiếp: 015e P3 (job dọn biên nhận hết hạn + rào đồng thời).
 

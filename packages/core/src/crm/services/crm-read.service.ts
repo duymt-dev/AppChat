@@ -22,6 +22,7 @@ import { assertQueryFields, fieldView, projectCustom } from '../../authz/public'
 import { contactEditContext } from './contact-edit';
 import { activityPage, activitySummary } from '../activities/read.service';
 import { transferStatus } from '../ownership/read';
+import { familyIds } from '../lifecycle/lock';
 
 export interface Viewer {
   workspaceId: string;
@@ -200,7 +201,8 @@ export class CrmReadService {
       const [at, cid] = (cursor ?? '').split('_');
       const after = at && cid && UUID.test(cid) && !Number.isNaN(Date.parse(at)) ? { OR: [{ occurredAt: { lt: new Date(at) } }, { occurredAt: new Date(at), id: { lt: cid } }] } : {};
       const rows = await tx.timelineEvent.findMany({
-        where: { contactId: id, ...after },
+        // TIP-015e: timeline giữ id khách gốc sau gộp — đọc theo họ.
+        where: { contactId: { in: await familyIds(tx, id) }, ...after },
         orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }],
         take: TL_PAGE + 1,
         select: { id: true, type: true, summary: true, payload: true, occurredAt: true },
