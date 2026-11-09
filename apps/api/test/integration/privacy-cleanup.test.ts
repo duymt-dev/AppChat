@@ -18,7 +18,7 @@ beforeAll(async () => {
 afterAll(() => m?.close());
 
 type Res = { status: number; body: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
-const asHeader = (who?: { token: string }) => (who ? { authorization: `Bearer ${who.token}` } : {});
+const asHeader = (who?: { token: string }): Record<string, string> => (who ? { authorization: `Bearer ${who.token}` } : {});
 const call = (id: string, input: unknown, who?: { token: string }): Promise<Res> => http(m.h, `/actions/${id}`, { input }, { 'idempotency-key': uuidv7(), ...asHeader(who) }).then(async (r) => ({ status: r.status, body: await r.json() }));
 const confirm = (id: string, input: unknown, token: string, who?: { token: string }): Promise<Res> => http(m.h, `/actions/${id}`, { input, confirm_token: token }, { 'idempotency-key': uuidv7(), ...asHeader(who) }).then(async (r) => ({ status: r.status, body: await r.json() }));
 const create = async (name: string, phone: string) => (await m.seed('contact.create', { full_name: name, phone })).contact_id as string;
