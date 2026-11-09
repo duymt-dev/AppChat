@@ -139,7 +139,7 @@ describe('contact.privacy_status — đọc tiến độ, không nội dung', ()
 });
 
 describe('GET /v1/privacy/operations — danh sách, cùng guard privacy.erase (pha 4)', () => {
-  const list = (qs: string, who?: { token: string }) => http(m.h, `/privacy/operations${qs}`, undefined, asHeader(who)).then(async (r) => ({ status: r.status, body: await r.json() }));
+  const list = (qs: string, who?: { token: string }): Promise<Res> => http(m.h, `/privacy/operations${qs}`, undefined, asHeader(who)).then(async (r) => ({ status: r.status, body: await r.json() }));
   const forgetOne = async (name: string, phone: string) => {
     const id = await create(name, phone);
     const v = await versionOf(id);
