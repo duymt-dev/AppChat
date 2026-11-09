@@ -1518,5 +1518,15 @@
     "sample": {
       "title": "Preview an import file (contact data masked)"
     }
+  },
+  "privacy": {
+    "cleanup_step": {
+      "title": "Run one \"forget customer\" cleanup step (system)",
+      "desc": "System-called — advances one \"forget customer\" operation by one step (fence → inventory → erase batch → needs review / verify → completed)."
+    },
+    "review_resolve": {
+      "title": "Resolve one quarantined item (forget customer)",
+      "desc": "Decide one shared / unidentified data item in a \"forget customer\" operation: unrelated, this customer only, shared (strip this subject, keep others), or retained as issued evidence."
+    }
   }
 }

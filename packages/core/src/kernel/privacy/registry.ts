@@ -20,6 +20,13 @@ export function privacyAdapters(): PrivacyAdapter[] {
 
 export const registeredPrivacyDomains = (): PrivacyDomain[] => [...ADAPTERS.keys()].sort();
 
+/** Một adapter theo domain (cleanup_step pha 2 — tra đúng adapter để gọi erase() theo domain đã ghi ở privacy_artifact). Thiếu → 503. */
+export function privacyAdapterOf(domain: PrivacyDomain): PrivacyAdapter {
+  const a = ADAPTERS.get(domain);
+  if (!a) throw new AppError('WORKSPACE_UNAVAILABLE', 503, { [domain]: 'adapter_unavailable' });
+  return a;
+}
+
 /** Chỉ test: gỡ adapter. */
 export function unregisterPrivacyAdapter(domain: PrivacyDomain): void {
   ADAPTERS.delete(domain);

@@ -62,7 +62,7 @@ export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: 
  * cùng khoá không lặp hiệu ứng không thể hoàn tác. `privacy.review_resolve` / `contact.allow_recreation` thêm vào đây khi có action +
  * handler thật (pha sau).
  */
-const PRIVACY_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['contact.forget']);
+const PRIVACY_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve']);
 
 /** Idempotency-Key bắt buộc: risk send / money và lệnh tạo (response-envelope §7) — executor kiểm, FE `useAction` tự gửi. */
 export function requiresIdempotencyKey(actionId: string, risk: Risk): boolean {

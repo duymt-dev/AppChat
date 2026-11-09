@@ -67,5 +67,40 @@ export const contactPrivacyStatus = defineAction({
   invalidates: [],
 });
 
-// privacy.review_resolve · contact.allow_recreation · privacy.cleanup_step · privacy.inventory_scan: thêm cùng pha có handler thật
-// (TIP-015c pha 2 — inventory/cleanup) — đăng ký action mà chưa có handler bị cấm (ANTI-MONOLITH "không nửa vời").
+/** System-only (TIP-015c §1.3 point 7, pha 2): chỉ worker ROLE=jobs gọi qua sweep job (actor system:privacy-cleanup). Không agent/UI/HTTP. */
+export const privacyCleanupStep = defineAction({
+  id: 'privacy.cleanup_step',
+  module: 'crm',
+  title: 'actions.privacy.cleanup_step.title',
+  description: 'System-only: advance one "forget customer" operation by one PRIVACY_FLOW step (fence → inventory → erase batch → needs_review/verify → completed_with_exceptions). Not callable by users, assistant or agents.',
+  input: z.object({ operation_id: uuid }),
+  output: z.object({ operation_id: z.string(), phase: z.string(), advanced: z.boolean(), erased: z.number().int(), pending: z.number().int() }),
+  permission: 'self',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['crm'],
+});
+
+export const privacyReviewResolve = defineAction({
+  id: 'privacy.review_resolve',
+  module: 'crm',
+  title: 'actions.privacy.review_resolve.title',
+  description:
+    'Human decision on one quarantined item of a "forget customer" operation (DC-265 shared/unknown content): proven_unrelated (not this customer), erase_exclusive (confirmed this customer only), redact_shared (shared — keep others, strip this subject), retained_issued (confirmed issued/signed evidence, DC-259). Requires current artifact version. Example: {"operation_id":"0190f000-0000-7000-8000-000000000002","item_id":"0190f000-0000-7000-8000-000000000003","if_version":1,"disposition":"proven_unrelated"}',
+  input: z.object({
+    operation_id: uuid,
+    item_id: uuid,
+    if_version: z.number().int().positive(),
+    disposition: z.enum(['proven_unrelated', 'erase_exclusive', 'redact_shared', 'retained_issued']),
+    proof_ref: z.string().min(1).max(200).optional(),
+  }),
+  output: z.object({ item_id: z.string(), disposition: z.string() }),
+  permission: 'privacy.erase',
+  risk: 'delete',
+  agentGrantable: false,
+  requiredApprovalSources: ['assistant', 'agent', 'task'],
+  invalidates: ['crm'],
+});
+
+// contact.allow_recreation · privacy.inventory_scan: thêm ở pha sau có handler thật (identity-token anti-recreation / legacy-scanner
+// bootstrap — chưa cài ở pha 2) — đăng ký action mà chưa có handler bị cấm (ANTI-MONOLITH "không nửa vời").

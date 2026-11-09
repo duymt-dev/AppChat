@@ -36,9 +36,10 @@ export const UI_ONLY_ACTIONS: ReadonlySet<string> = new Set(['workspace.request_
  * cho CẢ ui lẫn assistant — bảng policy để assistant risk=delete ở `preview` vốn đã đúng, nhưng `ui` risk=delete bình thường chạy
  * thẳng (TABLE.ui.delete = 'run'); các action này ép `ui` cũng phải qua `preview` như assistant. agent / task / api / system vẫn theo
  * TABLE gốc (agent risk=delete = 'forbidden' — không đổi, vì đây không phải nới quyền mà chỉ ép preview cho nguồn vốn đã được chạy).
- * `privacy.review_resolve` / `contact.allow_recreation` thêm vào đây khi có action + handler thật (pha sau).
+ * `privacy.review_resolve` thêm ở pha 2 (handler thật — read.handlers.ts/review.handler.ts); `contact.allow_recreation` chờ pha sau
+ * (identity-token anti-recreation chưa cài).
  */
-export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget']);
+export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve']);
 
 export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId }: ActionPolicyInput): PolicyDecision {
   if (actionId && UI_ONLY_ACTIONS.has(actionId) && source !== 'ui') return 'forbidden';
