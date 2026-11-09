@@ -229,7 +229,8 @@
       "needs_connector": "cần kết nối",
       "coming_soon": "sắp có",
       "skillGroup": "Kỹ năng AI",
-      "editInBuilder": "Chỉnh trong Builder ›"
+      "editInBuilder": "Chỉnh trong Builder ›",
+      "humanSkills": "Kỹ năng AI cho bạn (chạy bằng quyền của bạn)"
     },
     "modes": {
       "note": "Ghi chú nội bộ",

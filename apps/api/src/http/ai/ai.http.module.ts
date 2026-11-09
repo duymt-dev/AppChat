@@ -12,11 +12,12 @@ import { AssistantStreamController } from './assistant-stream.controller';
 import { AiTasksController } from './tasks.controller';
 import { RunsController } from './runs.controller';
 import { KbManagementController } from './kb-management.controller';
+import { UtilityResultsController } from './utility-results.controller';
 import { KbSuggestionsController } from './kb-suggestions.controller';
 
 @Module({ imports: [AiModule] })
 export class AiHttpModule {
   static register(): DynamicModule {
-    return { module: AiHttpModule, imports: [AiModule, BillingModule, ChannelsModule, InsightsModule, ActorModule], controllers: [AiController, AgentsController, AssistantController, AssistantUiController, AssistantStreamController, AiTasksController, KbManagementController, KbSuggestionsController, RunsController] };
+    return { module: AiHttpModule, imports: [AiModule, BillingModule, ChannelsModule, InsightsModule, ActorModule], controllers: [AiController, AgentsController, AssistantController, AssistantUiController, AssistantStreamController, AiTasksController, KbManagementController, KbSuggestionsController, RunsController, UtilityResultsController] };
   }
 }

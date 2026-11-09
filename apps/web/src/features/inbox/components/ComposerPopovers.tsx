@@ -36,7 +36,7 @@ export function ComposerPopovers({ conv, customer, xl, onXl, onInsert, onPickFil
   return (
     <>
       <div className={base.veil} onClick={ui.closePop} />
-      {ui.pop === 'attach' ? <AgentToolsMenu conversationId={conv.id} onClose={ui.closePop} onPickFile={onPickFile} onCapture={onCapture} /> : null}
+      {ui.pop === 'attach' ? <AgentToolsMenu conversationId={conv.id} onClose={ui.closePop} onPickFile={onPickFile} onCapture={onCapture} onSelectUtility={(id) => (ui.closePop(), ui.set({ utility: id }))} /> : null}
       {ui.pop === 'qr' ? (
         <div className={ps.pop} data-testid="qr-pop">
           <div className={ps.popHead}>

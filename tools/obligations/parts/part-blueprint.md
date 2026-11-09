@@ -472,8 +472,8 @@ Ghi chú:
 
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |---|---|---|---|---|---|
-| AI-UTILITY-EVIDENCE | Utility typedsource/evidence/uncertainty with currentauthority beforemodel andpublication/history | Blueprint797;019cSPEC1–3 | 019c | CHƯA | Fourhandlers absent; runner.ts140–141 completesrawgeneration without utilityvalidationfence;019c exactoperation/publication/readgates planned |
-| AI-UTILITY-READONLY | AI utility menus/tools remain read-only and do not autoapply CRM/commerce writes or fakefiletransfers | D51;DC244;019cSPEC3/4 | 019c | CHƯA | Existing AgentToolsMenu onlydisplay; no fourutilityruntime/host;019c AC6/7 requireszero businessmutations andreal038b artifacts |
+| AI-UTILITY-EVIDENCE | Utility typedsource/evidence/uncertainty with currentauthority beforemodel andpublication/history | Blueprint797;019cSPEC1–3 | 019c | ĐẠT | P1 handlers + kiểm bằng chứng (DC-419); P2 `utility_operation` fence (khoá actor_scope+action+invocation, CAS phase), chữ thô riêng, chỉ `validated_result` công khai qua GET /v1/ai-utilities/:runId/result, result_text ẩn cho run tiện ích, sửa một lần, khôi phục không gọi lại model (DC-420); test core ai-utilities + api ai-utility-results / ai-run-detail |
+| AI-UTILITY-READONLY | AI utility menus/tools remain read-only and do not autoapply CRM/commerce writes or fakefiletransfers | D51;DC244;019cSPEC3/4 | 019c | ĐẠT | P3: UtilityMenu/Form/Host dưới ô soạn Trợ lý + Hộp thư (InboxUtilityHost), menu agent tools tách hẳn "Kỹ năng AI cho bạn" (quyền người dùng) khỏi quyền agent; mock + http E2E xác nhận chữ dán chứa chỉ dẫn độc không tạo thẻ xác nhận / báo giá / gửi tin (DC-421) |
 
 ### Subject privacy boundaries — approvals and source audit2026-11-02
 

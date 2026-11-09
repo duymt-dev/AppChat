@@ -395,5 +395,106 @@
     "retry": "Retry",
     "cancel": "Cancel upload",
     "remove": "Remove {name}"
+  },
+  "utility": {
+    "menuTitle": "AI skills",
+    "source": "Source",
+    "src": {
+      "conversation": "Selected messages",
+      "contact": "Open contact",
+      "text": "Pasted text"
+    },
+    "textPlaceholder": "Paste the text to process…",
+    "unverified": "Pasted text is unverified — AI does not look up CRM from codes in it.",
+    "loading": "Loading…",
+    "messagesError": "Could not load messages.",
+    "noMessages": "This conversation has no text messages.",
+    "pickMessages": "{n} selected (max 30).",
+    "contactNarrow": "Uses only name, stage, group, tags and fields you can see — no phone / email / money.",
+    "usesCredit": "Uses AI credits",
+    "leadSource": "Assessed from contact facts and the messages you pick (optional).",
+    "needContact": "Open a contact to assess the opportunity.",
+    "bullets": "Max bullets",
+    "run": "Run",
+    "running": "Running…",
+    "close": "Close",
+    "pickSource": "Pick a source first.",
+    "fields": "Fields to extract",
+    "fieldLabel": "Field name",
+    "fieldType": "Type",
+    "removeField": "Remove field",
+    "addField": "Add field",
+    "type": {
+      "string": "Text",
+      "number": "Number",
+      "boolean": "Yes / no",
+      "date": "Date",
+      "enum": "List",
+      "money": "Money (VND)"
+    },
+    "defaults": {
+      "phone": "Phone number",
+      "date": "Appointment date",
+      "budget": "Budget"
+    },
+    "error": "Could not run the skill. Try again later.",
+    "result": "Result (please review)",
+    "copy": "Copy as text",
+    "reviewHint": "AI only suggests — nothing is saved or sent.",
+    "uncertain": "Uncertain",
+    "state": {
+      "pending": "Processing — the result appears once validated.",
+      "completed": "Done",
+      "failed": "AI returned an invalid result",
+      "unknown": "Result unknown — try again later.",
+      "invalidated": "The source changed — the old result is no longer valid, run again.",
+      "cancelled": "Cancelled"
+    },
+    "reason": {
+      "invalid_json": "malformed output",
+      "schema": "wrong structure",
+      "invalid_citation": "citation does not match the source",
+      "too_large": "too long",
+      "unsafe_payload": "unsafe content",
+      "unknown": "unknown",
+      "cancelled": "cancelled",
+      "race": "being processed elsewhere",
+      "missing_value": "not found in source",
+      "conflicting_values": "conflicting values",
+      "currency_ambiguous": "currency unclear",
+      "fractional_money": "fractional amount",
+      "negative_money": "negative amount",
+      "amount_overflow": "amount too large",
+      "invalid_date": "invalid date",
+      "type_mismatch": "wrong type",
+      "evidence_missing": "no evidence"
+    },
+    "intent": "Intent",
+    "intents": {
+      "inquiry": "Inquiry",
+      "booking": "Wants to book",
+      "purchase_interest": "Purchase interest",
+      "payment_question": "Payment question",
+      "complaint": "Complaint",
+      "cancellation": "Wants to cancel",
+      "other": "Other",
+      "unknown": "Unclear"
+    },
+    "status": {
+      "extracted": "Extracted",
+      "missing": "Missing",
+      "ambiguous": "Ambiguous",
+      "invalid": "Invalid"
+    },
+    "lead": "Opportunity fit",
+    "insufficient": "Not enough evidence to score",
+    "score": "{n}/100",
+    "leadDisclaimer": "A fit rubric, not a purchase probability — never written to the contact.",
+    "criteria": {
+      "buying_intent": "Buying intent",
+      "service_need": "Service need",
+      "timing": "Timing",
+      "engagement": "Engagement"
+    }
   }
 }

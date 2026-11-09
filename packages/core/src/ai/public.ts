@@ -12,11 +12,15 @@ export { trustedParent, existingChild, reuseChild, type TrustedParent } from './
 export { meteredEmbed, queryEmbedder, claimEmbedStep, isMeteringStop, type EmbedMeter, type QueryEmbed } from './runs/metered-embedding';
 export { embedChunks } from './kb/ingest-usage';
 export { expiryDelivery, EXPIRY_ONCE } from './approvals/expiry-delivery';
-export { AI_USAGE_RECOVERY } from './runs/runtime.providers';
+export { AI_USAGE_RECOVERY, AI_UTILITY_RECOVERY, AiUtilityRecoveryInstaller } from './runs/runtime.providers';
+export { recoverUtilities, UTILITY_RECOVERY_GRACE_MS, type Revalidate, type RevalidateOutcome, type UtilityRecoveryReport } from './skills/utility-recovery';
+export { makeRevalidate, type ValidatorOf } from './skills/utility-revalidate';
+export { utilityValidatorOf } from './skills/utility-validators';
 export { actionTool, toolActionId, inputSchemaOf, toolNameOf } from './runs/tools';
 export { AI_CANCEL_CHANNEL, listRuns, publishCancel, runScope, type RunFilter, type RunRowDto } from './runs/runs.service';
 export { runChildren, runDetail, runSteps } from './runs/run-detail';
 export { readableRun } from './runs/run-status';
+export { utilityResult } from './skills/utility-result';
 export { aiSettingsDto, readAiSetting, tierFor, DEFAULT_RATE_LIMIT, type AiSettingRow } from './settings/ai-settings.service';
 export { KB_EMBEDDER, KbSearchHandler, kbVisibility } from './kb/kb-search.handler';
 export { KbIngestQueue } from './kb/kb.queue';

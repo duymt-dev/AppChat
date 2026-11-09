@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import type { UiCommand } from '@appchat/actions';
 import { dispatchUiCommand } from '@/shared/assistant/ui-command-bus';
+import { utilityCommandOf } from '@/shared/ai-utilities';
 import { confirmTurn } from '../api';
 import { useAssistantStream } from './useAssistantStream';
 import { useAttachStore } from './useAssistantAttachments';
@@ -56,6 +57,9 @@ export function useAssistantChat() {
       const files = useAttachStore.getState().items;
       // Tệp còn đang tải / lỗi → chưa gửi (chip hiện trạng thái; người dùng thử lại hoặc bỏ).
       if (!text || files.some((f) => f.status !== 'ready')) return;
+      // `/ai.*` đã nhận diện → mở form kỹ năng tiện ích (TIP-019c §4.2), không gửi thành lượt chat.
+      const cmd = utilityCommandOf(text);
+      if (cmd) return useAssistantUi.getState().set({ utility: cmd, draft: '', pop: null });
       const attachments = files.map((f) => ({ id: f.file_id!, name: f.name }));
       const { push, set, mode, sessionId, tier } = useAssistantUi.getState();
       push({ id: mid(), role: 'user', text });

@@ -167,3 +167,13 @@ describe('WS run.step / run.done (AC9)', () => {
     expect(seen(outsider)).toBe(false);
   });
 });
+
+describe('result_text ẩn cho run kỹ năng tiện ích (TIP-019c §3.4)', () => {
+  it('run ai.summarize completed → GET /runs/:id không lộ result_text (đã có GET /ai-utilities/:id/result riêng)', async () => {
+    const r = await call(h, '/actions/ai.summarize', { input: { source: { kind: 'text', text: 'Khách hỏi giá gói 10 buổi, cọc 500000đ.' } } }, { 'idempotency-key': uuidv7() });
+    expect(r.status, JSON.stringify(await r.clone().json())).toBe(200);
+    const runId = ((await r.json()) as { data: { result: { utility_run_id: string } } }).data.result.utility_run_id;
+    const d = runDetailResponseSchema.parse((await get(`/runs/${runId}`)).body).data;
+    expect(d).toMatchObject({ id: runId, lifecycle: 'completed', result_text: null });
+  });
+});
