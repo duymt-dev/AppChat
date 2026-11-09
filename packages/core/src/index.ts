@@ -84,6 +84,15 @@ export { WorkspacesReadService } from './platform/services/workspaces-read';
 export { AI_CONFIG_SCOPE, RevisionWatch, WorkspaceAccess, WorkspaceSuspendedError, readRevision } from './platform/public';
 export { PlatformJobsModule } from './platform/jobs/platform.jobs.module';
 export * from './data-transfer/public';
+export * from './privacy/public';
+export { PrivacyAdaptersModule, PRIVACY_ADAPTERS, registerPrivacyAdapters } from './composition/privacy.module';
+export * from './kernel/privacy/types';
+export * from './kernel/privacy/registry';
+export { isPrivacyFenced, fencedContactIds } from './kernel/privacy/guard';
+export { dropFenced } from './kernel/privacy/publication';
+export { familyInventory, type DomainArtifact } from './kernel/privacy/provenance';
+export { PrivacyJobsModule } from './privacy/jobs/privacy.jobs.module';
+export { sweepPrivacy, sweepPrivacyWorkspace, privacyCleanupCtx, PRIVACY_SWEEP_JOB, PRIVACY_SCHEDULER_QUEUE } from './privacy/jobs/privacy.scheduler';
 
-/** Danh sách domain (thứ tự Blueprint §1.2) — test kiểm đủ module đăng ký. */
+/** Danh sách domain (thứ tự Blueprint §1.2) — test kiểm đủ module đăng ký. `privacy` (TIP-015c) không nằm trong 19 domain gốc. */
 export const DOMAINS = ['identity', 'authz', 'billing', 'channels', 'inbox', 'crm', 'catalog', 'sales', 'contracts', 'documents', 'integrations', 'booking', 'support', 'marketing', 'loyalty', 'ai', 'insights', 'notify', 'platform'] as const;

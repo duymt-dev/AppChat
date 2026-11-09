@@ -21,6 +21,7 @@ const NO_EXAMPLE_YET = new Set(
   appointment.complete appointment.mark_no_show staff.update staff.deactivate channel.group_result ticket.set_status ticket.close ticket.reopen
   ticket.bulk_update campaign.suggest campaign.submit campaign.send_test campaign.approve campaign.reject campaign.pause campaign.resume
   campaign.cancel campaign.delete loyalty.update_config loyalty.earn loyalty.reverse loyalty.expire loyalty.review_tier kb.suggestion.propose
+  privacy.cleanup_step
   assistant.resume`.split(/\s+/),
 );
 
