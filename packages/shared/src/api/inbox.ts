@@ -16,6 +16,8 @@ export const AI_STATES = ['idle', 'running', 'waiting_approval', 'handoff'] as c
 export const AI_MODES = ['off', 'copilot', 'auto'] as const;
 
 const convTag = z.object({ label: z.string(), tone: z.enum(CONV_TAG_TONES) });
+/** Đồng phụ trách (conversation_assignee, mirror D32) — khác phụ trách CHÍNH (`assignee_user_id` / `assignee_agent_id`). */
+const coAssignee = z.object({ kind: z.enum(['user', 'agent']), id: z.string(), name: z.string() });
 
 export const conversationSchema = z.object({
   id: z.string(),
@@ -59,6 +61,7 @@ export const conversationSchema = z.object({
   channel_account_id: z.string().optional(),
   assignee_user_id: z.string().nullable().optional(),
   assignee_agent_id: z.string().nullable().optional(),
+  co_assignees: z.array(coAssignee).optional(),
   archived: z.boolean().optional(),
   last_message_at: z.string().optional(),
 });

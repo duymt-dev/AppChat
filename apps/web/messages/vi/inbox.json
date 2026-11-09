@@ -89,6 +89,10 @@
     "assignMore": "Xem thêm",
     "assignUserHint": "{role} · {load} đang mở",
     "assignAgentHint": "Agent · {role} · v{version} · {load} đang mở",
+    "coAssigneesTitle": "Đồng phụ trách",
+    "coAssigneesNone": "Chưa có đồng phụ trách",
+    "coAssigneesAdd": "+ Thêm đồng phụ trách",
+    "coAssigneesRemove": "Gỡ {name} khỏi đồng phụ trách",
     "stageCurrent": "Giai đoạn hiện tại",
     "stages": {
       "lead": "Lead mới",

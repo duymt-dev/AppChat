@@ -89,6 +89,10 @@
     "assignMore": "Load more",
     "assignUserHint": "{role} · {load} open",
     "assignAgentHint": "Agent · {role} · v{version} · {load} open",
+    "coAssigneesTitle": "Co-assignees",
+    "coAssigneesNone": "No co-assignees yet",
+    "coAssigneesAdd": "+ Add co-assignee",
+    "coAssigneesRemove": "Remove {name} from co-assignees",
     "stageCurrent": "Current stage",
     "stages": {
       "lead": "New lead",

@@ -19,6 +19,7 @@ import { CrmModule } from '../crm/crm.module';
 import { ContactIdentityService } from '../crm/services/identity.service';
 import './events/inbox.rules';
 import { ConversationAssignHandler, ConversationSetTagsHandler, ConversationTagHandler } from './actions/conversation-assign.handlers';
+import { ConversationAddAssigneeHandler, ConversationRemoveAssigneeHandler } from './actions/conversation-assignee.handlers';
 import { ConversationBulkUpdateHandler } from './actions/bulk-update.handler';
 import { ConversationUnhideHandler, ConversationUntagHandler, MessageUnpinHandler, MessageUnreactHandler } from './actions/alias.handlers';
 import { GROUP_HANDLERS } from './groups/group.handlers';
@@ -54,7 +55,7 @@ const HANDLERS = [
   ConversationSearchHandler, ConversationGetHandler, TagSearchHandler, CannedReplySearchHandler, ConversationApprovalsHandler,
   ConversationMarkReadHandler, ConversationSetStatusHandler, ConversationPinHandler, ConversationArchiveHandler, ConversationHideHandler,
   ConversationSetAiModeHandler, ConversationHandoffHandler, ConversationClearHistoryHandler,
-  ConversationAssignHandler, ConversationTagHandler, ConversationSetTagsHandler, ConversationBulkUpdateHandler,
+  ConversationAssignHandler, ConversationAddAssigneeHandler, ConversationRemoveAssigneeHandler, ConversationTagHandler, ConversationSetTagsHandler, ConversationBulkUpdateHandler,
   MessageSendHandler, ContactSendEmailHandler, ConversationCreateGroupHandler, MessageForwardHandler, MessageRecallHandler, MessageDeleteHandler, MessageReactHandler, MessagePinHandler, NoteAddHandler,
   TagCreateHandler, TagUpdateHandler, TagDeleteHandler, CannedReplyCreateHandler, CannedReplyUpdateHandler, CannedReplyDeleteHandler,
   ConversationUnhideHandler, ConversationUntagHandler, MessageUnpinHandler, MessageUnreactHandler,
