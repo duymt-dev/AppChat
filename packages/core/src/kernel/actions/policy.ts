@@ -31,8 +31,18 @@ export const FORCE_APPROVAL_ACTIONS: ReadonlySet<string> = new Set([
  */
 export const UI_ONLY_ACTIONS: ReadonlySet<string> = new Set(['workspace.request_transfer_otp', 'workspace.transfer_ownership']);
 
+/**
+ * Hành động không thể đảo ngược của "Quên khách" (TIP-015c §1.3, DC-259/260/262/264/265): BẮT BUỘC xem trước + xác nhận canonical
+ * cho CẢ ui lẫn assistant — bảng policy để assistant risk=delete ở `preview` vốn đã đúng, nhưng `ui` risk=delete bình thường chạy
+ * thẳng (TABLE.ui.delete = 'run'); các action này ép `ui` cũng phải qua `preview` như assistant. agent / task / api / system vẫn theo
+ * TABLE gốc (agent risk=delete = 'forbidden' — không đổi, vì đây không phải nới quyền mà chỉ ép preview cho nguồn vốn đã được chạy).
+ * `privacy.review_resolve` / `contact.allow_recreation` thêm vào đây khi có action + handler thật (pha sau).
+ */
+export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget']);
+
 export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId }: ActionPolicyInput): PolicyDecision {
   if (actionId && UI_ONLY_ACTIONS.has(actionId) && source !== 'ui') return 'forbidden';
+  if (actionId && MANDATORY_PREVIEW_ACTIONS.has(actionId) && (source === 'ui' || source === 'api' || source === 'system')) return 'preview';
   if ((source === 'agent' || source === 'task') && actionId && FORCE_APPROVAL_ACTIONS.has(actionId)) return TABLE[source][risk] === 'forbidden' ? 'forbidden' : 'approval';
   // Agent trực kênh trả lời trong hội thoại đang phục vụ: chạy (§3.3 dòng `agent`, cột send) — gửi nơi khác vẫn duyệt.
   if (source === 'agent' && risk === 'send' && servedConversation && !bulk) return 'run';

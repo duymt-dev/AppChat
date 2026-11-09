@@ -10,6 +10,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   platform: {
     ops: '002', routing: '002', identity: '004', billing: '009', 'billing-payments': '010', 'billing-lifecycle': '039',
     integrations: '012', 'ai-config': '019', templates: '021', notify: '006', 'commerce-links': '032b', 'action-operations': '045b', 'workspace-lifecycle': '041',
+    'privacy-journal': '015c',
   },
   tenant: {
     kernel: '002', authz: '005', integrations: '012', channels: '014', 'channels-webchat': '017', 'channels-email': '018', crm: '015',
@@ -24,6 +25,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'contact-merge': '015e',
   'tenant-mail': '012c',
   'ai-utilities': '019c',
+  privacy: '015c',
   },
 };
 
@@ -42,6 +44,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(54);
+    expect(n).toBe(56);
   });
 });

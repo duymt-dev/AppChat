@@ -346,6 +346,18 @@
     "bulk_update": {
       "title": "Bulk update contacts",
       "desc": "Update many contacts at once (group, status, tags…) — owner is not changed."
+    },
+    "privacy_preview": {
+      "title": "Preview forget customer",
+      "desc": "Preview the customer family's scope, what will be removed / kept, and any blockers before permanently forgetting — nothing is deleted yet."
+    },
+    "forget": {
+      "title": "Forget customer (permanent)",
+      "desc": "Permanently erase the customer's private content; issued/signed documents are kept. Irreversible, cannot be undone."
+    },
+    "privacy_status": {
+      "title": "Forget-customer progress",
+      "desc": "Track a forget-customer operation by id — counts only, no content."
     }
   },
   "custom_field": {

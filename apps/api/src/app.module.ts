@@ -1,6 +1,6 @@
 // Module gốc của API: kernel + health + route kernel (TIP-003) + 19 domain HTTP module (đăng ký sẵn ở TIP-001 — TIP sau KHÔNG sửa).
 import { Module, type DynamicModule } from '@nestjs/common';
-import { ContactLifecycleModule, KernelModule } from '@appchat/core';
+import { ContactLifecycleModule, KernelModule, PrivacyAdaptersModule, PrivacyModule } from '@appchat/core';
 import { HealthModule } from './http/health/health.module';
 import { KernelHttpModule } from './http/kernel/kernel.http.module';
 import { IdentityHttpModule } from './http/identity/identity.http.module';
@@ -24,6 +24,7 @@ import { InsightsHttpModule } from './http/insights/insights.http.module';
 import { NotifyHttpModule } from './http/notify/notify.http.module';
 import { PlatformHttpModule } from './http/platform/platform.http.module';
 import { DataTransferHttpModule } from './http/data-transfer/data-transfer.http.module';
+import { PrivacyHttpModule } from './http/privacy/privacy.http.module';
 
 export const DOMAIN_HTTP_MODULES = [
     IdentityHttpModule,
@@ -49,11 +50,11 @@ export const DOMAIN_HTTP_MODULES = [
 
 /** Route kernel (actions / action-logs) + route identity chỉ khi env có DB + Redis + JWT_SECRET (executor + actor JWT). */
 const withActions = (env: Record<string, string | undefined>) =>
-  env.PLATFORM_DATABASE_URL && env.REDIS_URL && env.JWT_SECRET ? [KernelHttpModule.register(), IdentityHttpModule.register(), AuthzHttpModule.register(), NotifyHttpModule.register(), BillingHttpModule.register(), IntegrationsHttpModule.register(), CrmHttpModule.register(), LoyaltyHttpModule.register(), CatalogHttpModule.register(), DocumentsHttpModule.register(), SalesHttpModule.register(), BookingHttpModule.register(), SupportHttpModule.register(), MarketingHttpModule.register(), InsightsHttpModule.register(), ContractsHttpModule.register(), ChannelsHttpModule.register(), InboxHttpModule.register(), AiHttpModule.register(), FilesHttpModule.register(), PlatformHttpModule.register(), DataTransferHttpModule] : [];
+  env.PLATFORM_DATABASE_URL && env.REDIS_URL && env.JWT_SECRET ? [KernelHttpModule.register(), IdentityHttpModule.register(), AuthzHttpModule.register(), NotifyHttpModule.register(), BillingHttpModule.register(), IntegrationsHttpModule.register(), CrmHttpModule.register(), LoyaltyHttpModule.register(), CatalogHttpModule.register(), DocumentsHttpModule.register(), SalesHttpModule.register(), BookingHttpModule.register(), SupportHttpModule.register(), MarketingHttpModule.register(), InsightsHttpModule.register(), ContractsHttpModule.register(), ChannelsHttpModule.register(), InboxHttpModule.register(), AiHttpModule.register(), FilesHttpModule.register(), PlatformHttpModule.register(), DataTransferHttpModule, PrivacyHttpModule.register()] : [];
 
 @Module({})
 export class AppModule {
   static forRoot(env: Record<string, string | undefined> = process.env): DynamicModule {
-    return { module: AppModule, imports: [KernelModule.forRoot(env), HealthModule, ContactLifecycleModule, ...withActions(env), ...DOMAIN_HTTP_MODULES] };
+    return { module: AppModule, imports: [KernelModule.forRoot(env), HealthModule, ContactLifecycleModule, PrivacyAdaptersModule, PrivacyModule, ...withActions(env), ...DOMAIN_HTTP_MODULES] };
   }
 }

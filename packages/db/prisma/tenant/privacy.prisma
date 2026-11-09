@@ -1,0 +1,200 @@
+// tenant/privacy.prisma — sở hữu: TIP-015c (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// "Quên khách" (TIP-015c §2.1): không bảng nào ở đây lưu tên/SĐT/email/chat thô — chỉ ID, thế hệ, pha, đếm và DIGEST có khoá riêng
+// workspace (identity-tokens.ts). Nội dung thật nằm ở bảng domain gốc; bảng ở đây chỉ là fence + sổ tiến độ + token chống tái tạo.
+
+enum PrivacyOperationPhase {
+  accepted
+  fencing
+  inventory
+  erasing
+  needs_review
+  verifying
+  completed_with_exceptions
+  retryable_failed
+
+  @@map("privacy_operation_phase")
+}
+
+enum PrivacyArtifactState {
+  allowed
+  quarantined
+  erase_pending
+  erased
+  retained_issued
+
+  @@map("privacy_artifact_state")
+}
+
+enum PrivacyItemDisposition {
+  proven_unrelated
+  erase_exclusive
+  redact_shared
+  retained_issued
+
+  @@map("privacy_item_disposition")
+}
+
+/// Lượt "Quên khách" (TIP-015c §2.1) — một họ khách (root tại accept) = một operation sống. `leaseEpoch`/`leaseExpiresAt` cho
+/// worker khôi phục (lease CAS, như consistency/operation-store.ts). `cursor`/`checkpoint` cho quét lại sau crash.
+model PrivacyOperation {
+  id                 String                @id @db.Uuid
+  canonicalContactId String                @map("canonical_contact_id") @db.Uuid
+  /// Thế hệ họ TẠI thời điểm accept (= contact.lifecycleRevision của root lúc khoá) — không đổi sau accept.
+  familyGeneration   Int                   @map("family_generation")
+  requesterId        String                @map("requester_id") @db.Uuid
+  policyVersion      Int                   @map("policy_version")
+  /// SHA256 bản sửa sổ kiểm kê (SPEC3 legacy-scanner) tại lúc preview đã dùng để confirm — đối chiếu lại lúc accept.
+  inventoryRevision  String                @map("inventory_revision")
+  phase              PrivacyOperationPhase @default(accepted)
+  leaseEpoch         Int                   @default(0) @map("lease_epoch")
+  leaseExpiresAt     DateTime?             @map("lease_expires_at") @db.Timestamptz(6)
+  cursor             String?
+  checkpoint         Json                  @default("{}")
+  countTotal         Int                   @default(0) @map("count_total")
+  countResolved      Int                   @default(0) @map("count_resolved")
+  countRetained      Int                   @default(0) @map("count_retained")
+  /// Idempotency gọi lại contact.forget cùng input (actor + family + generation) — một operation / (requester, family, generation).
+  requestKey         String                @map("request_key")
+  createdAt          DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  members  PrivacyFamilyMember[]
+  items    PrivacyItem[]
+
+  @@unique([canonicalContactId, familyGeneration], map: "privacy_operation_family_key")
+  @@unique([requestKey], map: "privacy_operation_request_key")
+  @@map("privacy_operation")
+}
+
+/// Mọi contact trong họ tại lúc accept (gốc + mọi nguồn đã gộp) — terminal generation ghi tại Contact (TIP-015c §2.1.4, dùng
+/// contact.lifecycleRevision sẵn có, không thêm cột mới trên Contact ở pha 1).
+model PrivacyFamilyMember {
+  operationId String @map("operation_id") @db.Uuid
+  contactId   String @map("contact_id") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  operation PrivacyOperation @relation(fields: [operationId], references: [id])
+
+  @@id([operationId, contactId])
+  @@map("privacy_family_member")
+}
+
+/// Một artifact = (kind, record_id) tại một revision nội dung (TIP-015c §2.2.1) — state hiện hành, không giữ nội dung.
+model PrivacyArtifact {
+  id         String               @id @db.Uuid
+  kind       String
+  recordId   String               @map("record_id") @db.Uuid
+  revision   Int
+  state      PrivacyArtifactState @default(allowed)
+  createdAt  DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  links PrivacySubjectLink[]
+  items PrivacyItem[]
+
+  @@unique([kind, recordId, revision], map: "privacy_artifact_identity_key")
+  @@map("privacy_artifact")
+}
+
+/// Artifact ↔ contact tại một generation (TIP-015c §2.2.1, §7.2) — provenance: nguồn gán artifact cho subject (vd. "message.sender").
+model PrivacySubjectLink {
+  id          String   @id @db.Uuid
+  artifactId  String   @map("artifact_id") @db.Uuid
+  contactId   String   @map("contact_id") @db.Uuid
+  generation  Int
+  provenance  String
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  artifact PrivacyArtifact @relation(fields: [artifactId], references: [id])
+
+  @@unique([artifactId, contactId, generation], map: "privacy_subject_link_key")
+  @@index([contactId, generation, artifactId], map: "privacy_subject_link_contact_idx")
+  @@map("privacy_subject_link")
+}
+
+/// Mục cần xử lý trong một operation (TIP-015c §2.5) — disposition do người xét (privacy.review_resolve), không phải cờ tự động.
+model PrivacyItem {
+  id          String                   @id @db.Uuid
+  operationId String                   @map("operation_id") @db.Uuid
+  artifactId  String                   @map("artifact_id") @db.Uuid
+  disposition PrivacyItemDisposition?
+  proofRef    String?                  @map("proof_ref")
+  version     Int                      @default(1)
+  resolvedAt  DateTime?                @map("resolved_at") @db.Timestamptz(6)
+  createdAt   DateTime                 @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime                 @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  operation PrivacyOperation @relation(fields: [operationId], references: [id])
+  artifact  PrivacyArtifact  @relation(fields: [artifactId], references: [id])
+
+  @@unique([operationId, artifactId], map: "privacy_item_key")
+  @@map("privacy_item")
+}
+
+/// Token định danh một chiều (TIP-015c §4.1) — HMAC(namespace, key) với khoá riêng workspace (identity-tokens.ts), KHÔNG phải raw
+/// identity. `freshContactId` null = tombstoned (chặn tái tạo); có giá trị = đã cấp permit tạo hồ sơ mới (fresh_permitted).
+model PrivacyIdentityToken {
+  id             String   @id @db.Uuid
+  namespace      String
+  keyVersion     Int      @map("key_version")
+  digest         String
+  generation     Int      @default(0)
+  freshContactId String?  @map("fresh_contact_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([namespace, keyVersion, digest], map: "privacy_identity_token_key")
+  @@map("privacy_identity_token")
+}
+
+/// Permit tạo hồ sơ mới một lần (TIP-015c §2.1.6) — 10 phút, băm ý định tạo (create_input) + danh sách identifier đã khai.
+model PrivacyRecreationPermit {
+  id            String   @id @db.Uuid
+  actorUserId   String   @map("actor_user_id") @db.Uuid
+  identifiers   Json
+  intentHash    String   @map("intent_hash")
+  consumedAt    DateTime? @map("consumed_at") @db.Timestamptz(6)
+  consumedContactId String? @map("consumed_contact_id") @db.Uuid
+  expiresAt     DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("privacy_recreation_permit")
+}
+
+/// Biên nhận dedupe tin inbound (TIP-015c §4.3) — khoá theo digest, không body/sender thô.
+model PrivacyDedupeReceipt {
+  id          String   @id @db.Uuid
+  accountId   String   @map("account_id") @db.Uuid
+  namespace   String
+  digest      String
+  originalId  String   @map("original_id")
+  status      String
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([accountId, namespace, digest], map: "privacy_dedupe_receipt_key")
+  @@map("privacy_dedupe_receipt")
+}
+
+/// Thế hệ tuyến mới cho inbound sau khi token cũ bị chặn (TIP-015c §4.4) — hội thoại/phiên mới không gắn CRM cũ.
+model PrivacyRoute {
+  id           String   @id @db.Uuid
+  accountId    String   @map("account_id") @db.Uuid
+  threadDigest String   @map("thread_digest")
+  generation   Int
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([accountId, threadDigest, generation], map: "privacy_route_key")
+  @@map("privacy_route")
+}
+
+/// Khoá hiện hành + rotation của matching-key HMAC (TIP-015c §4.1) — không plaintext, chỉ version + trạng thái.
+model PrivacyKeyring {
+  id        String   @id @db.Uuid
+  version   Int      @unique
+  wrappedKey String  @map("wrapped_key")
+  active    Boolean  @default(true)
+  readOnly  Boolean  @default(false) @map("read_only")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("privacy_keyring")
+}

@@ -57,9 +57,16 @@ export interface SecretSpec {
 
 export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: ActionDef<I, O>): ActionDef<I, O> => d;
 
+/**
+ * "Quên khách" (TIP-015c §1.3): không thể đảo ngược — bắt buộc Idempotency-Key dù risk không phải send/money/create, để gửi lại
+ * cùng khoá không lặp hiệu ứng không thể hoàn tác. `privacy.review_resolve` / `contact.allow_recreation` thêm vào đây khi có action +
+ * handler thật (pha sau).
+ */
+const PRIVACY_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['contact.forget']);
+
 /** Idempotency-Key bắt buộc: risk send / money và lệnh tạo (response-envelope §7) — executor kiểm, FE `useAction` tự gửi. */
 export function requiresIdempotencyKey(actionId: string, risk: Risk): boolean {
-  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId);
+  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId) || PRIVACY_IDEMPOTENT_ACTIONS.has(actionId);
 }
 
 export type ActionInput<D> = D extends ActionDef<infer I, z.ZodTypeAny> ? z.input<I> : never;

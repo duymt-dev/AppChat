@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 153 | 6 | 2 | 13 | 14 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 5 | 0 | 2 | 11 | 10 | 5 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 6 | 0 | 2 | 10 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 165 | 10 | 0 | 9 | 10 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 396 | 32 | 1 | 4 | 23 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 396 | 33 | 1 | 4 | 22 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 58 | 0 | 28 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
-| **Tổng** | **1193** | **100** | **32** | **49** | **117** | **35** | **69** | **0** |
+| **Tổng** | **1193** | **102** | **32** | **49** | **115** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -387,7 +387,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-N06d | TLS ở production | 01-REQUIREMENTS-MATRIX.md:214 | 045 | CHƯA | chưa có `infra/` (nginx) |
 | REQ-N07 | Hiệu năng: tin p95 < 1s, API đọc p95 < 300ms, uptime 99.9% — đo + giám sát | 01-REQUIREMENTS-MATRIX.md:215 | 045b, 046 | MỘT PHẦN | 045b: /metrics (http_request_duration_seconds, action_total, queue_depth, outbox_lag_seconds…) đã có — hardening-metrics.test.ts; đo p95 / uptime thuộc TIP-046 |
 | REQ-N08a | Backup Postgres (PITR / dump hằng ngày), RPO ≤ 5′, RTO ≤ 1h, diễn tập restore | 01-REQUIREMENTS-MATRIX.md:216 | 045, 046 | CHƯA | chưa có `infra/` (pgBackRest) |
-| REQ-N08b | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | 01-REQUIREMENTS-MATRIX.md:216 | 015c | CHƯA | Blueprint650/833 và quyền privacy.erase có, action/handler chưa có. TIP015c nhận approved DC259/260/262/264/265,297path/10AC; không coi planning là runtime. |
+| REQ-N08b | Quyền bị lãng quên: ẩn danh hoá khách (`contact.forget`, quyền `privacy.erase`) | 01-REQUIREMENTS-MATRIX.md:216 | 015c | MỘT PHẦN | TIP-015c P1: contact.forget/privacy_preview/privacy_status chạy thật trên CRM (khoá họ khách, chặn DC-262, mandatory-preview, idempotent accept — phase `accepted`); CRM là domain erase thật đầu tiên (crm/privacy/cleanup.ts), 12 domain còn lại + journal/anti-recreate/review pha sau. Test privacy.test.ts (6 ca). |
 | REQ-N09a | Log JSON có `traceId` | 01-REQUIREMENTS-MATRIX.md:217 | 001 | ĐẠT | packages/core/src/kernel (pino + traceId); test packages/core/test/logger.test.ts, kernel.test.ts "acceptTraceId" |
 | REQ-N09b | App metrics `/metrics` (API, queue, kênh, AI, credit) | 01-REQUIREMENTS-MATRIX.md:217 | 045b | ĐẠT | packages/core/src/kernel/metrics/* đủ instrument (http, action, queue, outbox, llm_tokens / errors, channel_account_status, tenant_pool_clients, reconcile_findings_total), không nhãn workspace; hardening-metrics.test.ts |
 | REQ-N09c | Prometheus + Alertmanager + Grafana + Loki + Alloy, exporters, dashboard + cảnh báo trong repo | 01-REQUIREMENTS-MATRIX.md:217 | 045 | CHƯA | chưa có `infra/` |
@@ -885,7 +885,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-category.update | `category.update` có trong registry + handler | plans/BLUEPRINT.md:665 | 032b | ĐẠT | packages/actions/src/catalog-operations.ts + category.handlers.ts (tên trùng không phân biệt hoa thường → 409); actions/category.update.action.test.ts; thêm category.list (đường tra Trợ lý) |
 | ACT-contact.add_note | `contact.add_note` có trong registry + handler | plans/BLUEPRINT.md:639 | 026b | ĐẠT | TIP-026b P1 (DC-387): packages/actions/src/contact-notes.ts + core crm/activities/notes.handlers.ts (crm.edit, write, agentGrantable true, undo 24h xoá mềm theo version); ma trận contact.add_note.action.test.ts; contact-activities.test.ts |
 | ACT-contact.bulk_update | `contact.bulk_update` có trong registry + handler | plans/BLUEPRINT.md:642 | 045b | ĐẠT | packages/actions/src/crm-bulk.ts; core/src/crm/actions/contact-bulk.handler.ts (≤ 50 savepoint từng khách, > 50 → 202 job_accepted); matrix actions/contact.bulk_update.action.test.ts; hardening-jobs.test.ts |
-| ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | 015c | CHƯA | Blueprint650/833 và quyền privacy.erase có, action/handler chưa có. TIP015c nhận approved DC259/260/262/264/265,297path/10AC; không coi planning là runtime. |
+| ACT-contact.forget | `contact.forget` có trong registry + handler | plans/BLUEPRINT.md:650 | 015c | MỘT PHẦN | TIP-015c P1: packages/actions/src/privacy.ts (contact.forget/privacy_preview/privacy_status, privacy.erase, delete, no undo, mandatory-preview MANDATORY_PREVIEW_ACTIONS ở kernel/actions/policy.ts) + handler packages/core/src/privacy/actions/forget.handler.ts (acceptForget — khoá họ khách, chặn DC-262, đối chiếu inventory_revision). Chỉ pha `accepted`: cleanup/erase thật mới làm cho CRM (crm/privacy/cleanup.ts); 12/13 domain còn lại + journal nền tảng + identity-token/anti-recreate để pha sau. Test apps/api/test/integration/privacy.test.ts (6 ca: 403, mandatory-preview, DC-262, CONFLICT revision đổi giữa lượt, idempotent accept, status). |
 | ACT-contact.remember | `contact.remember` có trong registry + handler | plans/BLUEPRINT.md:641 | 015b | ĐẠT | packages/actions/src/contact-memory.ts (contact.remember / memory_list / memory_forget / summarize) + packages/core/src/crm/memory/{handlers,read,summary-handler}.ts; apps/api/test/integration/contact-memory.test.ts, actions/contact.remember.action.test.ts; ai:live contact-memory 3/3 (9/9 lượt) |
 | ACT-contract.create_appendix | `contract.create_appendix` có trong registry + handler | plans/BLUEPRINT.md:690 | 030b | ĐẠT | packages/actions/src/contract-appendix.ts (create_appendix + appendix_update/submit/request_changes/owner_otp/approve_and_sign/send + 3 public); handler packages/core/src/contracts/appendix/write.handlers.ts; test apps/api/test/integration/contract-appendix.test.ts (9) + 10 matrix action (TIP-030b F3, b07fe87) |
 | ACT-contract.draft_from_content | `contract.draft_from_content` có trong registry + handler | plans/BLUEPRINT.md:694 | 030b | ĐẠT | packages/actions/src/contracts.ts + packages/core/src/contracts/actions/contract-draft.handler.ts (chỉ đọc đề xuất bất biến từ contract.prepare_draft — DC-322); test contract.draft_from_content / prepare_draft action matrix (TIP-030b F2, 9467d52) |
