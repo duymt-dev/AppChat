@@ -1488,6 +1488,10 @@
     "plan_reusable": {
       "title": "Gợi ý kế hoạch tái dùng",
       "desc": "Danh sách cấu trúc kế hoạch cũ của chính bạn có thể dùng lại — chỉ tên action/bước, không giá trị/kết quả cũ."
+    },
+    "agent_choices": {
+      "title": "Danh sách AI Agent để chọn làm chuyên viên",
+      "desc": "Trang AI Agent đang hoạt động / đã xuất bản có thể chọn làm chuyên viên Cowork — chỉ tên/vai trò/mức AI, không prompt/persona."
     }
   },
   "sales_settings": {

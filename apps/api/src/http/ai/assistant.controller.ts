@@ -105,6 +105,13 @@ export class AssistantController {
     return this.svc.sessions(await this.caller(req, 'assistant.use'), (q ?? '').slice(0, 100), { ...(cursor ? { cursor: cursor.slice(0, 200) } : {}), ...(Number.isInteger(n) && n > 0 ? { limit: n } : {}) });
   }
 
+  /** AI Agent chọn làm chuyên viên Cowork (TIP-023d §5.2) — không cấp quyền agent.manage/view, chỉ metadata đã xuất bản. */
+  @Get('assistant/agent-choices')
+  async agentChoices(@Req() req: IncomingMessage, @Query('cursor') cursor?: string, @Query('limit') limit?: string) {
+    const n = Number(limit);
+    return this.svc.agentChoices(await this.caller(req, 'assistant.use'), { ...(cursor ? { cursor: cursor.slice(0, 200) } : {}), ...(Number.isInteger(n) && n > 0 ? { limit: n } : {}) });
+  }
+
   @Get('assistant/sessions/:id/messages')
   async messages(@Req() req: IncomingMessage, @Param('id') id: string) {
     return { data: await this.svc.messages(await this.caller(req, 'assistant.use'), id), next_cursor: null };
