@@ -358,6 +358,10 @@
     "privacy_status": {
       "title": "Xem tiến độ Quên khách",
       "desc": "Theo dõi tiến độ một lượt Quên khách theo mã — chỉ số đếm, không nội dung."
+    },
+    "allow_recreation": {
+      "title": "Cho phép tạo lại hồ sơ mới",
+      "desc": "Mở một lần khả năng tạo khách mới từ SĐT/email/tài khoản kênh đã bị chặn do một lượt Quên khách trước — không phục hồi dữ liệu cũ."
     }
   },
   "custom_field": {

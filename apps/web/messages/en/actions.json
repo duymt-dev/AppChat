@@ -358,6 +358,10 @@
     "privacy_status": {
       "title": "Forget-customer progress",
       "desc": "Track a forget-customer operation by id — counts only, no content."
+    },
+    "allow_recreation": {
+      "title": "Allow new profile recreation",
+      "desc": "One-time unlock to create a new contact from phone/email/channel-account identifiers blocked by a prior forget-customer operation — does not restore old data."
     }
   },
   "custom_field": {

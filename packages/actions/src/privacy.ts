@@ -102,5 +102,26 @@ export const privacyReviewResolve = defineAction({
   invalidates: ['crm'],
 });
 
-// contact.allow_recreation · privacy.inventory_scan: thêm ở pha sau có handler thật (identity-token anti-recreation / legacy-scanner
-// bootstrap — chưa cài ở pha 2) — đăng ký action mà chưa có handler bị cấm (ANTI-MONOLITH "không nửa vời").
+const recreationIdentifier = z.object({
+  kind: z.enum(['phone', 'email', 'provider']),
+  value: z.string().min(1).max(254),
+  channel_account_id: uuid.optional(),
+});
+
+export const contactAllowRecreation = defineAction({
+  id: 'contact.allow_recreation',
+  module: 'crm',
+  title: 'actions.contact.allow_recreation.title',
+  description:
+    'Issue a one-time permit to create a NEW contact profile from identifiers (phone/email/provider account) that were tombstoned by a prior "forget customer" (DC-260). Does not restore old data — only unblocks contact.create for exactly these identifiers. Example: {"identifiers":[{"kind":"phone","value":"+84909123456"}],"create_input":{"full_name":"Nguyễn Thị Lan","phone":"+84909123456"}}',
+  input: z.object({ identifiers: z.array(recreationIdentifier).min(1).max(10), create_input: z.record(z.string(), z.unknown()) }),
+  output: z.object({ permit_id: z.string(), expires_at: z.string() }),
+  permission: 'privacy.erase',
+  risk: 'config',
+  agentGrantable: false,
+  requiredApprovalSources: ['assistant', 'agent', 'task'],
+  invalidates: [],
+});
+
+// privacy.inventory_scan: thêm ở pha sau có handler thật (legacy-scanner bootstrap — chưa cài ở pha 3) — đăng ký action mà chưa có
+// handler bị cấm (ANTI-MONOLITH "không nửa vời").
