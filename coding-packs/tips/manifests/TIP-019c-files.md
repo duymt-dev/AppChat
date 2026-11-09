@@ -96,6 +96,7 @@ M modify, C create. Future M requires predecessor integration. No directory wild
 | M | `apps/api/src/openapi/document.ts` | Schema `data` có kiểu cho GET /v1/ai-utilities/{runId}/result (không thêm x-untyped) |
 | C | `apps/api/test/integration/ai-utility-results.test.ts` | Integration: GET kết quả có scope, idempotency, khôi phục 4 nhánh |
 | M | `apps/api/test/integration/ai-run-detail.test.ts` | result_text null cho run kỹ năng tiện ích |
+| M | `packages/db/test/prisma-stubs.test.ts` | Bản đồ sở hữu: `tenant/ai-utilities` → 019c (54 file) |
 
 ## Future M provenance
 

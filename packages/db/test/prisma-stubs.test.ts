@@ -23,6 +23,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'contact-lifecycle': '015f',
   'contact-merge': '015e',
   'tenant-mail': '012c',
+  'ai-utilities': '019c',
   },
 };
 
@@ -32,7 +33,7 @@ describe('prisma stubs', () => {
     expect(files.sort()).toEqual(Object.keys(OWNERS[kind]).sort());
   });
 
-  it('51 file, mỗi file ghi đúng TIP chủ ở dòng đầu', () => {
+  it('mọi file ghi đúng TIP chủ ở dòng đầu', () => {
     let n = 0;
     for (const kind of ['platform', 'tenant'] as const) {
       for (const [file, tip] of Object.entries(OWNERS[kind])) {
@@ -41,6 +42,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(53);
+    expect(n).toBe(54);
   });
 });

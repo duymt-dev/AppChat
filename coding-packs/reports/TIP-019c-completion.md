@@ -69,6 +69,7 @@ Theo manifest `tips/manifests/TIP-019c-files.md` (thêm 6 dòng P2: `utility-rev
 | `pnpm --filter @appchat/api test:integration test/integration/ai-utility-results.test.ts test/integration/ai-utilities.test.ts test/integration/ai-run-detail.test.ts` | 3 file / 19 test pass |
 | `pnpm turbo run lint typecheck --filter=@appchat/core --filter=@appchat/api --filter=@appchat/db --filter=@appchat/worker` | xanh |
 | `pnpm --filter @appchat/api test` | 2 file / 11 pass |
+| `pnpm turbo run lint typecheck test --filter="...[origin/dev]"` | 12/12 task xanh (gồm db `prisma-stubs` — thêm `tenant/ai-utilities` → 019c sau khi CI lần 1 đỏ) |
 | `pnpm depcheck` | 0 lỗi (113 cảnh báo web mock có sẵn) |
 | `node tools/scripts/i18n-check.mjs` | vi / en 100% |
 | `pnpm --filter @appchat/api test:integration test/integration/openapi.test.ts` | 4/5 — ca AC4 `x-untyped ≤ 175` đỏ **có sẵn trên origin/dev** (220 > 175, lệch do TIP trước); route mới đã khai schema có kiểu nên không cộng thêm |
