@@ -15,7 +15,7 @@ beforeAll(async () => {
 afterAll(() => m?.close());
 
 type Res = { status: number; body: any }; // eslint-disable-line @typescript-eslint/no-explicit-any
-const asHeader = (who?: { token: string }) => (who ? { authorization: `Bearer ${who.token}` } : {});
+const asHeader = (who?: { token: string }): Record<string, string> => (who ? { authorization: `Bearer ${who.token}` } : {});
 
 async function httpCall(id: string, input: unknown, who?: { token: string }): Promise<Res> {
   const r = await http(m.h, `/actions/${id}`, { input }, { 'idempotency-key': uuidv7(), ...asHeader(who) });
