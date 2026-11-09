@@ -20,6 +20,7 @@ import { tenantMailCase } from './tenant-mail-judge';
 import { bookingCase } from './booking-judge';
 import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
+import { utilityCase } from './utility-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown, headers?: Record<string, string>): Promise<{ status: number; body: unknown }>;
@@ -107,6 +108,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.booking) return bookingCase(api, c, attempt, o);
   if (c.cedit) return ceditCase(api, c, attempt, o);
   if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
+  if (c.utility) return utilityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.transfer) return transferCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.hardening) return hardeningCase(api, c, attempt, o, (s) => fillInput(s, o.seed), contextOf(c, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };
