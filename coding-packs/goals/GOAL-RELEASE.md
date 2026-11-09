@@ -115,7 +115,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 31 | [033b](../tips/TIP-033b-booking-operations.md) | W8 | DONE (P5 / 5) | `tip/033b-booking-operations` | #154, #155, #156, #157, #158 | |
 | 32 | [019c](../tips/TIP-019c-ai-utilities.md) | W8 | **DONE** (pha 4/4 — P1 4 kỹ năng DC-419; P2 fence `utility_operation` DC-420; P3 UI UtilityMenu/Form/Result/Host DC-421; P4 ai:live `ai-utilities` 8/8, an toàn 0 — DV-093 áp dụng) | `tip/019c-ai-utilities-p3` · `tip/019c-ai-utilities-p4` | #159, #160, #161, #164 | |
 | 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | **DONE** (pha 5/5 — 041 restore gate đọc journal nền tảng trước khi mở lại workspace; CI affected xanh) | `tip/015c-p5-restore-gate` | `2662848e` | #170 |
-| 34 | [023d](../tips/TIP-023d-assistant-plans.md) | W8 | pha 1/N — assistant.plan_propose/get/reusable (schema versioned + preview + test phủ Trợ lý); CI chờ | `tip/023d-assistant-plans` | `45c9ef33` | #171 |
+| 34 | [023d](../tips/TIP-023d-assistant-plans.md) | W8 | pha 1-2/N — §1 plan_propose/get/reusable (schema versioned + preview); §5.2 agent_choices (read, keyset, GET route) | `tip/023d-assistant-plans` | `9877437d` | #171 |
 | 35 | [023e](../tips/TIP-023e-action-discovery.md) | W8 | chờ | `tip/023e-action-discovery` | | |
 | 36 | [023f](../tips/TIP-023f-assistant-input.md) | W8 | chờ | `tip/023f-assistant-input` | | |
 | 37 | [003b](../tips/TIP-003b-event-protocol.md) | W8 | chờ | `tip/003b-event-protocol` | | |
