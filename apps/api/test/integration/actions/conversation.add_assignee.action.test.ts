@@ -14,7 +14,8 @@ let bot: string;
 
 const getConv = async (id: string) => {
   const r = await call(m.h, `/conversations/${id}`);
-  return conversationSchema.parse((await r.json()).data);
+  const body = (await r.json()) as { data: unknown };
+  return conversationSchema.parse(body.data);
 };
 
 beforeAll(async () => {
