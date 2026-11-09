@@ -1518,5 +1518,15 @@
     "sample": {
       "title": "Xem mẫu tệp nhập (đã che dữ liệu liên hệ)"
     }
+  },
+  "privacy": {
+    "cleanup_step": {
+      "title": "Chạy một bước dọn Quên khách (hệ thống)",
+      "desc": "Hệ thống tự gọi — tiến một bước trong lượt Quên khách (khoá fence → kiểm kê → xoá theo lô → chờ xét / xác minh → hoàn tất)."
+    },
+    "review_resolve": {
+      "title": "Xét một mục chờ duyệt (Quên khách)",
+      "desc": "Quyết định một mục dữ liệu chung / chưa rõ chủ thể trong lượt Quên khách: không liên quan, chỉ của khách này, xoá phần của khách giữ phần khác, hoặc giữ vì là chứng từ đã phát hành."
+    }
   }
 }

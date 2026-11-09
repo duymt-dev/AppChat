@@ -80,11 +80,15 @@ model PrivacyFamilyMember {
 }
 
 /// Một artifact = (kind, record_id) tại một revision nội dung (TIP-015c §2.2.1) — state hiện hành, không giữ nội dung.
+/// `domain` (TIP-015c pha 2) = PrivacyDomain ghi tại lúc materialize — cleanup_step tra lại đúng adapter cần gọi `erase()`, không
+/// phải suy ra từ `kind` (một domain có thể có nhiều kind, và kind không tự nói thuộc adapter nào).
 model PrivacyArtifact {
   id         String               @id @db.Uuid
+  domain     String
   kind       String
   recordId   String               @map("record_id") @db.Uuid
   revision   Int
+  ownership  String               @default("exclusive")
   state      PrivacyArtifactState @default(allowed)
   createdAt  DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt  DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)

@@ -9,6 +9,7 @@ import { familyDependencies, assertNoBlockers } from '../../crm/lifecycle/depend
 import { familyInventory } from '../../kernel/privacy/provenance';
 import { uuidv7 } from '../../kernel/ids';
 import { inventoryRevisionOf } from './preview';
+import { materializeInventory } from './materialize';
 
 export interface AcceptForgetInput {
   contactId: string;
@@ -53,6 +54,8 @@ export async function acceptForget(tx: TenantTx, a: AcceptForgetInput): Promise<
     await tx.$executeRaw`INSERT INTO "privacy_family_member" ("operation_id", "contact_id", "created_at") VALUES (${operationId}::uuid, ${memberId}::uuid, ${a.now})
       ON CONFLICT DO NOTHING`;
   }
+  // Vật chất hoá kiểm kê thành artifact/subject-link/item (TIP-015c pha 2) — cùng transaction, cursor của cleanup_step bắt đầu từ đây.
+  await materializeInventory(tx, operationId, fam.ids, inv.artifacts, a.now);
 
   return {
     operationId,

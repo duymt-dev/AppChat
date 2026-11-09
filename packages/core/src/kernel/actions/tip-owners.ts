@@ -95,6 +95,7 @@ const BY_PREFIX: Record<string, string> = {
   contact_opportunity: '026b',
   contact_activity: '026b',
   contact_note: '026b',
+  privacy: '015c',
 };
 
 export function tipOwnerOf(actionId: string): string | null {
