@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 153 | 6 | 2 | 13 | 14 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 152 | 6 | 2 | 13 | 14 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 5 | 0 | 2 | 11 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 165 | 10 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 396 | 32 | 1 | 4 | 23 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 58 | 0 | 28 | 0 | 2 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
-| **Tổng** | **1193** | **100** | **32** | **49** | **117** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 76 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
+| **Tổng** | **1191** | **100** | **32** | **49** | **117** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -118,7 +118,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C06c | Khớp không chắc → gợi ý gộp | 01-REQUIREMENTS-MATRIX.md:68 | 015, 026 | ĐẠT | crm/services/crm-read.service.ts:107; test crm-contacts.test.ts AC7 |
 | REQ-C07 | "Chuyển thành" Đơn / Báo giá / Lịch hẹn / Ticket gắn hội thoại | 01-REQUIREMENTS-MATRIX.md:69 | 025b | ĐẠT | TIP-025b P4: quote/order/contract/ticket/appointment.create nhận conversation_id (+ source_message_id) qua linkConversation (thấy được + khớp khách, nhóm cần thành viên đã liên kết, sai → 404/422); Profile360Actions mang conversation_id; inbox-vertical-context.test.ts (api 4/4 + core 4/4) |
 | REQ-C08a | Thao tác hàng loạt hội thoại (backend) | 01-REQUIREMENTS-MATRIX.md:70 | 016 | ĐẠT | conversation-assign.handlers.ts:100; test inbox.test.ts AC5 |
-| REQ-C08b | Multi-select hội thoại trên UI | 01-REQUIREMENTS-MATRIX.md:70 | 025b | ĐẠT | TIP-025b P1: useInboxSelection (≤ 100, xoá khi đổi bộ lọc) + ConversationBulkBar gọi conversation.bulk_update; e2e inbox-bulk.spec.ts |
+| REQ-C08b | Multi-select hội thoại trên UI | 01-REQUIREMENTS-MATRIX.md:70 | 025b | KHÔNG LÀM | DC-422 (đảo DC-250): Chủ nhà bỏ UI chọn nhiều — nghiệp vụ gán theo tài khoản kênh, không gán lẻ nhiều hội thoại; thao tác qua menu ⋯ từng dòng (ConvMenu.tsx); action `conversation.bulk_update` vẫn còn ở backend, không gọi từ UI |
 | REQ-C08c | Tìm không dấu | 01-REQUIREMENTS-MATRIX.md:70 | 016, 025 | ĐẠT | test inbox.test.ts AC7, e2e http/inbox-live.spec.ts:41 |
 | REQ-C09a | Cảm xúc (bấm lại bỏ), chỉ hiện ở kênh hỗ trợ | 01-REQUIREMENTS-MATRIX.md:71 | 025b | ĐẠT | Backend message.handlers.ts:148 (inbox.test.ts AC6); TIP-025b P6: meta kênh `reactions` theo manifest, MessageMenu chỉ hiện hàng cảm xúc ở kênh hỗ trợ; test MessageMenu.test.tsx |
 | REQ-C09b | Trả lời trích · Sao chép · Chuyển tiếp · Ghim | 01-REQUIREMENTS-MATRIX.md:71 | 016, 025 | ĐẠT | MessageMenu.tsx:35-38; message.handlers.ts:76,161; test inbox.test.ts AC3/AC6 |
@@ -1683,7 +1683,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-016 | Gmail / Outlook OAuth (XOAUTH2) cho kênh email | QUESTIONS.md:24 | — | CHỜ-TK | Cần app OAuth của Chủ nhà; REQ-B06 P1; Chủ nhà 2026-11-03: đóng câu hỏi (018b) |
 | Q-017 | `e2e-http.mjs` tự dọn workspace test sau lượt | QUESTIONS.md:25 | 046 | MỘT PHẦN | `db:cleanup-test` có (packages/db/package.json:17); tools/scripts/e2e-http.mjs không gọi dọn; TIP-046 SPEC1 runner release dọn đúng tài nguyên mình tạo (2026-11-02) |
 | Q-018 | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | QUESTIONS.md:26 | 004b | CHƯA | identity/services/sessions.service.ts:45-49 thu hồi cả family ngay; TIP-004b nhận (2026-11-02) |
-| Q-019 | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | QUESTIONS.md:27 | 025b | ĐẠT | TIP-025b P1: ConvRow ô chọn trên avatar + ConversationBulkBar (Gán cần inbox.assign / Gắn thẻ / Đóng / Lưu trữ) + BulkResultPanel; e2e apps/web/e2e/inbox-bulk.spec.ts (desktop + 390); ConversationBulkBar.test.tsx |
+| Q-019 | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | QUESTIONS.md:27 | 025b | KHÔNG LÀM | DC-422 (đảo DC-250): Chủ nhà yêu cầu bỏ hẳn UI chọn nhiều (ô chọn trên avatar + ConversationBulkBar + BulkResultPanel) — nghiệp vụ gán theo tài khoản kênh, không gán lẻ nhiều hội thoại; dùng menu ⋯ từng dòng (ConvMenu.tsx) |
 | Q-020 | Ngoại lệ D28 / mask cho parity `inbox:connect-channel` (6,20%) + soi `inbox:default` | QUESTIONS.md:28 | 046, 014c | MỘT PHẦN | tools/parity/parity.manifest.ts:348-357 chưa có mask lưới kênh; TIP-014c nhận (2026-11-02) |
 | Q-021 | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | QUESTIONS.md:29 | 031b | CHƯA | Nút đang ẩn; chờ Chủ nhà xác nhận; TIP-031b nhận (2026-11-02); Chủ nhà 2026-11-03: duyệt → DC-296 |
 | Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | ĐẠT | Ngưỡng ≥ 27/30 + 0 vi phạm an toàn đạt: 27/30, an toàn 0 (reports/ai-live-2026-11-03.md); 3 ca fail đã phân loại (model chọn đường khác / seed Q-044 / dấu "Huế") |

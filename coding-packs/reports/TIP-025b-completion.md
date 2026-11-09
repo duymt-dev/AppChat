@@ -314,3 +314,11 @@ Chưa nghiệm thu với provider thật: dịch qua 9router (kiểm ở P6 ai:l
 | `ui/frontend-structure.md` | tách component ≤ 400 dòng, query ở `*-api.ts`, mock cùng hợp đồng |
 | `ui/prototype-parity.md` | ≤ trần sổ nợ; ô ảnh thật thay ô màu giả (TIP §A.7) |
 | `i18n/i18n.md` | vi + en 100% |
+
+## Cập nhật 2026-11-09 — đảo ngược Q-019 / DC-250 (DC-422)
+
+Chủ nhà phản hồi trực tiếp sau khi dùng thử: UI chọn nhiều hội thoại + thanh thao tác hàng loạt (phần P1 ở trên) bị gỡ hoàn toàn — nghiệp vụ thực tế gán theo cả tài khoản kênh (Zalo…), không có nhu cầu chọn lẻ nhiều hội thoại rồi gán hàng loạt; tính năng tạo đường thao tác trùng với menu ⋯ (đặc biệt "Gán"). Đã gỡ (nhánh `fix/025b-remove-inbox-multiselect`):
+- Xoá: `ConversationBulkBar.tsx`(+test), `BulkResultPanel.tsx`, `useInboxSelection.ts`, `useInboxBulk.ts`, `bulk-types.ts`, `bulk.styles.ts`, `e2e/inbox-bulk.spec.ts`.
+- Sửa: `ConvRow.tsx` bỏ ô chọn trên avatar; `ConversationList.tsx` bỏ thanh bulk + `filterKey`; `InboxScreen.tsx` bỏ truyền `filterKey`; i18n xoá `inbox.bulk.*` + `inbox.list.select` (vi + en).
+- Giữ nguyên: action backend `conversation.bulk_update` + handler + mock domain `inbox-bulk.ts` (không gọi từ UI Hộp thư nữa, nhưng còn test tích hợp backend tham chiếu — ngoài phạm vi gỡ lần này). Menu ⋯ từng hội thoại (`ConvMenu.tsx`) không đổi — vẫn đủ Gán / Giai đoạn / Gắn thẻ / Đóng / Lưu trữ.
+- Sổ sách: DC-422 (đảo DC-250), Q-019 cập nhật trạng thái KHÔNG LÀM, COVERAGE REQ-C08b → KHÔNG LÀM.

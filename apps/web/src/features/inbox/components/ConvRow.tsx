@@ -1,11 +1,10 @@
-// Một dòng hội thoại (cá nhân / nhóm) + menu ⋯ (REQ-C10) — prototype L1650–1734, L1978–2033. Ô chọn nhiều trên avatar (TIP-025b Q-019):
-// hiện khi rê / focus, luôn hiện khi đang chọn (mobile chạm được).
+// Một dòng hội thoại (cá nhân / nhóm) + menu ⋯ (REQ-C10) — prototype L1650–1734, L1978–2033. Không chọn nhiều — thao tác qua menu ⋯
+// từng hội thoại (gán, giai đoạn, gắn thẻ, đóng, lưu trữ…); nghiệp vụ gán theo cả tài khoản kênh, không gán lẻ từng hội thoại.
 'use client';
 import { useTranslations } from 'next-intl';
 import { color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useRowStyles } from '../styles/row.styles';
-import { useBulkStyles } from '../styles/bulk.styles';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
 import { TAG_TONE } from '../tones';
@@ -17,17 +16,12 @@ export interface ConvRowProps {
   conv: Conversation;
   channel: ChannelMeta | undefined;
   selected: boolean;
-  /** Chọn nhiều (TIP-025b): đã chọn dòng này / đang ở chế độ chọn / bật tắt. */
-  checked?: boolean;
-  selecting?: boolean;
-  onCheck?: (id: string) => void;
 }
 
-export function ConvRow({ conv, channel, selected, checked = false, selecting = false, onCheck }: ConvRowProps) {
+export function ConvRow({ conv, channel, selected }: ConvRowProps) {
   const t = useTranslations('inbox.list');
   const { styles, cx } = useRowStyles();
   const { styles: base } = useInboxStyles();
-  const bulk = useBulkStyles().styles;
   const ui = useInboxUi();
   const markRead = useAction('conversation.mark_read');
   const menuOpen = ui.pop === 'convMenu' && ui.menuFor === conv.id;
@@ -42,17 +36,6 @@ export function ConvRow({ conv, channel, selected, checked = false, selecting = 
   return (
     <div className={cx(styles.row, 'conv-row', selected && styles.on)} data-testid="conv-row" data-conv={conv.id}>
       <button type="button" className={styles.hit} onClick={open} aria-label={conv.title} />
-      {onCheck ? (
-        <input
-          type="checkbox"
-          className={bulk.check}
-          checked={checked}
-          data-mode={selecting ? 'on' : undefined}
-          onChange={() => onCheck(conv.id)}
-          aria-label={t('select', { name: conv.title })}
-          data-testid="conv-check"
-        />
-      ) : null}
       <div className={styles.av}>
         {isGroup ? (
           <>
