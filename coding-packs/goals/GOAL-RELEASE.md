@@ -113,8 +113,8 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 29 | [015e](../tips/TIP-015e-contact-merge-integrity.md) | W8 | DONE | `tip/015e-contact-merge-p5` | report TIP-015e-completion.md | #143–#147 |
 | 30 | [012c](../tips/TIP-012c-tenant-mail.md) | W8 | DONE | `tip/012c-tenant-mail` | P1–P6 xem PR | #148–#153 |
 | 31 | [033b](../tips/TIP-033b-booking-operations.md) | W8 | DONE (P5 / 5) | `tip/033b-booking-operations` | #154, #155, #156, #157, #158 | |
-| 32 | [019c](../tips/TIP-019c-ai-utilities.md) | W8 | đang làm (P3 / 3 — chờ ai:live AC8, DV-093) | `tip/019c-ai-utilities-p3` | #159, #160, #161 | |
-| 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | đang làm (P4/5) | `tip/015c-contact-privacy` · `-p2` · `-p3` · `-p4` | #165 · #166 (xếp chồng #165) · #167 (xếp chồng #166) · #168 (xếp chồng #167) | P2 tenant `20261109040000_privacy_artifact_domain`; P3 không migration; P4 tenant `20261109050000_privacy_operations_list` (covering index) |
+| 32 | [019c](../tips/TIP-019c-ai-utilities.md) | W8 | **DONE** (pha 4/4 — P1 4 kỹ năng DC-419; P2 fence `utility_operation` DC-420; P3 UI UtilityMenu/Form/Result/Host DC-421; P4 ai:live `ai-utilities` 8/8, an toàn 0 — DV-093 áp dụng) | `tip/019c-ai-utilities-p3` · `tip/019c-ai-utilities-p4` | #159, #160, #161, #164 | |
+| 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | chờ | `tip/015c-contact-privacy` | | |
 | 34 | [023d](../tips/TIP-023d-assistant-plans.md) | W8 | chờ | `tip/023d-assistant-plans` | | |
 | 35 | [023e](../tips/TIP-023e-action-discovery.md) | W8 | chờ | `tip/023e-action-discovery` | | |
 | 36 | [023f](../tips/TIP-023f-assistant-input.md) | W8 | chờ | `tip/023f-assistant-input` | | |
