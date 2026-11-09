@@ -1,6 +1,6 @@
 // Cột danh sách hội thoại — prototype L1629–1734: tiêu đề + "Kết nối kênh" · tìm kiếm · lọc kênh · chọn tài khoản · sắp xếp · danh sách.
-// Tìm kiếm / kênh / tài khoản / sắp xếp lọc ở API (TIP-025); cuộn gần cuối tải trang sau. Chọn nhiều + thanh thao tác hàng loạt +
-// kết quả từng hội thoại (TIP-025b §C).
+// Tìm kiếm / kênh / tài khoản / sắp xếp lọc ở API (TIP-025). Không chọn nhiều / thao tác hàng loạt (gỡ theo Q-019 revert — nghiệp vụ gán
+// theo tài khoản kênh, không gán lẻ từng hội thoại); thao tác theo hội thoại dùng menu "⋯" (ConvMenu).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
@@ -9,10 +9,6 @@ import { useListStyles } from '../styles/list.styles';
 import { useInboxUi } from '../inbox-store';
 import { AccountSelect } from './AccountSelect';
 import { ConvRow } from './ConvRow';
-import { ConversationBulkBar } from './ConversationBulkBar';
-import { BulkResultPanel } from './BulkResultPanel';
-import { useInboxSelection } from '../hooks/useInboxSelection';
-import { useInboxBulk } from '../hooks/useInboxBulk';
 import type { ChannelAccount, ChannelMeta, ChannelType, Conversation, FolderCounts } from '../types';
 
 const SORTS = ['latest', 'unread', 'priority', 'vip', 'sla'] as const;
@@ -27,25 +23,16 @@ export interface ConversationListProps {
   accounts: ChannelAccount[];
   counts: FolderCounts | undefined;
   unreadTotal: number;
-  /** Khoá bộ lọc hiện tại — đổi bộ lọc xoá lựa chọn (TIP-025b §C.1). */
-  filterKey: string;
   className?: string;
 }
 
-export function ConversationList({ conversations, total, hasMore, onMore, channels, counts, accounts, unreadTotal, filterKey, className }: ConversationListProps) {
+export function ConversationList({ conversations, total, hasMore, onMore, channels, counts, accounts, unreadTotal, className }: ConversationListProps) {
   const t = useTranslations('inbox.list');
   const { styles, cx } = useListStyles();
   const ui = useInboxUi();
   const needle = ui.listQuery.trim();
   const rows = conversations;
   const byChannel = (ch: ChannelType) => counts?.channels.find(([k]) => k === ch)?.[1] ?? 0;
-  const sel = useInboxSelection(filterKey);
-  const bulk = useInboxBulk();
-  const runBulk = async (a: Parameters<typeof bulk.run>[0]) => {
-    const out = await bulk.run(a);
-    // Xong (kể cả có lỗi từng id) / đã nhận việc nền → bỏ chọn; bị huỷ ở xem trước → giữ lựa chọn.
-    if (out) sel.clear();
-  };
 
   return (
     <div className={cx(styles.col, className)} data-testid="conv-list">
@@ -98,8 +85,6 @@ export function ConversationList({ conversations, total, hasMore, onMore, channe
           ))}
         </div>
       </div>
-      <ConversationBulkBar selection={sel} visibleIds={rows.map((c) => c.id)} pending={bulk.pending} onRun={(a) => void runBulk(a)} />
-      <BulkResultPanel outcome={bulk.outcome} titles={new Map(rows.map((c) => [c.id, c.title]))} onClose={bulk.clearOutcome} />
       <div
         className={styles.scroll}
         onScroll={(e) => {
@@ -115,7 +100,7 @@ export function ConversationList({ conversations, total, hasMore, onMore, channe
             {needle ? t('emptySearch') : t('emptyHint')}
           </div>
         ) : (
-          rows.map((c) => <ConvRow key={c.id} conv={c} channel={channels?.[c.channel]} selected={c.id === ui.selectedId} checked={sel.has(c.id)} selecting={sel.active} onCheck={sel.toggle} />)
+          rows.map((c) => <ConvRow key={c.id} conv={c} channel={channels?.[c.channel]} selected={c.id === ui.selectedId} />)
         )}
       </div>
     </div>

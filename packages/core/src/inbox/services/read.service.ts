@@ -142,11 +142,12 @@ export class InboxReadService {
     const contactIds = [...new Set(convs.map((c) => c.contactId).filter((x): x is string => !!x))];
     const accountIds = [...new Set(convs.map((c) => c.channelAccountId))];
     const groupIds = convs.filter((c) => c.kind === 'group').map((c) => c.id);
-    const [contacts, accounts, links, members] = await Promise.all([
+    const [contacts, accounts, links, members, coRows] = await Promise.all([
       contactIds.length ? tx.contact.findMany({ where: { id: { in: contactIds } }, select: { id: true, name: true, avatarUrl: true, deletedAt: true } }) : [],
       tx.channelAccount.findMany({ where: { id: { in: accountIds } }, select: { id: true, name: true } }),
       tx.conversationTag.findMany({ where: { conversationId: { in: ids } }, orderBy: { createdAt: 'asc' } }),
       groupIds.length ? tx.conversationParticipant.groupBy({ by: ['conversationId'], where: { conversationId: { in: groupIds } }, _count: { _all: true } }) : [],
+      tx.conversationAssignee.findMany({ where: { conversationId: { in: ids } }, orderBy: { createdAt: 'asc' } }),
     ]);
     const tagRows = links.length ? await tx.tag.findMany({ where: { id: { in: [...new Set(links.map((l) => l.tagId))] } } }) : [];
     const tagById = new Map(tagRows.map((t) => [t.id, t]));
@@ -155,6 +156,7 @@ export class InboxReadService {
       const t = tagById.get(l.tagId);
       if (t) (tags.get(l.conversationId) ?? tags.set(l.conversationId, []).get(l.conversationId)!).push({ name: t.name, color: t.color, emoji: t.emoji });
     }
+    const coAssignees = coRows.length ? await this.coAssigneeNames(tx, coRows) : new Map<string, { kind: 'user' | 'agent'; id: string; name: string }[]>();
     const x: ConvExtras = {
       // TIP-015f: khách đã xoá không cho tên CRM làm tiêu đề (dấu `contact_deleted` thay).
       contactName: new Map(contacts.filter((c) => !c.deletedAt).map((c) => [c.id, c.name])),
@@ -163,8 +165,28 @@ export class InboxReadService {
       tags,
       members: new Map(members.map((m) => [m.conversationId, m._count._all])),
       avatars: await this.convAvatars(tx, convs, contacts, ws),
+      coAssignees,
     };
     return convs.map((c) => toConversation(c, x, p));
+  }
+
+  /** Tên đồng phụ trách (người qua platform user, agent qua `ai_agent`) — gom theo hội thoại, giữ thứ tự thêm. */
+  private async coAssigneeNames(tx: Pick<TenantTx, 'aiAgent'>, rows: { conversationId: string; kind: string; assigneeId: string }[]) {
+    const userIds = [...new Set(rows.filter((r) => r.kind === 'user').map((r) => r.assigneeId))];
+    const agentIds = [...new Set(rows.filter((r) => r.kind === 'agent').map((r) => r.assigneeId))];
+    const [users, agents] = await Promise.all([
+      userIds.length ? this.platform.user.findMany({ where: { id: { in: userIds } }, select: { id: true, name: true, email: true } }) : [],
+      agentIds.length ? tx.aiAgent.findMany({ where: { id: { in: agentIds } }, select: { id: true, name: true } }) : [],
+    ]);
+    const userName = new Map(users.map((u) => [u.id, u.name || u.email]));
+    const agentName = new Map(agents.map((a) => [a.id, a.name]));
+    const out = new Map<string, { kind: 'user' | 'agent'; id: string; name: string }[]>();
+    for (const r of rows) {
+      const name = r.kind === 'user' ? userName.get(r.assigneeId) : agentName.get(r.assigneeId);
+      if (!name) continue;
+      (out.get(r.conversationId) ?? out.set(r.conversationId, []).get(r.conversationId)!).push({ kind: r.kind as 'user' | 'agent', id: r.assigneeId, name });
+    }
+    return out;
   }
 
   /** Ảnh hội thoại 1-1: ảnh nhân viên đặt cho khách thắng; không có → ảnh đồng bộ của định danh thread (TIP-014b D). Nhóm: chữ cái đầu. */

@@ -1,13 +1,14 @@
 // Worker ROLE=jobs: JobsModule theo bảng hàng đợi Blueprint §1.3. Đăng ký sẵn ở TIP-001 — TIP sau KHÔNG sửa danh sách domain;
 // lịch phụ của domain khác role (TIP-037: MarketingSchedulerModule — worker gửi chiến dịch ở ROLE=channels) nằm ở JOBS_EXTRA.
 import { Module } from '@nestjs/common';
-import { IdentityJobsModule, AuthzJobsModule, BillingJobsModule, CrmJobsModule, CatalogJobsModule, SalesJobsModule, ContractsJobsModule, DocumentsJobsModule, IntegrationsJobsModule, BookingJobsModule, SupportJobsModule, LoyaltyJobsModule, InsightsJobsModule, NotifyJobsModule, PlatformJobsModule, MarketingSchedulerModule, DataTransferJobsModule, InboxUiJobsModule } from '@appchat/core';
+import { IdentityJobsModule, AuthzJobsModule, BillingJobsModule, CrmJobsModule, CatalogJobsModule, SalesJobsModule, ContractsJobsModule, DocumentsJobsModule, IntegrationsJobsModule, BookingJobsModule, SupportJobsModule, LoyaltyJobsModule, InsightsJobsModule, NotifyJobsModule, PlatformJobsModule, MarketingSchedulerModule, DataTransferJobsModule, InboxUiJobsModule, PrivacyJobsModule } from '@appchat/core';
 
 export const JOBS_JOBS = [IdentityJobsModule, AuthzJobsModule, BillingJobsModule, CrmJobsModule, CatalogJobsModule, SalesJobsModule, ContractsJobsModule, DocumentsJobsModule, IntegrationsJobsModule, BookingJobsModule, SupportJobsModule, LoyaltyJobsModule, InsightsJobsModule, NotifyJobsModule, PlatformJobsModule];
 
 // TIP-038b: domain mới data-transfer (ghi kế hoạch nhập > 500 dòng — kind `transfer.commit`).
 // TIP-025b: Hộp thư ở ROLE=jobs chỉ việc dữ liệu (conversation.bulk_update > 50) — không nạp InboxJobsModule (ROLE=channels).
-export const JOBS_EXTRA = [MarketingSchedulerModule, DataTransferJobsModule, InboxUiJobsModule];
+// TIP-015c pha 2: sweep `privacy.sweep` tiến từng lượt Quên khách một bước mỗi phút.
+export const JOBS_EXTRA = [MarketingSchedulerModule, DataTransferJobsModule, InboxUiJobsModule, PrivacyJobsModule];
 
 @Module({ imports: [...JOBS_JOBS, ...JOBS_EXTRA] })
 export class JobsRoleModule {}

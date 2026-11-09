@@ -119,6 +119,14 @@
       "title": "Assign conversation",
       "desc": "Assign a conversation to a team member or another AI Agent."
     },
+    "add_assignee": {
+      "title": "Add co-assignee",
+      "desc": "Add a team member or AI Agent as a co-assignee, alongside the primary assignee."
+    },
+    "remove_assignee": {
+      "title": "Remove co-assignee",
+      "desc": "Remove a team member or AI Agent from a conversation's co-assignees."
+    },
     "tag": {
       "title": "Tag conversation",
       "desc": "Add a tag to a conversation."
@@ -346,6 +354,22 @@
     "bulk_update": {
       "title": "Bulk update contacts",
       "desc": "Update many contacts at once (group, status, tags…) — owner is not changed."
+    },
+    "privacy_preview": {
+      "title": "Preview forget customer",
+      "desc": "Preview the customer family's scope, what will be removed / kept, and any blockers before permanently forgetting — nothing is deleted yet."
+    },
+    "forget": {
+      "title": "Forget customer (permanent)",
+      "desc": "Permanently erase the customer's private content; issued/signed documents are kept. Irreversible, cannot be undone."
+    },
+    "privacy_status": {
+      "title": "Forget-customer progress",
+      "desc": "Track a forget-customer operation by id — counts only, no content."
+    },
+    "allow_recreation": {
+      "title": "Allow new profile recreation",
+      "desc": "One-time unlock to create a new contact from phone/email/channel-account identifiers blocked by a prior forget-customer operation — does not restore old data."
     }
   },
   "custom_field": {
@@ -1505,6 +1529,16 @@
     },
     "sample": {
       "title": "Preview an import file (contact data masked)"
+    }
+  },
+  "privacy": {
+    "cleanup_step": {
+      "title": "Run one \"forget customer\" cleanup step (system)",
+      "desc": "System-called — advances one \"forget customer\" operation by one step (fence → inventory → erase batch → needs review / verify → completed)."
+    },
+    "review_resolve": {
+      "title": "Resolve one quarantined item (forget customer)",
+      "desc": "Decide one shared / unidentified data item in a \"forget customer\" operation: unrelated, this customer only, shared (strip this subject, keep others), or retained as issued evidence."
     }
   }
 }

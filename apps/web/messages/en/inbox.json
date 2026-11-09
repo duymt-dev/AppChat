@@ -39,24 +39,7 @@
     },
     "at": "@"
   },
-  "bulk": {
-    "label": "Bulk actions",
-    "selected": "{n} selected",
-    "selectVisible": "Select visible conversations",
-    "assignTo": "Assign to…",
-    "assign": "Assign",
-    "tagPick": "Pick a tag…",
-    "tag": "Tag",
-    "close": "Close",
-    "archive": "Archive",
-    "clear": "Clear selection",
-    "dismiss": "Dismiss result",
-    "summary": "{done} done · {skipped} unchanged · {failed} failed",
-    "jobAccepted": "Accepted — running in the background; you will be notified when it finishes.",
-    "hidden": "Conversation not accessible"
-  },
   "list": {
-    "select": "Select {name}",
     "title": "Inbox",
     "sub": "{total} conversations · {unread} unread",
     "connect": "Connect channel",
@@ -106,6 +89,10 @@
     "assignMore": "Load more",
     "assignUserHint": "{role} · {load} open",
     "assignAgentHint": "Agent · {role} · v{version} · {load} open",
+    "coAssigneesTitle": "Co-assignees",
+    "coAssigneesNone": "No co-assignees yet",
+    "coAssigneesAdd": "+ Add co-assignee",
+    "coAssigneesRemove": "Remove {name} from co-assignees",
     "stageCurrent": "Current stage",
     "stages": {
       "lead": "New lead",

@@ -119,6 +119,14 @@
       "title": "Phân công hội thoại",
       "desc": "Chỉ định hội thoại cho nhân viên hoặc một AI Agent khác."
     },
+    "add_assignee": {
+      "title": "Thêm đồng phụ trách",
+      "desc": "Thêm một nhân viên hoặc AI Agent cùng phụ trách hội thoại, bên cạnh người phụ trách chính."
+    },
+    "remove_assignee": {
+      "title": "Gỡ đồng phụ trách",
+      "desc": "Gỡ một nhân viên hoặc AI Agent khỏi danh sách đồng phụ trách hội thoại."
+    },
     "tag": {
       "title": "Gắn thẻ hội thoại",
       "desc": "Gắn thêm một thẻ vào hội thoại."
@@ -346,6 +354,22 @@
     "bulk_update": {
       "title": "Cập nhật hàng loạt khách hàng",
       "desc": "Sửa cùng lúc nhiều khách (nhóm, trạng thái, thẻ…) — không đổi người phụ trách."
+    },
+    "privacy_preview": {
+      "title": "Xem trước Quên khách",
+      "desc": "Xem phạm vi (họ khách), phần sẽ xoá / giữ lại và các mục đang chặn trước khi quên vĩnh viễn — chưa xoá gì."
+    },
+    "forget": {
+      "title": "Quên khách (vĩnh viễn)",
+      "desc": "Xoá vĩnh viễn nội dung riêng của khách, giữ lại chứng từ đã phát hành/ký; không thể hoàn tác, không thể huỷ."
+    },
+    "privacy_status": {
+      "title": "Xem tiến độ Quên khách",
+      "desc": "Theo dõi tiến độ một lượt Quên khách theo mã — chỉ số đếm, không nội dung."
+    },
+    "allow_recreation": {
+      "title": "Cho phép tạo lại hồ sơ mới",
+      "desc": "Mở một lần khả năng tạo khách mới từ SĐT/email/tài khoản kênh đã bị chặn do một lượt Quên khách trước — không phục hồi dữ liệu cũ."
     }
   },
   "custom_field": {
@@ -1505,6 +1529,16 @@
     },
     "sample": {
       "title": "Xem mẫu tệp nhập (đã che dữ liệu liên hệ)"
+    }
+  },
+  "privacy": {
+    "cleanup_step": {
+      "title": "Chạy một bước dọn Quên khách (hệ thống)",
+      "desc": "Hệ thống tự gọi — tiến một bước trong lượt Quên khách (khoá fence → kiểm kê → xoá theo lô → chờ xét / xác minh → hoàn tất)."
+    },
+    "review_resolve": {
+      "title": "Xét một mục chờ duyệt (Quên khách)",
+      "desc": "Quyết định một mục dữ liệu chung / chưa rõ chủ thể trong lượt Quên khách: không liên quan, chỉ của khách này, xoá phần của khách giữ phần khác, hoặc giữ vì là chứng từ đã phát hành."
     }
   }
 }

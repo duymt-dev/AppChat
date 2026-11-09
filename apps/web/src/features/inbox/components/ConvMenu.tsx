@@ -12,6 +12,7 @@ import { useInboxUi, type ConvSub } from '../inbox-store';
 import { cannedQuery, channelsQuery } from '../api';
 import type { Conversation } from '../types';
 import { AssignPicker } from './AssignPicker';
+import { CoAssigneesSection } from './CoAssigneesSection';
 
 const STAGES = ['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost'] as const;
 const SNOOZE = ['1h', '3h', 'tomorrow', 'custom'] as const;
@@ -118,7 +119,13 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
               ))}
             </div>
           ) : null}
-          {sub === 'assign' ? <AssignPicker convId={conv.id} onPick={doAssign} /> : null}
+          {sub === 'assign' ? (
+            <>
+              <AssignPicker convId={conv.id} onPick={doAssign} />
+              <div className={styles.sep} />
+              <CoAssigneesSection conv={conv} />
+            </>
+          ) : null}
           {sub === 'stage' ? (
             <div className={styles.subList}>
               {STAGES.map((s) => (

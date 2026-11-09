@@ -48,11 +48,21 @@ describe('ứng viên phụ trách', () => {
     const p = assigneeCandidatesSchema.parse(r.body);
     const agents = p.data.filter((x) => x.kind === 'agent').map((x) => x.id);
     expect(agents.sort()).toEqual([bot.web, bot.all].sort());
-    expect(p.data.find((x) => x.id === bot.web)).toMatchObject({ load: 2, role: 'CSKH', version: 2, current: false });
+    expect(p.data.find((x) => x.id === bot.web)).toMatchObject({ load: 2, role: 'CSKH', version: 2, current: false, co_assignee: false });
     const me = p.data.find((x) => x.kind === 'user' && x.id === m.h.user)!;
     expect(me.current).toBe(true);
+    expect(me.co_assignee).toBe(false);
     expect(me.load).toBeGreaterThanOrEqual(1);
     expect(p.next_cursor).toBeNull();
+  });
+
+  it('co_assignee đánh dấu đồng phụ trách (conversation_assignee) — tách khỏi current', async () => {
+    const db = await m.db();
+    await db.conversationAssignee.create({ data: { conversationId: c.id, kind: 'agent', assigneeId: bot.all } });
+    const p = assigneeCandidatesSchema.parse((await get(`/conversations/${c.id}/assignees`)).body);
+    expect(p.data.find((x) => x.id === bot.all)).toMatchObject({ current: false, co_assignee: true });
+    expect(p.data.find((x) => x.id === bot.web)).toMatchObject({ co_assignee: false });
+    await db.conversationAssignee.deleteMany({ where: { conversationId: c.id } });
   });
 
   it('tìm theo tên', async () => {

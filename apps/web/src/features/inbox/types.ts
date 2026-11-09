@@ -62,6 +62,8 @@ export interface Conversation {
   /** Ẩn khỏi danh sách cho đến khi có tin mới (D50 `conversation.hide`). */
   hidden?: boolean;
   channel_account_id?: string;
+  /** Đồng phụ trách (conversation_assignee) — khác người/agent phụ trách chính; thêm/gỡ qua menu ⋯. */
+  co_assignees?: { kind: 'user' | 'agent'; id: string; name: string }[];
 }
 
 export interface Message {

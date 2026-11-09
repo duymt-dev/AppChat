@@ -45,14 +45,22 @@ export function nextAfter(order: readonly string[], eligible: ReadonlySet<string
   return null;
 }
 
-/** Số hội thoại người phụ trách đang xử lý (open / pending / snoozed, chưa lưu trữ / ẩn) — dùng index `conversation_routing_load_idx`. */
+/**
+ * Số hội thoại người phụ trách đang xử lý (open / pending / snoozed, chưa lưu trữ / ẩn) — tính cho CẢ phụ trách chính
+ * (`assignee_user_id`, index `conversation_routing_load_idx`) VÀ đồng phụ trách (`conversation_assignee` kind=user) — hội thoại
+ * có nhiều người phụ trách tính vào tải của tất cả người đó (quyết định Chủ nhà 2026-11-09).
+ */
 export async function loadOf(tx: Pick<TenantTx, '$queryRaw'>, users: readonly string[]): Promise<Map<string, number>> {
   const out = new Map(users.map((u) => [u, 0]));
   if (!users.length) return out;
   const rows = await tx.$queryRaw<{ u: string; n: bigint }[]>`
-    SELECT assignee_user_id AS u, count(*) AS n FROM conversation
-    WHERE assignee_user_id = ANY(${[...users]}::uuid[]) AND status IN ('open', 'pending', 'snoozed') AND archived_at IS NULL AND hidden_at IS NULL
-    GROUP BY assignee_user_id`;
+    SELECT u, count(*) AS n FROM (
+      SELECT assignee_user_id AS u FROM conversation
+      WHERE assignee_user_id = ANY(${[...users]}::uuid[]) AND status IN ('open', 'pending', 'snoozed') AND archived_at IS NULL AND hidden_at IS NULL
+      UNION ALL
+      SELECT ca.assignee_id AS u FROM conversation_assignee ca JOIN conversation c ON c.id = ca.conversation_id
+      WHERE ca.kind = 'user' AND ca.assignee_id = ANY(${[...users]}::uuid[]) AND c.status IN ('open', 'pending', 'snoozed') AND c.archived_at IS NULL AND c.hidden_at IS NULL
+    ) t GROUP BY u`;
   for (const r of rows) out.set(r.u, Number(r.n));
   return out;
 }

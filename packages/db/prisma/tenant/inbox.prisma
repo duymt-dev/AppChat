@@ -94,6 +94,13 @@ enum ReactionActor {
   @@map("reaction_actor")
 }
 
+enum AssigneeKind {
+  user
+  agent
+
+  @@map("assignee_kind")
+}
+
 enum OutboxMessageStatus {
   pending
   /// TIP-045b annex D: đã đặt chỗ gửi (điểm tuyến tính hoá) — sau mốc này coi như đang gửi; người tiếp quản không chặn được nữa.
@@ -235,6 +242,21 @@ model ConversationParticipant {
 
   @@id([conversationId, externalId])
   @@map("conversation_participant")
+}
+
+/// Đồng phụ trách hội thoại (người hoặc AI Agent) — người/agent phụ trách CHÍNH vẫn ở `conversation.assignee_user_id` /
+/// `assignee_agent_id`, không đổi. Bảng này chỉ thêm người phụ trách bổ sung, luôn thêm bằng tay qua menu ⋯ (không bao giờ
+/// auto-route ghi vào đây — xem `routing-apply.handler.ts`). Mirror `ContactCollaborator` (D32) nhưng gộp cả user + agent.
+model ConversationAssignee {
+  conversationId String       @map("conversation_id") @db.Uuid
+  kind           AssigneeKind
+  assigneeId     String       @map("assignee_id") @db.Uuid
+  addedBy        String?      @map("added_by") @db.Uuid
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([conversationId, kind, assigneeId])
+  @@index([kind, assigneeId, conversationId])
+  @@map("conversation_assignee")
 }
 
 /// Thẻ hội thoại — nguồn thẻ dùng chung bảng `tag` (crm, Blueprint L336).
