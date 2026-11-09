@@ -158,9 +158,9 @@
 | REQ-E03a | Đọc chạy ngay; ghi hiện thẻ Xác nhận / Huỷ | 01-REQUIREMENTS-MATRIX.md:105 | 023 | ĐẠT | ai/assistant/card.ts; test assistant.test.ts "ghi → thẻ confirm" |
 | REQ-E03b | Thẻ có diff + nút Sửa | 01-REQUIREMENTS-MATRIX.md:105 | 023b | ĐẠT | ActionPreviewCard.tsx (changes trước → sau, Sửa) + EditActionPreviewModal.tsx; POST /assistant/preview-edit (edit-preview.ts); test assistant-preview-edit.test.ts, e2e http assistant-vertical (PD-008, DC-312) |
 | REQ-E03c | Hàng loạt bắt buộc xác nhận số lượng | 01-REQUIREMENTS-MATRIX.md:105 | 003 | ĐẠT | policy.ts:24; test actions-unit.test.ts "bulk luôn preview" |
-| REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | 023d | CHƯA | Không có code |
+| REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | 023d | MỘT PHẦN | assistant.plan_reusable (read, top-N cấu trúc cũ) đã có handler + test; chưa gắn vào luồng gợi ý UI/Trợ lý (PR #171) |
 | REQ-E04a | Phân rã kế hoạch, giao agent, tổng hợp | 01-REQUIREMENTS-MATRIX.md:106 | 023 | ĐẠT | meta-tools.ts:124; delegate.ts; test assistant.test.ts "plan", "delegate" |
-| REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | 023d | MỘT PHẦN | Dừng qua run.cancel; FE không render plan (features/assistant/types.ts:45); không sửa kế hoạch |
+| REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | 023d | MỘT PHẦN | Dừng qua run.cancel; plan_propose/plan_get backend (revision/phase/progress thật — PR #171) nhưng FE không render plan (features/assistant/types.ts:45); chưa sửa kế hoạch (plan_update ở pha sau) |
 | REQ-E05a | Điều hướng, mở bản ghi, điền form, áp lọc qua command bus | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | apps/web/src/shared/assistant/ui-command-bus.ts; features/*/ui-commands.ts; test ui-command-bus.test.ts, ui-commands.test.tsx |
 | REQ-E05b | Làm nổi bật phần tử | 01-REQUIREMENTS-MATRIX.md:107 | 023c | ĐẠT | UiCommandBus highlight (apps/web/src/shared/assistant/ui-command-bus.ts:17) + DataTable highlightKey; test ui-command-bus.test.ts, e2e screen-assistant.spec.ts tô sáng dòng |
 | REQ-E05c | Thẻ deep-link tới kết quả | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | card.ts; e2e http/assistant.spec.ts |
@@ -184,7 +184,7 @@
 | REQ-E14b | Tab Công cụ & Quyền chỉ hiển thị + link Builder | 01-REQUIREMENTS-MATRIX.md:116 | 035 | ĐẠT | TaskDrawer.tsx:132-144; test ai-tasks.test.ts:347 |
 | REQ-E15 | Generative UI mức 2 | 01-REQUIREMENTS-MATRIX.md:117 | 023c | ĐẠT | packages/shared/src/genui/* + meta-tool render + renderer web 15 khối; test schema.test.ts, genui*.test.ts (api), blocks/*.test.tsx, e2e genui.spec.ts (mock + http); ai:live genui-screen 9/10 an toàn 0 |
 
-| PLAN-RECEIPT-PROGRESS | Plan progress from durable primary-effect receipts, not model status | DC267; TIP-023d §2 | 023d | CHƯA | Current meta-tools update_step accepts model status; planned single logical claim/reducer only |
+| PLAN-RECEIPT-PROGRESS | Plan progress from durable primary-effect receipts, not model status | DC267; TIP-023d §2 | 023d | MỘT PHẦN | Schema AssistantPlanPrimaryClaim/Attempt + stepProgress() theo state DB thật (PR #171); execution-binding ghi claim khi chạy step chưa nối (pha sau) |
 | PLAN-EDIT-CHECKPOINT | Human edit pause drains admitted effects, checkpoints tool batches, resumes same budget | DC267; TIP-023d §3 | 023d | CHƯA | Existing engine confirmation snapshot is not edit checkpoint; no runtime implementation |
 | PLAN-REUSE-PRIVACY | Reuse safe plan structure with fresh authority/inputs, no old customer or execution context | DC267; TIP-023d §4 | 023d | CHƯA | No reusable-plan service; source lineage/015c gates planned |
 | ASSISTANT-SELECTED-AGENT | Stable selected agent ID/version/mode through child tools, confirmation and restart | DC267; TIP-023d §5 | 023d | CHƯA | Current card/picker stores name; request omits selection; child binding seam planned |
