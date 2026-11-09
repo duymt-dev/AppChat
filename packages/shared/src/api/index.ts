@@ -58,3 +58,4 @@ export * from './kb-suggestions';
 export * from './insights';
 export * from './dashboard';
 export * from './list-exports';
+export * from './privacy';

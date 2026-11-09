@@ -78,6 +78,7 @@ import * as dataTransfer from './data-transfer';
 import * as crmBulk from './crm-bulk';
 import * as crmForms from './crm-forms';
 import * as inboxTranslation from './inbox-translation';
+import * as privacy from './privacy';
 
 export * from './define';
 export * from './assistant-ui';
@@ -160,6 +161,7 @@ export * from './data-transfer';
 export * from './crm-bulk';
 export * from './crm-forms';
 export * from './inbox-translation';
+export * from './privacy';
 
 /** Registry dùng chung web / core / ai. Domain mới: thêm file `<domain>.ts` rồi spread vào đây. */
 // Mỗi file domain chỉ export ActionDef — schema dùng chung đặt trong file riêng, không export từ file domain.
@@ -245,6 +247,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contactMergeReads),
   ...Object.values(contactTasks),
   ...Object.values(contactOpportunities),
+  ...Object.values(privacy),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);
