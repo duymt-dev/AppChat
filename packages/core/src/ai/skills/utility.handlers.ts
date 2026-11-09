@@ -20,6 +20,8 @@ interface Plan {
   resolve: Resolve;
   system: (locale: 'vi' | 'en') => string;
   validate: (raw: unknown, chunks: SourceChunk[], src: ResolvedSources) => unknown;
+  /** Tham số kiểm cần lưu để lát khôi phục dựng lại đúng validator (max_bullets / taxonomy / fields…) — không chữ nguồn. */
+  validateParams?: Record<string, unknown>;
 }
 
 abstract class UtilityHandler<I extends { locale?: 'vi' | 'en' }> implements Handler<I, UtilityEnvelope> {
@@ -29,7 +31,7 @@ abstract class UtilityHandler<I extends { locale?: 'vi' | 'en' }> implements Han
   constructor(
     @Inject(AiRunner) private readonly runner: AiRunner | null,
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | null,
-    @Optional() @Inject(PLATFORM_DB) private readonly platform: Pick<PlatformDb, 'user'> | null,
+    @Optional() @Inject(PLATFORM_DB) private readonly platform: Pick<PlatformDb, 'user' | 'workspace'> | null,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
@@ -39,16 +41,24 @@ abstract class UtilityHandler<I extends { locale?: 'vi' | 'en' }> implements Han
     const p = this.plan(ctx, input);
     const src = await readSources(db, (tx) => p.resolve(tx, ctx.authz));
     const userId = utilityUser(ctx);
-    const u = !input.locale && userId && this.platform ? await this.platform.user.findUnique({ where: { id: userId }, select: { locale: true } }) : null;
+    const [u, ws] = this.platform
+      ? await Promise.all([
+          !input.locale && userId ? this.platform.user.findUnique({ where: { id: userId }, select: { locale: true } }) : Promise.resolve(null),
+          this.platform.workspace.findUnique({ where: { id: ctx.workspaceId }, select: { authzEpoch: true } }),
+        ])
+      : [null, null];
     const locale = input.locale ?? (u?.locale === 'en' ? 'en' : 'vi');
     return runUtility(db, this.runner, () => this.clock.now(), src, {
-      actionId: this.id, ws: ctx.workspaceId, userId, locale,
+      actionId: this.id, ws: ctx.workspaceId, actor: ctx.actor, onBehalfOfUserId: ctx.onBehalfOfUserId ?? null, userId, locale,
       system: p.system(locale),
       validate: (raw, chunks) => p.validate(raw, chunks, src),
+      validateParams: p.validateParams,
       // Run chỉ lưu tham chiếu nguồn (id) — không lưu chữ nguồn / chữ người gọi vào input run.
       input: { action_id: this.id, refs: src.refs, origin: src.origin },
+      idempotencyKey: ctx.idempotencyKey,
       parent: await trustedParent(db, ctx, this.id),
       conversationId: src.refs.conversation_id ?? null,
+      runEpoch: ws?.authzEpoch ?? 0,
     });
   }
 
@@ -70,7 +80,7 @@ export class AiSummarizeHandler extends UtilityHandler<ActionInput<typeof aiSumm
   protected readonly id = 'ai.summarize';
   protected plan(ctx: ActionContext, i: ActionInput<typeof aiSummarize>): Plan {
     const max = i.max_bullets ?? 5;
-    return { resolve: (tx, a) => resolveSource(tx, a, i.source, served(ctx)), system: (l) => summarizeSystem(l, max), validate: (raw, chunks) => validateSummarize(raw, chunks, max) };
+    return { resolve: (tx, a) => resolveSource(tx, a, i.source, served(ctx)), system: (l) => summarizeSystem(l, max), validate: (raw, chunks) => validateSummarize(raw, chunks, max), validateParams: { max_bullets: max } };
   }
 }
 
@@ -81,7 +91,7 @@ export class AiDetectIntentHandler extends UtilityHandler<ActionInput<typeof aiD
   protected plan(ctx: ActionContext, i: ActionInput<typeof aiDetectIntent>): Plan {
     const keys = i.taxonomy?.map((t) => t.key) ?? [...DEFAULT_INTENTS];
     const version = i.taxonomy ? `custom:${keys.join(',')}` : 'default-v1';
-    return { resolve: (tx, a) => resolveSource(tx, a, i.source, served(ctx)), system: (l) => intentSystem(l, i.taxonomy), validate: (raw, chunks) => validateIntent(raw, chunks, keys, version) };
+    return { resolve: (tx, a) => resolveSource(tx, a, i.source, served(ctx)), system: (l) => intentSystem(l, i.taxonomy), validate: (raw, chunks) => validateIntent(raw, chunks, keys, version), validateParams: { keys, version } };
   }
 }
 
@@ -90,7 +100,7 @@ export class AiDetectIntentHandler extends UtilityHandler<ActionInput<typeof aiD
 export class AiExtractInfoHandler extends UtilityHandler<ActionInput<typeof aiExtractInfo>> {
   protected readonly id = 'ai.extract_info';
   protected plan(ctx: ActionContext, i: ActionInput<typeof aiExtractInfo>): Plan {
-    return { resolve: (tx, a) => resolveSource(tx, a, i.source, served(ctx)), system: (l) => extractSystem(l, i.fields), validate: (raw, chunks, src) => validateExtract(raw, chunks, i.fields, src.origin) };
+    return { resolve: (tx, a) => resolveSource(tx, a, i.source, served(ctx)), system: (l) => extractSystem(l, i.fields), validate: (raw, chunks, src) => validateExtract(raw, chunks, i.fields, src.origin), validateParams: { fields: i.fields } };
   }
 }
 

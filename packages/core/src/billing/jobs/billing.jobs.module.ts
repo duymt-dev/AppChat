@@ -24,7 +24,7 @@ import { WalletService } from '../services/wallet.service';
 import { backfillLegacyAddons } from './addon-backfill';
 import { LIFECYCLE_BATCH, runLifecycle } from './lifecycle.runner';
 // TIP-019b: khôi phục usage AI chạy trên lịch khôi phục 045b ở ROLE=jobs (cần ví + tenant — module này có sẵn).
-import { AiUsageRecoveryInstaller } from '../../ai/runs/runtime.providers';
+import { AiUsageRecoveryInstaller, AiUtilityRecoveryInstaller } from '../../ai/runs/runtime.providers';
 import { RECONCILE_EVERY_MS, RECONCILE_JOB, reconcileAll } from './reconcile';
 
 export const SCHEDULER_QUEUE = 'billing-scheduler';
@@ -114,5 +114,5 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
   }
 }
 
-@Module({ imports: [BillingModule], providers: [BillingJobsRunner, AiUsageRecoveryInstaller] })
+@Module({ imports: [BillingModule], providers: [BillingJobsRunner, AiUsageRecoveryInstaller, AiUtilityRecoveryInstaller] })
 export class BillingJobsModule {}

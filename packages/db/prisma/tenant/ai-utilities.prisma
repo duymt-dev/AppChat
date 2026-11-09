@@ -1,0 +1,42 @@
+// tenant/ai-utilities.prisma — sở hữu: TIP-019c (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Fence công bố cho kỹ năng tiện ích AI (TIP-019c §3.5): một dòng / lần gọi (UI độc lập theo Idempotency-Key, hoặc run con 019b khi gọi
+// qua tool) — khoá (actor_scope, action_id, invocation_key) chặn gọi model hai lần cho cùng một lần gọi; đầu ra thô của model RIÊNG tới
+// khi kiểm xong (phase validated) mới có validated_result công khai. Index khôi phục ở migration `20261109020000_ai_utilities`.
+
+enum UtilityOperationPhase {
+  generating
+  validating
+  validated
+  invalidated
+  failed
+  unknown
+  cancelled
+
+  @@map("utility_operation_phase")
+}
+
+model UtilityOperation {
+  id              String                @id @db.Uuid
+  runId           String                @unique(map: "utility_operation_run_key") @map("run_id") @db.Uuid
+  actionId        String                @map("action_id")
+  /// Người / agent + người ra lệnh đứng sau lần gọi (TIP-019c §3.5) — KHÔNG phải tenant của client.
+  actorScope      String                @map("actor_scope")
+  invocationKey   String                @map("invocation_key")
+  schemaVersion   Int                   @map("schema_version")
+  inputHash       String                @map("input_hash")
+  /// Tham chiếu nguồn đã giải (refs + digest) — không chữ nguồn / chữ người gọi.
+  sourceBindings  Json                  @map("source_bindings")
+  runEpoch        Int                   @map("run_epoch")
+  phase           UtilityOperationPhase @default(generating)
+  /// Chữ thô của model (JSON string) — riêng, chỉ đọc trong lúc kiểm / sửa một lần; không bao giờ là kết quả công khai.
+  generatedPayload String?              @map("generated_payload")
+  /// Đề xuất đã kiểm (envelope proposal) — chỉ có khi phase = validated.
+  validatedResult Json?                 @map("validated_result")
+  failureReason   String?               @map("failure_reason")
+  repaired        Boolean               @default(false)
+  createdAt       DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([actorScope, actionId, invocationKey], map: "utility_operation_invocation_key")
+  @@map("utility_operation")
+}

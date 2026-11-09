@@ -1,12 +1,16 @@
 // Chi tiết run có scope (TIP-019b §5.2, DC-380): `GET /v1/runs/:id` + `/steps` + `/children`. Quyền đọc qua `readableRun` (cùng
 // `runScope` với danh sách); không có / ngoài phạm vi → null (controller trả 404 như nhau). Chỉ trường an toàn — không state, system,
 // input duyệt, output thô. Bước / con phân trang keyset: chọn trang id theo index trước rồi mới đọc phần cần cho đúng N dòng.
+// Run thuộc kỹ năng tiện ích (TIP-019c §3.7) — nhận theo `title` (4 action id dành riêng, 019c §3.1 — không nơi khác đặt run title bằng
+// đúng các chuỗi này, kể cả run sửa lại dưới cùng operation): `result_text` LUÔN null dù run đã `completed` — đề xuất công khai chỉ qua
+// `GET /ai-utilities/:runId/result` sau khi kiểm xong (phase validated), không rò qua đọc run chung.
 import type { TenantDb } from '@appchat/db';
-import type { AuthzContext, RunChildDto, RunDetailDto, RunLifecycle, RunStepDto } from '@appchat/shared';
+import { UTILITY_ACTIONS, type AuthzContext, type RunChildDto, type RunDetailDto, type RunLifecycle, type RunStepDto } from '@appchat/shared';
 import { TenantSql as Prisma } from '@appchat/db';
 import { readableRun } from './run-status';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAgent' | 'aiRootBudget' | 'aiUsageReceipt' | '$queryRaw'>;
+const UTILITY_TITLES: ReadonlySet<string> = new Set(UTILITY_ACTIONS);
 
 export const PAGE_DEFAULT = 30;
 export const PAGE_MAX = 100;
@@ -33,6 +37,7 @@ export async function runDetail(db: Db, authz: AuthzContext, runId: string): Pro
   ]);
   const names = await agentNames(db, [r.agentId]);
   const out = (r.output ?? {}) as { text?: string };
+  const isUtility = UTILITY_TITLES.has(r.title);
   return {
     id: r.id,
     root_run_id: r.rootRunId,
@@ -53,7 +58,7 @@ export async function runDetail(db: Db, authz: AuthzContext, runId: string): Pro
     approval_id: r.status === 'waiting_approval' ? ((r.state as { approval_id?: string } | null)?.approval_id ?? null) : null,
     children,
     steps,
-    result_text: r.status === 'completed' && typeof out.text === 'string' ? out.text.slice(0, 2000) : null,
+    result_text: !isUtility && r.status === 'completed' && typeof out.text === 'string' ? out.text.slice(0, 2000) : null,
     event_seq: root?.eventSeq ?? 0,
   };
 }

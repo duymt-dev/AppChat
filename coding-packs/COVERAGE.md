@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 153 | 6 | 2 | 13 | 14 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 5 | 0 | 2 | 11 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 165 | 10 | 0 | 9 | 10 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 394 | 32 | 1 | 4 | 25 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 395 | 32 | 1 | 4 | 24 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 57 | 0 | 29 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
-| **Tổng** | **1190** | **100** | **33** | **49** | **119** | **35** | **69** | **0** |
+| **Tổng** | **1191** | **100** | **33** | **49** | **118** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1102,7 +1102,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | MAIL-DELIVERY-RECEIPT | Durable accepted vs delivered/unknown and safe retry/crash recovery | Brevo mail28–29; SMTP mail; DC258 | 012c | ĐẠT | tenant_mail_delivery dispatch_ref + integration_call_log mail.send; queued → reserved → accepted / failed_before_accept / unknown (CAS), messageId rỗng / hết giờ sau gửi → unknown, thử lại ≤ 3 chỉ khi chứng minh chưa nhận, sập sau reserved → unknown không gửi lại; gửi thử biên nhận riêng — DC-410; api tenant-mail-dispatch.test |
 | MAIL-CALLBACK-SUPPRESSION | Authenticated bound delivery facts, replay/order/late disconnect policy and scoped suppression | webhook.service30/33;037; DC258 | 012c | ĐẠT | mail/ingress bearer token webhook (hiện tại / binding giữ ≤ 30 ngày, không giữ khoá gửi), tenant_mail_event chỉ thêm chống lặp, ghép theo mã thư + digest, unresolved + đối soát khi accepted, cờ chỉ nâng; lỗi cứng / khiếu nại → huỷ nhận ưu đãi đúng khách một lần; thiếu sink miền → 503 — DC-411, DC-413; api tenant-mail-callbacks.test, worker tenant-mail-composition.test |
 | MAIL-AI-FILES | AI-first secure setup/probe/approved mail proposals and actual scoped delivery CSV/XLSX, manual noLLM | User AI/filepriority; DC244/246; DC258 | 012c | ĐẠT | Trợ lý: form kết nối không điền khoá dán vào chat, kiểm tra kết nối integration.test (không gửi), campaign.get đọc kết quả giao thư thật, không tự duyệt / đổi người gửi / gửi lại unknown; xuất người nhận CSV có cột Giao thư (đọc lại ở ai:live); đường thủ công dùng chung service — ai:live tenant-mail (reports/ai-live-tenant-mail-*.md) — DC-413 |
-| AI-UTILITY-EVIDENCE | Utility typedsource/evidence/uncertainty with currentauthority beforemodel andpublication/history | Blueprint797;019cSPEC1–3 | 019c | CHƯA | Fourhandlers absent; runner.ts140–141 completesrawgeneration without utilityvalidationfence;019c exactoperation/publication/readgates planned |
+| AI-UTILITY-EVIDENCE | Utility typedsource/evidence/uncertainty with currentauthority beforemodel andpublication/history | Blueprint797;019cSPEC1–3 | 019c | ĐẠT | P1 handlers + kiểm bằng chứng (DC-419); P2 `utility_operation` fence (khoá actor_scope+action+invocation, CAS phase), chữ thô riêng, chỉ `validated_result` công khai qua GET /v1/ai-utilities/:runId/result, result_text ẩn cho run tiện ích, sửa một lần, khôi phục không gọi lại model (DC-420); test core ai-utilities + api ai-utility-results / ai-run-detail |
 | AI-UTILITY-READONLY | AI utility menus/tools remain read-only and do not autoapply CRM/commerce writes or fakefiletransfers | D51;DC244;019cSPEC3/4 | 019c | CHƯA | Existing AgentToolsMenu onlydisplay; no fourutilityruntime/host;019c AC6/7 requireszero businessmutations andreal038b artifacts |
 | PRIVACY-RETENTION | Giữ nguyên chứng từ phát hành/ký theo quyền tài chính hiện có, loại AI và nêu ngoại lệ; không dựng lại bản gốc từ CRM | DC259; invoices-read126–150; contracts.prisma25–66 | 015c | CHƯA | Current missingPDF fallback renders from mutableContact; no privacy disposition guard.015cAC5 preserves originalbytes and denies unproven fallback |
 | PRIVACY-QUARANTINE | Xoá nội dung riêng nội bộ, cách ly dữ liệu nhóm/chung/chưa rõ chủ thể; chưa hoàn tất khi còn unresolved | DC264/265; inbox.prisma152–173;043 provenance | 015c | CHƯA | No subject inventory/erasure/quarantine/review workflow;015c13domain matrix/AC3–4 planned |

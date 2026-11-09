@@ -39,3 +39,46 @@
 | `plans/COMMERCE-DECISIONS.md` | không đụng; tiền chỉ trích chuỗi VND, không quy đổi / làm tròn; lead không phải xác suất / tín dụng |
 
 **Còn lại (P2, P3):** utility_operation + công bố sau kiểm + chặn đọc run / SSE / lịch sử + khôi phục; GET kết quả; UI menu / form / result (Trợ lý + Hộp thư), E2E mock / http, parity; ai:live 8 ca. AC5, AC7, AC8 chưa.
+
+## Pha 2 / 3 — fence công bố `utility_operation` + GET kết quả + khôi phục (nhánh `tip/019c-ai-utilities-p2`, từ `origin/dev` sau merge #159)
+
+### Rà trước khi làm (code thật)
+
+| Mục | Hiện trạng trước P2 | Xử lý |
+|-----|---------------------|-------|
+| Lộ chữ thô | `run-detail.ts` trả `result_text = ai_run.output.text` cho MỌI run completed người xem đọc được → run tiện ích lộ JSON thô model chưa kiểm | Ẩn `result_text` khi `title` ∈ `UTILITY_ACTIONS` (phủ cả run gốc lẫn run con sửa lại — join theo `utility_operation.run_id` sẽ bỏ sót run sửa) |
+| SSE / lịch sử Trợ lý | `RunStream`, `genui/history`, `sessions` chỉ dựng trong `turn.service` (kind assistant) | Không áp cho run `consult` của tiện ích — không cần sửa |
+| Gọi lặp | P1 gọi model mỗi request, không khoá | `utility_operation` khoá (actor_scope, action_id, invocation_key) — cấp bền trước model |
+
+### FILES
+
+Theo manifest `tips/manifests/TIP-019c-files.md` (thêm 6 dòng P2: `utility-revalidate.ts`, `utility-validators.ts`, `billing.jobs.module.ts`, `openapi/document.ts`, 2 file integration). Migration `20261109020000_ai_utilities` (manifest khai `20261102001930` — đổi tên để xếp SAU migration đã merge, runner lấy version = tên cuối; dòng theo dõi ở DB local đã đổi tên tương ứng).
+
+### Giả định đã chọn
+
+1. **`invocation_key`**: gọi qua tool = khoá con 019b; UI = Idempotency-Key; không có cả hai = băm input. Cùng Idempotency-Key + body khác bị chặn 409 `idempotency_key: mismatch` ở executor TRƯỚC fence tiện ích; fence vẫn tự kiểm (409 `invocation_key: mismatch`) cho đường tool / gọi trực tiếp.
+2. **Sửa một lần** là run CON của run gốc (`childKey = repair:<operation>`) — cùng root / ngân sách 019b, mỗi lượt gọi model một `ai_run`. Handle trả người gọi luôn là run gốc.
+3. **Khôi phục** (`ai.utility` trên lịch 045b, ROLE=jobs): không gọi lại model. Chưa có chữ thô → `failed/unknown`; có chữ thô → giải lại nguồn theo refs bằng danh tính hệ thống (chỉ để biết dữ liệu còn / đổi, KHÔNG dựng lại quyền theo vai của actor gốc — quyền hiện tại vẫn kiểm ở mọi lần đọc qua GET kết quả / `readableRun`), chạy đúng validator + tham số đã lưu trong `source_bindings.params`. Nguồn bị thu hồi / xoá / gộp → `invalidated`; chữ dán (không lưu chữ nguồn, §1.4) → `failed`.
+4. `run_epoch` (= `workspace.authzEpoch`) lưu lúc cấp; chưa so ở P2 — dùng cho vô hiệu theo đổi quyền ở pha sau nếu spec yêu cầu.
+
+### TEST (chạy thật)
+
+| Lệnh | Kết quả |
+|------|---------|
+| `pnpm --filter @appchat/core test` | 133 file / 796 test pass (gồm `ai-utilities.test.ts` 9 ca: fence, idempotent, 409 hash, sửa 1 lần, sai 2 lần → failed, trích dẫn bịa, 402 / cancelled / 502, recheck 409, biên 16 000) |
+| `pnpm --filter @appchat/api test:integration test/integration/ai-utility-results.test.ts test/integration/ai-utilities.test.ts test/integration/ai-run-detail.test.ts` | 3 file / 19 test pass |
+| `pnpm turbo run lint typecheck --filter=@appchat/core --filter=@appchat/api --filter=@appchat/db --filter=@appchat/worker` | xanh |
+| `pnpm --filter @appchat/api test` | 2 file / 11 pass |
+| `pnpm depcheck` | 0 lỗi (113 cảnh báo web mock có sẵn) |
+| `node tools/scripts/i18n-check.mjs` | vi / en 100% |
+| `pnpm --filter @appchat/api test:integration test/integration/openapi.test.ts` | 4/5 — ca AC4 `x-untyped ≤ 175` đỏ **có sẵn trên origin/dev** (220 > 175, lệch do TIP trước); route mới đã khai schema có kiểu nên không cộng thêm |
+
+### Đối chiếu standards
+
+| Standard | Đạt |
+|----------|-----|
+| indexing.md | Unique (actor_scope, action_id, invocation_key); unique run_id; partial `(phase, updated_at, id) INCLUDE (run_id, action_id) WHERE phase IN (generating, validating)` cho quét khôi phục |
+| concurrency.md | Mọi chuyển pha `updateMany` có điều kiện phase (CAS); `beginRepair` chặn bằng `repaired=false` |
+| response-envelope.md | GET kết quả `{ data: UtilityEnvelope }`; 404 đồng nhất (ngoài scope / không tồn tại / không phải tiện ích / id rác) |
+| ai/agent-gateway.md | Run consult không tool; chữ thô không ra API / run-detail |
+| Kích thước file | File P2 lớn nhất 135 dòng |

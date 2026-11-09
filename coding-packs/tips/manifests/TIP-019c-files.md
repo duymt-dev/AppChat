@@ -71,7 +71,7 @@ M modify, C create. Future M requires predecessor integration. No directory wild
 | C | `apps/web/src/shared/ai-utilities/components/UtilityHost.tsx` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
 | C | `apps/web/src/shared/ai-utilities/api.ts` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
 | C | `packages/db/prisma/tenant/ai-utilities.prisma` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
-| C | `packages/db/prisma/tenant/migrations/20261102001930_ai_utilities/migration.sql` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
+| C | `packages/db/prisma/tenant/migrations/20261109020000_ai_utilities/migration.sql` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
 | C | `packages/core/src/ai/skills/utility-operations.ts` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
 | C | `packages/core/src/ai/skills/utility-recovery.ts` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
 | M | `packages/core/src/ai/runs/runner.ts` | Protected utility publication/recovery or persistent current-context UI host; dedicated verification |
@@ -90,6 +90,12 @@ M modify, C create. Future M requires predecessor integration. No directory wild
 | C | `packages/core/src/ai/skills/sources/types.ts` | Kiểu SourceChunk dùng chung nguồn (tránh vòng import) |
 | M | `packages/core/src/crm/public.ts` | Export `inSameFamily` cho nguồn score_lead (hội thoại thuộc họ khách) |
 | M | `packages/core/src/kernel/actions/tip-owners.ts` | 4 action → TIP 019c |
+| C | `packages/core/src/ai/skills/utility-revalidate.ts` | Kiểm lại một operation sau sự cố bằng validator + nguồn hiện tại (thêm khi làm P2) |
+| C | `packages/core/src/ai/skills/utility-validators.ts` | Dựng validator theo action từ tham số đã lưu — tách khỏi handlers để tránh vòng import runtime.providers ↔ runner (thêm khi làm P2) |
+| M | `packages/core/src/billing/jobs/billing.jobs.module.ts` | Đăng ký `AiUtilityRecoveryInstaller` cạnh `AiUsageRecoveryInstaller` (ROLE=jobs, 1 dòng) |
+| M | `apps/api/src/openapi/document.ts` | Schema `data` có kiểu cho GET /v1/ai-utilities/{runId}/result (không thêm x-untyped) |
+| C | `apps/api/test/integration/ai-utility-results.test.ts` | Integration: GET kết quả có scope, idempotency, khôi phục 4 nhánh |
+| M | `apps/api/test/integration/ai-run-detail.test.ts` | result_text null cho run kỹ năng tiện ích |
 
 ## Future M provenance
 
