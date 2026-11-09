@@ -1476,6 +1476,18 @@
   "assistant": {
     "resume": {
       "title": "Tiếp tục lượt Trợ lý"
+    },
+    "plan_propose": {
+      "title": "Đề xuất kế hoạch Cowork",
+      "desc": "Tạo kế hoạch nhiều bước mới cho phiên hiện tại — chỉ đề xuất, chưa chạy gì."
+    },
+    "plan_get": {
+      "title": "Xem tiến độ kế hoạch Cowork",
+      "desc": "Đọc trạng thái thật của một kế hoạch (bước nào đã xong, đang chờ, lỗi) — không phải lời model."
+    },
+    "plan_reusable": {
+      "title": "Gợi ý kế hoạch tái dùng",
+      "desc": "Danh sách cấu trúc kế hoạch cũ của chính bạn có thể dùng lại — chỉ tên action/bước, không giá trị/kết quả cũ."
     }
   },
   "sales_settings": {

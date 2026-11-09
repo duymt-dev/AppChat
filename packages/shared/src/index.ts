@@ -48,3 +48,5 @@ export * from './data-transfer/registry';
 export * from './data-transfer/activity-fields';
 export * from './privacy/state';
 export * from './privacy/events';
+export * from './assistant/plan';
+export * from './assistant/plan-events';

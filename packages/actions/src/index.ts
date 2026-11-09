@@ -79,8 +79,10 @@ import * as crmBulk from './crm-bulk';
 import * as crmForms from './crm-forms';
 import * as inboxTranslation from './inbox-translation';
 import * as privacy from './privacy';
+import * as assistantPlans from './assistant-plans';
 
 export * from './define';
+export * from './assistant-plans';
 export * from './assistant-ui';
 export * from './identity';
 export * from './onboarding';
@@ -248,6 +250,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contactTasks),
   ...Object.values(contactOpportunities),
   ...Object.values(privacy),
+  ...Object.values(assistantPlans),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

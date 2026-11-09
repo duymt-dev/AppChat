@@ -100,6 +100,8 @@ const EXEMPT: Record<string, string> = {
   follow_up_id: 'việc follow (TIP-038) — chọn trên Tổng quan / Lịch hẹn (dòng có nút Đã follow), không có mã người dùng nói',
   external_id: 'id người dùng phía kênh (TIP-014b E bạn bè Zalo) — chọn từ lời mời tới / hội thoại / kết quả tra SĐT trên màn; action chỉ nhân viên bấm, Trợ lý không gọi',
   assignee_id: 'đồng phụ trách hội thoại (người hoặc AI Agent, ô dùng chung cho cả 2 loại) — chọn trong menu ⋯ Hộp thư; conversation.add_assignee / remove_assignee chỉ nhân viên bấm (agentGrantable false), Trợ lý không gọi',
+  session_id: 'phiên Trợ lý hiện hành (TIP-023d assistant.plan_propose) — đã có sẵn trong ngữ cảnh lượt (ownSession), người dùng không đọc/nói id phiên',
+  action_or_agent_id: 'bước kế hoạch Cowork (TIP-023d assistant.plan_propose) — action id lấy từ find_actions hoặc agent id lấy từ agent.search trong cùng lượt, không phải mã người dùng nói ra',
 };
 
 /** Nợ đường tra (R2 thêm action đọc) — chỉ được giảm. */
