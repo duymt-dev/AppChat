@@ -119,6 +119,14 @@
       "title": "Assign conversation",
       "desc": "Assign a conversation to a team member or another AI Agent."
     },
+    "add_assignee": {
+      "title": "Add co-assignee",
+      "desc": "Add a team member or AI Agent as a co-assignee, alongside the primary assignee."
+    },
+    "remove_assignee": {
+      "title": "Remove co-assignee",
+      "desc": "Remove a team member or AI Agent from a conversation's co-assignees."
+    },
     "tag": {
       "title": "Tag conversation",
       "desc": "Add a tag to a conversation."

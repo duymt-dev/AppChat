@@ -30,6 +30,7 @@ function fakeTx() {
     $queryRaw: async () => (q.push('approvals'), ROWS.map((r) => ({ id: r.id }))),
     approvalRequest: { findMany: async ({ where }: { where: { id: { in: string[] } } }) => (q.push('rows'), ROWS.filter((r) => where.id.in.includes(r.id))) },
     aiAgent: { findMany: async () => (q.push('agents'), []) },
+    conversationAssignee: { findUnique: async () => null },
   };
   return tx;
 }

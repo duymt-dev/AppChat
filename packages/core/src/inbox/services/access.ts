@@ -5,7 +5,8 @@
 import { TenantSql as Prisma } from '@appchat/db';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
-import { POLICIES, decide, grantAllows, grantOf, recordScopeSql, type AccessMode } from '../../authz/data-access';
+import { POLICIES, decide, grantAllows, grantOf, levelOf, recordScopeSql, type AccessMode } from '../../authz/data-access';
+import { coAssigneeSql, isCoAssignee } from '../../authz/data-access/conversation-grants';
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -13,7 +14,7 @@ const COLS = {
   assignee: Prisma.raw('cv.assignee_user_id'),
   team: Prisma.raw('cv.team_id'),
   contact: Prisma.raw('cv.contact_id'),
-  mine: (me: string) => Prisma.sql`EXISTS (SELECT 1 FROM contact k WHERE k.id = cv.contact_id AND k.owner_user_id = ${me}::uuid)`,
+  mine: (me: string) => Prisma.sql`(EXISTS (SELECT 1 FROM contact k WHERE k.id = cv.contact_id AND k.owner_user_id = ${me}::uuid) OR ${coAssigneeSql(me, Prisma.raw('cv.id'))})`,
 };
 
 /** Điều kiện SQL (alias `cv`) cho danh sách hội thoại theo scope inbox. */
@@ -29,13 +30,18 @@ interface ConvRef {
   teamId?: string | null;
 }
 
-type Tx = Pick<TenantTx, 'contact' | 'contactCollaborator'>;
+type Tx = Pick<TenantTx, 'contact' | 'contactCollaborator' | 'conversationAssignee'>;
 
-/** Người xem được đọc / ghi hội thoại này không (một bản ghi — handler / get / guard phòng realtime). */
+/** Người xem được đọc / ghi hội thoại này không (một bản ghi — handler / get / guard phòng realtime). Đồng phụ trách
+ * (`conversation_assignee` kind=user) được coi như full phụ trách (đọc + ghi) — không có vai trò watcher cho hội thoại;
+ * nhưng scope `none` vẫn chặn trước mọi nhánh own (kể cả đồng phụ trách), giống assignee / owner / quan hệ khách. */
 export async function canAccessConversation(tx: Tx, authz: AuthzContext, c: ConvRef, mode: AccessMode): Promise<boolean> {
+  if (levelOf(authz, POLICIES.inbox.module, mode) === 'none') return false;
   const ref = { assignee: c.assigneeUserId, team: c.teamId ?? null, contact: c.contactId };
   const quick = decide(authz, POLICIES.inbox, mode, ref);
-  if (quick !== 'grant') return quick;
+  if (quick === true) return true;
+  if (quick === false) return isCoAssignee(tx, c.id, authz.userId);
+  if (await isCoAssignee(tx, c.id, authz.userId)) return true;
   const k = await tx.contact.findUnique({ where: { id: c.contactId! }, select: { ownerUserId: true } });
   if (k?.ownerUserId === authz.userId) return true;
   return grantAllows(await grantOf(tx, c.contactId, authz.userId), mode);

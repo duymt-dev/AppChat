@@ -99,6 +99,7 @@ const EXEMPT: Record<string, string> = {
   audience_batch_id: 'lô nhập danh sách — handle kết quả campaign.audience_import cùng lượt, không có mã người dùng nói',
   follow_up_id: 'việc follow (TIP-038) — chọn trên Tổng quan / Lịch hẹn (dòng có nút Đã follow), không có mã người dùng nói',
   external_id: 'id người dùng phía kênh (TIP-014b E bạn bè Zalo) — chọn từ lời mời tới / hội thoại / kết quả tra SĐT trên màn; action chỉ nhân viên bấm, Trợ lý không gọi',
+  assignee_id: 'đồng phụ trách hội thoại (người hoặc AI Agent, ô dùng chung cho cả 2 loại) — chọn trong menu ⋯ Hộp thư; conversation.add_assignee / remove_assignee chỉ nhân viên bấm (agentGrantable false), Trợ lý không gọi',
 };
 
 /** Nợ đường tra (R2 thêm action đọc) — chỉ được giảm. */

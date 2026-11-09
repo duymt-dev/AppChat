@@ -55,10 +55,12 @@ const assigneesRoute =
     if (!c) return fail(404, 'NOT_FOUND', 'conversation_id');
     const q = String(p.q ?? '').trim().toLowerCase();
     const loadOf = (who: string) => db.inbox.conversations.filter((x) => x.assignee === who && OPEN.includes(String(x.status ?? 'open'))).length;
-    const people: AssigneeCandidateDto[] = members.members.map((m) => ({ kind: 'user', id: m.id, name: m.name, role: m.role, load: loadOf(m.id), current: c.assignee === m.id }));
+    const coRows = db.inbox.coAssignees[id] ?? [];
+    const isCo = (kind: 'user' | 'agent', aid: string) => coRows.some((r) => r.kind === kind && r.id === aid);
+    const people: AssigneeCandidateDto[] = members.members.map((m) => ({ kind: 'user', id: m.id, name: m.name, role: m.role, load: loadOf(m.id), current: c.assignee === m.id, co_assignee: isCo('user', m.id) }));
     const bots: AssigneeCandidateDto[] = db.agents.agents
       .filter((a) => !a.deleted && a.status === 'active' && a.version > 0 && (!a.channels.length || a.channels.includes(c.channel)))
-      .map((a) => ({ kind: 'agent', id: a.id, name: a.name, role: a.role_label, load: loadOf(a.id), current: c.assignee === a.id, version: a.version }));
+      .map((a) => ({ kind: 'agent', id: a.id, name: a.name, role: a.role_label, load: loadOf(a.id), current: c.assignee === a.id, co_assignee: isCo('agent', a.id), version: a.version }));
     const all = [...people, ...bots].filter((x) => !q || x.name.toLowerCase().includes(q));
     const start = Number(p.cursor ?? 0) || 0;
     return { data: all.slice(start, start + ASSIGNEE_PAGE), next_cursor: start + ASSIGNEE_PAGE < all.length ? String(start + ASSIGNEE_PAGE) : null };

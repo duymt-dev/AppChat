@@ -8,7 +8,7 @@ import { canSeeConversation } from '../../../inbox/services/access';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export type SuggestionStatus = 'pending' | 'approved' | 'rejected';
-type Db = Pick<TenantTx, '$queryRaw' | 'kbSuggestion' | 'kbSource' | 'conversation' | 'contact' | 'contactCollaborator'>;
+type Db = Pick<TenantTx, '$queryRaw' | 'kbSuggestion' | 'kbSource' | 'conversation' | 'contact' | 'contactCollaborator' | 'conversationAssignee'>;
 
 interface Row {
   id: string;

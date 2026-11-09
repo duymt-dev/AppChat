@@ -69,4 +69,20 @@ test.describe('inbox nhóm Zalo (mock)', () => {
     await list.locator('[data-testid^="assign-user-"]').first().click();
     await expect(page.getByTestId('conv-menu')).toHaveCount(0);
   });
+
+  test('đồng phụ trách: thêm rồi gỡ qua menu ⋯ (co-assignee)', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(URL);
+    await page.locator('[data-conv="c_lan"] .conv-dots').click();
+    await page.getByRole('menuitem', { name: 'Phân công' }).click();
+    await expect(page.getByText('Chưa có đồng phụ trách')).toBeVisible();
+    await page.getByTestId('co-assignee-open-picker').click();
+    const picker = page.getByTestId('co-assignee-list');
+    await expect(picker.locator('[data-testid^="co-assignee-pick-"]').first()).toBeVisible();
+    await picker.locator('[data-testid^="co-assignee-pick-"]').first().click();
+    await expect(page.getByText('Chưa có đồng phụ trách')).toHaveCount(0);
+    const chip = page.getByTestId('conv-menu').locator('span', { hasText: '✕' }).first();
+    await chip.click();
+    await expect(page.getByText('Chưa có đồng phụ trách')).toBeVisible();
+  });
 });

@@ -10,6 +10,8 @@ import { visibleConversation } from './access';
 export async function assigneeCandidates(tx: TenantTx, authz: AuthzContext, members: CrmMembers, ws: string, conversationId: string, cursor?: string, q?: string): Promise<AssigneeCandidatesDto> {
   if (!can(authz, 'inbox.assign')) throw new AppError('FORBIDDEN', 403, { permission: 'inbox.assign' });
   const c = await visibleConversation(tx, authz, conversationId);
+  const coRows = await tx.conversationAssignee.findMany({ where: { conversationId: c.id }, select: { kind: true, assigneeId: true } });
+  const isCo = (kind: 'user' | 'agent', id: string) => coRows.some((r) => r.kind === kind && r.assigneeId === id);
   const needle = (q ?? '').trim().toLowerCase();
   const people = (await members.list(ws)).filter((m) => !needle || m.name.toLowerCase().includes(needle));
   const agents = await tx.aiAgent.findMany({
@@ -35,10 +37,10 @@ export async function assigneeCandidates(tx: TenantTx, authz: AuthzContext, memb
   const data: AssigneeCandidateDto[] = page.map((x) => {
     if (x.kind === 'user') {
       const p = pBy.get(x.id)!;
-      return { kind: 'user', id: p.id, name: p.name, role: isSystemRole(p.roleKey) ? ROLE_NAMES[p.roleKey] : p.roleKey.replace(/^custom:/, ''), load: load.get(p.id) ?? 0, current: c.assigneeUserId === p.id };
+      return { kind: 'user', id: p.id, name: p.name, role: isSystemRole(p.roleKey) ? ROLE_NAMES[p.roleKey] : p.roleKey.replace(/^custom:/, ''), load: load.get(p.id) ?? 0, current: c.assigneeUserId === p.id, co_assignee: isCo('user', p.id) };
     }
     const a = aBy.get(x.id)!;
-    return { kind: 'agent', id: a.id, name: a.name, role: a.roleLabel || a.role, load: agentLoad.get(a.id) ?? 0, current: c.assigneeAgentId === a.id, version: a.publishedVersion };
+    return { kind: 'agent', id: a.id, name: a.name, role: a.roleLabel || a.role, load: agentLoad.get(a.id) ?? 0, current: c.assigneeAgentId === a.id, co_assignee: isCo('agent', a.id), version: a.publishedVersion };
   });
   return { data, next_cursor: start + ASSIGNEE_PAGE < all.length ? String(start + ASSIGNEE_PAGE) : null };
 }

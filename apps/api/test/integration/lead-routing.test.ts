@@ -120,7 +120,7 @@ describe('chọn người (AC2) + không giành (AC3)', () => {
     expect((await decision(e.contact))?.reason).toBe('manually_assigned');
   });
 
-  it('ít việc nhất: tải 3/1/2 → người tải 1 (hoà vòng tròn); ghi đè by_channel → người cố định; ghi đè manual không lùi về mặc định', async () => {
+  it('ít việc nhất: tải 3/1/2 → người tải 1 (hoà vòng tròn)', async () => {
     const db = await tenant();
     const d = await db.leadRoutingRule.findFirstOrThrow({ where: { channelAccountId: null } });
     await rule({ rule_id: d.id, if_version: d.version, enabled: true, mode: 'least_busy', user_ids: users });
@@ -130,7 +130,44 @@ describe('chọn người (AC2) + không giành (AC3)', () => {
     const e = (await inbound(acc, 'lb-1'))!;
     await deliver(e.id);
     expect(n.get((await ownerOf(e.contact))!) ?? 0).toBe(min);
+  });
 
+  it('ít việc nhất đếm CẢ đồng phụ trách (conversation_assignee) — thêm 5 đồng phụ trách cho người tải thấp nhất → không còn là người tải thấp nhất', async () => {
+    const db = await tenant();
+    const d = await db.leadRoutingRule.findFirstOrThrow({ where: { channelAccountId: null } });
+    await rule({ rule_id: d.id, if_version: d.version, enabled: true, mode: 'least_busy', user_ids: users });
+    const load = (await db.$queryRaw<{ u: string; n: bigint }[]>`
+      SELECT u, count(*) AS n FROM (
+        SELECT assignee_user_id AS u FROM conversation WHERE assignee_user_id IS NOT NULL AND status IN ('open','pending','snoozed') AND archived_at IS NULL AND hidden_at IS NULL
+        UNION ALL
+        SELECT ca.assignee_id AS u FROM conversation_assignee ca JOIN conversation c ON c.id = ca.conversation_id
+        WHERE ca.kind = 'user' AND c.status IN ('open','pending','snoozed') AND c.archived_at IS NULL AND c.hidden_at IS NULL
+      ) t GROUP BY u`);
+    const n = new Map(load.map((r) => [r.u, Number(r.n)]));
+    const lowest = users.reduce((best, u) => ((n.get(u) ?? 0) < (n.get(best) ?? 0) ? u : best), users[0]!);
+    // Chất 5 hội thoại mở, gán lowest làm ĐỒNG phụ trách (không đổi assignee_user_id) — chỉ chạm bảng conversation_assignee.
+    for (let i = 0; i < 5; i++) {
+      const conv = await db.conversation.create({
+        data: { id: uuidv7(), channelAccountId: acc, channelType: 'zalo_personal', externalThreadId: `co-${i}-${uuidv7()}`, title: `Đồng phụ trách ${i}`, status: 'open' },
+      });
+      await db.conversationAssignee.create({ data: { conversationId: conv.id, kind: 'user', assigneeId: lowest } });
+    }
+    const e = (await inbound(acc, 'lb-coassignee'))!;
+    await deliver(e.id);
+    expect(await ownerOf(e.contact)).not.toBe(lowest);
+  });
+
+  it('EXPLAIN nhánh đồng phụ trách theo conversation_assignee_kind_assignee_id_conversation_id_idx', async () => {
+    const db = await tenant();
+    await db.$executeRawUnsafe('SET enable_seqscan = off');
+    const plan = (await db.$queryRawUnsafe<{ 'QUERY PLAN': string }[]>(`EXPLAIN SELECT assignee_id FROM conversation_assignee WHERE kind = 'user' AND assignee_id = ANY(ARRAY['${users[0]}']::uuid[])`))
+      .map((r) => r['QUERY PLAN'])
+      .join(' | ');
+    await db.$executeRawUnsafe('RESET enable_seqscan');
+    expect(plan).toMatch(/conversation_assignee_kind_assignee_id_conversation_id_idx/);
+  });
+
+  it('ghi đè by_channel người cố định; ghi đè manual không lùi về mặc định', async () => {
     const o = await rule({ channel_account_id: acc2, enabled: true, mode: 'by_channel', user_ids: [users[1]], fixed_user_id: users[1] });
     const w = (await inbound(acc2, 'web-1'))!;
     await deliver(w.id);

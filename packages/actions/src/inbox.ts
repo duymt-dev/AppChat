@@ -47,6 +47,38 @@ export const conversationAssign = defineAction({
   invalidates: ['inbox'],
 });
 
+export const conversationAddAssignee = defineAction({
+  id: 'conversation.add_assignee',
+  module: 'inbox',
+  title: 'actions.conversation.add_assignee.title',
+  description:
+    'Add an extra co-assignee (team member or AI Agent) to a conversation, in addition to the primary assignee. ' +
+    'Example: {"conversation_id":"c_lan","kind":"user","assignee_id":"u_tram"}',
+  input: z.object({ conversation_id: convId, kind: z.enum(['user', 'agent']), assignee_id: z.string().min(1) }),
+  output: z.object({ assignees: z.number().int() }),
+  permission: 'inbox.assign',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['inbox'],
+});
+
+export const conversationRemoveAssignee = defineAction({
+  id: 'conversation.remove_assignee',
+  module: 'inbox',
+  title: 'actions.conversation.remove_assignee.title',
+  description:
+    'Remove a co-assignee (team member or AI Agent) from a conversation. Removing yourself is always allowed. ' +
+    'Example: {"conversation_id":"c_lan","kind":"user","assignee_id":"u_tram"}',
+  input: z.object({ conversation_id: convId, kind: z.enum(['user', 'agent']), assignee_id: z.string().min(1) }),
+  output: z.object({ assignees: z.number().int() }),
+  permission: 'inbox.assign',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['inbox'],
+});
+
 export const conversationTag = defineAction({
   id: 'conversation.tag',
   module: 'inbox',
