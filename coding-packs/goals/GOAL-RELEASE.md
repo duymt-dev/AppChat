@@ -114,7 +114,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 30 | [012c](../tips/TIP-012c-tenant-mail.md) | W8 | DONE | `tip/012c-tenant-mail` | P1–P6 xem PR | #148–#153 |
 | 31 | [033b](../tips/TIP-033b-booking-operations.md) | W8 | DONE (P5 / 5) | `tip/033b-booking-operations` | #154, #155, #156, #157, #158 | |
 | 32 | [019c](../tips/TIP-019c-ai-utilities.md) | W8 | đang làm (P3 / 3 — chờ ai:live AC8, DV-093) | `tip/019c-ai-utilities-p3` | #159, #160, #161 | |
-| 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | đang làm (P2/5) | `tip/015c-contact-privacy` · `-p2` | #165 · #166 (xếp chồng #165) | P2 tenant `20261109040000_privacy_artifact_domain` |
+| 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | đang làm (P3/5) | `tip/015c-contact-privacy` · `-p2` · `-p3` | #165 · #166 (xếp chồng #165) · #167 (xếp chồng #166) | P2 tenant `20261109040000_privacy_artifact_domain`; P3 không migration |
 | 34 | [023d](../tips/TIP-023d-assistant-plans.md) | W8 | chờ | `tip/023d-assistant-plans` | | |
 | 35 | [023e](../tips/TIP-023e-action-discovery.md) | W8 | chờ | `tip/023e-action-discovery` | | |
 | 36 | [023f](../tips/TIP-023f-assistant-input.md) | W8 | chờ | `tip/023f-assistant-input` | | |
