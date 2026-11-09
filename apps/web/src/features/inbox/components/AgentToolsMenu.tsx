@@ -1,5 +1,6 @@
 // Menu ＋ của ô soạn (REQ-C11, D51): Thêm tệp · Chụp màn hình · quyền của agent phụ trách hội thoại (chỉ xem — nhóm theo module + Kỹ
 // năng AI, badge Cần kết nối / Sắp có; không công tắc) · Research "Sắp có" · link sang Builder. Nguồn: GET /conversations/:id/agent-tools.
+// TIP-019c §4.1: khối "Kỹ năng AI cho bạn" — người dùng tự chạy (quyền của chính họ), tách hẳn danh sách quyền của agent.
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
@@ -8,9 +9,10 @@ import { Icon, color } from '@appchat/ui';
 import { getAction } from '@appchat/actions';
 import { useComposerStyles } from '../styles/composer.styles';
 import { usePopStyles } from '../styles/popover.styles';
+import { UtilityMenu, type UtilityActionId } from '@/shared/ai-utilities';
 import { agentToolsQuery } from '../api';
 
-export function AgentToolsMenu({ conversationId, onClose, onPickFile, onCapture }: { conversationId: string; onClose: () => void; onPickFile: () => void; onCapture: () => void }) {
+export function AgentToolsMenu({ conversationId, onClose, onPickFile, onCapture, onSelectUtility }: { conversationId: string; onClose: () => void; onPickFile: () => void; onCapture: () => void; onSelectUtility: (id: UtilityActionId) => void }) {
   const t = useTranslations('inbox.composer');
   const tc = useTranslations('common');
   const tAll = useTranslations();
@@ -33,6 +35,7 @@ export function AgentToolsMenu({ conversationId, onClose, onPickFile, onCapture 
           <Icon name="ic-image" size={15} color={color.text3} />
           <span className={styles.grow}>{t('attachMenu.screenshot')}</span>
         </button>
+        <UtilityMenu title={t('attachMenu.humanSkills')} onSelect={onSelectUtility} />
         <div className={ps.popHint}>{t('attachMenu.agentTools')}</div>
         {groups.map((g) => (
           <div key={g.key} className={ps.slot} style={{ cursor: 'default' }}>

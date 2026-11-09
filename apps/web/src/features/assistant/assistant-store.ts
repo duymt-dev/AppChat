@@ -1,8 +1,9 @@
 // UI state Trợ lý: chế độ, mức AI, agent Cowork, hội thoại hiện tại, popover / modal / drawer đang mở.
 import { create } from 'zustand';
+import type { UtilityActionId } from '@/shared/ai-utilities';
 import type { ChatMessage, Mode, Tier } from './types';
 
-export type AsstPop = 'plus' | 'tier' | 'agent' | null;
+export type AsstPop = 'plus' | 'tier' | 'agent' | 'utility' | null;
 
 interface AssistantUi {
   mode: Mode;
@@ -22,6 +23,8 @@ interface AssistantUi {
   taskOpen: string | null;
   /** Modal chi tiết "Trợ lý AI đang điều phối" (REQ-E14). */
   runsOpen: boolean;
+  /** Kỹ năng tiện ích AI đang mở trong host dưới ô soạn (TIP-019c §4.2) — độc lập với popover. */
+  utility: UtilityActionId | null;
   set: (p: Partial<Omit<AssistantUi, 'set' | 'openPop' | 'push' | 'patchMsg' | 'reset'>>) => void;
   openPop: (pop: Exclude<AsstPop, null>, el: HTMLElement) => void;
   push: (m: ChatMessage) => void;
@@ -43,6 +46,7 @@ export const useAssistantUi = create<AssistantUi>((set) => ({
   taskPrefill: null,
   taskOpen: null,
   runsOpen: false,
+  utility: null,
   set: (p) => set(p),
   openPop: (pop, el) => {
     const r = el.getBoundingClientRect();

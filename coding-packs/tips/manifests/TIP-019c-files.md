@@ -40,6 +40,12 @@ M modify, C create. Future M requires predecessor integration. No directory wild
 | C | `apps/web/src/shared/ai-utilities/components/UtilityForm.tsx` | Canonical read-only utility contract/source authority, metered runtime, registered UI/results or dedicated evidence |
 | C | `apps/web/src/shared/ai-utilities/components/UtilityResult.tsx` | Canonical read-only utility contract/source authority, metered runtime, registered UI/results or dedicated evidence |
 | C | `apps/web/src/shared/ai-utilities/hooks/useUtility.ts` | Canonical read-only utility contract/source authority, metered runtime, registered UI/results or dedicated evidence |
+| C | `apps/web/src/shared/ai-utilities/components/SourcePicker.tsx` | Chọn nguồn tường minh (chữ dán / tin chọn / khách) dùng chung form |
+| C | `apps/web/src/shared/ai-utilities/components/ProposalView.tsx` | Hiển thị đề xuất đã kiểm theo khuôn từng kỹ năng + trích dẫn, không JSON thô |
+| C | `apps/web/src/shared/ai-utilities/components/ExtractFields.tsx` | Danh sách trường cần trích cho ai.extract_info (mặc định 3 trường, sửa/bỏ/thêm) |
+| C | `apps/web/src/shared/ai-utilities/styles.ts` | Kiểu chung (token) của bảng kỹ năng tiện ích |
+| C | `apps/web/src/shared/ai-utilities/ai-utilities.test.tsx` | Đơn vị: lệnh gạch chéo, kết quả theo khuôn không JSON thô, mock quyền nguồn + trích dẫn |
+| M | `apps/web/src/shared/api/mock/mock-transport.ts` | Đăng ký `aiUtilityParamRoute` (GET /ai-utilities/:runId/result) |
 | C | `apps/web/src/shared/ai-utilities/index.ts` | Canonical read-only utility contract/source authority, metered runtime, registered UI/results or dedicated evidence |
 | C | `apps/web/src/shared/api/mock/domains/ai-utilities.ts` | Canonical read-only utility contract/source authority, metered runtime, registered UI/results or dedicated evidence |
 | M | `apps/web/src/shared/api/mock/handlers.ts` | Canonical read-only utility contract/source authority, metered runtime, registered UI/results or dedicated evidence |

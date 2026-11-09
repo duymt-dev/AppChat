@@ -1,11 +1,13 @@
 // Ô soạn của Trợ lý — prototype L1201–1222 (màn chào), L1294–1311 (đáy hội thoại), L1404–1419 (Cowork).
 // Mức AI thay tên model (D29). Enter gửi, Shift+Enter xuống dòng, Ctrl+U thêm tệp (TIP-023c 8c — hàng tệp phía trên ô soạn).
 'use client';
+import { useCallback } from 'react';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useAssistantUi } from '../assistant-store';
 import { useAssistantAttachments } from '../hooks/useAssistantAttachments';
+import { UtilityHost } from '@/shared/ai-utilities';
 import { AssistantAttachments, openAttachPicker } from './AssistantAttachments';
 import type { Mode } from '../types';
 
@@ -29,9 +31,11 @@ export function Composer({ rows, placeholder, onSend, full, sendIcon = 'up', onM
   const ui = useAssistantUi();
   const setMode = (m: Mode) => (onMode ? onMode(m) : ui.set({ mode: m, pop: null }));
   const att = useAssistantAttachments();
+  const closeUtility = useCallback(() => useAssistantUi.getState().set({ utility: null }), []);
 
   return (
     <div className={styles.box} data-testid={testId}>
+      <UtilityHost selected={ui.utility} ctx={{}} onClose={closeUtility} />
       <AssistantAttachments items={att.items} onAdd={att.add} onRemove={att.remove} onRetry={att.retry} onHint={(k) => ui.set({ draft: tAll(k as never) })} />
       <textarea
         className={styles.area}
@@ -55,7 +59,7 @@ export function Composer({ rows, placeholder, onSend, full, sendIcon = 'up', onM
           <Icon name="ic-plus" size={17} />
         </button>
         {full ? (
-          <button type="button" className={styles.icoBtn} aria-label={t('quick')}>
+          <button type="button" className={styles.icoBtn} aria-label={t('quick')} title={t('quick')} data-testid="asst-quick" onClick={(e) => ui.openPop('utility', e.currentTarget)}>
             <Icon name="ic-bolt" size={17} />
           </button>
         ) : null}

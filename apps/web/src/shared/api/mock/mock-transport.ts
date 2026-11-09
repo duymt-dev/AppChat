@@ -42,6 +42,7 @@ import { settingsAppsParamRoute } from './domains/settings-apps';
 import { integrationRuntimeParamRoute } from './domains/integration-runtime';
 import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui';
 import { runDetailParamRoute } from './domains/run-detail';
+import { aiUtilityParamRoute } from './domains/ai-utilities';
 import { assistantSessionParamRoute } from './domains/assistant-sessions';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
@@ -108,6 +109,7 @@ export const mockTransport: Transport = {
       integrationRuntimeParamRoute(path) ??
       assistantUiParamRoute(path) ??
       runDetailParamRoute(path) ??
+      aiUtilityParamRoute(path) ??
       assistantSessionParamRoute(path) ??
       signParamRoute(path) ??
       agentToolsParamRoute(path) ??

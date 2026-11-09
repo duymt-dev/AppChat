@@ -85,7 +85,7 @@ async function generateAndValidate(
 
 export async function runUtility(db: TenantDb, runner: AiRunner, now: () => Date, src: ResolvedSources, j: UtilityJob): Promise<PreparedUtility> {
   const actorScope = actorScopeOf(j.actor, j.onBehalfOfUserId);
-  const invocationKey = j.parent ? j.parent.childKey : j.idempotencyKey ?? `auto:${inputHashOf({ actionId: j.actionId, input: j.input, refs: src.refs })}`;
+  const invocationKey = j.parent ? j.parent.childKey : j.idempotencyKey ?? `auto:${inputHashOf({ actionId: j.actionId, input: j.input, refs: src.refs, digest: src.digest })}`;
   const inputHash = inputHashOf({ input: j.input, refs: src.refs, digest: src.digest });
   const runId = uuidv7(now().getTime());
   const op = await db.$transaction((tx) =>

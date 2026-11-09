@@ -1,5 +1,6 @@
 // UI state hộp thư (Blueprint §7.3 `inboxUi`): hội thoại đang mở, rail thư mục, hồ sơ 360°, menu / popover đang mở.
 import { create } from 'zustand';
+import type { UtilityActionId } from '@/shared/ai-utilities';
 import type { ChannelType } from './types';
 
 export type InboxPop = 'convMenu' | 'chatMenu' | 'account' | 'qr' | 'sched' | 'xl' | 'attach' | null;
@@ -40,6 +41,8 @@ interface InboxUiState {
   searchOpen: boolean;
   searchQuery: string;
   searchSender: 'all' | 'contact' | 'user' | 'agent';
+  /** Kỹ năng tiện ích AI đang mở dưới ô soạn (TIP-019c §4.2). */
+  utility: UtilityActionId | null;
   select: (id: string) => void;
   backToList: () => void;
   toggleRail: () => void;
@@ -56,6 +59,7 @@ interface InboxUiState {
         | 'sort'
         | 'modal'
         | 'composerMode'
+        | 'utility'
         | 'draft'
         | 'replyTo'
         | 'searchOpen'
@@ -90,6 +94,7 @@ export const useInboxUi = create<InboxUiState>((set) => ({
   pop: null,
   menuFor: null,
   convSub: null,
+  utility: null,
   modal: null,
   forwardFrom: null,
   groupFrom: null,
@@ -99,7 +104,7 @@ export const useInboxUi = create<InboxUiState>((set) => ({
   searchOpen: false,
   searchQuery: '',
   searchSender: 'all',
-  select: (selectedId) => set({ selectedId, mobileChat: true, pop: null, tab360: 'overview', draft: '', replyTo: null, searchOpen: false, searchQuery: '' }),
+  select: (selectedId) => set({ selectedId, mobileChat: true, pop: null, utility: null, tab360: 'overview', draft: '', replyTo: null, searchOpen: false, searchQuery: '' }),
   backToList: () => set({ mobileChat: false }),
   toggleRail: () => set((s) => ({ folderRail: !s.folderRail })),
   toggle360: () => set((s) => ({ show360: !s.show360 })),

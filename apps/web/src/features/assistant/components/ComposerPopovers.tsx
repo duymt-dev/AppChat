@@ -7,6 +7,7 @@ import { Icon, color, layout, type IconName } from '@appchat/ui';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useAssistantUi } from '../assistant-store';
 import { homeQuery } from '../api';
+import { UtilityMenu } from '@/shared/ai-utilities';
 import { openAttachPicker } from './AssistantAttachments';
 import type { Tier } from '../types';
 
@@ -43,7 +44,7 @@ export function ComposerPopovers() {
     if (ROUTE[key]) router.push(ROUTE[key]);
   };
   const left = ui.pop === 'tier' ? Math.max(12, ui.popAnchor.right - layout.popTier) : ui.popAnchor.left;
-  const width = ui.pop === 'plus' ? layout.popPlus : ui.pop === 'tier' ? layout.popTier : layout.popAgent;
+  const width = ui.pop === 'plus' || ui.pop === 'utility' ? layout.popPlus : ui.pop === 'tier' ? layout.popTier : layout.popAgent;
 
   return (
     <>
@@ -69,6 +70,7 @@ export function ComposerPopovers() {
             ))}
           </>
         ) : null}
+        {ui.pop === 'utility' ? <UtilityMenu title={t('quick')} onSelect={(id) => ui.set({ utility: id, pop: null })} /> : null}
         {ui.pop === 'tier' ? (
           <>
             {TIERS.map((k) => (

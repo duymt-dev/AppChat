@@ -229,7 +229,8 @@
       "needs_connector": "needs connector",
       "coming_soon": "coming soon",
       "skillGroup": "AI Skills",
-      "editInBuilder": "Edit in Builder ›"
+      "editInBuilder": "Edit in Builder ›",
+      "humanSkills": "AI skills for you (runs with your permissions)"
     },
     "modes": {
       "note": "Internal note",

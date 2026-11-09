@@ -21,6 +21,7 @@ import { TranslationPreview } from './TranslationPreview';
 import { CapturePreview } from './CapturePreview';
 import { AssistantDraftBar } from './AssistantDraftBar';
 import { ComposerPopovers } from './ComposerPopovers';
+import { InboxUtilityHost } from './InboxUtilityHost';
 import { FileChips, MentionPicker, mentionNeedle } from './ComposerExtras';
 import type { ChannelMeta, Conversation } from '../types';
 
@@ -95,6 +96,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
 
   return (
     <div className={styles.wrap} data-testid="composer">
+      <InboxUtilityHost conv={conv} />
       <ComposerPopovers conv={conv} customer={customer} xl={pref} onXl={setPref} onInsert={(v) => (onDraft(v), ui.closePop())} onPickFile={() => picker.current?.click()} onCapture={() => void capture.start()} />
       <input ref={picker} type="file" multiple hidden onChange={(e) => (void files.add(e.target.files), (e.target.value = ''))} data-testid="composer-file-input" />
       {needle !== null ? (
