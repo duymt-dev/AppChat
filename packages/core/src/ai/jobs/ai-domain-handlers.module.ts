@@ -18,6 +18,7 @@ import { IntegrationsModule } from '../../integrations/integrations.module';
 import { LoyaltyModule } from '../../loyalty/loyalty.module';
 import { MarketingModule } from '../../marketing/marketing.module';
 import { NotifyModule } from '../../notify/notify.module';
+import { PrivacyModule } from '../../privacy/privacy.module';
 import { SalesModule } from '../../sales/sales.module';
 import { SupportModule } from '../../support/support.module';
 
@@ -40,6 +41,7 @@ export const AI_DOMAIN_MODULES = [
   InsightsModule,
   NotifyModule,
   DataTransferModule,
+  PrivacyModule,
 ];
 
 @Module({ imports: AI_DOMAIN_MODULES })
