@@ -137,3 +137,39 @@ describe('contact.privacy_status — đọc tiến độ, không nội dung', ()
     expect(missing.status).toBe(404);
   });
 });
+
+describe('GET /v1/privacy/operations — danh sách, cùng guard privacy.erase (pha 4)', () => {
+  const list = (qs: string, who?: { token: string }) => http(m.h, `/privacy/operations${qs}`, undefined, asHeader(who)).then(async (r) => ({ status: r.status, body: await r.json() }));
+  const forgetOne = async (name: string, phone: string) => {
+    const id = await create(name, phone);
+    const v = await versionOf(id);
+    const pv = await preview(id);
+    const input = { contact_id: id, if_version: v, inventory_revision: pv.body.data.result.inventory_revision };
+    const pvForget = await call('contact.forget', input);
+    const r = await confirm('contact.forget', input, pvForget.body.data.confirm_token);
+    return r.body.data.result.operation_id as string;
+  };
+
+  it('sales / cs không có privacy.erase → 403', async () => {
+    expect((await list('', m.sales)).status).toBe(403);
+    expect((await list('', m.cs)).status).toBe(403);
+  });
+
+  it('phân trang keyset đi hết không trùng / không sót, limit lạ → 422', async () => {
+    const ids = [await forgetOne('Chị Ds Một', '0909890101'), await forgetOne('Chị Ds Hai', '0909890102'), await forgetOne('Chị Ds Ba', '0909890103')];
+    const seen: string[] = [];
+    let cursor = '';
+    for (let guard = 0; guard < 10; guard++) {
+      const r = await list(`?limit=1${cursor}`);
+      expect(r.status, JSON.stringify(r.body)).toBe(200);
+      expect(r.body.data.length).toBeLessThanOrEqual(1);
+      seen.push(...r.body.data.map((x: { id: string }) => x.id));
+      if (!r.body.next_cursor) break;
+      cursor = `&cursor=${r.body.next_cursor}`;
+    }
+    for (const id of ids) expect(seen).toContain(id);
+    expect(new Set(seen).size).toBe(seen.length);
+    const bad = await list('?limit=0');
+    expect(bad.status).toBe(422);
+  });
+});
