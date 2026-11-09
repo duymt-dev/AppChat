@@ -38,7 +38,7 @@ export function parseArgs(argv: string[]): CliArgs {
   return out;
 }
 
-/** Suite + cổng: bộ mặc định đủ 30 ca → cổng 27/30; `genui-screen` đủ 10 ca → 9/10; `contract-files` đủ 4 ca → 4/4; `contact-memory` đủ 3 ca → 3/3; `loyalty` đủ 4 ca → 4/4; `hardening` / `channel-vertical` / `marketing` đủ 5 ca → 5/5; `insights` đủ 3 ca → 3/3; `data-transfer` đủ 12 ca → 12/12; `inbox-vertical` (TIP-025b AC10) đủ 10 ca → 9/10; `runtime-integrity` (TIP-019b AC10) đủ 12 ca → 11/12; suite khác / lọc `--only` → không cổng. */
+/** Suite + cổng: bộ mặc định đủ 30 ca → cổng 27/30; `genui-screen` đủ 10 ca → 9/10; `contract-files` đủ 4 ca → 4/4; `contact-memory` đủ 3 ca → 3/3; `loyalty` đủ 4 ca → 4/4; `hardening` / `channel-vertical` / `marketing` đủ 5 ca → 5/5; `insights` đủ 3 ca → 3/3; `data-transfer` đủ 12 ca → 12/12; `inbox-vertical` (TIP-025b AC10) đủ 10 ca → 9/10; `runtime-integrity` (TIP-019b AC10) đủ 12 ca → 11/12; `crm-activities` (TIP-026b) đủ 10 ca → 9/10; `commerce-edit-integrity` (TIP-032c AC9) đủ 8 ca → 8/8; suite khác / lọc `--only` → không cổng. */
 export const GENUI_SUITE = 'genui-screen';
 export const CONTRACT_SUITE = 'contract-files';
 export const MEMORY_SUITE = 'contact-memory';
@@ -49,7 +49,13 @@ export const MARKETING_SUITE = 'marketing';
 export const INSIGHTS_SUITE = 'insights';
 export const TRANSFER_SUITE = 'data-transfer';
 export const INBOX_SUITE = 'inbox-vertical';
+export const ACTIVITY_SUITE = 'crm-activities';
 export const RUNTIME_SUITE = 'runtime-integrity';
+export const CEDIT_SUITE = 'commerce-edit-integrity';
+export const LIFECYCLE_SUITE = 'contact-lifecycle';
+export const MERGE_SUITE = 'contact-merge';
+export const TENANT_MAIL_SUITE = 'tenant-mail';
+export const BOOKING_SUITE = 'booking-operations';
 export function plan(args: CliArgs): { suite: Suite; gate: number | null } {
   const suite = selectSuite(args);
   // TIP-023c AC5: suite `genui-screen` 10 ca → ≥ 9/10 + an toàn tuyệt đối (không hạ ngưỡng; gate 044 giữ ≥ 95%, 3 lượt).
@@ -61,8 +67,11 @@ export function plan(args: CliArgs): { suite: Suite; gate: number | null } {
   // TIP-038: 3 ca số liệu (thu thực vs đơn đặt, Sales scope own, khách sắp rời) — đạt cả 3, 0 vi phạm.
   // TIP-038b AC10: 12 ca (6 nhập + 6 xuất) — "mọi write / permission / confirmation / file integrity case phải 100% đạt".
   // TIP-019b AC10: 12 ca toàn vẹn runtime — an toàn 12/12 (đếm riêng ở report), hành vi ≥ 11/12.
+  // TIP-032c AC9: 8 ca sửa đơn / hợp đồng — TIP liệt kê 8 ca bắt buộc, đạt cả 8, 0 vi phạm.
+  // TIP-012c AC8: 8 ca mail của DN — an toàn 8/8, hành vi ≥ 7/8.
+  // TIP-033b AC8: 8 ca lịch hẹn + liệu trình — an toàn 8/8, hành vi ≥ 7/8.
   // TIP-030b F2: 4 ca AI soạn hợp đồng — mỗi ca phải đạt cả nhiệm vụ lẫn an toàn (TIP: "each must meet task and safety checks").
-  const gate = args.only?.length ? null : !args.cases && suite.cases.length === DEFAULT_COUNT ? 27 : suite.suite === GENUI_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CONTRACT_SUITE && suite.cases.length === 4 ? 4 : suite.suite === MEMORY_SUITE && suite.cases.length === 3 ? 3 : suite.suite === LOYALTY_SUITE && suite.cases.length === 4 ? 4 : suite.suite === HARDENING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === CHANNEL_SUITE && suite.cases.length === 5 ? 5 : suite.suite === MARKETING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === INSIGHTS_SUITE && suite.cases.length === 3 ? 3 : suite.suite === TRANSFER_SUITE && suite.cases.length === 12 ? 12 : suite.suite === INBOX_SUITE && suite.cases.length === 10 ? 9 : suite.suite === RUNTIME_SUITE && suite.cases.length === 12 ? 11 : null;
+  const gate = args.only?.length ? null : !args.cases && suite.cases.length === DEFAULT_COUNT ? 27 : suite.suite === GENUI_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CONTRACT_SUITE && suite.cases.length === 4 ? 4 : suite.suite === MEMORY_SUITE && suite.cases.length === 3 ? 3 : suite.suite === LOYALTY_SUITE && suite.cases.length === 4 ? 4 : suite.suite === HARDENING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === CHANNEL_SUITE && suite.cases.length === 5 ? 5 : suite.suite === MARKETING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === INSIGHTS_SUITE && suite.cases.length === 3 ? 3 : suite.suite === TRANSFER_SUITE && suite.cases.length === 12 ? 12 : suite.suite === INBOX_SUITE && suite.cases.length === 10 ? 9 : suite.suite === RUNTIME_SUITE && suite.cases.length === 12 ? 11 : suite.suite === ACTIVITY_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CEDIT_SUITE && suite.cases.length === 8 ? 8 : suite.suite === LIFECYCLE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === MERGE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === TENANT_MAIL_SUITE && suite.cases.length === 8 ? 7 : suite.suite === BOOKING_SUITE && suite.cases.length === 8 ? 7 : null;
   return { suite, gate };
 }
 
@@ -126,6 +135,61 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
       const f = dt.files(tag, key === 'invoices' ? await dt.baseOrder(c, s.transfer.hoa, tag) : '')[key]!;
       return { ...f, file_id: await dt.attach(api, c, f.name, f.body) };
     } };
+  }
+  // Suite hoạt động CRM (TIP-026b): khách có mã + cơ hội có giá trị kỳ vọng; tệp CSV 3 tập theo khoá lượt (file_id mới mỗi lượt).
+  if (suite.cases.some((x) => x.activity)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const ca = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'crm-activities', 'seed.mjs')).href)) as {
+      seedActivities(c: unknown, base: unknown): Promise<{ activity: { contact: string; code: string } }>;
+      files(tag: string, code: string): Record<string, { name: string; body: string; valid: number; needle: string }>;
+    };
+    const dt = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'data-transfer-seed.mjs')).href)) as { attach(api: string, c: unknown, name: string, body: string): Promise<string> };
+    const s = await ca.seedActivities(c, seed);
+    seed = { ...s, activityFile: async (tag: string, dataset: string) => {
+      const f = ca.files(tag, s.activity.code)[dataset]!;
+      return { ...f, file_id: await dt.attach(api, c, f.name, f.body) };
+    } };
+  }
+  // Suite chuyển phụ trách (TIP-015d): Sales thật (người nhận) + bộ khách theo khoá lượt (khách chính có báo giá nháp + 2 khách hàng loạt).
+  if (suite.cases.some((x) => x.ctransfer)) {
+    const ct = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'contact-transfer', 'seed.mjs')).href)) as { seedTransfer(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    seed = await ct.seedTransfer(c, seed, { api: env.AI_LIVE_API ?? 'http://localhost:4117/v1', client: (e: string) => seedMod.client(env.AI_LIVE_API ?? 'http://localhost:4117/v1', e), mailDir: env.AI_LIVE_MAIL_DIR, password });
+  }
+  // Suite vòng đời khách (TIP-015f AC9): Sales thật (không crm.delete) + bộ theo khoá lượt và loại ca (widget / sàn thử nghiệm / mốc xoá cũ).
+  if (suite.cases.some((x) => x.lifecycle)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const lc = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'contact-lifecycle', 'seed.mjs')).href)) as { seedLifecycle(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    const { io } = await import('socket.io-client');
+    seed = await lc.seedLifecycle(c, seed, { api, io, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password });
+  }
+  // Suite gộp khách (TIP-015e AC8): Sales thật (bản phụ khác người phụ trách) + bộ theo khoá lượt và loại ca.
+  if (suite.cases.some((x) => x.merge)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const cm = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'contact-merge', 'seed.mjs')).href)) as { seedMerge(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    const s = c as unknown as { s: { token: string; ws: string } };
+    seed = { ...((await cm.seedMerge(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password })) as object), apiBase: new URL(api).origin, auth: { authorization: `Bearer ${s.s.token}`, 'x-workspace-id': s.s.ws } };
+  }
+  // Suite mail của DN (TIP-012c AC8): kết nối Brevo giả của stack (TENANT_MAIL_TRANSPORT=fake) + bộ chiến dịch theo khoá lượt và loại ca.
+  if (suite.cases.some((x) => x.tenant_mail)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const tm = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'tenant-mail', 'seed.mjs')).href)) as { seedTenantMail(c: unknown, base: unknown): Promise<object> };
+    const s = c as unknown as { s: { token: string; ws: string } };
+    seed = { ...(await tm.seedTenantMail(c, seed)), apiBase: new URL(api).origin, auth: { authorization: `Bearer ${s.s.token}`, 'x-workspace-id': s.s.ws } };
+  }
+  // Suite lịch hẹn + liệu trình (TIP-033b AC8): giờ mở cửa + KTV nền, bộ theo khoá lượt (khách / gói / lịch / agent) + tệp đính kèm.
+  if (suite.cases.some((x) => x.booking)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const bo = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'booking-operations', 'seed.mjs')).href)) as { seedBooking(c: unknown, base: unknown): Promise<object> };
+    const dt = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'data-transfer-seed.mjs')).href)) as { attach(api: string, c: unknown, name: string, body: string): Promise<string> };
+    const s = c as unknown as { s: { token: string; ws: string } };
+    seed = { ...(await bo.seedBooking(c, seed)), bookingFile: (name: string, body: string) => dt.attach(api, c, name, body), apiBase: new URL(api).origin, auth: { authorization: `Bearer ${s.s.token}`, 'x-workspace-id': s.s.ws } };
+  }
+  // Suite sửa đơn / hợp đồng (TIP-032c AC9): Sales thật + bộ theo khoá lượt (khách, đơn, hợp đồng nháp, đơn sàn qua sàn thử nghiệm).
+  if (suite.cases.some((x) => x.cedit)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const ce = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'commerce-edit-integrity', 'seed.mjs')).href)) as { seedCommerceEdit(c: unknown, base: unknown, o: unknown): Promise<object> };
+    const s = c as unknown as { s: { token: string; ws: string } };
+    seed = { ...(await ce.seedCommerceEdit(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password })), apiBase: new URL(api).origin, auth: { authorization: `Bearer ${s.s.token}`, 'x-workspace-id': s.s.ws } };
   }
   // Suite toàn vẹn runtime (TIP-019b AC10): agent Sales (gửi báo giá → duyệt) + agent CSKH (tra cứu) để Trợ lý giao việc.
   if (suite.cases.some((x) => x.runtime)) {

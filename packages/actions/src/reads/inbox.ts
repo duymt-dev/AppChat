@@ -9,6 +9,8 @@ const convHit = z.object({
   title: z.string(),
   channel: z.string(),
   contact_id: z.string().nullable(),
+  /** TIP-015f: khách đã xoá mềm (thùng rác) — tin vẫn giữ; tạo báo giá / đơn / lịch hẹn mới cần khôi phục khách trước (contact.restore). */
+  contact_deleted: z.boolean().optional(),
   status: z.string(),
   assignee_user_id: z.string().nullable(),
   unread: z.number().int(),
@@ -19,7 +21,7 @@ export const conversationSearch = defineAction({
   id: 'conversation.search',
   module: 'inbox',
   title: 'actions.conversation.search.title',
-  description: 'Find inbox conversations by customer name / text, folder (all, mine, unread, needs_human, vip, complaint…) or channel. Returns conversation_id for message / conversation actions. Example: {"q":"Lan","folder":"unread"}',
+  description: 'Find inbox conversations by customer name / text, folder (all, mine, unread, needs_human, vip, complaint…) or channel. Returns conversation_id for message / conversation actions. contact_deleted=true means the customer is in the trash: messages are kept, but new quotes / orders / appointments need contact.restore first (never create a duplicate customer). Example: {"q":"Lan","folder":"unread"}',
   input: z.object({
     q: z.string().trim().max(120).optional(),
     folder: z.enum(['all', 'mine', 'unread', 'mention', 'team', 'ai_running', 'ai_pending_approval', 'needs_human', 'archived', 'closed', 'vip', 'complaint']).optional(),

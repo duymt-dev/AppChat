@@ -39,6 +39,8 @@ export const conversationSchema = z.object({
   members: z.number().int().optional(),
   online_count: z.number().int().optional(),
   contact_id: z.string().nullable(),
+  /** TIP-015f §4.3: khách gắn hội thoại đã xoá mềm — chỉ dấu vòng đời (không hồ sơ CRM / tên cũ làm tiêu đề). */
+  contact_deleted: z.boolean().optional(),
   presence: z.string().optional(),
   pinned_note: z.string().optional(),
   pinned: z.boolean(),

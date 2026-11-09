@@ -12,8 +12,8 @@ const DAY = 86_400_000;
 
 async function visiblePackage(tx: TenantTx, ctx: ActionContext, id: string) {
   const p = UUID.test(id) ? await tx.customerPackage.findUnique({ where: { id } }) : null;
-  const o = p ? await tx.order.findUnique({ where: { id: p.orderId }, select: { ownerUserId: true, teamId: true } }) : null;
-  if (!p || !o || !(await inSalesScope(tx, ctx.authz, { owner: o.ownerUserId, team: o.teamId, contact: p.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { package_id: 'not_found' });
+  const o = p ? await tx.order.findUnique({ where: { id: p.orderId }, select: { assignedUserId: true, teamId: true } }) : null;
+  if (!p || !o || !(await inSalesScope(tx, ctx.authz, { owner: o.assignedUserId, team: o.teamId, contact: p.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { package_id: 'not_found' });
   if (p.status === 'refunded') throw new AppError('INVALID_STATE', 409, { status: p.status });
   const contact = (await tx.contact.findUnique({ where: { id: p.contactId }, select: { name: true } }))?.name;
   return { p, name: line(p.name, contact) };

@@ -52,7 +52,7 @@ describe('resolveContext', () => {
 
   it('thực thể không có action get / chưa cài → chỉ route; không ngữ cảnh → undefined', async () => {
     const { ex, calls } = fakeExecutor(['x']);
-    expect(await resolveContext(ex, t, { route: '/marketing', entity: 'campaign', id: 'cp_1', selection: ['cp_2'] })).toEqual({ route: '/marketing' });
+    expect(await resolveContext(ex, t, { route: '/marketing', entity: 'segment', id: 'sg_1', selection: ['sg_2'] })).toEqual({ route: '/marketing' });
     const off = fakeExecutor(['ct_1'], { implemented: () => false });
     expect(await resolveContext(off.ex, t, { route: '/customers', entity: 'contact', id: 'ct_1' })).toEqual({ route: '/customers' });
     expect(calls).toHaveLength(0);

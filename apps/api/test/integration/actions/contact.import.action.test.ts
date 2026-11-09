@@ -1,5 +1,5 @@
 // Ma trận contact.import (TIP-023b, bulk → preview): đếm tạo / trùng / của người khác / lỗi + danh sách sẽ tạo (không lộ khách người khác);
-// undo xoá khách vừa tạo. 403 sales (không có crm.import).
+// undo xoá mềm khách vừa tạo (TIP-015f: tất cả hoặc 409, không DELETE). 403 sales (không có crm.import).
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, type Matrix } from '../helpers/action-matrix';
@@ -25,6 +25,8 @@ describe('contact.import', () => {
     expect(done.body.data.result).toMatchObject({ created: 1, owned: 1, invalid: 1 });
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
     expect(await (await m.db()).contact.count({ where: { name: 'Chị Hoa Nhập', deletedAt: null } })).toBe(0);
+    // TIP-015f §5.2: xoá mềm, giữ dòng + biên nhận.
+    expect(await (await m.db()).contact.count({ where: { name: 'Chị Hoa Nhập' } })).toBe(1);
   });
 
   it('bulk: gọi từ UI cũng phải qua preview kèm số bản ghi', async () => {

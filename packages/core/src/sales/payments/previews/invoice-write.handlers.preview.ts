@@ -9,6 +9,7 @@ import { editableContact } from '../../../crm/public';
 import { visibleOrder } from '../../orders/order-access';
 import { visibleInvoice, type InvoiceRecord } from '../invoice-access';
 import { localDay } from '../services/payment-write';
+import { inSameFamily } from '../../../crm/lifecycle/family-sql';
 
 const DAY = 86_400_000;
 export const money = (v: string | bigint) => createFmt({ locale: 'vi' }).money(String(v));
@@ -25,7 +26,7 @@ export async function createPreview(ctx: ActionContext, tx: TenantTx, i: ActionI
   if (i.order_id) {
     const o = await visibleOrder(tx, ctx.authz, i.order_id, 'write');
     if (o.source === 'marketplace' || o.status === 'cancelled') throw new AppError('INVALID_STATE', 409, { order_id: o.source === 'marketplace' ? 'marketplace' : 'cancelled' });
-    if (o.contactId !== i.contact_id) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'order_mismatch' });
+    if (!(await inSameFamily(tx, o.contactId, i.contact_id))) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'order_mismatch' });
     const open = await tx.invoice.findMany({ where: { orderId: o.id, status: { in: ['draft', 'sent', 'partial', 'overdue'] } }, select: { amount: true, paidAmount: true } });
     if (amount > o.total - o.paidTotal - open.reduce((a, x) => a + (x.amount - x.paidAmount), 0n)) throw new AppError('VALIDATION_FAILED', 422, { amount: 'invoice.amount_over' });
     order = o.code;

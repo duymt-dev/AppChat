@@ -12,6 +12,7 @@ export const contractsQuery = (f: ContractFilter, pg?: PageState) =>
       transport.get<Paged<Contract>>('/contracts', {
         status: f.status,
         owner_id: f.owner_id,
+        ...(f.assigned_user_id && f.assigned_user_id !== 'all' ? { assigned_user_id: f.assigned_user_id } : {}),
         value: f.value,
         ...(f.q ? { q: f.q } : {}),
         ...pg,

@@ -5,6 +5,7 @@
 import { AppError } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
+import { lockContactRow } from '../../../kernel/ownership/root-lock';
 import { openEmailThread } from '../../../channels/public';
 import type { CrmMembers } from '../../../crm/public';
 import { scopeCols, senderOf, writeOutgoing, type Outgoing } from '../../../inbox/public';
@@ -40,13 +41,16 @@ export async function reachCustomer(tx: TenantTx, c: { id: string; email: string
 export async function customerConversation(tx: TenantTx, c: { id: string; name: string; email: string | null; ownerUserId: string | null; teamId?: string | null }, channel: QuoteChannel, subject: string, now: Date): Promise<{ conv: Conv; created: boolean }> {
   const r = await reachCustomer(tx, c, channel);
   if (r.conv) return { conv: r.conv, created: false };
+  // TIP-015d §2.3: mở hội thoại mới cho khách → khoá khách gốc trước khi tạo identity / hội thoại (đọc lại người phụ trách sau khoá).
+  await lockContactRow(tx, c.id);
+  const owner = await tx.contact.findUnique({ where: { id: c.id }, select: { ownerUserId: true, teamId: true } });
   const { to, account } = r;
   const threadId = `<${uuidv7(now.getTime())}@${account.externalId.split('@')[1] ?? 'mail'}>`;
   const key = { channelAccountId_externalId: { channelAccountId: account.id, externalId: to } };
   if (!(await tx.contactIdentity.findUnique({ where: key, select: { id: true } })))
     await tx.contactIdentity.create({ data: { id: uuidv7(now.getTime()), contactId: c.id, channelType: 'email', channelAccountId: account.id, externalId: to, displayName: c.name, createdAt: now } });
   const conv = await tx.conversation.create({
-    data: { id: uuidv7(now.getTime()), channelAccountId: account.id, channelType: 'email', contactId: c.id, kind: 'direct', externalThreadId: threadId, assigneeUserId: c.ownerUserId, teamId: c.teamId ?? null, lastMessageAt: now, createdAt: now },
+    data: { id: uuidv7(now.getTime()), channelAccountId: account.id, channelType: 'email', contactId: c.id, kind: 'direct', externalThreadId: threadId, assigneeUserId: owner?.ownerUserId ?? null, teamId: owner?.teamId ?? null, lastMessageAt: now, createdAt: now },
   });
   await openEmailThread(tx, { channelAccountId: account.id, threadId, address: to, subject, now });
   return { conv, created: true };

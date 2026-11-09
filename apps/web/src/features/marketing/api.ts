@@ -1,7 +1,7 @@
 // Đọc Marketing (Blueprint §4.4 marketing: GET /v1/campaigns, /campaigns/:id, /campaigns/:id/recipients, /campaigns/meta, /segments,
 // /campaign-suggestions, /campaign-analyses/:run_id). Ghi qua useAction (segment.* / campaign.*).
 import { queryOptions } from '@tanstack/react-query';
-import type { CampaignAnalysisDto, SegmentDto } from '@appchat/shared';
+import type { CampaignAnalysisDto, MailSenderDto, SegmentDto } from '@appchat/shared';
 import { transport } from '@/shared/api/client';
 import type { Campaign, CampaignDetail, CampaignFilter, MarketingMeta, Recipient, Suggestion } from './types';
 import type { PageState, Paged } from '@/shared/list/paged';
@@ -42,3 +42,7 @@ export const analysisQuery = (runId: string) =>
     queryFn: () => transport.get<CampaignAnalysisDto>(`/campaign-analyses/${runId}`),
     refetchInterval: (q) => (q.state.data && ['completed', 'failed'].includes(q.state.data.status) ? false : 2000),
   });
+
+/** Người gửi mail của DN dùng được (TIP-012c — campaign.manage; không khoá / cấu hình). Khoá `integrations` → kết nối / ngắt làm mới. */
+export const mailSendersQuery = () =>
+  queryOptions({ queryKey: ['integrations', 'mail-senders'], queryFn: () => transport.get<MailSenderDto[]>('/campaigns/mail-senders') });

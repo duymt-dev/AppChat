@@ -46,12 +46,18 @@ export interface MemberAgg {
 export async function memberAggs(tx: Pick<TenantTx, '$queryRaw'>, ids: string[], windowFrom: Date, now: Date, expiringUntil: Date): Promise<Map<string, MemberAgg>> {
   if (!ids.length) return new Map();
   const list = Prisma.join(ids.map((x) => Prisma.sql`${x}::uuid`));
+  // TIP-015e: sổ của khách đã gộp giữ id gốc — gom theo khách gốc trong trang (đệ quy merged_into ≤ 32), mỗi bút toán một lần.
   const rows = await tx.$queryRaw<MemberAgg[]>`
-    SELECT l.contact_id,
+    WITH RECURSIVE fam(root, id, depth) AS (
+      SELECT x, x, 0 FROM unnest(ARRAY[${list}]) AS x
+      UNION ALL
+      SELECT fam.root, c.id, fam.depth + 1 FROM contact c JOIN fam ON c.merged_into_id = fam.id WHERE fam.depth < 32
+    )
+    SELECT fam.root AS contact_id,
       coalesce(sum(CASE WHEN l.kind IN ('earn', 'adjust') AND l.delta > 0 AND l.created_at >= ${windowFrom} THEN l.delta
                         WHEN l.kind = 'reverse' AND l.created_at >= ${windowFrom} THEN l.delta ELSE 0 END), 0)::bigint AS earned,
       coalesce(sum(CASE WHEN l.kind = 'redeem' AND l.reversed_by_id IS NULL THEN -l.delta ELSE 0 END), 0)::bigint AS used,
       coalesce(sum(CASE WHEN l.remaining > 0 AND l.expires_at > ${now} AND l.expires_at <= ${expiringUntil} THEN l.remaining ELSE 0 END), 0)::bigint AS expiring
-    FROM loyalty_ledger l WHERE l.contact_id IN (${list}) GROUP BY l.contact_id`;
+    FROM loyalty_ledger l JOIN fam ON l.contact_id = fam.id GROUP BY fam.root`;
   return new Map(rows.map((r) => [r.contact_id, r]));
 }

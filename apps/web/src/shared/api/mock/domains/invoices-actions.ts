@@ -192,5 +192,11 @@ export const invoicesActionRoutes: Record<string, MockRoute> = {
 export const contactPackagesParamRoute = (path: string): MockRoute | undefined => {
   const m = path.match(/^\/contacts\/([^/]+)\/packages$/);
   if (!m) return undefined;
-  return (db) => db.invoices.packages.filter((p) => p.contact_id === m[1]);
+  // Cùng DTO PackagesRead (TIP-033b): remaining = max(total − used, 0), trang `{ data, next_cursor }`, không số tiền.
+  return (db) => ({
+    data: db.invoices.packages
+      .filter((p) => p.contact_id === m[1])
+      .map((p) => ({ ...p, remaining: Math.max(p.total - p.used, 0) })),
+    next_cursor: null,
+  });
 };

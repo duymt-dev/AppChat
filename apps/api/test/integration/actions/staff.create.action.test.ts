@@ -20,7 +20,7 @@ describe('staff.create', () => {
 
   it('preview Trợ lý → xác nhận; dịch vụ lạ → 422', async () => {
     const { preview, done } = await m.confirm({ name: ' KTV. Hồng Anh ', role: 'KTV da', skills: [svc], schedule: [{ weekday: 5, open: true, start: '13:00', end: '17:00' }] });
-    expect(preview).toEqual({ summary: 'KTV. Hồng Anh', risk: 'config', changes: [{ entity: 'staff', after: { name: 'KTV. Hồng Anh', role: 'KTV da', skills: ['Chăm sóc da'], schedule_days: 1 } }] });
+    expect(preview).toEqual({ summary: 'KTV. Hồng Anh', risk: 'config', changes: [{ entity: 'staff', after: { name: 'KTV. Hồng Anh', role: 'KTV da', skills: ['Chăm sóc da'], closed_days: 0, custom_days: 1 } }] });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
     expect((await m.act({ name: 'X', skills: ['0190f000-0000-7000-8000-00000000beef'] }, undefined, { 'x-action-source': 'assistant' })).body.error.fields).toEqual({ skills: 'not_found' });
   });

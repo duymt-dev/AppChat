@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { customValuesSchema } from '@appchat/shared';
 import { defineAction } from './define';
 import { discount, lineItem, money, sourceLink } from './sales-schemas';
+import { assignedUserId, ifVersion, ownerEcho } from './commerce-edit-schemas';
 
 const orderId = z.string().min(1);
 const shipping = z.object({
@@ -89,9 +90,9 @@ export const orderUpdate = defineAction({
   module: 'sales',
   title: 'actions.order.update.title',
   description:
-    'Edit an order: free while new; while processing only if nothing was paid. Marketplace orders: only owner / note. Example: {"order_id":"ord_290409","patch":{"note":"Giao chiều"}}',
-  input: z.object({ order_id: orderId, patch: fields.partial() }),
-  output: z.object({ order_id: z.string() }),
+    'Edit an order: free while new; while processing only if nothing was paid. Marketplace orders: only responsible person / note / custom fields. owner_user_id is the creator (sales attribution) and can never change; set the responsible person with assigned_user_id (member id or null). Send if_version = version you read. Example: {"order_id":"ord_290409","if_version":2,"patch":{"note":"Giao chiều"}}',
+  input: z.object({ order_id: orderId, if_version: ifVersion, patch: fields.partial().extend({ owner_user_id: ownerEcho, assigned_user_id: assignedUserId }) }),
+  output: z.object({ order_id: z.string(), version: z.number().int().optional() }),
   permission: 'order.manage',
   risk: 'write',
   agentGrantable: true,
@@ -105,8 +106,8 @@ export const orderSetDeposit = defineAction({
   title: 'actions.order.set_deposit.title',
   description:
     'Turn deposit on (amount > 0) or off ("0"). Example: {"order_id":"ord_290409","deposit_amount":"2850000"}',
-  input: z.object({ order_id: orderId, deposit_amount: money }),
-  output: z.object({ order_id: z.string(), pay_status: z.string() }),
+  input: z.object({ order_id: orderId, deposit_amount: money, if_version: ifVersion }),
+  output: z.object({ order_id: z.string(), pay_status: z.string(), version: z.number().int().optional() }),
   permission: 'order.manage',
   risk: 'write',
   agentGrantable: true,
@@ -164,8 +165,8 @@ export const orderUpdateShipping = defineAction({
   title: 'actions.order.update_shipping.title',
   description:
     'Set shipping info (manual entry only). Example: {"order_id":"ord_290411","shipping":{"carrier":"GHN","tracking":"GHN123"}}',
-  input: z.object({ order_id: orderId, shipping }),
-  output: z.object({ order_id: z.string() }),
+  input: z.object({ order_id: orderId, shipping, if_version: ifVersion }),
+  output: z.object({ order_id: z.string(), version: z.number().int().optional() }),
   permission: 'order.manage',
   risk: 'write',
   agentGrantable: true,
@@ -177,9 +178,9 @@ export const orderSyncNow = defineAction({
   id: 'order.sync_now',
   module: 'sales',
   title: 'actions.order.sync_now.title',
-  description: 'Pull new orders from connected marketplaces / POS now (OrderSyncProvider, D31).',
+  description: 'Pull new orders from connected marketplaces / POS now (OrderSyncProvider, D31). Reports imported, blocked (buyer customer deleted — kept as a private receipt, retried after restore) and failed (invalid payload / write error) separately.',
   input: z.object({}),
-  output: z.object({ imported: z.number() }),
+  output: z.object({ imported: z.number(), blocked: z.number().default(0), failed: z.number().default(0) }),
   permission: 'integrations.manage',
   risk: 'write',
   agentGrantable: false,

@@ -14,13 +14,19 @@ const contractHit = z.object({
   value: z.string(),
   start_date: z.string().nullable(),
   end_date: z.string().nullable(),
+  /** Người tạo (doanh số — bất biến) / người phụ trách hiện tại (TIP-032c) — tên theo hồ sơ thành viên. */
+  owner_user_id: z.string().nullable(),
+  owner_name: z.string(),
+  assigned_user_id: z.string().nullable(),
+  assigned_name: z.string(),
+  version: z.number().int(),
 });
 
 export const contractSearch = defineAction({
   id: 'contract.search',
   module: 'sales',
   title: 'actions.contract.search.title',
-  description: 'Find contracts by code / number / title, customer, or chip (draft, pending, signed, expired). Example: {"contact_id":"KH-1016"} or {"q":"HD-1002"}',
+  description: 'Find contracts by code / number / title, customer, or chip (draft, pending, signed, expired). Each hit has owner_* (creator — sales attribution, never changes) and assigned_* (current responsible person) plus version. Example: {"contact_id":"KH-1016"} or {"q":"HD-1002"}',
   input: z.object({ q: z.string().trim().max(120).optional(), contact_id: z.string().optional(), status: z.enum(['draft', 'pending', 'signed', 'expired']).optional(), limit: z.number().int().min(1).max(20).optional() }),
   output: z.object({ contracts: z.array(contractHit), total: z.number().int() }),
   permission: 'contract.view',

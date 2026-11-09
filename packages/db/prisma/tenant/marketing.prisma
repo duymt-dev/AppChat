@@ -29,6 +29,11 @@ model Campaign {
   channel               String
   /// Tài khoản gửi cụ thể (channel_account) — chốt trong snapshot đã duyệt, không tự đổi sau duyệt.
   accountId             String?   @map("account_id") @db.Uuid
+  /// TIP-012c: channel_account (account_id) | tenant_mail (kết nối mail của DN + người gửi + phiên bản — chốt cùng bản duyệt).
+  senderKind            String    @default("channel_account") @map("sender_kind")
+  mailConnectionId      String?   @map("mail_connection_id") @db.Uuid
+  mailSenderId          String?   @map("mail_sender_id")
+  mailSenderRev         Int?      @map("mail_sender_rev")
   segmentIds            String[]  @default([]) @map("segment_ids") @db.Uuid
   content               Json
   ab                    Json?

@@ -183,6 +183,11 @@
       "title": "Thêm ghi chú nội bộ"
     }
   },
+  "contact_note": {
+    "export": {
+      "title": "Xuất ghi chú / bình luận khách (Excel)"
+    }
+  },
   "contact_activity": {
     "list": {
       "title": "Xem hoạt động khách",
@@ -190,6 +195,9 @@
     }
   },
   "contact_task": {
+    "export": {
+      "title": "Xuất việc chăm sóc (Excel)"
+    },
     "create": {
       "title": "Tạo việc chăm sóc",
       "desc": "Việc nhắc nhân viên chăm sóc khách — không phải tác vụ AI, không đặt lịch hẹn."
@@ -204,6 +212,9 @@
     }
   },
   "contact_opportunity": {
+    "export": {
+      "title": "Xuất cơ hội (Excel)"
+    },
     "create": {
       "title": "Tạo cơ hội",
       "desc": "Ghi nhận cơ hội bán: nhu cầu, giá trị kỳ vọng (không phải doanh thu), xác suất do bạn nhập."
@@ -218,6 +229,18 @@
     }
   },
   "contact": {
+    "restore": {
+      "title": "Khôi phục khách đã xoá",
+      "desc": "Khôi phục một khách đã xoá trong vòng 30 ngày (đúng lần xoá hiện tại, không trùng SĐT với khách đang dùng)."
+    },
+    "duplicate_candidates": {
+      "title": "Tìm khách trùng",
+      "desc": "Liệt kê các cặp khách có thể trùng (cả hai trong phạm vi của bạn) theo luật khớp email / MST / họ tên — gợi ý, không phải xác suất."
+    },
+    "deleted_list": {
+      "title": "Xem khách đã xoá",
+      "desc": "Liệt kê khách đã xoá trong phạm vi của bạn, kèm hạn khôi phục."
+    },
     "history_export": {
       "title": "Xuất lịch sử khách",
       "desc": "Xuất lịch sử một khách ra CSV theo khoảng ngày / loại sự kiện / cột."
@@ -273,6 +296,14 @@
     "transfer_owner": {
       "title": "Chuyển phụ trách",
       "desc": "Đề xuất chuyển người phụ trách khách; cần quản lý duyệt."
+    },
+    "transfer_status": {
+      "title": "Xem kết quả chuyển phụ trách",
+      "desc": "Đọc lần chuyển phụ trách đã ghi: trạng thái, số bản ghi chuyển kèm."
+    },
+    "transfer_owner_bulk": {
+      "title": "Chuyển phụ trách hàng loạt",
+      "desc": "Chuyển nhiều khách cho một người phụ trách; mỗi khách một lần chuyển riêng."
     },
     "request_access": {
       "title": "Xin chia sẻ khách"
@@ -379,6 +410,22 @@
     "translate": {
       "title": "Dịch tin nhắn",
       "desc": "Dịch một tin nhắn của khách sang tiếng Việt."
+    },
+    "summarize": {
+      "title": "Tóm tắt",
+      "desc": "Tóm tắt tin đã chọn, chữ dán vào hoặc hồ sơ khách — có trích dẫn, không lưu vào CRM."
+    },
+    "detect_intent": {
+      "title": "Nhận diện ý định",
+      "desc": "Nhận diện ý định chính (hỏi giá, đặt lịch, khiếu nại…) kèm bằng chứng — chỉ gợi ý, không tự chuyển luồng."
+    },
+    "extract_info": {
+      "title": "Trích thông tin",
+      "desc": "Trích các trường bạn khai báo (ngày, số tiền VND…) kèm trích dẫn; thiếu hoặc mơ hồ được ghi rõ."
+    },
+    "score_lead": {
+      "title": "Đánh giá độ phù hợp",
+      "desc": "Đánh giá độ phù hợp cơ hội theo 4 tiêu chí có bằng chứng — tham khảo, không đổi điểm khách."
     },
     "translate_draft": {
       "title": "Dịch bản nháp",
@@ -744,6 +791,12 @@
       "desc": "Đọc một đề nghị thanh toán: số tiền, đã thu, hạn."
     }
   },
+  "booking": {
+    "settings_get": {
+      "title": "Xem cấu hình lịch hẹn",
+      "desc": "Đọc giờ mở cửa, bước lưới, đệm và ca của nhân sự."
+    }
+  },
   "staff": {
     "create": {
       "title": "Thêm nhân sự",
@@ -879,6 +932,13 @@
     },
     "draft_content": {
       "title": "AI viết lại nội dung chiến dịch"
+    },
+    "get": {
+      "title": "Xem chiến dịch",
+      "desc": "Đọc một chiến dịch: trạng thái, người gửi đã chốt, kết quả giao thư thật theo từng trạng thái."
+    },
+    "mail_senders": {
+      "title": "Người gửi mail của doanh nghiệp"
     },
     "recipient_export": {
       "title": "Xuất danh sách người nhận"
@@ -1353,6 +1413,14 @@
     },
     "adjust_sessions": {
       "title": "Điều chỉnh số buổi liệu trình"
+    },
+    "export": {
+      "title": "Xuất liệu trình của khách",
+      "desc": "Tệp CSV / XLSX liệu trình của một khách: tổng / đã dùng / còn lại, trạng thái, hạn — không số tiền. Chỉ xuất, không nhập số buổi."
+    },
+    "list_for_contact": {
+      "title": "Xem liệu trình của khách",
+      "desc": "Danh sách liệu trình của một khách: đã dùng / tổng / còn lại, trạng thái, hạn dùng (không số tiền)."
     },
     "search": {
       "title": "Tìm liệu trình của khách",

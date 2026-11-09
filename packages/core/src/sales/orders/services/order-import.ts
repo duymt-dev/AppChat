@@ -2,7 +2,8 @@
 // ngoài): lần đầu tạo đơn `source = marketplace`, khoá dòng / giá / tổng (sàn là nguồn sự thật); lần sau chỉ cập nhật trạng thái sàn,
 // vận chuyển, đã thu và đi tiếp theo ORDER_FLOW (không lùi trạng thái cuối). Khách khớp theo `contact_identity(marketplace, buyer_id)`
 // — sàn che SĐT. Dòng khớp sản phẩm theo SKU (`product.code` / `product_variant.sku`) để trừ kho; không khớp vẫn nhập (không trừ kho).
-import { nextState, ORDER_FLOW, serverMessages, interpolate } from '@appchat/shared';
+import { lockContactRow } from '../../../kernel/ownership/root-lock';
+import { AppError, nextState, ORDER_FLOW, serverMessages, interpolate } from '@appchat/shared';
 import type { ExternalOrder, MappedStatus } from '@appchat/integrations';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
@@ -10,15 +11,24 @@ import { nextCode } from '../../../kernel/sequence';
 import { ContactIdentityService, writeTimeline } from '../../../crm/public';
 import type { OrderRecord } from '../order-access';
 import { cancelOrder, completeOrder } from '../actions/order-flow.handlers';
-import { orderPayload } from '../actions/order-create.handlers';
 import { recordMarketplacePaid } from '../../payments/services/order-refund';
-import { EMPTY_SHIPPING, deductStock, logEvent, moveOrder, payCols, writeItems, type Actor, type Shipping } from './order-write';
+import { EMPTY_SHIPPING, deductStock, logEvent, moveOrder, orderPayload, payCols, writeItems, type Actor, type Shipping } from './order-write';
+import { recordBlocked, settleBlocked, type BlockOutcome } from './blocked-imports';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
 export interface SyncConnection {
   id: string;
   createdBy: string | null;
 }
+
+/** Bản đã kiểm của đơn (external-order-payload.ts) — cần cho biên nhận chặn (TIP-015f). */
+export interface CheckedMeta {
+  hash: string;
+  updatedAt: Date;
+  sourceEventId: string | null;
+}
+
+export type ImportResult = { created: boolean; orderId: string; events: Ev[]; blocked?: undefined } | { created: false; orderId: null; events: Ev[]; blocked: BlockOutcome };
 
 const SYSTEM: Actor = { type: 'system', id: null };
 const identities = new ContactIdentityService();
@@ -75,12 +85,15 @@ async function markPaid(tx: TenantTx, id: string, paid: boolean, now: Date) {
 }
 
 /** Nhập một đơn sàn. Trả `created` + event cho outbox (người gọi ghi cùng transaction). */
-export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: ExternalOrder, mapped: MappedStatus, now: Date): Promise<{ created: boolean; orderId: string; events: Ev[] }> {
+export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: ExternalOrder, mapped: MappedStatus, now: Date, meta?: CheckedMeta): Promise<ImportResult> {
   const key = { externalConnectionId_externalId: { externalConnectionId: conn.id, externalId: ext.external_id } };
   const ship = { carrier: ext.shipping?.carrier ?? '', tracking: ext.shipping?.tracking ?? '', eta: ext.shipping?.eta ?? '' };
-  const found = await tx.order.findUnique({ where: key, select: { id: true, shipping: true, platformStatus: true } });
-  if (found) {
-    await tx.$queryRaw`SELECT 1 FROM "order" WHERE id = ${found.id}::uuid FOR UPDATE`;
+  const hit = await tx.order.findUnique({ where: key, select: { id: true } });
+  if (hit) {
+    // TIP-032c §2.5: khoá rồi MỚI đọc vận chuyển / trạng thái — không gộp từ ảnh chụp trước khoá (đè sửa tay đồng thời). Người tạo /
+    // người phụ trách không đổi khi đồng bộ lại; phiên bản dòng tăng qua trigger.
+    await tx.$queryRaw`SELECT 1 FROM "order" WHERE id = ${hit.id}::uuid FOR UPDATE`;
+    const found = await tx.order.findUniqueOrThrow({ where: { id: hit.id }, select: { id: true, shipping: true, platformStatus: true } });
     await tx.order.update({ where: { id: found.id }, data: { platformStatus: ext.platform_status, syncedAt: now, shipping: { ...EMPTY_SHIPPING, ...(found.shipping as Partial<Shipping>), ...ship }, updatedAt: now } });
     await markPaid(tx, found.id, mapped.paid, now);
     const moved = await advance(tx, found.id, mapped.status, ext.platform_status, now);
@@ -89,11 +102,22 @@ export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: Ex
     return { created: false, orderId: o.id, events: changed ? [{ topic: 'order.external_updated', payload: orderPayload(o) }, ...moved] : [] };
   }
 
-  const { contactId, events: contactEvents } = await identities.resolve(
+  const r = await identities.resolve(
     tx,
     { channelType: 'marketplace', channelAccountId: conn.id, externalId: ext.buyer.id, displayName: ext.buyer.name || null, phone: ext.buyer.phone ?? null },
     now,
   );
+  // TIP-015f §3.4: người mua đã biết mà khách gốc đã xoá / chuỗi gộp hỏng → không tạo đơn / khách, không đếm đã nhập. Có bản đã kiểm →
+  // biên nhận chặn bền (thử lại sau khôi phục); gọi thẳng không qua kiểm → 409 (không bao giờ tạo đơn ma).
+  if (r.state !== 'active' || !r.contactId) {
+    const reason = r.state === 'soft_deleted' ? 'contact_deleted' : 'identity_unavailable';
+    if (!meta) throw new AppError('CONFLICT', 409, { contact: r.state === 'soft_deleted' ? 'deleted' : 'unavailable' });
+    const blocked = await recordBlocked(tx, { connectionId: conn.id, order: ext, hash: meta.hash, providerUpdatedAt: meta.updatedAt, contactRef: r.contactId, reason, sourceEventId: meta.sourceEventId }, now);
+    return { created: false, orderId: null, events: [], blocked };
+  }
+  const { contactId, events: contactEvents } = { contactId: r.contactId, events: r.events };
+  // Khách gốc khoá trước khi chụp người phụ trách (TIP-015d thứ tự khách → đơn) — không chụp người cũ sau một lần chuyển đồng thời.
+  await lockContactRow(tx, contactId);
   const contact = await tx.contact.findUniqueOrThrow({ where: { id: contactId }, select: { ownerUserId: true, teamId: true } });
   const matched = await matchProducts(tx, ext.lines.map((l) => l.sku));
   const lines = ext.lines.map((l) => ({ ...(matched.get(l.sku) ? { product_id: matched.get(l.sku)!.productId, variant_id: matched.get(l.sku)!.variantId } : {}), name: l.name, qty: l.qty, unit_price: l.unit_price, tax_rate: 0 as const }));
@@ -136,5 +160,6 @@ export async function importExternal(tx: TenantTx, conn: SyncConnection, ext: Ex
   await writeTimeline(tx, { contactId, type: 'order', key: 'order_imported', params: { code, platform: m[ext.platform] ?? ext.platform, total: String(total) }, actor: SYSTEM, ref: { type: 'order', id }, at: now });
   await markPaid(tx, id, mapped.paid, now);
   const moved = await advance(tx, id, mapped.status, ext.platform_status, now);
+  await settleBlocked(tx, conn.id, ext.external_id, id, now);
   return { created: true, orderId: id, events: [...contactEvents, { topic: 'order.imported', payload: orderPayload(o) }, ...moved] };
 }

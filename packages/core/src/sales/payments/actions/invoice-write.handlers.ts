@@ -23,6 +23,8 @@ import { invoiceText, postInvoice } from '../services/invoice-send';
 import { localDay } from '../services/payment-write';
 import { createPreview, sendPreview, voidPreview } from '../previews/invoice-write.handlers.preview';
 import { soleTeamOf } from '../../../authz/data-access';
+import { lockContactRow } from '../../../kernel/ownership/root-lock';
+import { inSameFamily } from '../../../crm/lifecycle/family-sql';
 
 const DAY = 86_400_000;
 type St = { invoice_id: string; status: string };
@@ -52,10 +54,14 @@ export class InvoiceCreateHandler implements Handler<ActionInput<typeof invoiceC
 
   async execute(ctx: ActionContext, input: ActionInput<typeof invoiceCreate>, tx: TenantTx): Promise<HandlerOutcome<{ invoice_id: string; code: string }>> {
     const amount = BigInt(input.amount);
+    // TIP-015f §2.5–§2.6: khách → đơn → đề nghị (không khoá khách sau khoá đơn); khách đã xoá → 404, không đề nghị thanh toán mới.
+    await lockContactRow(tx, input.contact_id);
+    const live = await tx.contact.findUnique({ where: { id: input.contact_id }, select: { deletedAt: true, mergedIntoId: true } }).catch(() => null);
+    if (!live || live.deletedAt || live.mergedIntoId) throw new AppError('NOT_FOUND', 404, { contact_id: 'not_found' });
     const order = input.order_id ? await lockOrder(tx, ctx.authz, input.order_id) : null;
     if (order) {
       if (order.source === 'marketplace' || order.status === 'cancelled') throw new AppError('INVALID_STATE', 409, { order_id: order.source === 'marketplace' ? 'marketplace' : 'cancelled' });
-      if (order.contactId !== input.contact_id) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'order_mismatch' });
+      if (!(await inSameFamily(tx, order.contactId, input.contact_id))) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'order_mismatch' });
       if (amount > (await orderRoom(tx, order))) throw new AppError('VALIDATION_FAILED', 422, { amount: 'invoice.amount_over' });
     } else await editableContact(tx, ctx.authz, input.contact_id);
     const now = this.clock.now();

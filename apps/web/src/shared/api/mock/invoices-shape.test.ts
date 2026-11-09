@@ -2,7 +2,7 @@
 // (yêu cầu → chờ duyệt → duyệt / từ chối; vượt số còn hoàn được → 422; không tự duyệt yêu cầu của mình trừ Owner), liệu trình, tài khoản nhận.
 import { beforeEach, describe, expect, it } from 'vitest';
 import {
-  customerPackageSchema,
+  customerPackagesPageSchema,
   invoiceRowSchema,
   invoicesMetaSchema,
   invoicesPageSchema,
@@ -41,9 +41,8 @@ describe('mock đề nghị thanh toán — shape FE ↔ BE', () => {
     expect(issues(paymentSettingsSchema.safeParse(await mockTransport.get('/settings/payments')))).toEqual(
       [],
     );
-    const pk = (await mockTransport.get('/contacts/ct_lan/packages')) as unknown[];
-    expect(pk.length).toBe(1);
-    expect(issues(customerPackageSchema.safeParse(pk[0]))).toEqual([]);
+    const pk = customerPackagesPageSchema.parse(await mockTransport.get('/contacts/ct_lan/packages'));
+    expect(pk.data.map((p) => [p.id, p.remaining])).toEqual([['pkg_lan_1', 7]]);
   });
 
   it('hoàn tiền: yêu cầu → hàng chờ duyệt → duyệt; vượt số còn hoàn → 422; chưa thu → nothing_to_refund', async () => {

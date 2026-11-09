@@ -8,6 +8,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { paginate } from '../paginate';
 import { marketingExtraHandlers } from './marketing-extras';
+import { mockMailSenders, mockSenderOf } from './tenant-mail';
 import { ACCOUNTS, CUSTOMERS, NOW, SEGMENTS, SIGNALS, accountOf, seedCampaigns, seedSuggestions, type MockCampaign, type MockSuggestion } from './marketing-seed';
 
 export interface MarketingState {
@@ -73,6 +74,7 @@ export const marketingRoutes: Record<string, MockRoute> = {
     );
     return paginate(rows.map(dto), p);
   },
+  '/campaigns/mail-senders': (db) => mockMailSenders(db),
   '/campaigns/meta': (db) => {
     const live = db.marketing.campaigns.filter((c) => !c.deleted);
     const sum = (k: 'sent' | 'replied' | 'converted', ch?: string) => live.filter((c) => !ch || c.channel === ch).reduce((s, c) => s + c.stats[k], 0);
@@ -137,6 +139,7 @@ type CreateIn = {
   kind?: MockCampaign['kind'];
   channel: 'zalo' | 'email';
   account_id?: string;
+  sender?: { kind: string; account_id?: string; connection_id?: string; sender_id?: string };
   segment_ids?: string[];
   contact_ids?: string[];
   audience_batch_id?: string;
@@ -172,6 +175,8 @@ export const marketingHandlers: Record<string, MockHandler> = {
       const n = ++db.marketing.seq;
       const est = estimate(db, i);
       const acc = accountOf(i.channel);
+      const sender = mockSenderOf(db, i.channel, i.sender);
+      if (i.sender?.kind === 'tenant_mail' && !sender) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'sender', fields: { sender: 'not_found' } });
       const sugg = db.marketing.suggestions.find((s) => s.id === i.suggestion_id);
       const segs = (i.segment_ids ?? []).map((id) => SEGMENTS.find((x) => x.id === id)?.name ?? id);
       const c: MockCampaign = {
@@ -187,6 +192,7 @@ export const marketingHandlers: Record<string, MockHandler> = {
         version: 1,
         account_id: acc.id,
         account_name: acc.name,
+        ...(sender ? { sender } : {}),
         segment: [...segs, ...(sugg ? [sugg.title] : []), ...(i.contact_ids?.length ? [`+${i.contact_ids.length}`] : [])].join(', '),
         segment_ids: i.segment_ids ?? [],
         est_recipients: est,

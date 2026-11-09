@@ -13,7 +13,7 @@ const LAYOUT_TAB = z.object({
   enabled: z.boolean(),
   sort: z.number().int(),
   builtin: z.boolean(),
-  blocks: z.array(z.string().min(1)).max(12),
+  blocks: z.array(z.string().min(1)).max(13),
 });
 const REPLY = z.object({
   shortcut: z.string().regex(/^\/[a-z0-9_-]{1,30}$/),

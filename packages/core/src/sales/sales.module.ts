@@ -1,6 +1,8 @@
 // Domain `sales` — quote (TIP-029), order (031 — 10 action `order.*`, đọc /v1/orders*, đồng bộ sàn OrderSyncService), invoice / customer payment / customer_package / bank feed (032 — 15 handler, /v1/invoices*, webhook tenant-payments). Báo giá: handler 13
 // action `quote.*`, đọc cho /v1/quotes*, trang xem công khai, PDF (DocRenderer — TIP-028). Thiếu DB / khoá → service null / 501.
-import { Module } from '@nestjs/common';
+import { Module, type OnModuleInit } from '@nestjs/common';
+import { registerOwnershipPort } from '../kernel/ownership/registry';
+import { quoteOwnershipPort } from './quotes/services/ownership-port';
 import type { Redis } from 'ioredis';
 import { connectorRegistry } from '@appchat/integrations';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
@@ -47,6 +49,7 @@ import { PackageAdjustHandler, PackageExtendHandler } from './payments/actions/p
 import { BankFeedConnectHandler, BankFeedDisconnectHandler, PaymentAccountUpdateHandler } from './payments/actions/finance-config.handlers';
 import { BankFeedIngestHandler } from './payments/actions/bank-ingest.handler';
 import { InvoicesReadService } from './payments/services/invoices-read.service';
+import { PackagesReadModule } from './payments/packages/read.module';
 import { TenantBankHook, genericBankSink } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
 
@@ -72,7 +75,7 @@ const HANDLERS = [
 ];
 
 @Module({
-  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule, SalesSettingsModule, SalesDocumentsModule],
+  imports: [CrmModule, DocumentsModule, ChannelsModule, AiModule, IntegrationsModule, SalesSettingsModule, SalesDocumentsModule, PackagesReadModule],
   providers: [
     ...HANDLERS,
     {
@@ -116,6 +119,11 @@ const HANDLERS = [
       useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
     },
   ],
-  exports: [SalesSettingsModule, SalesDocumentsModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
+  exports: [SalesSettingsModule, SalesDocumentsModule, PackagesReadModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
 })
-export class SalesModule {}
+export class SalesModule implements OnModuleInit {
+  /** Port chuyển phụ trách báo giá (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Sales. */
+  onModuleInit(): void {
+    registerOwnershipPort(quoteOwnershipPort);
+  }
+}

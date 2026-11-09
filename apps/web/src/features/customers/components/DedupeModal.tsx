@@ -1,46 +1,25 @@
-// Modal "Kiểm tra trùng lặp" — prototype L2626–2682 (880px). "CLAUDE GỢI Ý" → "AI GỢI Ý" (D29). Gộp qua contact.merge (bulk → xác nhận).
+// Modal "Kiểm tra trùng lặp" — prototype L2626–2682 (880px). TIP-015e: orchestrator — useDedupe đọc ứng viên thật theo scope (hạng LUẬT,
+// không %), DedupeGroup hiển thị từng cặp (chọn cặp + bản chính). Tìm không ra → trạng thái rỗng thật (bỏ regex giả NO_MATCH). "Hợp nhất
+// đã chọn" chỉ gửi cặp đã chọn. Ô "AI GỢI Ý" → mở Trợ lý (AI giải thích từ ứng viên thật — không tự gộp theo ngưỡng).
 'use client';
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, ModalShell, color } from '@appchat/ui';
-import { useAction } from '@/shared/actions/useAction';
 import { useDedupeStyles } from '../styles/dedupe.styles';
 import { useFormStyles } from '../styles/form.styles';
 import { useCrmUi } from '../crm-store';
-import { duplicatesQuery } from '../api';
-import type { DupSide } from '../types';
-
-const PCT_TONE = (p: number) => (p >= 90 ? [color.roseBg, color.dangerDeep] : p >= 80 ? [color.tierSoftBg, color.amberText] : [color.lookupBg, color.violetInk]);
-const NO_MATCH = /(0|999|test|xxx|9999)/;
+import { useDedupe } from '../hooks/useDedupe';
+import { DedupeGroup } from './dedupe/DedupeGroup';
 
 export function DedupeModal() {
   const t = useTranslations('customers.dd');
-  const router = useRouter();
   const { styles, cx } = useDedupeStyles();
   const { styles: fs } = useFormStyles();
   const ui = useCrmUi();
-  const data = useQuery(duplicatesQuery()).data;
-  const merge = useAction('contact.merge');
-  const [q, setQ] = useState('');
-  const [searched, setSearched] = useState(false);
+  const d = useDedupe();
   const close = () => ui.set({ modal: null });
-  const noMatch = searched && q.trim().length > 0 && NO_MATCH.test(q.toLowerCase());
-  const groups = data?.groups ?? [];
-  const s = data?.summary;
-
-  const side = (r: DupSide, primary: boolean) => (
-    <div className={cx(styles.rec, primary && styles.recLine)}>
-      <div className={styles.recName}>
-        <span className={cx(styles.radio, primary && styles.radioOn)} />
-        {r.name}
-      </div>
-      <span className={styles.email}>{r.email}</span>
-      <span className={styles.phone}>{r.phone}</span>
-      <span className={styles.src}>{r.src}</span>
-    </div>
-  );
+  const records = new Set(d.rows.flatMap((c) => [c.a.id, c.b.id])).size;
+  const strong = d.rows.filter((c) => c.rank >= 3).length;
+  const empty = !d.loading && !d.error && d.rows.length === 0;
 
   return (
     <ModalShell
@@ -58,36 +37,26 @@ export function DedupeModal() {
           <button type="button" className={cx(fs.btn, fs.btnFoot)} onClick={close}>
             {t('cancel')}
           </button>
-          <button type="button" className={cx(fs.btn, fs.btnFoot, fs.primary)} onClick={async () => groups.length && (await merge.run({ group_ids: groups.map((g) => g.id) })) && close()}>
-            {t('mergeSelected')}
+          <button type="button" className={cx(fs.btn, fs.btnFoot, fs.primary)} disabled={!d.picked.size || d.pending} onClick={() => void d.mergePicked()} data-testid="dd-merge-picked">
+            {d.picked.size ? t('mergeSelectedN', { n: d.picked.size }) : t('mergeSelected')}
           </button>
         </>
       }
     >
       <div className={styles.search}>
         <Icon name="ic-search" size={15} color={color.text4} strokeWidth={1.9} />
-        <input
-          className={styles.searchInput}
-          value={q}
-          placeholder={t('search')}
-          aria-label={t('search')}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setSearched(false);
-          }}
-          onKeyDown={(e) => e.key === 'Enter' && setSearched(true)}
-        />
-        <button type="button" className={styles.run} onClick={() => setSearched(true)}>
+        <input className={styles.searchInput} value={d.draft} placeholder={t('search')} aria-label={t('search')} onChange={(e) => d.setDraft(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && d.search()} />
+        <button type="button" className={styles.run} onClick={d.search}>
           {t('run')}
         </button>
       </div>
-      {noMatch ? (
+      {empty && d.q ? (
         <div className={styles.none} data-testid="dd-no-match">
           <span className={styles.noneIcon}>
             <Icon name="ic-search" size={20} color={color.amberGold} strokeWidth={1.7} />
           </span>
           <div className={styles.noneTitle}>{t('noMatch')}</div>
-          <div className={styles.noneBody}>{t.rich('noMatchBody', { q, b: (c) => <b>{c}</b> })}</div>
+          <div className={styles.noneBody}>{t.rich('noMatchBody', { q: d.q, b: (c) => <b>{c}</b> })}</div>
           <div className={styles.noneActs}>
             <button type="button" className={fs.btn} onClick={close}>
               {t('later')}
@@ -104,7 +73,7 @@ export function DedupeModal() {
           <div className={styles.sumLabel} style={{ color: color.dangerDeep }}>
             {t('suspect')}
           </div>
-          <div className={styles.sumBig}>{t('suspectVal', { groups: s?.groups ?? 0, records: s?.records ?? 0 })}</div>
+          <div className={styles.sumBig}>{t('suspectVal', { groups: d.rows.length, records })}</div>
         </div>
         <div className={styles.sum} style={{ background: color.ruleBg, borderColor: color.ruleLine }}>
           <div className={styles.sumLabel} style={{ color: color.blue }}>
@@ -112,43 +81,40 @@ export function DedupeModal() {
           </div>
           <div className={styles.sumText}>{t('rulesVal')}</div>
         </div>
-        <div className={styles.sum} style={{ background: color.brandBg, borderColor: color.brandBorder }}>
+        <button type="button" className={styles.sum} style={{ background: color.brandBg, borderColor: color.brandBorder, textAlign: 'left' }} onClick={() => ui.open('ai')}>
           <div className={styles.sumLabel} style={{ color: color.brandInk }}>
             {t('aiSuggest')}
           </div>
-          <div className={styles.sumText}>{t('aiSuggestVal', { auto: s?.auto ?? 0, groups: s?.groups ?? 0 })}</div>
-        </div>
+          <div className={styles.sumText}>{t('aiSuggestVal', { auto: strong, groups: d.rows.length })}</div>
+        </button>
       </div>
-      {groups.map((g) => {
-        const [bg, fg] = PCT_TONE(g.pct);
-        return (
-          <div key={g.id} className={styles.group} data-testid="dd-group">
-            <div className={styles.groupHead}>
-              <span className={styles.pct} style={{ background: bg, color: fg }}>
-                {t('pct', { pct: g.pct })}
-              </span>
-              <span className={styles.by}>
-                {t('by')} <b>{g.by}</b>
-              </span>
-              <span className={styles.grow} />
-              <button type="button" className={cx(fs.btn, fs.btnSm)} onClick={() => router.push('/calendar')}>
-                {t('booking')}
-              </button>
-              <button type="button" className={cx(fs.btn, fs.btnSm)} onClick={() => router.push('/tickets')}>
-                {t('ticket')}
-              </button>
-              <button type="button" className={cx(fs.btn, fs.btnSm)} onClick={() => ui.open('transfer')}>
-                {t('transfer')}
-              </button>
-              <button type="button" className={cx(fs.btn, fs.btnSm, fs.primary)} onClick={() => void merge.run({ group_ids: [g.id] })}>
-                {t('merge')}
-              </button>
-            </div>
-            {side(g.a, true)}
-            {side(g.b, false)}
-          </div>
-        );
-      })}
+      {d.conflict ? (
+        <div className={styles.noneBody} role="alert" data-testid="dd-conflict">
+          {t('conflict')}
+        </div>
+      ) : null}
+      {d.error ? (
+        <div className={styles.noneBody} role="alert">
+          {t('loadError')}
+        </div>
+      ) : null}
+      {d.rows.map((c) => (
+        <DedupeGroup
+          key={c.key}
+          c={c}
+          picked={d.picked.has(c.key)}
+          primary={d.primaryOf(c)}
+          busy={d.pending}
+          onPick={() => d.toggle(c.key)}
+          onPrimary={(id) => d.choosePrimary(c.key, id)}
+          onMerge={() => void d.mergeOne(c.key)}
+        />
+      ))}
+      {d.more ? (
+        <button type="button" className={cx(fs.btn, fs.btnSm)} onClick={d.loadMore} data-testid="dd-more">
+          {t('more')}
+        </button>
+      ) : null}
     </ModalShell>
   );
 }

@@ -2,7 +2,7 @@
 // Ghi trong transaction của executor; timeline + outbox cùng transaction.
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, mergeCustomValues, type CustomValues } from '@appchat/shared';
-import type { ActionInput, contactCreate, contactDelete, contactSetStage, contactTag, contactUpdate } from '@appchat/actions';
+import type { ActionInput, contactCreate, contactSetStage, contactTag, contactUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
@@ -14,6 +14,8 @@ import { writeTimeline } from '../services/timeline.service';
 import { tagByName, tagNames } from '../services/contact-tags';
 import { changedFields, lockContactVersion, updateAtVersion } from '../services/contact-version';
 import * as pv from './previews/contact-write.handlers.preview';
+import { createdReceipt, undoCreated } from '../lifecycle/create-undo';
+import { writeOutbox } from '../../kernel/outbox/outbox';
 
 const actor = (ctx: ActionContext) => ({ type: ctx.actor.type, id: actorUserId(ctx) });
 
@@ -51,14 +53,16 @@ export class ContactCreateHandler implements Handler<ActionInput<typeof contactC
     if (input.note?.trim()) await tx.contactNote.create({ data: { id: uuidv7(now.getTime()), contactId: c.id, body: input.note.trim(), authorUserId: me, actorType: me ? 'user' : ctx.actor.type, actorId: me ? null : ctx.actor.id, createdAt: now } });
     return {
       result: { contact_id: c.id, code: c.code },
-      after: { id: c.id },
+      // TIP-015f §5.1: biên nhận tạo (phiên bản + ghi chú ban đầu) — hoàn tác chỉ xoá mềm bản còn nguyên trạng.
+      after: await createdReceipt(tx, c.id),
       events: [{ topic: 'contact.created', payload: { contact_id: c.id, owner_user_id: c.ownerUserId, source: c.source } }],
     };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const id = (log.after as { id: string }).id;
-    await tx.contact.deleteMany({ where: { id } });
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    const now = this.clock.now();
+    const events = await undoCreated(tx, ctx.authz, [log.after], { logId: log.id, actorUserId: actorUserId(ctx), now });
+    await writeOutbox(tx, ctx.workspaceId, events, now);
   }
 }
 
@@ -178,23 +182,5 @@ export class ContactTagHandler implements Handler<ActionInput<typeof contactTag>
   }
 }
 
-@Injectable()
-@ActionHandler('contact.delete')
-export class ContactDeleteHandler implements Handler<ActionInput<typeof contactDelete>, { deleted: boolean }> {
-  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
-
-  async preview(ctx: ActionContext, input: ActionInput<typeof contactDelete>, tx: TenantTx) {
-    return pv.deletePreview(tx, ctx.authz, input);
-  }
-
-  async execute(ctx: ActionContext, input: ActionInput<typeof contactDelete>, tx: TenantTx): Promise<HandlerOutcome<{ deleted: boolean }>> {
-    const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
-    await tx.contact.update({ where: { id: c.id }, data: { deletedAt: this.clock.now() } });
-    return { result: { deleted: true }, before: { id: c.id }, after: { id: c.id, deleted: true } };
-  }
-
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const id = (log.before as { id: string }).id;
-    await restoreOr409(() => tx.contact.update({ where: { id }, data: { deletedAt: null } }));
-  }
-}
+// contact.delete chuyển về crm/lifecycle (TIP-015f) — facade giữ tên import cũ.
+export { ContactDeleteHandler } from '../lifecycle/delete.handler';

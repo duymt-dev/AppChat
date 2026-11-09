@@ -2,11 +2,12 @@
 // từ báo giá đã có hợp đồng → báo trả lại hợp đồng cũ (`existing:<mã>`); sửa → trước / sau chỉ trường đổi; xoá → mã + tiêu đề + giá trị
 // (báo giá nguồn được gỡ để tạo lại). Chỉ đọc — luật trạng thái kiểm sớm bằng CONTRACT_FLOW, execute khoá dòng và kiểm lại.
 import type { ActionInput, ActionPreview, contractCreate, contractCreateFromQuote, contractDelete, contractRenew, contractUpdate } from '@appchat/actions';
-import { AppError, CONTRACT_FLOW, CONTRACT_RENEWABLE, assertTransition, createFmt } from '@appchat/shared';
+import { AppError, CONTRACT_FLOW, CONTRACT_RENEWABLE, assertTransition, assertVersion, createFmt } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { created, defined, line, preview, removed, updated } from '../../../kernel/actions/preview-kit';
 import { actorUserId, editableContact, type CrmMembers } from '../../../crm/public';
 import { visibleContract, type ContractRecord } from '../../contract-access';
+import { checkContractOwnerEcho } from '../../editing/contract-assignment';
 
 export const money = (v: string | bigint) => createFmt({ locale: 'vi' }).money(String(v));
 const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
@@ -15,8 +16,9 @@ const day = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : null);
 export const label = (c: Pick<ContractRecord, 'code' | 'title'>) => line(c.code, c.title);
 
 /** Hợp đồng thấy được + kiểm sớm chuyển trạng thái (cùng 404 / 409 như execute) → trạng thái đích + tên khách. */
-export async function flowOf(tx: TenantTx, ctx: ActionContext, id: string, action: string) {
+export async function flowOf(tx: TenantTx, ctx: ActionContext, id: string, action: string, ifVersion?: number) {
   const c = await visibleContract(tx, ctx.authz, id, 'write');
+  assertVersion(c.version, ifVersion);
   return { c, to: assertTransition(CONTRACT_FLOW, c.status, action), contact: (await tx.contact.findUnique({ where: { id: c.contactId }, select: { name: true } }))?.name ?? '' };
 }
 
@@ -50,17 +52,18 @@ export async function fromQuotePreview(ctx: ActionContext, tx: TenantTx, members
 }
 
 export async function updatePreview(ctx: ActionContext, tx: TenantTx, members: CrmMembers, i: ActionInput<typeof contractUpdate>): Promise<ActionPreview> {
-  const { c } = await flowOf(tx, ctx, i.contract_id, 'contract.update');
+  const { c } = await flowOf(tx, ctx, i.contract_id, 'contract.update', i.if_version);
   const p = i.patch;
-  const names = await members.names([c.ownerUserId, p.owner_user_id]);
+  checkContractOwnerEcho(p.owner_user_id, c.ownerUserId);
+  const names = await members.names([c.assignedUserId, p.assigned_user_id ?? null]);
   const name = (id: string | null | undefined) => (id ? (names.get(id) ?? id) : null);
-  const cur = { number: c.number, kind: c.kind, title: c.title, value: String(c.value), signed_date: day(c.signedDate), start_date: day(c.startDate), end_date: day(c.endDate), file_name: c.fileName, note: c.note, owner: name(c.ownerUserId) };
-  const patch = defined({ number: p.number?.trim(), kind: p.kind, title: p.title?.trim(), value: p.value, signed_date: p.signed_date, start_date: p.start_date, end_date: p.end_date, file_name: p.file_name?.trim(), note: p.note?.trim(), owner: p.owner_user_id ? name(p.owner_user_id) : undefined });
+  const cur = { number: c.number, kind: c.kind, title: c.title, value: String(c.value), signed_date: day(c.signedDate), start_date: day(c.startDate), end_date: day(c.endDate), file_name: c.fileName, note: c.note, assigned: name(c.assignedUserId) };
+  const patch = defined({ number: p.number?.trim(), kind: p.kind, title: p.title?.trim(), value: p.value, signed_date: p.signed_date, start_date: p.start_date, end_date: p.end_date, file_name: p.file_name?.trim(), note: p.note?.trim(), assigned: p.assigned_user_id !== undefined ? name(p.assigned_user_id) : undefined });
   return preview('write', label(c), { changes: updated('contract', c.id, cur, patch) });
 }
 
 export async function deletePreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof contractDelete>): Promise<ActionPreview> {
-  const { c, contact } = await flowOf(tx, ctx, i.contract_id, 'contract.delete');
+  const { c, contact } = await flowOf(tx, ctx, i.contract_id, 'contract.delete', i.if_version);
   return preview('delete', line(label(c), contact), { changes: [removed('contract', c.id, { code: c.code, title: c.title, contact, value: String(c.value) })] });
 }
 

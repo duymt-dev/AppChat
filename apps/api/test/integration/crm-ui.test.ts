@@ -217,9 +217,13 @@ describe('thông báo crm (DC-150)', () => {
     expect((await act('contact.transfer_owner', { contact_id: id, to_user_id: salesB.id, move: { conversations: true, quotes: false, appointments: false } })).status).toBe(200);
     const db = await tenant();
     expect(await until(async () => (await db.notification.count({ where: { userId: salesB.id, type: 'crm_owner' } })) === 1)).toBe(true);
+    // TIP-015d: dòng gốc không PII (tiêu đề chung, link null) — tên khách / link chiếu lúc đọc theo quyền hiện tại.
     const n = await db.notification.findFirstOrThrow({ where: { userId: salesB.id, type: 'crm_owner' } });
-    expect(n).toMatchObject({ link: `/customers?c=${id}` });
-    expect(n.title).toContain('Khách chuyển');
+    expect(n).toMatchObject({ link: null });
+    expect(n.title).not.toContain('Khách chuyển');
+    const shown = (await get('/notifications', salesB)).body.data.find((x: { id: string }) => x.id === n.id);
+    expect(shown).toMatchObject({ link: `/customers?c=${id}` });
+    expect(shown.title).toContain('Khách chuyển');
 
     const r = await act('contact.request_access', { contact_id: id }, salesA);
     expect(r.status, JSON.stringify(r.body)).toBe(200);

@@ -43,12 +43,13 @@ export const quoteGet = defineAction({
   uiTarget: opened('quote'),
 });
 
-const orderHit = z.object({ id: z.string(), code: z.string(), contact_id: z.string(), contact: z.string(), status: z.string(), pay_status: z.string(), total: vnd, paid_total: vnd, created_at: z.string() });
+// Người tạo (doanh số — bất biến) / người phụ trách hiện tại (TIP-032c) + phiên bản dòng (gửi lại làm `if_version`).
+const orderHit = z.object({ id: z.string(), code: z.string(), contact_id: z.string(), contact: z.string(), status: z.string(), pay_status: z.string(), total: vnd, paid_total: vnd, created_at: z.string(), owner_user_id: z.string().nullable(), owner_name: z.string(), assigned_user_id: z.string().nullable(), assigned_name: z.string(), version: z.number().int() });
 export const orderSearch = defineAction({
   id: 'order.search',
   module: 'sales',
   title: 'actions.order.search.title',
-  description: 'Find orders by code (DH-1001), customer name / code, or chip (paid, deposit, pending, cancelled). Example: {"contact_id":"KH-1016"} or {"q":"DH-1001"}',
+  description: 'Find orders by code (DH-1001), customer name / code, or chip (paid, deposit, pending, cancelled). Each hit has owner_* (creator — sales attribution, never changes) and assigned_* (current responsible person) plus version. Example: {"contact_id":"KH-1016"} or {"q":"DH-1001"}',
   input: z.object({ q: z.string().trim().max(120).optional(), contact_id: z.string().optional(), chip: z.enum(['paid', 'deposit', 'pending', 'cancelled']).optional(), limit }),
   output: z.object({ orders: z.array(orderHit), total: z.number().int() }),
   permission: 'order.view',

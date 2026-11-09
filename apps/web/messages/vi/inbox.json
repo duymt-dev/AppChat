@@ -308,6 +308,12 @@
       "insert": "Chèn thêm"
     }
   },
+  "deletedContact": {
+    "title": "Khách đã xoá",
+    "close": "Đóng",
+    "body": "Khách của hội thoại này đã bị xoá. Tin nhắn vẫn được lưu và bạn vẫn trả lời được theo quyền Hộp thư; hồ sơ, báo giá, lịch hẹn và AI tự trả lời tạm ngưng cho tới khi khách được khôi phục.",
+    "openTrash": "Mở danh sách khách đã xoá"
+  },
   "p360": {
     "title": "Hồ sơ 360°",
     "close": "Đóng hồ sơ",

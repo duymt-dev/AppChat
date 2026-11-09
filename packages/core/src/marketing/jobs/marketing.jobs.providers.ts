@@ -1,6 +1,7 @@
 // Provider việc nền marketing (TIP-037) — các jobs module chỉ trải mảng / lớp ở đây:
 // · MarketingSendInstaller (ROLE=channels): chốt chặn `cr_` của worker gửi — đặt chỗ + ghi kết quả qua Executor.
-// · MarketingScheduler (ROLE=jobs): lịch `marketing.campaign-tick` mỗi phút trên queue riêng (jobId cố định → một lịch dù nhiều worker).
+// · MarketingScheduler (ROLE=jobs): lịch `marketing.campaign-tick` mỗi phút trên queue riêng (jobId cố định → một lịch dù nhiều worker);
+//   đăng ký bộ xử lý miền của op `mail.send` (TIP-012c — gửi chiến dịch qua mail của DN chạy ở runner integrations cùng ROLE=jobs).
 import { Inject, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Redis } from 'ioredis';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
@@ -15,6 +16,8 @@ import { registerSendGuard, unregisterSendGuard } from '../../channels/public';
 import { MarketingDeps } from '../services/marketing-deps';
 import { RECIPIENT_REF_PREFIX } from './campaign-dispatch';
 import { campaignSendGuard } from './campaign-results';
+import { campaignMailDomain } from './campaign-mail';
+import { registerMailDomain, unregisterMailDomain } from '../../integrations/mail/dispatch';
 import { CAMPAIGN_TICK_JOB, MARKETING_SCHEDULER_QUEUE, tickCampaigns, type TickDeps } from './campaign-scheduler';
 
 const EVERY_MS = 60_000;
@@ -59,6 +62,7 @@ export class MarketingScheduler implements OnApplicationBootstrap, OnApplication
 
   async onApplicationBootstrap(): Promise<void> {
     const deps = this.deps();
+    if (deps) registerMailDomain(campaignMailDomain({ executor: deps.executor, links: this.d.links, userEmail: (u) => this.d.userEmail(u) }));
     if (!this.redis || !deps) return;
     this.queue = new Queue(MARKETING_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(CAMPAIGN_TICK_JOB, { every: EVERY_MS }, { name: CAMPAIGN_TICK_JOB });
@@ -75,6 +79,7 @@ export class MarketingScheduler implements OnApplicationBootstrap, OnApplication
   }
 
   async onApplicationShutdown(): Promise<void> {
+    unregisterMailDomain();
     await this.worker?.close();
     await this.queue?.close();
   }

@@ -90,6 +90,12 @@ export function OverviewTab({ q, meta }: { q: Quote; meta: QuotesMeta }) {
             <span>{t('byLabel')}</span>
             <b>{q.owner_name}</b>
           </div>
+          {q.assigned_user_id !== q.owner_user_id && (
+            <div data-testid="q-assigned">
+              <span>{t('assignedLabel')}</span>
+              <b>{q.assigned_name || t('unassigned')}</b>
+            </div>
+          )}
           <div>
             <span>{t('dateLabel')}</span>
             <b>{stamp(q.created_at)}</b>

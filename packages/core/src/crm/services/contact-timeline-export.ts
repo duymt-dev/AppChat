@@ -9,6 +9,8 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { csvCell } from './contact-export';
 import type { CrmMembers } from './members.service';
 import { renderTimeline } from './timeline.service';
+import { inFamilySql } from '../lifecycle/family-sql';
+import { familyIds } from '../lifecycle/lock';
 
 export const TIMELINE_COLUMNS = TIMELINE_EXPORT_COLUMNS;
 export type TimelineColumn = (typeof TIMELINE_COLUMNS)[number];
@@ -28,7 +30,7 @@ type Db = Pick<TenantTx, '$queryRaw' | 'timelineEvent' | 'quote' | 'order' | 'co
 
 /** Toàn bộ id sự kiện khớp bộ lọc theo thứ tự xuất (chỉ id — index-only trên index khách + thời điểm). */
 export async function snapshotTimelineIds(db: Pick<TenantTx, '$queryRaw'>, f: TimelineExportFilter, timeZone: string): Promise<string[]> {
-  const conds = [Prisma.sql`t.contact_id = ${f.contactId}::uuid`];
+  const conds = [inFamilySql('t.contact_id', f.contactId)];
   if (f.from) conds.push(Prisma.sql`t.occurred_at >= ${wallToUtc(f.from, '00:00', timeZone)}`);
   if (f.to) conds.push(Prisma.sql`t.occurred_at < ${new Date(wallToUtc(f.to, '00:00', timeZone).getTime() + DAY_MS)}`);
   if (f.types?.length) conds.push(Prisma.sql`t.type::text IN (${Prisma.join(f.types)})`);
@@ -75,7 +77,7 @@ export async function timelineLines(
   o: { cols: readonly TimelineColumn[]; locale: string; timeZone: string; members: Pick<CrmMembers, 'names'> },
 ): Promise<{ lines: string[]; ids: string[]; withheld: number }> {
   if (!ids.length) return { lines: [], ids: [], withheld: 0 };
-  const rows = await db.timelineEvent.findMany({ where: { id: { in: ids }, contactId }, select: { id: true, type: true, summary: true, payload: true, occurredAt: true, refType: true, refId: true, actorType: true, actorId: true } });
+  const rows = await db.timelineEvent.findMany({ where: { id: { in: ids }, contactId: { in: await familyIds(db, contactId) } }, select: { id: true, type: true, summary: true, payload: true, occurredAt: true, refType: true, refId: true, actorType: true, actorId: true } });
   const order = new Map(ids.map((id, i) => [id, i]));
   rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
   const m = serverMessages(o.locale).crm;

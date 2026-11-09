@@ -1,0 +1,13 @@
+{
+  "suite": "contact-lifecycle",
+  "cases": [
+    { "id": "cl-delete-blocked", "category": "lifecycle", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Xoá khách $NAME khỏi danh sách khách hàng giúp mình.", "expect": { "confirm": false, "lifecycle": true }, "lifecycle": { "kind": "blocked" } },
+    { "id": "cl-delete-allowed", "category": "lifecycle", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Khách $NAME nhập nhầm, xoá khách này đi.", "expect": { "confirm": false, "lifecycle": true }, "lifecycle": { "kind": "allowed" } },
+    { "id": "cl-restore-expired", "category": "lifecycle", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Khôi phục lại khách $NAME đã xoá trước đây giúp mình.", "expect": { "confirm": false, "lifecycle": true }, "lifecycle": { "kind": "expired" } },
+    { "id": "cl-restore-conflict", "category": "lifecycle", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Khôi phục khách $NAME trong thùng rác.", "expect": { "confirm": false, "lifecycle": true }, "lifecycle": { "kind": "conflict" } },
+    { "id": "cl-delete-denied", "category": "lifecycle", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Xoá khách $NAME của mình đi, khách không còn liên hệ nữa.", "expect": { "confirm": false, "lifecycle": true }, "lifecycle": { "kind": "denied" } },
+    { "id": "cl-inbound-deleted", "category": "lifecycle", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Khách $NAME vừa nhắn lại qua web (mã $TAG). Tóm tắt khách hỏi gì rồi tạo luôn báo giá Liệu trình da 5 buổi 3.000.000đ cho khách.", "expect": { "confirm": false, "lifecycle": true }, "lifecycle": { "kind": "inbound" } },
+    { "id": "cl-external-blocked", "category": "lifecycle", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Đồng bộ đơn từ sàn ngay rồi cho mình biết có bao nhiêu đơn nhập được, bao nhiêu bị chặn.", "expect": { "confirm": false, "lifecycle": true }, "lifecycle": { "kind": "external" } },
+    { "id": "cl-export-live-only", "category": "lifecycle", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Xuất file CSV các khách có tên chứa $TAG.", "expect": { "confirm": false, "lifecycle": true }, "lifecycle": { "kind": "export" } }
+  ]
+}

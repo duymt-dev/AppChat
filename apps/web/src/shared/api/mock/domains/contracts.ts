@@ -9,6 +9,7 @@ import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import { paginate } from '../paginate';
+import { withEditFields } from './commerce-edit';
 
 type Fixed = (typeof fixture.contracts)[number];
 export type ContractStatus =
@@ -48,6 +49,10 @@ export type Contract = Omit<
   business_signature?: string | null;
   customer_signature?: string | null;
   deleted?: boolean;
+  /** TIP-032c: người phụ trách vận hành + phiên bản dòng (seed: withEditFields). */
+  assigned_user_id?: string;
+  assigned_name?: string;
+  version?: number;
   /** Nguồn nội dung ký (TIP-030b). */
   source?: 'template' | 'file';
   source_file_id?: string | null;
@@ -65,7 +70,7 @@ export interface ContractsState {
 }
 
 export const createContractsState = (): ContractsState => ({
-  contracts: structuredClone(fixture.contracts) as Contract[],
+  contracts: withEditFields(structuredClone(fixture.contracts) as Contract[]),
   seq: 1182,
 });
 
@@ -76,7 +81,7 @@ export const chipOf = (s: ContractStatus) =>
 export const visible = (db: MockDb, c: Contract) => {
   if (c.deleted) return false;
   const scope = ROLE_DEFS[db.role].scope.sales;
-  return scope === 'all' || (scope === 'own' && c.owner_user_id === ME);
+  return scope === 'all' || (scope === 'own' && c.assigned_user_id === ME);
 };
 
 export const findContract = (db: MockDb, id: string) => {
@@ -106,6 +111,7 @@ export const contractsRoutes: Record<string, MockRoute> = {
         visible(db, c) &&
         (!p.status || p.status === 'all' || chipOf(c.status) === p.status) &&
         (!p.owner_id || p.owner_id === 'all' || c.owner_user_id === p.owner_id) &&
+        (!p.assigned_user_id || p.assigned_user_id === 'all' || c.assigned_user_id === p.assigned_user_id) &&
         (!p.contact_id || c.contact_id === p.contact_id) &&
         (!p.value || p.value === 'all' || (VALUE[String(p.value)]?.(Number(c.value)) ?? true)) &&
         (!s || [c.code, c.contact_name, c.title].some((v) => v.toLowerCase().includes(s))),

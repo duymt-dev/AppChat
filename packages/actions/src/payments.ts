@@ -39,7 +39,7 @@ export const paymentRefundApprove = defineAction({
   permission: 'payment.refund_approve',
   risk: 'money',
   agentGrantable: false,
-  invalidates: ['invoices', 'orders'],
+  invalidates: ['invoices', 'orders', 'packages'],
 });
 
 export const paymentRefundReject = defineAction({
@@ -66,7 +66,7 @@ export const packageExtend = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['invoices', 'crm'],
+  invalidates: ['invoices', 'crm', 'packages'],
 });
 
 export const packageAdjustSessions = defineAction({
@@ -80,7 +80,7 @@ export const packageAdjustSessions = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['invoices', 'crm'],
+  invalidates: ['invoices', 'crm', 'packages'],
 });
 
 export const paymentAccountUpdate = defineAction({

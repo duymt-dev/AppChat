@@ -1,6 +1,7 @@
 // Action → TIP chủ cài handler (02-TASK-GRAPH.md: bản đồ sở hữu + mục "Action có trong code nhưng chưa có trong Blueprint").
 // Dùng cho NotImplementedHandler (501 kèm TIP) và test boot "mọi action có handler".
 const BY_ID: Record<string, string> = {
+  'package.list_for_contact': '033b', 'package.export': '033b',
   'workspace.switch': '004',
   'notification.update_prefs': '006',
   'onboarding.toggle_step': '011',
@@ -10,6 +11,8 @@ const BY_ID: Record<string, string> = {
   'billing.apply_invoice': '039',
   'billing.contact_sales': '039',
   'follow_up.complete': '038',
+  'contact.transfer_status': '015d',
+  'contact.transfer_owner_bulk': '015d',
   'insight.query': '038',
   'follow_up.reconcile': '038',
   'digest.dispatch': '038',
@@ -20,6 +23,7 @@ const BY_ID: Record<string, string> = {
   'stock.adjust': '027',
   'stock.get': '027',
   'ai.translate': '022',
+  'ai.summarize': '019c', 'ai.detect_intent': '019c', 'ai.extract_info': '019c', 'ai.score_lead': '019c',
   'ai.translate_draft': '025b',
   'run.cancel': '019',
   'run.search': '019',
@@ -75,6 +79,7 @@ const BY_PREFIX: Record<string, string> = {
   sales_settings: '032',
   appointment: '033',
   staff: '033',
+  booking: '033b',
   service: '033',
   business_hours: '033',
   ticket: '034',
@@ -89,6 +94,7 @@ const BY_PREFIX: Record<string, string> = {
   contact_task: '026b',
   contact_opportunity: '026b',
   contact_activity: '026b',
+  contact_note: '026b',
 };
 
 export function tipOwnerOf(actionId: string): string | null {

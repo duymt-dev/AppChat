@@ -1,18 +1,15 @@
 // Phụ trách + đồng phụ trách + xin chia sẻ (D32, rbac-permissions "Chăm sóc khách — nhiều sales"):
-// contact.add_collaborator · remove_collaborator · transfer_owner · request_access · decide_access.
+// contact.add_collaborator · remove_collaborator · request_access · decide_access (transfer_owner: crm/ownership — TIP-015d).
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
-import type { ActionInput, contactAddCollaborator, contactDecideAccess, contactRemoveCollaborator, contactRequestAccess, contactTransferOwner } from '@appchat/actions';
+import type { ActionInput, contactAddCollaborator, contactDecideAccess, contactRemoveCollaborator, contactRequestAccess } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { uuidv7 } from '../../kernel/ids';
-import { UUID, actorUserId, canManageCollaborators, editableContact, visibleContact } from '../services/access';
-import { soleTeamOf } from '../../authz/data-access';
-import { moveOpenConversations, restoreConversationAssignees } from '../../inbox/services/owner-move';
-import { accessDecidedNotify, accessRequestedNotify, ownerChangedNotify } from '../services/crm-notify';
+import { UUID, actorUserId, canManageCollaborators, visibleContact } from '../services/access';
+import { accessDecidedNotify, accessRequestedNotify } from '../services/crm-notify';
 import { CrmMembers } from '../services/members.service';
-import { writeTimeline } from '../services/timeline.service';
 import * as pv from './previews/contact-owner.handlers.preview';
 
 const forbidOwner = () => new AppError('FORBIDDEN', 403, { permission: 'crm.reassign' });
@@ -87,60 +84,8 @@ export class ContactRemoveCollaboratorHandler implements Handler<ActionInput<typ
   }
 }
 
-type Moved = { conversations: number; quotes: number; appointments: number };
-
-@Injectable()
-@ActionHandler('contact.transfer_owner')
-export class ContactTransferOwnerHandler implements Handler<ActionInput<typeof contactTransferOwner>, { owner_user_id: string; moved: Moved }> {
-  constructor(
-    @Inject(CrmMembers) private readonly members: CrmMembers,
-    @Inject(CLOCK) private readonly clock: Clock,
-  ) {}
-
-  async preview(ctx: ActionContext, input: ActionInput<typeof contactTransferOwner>, tx: TenantTx) {
-    return pv.transferOwnerPreview(tx, ctx.authz, this.members, input);
-  }
-
-  async execute(ctx: ActionContext, input: ActionInput<typeof contactTransferOwner>, tx: TenantTx): Promise<HandlerOutcome<{ owner_user_id: string; moved: Moved }>> {
-    // Chuyển phụ trách là thao tác GHI (TIP-042c): crm.reassign (executor) + scope ghi crm — watcher / scope ghi hẹp → 403.
-    const { contact: c } = await editableContact(tx, ctx.authz, input.contact_id);
-    const to = await this.members.assertMember(ctx.workspaceId, input.to_user_id, 'to_user_id');
-    const now = this.clock.now();
-    const prevCollab = await tx.contactCollaborator.findUnique({ where: { contactId_userId: { contactId: c.id, userId: to.id } } });
-    await tx.contactCollaborator.deleteMany({ where: { contactId: c.id, userId: to.id } });
-    // DC-299: nhóm của khách theo người phụ trách mới (nhóm duy nhất; 0 / nhiều nhóm → null). Chứng từ cũ giữ nhóm + owner (doanh số).
-    const team = await soleTeamOf(tx, to.id);
-    await tx.contact.update({ where: { id: c.id }, data: { ownerUserId: to.id, teamId: team, updatedAt: now } });
-    await writeTimeline(tx, { contactId: c.id, type: 'owner', key: 'owner', params: { to: to.name }, actor: { type: ctx.actor.type, id: actorUserId(ctx) }, at: now });
-    // Hội thoại chuyển ngay (TIP-016); báo giá / lịch hẹn chưa có bảng — domain chủ (028 / 033) chuyển theo cờ `move` của event.
-    const conv = input.move.conversations ? await moveOpenConversations(tx, c.id, to.id, c.name, team) : { moved: 0, before: [], events: [] };
-    const moved: Moved = { conversations: conv.moved, quotes: 0, appointments: 0 };
-    return {
-      result: { owner_user_id: to.id, moved },
-      before: { id: c.id, owner: c.ownerUserId, team: c.teamId, collab: prevCollab ? { role: prevCollab.role, added_by: prevCollab.addedBy } : null, convs: conv.before },
-      after: { id: c.id, owner: to.id, team },
-      // Người nhận khách được thông báo `crm_owner` (DC-150).
-      events: [
-        ...(c.ownerUserId === to.id
-          ? []
-          : [{ topic: 'contact.owner_changed', payload: { contact_id: c.id, from: c.ownerUserId, to: to.id, move: input.move } }, ...(await ownerChangedNotify(this.members, { actorId: actorUserId(ctx), to: to.id, contact: c }))]),
-        ...conv.events,
-      ],
-    };
-  }
-
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as { id: string; owner: string | null; team?: string | null; collab: { role: 'collaborator' | 'watcher'; added_by: string | null } | null; convs?: { id: string; assignee: string | null; team?: string | null }[] };
-    const a = log.after as { owner: string; team?: string | null };
-    const cur = await tx.contact.findUnique({ where: { id: b.id }, select: { ownerUserId: true, teamId: true } });
-    if (cur?.ownerUserId !== a.owner) throw new AppError('CONFLICT', 409, { owner_user_id: 'changed' });
-    // Nhóm chỉ trả về khi chưa ai đổi tiếp (CAS theo giá trị đã đặt — TIP-042c); log cũ không có `team` → giữ nguyên nhóm.
-    const team = b.team !== undefined && a.team !== undefined && cur.teamId === a.team ? { teamId: b.team } : {};
-    await tx.contact.update({ where: { id: b.id }, data: { ownerUserId: b.owner, ...team } });
-    if (b.collab) await tx.contactCollaborator.createMany({ data: [{ contactId: b.id, userId: a.owner, role: b.collab.role, addedBy: b.collab.added_by }], skipDuplicates: true });
-    await restoreConversationAssignees(tx, b.convs ?? [], a.owner);
-  }
-}
+// contact.transfer_owner — một transaction kèm biên nhận + port domain (TIP-015d): crm/ownership/transfer.handler.ts.
+export { ContactTransferOwnerHandler } from '../ownership/transfer.handler';
 
 @Injectable()
 @ActionHandler('contact.request_access')

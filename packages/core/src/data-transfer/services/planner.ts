@@ -9,7 +9,7 @@ import {
   TRANSFER_PLAN_TTL_MS,
   guessTransferMapping,
   transferSpec,
-  type TransferEntity,
+  type TransferTarget,
 } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { checkFile, type FileAccessRule } from '../../kernel/files/file-access';
@@ -18,6 +18,7 @@ import { uuidv7 } from '../../kernel/ids';
 import { parseTransferFile, type ParsedTable } from './file-parser';
 import { checkRow, resolveMapping, type CheckedRow } from './validation';
 import { classifyFor, type Importer, type RowCheck } from '../adapters';
+import { datasetIdentity } from './dataset';
 
 export const TRANSFER_FILE_RULE: FileAccessRule = {
   purposes: ['import', 'attachment'],
@@ -50,7 +51,7 @@ export async function preparePlan(
   files: FilesService,
   a: {
     userId: string;
-    entity: TransferEntity;
+    entity: TransferTarget;
     fileId: string;
     sheet?: string | null;
     mapping?: Record<string, string>;
@@ -78,7 +79,7 @@ export async function preparePlan(
 /** Phân loại trùng trong transaction (đọc DB tenant theo adapter) → dòng có kết quả kiểm. */
 export async function classify(
   tx: TenantTx,
-  entity: TransferEntity,
+  entity: TransferTarget,
   who: Importer,
   checked: CheckedRow[],
 ): Promise<PreparedPlan['rows']> {
@@ -91,25 +92,27 @@ export const hardErrors = (r: Pick<CheckedRow, 'errors'>) =>
   Object.keys(r.errors).filter((k) => !k.endsWith('_warning')).length;
 
 /**
- * Nhập lại cùng tệp (cùng checksum + sheet + dòng) mà dòng đã ghi ở kế hoạch trước của CHÍNH người này, cùng thực thể → `duplicate`
+ * Nhập lại cùng tệp (cùng checksum + sheet + dòng) mà dòng đã ghi ở kế hoạch trước của CHÍNH người này, cùng thực thể + tập → `duplicate`
  * (không tạo nháp lần hai). Nhóm có một dòng đã ghi → cả nhóm trùng. Khách hàng có luật trùng riêng; sản phẩm cập nhật theo SKU (032b).
  */
 export async function markReimported(
   tx: TenantTx,
-  entity: TransferEntity,
+  entity: TransferTarget,
   userId: string,
   file: { sha256: string },
   sheet: string | null,
   rows: PreparedPlan['rows'],
 ) {
   if (entity === 'contact' || entity === 'product' || !rows.length) return rows;
+  const spec = transferSpec(entity);
   const keyOf = (r: CheckedRow) => rowKeyOf(file.sha256, sheet, r.rowNo);
   const keys = rows.map(keyOf);
   const hit = new Set(
     (
       await tx.$queryRaw<{ row_key: string }[]>`
         SELECT r.row_key FROM transfer_row r JOIN transfer_plan p ON p.id = r.plan_id
-        WHERE r.row_key = ANY(${keys}::text[]) AND r.status = 'applied' AND p.actor_user_id = ${userId}::uuid AND p.entity = ${entity}`
+        WHERE r.row_key = ANY(${keys}::text[]) AND r.status = 'applied' AND p.actor_user_id = ${userId}::uuid
+          AND p.entity = ${spec.entity} AND p.dataset = ${spec.dataset}`
     ).map((x) => x.row_key),
   );
   if (!hit.size) return rows;
@@ -154,7 +157,7 @@ async function writeRows(
 
 export async function createPlan(
   tx: TenantTx,
-  a: { userId: string; entity: TransferEntity; aiRunId?: string | null; now: Date },
+  a: { userId: string; entity: TransferTarget; aiRunId?: string | null; now: Date },
   p: PreparedPlan,
 ): Promise<string> {
   const id = uuidv7(a.now.getTime());
@@ -162,7 +165,8 @@ export async function createPlan(
     data: {
       id,
       actorUserId: a.userId,
-      entity: a.entity,
+      entity: transferSpec(a.entity).entity,
+      ...datasetIdentity(a.entity),
       fileId: p.file.id,
       fileSha256: p.file.sha256,
       fileName: p.file.name,

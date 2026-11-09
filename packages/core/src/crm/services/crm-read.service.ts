@@ -21,6 +21,8 @@ import { renderTimeline } from './timeline.service';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { contactEditContext } from './contact-edit';
 import { activityPage, activitySummary } from '../activities/read.service';
+import { transferStatus } from '../ownership/read';
+import { familyIds } from '../lifecycle/lock';
 
 export interface Viewer {
   workspaceId: string;
@@ -164,6 +166,11 @@ export class CrmReadService {
     return this.tx(v, (tx) => activityPage(tx, id, q, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)) }));
   }
 
+  /** `GET /v1/contacts/:id/transfers/:transferId` (TIP-015d) — cùng reader với action contact.transfer_status. */
+  async transfer(v: Viewer, id: string, transferId: string, q: { cursor?: string; limit?: number }) {
+    return this.tx(v, (tx) => transferStatus(tx, v.authz, id, transferId, q));
+  }
+
   /** `GET /v1/contacts/:id/edit-context` (TIP-025b §D.3) — cùng reader với action contact.get_edit_context. */
   async editContext(v: Viewer, id: string) {
     return this.tx(v, (tx) => contactEditContext(tx, v.authz, id, (ids) => this.members.names(ids)));
@@ -194,7 +201,8 @@ export class CrmReadService {
       const [at, cid] = (cursor ?? '').split('_');
       const after = at && cid && UUID.test(cid) && !Number.isNaN(Date.parse(at)) ? { OR: [{ occurredAt: { lt: new Date(at) } }, { occurredAt: new Date(at), id: { lt: cid } }] } : {};
       const rows = await tx.timelineEvent.findMany({
-        where: { contactId: id, ...after },
+        // TIP-015e: timeline giữ id khách gốc sau gộp — đọc theo họ.
+        where: { contactId: { in: await familyIds(tx, id) }, ...after },
         orderBy: [{ occurredAt: 'desc' }, { id: 'desc' }],
         take: TL_PAGE + 1,
         select: { id: true, type: true, summary: true, payload: true, occurredAt: true },

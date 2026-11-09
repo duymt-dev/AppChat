@@ -44,9 +44,23 @@ describe('mock nhập dữ liệu dùng chung', () => {
     expect(after).toMatchObject({ status: 'completed', counts: { applied: 1 } });
   });
 
-  it('năng lực đủ 6 thực thể; kế hoạch không có → 404', async () => {
-    const caps = (await mockTransport.get('/data-transfer/capabilities')) as unknown[];
-    expect(caps).toHaveLength(6);
+  it('năng lực đủ 6 thực thể + 3 tập hoạt động khách (TIP-026b) + liệu trình chỉ xuất (TIP-033b); kế hoạch không có → 404', async () => {
+    const caps = (await mockTransport.get('/data-transfer/capabilities')) as { entity: string; dataset: string; import: { supported: boolean }; export: { action_id: string } }[];
+    expect(caps).toHaveLength(10);
+    expect(caps.filter((c) => c.entity === 'contact').map((c) => c.dataset)).toEqual(['base', 'contact_notes', 'contact_tasks', 'contact_opportunities', 'customer_packages']);
+    expect(caps.find((c) => c.dataset === 'customer_packages')).toMatchObject({ import: { supported: false }, export: { action_id: 'package.export' } });
     await expect(mockTransport.get('/data-transfer/plans/khong-co')).rejects.toMatchObject({ error: { code: 'NOT_FOUND' } });
+  });
+
+  it('tập hoạt động: tập cố định của kế hoạch, gửi kèm tập khác → 409; tập sai thực thể → 422 (TIP-026b §5)', async () => {
+    const f = new File([['Mã khách,Công việc,Trạng thái', 'KH001,Gọi lại,Mở', 'KH001,Đã xong,Hoàn thành'].join('\n')], `v-${TAG}.csv`, { type: 'text/csv' });
+    const up = await mockTransport.upload(f, 'import');
+    const r = await mockTransport.action('transfer.plan', { entity: 'contact', dataset: 'contact_tasks', file_id: up.file_id });
+    const plan = transferPlanSchema.parse((r.data as Done<unknown>).result);
+    expect(plan).toMatchObject({ dataset: 'contact_tasks', dataset_schema_version: 1, counts: { valid: 1, invalid: 1 } });
+    await expect(mockTransport.action('transfer.commit', { plan_id: plan.id, if_version: plan.version, dataset: 'contact_notes' })).rejects.toMatchObject({ error: { code: 'CONFLICT' } });
+    await expect(mockTransport.action('transfer.plan', { entity: 'quote', dataset: 'contact_notes', file_id: up.file_id })).rejects.toMatchObject({ error: { fields: { dataset: 'unsupported' } } });
+    // Liệu trình chỉ xuất (TIP-033b §5.1): nhập số buổi bị từ chối trước khi đọc tệp.
+    await expect(mockTransport.action('transfer.plan', { entity: 'contact', dataset: 'customer_packages', file_id: up.file_id })).rejects.toMatchObject({ error: { fields: { dataset: 'export_only' } } });
   });
 });

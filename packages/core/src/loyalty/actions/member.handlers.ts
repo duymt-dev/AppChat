@@ -60,7 +60,7 @@ export class LoyaltyAdjustPointsHandler implements Handler<AdjIn, AdjOut> {
     const actor = actorOf(ctx);
     const delta = BigInt(i.delta);
     if (delta < 0n && m.points_balance + delta < 0n) throw new AppError('VALIDATION_FAILED', 422, { delta: 'exceeds_balance' });
-    const p = await post(tx, { contactId: contact.id, kind: 'adjust', delta, balance: m.points_balance, actor, now, reason: i.reason, note: i.note?.trim() ?? '' });
+    const p = await post(tx, { contactId: m.id, kind: 'adjust', delta, balance: m.points_balance, actor, now, reason: i.reason, note: i.note?.trim() ?? '' });
     const reason = serverMessages('vi').loyalty.reasons[i.reason] ?? i.reason;
     await writeTimeline(tx, { contactId: contact.id, type: 'loyalty', key: 'loyalty_adjust', params: { points: i.delta > 0 ? `+${i.delta}` : String(i.delta), reason }, actor, ref: { type: 'loyalty_ledger', id: p.id }, at: now });
     return {
@@ -80,10 +80,10 @@ export class LoyaltyAdjustPointsHandler implements Handler<AdjIn, AdjOut> {
     const actor = actorOf(ctx);
     if (row.delta > 0n) {
       if ((row.remaining ?? 0n) < row.delta) throw new AppError('CONFLICT', 409, { points: 'already_used' });
-      const p = await post(tx, { contactId: b.contact_id, kind: 'adjust', delta: -row.delta, balance: m.points_balance, actor, now, reason: row.reason, note: 'undo', onlyLot: row.id, dedupeKey: `undo:${row.id}` });
+      const p = await post(tx, { contactId: m.id, kind: 'adjust', delta: -row.delta, balance: m.points_balance, actor, now, reason: row.reason, note: 'undo', onlyLot: row.id, dedupeKey: `undo:${row.id}` });
       await tx.loyaltyLedger.update({ where: { id: row.id }, data: { reversedById: p.id } });
     } else {
-      await restoreDebit(tx, row.id, m.points_balance, actor, now, row.reason);
+      await restoreDebit(tx, row.id, m.points_balance, actor, now, row.reason, m.id);
     }
   }
 

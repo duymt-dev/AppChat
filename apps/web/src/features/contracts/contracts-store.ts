@@ -28,7 +28,7 @@ interface ContractsUi {
 
 export const useContractsUi = create<ContractsUi>((set) => ({
   pg: FIRST_PAGE,
-  filter: { status: 'all', owner_id: 'all', value: 'all', q: '' },
+  filter: { status: 'all', owner_id: 'all', assigned_user_id: 'all', value: 'all', q: '' },
   layout: 'list',
   selected: [],
   detail: null,

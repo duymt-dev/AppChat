@@ -62,6 +62,32 @@ test.describe('nhập dữ liệu dùng chung', () => {
     await expect(page.locator('[data-contact]').filter({ hasText: `An ${TAG}` })).toHaveCount(1);
   });
 
+  test('tập hoạt động CRM (TIP-026b): chọn Việc chăm sóc → kế hoạch giữ tập, việc xong bị chặn, nhập dòng mở', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    const dt = await openPanel(page);
+    await expect(dt.locator('[data-dataset="base"]')).toHaveAttribute('aria-checked', 'true');
+    await dt.locator('[data-dataset="contact_tasks"]').click();
+    await expect(dt.locator('[data-dataset="contact_tasks"]')).toHaveAttribute('aria-checked', 'true');
+    // Tập con chỉ có dưới khách: chọn thực thể khác → về base, hàng chọn tập ẩn.
+    await dt.locator('[data-entity="quote"]').click();
+    await expect(dt.locator('[data-dataset]')).toHaveCount(0);
+    await dt.locator('[data-entity="contact"]').click();
+    await dt.locator('[data-dataset="contact_tasks"]').click();
+    const body = `Mã khách,Công việc,Trạng thái\nKH001,Gọi lại ${TAG},Mở\nKH001,Đã xong ${TAG},Hoàn thành\n`;
+    await dt.getByTestId('dt-file').setInputFiles({ name: 'viec.csv', mimeType: 'text/csv', buffer: Buffer.from(body) });
+    await expect(dt.getByTestId('dt-plan-dataset')).toContainText('Việc chăm sóc');
+    await expect(dt.locator('[data-field="title"]')).toHaveValue('Công việc');
+    await expect(dt.locator('[data-stat="valid"] b')).toHaveText('1');
+    await expect(dt.locator('[data-stat="invalid"] b')).toHaveText('1');
+    await dt.getByRole('tab', { name: 'Lỗi' }).click();
+    await expect(dt.getByTestId('dt-preview').locator('tbody tr')).toContainText('Chỉ nhập việc đang mở');
+    await dt.getByTestId('dt-only-valid').click();
+    await dt.getByTestId('dt-commit').click();
+    await page.getByRole('button', { name: 'Xác nhận', exact: true }).click();
+    await expect(dt.getByTestId('dt-result')).toHaveAttribute('data-status', 'completed');
+    await expect(dt.locator('[data-stat="applied"] b')).toHaveText('1');
+  });
+
   test('Trợ lý: chip CSV đính kèm có gợi ý nhập → điền câu lệnh', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(`/assistant${S}`);

@@ -19,8 +19,8 @@ beforeAll(async () => {
   const order = async () => (await m.seed('order.create', { contact_id: lan, items: [{ product_id: p, name: 'Gói massage 5 buổi', qty: 1, unit_price: '2000000', tax_rate: 0 }] })).order_id as string;
   const [o1, o2] = [await order(), await order()];
   const db = await m.db();
-  // Đơn thứ hai của sales: sales own thấy gói qua đơn mình; gói từ đơn của owner chỉ thấy nhờ quyền cộng tác trên khách.
-  await db.order.update({ where: { id: o2 }, data: { ownerUserId: m.sales.id } });
+  // Đơn thứ hai do sales phụ trách (assigned — TIP-032c): sales own thấy gói qua đơn mình; gói từ đơn của owner chỉ thấy nhờ quyền cộng tác trên khách.
+  await db.order.update({ where: { id: o2 }, data: { assignedUserId: m.sales.id } });
   const pkg = async (orderId: string, o: { used: number; status: 'active' | 'exhausted' }) => {
     const id = uuidv7();
     await db.customerPackage.create({ data: { id, contactId: lan, productId: p, orderId, name: 'Gói massage 5 buổi', totalSessions: 5, usedSessions: o.used, status: o.status } });

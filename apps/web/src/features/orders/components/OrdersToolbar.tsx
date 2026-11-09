@@ -31,7 +31,7 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
   const exp = useListExport('order.export');
   const cfFilters = useCustomFilterFields('order');
   const canSync = useCan('integrations.manage');
-  const sync = useAction<{ imported: number }>('order.sync_now');
+  const sync = useAction<{ imported: number; blocked?: number; failed?: number }>('order.sync_now');
   return (
     <div className={styles.bar}>
       <div className={styles.chips} data-testid="od-chips">
@@ -61,6 +61,14 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
             ],
           },
           {
+            key: 'assigned_user_id',
+            label: t('filter.assigned'),
+            options: [
+              { value: 'all', label: t('filter.assignedAll') },
+              ...members.map((m) => ({ value: m.id, label: m.name })),
+            ],
+          },
+          {
             key: 'value',
             label: t('filter.value'),
             options: [
@@ -80,6 +88,7 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
         ]}
         value={{
           owner_id: ui.filter.owner_id,
+          assigned_user_id: ui.filter.assigned_user_id ?? 'all',
           value: ui.filter.value,
           source: ui.filter.source,
           ...customFilterValue(ui.filter.custom),
@@ -87,6 +96,7 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
         onApply={(v) =>
           ui.setFilter({
             owner_id: v.owner_id ?? 'all',
+            assigned_user_id: v.assigned_user_id ?? 'all',
             value: v.value ?? 'all',
             source: v.source ?? 'all',
             custom: pickCustomFilter(v),
@@ -112,7 +122,8 @@ export function OrdersToolbar({ meta }: { meta?: OrdersMeta }) {
           className={styles.tool}
           onClick={async () => {
             const r = await sync.run({}, { silent: true });
-            if (r) void message.info(t('synced'));
+            // TIP-015f: báo riêng nhập / bị chặn (khách đã xoá) / lỗi.
+            if (r) void message.info(r.result.imported || r.result.blocked || r.result.failed ? t('syncedCounts', { imported: r.result.imported, blocked: r.result.blocked ?? 0, failed: r.result.failed ?? 0 }) : t('synced'));
           }}
           data-testid="od-sync"
         >

@@ -6,6 +6,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers } from '../../crm/public';
+import { lockRootOf } from '../../kernel/ownership/root-lock';
 import { scopeCols, writableConversation } from '../services/access';
 import { me, restore, snap, tagByLabel, tagNamesOf, updatedEvent, type ConvSnap } from './kit';
 import * as pv from './previews/conversation-assign.handlers.preview';
@@ -29,6 +30,9 @@ export class ConversationAssignHandler implements Handler<ActionInput<typeof con
   }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof conversationAssign>, tx: TenantTx) {
+    // TIP-015d §2.3: khoá khách gốc → khoá hội thoại → đọc lại (người được gán hiện tại sau khoá).
+    await lockRootOf(tx, 'conversation', input.conversation_id);
+    await tx.$queryRaw`SELECT id FROM conversation WHERE id = ${input.conversation_id}::uuid FOR UPDATE`;
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
     if (input.user_id) await this.members.assertMember(ctx.workspaceId, input.user_id, 'user_id');
     const data = input.user_id ? { assigneeUserId: input.user_id } : { assigneeAgentId: input.agent_id!, aiMode: c.aiMode === 'off' ? ('copilot' as const) : c.aiMode };
@@ -43,7 +47,9 @@ export class ConversationAssignHandler implements Handler<ActionInput<typeof con
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await restore(tx, log.before as ConvSnap);
+    const b = log.before as ConvSnap;
+    await lockRootOf(tx, 'conversation', b.id);
+    await restore(tx, b);
   }
 }
 

@@ -183,6 +183,11 @@
       "title": "Add internal note"
     }
   },
+  "contact_note": {
+    "export": {
+      "title": "Export customer notes / comments (Excel)"
+    }
+  },
   "contact_activity": {
     "list": {
       "title": "View customer activities",
@@ -190,6 +195,9 @@
     }
   },
   "contact_task": {
+    "export": {
+      "title": "Export follow-up tasks (Excel)"
+    },
     "create": {
       "title": "Create follow-up task",
       "desc": "A reminder for staff to follow up — not an AI task, not an appointment."
@@ -204,6 +212,9 @@
     }
   },
   "contact_opportunity": {
+    "export": {
+      "title": "Export opportunities (Excel)"
+    },
     "create": {
       "title": "Create opportunity",
       "desc": "Record a sales opportunity: need, expected value (not revenue), your own probability estimate."
@@ -218,6 +229,18 @@
     }
   },
   "contact": {
+    "restore": {
+      "title": "Restore deleted customer",
+      "desc": "Restore a customer deleted within the last 30 days (current deletion only, no phone conflict with a live customer)."
+    },
+    "duplicate_candidates": {
+      "title": "Find duplicate customers",
+      "desc": "List possible duplicate customer pairs you can see, ranked by matching rule (email / tax code / name) — a suggestion, not a probability."
+    },
+    "deleted_list": {
+      "title": "View deleted customers",
+      "desc": "List customers deleted within your scope, with their restore deadline."
+    },
     "history_export": {
       "title": "Export customer history",
       "desc": "Export one customer's history to CSV by date range / event type / columns."
@@ -273,6 +296,14 @@
     "transfer_owner": {
       "title": "Transfer owner",
       "desc": "Propose a new owner for a contact; a manager must approve."
+    },
+    "transfer_status": {
+      "title": "View owner transfer result",
+      "desc": "Read a committed owner transfer: status and moved record counts."
+    },
+    "transfer_owner_bulk": {
+      "title": "Bulk owner transfer",
+      "desc": "Transfer many contacts to one owner; each contact is its own transfer."
     },
     "request_access": {
       "title": "Request access"
@@ -379,6 +410,22 @@
     "translate": {
       "title": "Translate message",
       "desc": "Translate a customer message into Vietnamese."
+    },
+    "summarize": {
+      "title": "Summarize",
+      "desc": "Summarize selected messages, pasted text or a contact profile with citations — never saved to CRM."
+    },
+    "detect_intent": {
+      "title": "Detect intent",
+      "desc": "Detect the main intent (pricing, booking, complaint…) with evidence — a suggestion only, never routes."
+    },
+    "extract_info": {
+      "title": "Extract info",
+      "desc": "Extract the fields you declare (dates, VND amounts…) with citations; missing or ambiguous values are explicit."
+    },
+    "score_lead": {
+      "title": "Assess lead fit",
+      "desc": "Assess opportunity fit on 4 evidence-backed criteria — advisory, never changes the contact score."
     },
     "translate_draft": {
       "title": "Translate draft",
@@ -744,6 +791,12 @@
       "desc": "Read one payment request: amount, paid, due date."
     }
   },
+  "booking": {
+    "settings_get": {
+      "title": "View booking settings",
+      "desc": "Read opening hours, slot step, buffer and staff schedules."
+    }
+  },
   "staff": {
     "create": {
       "title": "Add staff",
@@ -879,6 +932,13 @@
     },
     "draft_content": {
       "title": "AI rewrite campaign content"
+    },
+    "get": {
+      "title": "View campaign",
+      "desc": "Read one campaign: status, the approved sender and actual email delivery results per state."
+    },
+    "mail_senders": {
+      "title": "Business mail senders"
     },
     "recipient_export": {
       "title": "Export recipients"
@@ -1353,6 +1413,14 @@
     },
     "adjust_sessions": {
       "title": "Adjust package sessions"
+    },
+    "export": {
+      "title": "Export a customer's packages",
+      "desc": "CSV / XLSX file of one customer's packages: total / used / left, status, expiry — no amounts. Export only; balances cannot be imported."
+    },
+    "list_for_contact": {
+      "title": "View a customer's packages",
+      "desc": "List a customer's packages: used / total / remaining, status, expiry (no amounts)."
     },
     "search": {
       "title": "Find customer packages",

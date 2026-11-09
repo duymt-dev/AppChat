@@ -9,6 +9,7 @@ import { MOCK_NOW } from './quotes';
 import type { QuoteItem } from './quotes';
 import { NAMES, deny, enrichOrder, findOrder, logOrder, type Order, type OrderStatus } from './orders';
 import { sendOrderConfirmation } from './commerce-delivery';
+import { applyAssigned, bump, checkOwnerEcho, checkVersion } from './commerce-edit';
 
 const step = (o: Order, action: string): OrderStatus => {
   try {
@@ -50,6 +51,9 @@ export const insertOrder = (db: MockDb, i: Fields, extra: Partial<Order> = {}) =
     phone: contact?.phone ?? '',
     owner_user_id: owner,
     owner_name: NAMES[owner] ?? owner,
+    assigned_user_id: owner,
+    assigned_name: NAMES[owner] ?? owner,
+    version: 1,
     quote_id: null,
     quote_code: '',
     contract_id: i.contract_id ?? null,
@@ -133,10 +137,12 @@ export const ordersHandlers: Record<string, MockHandler> = {
     undo: shift,
   },
   'order.update': {
-    execute: (db, i: { order_id: string; patch: Partial<Fields> }) => {
+    execute: (db, i: { order_id: string; if_version?: number; patch: Partial<Fields> & { assigned_user_id?: string | null } }) => {
       const o = findOrder(db, i.order_id);
+      checkVersion(o, i.if_version);
       step(o, 'order.update');
-      const { owner_user_id, note, contact_id, ...money } = i.patch;
+      const { owner_user_id, assigned_user_id, note, contact_id, custom: _custom, ...money } = i.patch as Partial<Fields> & { assigned_user_id?: string | null; custom?: unknown };
+      checkOwnerEcho(o, owner_user_id);
       if (contact_id && contact_id !== o.contact_id)
         throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'contact_id', fields: { 'patch.contact_id': 'immutable' } });
       // Đơn sàn chỉ sửa người phụ trách / ghi chú (D31); processing chỉ sửa khi chưa thu (§4).
@@ -149,21 +155,23 @@ export const ordersHandlers: Record<string, MockHandler> = {
       if (money.header_discount !== undefined) o.header_discount = money.header_discount;
       if (money.deposit_amount !== undefined) Object.assign(o, { deposit_required: dep > 0, deposit_amount: String(dep) });
       if (money.shipping) Object.assign(o.shipping, money.shipping);
-      if (owner_user_id) Object.assign(o, { owner_user_id, owner_name: NAMES[owner_user_id] ?? owner_user_id });
       if (note !== undefined) o.note = note;
-      return { order_id: o.id };
+      applyAssigned(o, assigned_user_id, NAMES);
+      return { order_id: o.id, version: o.version };
     },
   },
   'order.set_deposit': {
-    execute: (db, i: { order_id: string; deposit_amount: string }) => {
+    execute: (db, i: { order_id: string; deposit_amount: string; if_version?: number }) => {
       const o = findOrder(db, i.order_id);
+      checkVersion(o, i.if_version);
       step(o, 'order.set_deposit');
       if (o.locked_lines) deny('INVALID_STATE', `${o.code}: locked_lines`);
       if (Number(i.deposit_amount) > Number(enrichOrder(o).total)) overTotal('deposit_amount');
       o.deposit_required = Number(i.deposit_amount) > 0;
       o.deposit_amount = i.deposit_amount;
       logOrder(o, 'deposit_set', { amount: i.deposit_amount });
-      return { order_id: o.id, pay_status: enrichOrder(o).pay_status };
+      bump(o);
+      return { order_id: o.id, pay_status: enrichOrder(o).pay_status, version: o.version };
     },
   },
   'order.confirm': {
@@ -214,18 +222,20 @@ export const ordersHandlers: Record<string, MockHandler> = {
     },
   },
   'order.update_shipping': {
-    execute: (db, i: { order_id: string; shipping: Partial<Order['shipping']> }) => {
+    execute: (db, i: { order_id: string; shipping: Partial<Order['shipping']>; if_version?: number }) => {
       const o = findOrder(db, i.order_id);
+      checkVersion(o, i.if_version);
       // Mã vận đơn có thể về sau khi hoàn tất (ngoài ORDER_FLOW).
       if (!SHIPPING_EDITABLE.includes(o.status)) deny('INVALID_TRANSITION', o.status);
       Object.assign(o.shipping, i.shipping);
       logOrder(o, 'shipping');
-      return { order_id: o.id };
+      bump(o);
+      return { order_id: o.id, version: o.version };
     },
   },
   'order.sync_now': {
     // Mock OrderSyncProvider: chưa có kết nối sàn thật (adapter P2) — không có đơn mới.
-    execute: () => ({ imported: 0 }),
+    execute: () => ({ imported: 0, blocked: 0, failed: 0 }),
   },
   'order.send_confirmation': { execute: (db, i: { order_id: string; channel?: string }) => sendOrderConfirmation(findOrder(db, i.order_id), i.channel) },
 };

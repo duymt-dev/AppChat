@@ -13,6 +13,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { ResumeQueue } from './resume.queue';
 import { decidePreview } from './previews/approval.handlers.preview';
+import { approvalAccess, approvalDomainOf } from './domain-authorization';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** `approval.reject` cùng input / output với `approval.approve`. */
@@ -45,8 +46,13 @@ abstract class Decide implements Handler<In, Out> {
     const a = UUID.test(input.approval_id) ? await tx.approvalRequest.findUnique({ where: { id: input.approval_id } }) : null;
     if (!a) throw new AppError('NOT_FOUND', 404, { approval_id: 'not_found' });
     if (a.status !== 'pending' || a.expiresAt <= now) throw new AppError('CONFLICT', 409, { approval: a.status === 'pending' ? 'expired' : a.status });
+    // TIP-015d: quyền theo domain HIỆN TẠI — không thấy bản ghi → 404 (không lộ), thấy mà không được quyết → 403. Từ chối vẫn cần thấy.
+    const access = await approvalAccess(tx, ctx.authz, a.id, a.actionId);
+    if (!access.visible) throw new AppError('NOT_FOUND', 404, { approval_id: 'not_found' });
     if (isPermissionKey(a.permission) && !can(ctx.authz, a.permission)) throw new AppError('FORBIDDEN', 403, { permission: a.permission });
+    if (this.status !== 'rejected' && !access.decidable) throw new AppError('SCOPE_FORBIDDEN', 403, { approval: 'scope' });
     const edited = this.status === 'edited' ? editedInput(a.actionId, a.input, input.edited_input ?? {}) : null;
+    if (edited) await approvalDomainOf(a.actionId)?.checkInput(tx, { workspaceId: ctx.workspaceId, authz: ctx.authz }, edited);
     // Hai người bấm cùng lúc: chỉ một lần đổi trạng thái thắng.
     const r = await tx.approvalRequest.updateMany({
       where: { id: a.id, status: 'pending' },

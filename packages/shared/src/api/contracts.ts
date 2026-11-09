@@ -30,6 +30,11 @@ export const contractRowSchema = z.object({
   end_date: z.string().nullable(),
   owner_user_id: z.string(),
   owner_name: z.string(),
+  /** Người phụ trách vận hành (TIP-032c) — khác người tạo `owner_*` (doanh số, bất biến). */
+  assigned_user_id: z.string(),
+  assigned_name: z.string(),
+  /** Phiên bản dòng — gửi lại làm `if_version` khi sửa. */
+  version: z.number().int(),
   status: z.enum(CONTRACT_STATUSES),
   created_at: z.string(),
   sent_at: z.string().nullable(),

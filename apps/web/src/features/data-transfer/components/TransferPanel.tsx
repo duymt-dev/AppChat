@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, ModalShell, color } from '@appchat/ui';
-import { TRANSFER_ENTITIES } from '@appchat/shared';
+import { DATASETS_OF, TRANSFER_ENTITIES } from '@appchat/shared';
 import { allInvalidRows, transferCapsQuery } from '../api';
 import { errorCsv, saveText } from '../error-file';
 import { useTransfer } from '../hooks/useTransfer';
@@ -27,7 +27,8 @@ export function TransferPanel() {
   const [saving, setSaving] = useState(false);
   const p = x.plan;
   const draft = p?.status === 'draft';
-  const canImport = (e: string) => caps.data?.find((c) => c.entity === e)?.import.supported ?? false;
+  const canImport = (e: string, d = 'base') => caps.data?.find((c) => c.entity === e && (c.dataset ?? 'base') === d)?.import.supported ?? false;
+  const datasets = DATASETS_OF[x.ui.entity];
   const blocked = !p || !p.counts.valid || (p.row_policy === 'all_valid' && p.counts.invalid > 0);
 
   const downloadErrors = async () => {
@@ -79,10 +80,23 @@ export function TransferPanel() {
               </button>
             ))}
           </div>
+          {datasets.length > 1 ? (
+            <>
+              <div className={s.sectionTitle}>{t('datasetTitle')}</div>
+              <div className={s.entity} role="radiogroup" aria-label={t('datasetTitle')}>
+                {datasets.map((d) => (
+                  <button key={d} type="button" role="radio" aria-checked={x.ui.dataset === d} disabled={!canImport(x.ui.entity, d)} className={cx(s.pill, x.ui.dataset === d && s.pillOn)} onClick={() => x.ui.show({ entity: x.ui.entity, dataset: d })} data-dataset={d}>
+                    {t(`dataset.${d}`)}
+                  </button>
+                ))}
+              </div>
+              {x.ui.dataset !== 'base' ? <div className={s.note}>{t('datasetHint')}</div> : null}
+            </>
+          ) : null}
           <div className={s.drop}>
             <Icon name="ic-download" size={22} color={color.text3} />
             {t('hint')}
-            <button type="button" className={cx(s.btn, s.touch)} disabled={x.busy || !canImport(x.ui.entity)} onClick={() => input.current?.click()} data-testid="dt-pick">
+            <button type="button" className={cx(s.btn, s.touch)} disabled={x.busy || !canImport(x.ui.entity, x.ui.dataset)} onClick={() => input.current?.click()} data-testid="dt-pick">
               {x.busy ? t('reading') : t('pick')}
             </button>
             <input ref={input} type="file" hidden accept={ACCEPT} onChange={(e) => void x.pick(e.target.files?.[0]).finally(() => (e.target.value = ''))} data-testid="dt-file" />
@@ -95,7 +109,9 @@ export function TransferPanel() {
           <div className={s.file}>
             <Icon name="ic-doc" size={16} />
             <span data-testid="dt-file-name">{p.file_name}</span>
-            <span className={s.muted}>· {t(`entity.${p.entity}`)}</span>
+            <span className={s.muted} data-testid="dt-plan-dataset">
+              · {p.dataset && p.dataset !== 'base' ? t(`dataset.${p.dataset}`) : t(`entity.${p.entity}`)}
+            </span>
           </div>
           {draft ? (
             <>

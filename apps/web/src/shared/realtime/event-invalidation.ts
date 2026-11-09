@@ -37,6 +37,10 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   'integration.connected': [['integrations']],
   'integration.disconnected': [['integrations']],
   'integration.error': [['integrations']],
+  // vòng đời khách (TIP-015f — chỉ id + thế hệ) → danh sách / thùng rác / 360 + Hộp thư (dấu khách đã xoá / panel) đọc lại
+  'contact.lifecycle': [['crm'], INBOX_LIST, ['inbox', 'conversation']],
+  // cấu hình lịch hẹn đổi (TIP-033b — chỉ phạm vi + version) → Cài đặt Lịch hẹn + lịch / slot đọc lại
+  'booking.config': [['settings', 'booking'], ['calendar']],
 };
 
 /** Khoá cần làm mới của một sự kiện (sự kiện hội thoại → theo `conversation_id`). */

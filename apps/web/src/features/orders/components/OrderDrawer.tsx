@@ -91,9 +91,16 @@ function Footer({ o }: { o: Order }) {
   // Nút theo bảng ORDER_FLOW dùng chung với server (trạng thái cuối → không còn thao tác).
   const can = (a: string) => nextState(ORDER_FLOW, o.status, a) !== null;
   const [canConfirm, canComplete, canCancelNow] = [can('order.confirm'), can('order.complete'), can('order.cancel')];
-  if (!canCancelNow && !canConfirm && !canComplete) return null;
+  // Sửa (TIP-032c): mở form sửa đúng đơn này (editId) — người phụ trách / ghi chú vẫn sửa được ở đơn sàn; hết quyền → không có nút.
+  const canEdit = canManage && can('order.update');
+  if (!canCancelNow && !canConfirm && !canComplete && !canEdit) return null;
   return (
     <div className={styles.foot}>
+      {canEdit ? (
+        <button type="button" className={styles.act} onClick={() => set({ form: 'edit', editId: o.id, prefill: null })} data-testid="od-edit-open">
+          {t('edit')}
+        </button>
+      ) : null}
       <button
         type="button"
         className={cx(styles.act, styles.actDanger)}
@@ -159,6 +166,11 @@ function Header({ o }: { o: Order }) {
         <div>
           <div className={styles.byL}>{t('detail.by')}</div>
           <div className={styles.byV}>{o.owner_name}</div>
+          {o.assigned_name && o.assigned_user_id !== o.owner_user_id ? (
+            <div className={styles.byV} data-testid="od-assigned">
+              {`${t('form.assigned')}: ${o.assigned_name}`}
+            </div>
+          ) : null}
         </div>
       </div>
     </>

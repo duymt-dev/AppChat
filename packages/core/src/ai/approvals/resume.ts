@@ -20,6 +20,7 @@ import { agentAuthz } from '../agents/agent-authz';
 import { connectedKeys, runToolIds } from '../agents/agent-tools';
 import { agentSystem, agentToolSpecs } from '../agents/agent.runtime';
 import { blankConfig, merge, type AgentConfig } from '../agents/agent.store';
+import { approvalAccess, approvalDomainOf } from './domain-authorization';
 
 export interface ResumeDeps {
   tenants: TenantDbResolver;
@@ -71,6 +72,11 @@ async function executeApproved(d: ResumeDeps, db: TenantDb, ws: string, a: Appro
   let authz: AuthzContext | null = null;
   const commander = a.onBehalfOfUserId ? await d.commander(ws, a.onBehalfOfUserId) : undefined;
   if (a.onBehalfOfUserId && !commander) return { kind: 'error', code: 'FORBIDDEN', message: 'Người ra lệnh không còn quyền' };
+  // TIP-015d §1.4: action có quyền theo domain → người duyệt vẫn phải còn quyền quyết trên bản ghi lúc chạy (hết quyền = không phải duyệt).
+  if (approvalDomainOf(a.actionId) && a.status !== 'rejected') {
+    const approver = a.decidedBy ? await d.commander(ws, a.decidedBy) : null;
+    if (!approver || !(await approvalAccess(db, approver, a.id, a.actionId)).decidable) return { kind: 'error', code: 'FORBIDDEN', message: 'Người duyệt không còn quyền' };
+  }
   const agent = a.agentId ? await db.aiAgent.findUnique({ where: { id: a.agentId }, select: { id: true, toolIds: true, deletedAt: true } }) : null;
   if (agent && !agent.deletedAt) authz = agentAuthz(agent, commander ?? undefined);
   else if (commander) authz = commander;

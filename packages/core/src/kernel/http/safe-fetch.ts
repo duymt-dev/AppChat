@@ -23,6 +23,9 @@ export interface SafeFetchOptions {
   /** Địa chỉ cụ thể coi như công khai + bỏ kiểm cổng — CHỈ có hiệu lực khi NODE_ENV=test (fixture HTTP cục bộ 127.0.0.1); môi trường
    *  khác bỏ qua. Redirect sang địa chỉ khác vẫn bị kiểm như thường. */
   testAllowAddresses?: string[];
+  /** POST có thân (TIP-012c — API gửi thư của provider): chỉ khi `maxRedirects: 0` (không bao giờ gửi lại thân sang đích chuyển hướng). */
+  method?: 'GET' | 'POST';
+  body?: string;
 }
 
 export interface SafeResponse {
@@ -50,14 +53,14 @@ function decoded(res: IncomingMessage): Readable {
   return res;
 }
 
-function once(u: URL, pinned: { address: string; family: 4 | 6 }, headers: Record<string, string>, signal: AbortSignal): Promise<IncomingMessage> {
+function once(u: URL, pinned: { address: string; family: 4 | 6 }, headers: Record<string, string>, signal: AbortSignal, method: 'GET' | 'POST' = 'GET', body?: string): Promise<IncomingMessage> {
   const lookup: LookupFunction = (_host, opts, cb) => {
     if ((opts as { all?: boolean }).all) (cb as unknown as (e: null, a: { address: string; family: number }[]) => void)(null, [pinned]);
     else cb(null, pinned.address, pinned.family);
   };
   const req = (u.protocol === 'https:' ? httpsRequest : httpRequest)(u, {
-    method: 'GET',
-    headers: { 'accept-encoding': 'gzip, deflate, br', ...headers },
+    method,
+    headers: { 'accept-encoding': 'gzip, deflate, br', ...headers, ...(body !== undefined ? { 'content-length': String(Buffer.byteLength(body)) } : {}) },
     lookup,
     servername: u.hostname.replace(/^\[|\]$/g, ''),
     signal,
@@ -66,7 +69,7 @@ function once(u: URL, pinned: { address: string; family: 4 | 6 }, headers: Recor
   return new Promise((ok, no) => {
     req.once('response', ok);
     req.once('error', no);
-    req.end();
+    req.end(body);
   });
 }
 
@@ -94,6 +97,7 @@ async function readBounded(res: IncomingMessage, max: number): Promise<Buffer> {
 export async function safeFetch(raw: string | URL, o: SafeFetchOptions = {}): Promise<SafeResponse> {
   const maxBytes = o.maxBytes ?? SAFE_FETCH_DEFAULTS.maxBytes;
   const maxRedirects = o.maxRedirects ?? SAFE_FETCH_DEFAULTS.maxRedirects;
+  if ((o.method === 'POST' || o.body !== undefined) && maxRedirects !== 0) throw new FetchLimitError('bad_redirect');
   const ctl = new AbortController();
   const timer = setTimeout(() => ctl.abort(), o.timeoutMs ?? SAFE_FETCH_DEFAULTS.timeoutMs);
   const resolve = o.resolve ?? systemResolver;
@@ -105,7 +109,7 @@ export async function safeFetch(raw: string | URL, o: SafeFetchOptions = {}): Pr
   try {
     for (let hop = 0; ; hop++) {
       const pinned = await resolveVetted(u, resolve, extra);
-      const res = await once(u, pinned, headers, ctl.signal);
+      const res = await once(u, pinned, headers, ctl.signal, o.method ?? 'GET', o.body);
       const status = res.statusCode ?? 0;
       if (status >= 300 && status < 400 && res.headers.location) {
         res.resume();

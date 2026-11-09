@@ -297,7 +297,8 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   let logId: string | undefined;
   let ui: UiCommandDto | undefined;
   let approvalId: string | undefined;
-  if (q.decision === 'cancel') outcome = { kind: 'ok', output: { cancelled: true } };
+  // Huỷ thẻ: nói rõ cho model là KHÔNG chạy (tránh báo "đã duyệt / đã gửi" khi người dùng đã huỷ — TIP-012c ai:live).
+  if (q.decision === 'cancel') outcome = { kind: 'ok', output: { cancelled: true, executed: false, note: 'user_cancelled_nothing_changed' } };
   else {
     try {
       // Chạy đúng input chuẩn hoá đã gắn token lúc xem trước (mã đã đổi → id); không tra lại mã → tránh đổi đích giữa hai bước.

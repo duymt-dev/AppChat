@@ -5,6 +5,7 @@ import fixture from '../../../../../../../fixtures/prototype-parity/calendar.jso
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { ME } from './customers';
+import { bookingConfigRoutes, type BookingConfigState } from './booking-config';
 
 type Fixed = (typeof fixture.appointments)[number];
 export type ApptStatus = 'pending' | 'confirmed' | 'in_progress' | 'done' | 'no_show' | 'cancelled' | 'expired';
@@ -12,6 +13,7 @@ export type Appointment = Omit<Fixed, 'status' | 'package_id' | 'order_id'> & {
   status: ApptStatus;
   package_id: string | null;
   order_id: string | null;
+  version?: number;
   deleted?: boolean;
 };
 type Pkg = (typeof fixture.packages)[number];
@@ -21,6 +23,8 @@ export interface CalendarState {
   packages: Pkg[];
   follow_done: string[];
   seq: number;
+  /** Cấu hình lịch hẹn (TIP-033b) — tạo khi đọc / ghi lần đầu (booking-config.ts). */
+  config?: BookingConfigState;
 }
 
 /** So khớp không dấu ("mai tram" ↔ "Mai Trâm"). */
@@ -43,6 +47,8 @@ export const HOLDS: ApptStatus[] = ['pending', 'confirmed', 'in_progress'];
 export const day = (iso: string) => iso.slice(0, 10);
 export const hm = (iso: string) => iso.slice(11, 16);
 export const iso = (d: string, t: string) => `${d}T${t}:00+07:00`;
+/** Giờ hẹn đã qua theo đồng hồ fixture (hôm nay của prototype, 09:00 — cùng mốc `not_before` của slots). */
+export const isPast = (a: Appointment) => `${day(a.start_at)} ${hm(a.start_at)}` < `${fixture.today} 09:00`;
 export const svcOf = (id: string) => fixture.services.find((s) => s.id === id)!;
 
 const visible = (db: MockDb, a: Appointment) => {
@@ -77,7 +83,7 @@ export const slotsFor = (db: MockDb, serviceId: string, date: string, staffId?: 
 };
 export const assertFree = (db: MockDb, serviceId: string, date: string, start: string, staffId: string, except?: string) => {
   const ok = slotsFor(db, serviceId, date, staffId, except).some((x) => x.start === start);
-  if (!ok) deny('CONFLICT', `${staffId} ${date} ${start}`);
+  if (!ok) deny('SLOT_TAKEN', `${staffId} ${date} ${start}`);
 };
 
 const enrich = (db: MockDb, a: Appointment) => {
@@ -130,13 +136,7 @@ export const calendarRoutes: Record<string, MockRoute> = {
       },
     };
   },
-  '/settings/booking': () => ({
-    days: [0, 1, 2, 3, 4, 5, 6].map((weekday) => ({ weekday, open: true, start: fixture.open_hours.start, end: fixture.open_hours.end })),
-    slot_step_min: 30,
-    default_buffer_min: 10,
-    no_show_deducts: false,
-    staff: fixture.staff.map((s) => ({ ...s, active: true, skills: [], user_id: null, schedule: [] })),
-  }),
+  ...bookingConfigRoutes,
   '/calendar/slots': (db, p) => ({
     slots: slotsFor(
       db,

@@ -1,10 +1,10 @@
 // Đọc Khách hàng (Blueprint §4.4 crm, TIP-015 — shape packages/shared/src/api/crm.ts): /v1/contacts (D42 page + limit),
 // /contacts/stats, /contacts/duplicates, /contacts/:id (Hồ sơ 360°), /contacts/:id/collaborators, /contacts/:id/timeline,
-// /contact-access-requests, /members, /crm/ai; TIP-015b: /contacts/:id/memory (khối "AI ghi nhớ"); TIP-026: `sort`, /contacts/board (kanban), /contacts/import-table (đọc tệp nhập).
+// /contact-access-requests, /members, /crm/ai; TIP-015b: /contacts/:id/memory (khối "AI ghi nhớ"); TIP-015f: /contacts/deleted (thùng rác); TIP-026: `sort`, /contacts/board (kanban), /contacts/import-table (đọc tệp nhập).
 // Quyền `crm.view`; scope crm áp trong service. Ghi qua action contact.*.
 import { Controller, Get, Inject, Optional, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { CrmMembers, CrmReadService, FilesService, TENANT_RESOLVER, XlsxTooComplexError, readTable, type ContactFilter } from '@appchat/core';
+import { CLOCK, CrmMembers, CrmReadService, FilesService, TENANT_RESOLVER, XlsxTooComplexError, deletedContacts, duplicateCandidates, readTable, type Clock, type ContactFilter } from '@appchat/core';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError, CONTACT_SORTS, type ContactSort, type PermissionKey } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
@@ -50,6 +50,7 @@ export class ContactsController {
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver,
     @Optional() @Inject(FilesService) private readonly files: FilesService | undefined,
+    @Optional() @Inject(CLOCK) private readonly clock: Clock | undefined,
   ) {}
 
   private async viewer(req: IncomingMessage, perm: PermissionKey = 'crm.view') {
@@ -100,6 +101,15 @@ export class ContactsController {
     return { data: { columns: cols, rows: t.rows.slice(0, IMPORT_MAX_ROWS).map((r) => r.slice(0, IMPORT_MAX_COLS).map((c) => c.slice(0, 500))), total: t.rows.length } };
   }
 
+  /** TIP-015f: thùng rác theo scope (crm.delete + crm.view) — đăng ký TRƯỚC `contacts/:id`. */
+  @Get('contacts/deleted')
+  async deleted(@Req() req: IncomingMessage, @Query() q: Record<string, string | undefined>) {
+    const a = await this.viewer(req, 'crm.delete');
+    const db = await this.tenants.get(TenantContexts.fromMembership(a.workspaceId, a.userId));
+    const now = this.clock?.now() ?? new Date();
+    return db.$transaction((tx) => deletedContacts(tx, a.authz, { q: q.q?.slice(0, 120), cursor: q.cursor?.slice(0, 200), limit: int(q.limit, 'limit') }, now));
+  }
+
   @Get('contacts/stats')
   async stats(@Req() req: IncomingMessage) {
     return { data: await this.read.stats(await this.viewer(req)) };
@@ -108,6 +118,14 @@ export class ContactsController {
   @Get('contacts/duplicates')
   async duplicates(@Req() req: IncomingMessage) {
     return { data: await this.read.duplicates(await this.viewer(req)) };
+  }
+
+  /** TIP-015e: ứng viên trùng theo scope (cả hai phía thấy được), hạng luật + cursor có dấu thế hệ — cùng reader action contact.duplicate_candidates. */
+  @Get('contacts/duplicates/candidates')
+  async candidates(@Req() req: IncomingMessage, @Query() q: Record<string, string | undefined>) {
+    const a = await this.viewer(req);
+    const db = await this.tenants.get(TenantContexts.fromMembership(a.workspaceId, a.userId));
+    return db.$transaction((tx) => duplicateCandidates(tx, a.authz, { q: q.q?.slice(0, 200), cursor: q.cursor?.slice(0, 400), limit: int(q.limit, 'limit') }));
   }
 
   @Get('contacts/:id')

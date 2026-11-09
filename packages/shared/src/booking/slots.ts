@@ -1,11 +1,17 @@
 // Tìm khung giờ trống cho lịch hẹn (Blueprint §3.4 appointment.find_slots, §2.2 ràng buộc EXCLUDE staff + khung giờ + buffer).
-// Thuần hàm, dùng chung web (mock, chọn slot) và core. Giờ là "HH:mm" theo múi giờ workspace; một ngày, một hoặc nhiều nhân sự.
+// Thuần hàm, dùng chung web (mock, chọn slot) và core. Ứng viên chiếm [bắt đầu, kết thúc + đệm đã chọn); lịch có sẵn chiếm
+// [bắt đầu, block_end đã lưu) — đúng điều kiện EXCLUDE trên [start_at, block_end_at). Giờ là "HH:mm" theo múi giờ workspace; một ngày, một hoặc nhiều nhân sự.
 
 export interface Busy {
   staff_id: string;
   /** "HH:mm" */
   start: string;
   end: string;
+  /**
+   * Hết chiếm chỗ đã lưu (TIP-033b §3.4 — `block_end_at`, đệm chụp lúc đặt), phút trong ngày; 1440 = hết ngày. Có thì dùng nguyên, KHÔNG
+   * cộng đệm hiện hành; thiếu (người gọi cũ) → `end + buffer`.
+   */
+  block_end_min?: number;
 }
 
 export interface SlotQuery {
@@ -49,7 +55,7 @@ export const findSlots = (q: SlotQuery): Slot[] => {
     const free = q.staff_ids.filter(
       (id) =>
         !q.busy.some(
-          (b) => b.staff_id === id && overlaps(s, e + q.buffer, toMin(b.start), toMin(b.end) + q.buffer),
+          (b) => b.staff_id === id && overlaps(s, e + q.buffer, toMin(b.start), b.block_end_min ?? toMin(b.end) + q.buffer),
         ),
     );
     if (free.length) out.push({ start: toHm(s), end: toHm(e), staff_ids: free });

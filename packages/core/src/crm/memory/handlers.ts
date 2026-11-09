@@ -13,6 +13,7 @@ import { UUID, actorUserId, editableContact } from '../services/access';
 import { MEMORY_CAP, checkFact, evictionOrder } from './normalize';
 import { allOf, lockContact, restoreRows, similarOf, snap, unsnap, writeFact, type MemorySnap } from './repository';
 import { bump, memoryChanged } from './revision';
+import { lockContactRow } from '../../kernel/ownership/root-lock';
 
 type RememberIn = ActionInput<typeof contactRemember>;
 type ForgetIn = ActionInput<typeof contactMemoryForget>;
@@ -25,6 +26,8 @@ async function writable(ctx: ActionContext, tx: TenantTx, contactId: string) {
     const conv = ctx.servedConversationId ? await tx.conversation.findUnique({ where: { id: ctx.servedConversationId }, select: { contactId: true } }) : null;
     if (!conv?.contactId || conv.contactId !== contactId) throw new AppError('FORBIDDEN', 403, { contact_id: 'not_served_conversation' });
   }
+  // TIP-015f §2.8: khoá khách gốc — không ghi nhớ vào khách vừa xoá.
+  await lockContactRow(tx, contactId);
   return (await editableContact(tx, ctx.authz, contactId)).contact;
 }
 

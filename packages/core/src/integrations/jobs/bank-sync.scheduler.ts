@@ -7,6 +7,7 @@ import { connectorRegistry } from '@appchat/integrations';
 import { BANK_PULL_OP, activeFeed } from '../operations/bank-pull';
 import { upsertCall } from '../operations/call-receipt';
 import { capabilitiesOf } from '../services/connection-health';
+import { purgeMailBindings } from '../mail/purge';
 
 export const OPS_SCHEDULER_QUEUE = 'integration-ops-scheduler';
 export const OPS_SWEEP_JOB = 'integration.ops-sweep';
@@ -60,6 +61,8 @@ export async function sweepIntegrationOps(d: SweepDeps) {
       const db = await d.tenants.get(TenantContexts.system(w.id, OPS_SWEEP_JOB));
       total.recovered += await recover(db, w.id, d);
       total.scheduled += await schedulePulls(db, w.id, d);
+      // TIP-012c: dọn token callback mail hết hạn + sự kiện chưa ghép quá hạn (lô 100).
+      await purgeMailBindings(db, d.now());
     } catch (err) {
       d.onError?.(w.id, err);
     }

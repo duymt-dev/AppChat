@@ -47,6 +47,11 @@ export interface Order {
   phone: string;
   owner_user_id: string;
   owner_name: string;
+  /** Người phụ trách vận hành (TIP-032c) — khác người tạo `owner_*` (doanh số, bất biến). */
+  assigned_user_id: string;
+  assigned_name: string;
+  /** Phiên bản dòng — gửi lại làm `if_version` khi sửa. */
+  version: number;
   quote_id: string | null;
   quote_code: string;
   contract_id: string | null;
@@ -77,6 +82,8 @@ export interface Order {
 export interface OrderFilter {
   chip: OrderChip;
   owner_id: string;
+  /** Người phụ trách vận hành (TIP-032c) — `owner_id` = người tạo. */
+  assigned_user_id?: string;
   value: string;
   source: string;
   q: string;

@@ -5,6 +5,7 @@ import { TenantSql as Prisma } from '@appchat/db';
 import { INVOICE_STATUSES, foldText, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { UUID, invoiceScopeSql } from '../invoice-access';
+import { inFamilySql } from '../../../crm/lifecycle/family-sql';
 
 export interface InvoiceFilter {
   status?: string;
@@ -17,7 +18,9 @@ export interface InvoiceFilter {
 function where(authz: AuthzContext, f: InvoiceFilter): Prisma.Sql {
   const parts: Prisma.Sql[] = [invoiceScopeSql(authz)];
   if (f.status && f.status !== 'all') parts.push((INVOICE_STATUSES as readonly string[]).includes(f.status) ? Prisma.sql`i.status = ${f.status}::invoice_status` : Prisma.sql`FALSE`);
-  for (const [col, v] of [['contact_id', f.contactId], ['order_id', f.orderId], ['owner_user_id', f.ownerId]] as const) {
+  // Khách: theo họ (TIP-015e — đề nghị giữ id khách gốc sau gộp).
+  if (f.contactId && f.contactId !== 'all') parts.push(UUID.test(f.contactId) ? inFamilySql('i.contact_id', f.contactId) : Prisma.sql`FALSE`);
+  for (const [col, v] of [['order_id', f.orderId], ['owner_user_id', f.ownerId]] as const) {
     if (!v || v === 'all') continue;
     parts.push(UUID.test(v) ? Prisma.sql`${Prisma.raw(`i.${col}`)} = ${v}::uuid` : Prisma.sql`FALSE`);
   }

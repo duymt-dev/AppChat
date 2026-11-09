@@ -106,7 +106,8 @@ async function allocate(tx: TenantTx, debitId: string, e: PostIn) {
  * (lô đã quá hạn → job hết hạn lấy lại — DC-297 b). Đang nợ → khoản trả lại trả nợ trước như mọi khoản cộng; phần trừ không từ lô nào
  * (nợ của bút toán gốc) thành lô mới. Ghi bút toán `restore` đúng một lần (`dedupe_key`).
  */
-export async function restoreDebit(tx: TenantTx, debitId: string, balance: bigint, actor: Actor, now: Date, reason = ''): Promise<Posted | null> {
+/** `memberId` = thành viên gốc đã khoá (TIP-015e — bút toán cũ của khách đã gộp trả điểm vào gốc; lô gốc vẫn được trả đúng lô). */
+export async function restoreDebit(tx: TenantTx, debitId: string, balance: bigint, actor: Actor, now: Date, reason = '', memberId?: string): Promise<Posted | null> {
   const debit = await tx.loyaltyLedger.findUnique({ where: { id: debitId }, include: { debits: true } });
   if (!debit || debit.delta >= 0n) return null;
   const key = `restore:${debitId}`;
@@ -126,7 +127,7 @@ export async function restoreDebit(tx: TenantTx, debitId: string, balance: bigin
   }
   const extra = back - fromLots;
   const extraLot = extra > debt ? extra - debt : 0n;
-  const p = await post(tx, { contactId: debit.contactId, kind: 'restore', delta: back, balance, actor, now, reason, ref: { type: 'loyalty_ledger', id: debitId }, dedupeKey: key, lotRemaining: extraLot });
+  const p = await post(tx, { contactId: memberId ?? debit.contactId, kind: 'restore', delta: back, balance, actor, now, reason, ref: { type: 'loyalty_ledger', id: debitId }, dedupeKey: key, lotRemaining: extraLot });
   await tx.loyaltyLedger.update({ where: { id: debitId }, data: { reversedById: p.id } });
   return p;
 }

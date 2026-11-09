@@ -47,15 +47,38 @@ const VERB_VI: Record<string, string> = {
   // TIP-025b: dịch tin / bản nháp, thẻ duyệt theo hội thoại, sửa hàng loạt hội thoại, xuất lịch sử khách.
   translate: 'dich dich sang tieng ngon ngu dich tin nhan ban dich tieng anh tieng trung tieng han tieng nhat', approvals: 'duyet cho duyet yeu cau duyet the duyet', bulk_update: 'hang loat nhieu cung luc gan the giao trang thai',
   history_export: 'xuat lich su tuong tac csv',
+  // TIP-026b: ghi chú / bình luận nội bộ trên khách (không phải sửa trường khách, không gửi tin).
+  add_note: 'ghi chu them ghi chu ghi lai luu ghi chu note', add_comment: 'binh luan noi bo trao doi dong nghiep',
+  // TIP-015d: chuyển / giao / đổi người phụ trách khách (không phải sửa trường khách) + đọc kết quả lần chuyển.
+  transfer_owner: 'chuyen phu trach giao khach doi nguoi phu trach ban giao khach chuyen khach cho', transfer_owner_bulk: 'chuyen phu trach nhieu khach hang loat giao nhieu khach',
+  transfer_status: 'ket qua chuyen phu trach lan chuyen gan nhat da chuyen kem bao nhieu',
+  // TIP-012c: chiến dịch email — người nhận / kết quả giao thư / người gửi mail của DN.
+  recipient_export: 'xuat danh sach nguoi nhan file nguoi nhan ket qua giao thu ket qua gui csv', mail_senders: 'nguoi gui email nguoi gui mail brevo smtp dia chi gui',
+};
+
+/** Từ riêng của một action khi đối tượng không có action `search` (TIP-012c: "tìm chiến dịch" → campaign.get — tra theo id / mã / tên). */
+const ACTION_VI: Record<string, string> = {
+  'campaign.get': 'tim tim kiem tra cuu danh sach nguoi nhan ket qua gui giao thu da mo',
+  // TIP-033b: "giờ mở cửa / giờ nhận lịch của tiệm" = giờ đặt lịch (business_hours); "giờ làm việc của nhân viên / SLA" = working_hours.
+  'business_hours.update': 'gio mo cua gio nhan lich gio hoat dong cua tiem cua hang mo cua dong cua chu nhat ngay nghi lich hen',
+  'working_hours.update': 'gio lam viec nhan vien tinh sla tra loi hoi thoai',
 };
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */
 const ENTITY_VI: Record<string, string> = {
+  campaign: 'chien dich marketing ban tin email hang loat gui hang loat',
   product: 'dich vu goi lieu trinh hang hoa mat hang gia ban', stock: 'kho ton kho con hang nhap kho', contact: 'khach nguoi lien he so dien thoai',
   quote: 'bao gia', appointment: 'lich dat lich hen', ticket: 'khieu nai phan nan yeu cau ho tro', order: 'don don hang',
   tag: 'nhan the', conversation: 'hoi thoai tin nhan chat', invoice: 'thanh toan thu tien', loyalty: 'diem tich diem hang khach than thiet', payment: 'thanh toan thu tien',
   // TIP-038b: nhập dữ liệu dùng chung từ tệp (khách / sản phẩm / báo giá / đơn / hợp đồng / đề nghị thanh toán) — "nhập từ tệp / file / excel".
-  transfer: 'nhap du lieu tep file excel csv bang tinh nhap khach nhap san pham nhap bao gia nhap don nhap hop dong nhap de nghi thanh toan',
+  transfer: 'nhap du lieu tep file excel csv bang tinh nhap khach nhap san pham nhap bao gia nhap don nhap hop dong nhap de nghi thanh toan nhap ghi chu nhap viec cham soc nhap co hoi',
+  // TIP-026b: hoạt động CRM — việc chăm sóc (≠ tác vụ AI / lịch hẹn), cơ hội (giá trị kỳ vọng ≠ doanh thu), xem hoạt động của khách.
+  contact_task: 'viec cham soc viec can lam nhac viec goi lai theo doi follow up han viec',
+  contact_opportunity: 'co hoi co hoi ban hang nhu cau gia tri ky vong xac suat chot deal',
+  contact_activity: 'hoat dong ghi chu binh luan viec cham soc co hoi gia tri ky vong cua khach xem co hoi',
+  contact_note: 'ghi chu binh luan cua khach',
+  // TIP-033b: liệu trình của khách — xem / xuất (chỉ xuất, không nhập số buổi).
+  package: 'lieu trinh goi buoi so buoi con lai da dung het han xuat lieu trinh',
 };
 
 /**
@@ -64,7 +87,7 @@ const ENTITY_VI: Record<string, string> = {
  */
 function tiersOf(a: ActionDef): [string, string, string] {
   const verb = a.id.slice(a.id.indexOf('.') + 1);
-  const name = [a.id.replaceAll('.', ' ').replaceAll('_', ' '), VERB_VI[verb] ?? VERB_VI[verb.split('_')[0]!] ?? '', ENTITY_VI[entityOf(a.id)] ?? ''];
+  const name = [a.id.replaceAll('.', ' ').replaceAll('_', ' '), VERB_VI[verb] ?? VERB_VI[verb.split('_')[0]!] ?? '', ENTITY_VI[entityOf(a.id)] ?? '', ACTION_VI[a.id] ?? ''];
   const mod: string[] = [a.module];
   for (const l of ['vi', 'en']) {
     const m = serverMessages(l).ai.assistant;

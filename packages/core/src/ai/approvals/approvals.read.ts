@@ -4,7 +4,8 @@
 // Hết hạn, không vào Chờ duyệt. `fields` = trường cấp 1 kiểu chuỗi / số / boolean của input schema action gốc (nút "Sửa & duyệt").
 import { registry, type ActionDef } from '@appchat/actions';
 import { can, isPermissionKey, type ApprovalRowDto, type AuthzContext } from '@appchat/shared';
-import type { TenantDb } from '@appchat/db';
+import { TenantSql as Prisma, type TenantDb } from '@appchat/db';
+import { decidableIds, visibleApprovalSql } from './domain-authorization';
 import { inputSchemaOf } from '../runs/tools';
 
 const TABS = ['pending', 'approved', 'rejected', 'expired'] as const;
@@ -37,21 +38,15 @@ export function editableFields(def: ActionDef | undefined): Field[] {
   return out;
 }
 
-const whereOf = (tab: ApprovalTab, now: Date) => {
-  if (tab === 'pending') return { status: 'pending' as const, expiresAt: { gt: now } };
-  if (tab === 'approved') return { status: { in: ['approved' as const, 'edited' as const] } };
-  if (tab === 'expired') return { OR: [{ status: 'expired' as const }, { status: 'pending' as const, expiresAt: { lte: now } }] };
-  if (tab === 'rejected') return { status: 'rejected' as const };
-  return {};
-};
-
 type Row = Awaited<ReturnType<TenantDb['approvalRequest']['findMany']>>[number];
 
 /** Dòng hàng duyệt cho một tập yêu cầu đã chọn (dùng chung màn Cần duyệt + thẻ Hộp thư — TIP-025b §G). */
-export async function approvalRows(db: Pick<TenantDb, 'aiAgent'>, authz: AuthzContext, rows: Row[], now: Date, timeZone: string): Promise<ApprovalRowDto[]> {
+export async function approvalRows(db: Pick<TenantDb, 'aiAgent' | '$queryRaw'>, authz: AuthzContext, rows: Row[], now: Date, timeZone: string): Promise<ApprovalRowDto[]> {
   const ids = [...new Set(rows.map((r) => r.agentId).filter((x): x is string => !!x))];
   const agents = new Map((ids.length ? await db.aiAgent.findMany({ where: { id: { in: ids } }, select: { id: true, name: true } }) : []).map((a) => [a.id, a.name]));
   const decide = can(authz, 'approvals.decide');
+  // TIP-015d: quyết được theo domain (vd. chuyển phụ trách cần scope ghi khách hiện tại) — không chỉ theo permission.
+  const domainOk = decide ? await decidableIds(db, authz, rows) : new Set<string>();
   return rows.map((r) => ({
     id: r.id,
     action_id: r.actionId,
@@ -63,7 +58,7 @@ export async function approvalRows(db: Pick<TenantDb, 'aiAgent'>, authz: AuthzCo
     reason: r.reason,
     ...dayOf(r.requestedAt, now, timeZone),
     status: r.status === 'pending' && r.expiresAt <= now ? 'expired' : r.status,
-    can_decide: decide && (!isPermissionKey(r.permission) || can(authz, r.permission)),
+    can_decide: decide && domainOk.has(r.id) && (!isPermissionKey(r.permission) || can(authz, r.permission)),
     input: (r.input ?? {}) as Record<string, unknown>,
     fields: editableFields(DEFS.get(r.actionId)),
     ...(r.decisionNote ? { note: r.decisionNote } : {}),
@@ -71,7 +66,19 @@ export async function approvalRows(db: Pick<TenantDb, 'aiAgent'>, authz: AuthzCo
   }));
 }
 
-export async function listApprovals(db: Pick<TenantDb, 'approvalRequest' | 'aiAgent'>, authz: AuthzContext, tab: ApprovalTab, now: Date, timeZone: string): Promise<ApprovalRowDto[]> {
-  const rows = await db.approvalRequest.findMany({ where: whereOf(tab, now), orderBy: [{ requestedAt: 'desc' }, { id: 'desc' }], take: 100 });
-  return approvalRows(db, authz, rows, now, timeZone);
+const tabSql = (tab: ApprovalTab, now: Date): Prisma.Sql => {
+  if (tab === 'pending') return Prisma.sql`ar.status = 'pending' AND ar.expires_at > ${now}`;
+  if (tab === 'approved') return Prisma.sql`ar.status IN ('approved', 'edited')`;
+  if (tab === 'expired') return Prisma.sql`(ar.status = 'expired' OR (ar.status = 'pending' AND ar.expires_at <= ${now}))`;
+  if (tab === 'rejected') return Prisma.sql`ar.status = 'rejected'`;
+  return Prisma.sql`TRUE`;
+};
+
+/** TIP-015d: vị từ thấy được theo domain áp TRƯỚC ORDER BY / LIMIT (dòng ẩn không chiếm chỗ trang, không lộ số lượng). */
+export async function listApprovals(db: Pick<TenantDb, 'approvalRequest' | 'aiAgent' | '$queryRaw'>, authz: AuthzContext, tab: ApprovalTab, now: Date, timeZone: string): Promise<ApprovalRowDto[]> {
+  const ids = await db.$queryRaw<{ id: string }[]>`
+    SELECT ar.id FROM approval_request ar WHERE ${tabSql(tab, now)} AND ${visibleApprovalSql(authz)} ORDER BY ar.requested_at DESC, ar.id DESC LIMIT 100`;
+  if (!ids.length) return [];
+  const byId = new Map((await db.approvalRequest.findMany({ where: { id: { in: ids.map((r) => r.id) } } })).map((r) => [r.id, r]));
+  return approvalRows(db, authz, ids.map((r) => byId.get(r.id)!).filter(Boolean), now, timeZone);
 }

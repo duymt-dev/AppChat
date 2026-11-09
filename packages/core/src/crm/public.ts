@@ -9,6 +9,7 @@ export { writeTimeline, type TimelineInput } from './services/timeline.service';
 export { applyStageRule, type StageRule } from './services/stage-rules';
 export { CRM_SEED } from './seeds';
 export type { ContactFilter } from './repos/contacts.repo';
+export { where as contactWhereSql } from './repos/contacts.repo';
 export { fieldDefs } from './services/fields.service';
 export { createContact } from './services/contacts.service';
 export { MEMORY_CAP, normFact } from './memory/normalize';
@@ -22,3 +23,9 @@ export { CONTACT_BULK_KIND } from './actions/contact-bulk.handler';
 export { LeadRoutingReadService } from './routing/routing-read.service';
 export { LEAD_ROUTING_CONSUMER, leadRoutingConsumer, leadRoutingCtx } from './routing/routing-consumer';
 export { LEAD_ROUTING_ACTOR, LEAD_ROUTING_TOPIC } from './routing/routing-apply.handler';
+// TIP-015f: thùng rác khách (cùng reader với action contact.deleted_list).
+export { deletedContacts } from './lifecycle/read';
+export { duplicateCandidates } from './merge/candidates';
+export { purgeMergeReceiptPayloads } from './merge/purge';
+// TIP-033b: đọc liệu trình theo họ khách (gốc + nguồn đã gộp).
+export { inFamilySql, inSameFamily } from './lifecycle/family-sql';

@@ -1,6 +1,6 @@
 // Khách hàng (Blueprint §3.4 crm, D32 phụ trách + đồng phụ trách). Prototype L2451–2984.
 import { z } from 'zod';
-import { CONTACT_SORTS } from '@appchat/shared';
+import { CONTACT_SORTS, contactDeleteResultSchema } from '@appchat/shared';
 import { defineAction } from './define';
 import { contactFields } from './crm-schemas';
 
@@ -53,7 +53,7 @@ export const contactUpdate = defineAction({
   id: 'contact.update',
   module: 'crm',
   title: 'actions.contact.update.title',
-  description: 'Update contact fields (send if_version from the latest read to avoid overwriting a newer edit). Example: {"contact_id":"ct_lan","patch":{"title":"Chủ shop","city":"TP.HCM"}}',
+  description: 'Update contact fields (send if_version from the latest read to avoid overwriting a newer edit). Never use it to change the owner — that is contact.transfer_owner (always human-approved). Example: {"contact_id":"ct_lan","patch":{"title":"Chủ shop","city":"TP.HCM"}}',
   /** `if_version` (TIP-025b §D.4) — tuỳ chọn để tương thích; lệch → 409 STALE_VERSION. Kết quả trả version mới. */
   input: z.object({ contact_id: contactId, patch: contactFields.partial(), if_version: z.number().int().positive().optional() }),
   output: z.object({ contact_id: z.string(), version: z.number().int() }),
@@ -96,9 +96,10 @@ export const contactDelete = defineAction({
   id: 'contact.delete',
   module: 'crm',
   title: 'actions.contact.delete.title',
-  description: 'Soft-delete a contact (restorable for 30 days). Example: {"contact_id":"kh_1002"}',
-  input: z.object({ contact_id: contactId }),
-  output: z.object({ deleted: z.boolean() }),
+  description:
+    'Soft-delete a contact (restorable for 30 days via contact.restore). Blocked (HAS_DEPENDENCIES) while the customer has open orders / contracts, receivables, draft payment requests or pending payments / refunds. Conversations and closed documents are kept. Not a privacy erasure or unsubscribe. Example: {"contact_id":"kh_1002","if_version":3}',
+  input: z.object({ contact_id: contactId, if_version: z.number().int().positive().optional() }),
+  output: contactDeleteResultSchema,
   permission: 'crm.delete',
   risk: 'delete',
   agentGrantable: false,
@@ -110,8 +111,9 @@ export const contactMerge = defineAction({
   id: 'contact.merge',
   module: 'crm',
   title: 'actions.contact.merge.title',
-  description: 'Merge duplicate groups into their primary record. Example: {"group_ids":["dg1"]}',
-  input: z.object({ group_ids: z.array(z.string().min(1)).min(1).max(50) }),
+  description:
+    'Merge duplicate customers: each group is "<primary_id>~<source_id>" (keys from contact.duplicate_candidates, oriented by the chosen primary). Requires write access to every record AND the same owner and the same explicit collaborators/watchers on both — otherwise 409 (share / transfer first with their own actions; merge never adds access). Send expected_versions {contact_id: version} from the candidate list to avoid merging changed records. Orders, invoices, contracts and loyalty history keep their original customer. Undo within 7 days only if nothing changed since. Example: {"group_ids":["<primary>~<source>"],"expected_versions":{"<primary>":3,"<source>":1}}',
+  input: z.object({ group_ids: z.array(z.string().min(1)).min(1).max(50), expected_versions: z.record(z.string(), z.number().int().positive()).optional() }),
   output: z.object({ merged: z.number().int() }),
   permission: 'crm.edit',
   risk: 'write',
@@ -149,24 +151,33 @@ export const contactRemoveCollaborator = defineAction({
   invalidates: ['crm'],
 });
 
+const moveFlags = z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() });
+const movedCounts = z.object({ conversations: z.number(), quotes: z.number(), appointments: z.number() });
+
 export const contactTransferOwner = defineAction({
   id: 'contact.transfer_owner',
   module: 'crm',
   title: 'actions.contact.transfer_owner.title',
   description:
-    'Transfer the primary owner of a contact (managers only); optionally move open conversations, quotes and appointments. Agents may only propose (approval). Example: {"contact_id":"ct_lan","to_user_id":"u_minh","move":{"conversations":true,"quotes":true,"appointments":false}}',
+    'Transfer the primary owner of a contact (managers only); optionally move open conversations, open quotes (operational assignee only — the quote creator keeps the sales credit/KPI forever, transfer never moves revenue) and upcoming appointments, all in one atomic step. From the Assistant, an agent or a task this ALWAYS goes to human approval — say it is pending approval, never that it is done. Send if_version from the latest contact read. Example: {"contact_id":"ct_lan","to_user_id":"u_minh","move":{"conversations":true,"quotes":true,"appointments":false}}',
   input: z.object({
     contact_id: contactId,
     to_user_id: userId,
-    move: z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() }),
+    move: moveFlags,
     note: z.string().max(500).optional(),
+    if_version: z.number().int().positive().optional(),
   }),
-  output: z.object({ owner_user_id: z.string(), moved: z.object({ conversations: z.number(), quotes: z.number(), appointments: z.number() }) }),
+  // TIP-015d §2.8: kết quả phân biệt — chuyển thật (có transfer_id) / người nhận đã là người phụ trách (no-op, không biên nhận, không hoàn tác).
+  output: z.discriminatedUnion('status', [
+    z.object({ status: z.literal('transferred'), owner_user_id: z.string(), moved: movedCounts, transfer_id: z.string(), version: z.number().int() }),
+    z.object({ status: z.literal('skipped_already_owner'), owner_user_id: z.string(), moved: movedCounts, transfer_id: z.null(), version: z.number().int() }),
+  ]),
   permission: 'crm.reassign',
   risk: 'write',
   agentGrantable: true,
+  requiredApprovalSources: ['assistant', 'agent', 'task'],
   undo: { windowSec: 86_400 },
-  invalidates: ['crm', 'inbox'],
+  invalidates: ['crm', 'inbox', 'quotes', 'calendar'],
 });
 
 export const contactRequestAccess = defineAction({

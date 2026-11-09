@@ -94,7 +94,7 @@ export const workingHoursUpdate = defineAction({
   module: 'settings',
   title: 'actions.working_hours.update.title',
   description:
-    'Set human working hours per weekday (0 = Monday) and whether the human SLA clock pauses outside them. Example (days = 7 entries, 0 = Monday): {"days":[{"day":0,"on":true,"from":"08:00","to":"18:00"},{"day":1,"on":true,"from":"08:00","to":"18:00"},{"day":2,"on":true,"from":"08:00","to":"18:00"},{"day":3,"on":true,"from":"08:00","to":"18:00"},{"day":4,"on":true,"from":"08:00","to":"18:00"},{"day":5,"on":true,"from":"08:00","to":"18:00"},{"day":6,"on":false,"from":"08:00","to":"18:00"}],"pause_sla":true}',
+    'Set human (staff) working hours per weekday (0 = Monday) used ONLY for the conversation SLA clock — NOT the shop opening / booking hours (use business_hours.update for giờ mở cửa / nhận lịch). Example (days = 7 entries, 0 = Monday): {"days":[{"day":0,"on":true,"from":"08:00","to":"18:00"},{"day":1,"on":true,"from":"08:00","to":"18:00"},{"day":2,"on":true,"from":"08:00","to":"18:00"},{"day":3,"on":true,"from":"08:00","to":"18:00"},{"day":4,"on":true,"from":"08:00","to":"18:00"},{"day":5,"on":true,"from":"08:00","to":"18:00"},{"day":6,"on":false,"from":"08:00","to":"18:00"}],"pause_sla":true}',
   input: z.object({
     days: z.array(z.object({ day: z.number().int().min(0).max(6), on: z.boolean(), from: HHMM, to: HHMM })).length(7),
     pause_sla: z.boolean(),

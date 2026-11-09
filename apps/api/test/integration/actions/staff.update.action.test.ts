@@ -25,7 +25,7 @@ describe('staff.update', () => {
   it('id lạ 404 · preview Trợ lý → xác nhận', async () => {
     expect((await m.act({ staff_id: '0190f000-0000-7000-8000-00000000beef', patch: { role: 'x' } })).status).toBe(404);
     const { preview, done } = await m.confirm({ staff_id: staff, patch: { role: 'Trưởng ca', skills: [svc], schedule: [{ weekday: 0, open: true, start: '09:00', end: '12:00' }] } });
-    expect(preview).toEqual({ summary: 'KTV. Mai', risk: 'config', changes: [{ entity: 'staff', id: staff, before: { role: '', skills: [] }, after: { role: 'Trưởng ca', skills: ['Massage thư giãn'] } }], warnings: ['schedule_replaced'] });
+    expect(preview).toEqual({ summary: 'KTV. Mai', risk: 'config', changes: [{ entity: 'staff', id: staff, before: { role: '', skills: [], custom_days: 0 }, after: { role: 'Trưởng ca', skills: ['Massage thư giãn'], custom_days: 1 } }], warnings: ['schedule_replaced'] });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
   });
 

@@ -39,7 +39,7 @@ async function check(tx: TenantTx, inv: InvoiceRecord, points: number, lock: boo
   const m = lock ? await lockMember(tx, inv.contactId) : await tx.contact.findUnique({ where: { id: inv.contactId }, select: { id: true, pointsBalance: true } }).then((c) => (c ? { id: c.id, points_balance: c.pointsBalance } : null));
   if (!m) throw new AppError('NOT_FOUND', 404, { contact_id: 'not_found' });
   if (m.points_balance < want) throw new AppError('VALIDATION_FAILED', 422, { points: 'insufficient' });
-  return { o, amount, balance: m.points_balance, cap };
+  return { o, amount, balance: m.points_balance, cap, member: m.id };
 }
 
 @Injectable()
@@ -52,19 +52,19 @@ export class PaymentRedeemPointsHandler implements Handler<In, Out> {
 
   async execute(ctx: ActionContext, i: In, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const inv = await lockInvoice(tx, ctx.authz, i.invoice_id);
-    const { o, amount, balance } = await check(tx, inv, i.points, true);
+    const { o, amount, balance, member } = await check(tx, inv, i.points, true);
     const now = this.clock.now();
     const actor = actorOf(ctx);
     const today = localDay(now, (await this.d.place(ctx.workspaceId)).timeZone);
-    const p = await post(tx, { contactId: inv.contactId, kind: 'redeem', delta: -BigInt(i.points), balance, actor, now, ref: { type: 'invoice', id: inv.id } });
+    const p = await post(tx, { contactId: member, kind: 'redeem', delta: -BigInt(i.points), balance, actor, now, ref: { type: 'invoice', id: inv.id } });
     await tx.order.update({ where: { id: o.id }, data: { pointsUsed: { increment: BigInt(i.points) } } });
     const r = await recordInvoicePayment(tx, inv, { amount, method: 'points', kind: 'points', reference: `${i.points}`, paidAt: now, actor }, today, now);
     await writeTimeline(tx, { contactId: inv.contactId, type: 'loyalty', key: 'loyalty_redeem', params: { points: String(i.points), amount: String(amount), code: inv.code }, actor, ref: { type: 'invoice', id: inv.id }, at: now });
-    const before: Before = { invoice_id: inv.id, payment_id: r.paymentId, order_event_id: r.orderEventId, status: inv.status as Before['status'], paid: String(inv.paidAmount), points: i.points, ledger_id: p.id, contact_id: inv.contactId };
+    const before: Before = { invoice_id: inv.id, payment_id: r.paymentId, order_event_id: r.orderEventId, status: inv.status as Before['status'], paid: String(inv.paidAmount), points: i.points, ledger_id: p.id, contact_id: member };
     return {
       result: { payment_id: r.paymentId, invoice_id: inv.id, order_id: o.id, points: i.points, amount: String(amount), balance_after: safePoints(p.balanceAfter) },
       before,
-      events: [...r.events, pointsChanged(inv.contactId, 'redeem', p)],
+      events: [...r.events, pointsChanged(member, 'redeem', p)],
     };
   }
 
@@ -75,7 +75,7 @@ export class PaymentRedeemPointsHandler implements Handler<In, Out> {
     await voidPointsPayment(tx, b, 'undo', now);
     const m = await lockMember(tx, b.contact_id);
     if (!m) throw new AppError('CONFLICT', 409, { contact_id: 'changed' });
-    await restoreDebit(tx, b.ledger_id, m.points_balance, actorOf(ctx), now, 'undo');
+    await restoreDebit(tx, b.ledger_id, m.points_balance, actorOf(ctx), now, 'undo', m.id);
   }
 
   async preview(ctx: ActionContext, i: In, tx: TenantTx): Promise<ActionPreview> {

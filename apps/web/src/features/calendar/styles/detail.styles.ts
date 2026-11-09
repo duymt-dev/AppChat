@@ -262,6 +262,14 @@ export const useCalDetailStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
+  footWrap: css`
+    flex-wrap: wrap;
+  `,
+  reHint: css`
+    flex-basis: 100%;
+    font-size: ${font.scale.s13}px;
+    color: ${color.text3};
+  `,
   actPrimary: css`
     background: ${color.brand};
     border-color: ${color.brand};

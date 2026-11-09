@@ -8,6 +8,7 @@ import { dataJobUrl } from '../../kernel/jobs/data-jobs/handlers';
 import { writeOutbox } from '../../kernel/outbox/outbox';
 import { INBOX_BULK_KIND } from '../actions/bulk-update.handler';
 import { writableConversation } from '../services/access';
+import { lockRootOf } from '../../kernel/ownership/root-lock';
 import { applyBulkChange, type BulkChange } from '../services/conversation-mutations';
 
 export function registerInboxBulkKind() {
@@ -17,6 +18,8 @@ export function registerInboxBulkKind() {
     item: async (c, tx, targetId) => {
       const change = (c.job.input as { change: BulkChange }).change;
       if (change.assignee_user_id && !can(c.authz, 'inbox.assign')) throw new AppError('FORBIDDEN', 403, { permission: 'inbox.assign' });
+      // TIP-015d §2.3: mỗi bản ghi một transaction — khoá khách gốc của nó trước.
+      if (change.assignee_user_id) await lockRootOf(tx, 'conversation', targetId);
       const conv = await writableConversation(tx, c.authz, targetId);
       const now = c.now();
       const r = await applyBulkChange(tx, conv, change, now);

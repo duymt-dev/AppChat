@@ -1,5 +1,5 @@
 // Ma trận order.create (TIP-023b): tạo đơn → khách + người phụ trách (theo tên) + số dòng + tổng + cọc; cọc vượt tổng → 422 ở preview;
-// undo xoá đơn. 403 cs (không có order.manage) · sales: khách của owner → 404 · idempotency.
+// undo = huỷ giữ lịch sử (TIP-032c — không xoá đơn). 403 cs (không có order.manage) · sales: khách của owner → 404 · idempotency.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
@@ -30,7 +30,7 @@ describe('order.create', () => {
     expect(preview).toEqual({ summary: 'Chị Lan ĐH · 660.000₫', risk: 'write', changes: [{ entity: 'order', after: { contact: 'Chị Lan ĐH', owner: 'Chủ Spa', source: 'manual', items: 1, total: '660000', deposit: '200000' } }] });
     const id = done.body.data.result.order_id;
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
-    expect(await (await m.db()).order.count({ where: { id } })).toBe(0);
+    expect(await (await m.db()).order.findUniqueOrThrow({ where: { id } })).toMatchObject({ status: 'cancelled', cancelReason: 'undo_create', deletedAt: null });
   });
 
   it('idempotency', async () => {

@@ -15,6 +15,7 @@
     "automation": "TỰ ĐỘNG HOÁ"
   },
   "nav": {
+    "email_mkt": "Email Marketing",
     "general": "Tổng quan",
     "locale": "Ngôn ngữ & vùng",
     "members": "Thành viên",
@@ -39,9 +40,11 @@
     "wallet": "Ví AppChat",
     "profile": "Hồ sơ của tôi",
     "sales_policy": "Chính sách bán hàng",
-    "routing": "Chia lead"
+    "routing": "Chia lead",
+    "booking": "Lịch hẹn"
   },
   "head": {
+    "email_mkt": "Email Marketing",
     "general": "Tổng quan",
     "locale": "Ngôn ngữ & vùng",
     "members": "Thành viên",
@@ -66,7 +69,8 @@
     "wallet": "Ví AppChat",
     "profile": "Hồ sơ của tôi",
     "sales_policy": "Chính sách bán hàng",
-    "routing": "Routing & assignment"
+    "routing": "Routing & assignment",
+    "booking": "Lịch hẹn"
   },
   "headSub": {
     "roles": "Định nghĩa nhóm quyền và gán cho thành viên",
@@ -183,7 +187,10 @@
         "contract": "Hợp đồng",
         "ticket": "Ticket hỗ trợ",
         "product": "Sản phẩm",
-        "invoice": "Đề nghị thanh toán"
+        "invoice": "Đề nghị thanh toán",
+        "contact_note": "Ghi chú / bình luận",
+        "contact_task": "Việc chăm sóc",
+        "contact_opportunity": "Cơ hội"
       }
     }
   },
@@ -618,6 +625,109 @@
       "saved": "Đã lưu cấu hình"
     }
   },
+  "emailMkt": {
+    "lead": "Kết nối nền tảng gửi email để chạy chiến dịch & automation. Chọn nhà cung cấp bên dưới.",
+    "providers": "Nhà cung cấp email",
+    "name": {
+      "brevo": "Brevo",
+      "smtp": "SMTP (Google Workspace / Gmail / máy chủ riêng)"
+    },
+    "av": {
+      "brevo": "B",
+      "smtp": "@"
+    },
+    "title": {
+      "brevo": "Kết nối Brevo",
+      "smtp": "Kết nối máy chủ SMTP"
+    },
+    "sub": {
+      "brevo": "Sendinblue · email + automation marketing",
+      "smtp": "Gửi qua máy chủ thư của doanh nghiệp (cổng 465 / 587, bắt buộc TLS)"
+    },
+    "connected": "● Đã kết nối",
+    "connect": "Kết nối",
+    "manage": "Quản lý",
+    "needManage": "Cần quyền Quản lý tích hợp để kết nối hoặc đổi nhà cung cấp. Bạn vẫn chọn được người gửi đã cấu hình khi tạo chiến dịch.",
+    "stepsT": "Hướng dẫn kết nối (5 bước)",
+    "steps": {
+      "brevo": {
+        "1": {
+          "t": "Tạo API key v3",
+          "d": "Brevo › SMTP & API › API keys › Generate a new API key."
+        },
+        "2": {
+          "t": "Xác thực người gửi",
+          "d": "Brevo › Senders & IP › thêm địa chỉ người gửi và xác nhận email (trạng thái Active)."
+        },
+        "3": {
+          "t": "Xác thực tên miền",
+          "d": "Thêm bản ghi DKIM / SPF / DMARC Brevo cung cấp vào DNS tên miền rồi bấm Authenticate trong Brevo."
+        },
+        "4": {
+          "t": "Nhập vào AppChat",
+          "d": "Bấm Kết nối, dán API key, email người gửi và (tuỳ chọn) token webhook ít nhất 16 ký tự."
+        },
+        "5": {
+          "t": "Bật webhook giao thư",
+          "d": "Brevo › Webhooks › thêm URL callback của AppChat, chọn Bearer token = token webhook đã nhập để nhận sự kiện giao / mở / bounce."
+        }
+      },
+      "smtp": {
+        "1": {
+          "t": "Lấy thông tin máy chủ",
+          "d": "Tên máy chủ SMTP, cổng 465 (TLS) hoặc 587 (STARTTLS) — không hỗ trợ cổng 25 / không mã hoá."
+        },
+        "2": {
+          "t": "Tạo mật khẩu ứng dụng",
+          "d": "Google Workspace / Gmail: bật xác minh 2 bước rồi tạo mật khẩu ứng dụng cho AppChat."
+        },
+        "3": {
+          "t": "Nhập vào AppChat",
+          "d": "Bấm Kết nối, nhập máy chủ, cổng, tài khoản, mật khẩu và địa chỉ người gửi."
+        },
+        "4": {
+          "t": "Xác nhận người gửi",
+          "d": "Đặt \"Đã xác nhận người gửi\" khi địa chỉ này đúng là của doanh nghiệp — đăng nhập SMTP không chứng minh quyền sở hữu tên miền."
+        },
+        "5": {
+          "t": "Kiểm tra",
+          "d": "AppChat thăm dò kết nối (không gửi thư). SMTP không có sự kiện giao / mở / nhấp — báo cáo ghi \"không hỗ trợ\"."
+        }
+      }
+    },
+    "sendersT": "Người gửi",
+    "noSender": "Chưa có người gửi nào — kết nối nhà cung cấp ở trên.",
+    "pendingSender": "Đang chờ thăm dò kết nối",
+    "transport": {
+      "provider_api": "API nhà cung cấp",
+      "authenticated_transport": "Đăng nhập SMTP + TLS (không phải xác minh tên miền)"
+    },
+    "events": "có sự kiện giao thư",
+    "noEvents": "không có sự kiện giao thư",
+    "probedAt": "thăm dò {at}",
+    "state": {
+      "configured": "Đã xác nhận",
+      "unverified": "Chưa xác minh",
+      "authenticated_transport": "Đăng nhập được",
+      "sender_verified": "Đã xác minh",
+      "unsupported": "Không hỗ trợ",
+      "degraded": "Lỗi"
+    },
+    "reason": {
+      "probe_pending": "Đang chờ thăm dò",
+      "probe_failed": "Thăm dò thất bại",
+      "sender_inactive": "Người gửi chưa kích hoạt",
+      "sender_unconfirmed": "Chưa xác nhận người gửi",
+      "sandbox": "Chế độ thử",
+      "disconnected": "Đã ngắt kết nối",
+      "connection_error": "Kết nối lỗi",
+      "sender_changed": "Kết nối đã đổi",
+      "not_found": "Không còn người gửi",
+      "unusable": "Chưa dùng được"
+    },
+    "noteBrevo": "AppChat nhận trạng thái giao / mở / click / bounce từ Brevo qua webhook đã xác thực để báo cáo Marketing. Thư khách trả lời về địa chỉ trả lời — muốn đọc trong AppChat hãy kết nối kênh Email ở Hộp thư.",
+    "noteSmtp": "SMTP chỉ xác nhận máy chủ đã nhận thư — không có dữ liệu giao / mở / click. Thư khách trả lời không tự về AppChat; kết nối kênh Email ở Hộp thư nếu cần đọc phản hồi."
+  },
   "integrations": {
     "heroT": "Tích hợp ứng dụng",
     "heroS": "Kết nối AppChat với CRM, TMĐT, thanh toán, ERP và công cụ năng suất — tự động hoá toàn bộ luồng dữ liệu.",
@@ -666,7 +776,13 @@
       "account_number": "Số tài khoản nhận",
       "host": "SMTP host",
       "username": "Tài khoản",
-      "password": "Mật khẩu ứng dụng"
+      "password": "Mật khẩu ứng dụng",
+      "port": "Cổng SMTP (465 TLS / 587 STARTTLS)",
+      "sender_email": "Email người gửi",
+      "sender_name": "Tên người gửi",
+      "reply_to": "Email nhận trả lời (tuỳ chọn)",
+      "webhook_token": "Token webhook (bearer — để nhận sự kiện giao thư)",
+      "sender_confirmed": "Xác nhận đây là địa chỉ của doanh nghiệp (true)"
     },
     "modal": {
       "title": "Kết nối {n}",
@@ -938,7 +1054,8 @@
       "appts": "Lịch hẹn sắp tới",
       "loyalty": "Điểm & hạng thành viên",
       "signals": "Tín hiệu AI",
-      "summary": "Tóm tắt AI"
+      "summary": "Tóm tắt AI",
+      "packages": "Liệu trình"
     },
     "editor": {
       "title": "Tuỳ chỉnh Hồ sơ 360°",
@@ -1924,6 +2041,56 @@
         "not_vat": "Dòng \"không thay thế hoá đơn GTGT\" (tự chèn)"
       },
       "hint": "Chỉ là cảnh báo — các bên được tự thoả thuận, bạn vẫn lưu được mẫu."
+    }
+  },
+  "booking": {
+    "hours": "Giờ mở cửa nhận lịch",
+    "open": "Mở cửa",
+    "closed": "Nghỉ",
+    "closedHint": "Không nhận lịch ngày này",
+    "inheritHint": "Làm theo giờ mở cửa",
+    "from": "Từ",
+    "to": "Đến",
+    "dash": "–",
+    "step": "Bước lưới giờ hẹn",
+    "minutes": "{n} phút",
+    "buffer": "Thời gian đệm giữa hai lịch (phút)",
+    "noShow": "Khách không đến vẫn trừ 1 buổi liệu trình",
+    "futureNote": "Thay đổi chỉ áp cho lịch đặt sau này — lịch đã có giữ nguyên giờ, nhân sự và thời lượng.",
+    "reset": "Hoàn lại",
+    "save": "Lưu thay đổi",
+    "staff": "Nhân sự nhận lịch",
+    "addStaff": "Thêm nhân sự",
+    "noStaff": "Chưa có nhân sự nào. Thêm nhân sự để khách đặt được lịch — hệ thống không tự tạo nhân sự.",
+    "more": "Tải thêm",
+    "inactive": "Đã ngừng",
+    "inheritAll": "Theo giờ mở cửa",
+    "ownDays": "Nghỉ {closed} ngày · giờ riêng {custom} ngày",
+    "close": "Đóng",
+    "name": "Tên nhân sự",
+    "role": "Vai trò",
+    "ownSchedule": "Ca làm riêng",
+    "deactivate": "Ngừng nhận lịch",
+    "wd": {
+      "0": "Thứ Hai",
+      "1": "Thứ Ba",
+      "2": "Thứ Tư",
+      "3": "Thứ Năm",
+      "4": "Thứ Sáu",
+      "5": "Thứ Bảy",
+      "6": "Chủ nhật"
+    },
+    "mode": {
+      "inherit": "Theo giờ mở cửa",
+      "closed": "Nghỉ",
+      "custom": "Giờ riêng"
+    },
+    "err": {
+      "from_after_to": "Giờ bắt đầu phải trước giờ kết thúc",
+      "invalid_time": "Giờ không hợp lệ",
+      "invalid_day": "Thứ không hợp lệ",
+      "duplicate_day": "Trùng thứ",
+      "seven_days": "Cần đủ 7 ngày"
     }
   },
   "salesPolicy": {

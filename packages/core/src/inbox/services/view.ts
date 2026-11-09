@@ -45,6 +45,8 @@ export interface ConvExtras {
   members: Map<string, number>;
   /** Ảnh theo hội thoại (TIP-014b D) — đã ưu tiên ảnh nhân viên đặt. */
   avatars?: Map<string, string>;
+  /** Khách đã xoá mềm (TIP-015f) — hội thoại mang dấu `contact_deleted`. */
+  deletedContacts?: Set<string>;
 }
 
 export function toConversation(c: ConvRow, x: ConvExtras, p: Place): ConversationDto {
@@ -67,6 +69,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     unread: c.unreadCount,
     ...(group ? { members: x.members.get(c.id) ?? 0 } : {}),
     contact_id: c.contactId,
+    ...(c.contactId && x.deletedContacts?.has(c.contactId) ? { contact_deleted: true } : {}),
     pinned: c.pinned,
     ai_state: c.aiState,
     ai_mode: c.aiMode,

@@ -4,10 +4,11 @@
 // Đổi giờ giữ cùng mã (+1 lần dời), chỉ khi còn chờ / đã xác nhận. Cả hai hoàn tác 24 giờ.
 import { Inject, Injectable } from '@nestjs/common';
 import { uuidv7 } from '../../kernel/ids';
-import { AppError, holdUntil, normalizePhone, utcToWall, validateCustomValues, wallToUtc } from '@appchat/shared';
+import { AppError, holdUntil, nextDate, normalizePhone, utcToWall, validateCustomValues, wallToUtc } from '@appchat/shared';
 import type { ActionInput, appointmentCreate, appointmentFindSlots, appointmentList, appointmentReschedule } from '@appchat/actions';
 import { nextCode } from '../../kernel/sequence';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { lockContactRow } from '../../kernel/ownership/root-lock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { CrmMembers, actorUserId, createContact, editableContact, fieldDefs } from '../../crm/public';
@@ -16,6 +17,9 @@ import { BookingPlace } from '../services/booking-place';
 import { bookingScopeSql, lockAppointment } from '../booking-access';
 import { slotsFor, serviceOf } from '../services/slots';
 import { assertSlot } from '../services/appointment-edit';
+import { assertLocalTime, assertSlotDate, authorizedExclude } from '../operations/slot-policy';
+import { lockPackages, lockStaffRows } from '../operations/locks';
+import { undoCreate } from '../operations/undo';
 import { eventOf, guarded, matchingPackage, step, timeline } from '../services/appointment-write';
 import { createPreview, reschedulePreview } from './previews/appointment-book.handlers.preview';
 import { soleTeamOf } from '../../authz/data-access';
@@ -26,11 +30,18 @@ const sourceOf = (ctx: ActionContext) => (ctx.actor.type === 'agent' ? 'agent' :
 
 /** Khách của lịch: id có sẵn (phải sửa được) hoặc tìm / tạo theo số điện thoại + tên. */
 async function contactFor(ctx: ActionContext, tx: TenantTx, members: CrmMembers, input: CreateIn, now: Date) {
-  if (input.contact_id) return (await editableContact(tx, ctx.authz, input.contact_id)).contact;
+  // TIP-015d §2.3: khoá khách gốc rồi mới đọc quyền / người phụ trách (ảnh chụp trước khoá không quyết định).
+  if (input.contact_id) {
+    await lockContactRow(tx, input.contact_id);
+    return (await editableContact(tx, ctx.authz, input.contact_id)).contact;
+  }
   const phone = normalizePhone(input.phone);
   if (phone) {
     const found = await tx.contact.findFirst({ where: { phoneNorm: phone, deletedAt: null } });
-    if (found) return (await editableContact(tx, ctx.authz, found.id)).contact;
+    if (found) {
+      await lockContactRow(tx, found.id);
+      return (await editableContact(tx, ctx.authz, found.id)).contact;
+    }
   }
   const me = actorUserId(ctx);
   return createContact(tx, { full_name: input.contact_name, ...(input.phone ? { phone: input.phone } : {}) }, { workspaceId: ctx.workspaceId, authz: ctx.authz, roleKey: ctx.authz.isOwner ? 'owner' : await members.roleOf(ctx.workspaceId, me), actorUserId: me, now, members, skipRequiredCustom: true });
@@ -46,7 +57,9 @@ export class AppointmentFindSlotsHandler implements Handler<ActionInput<typeof a
 
   async execute(ctx: ActionContext, input: ActionInput<typeof appointmentFindSlots>, tx: TenantTx) {
     const { timeZone } = await this.place.of(ctx.workspaceId);
-    const slots = await slotsFor(tx, { serviceId: input.service_id, date: input.date, staffId: input.staff_id, excludeId: input.exclude_id, timeZone, now: this.clock.now() });
+    assertSlotDate(input.date);
+    const excludeId = await authorizedExclude(tx, ctx.authz, input.exclude_id);
+    const slots = await slotsFor(tx, { serviceId: input.service_id, date: input.date, staffId: input.staff_id, excludeId, timeZone, now: this.clock.now() });
     return { result: { slots } };
   }
 }
@@ -59,7 +72,7 @@ export class AppointmentListHandler implements Handler<ActionInput<typeof appoin
   async execute(ctx: ActionContext, input: ActionInput<typeof appointmentList>, tx: TenantTx) {
     const { timeZone } = await this.place.of(ctx.workspaceId);
     const from = wallToUtc(input.from, '00:00', timeZone);
-    const to = new Date(wallToUtc(input.to, '00:00', timeZone).getTime() + 86_400_000);
+    const to = wallToUtc(nextDate(input.to), '00:00', timeZone);
     const ids = await tx.$queryRaw<{ id: string }[]>`SELECT a.id FROM appointment a WHERE a.deleted_at IS NULL AND a.start_at >= ${from} AND a.start_at < ${to} AND ${bookingScopeSql(ctx.authz)} ORDER BY a.start_at LIMIT 200`;
     const rows = await tx.appointment.findMany({ where: { id: { in: ids.map((r) => r.id) } }, orderBy: { startAt: 'asc' } });
     const list = rows.filter((a) => (!input.staff_id || a.staffId === input.staff_id) && (!input.status || a.status === input.status) && (!input.contact_id || a.contactId === input.contact_id));
@@ -90,13 +103,17 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
     const now = this.clock.now();
     const { timeZone } = await this.place.of(ctx.workspaceId);
     const svc = await serviceOf(tx, input.service_id);
+    const startAt = assertLocalTime(input.date, input.start, timeZone);
     await assertSlot(tx, { serviceId: svc.id, staffId: input.staff_id, date: input.date, start: input.start, timeZone, now });
     const errs = validateCustomValues(await fieldDefs(tx, 'appointment'), input.custom, ctx.authz.isOwner ? 'owner' : await this.members.roleOf(ctx.workspaceId, actorUserId(ctx)), 'create');
     if (Object.keys(errs).length) throw new AppError('VALIDATION_FAILED', 422, errs);
     // TIP-025b §D.1: hội thoại nguồn kiểm trước — 1-1 lấy đúng khách của hội thoại; lệch / chưa liên kết → lỗi rõ (không âm thầm bỏ).
     const link = await linkConversation(tx, ctx.authz, input.contact_id, input, { served: ctx.servedConversationId });
     const contact = await contactFor(ctx, tx, this.members, link.contactId ? { ...input, contact_id: link.contactId } : input, now);
-    const startAt = wallToUtc(input.date, input.start, timeZone);
+    // TIP-033b §2.1: khách (đã khoá ở contactFor) → liệu trình của khách → nhân sự; kiểm lại slot dưới khoá (ngừng nhân sự / đổi ca song song).
+    await lockPackages(tx, contact.id);
+    await lockStaffRows(tx, [input.staff_id]);
+    await assertSlot(tx, { serviceId: svc.id, staffId: input.staff_id, date: input.date, start: input.start, timeZone, now });
     const endAt = new Date(startAt.getTime() + svc.duration * 60_000);
     const status = input.status ?? 'pending';
     const pkg = await matchingPackage(tx, contact.id, svc.id, startAt);
@@ -137,17 +154,13 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
     await timeline(tx, row, 'appointment_booked', { service: svc.name, at: `${input.date} ${input.start}` }, actor, now);
     return {
       result: { appointment_id: row.id, code, package_id: row.packageId },
-      after: { id: row.id },
+      after: { id: row.id, version: row.version },
       events: [{ topic: 'appointment.created', payload: eventOf(row, timeZone) }],
     };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const { id } = log.after as { id: string };
-    const a = await tx.appointment.findUnique({ where: { id } });
-    if (!a || a.deletedAt) return;
-    if (a.status !== 'pending' && a.status !== 'confirmed') throw new AppError('CONFLICT', 409, { appointment_id: 'changed' });
-    await tx.appointment.update({ where: { id }, data: { deletedAt: this.clock.now() } });
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: CreateIn, tx: TenantTx) {
@@ -165,16 +178,16 @@ export class AppointmentRescheduleHandler implements Handler<ActionInput<typeof 
 
   async execute(ctx: ActionContext, input: ActionInput<typeof appointmentReschedule>, tx: TenantTx): Promise<HandlerOutcome<{ appointment_id: string; status: string }>> {
     const now = this.clock.now();
-    const a = await lockAppointment(tx, ctx.authz, input.appointment_id);
+    const a = await lockAppointment(tx, ctx.authz, input.appointment_id, { staffIds: input.staff_id ? [input.staff_id] : [] });
     const to = step(a, 'appointment.reschedule');
     const { timeZone } = await this.place.of(ctx.workspaceId);
     const staffId = input.staff_id ?? a.staffId;
     const svc = await serviceOf(tx, a.serviceId);
+    const startAt = assertLocalTime(input.date, input.start, timeZone);
     await assertSlot(tx, { serviceId: a.serviceId, staffId, date: input.date, start: input.start, excludeId: a.id, timeZone, now });
-    const startAt = wallToUtc(input.date, input.start, timeZone);
     const len = a.endAt.getTime() - a.startAt.getTime();
     const endAt = new Date(startAt.getTime() + len);
-    const before = { id: a.id, staff_id: a.staffId, start_at: a.startAt.toISOString(), end_at: a.endAt.toISOString(), block_end_at: a.blockEndAt.toISOString(), hold: a.holdExpiresAt?.toISOString() ?? null, reminders: a.remindersSent };
+    const before = { id: a.id, status: a.status, staff_id: a.staffId, start_at: a.startAt.toISOString(), end_at: a.endAt.toISOString(), block_end_at: a.blockEndAt.toISOString(), hold: a.holdExpiresAt?.toISOString() ?? null, reminders: a.remindersSent };
     const row = await guarded(() =>
       tx.appointment.update({
         where: { id: a.id },
@@ -193,18 +206,24 @@ export class AppointmentRescheduleHandler implements Handler<ActionInput<typeof 
       }),
     );
     await timeline(tx, row, 'appointment_rescheduled', { at: `${input.date} ${input.start}` }, actorOf(ctx), now);
-    return { result: { appointment_id: row.id, status: row.status }, before, events: [{ topic: 'appointment.rescheduled', payload: eventOf(row, timeZone) }] };
+    return { result: { appointment_id: row.id, status: row.status }, before: { ...before, after_version: row.version }, events: [{ topic: 'appointment.rescheduled', payload: eventOf(row, timeZone) }] };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as { id: string; staff_id: string; start_at: string; end_at: string; block_end_at: string; hold: string | null; reminders: object[] };
-    await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${b.id}::uuid FOR UPDATE`;
-    const a = await tx.appointment.findUnique({ where: { id: b.id } });
-    if (!a || (a.status !== 'pending' && a.status !== 'confirmed')) throw new AppError('CONFLICT', 409, { appointment_id: 'changed' });
+  // Hoàn tác dời (§2.6): đúng version sau-ghi + quyền ghi hiện tại; giữ chỗ cũ của lịch chờ phải còn hạn (không bịa); EXCLUDE kiểm khung cũ.
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    const b = log.before as { id: string; status?: string; staff_id: string; start_at: string; end_at: string; block_end_at: string; hold: string | null; reminders: object[]; after_version?: number };
+    const now = this.clock.now();
+    const changed = () => new AppError('CONFLICT', 409, { appointment_id: 'changed' });
+    if (b.after_version === undefined) throw changed();
+    await lockAppointment(tx, ctx.authz, b.id, { staffIds: [b.staff_id] });
+    const a = await tx.appointment.findUniqueOrThrow({ where: { id: b.id } });
+    if (a.version !== b.after_version || (a.status !== 'pending' && a.status !== 'confirmed')) throw changed();
+    const hold = b.hold ? new Date(b.hold) : null;
+    if (a.status === 'pending' && (!hold || hold <= now)) throw changed();
     await guarded(() =>
       tx.appointment.update({
         where: { id: b.id },
-        data: { staffId: b.staff_id, startAt: new Date(b.start_at), endAt: new Date(b.end_at), blockEndAt: new Date(b.block_end_at), holdExpiresAt: b.hold ? new Date(b.hold) : null, remindersSent: b.reminders, rescheduleCount: { decrement: 1 }, updatedAt: this.clock.now() },
+        data: { staffId: b.staff_id, startAt: new Date(b.start_at), endAt: new Date(b.end_at), blockEndAt: new Date(b.block_end_at), holdExpiresAt: a.status === 'pending' ? hold : null, remindersSent: b.reminders, rescheduleCount: { decrement: 1 }, version: { increment: 1 }, updatedAt: now },
       }),
     );
   }

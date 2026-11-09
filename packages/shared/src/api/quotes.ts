@@ -29,8 +29,12 @@ export const quoteRowSchema = z.object({
   phone: z.string(),
   /** Khách cũ (đã có đơn / báo giá được chấp nhận trước đó). */
   returning: z.boolean(),
+  /** Người tạo tính doanh số (COMMERCE §8b) — bất biến sau khi tạo. */
   owner_user_id: z.string(),
   owner_name: z.string(),
+  /** Người phụ trách vận hành hiện tại (TIP-015d) — đổi theo chuyển phụ trách khách; '' = chưa giao. */
+  assigned_user_id: z.string(),
+  assigned_name: z.string(),
   status: z.enum(QUOTE_STATUSES),
   items: z.array(quoteItemSchema),
   header_discount: discount.nullable(),

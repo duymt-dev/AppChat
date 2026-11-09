@@ -20,52 +20,56 @@ enum QuoteStatus {
 /// Báo giá (Blueprint §2.2, COMMERCE §3). Mỗi lần sửa sau khi gửi = phiên bản n+1 cùng `code` (D46): bản mới `draft`, bản cũ
 /// `revision_requested` → `superseded` khi bản mới được gửi. Tiền chưa VAT ở dòng; tổng tính bằng `quoteTotals` lúc ghi.
 model Quote {
-  id                String      @id @db.Uuid
-  code              String
-  version           Int         @default(1)
+  id                 String      @id @db.Uuid
+  code               String
+  version            Int         @default(1)
   /// Bản đầu của chuỗi phiên bản (bản đầu: = id).
-  rootQuoteId       String      @map("root_quote_id") @db.Uuid
-  contactId         String      @map("contact_id") @db.Uuid
-  /// Phụ trách lúc tạo (tính doanh số) — chuyển theo khách khi `contact.owner_changed` có move.quotes (§8b).
-  ownerUserId       String?     @map("owner_user_id") @db.Uuid
+  rootQuoteId        String      @map("root_quote_id") @db.Uuid
+  contactId          String      @map("contact_id") @db.Uuid
+  /// Người tạo tính doanh số (COMMERCE §8b) — BẤT BIẾN sau khi tạo (trigger `quote_assignment_guard`), KPI / báo cáo theo cột này.
+  ownerUserId        String?     @map("owner_user_id") @db.Uuid
+  /// Người phụ trách VẬN HÀNH (TIP-015d): scope own, nhắc T-2, chuyển theo khách. null = chưa giao (không fallback về owner).
+  assignedUserId     String?     @map("assigned_user_id") @db.Uuid
+  /// Trigger tăng khi đổi `assigned_user_id` — KHÔNG dùng `version` (phiên bản thương mại) làm khoá dòng.
+  assignmentRevision Int         @default(0) @map("assignment_revision")
   /// Nhóm của bản ghi — scope `team` (DC-299, TIP-042c); chụp lúc tạo, không đổi theo nhóm người phụ trách. Null = mơ hồ.
-  teamId            String?     @map("team_id") @db.Uuid
-  templateId        String?     @map("template_id") @db.Uuid
-  templateVersion   Int?        @map("template_version")
-  conversationId    String?     @map("conversation_id") @db.Uuid
-  status            QuoteStatus @default(draft)
-  subtotal          BigInt      @default(0)
-  lineDiscountTotal BigInt      @default(0) @map("line_discount_total")
+  teamId             String?     @map("team_id") @db.Uuid
+  templateId         String?     @map("template_id") @db.Uuid
+  templateVersion    Int?        @map("template_version")
+  conversationId     String?     @map("conversation_id") @db.Uuid
+  status             QuoteStatus @default(draft)
+  subtotal           BigInt      @default(0)
+  lineDiscountTotal  BigInt      @default(0) @map("line_discount_total")
   /// `{ kind: 'pct' | 'amount', value }` hoặc null.
-  headerDiscount    Json?       @map("header_discount")
-  discountTotal     BigInt      @default(0) @map("discount_total")
-  taxTotal          BigInt      @default(0) @map("tax_total")
-  total             BigInt      @default(0)
-  validDays         Int         @default(15) @map("valid_days")
+  headerDiscount     Json?       @map("header_discount")
+  discountTotal      BigInt      @default(0) @map("discount_total")
+  taxTotal           BigInt      @default(0) @map("tax_total")
+  total              BigInt      @default(0)
+  validDays          Int         @default(15) @map("valid_days")
   /// = cuối ngày (sent_at + valid_days) theo giờ workspace; null khi chưa gửi.
-  validUntil        DateTime?   @map("valid_until") @db.Timestamptz(6)
+  validUntil         DateTime?   @map("valid_until") @db.Timestamptz(6)
   /// Đã nhắc sắp hết hạn (T-2) cho lần hiệu lực hiện tại.
-  remindedAt        DateTime?   @map("reminded_at") @db.Timestamptz(6)
-  viewedAt          DateTime?   @map("viewed_at") @db.Timestamptz(6)
-  orderId           String?     @map("order_id") @db.Uuid
-  note              String      @default("")
-  gift              String      @default("")
-  paymentTerms      String      @default("") @map("payment_terms")
+  remindedAt         DateTime?   @map("reminded_at") @db.Timestamptz(6)
+  viewedAt           DateTime?   @map("viewed_at") @db.Timestamptz(6)
+  orderId            String?     @map("order_id") @db.Uuid
+  note               String      @default("")
+  gift               String      @default("")
+  paymentTerms       String      @default("") @map("payment_terms")
   /// Có dòng ngoài danh mục (AI soạn — buộc duyệt, COMMERCE §12).
-  offCatalog        Boolean     @default(false) @map("off_catalog")
-  createdByType     String      @default("user") @map("created_by_type")
-  createdById       String?     @map("created_by_id")
-  approvedBy        String?     @map("approved_by") @db.Uuid
-  sentAt            DateTime?   @map("sent_at") @db.Timestamptz(6)
-  sentChannel       String?     @map("sent_channel")
-  decidedAt         DateTime?   @map("decided_at") @db.Timestamptz(6)
+  offCatalog         Boolean     @default(false) @map("off_catalog")
+  createdByType      String      @default("user") @map("created_by_type")
+  createdById        String?     @map("created_by_id")
+  approvedBy         String?     @map("approved_by") @db.Uuid
+  sentAt             DateTime?   @map("sent_at") @db.Timestamptz(6)
+  sentChannel        String?     @map("sent_channel")
+  decidedAt          DateTime?   @map("decided_at") @db.Timestamptz(6)
   /// PDF đóng băng lúc gửi (templates.md §7).
-  fileId            String?     @map("file_id") @db.Uuid
-  fileSha256        String?     @map("file_sha256")
-  custom            Json        @default("{}")
-  createdAt         DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt         DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
-  deletedAt         DateTime?   @map("deleted_at") @db.Timestamptz(6)
+  fileId             String?     @map("file_id") @db.Uuid
+  fileSha256         String?     @map("file_sha256")
+  custom             Json        @default("{}")
+  createdAt          DateTime    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime    @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  deletedAt          DateTime?   @map("deleted_at") @db.Timestamptz(6)
 
   items    QuoteItem[]
   comments QuoteComment[]

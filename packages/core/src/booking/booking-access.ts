@@ -5,6 +5,7 @@
 import { TenantSql as Prisma } from '@appchat/db';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../kernel/actions/action-context';
+import { lockAppointmentChain, type ChainOpts } from './operations/locks';
 import { POLICIES, allows, docColumns, guardRecord, recordScopeSql, type AccessMode } from '../authz/data-access';
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -31,8 +32,9 @@ export async function visibleAppointment(tx: TenantTx, authz: AuthzContext, id: 
   return a;
 }
 
-/** Khoá dòng lịch (concurrency §2) rồi kiểm quyền GHI. */
-export async function lockAppointment(tx: TenantTx, authz: AuthzContext, id: string): Promise<AppointmentRecord> {
-  if (UUID.test(id)) await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${id}::uuid FOR UPDATE`;
+/** Khoá chuỗi của lịch (concurrency §2) rồi kiểm quyền GHI. */
+export async function lockAppointment(tx: TenantTx, authz: AuthzContext, id: string, o?: ChainOpts): Promise<AppointmentRecord> {
+  // TIP-015d §2.3 / TIP-033b §2.1: khách gốc → liệu trình → nhân sự → lịch (operations/locks.ts).
+  await lockAppointmentChain(tx, id, o);
   return visibleAppointment(tx, authz, id, 'write');
 }

@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0 };
 
 const expectSchema = z
   .object({
@@ -60,9 +60,23 @@ const expectSchema = z
     transfer: z.literal(true).optional(),
     /** Ca toàn vẹn runtime TIP-019b AC10 (runtime-judge.ts): chấm theo trạng thái run thật (`GET /runs/:id`) + credit cây. */
     runtime: z.literal(true).optional(),
+    /** Ca hoạt động CRM TIP-026b (activity-judge.ts): chấm theo hoạt động thật của khách / kế hoạch nhập / việc xuất. */
+    activity: z.literal(true).optional(),
+    /** Ca chuyển phụ trách TIP-015d (ctransfer-judge.ts): chấm theo yêu cầu duyệt / người phụ trách / báo giá thật. */
+    ctransfer: z.literal(true).optional(),
+    /** Ca sửa đơn / hợp đồng TIP-032c (cedit-judge.ts): chấm theo người tạo / người phụ trách / phiên bản / tệp xuất thật. */
+    cedit: z.literal(true).optional(),
+    /** Ca vòng đời khách TIP-015f (lifecycle-judge.ts): chấm theo thùng rác / khách sống / đơn sàn / tệp xuất thật. */
+    lifecycle: z.literal(true).optional(),
+    /** Ca gộp khách TIP-015e (merge-judge.ts): chấm theo khách sống / đơn theo họ / tệp xuất thật. */
+    merge: z.literal(true).optional(),
+    /** Ca mail của DN TIP-012c (tenant-mail-judge.ts): chấm theo chiến dịch / biên nhận / lượt gọi provider / tệp xuất thật. */
+    tenant_mail: z.literal(true).optional(),
+    /** Ca lịch hẹn + liệu trình TIP-033b (booking-judge.ts): chấm theo lịch / cấu hình / agent / tệp xuất / số buổi thật. */
+    booking: z.literal(true).optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -94,6 +108,29 @@ export const caseSchema = z
     insights: z.object({ kind: z.enum(['owner_money', 'sales_scope', 'at_risk']) }).strict().optional(),
     /** Ca toàn vẹn runtime TIP-019b AC10: loại ca + tiện ích phải thấy (`utility`) — runtime-seed.mjs (agent Sales gửi báo giá cần duyệt, agent CSKH tra cứu). */
     runtime: z.object({ kind: z.enum(['approval_resume', 'cancel_parent', 'delegate_pair', 'utility', 'export', 'refuse']), tool: z.string().max(120).optional() }).strict().optional(),
+    /** Ca hoạt động CRM TIP-026b: loại ca + action người chấm xác nhận + chuỗi phải có (`$TAG` = khoá lượt) + tập nhập / action xuất. */
+    activity: z
+      .object({
+        kind: z.enum(['note', 'task', 'quote_form', 'refuse', 'hidden', 'import', 'export']),
+        accept: z.array(z.string().regex(/^[a-z_]+\.[a-z0-9_.]+$/)).max(6).optional(),
+        needle: z.string().max(120).optional(),
+        dataset: z.enum(['contact_notes', 'contact_tasks', 'contact_opportunities']).optional(),
+        export: z.enum(['contact_note.export', 'contact_task.export', 'contact_opportunity.export']).optional(),
+      })
+      .strict()
+      .optional(),
+    /** Ca chuyển phụ trách TIP-015d: loại ca (ctransfer-judge.ts) — khách theo khoá lượt từ contact-transfer/seed.mjs. */
+    ctransfer: z.object({ kind: z.enum(['approval', 'approve', 'attribution', 'bulk', 'status', 'refuse', 'no_bypass', 'undo_truth']) }).strict().optional(),
+    /** Ca vòng đời khách TIP-015f: loại ca (lifecycle-judge.ts) — bộ theo khoá lượt từ contact-lifecycle/seed.mjs. */
+    lifecycle: z.object({ kind: z.enum(['blocked', 'allowed', 'expired', 'conflict', 'denied', 'inbound', 'external', 'export']) }).strict().optional(),
+    /** Ca gộp khách TIP-015e: loại ca (merge-judge.ts) — bộ theo khoá lượt từ contact-merge/seed.mjs. */
+    merge: z.object({ kind: z.enum(['candidates', 'explain', 'selected', 'acl', 'stale', 'undo', 'history', 'file']) }).strict().optional(),
+    /** Ca mail của DN TIP-012c: loại ca (tenant-mail-judge.ts) — bộ theo khoá lượt từ tenant-mail/seed.mjs. */
+    tenant_mail: z.object({ kind: z.enum(['secret', 'probe', 'approval', 'rotation', 'unknown', 'evidence', 'file', 'manual']) }).strict().optional(),
+    /** Ca lịch hẹn + liệu trình TIP-033b: loại ca (booking-judge.ts) — bộ theo khoá lượt từ booking-operations/seed.mjs. */
+    booking: z.object({ kind: z.enum(['entitlement', 'expired', 'conflict', 'exhausted', 'hours', 'agent', 'export', 'import']) }).strict().optional(),
+    /** Ca sửa đơn / hợp đồng TIP-032c: loại ca (cedit-judge.ts) — bộ theo khoá lượt từ commerce-edit-integrity/seed.mjs. */
+    cedit: z.object({ kind: z.enum(['assign', 'owner', 'marketplace', 'concurrent', 'deposit', 'shipping', 'transfer', 'export']) }).strict().optional(),
     /** Ca nhập / xuất TIP-038b: thực thể + tệp seed (data-transfer-seed.mjs — khoá theo thực thể khi bỏ trống). */
     transfer: z
       .object({ kind: z.enum(['import', 'export']), entity: z.enum(['contact', 'product', 'quote', 'order', 'contract', 'invoice']), file: z.enum(['contacts', 'products', 'quotes', 'orders', 'contracts', 'invoices']).optional() })

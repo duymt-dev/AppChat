@@ -1,5 +1,5 @@
 // Ma trận order.create_from_quote (TIP-023b): từ báo giá đã chốt → khách + dòng của báo giá + tổng + mã báo giá; chưa chốt → 409; đã có đơn →
-// preview báo `existing:<mã>`. 403 cs · id lạ 404 · undo xoá đơn + gỡ liên kết báo giá.
+// preview báo `existing:<mã>`. 403 cs · id lạ 404 · undo = huỷ đơn giữ lịch sử + giữ liên kết báo giá (TIP-032c).
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
@@ -33,7 +33,8 @@ describe('order.create_from_quote', () => {
     const code = done.body.data.result.code;
     expect((await m.act({ quote_id: quote.quote_id }, undefined, { 'x-action-source': 'assistant' })).body.data.preview).toEqual({ summary: `${code} · Chị Lan ĐH`, risk: 'write', changes: [], warnings: [`existing:${code}`] });
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
-    expect((await (await m.db()).quote.findUniqueOrThrow({ where: { id: quote.quote_id } })).orderId).toBeNull();
+    const oid = (await (await m.db()).quote.findUniqueOrThrow({ where: { id: quote.quote_id } })).orderId!;
+    expect((await (await m.db()).order.findUniqueOrThrow({ where: { id: oid } })).status).toBe('cancelled');
   });
 
   it('ô không áp dụng có lý do', () => {

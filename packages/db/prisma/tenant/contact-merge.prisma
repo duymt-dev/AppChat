@@ -1,0 +1,48 @@
+// tenant/contact-merge.prisma — sở hữu: TIP-015e (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Biên nhận gộp khách (TIP-015e §4): một dòng mỗi đơn vị gộp + dòng con liên kết gốc của bản ghi CRM đã dời. Hoàn tác có điều kiện 7 ngày
+// (cửa sổ yêu cầu — phiên bản sau gộp / ACL phải còn nguyên). Không PII; dữ liệu kinh doanh (đơn / hoá đơn / sổ điểm) không dời.
+
+enum ContactMergeState {
+  merged
+  undone
+  expired
+
+  @@map("contact_merge_state")
+}
+
+model ContactMergeReceipt {
+  id                  String            @id @db.Uuid
+  operationId         String            @unique(map: "contact_merge_receipt_operation_key") @map("operation_id")
+  primaryId           String            @map("primary_id") @db.Uuid
+  sourceIds           String[]          @map("source_ids") @db.Uuid
+  actorUserId         String?           @map("actor_user_id") @db.Uuid
+  state               ContactMergeState @default(merged)
+  primaryVersionAfter Int               @map("primary_version_after")
+  /// { source_id: version sau gộp }.
+  sourceVersionsAfter Json              @map("source_versions_after")
+  /// Dấu (chủ + ACL user/role) của họ khách tại lúc gộp — đổi sau đó → không hoàn tác.
+  aclFingerprint      String            @map("acl_fingerprint")
+  /// Trường đã lấp vào bản chính: { field: value } (hoàn tác chỉ xoá khi giá trị còn đúng).
+  fill                Json              @default("{}")
+  memoryReceiptId     String?           @map("memory_receipt_id") @db.Uuid
+  timelineEventId     String?           @map("timeline_event_id") @db.Uuid
+  expiresAt           DateTime          @map("expires_at") @db.Timestamptz(6)
+  undoneAt            DateTime?         @map("undone_at") @db.Timestamptz(6)
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  items               ContactMergeReceiptItem[]
+
+  @@index([primaryId, createdAt(sort: Desc)], map: "contact_merge_receipt_primary_idx")
+  @@map("contact_merge_receipt")
+}
+
+model ContactMergeReceiptItem {
+  receiptId     String              @map("receipt_id") @db.Uuid
+  /// identity | note | task | opportunity | tag | timeline
+  kind          String
+  entityId      String              @map("entity_id")
+  fromContactId String              @map("from_contact_id") @db.Uuid
+  receipt       ContactMergeReceipt @relation(fields: [receiptId], references: [id], onDelete: Cascade, map: "contact_merge_receipt_item_receipt_fkey")
+
+  @@id([receiptId, kind, entityId])
+  @@map("contact_merge_receipt_item")
+}

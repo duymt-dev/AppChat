@@ -7,6 +7,7 @@ import { inboxHandlers } from './domains/inbox';
 import { inboxBulkHandlers } from './domains/inbox-bulk';
 import { inboxGroupHandlers } from './domains/inbox-groups';
 import { customersHandlers } from './domains/customers';
+import { contactLifecycleHandlers } from './domains/contact-lifecycle';
 import { contactEditHandlers } from './domains/contact-edit';
 import { inboxTranslationHandlers } from './domains/inbox-translation';
 import { assistantHandlers } from './domains/assistant';
@@ -109,6 +110,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...inboxBulkHandlers,
   ...inboxGroupHandlers,
   ...customersHandlers,
+  ...contactLifecycleHandlers,
   ...contactEditHandlers,
   ...inboxTranslationHandlers,
   ...dataJobsHandlers,

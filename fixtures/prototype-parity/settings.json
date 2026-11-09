@@ -420,9 +420,13 @@
       "color": "#0B996E",
       "status": "ga",
       "connected": true,
-      "opens": null,
+      "opens": "email_mkt",
       "fields": [
-        "api_key"
+        "api_key",
+        "sender_email",
+        "sender_name",
+        "reply_to",
+        "webhook_token"
       ],
       "interest": false
     },
@@ -433,11 +437,16 @@
       "color": "#4285F4",
       "status": "ga",
       "connected": false,
-      "opens": null,
+      "opens": "email_mkt",
       "fields": [
         "host",
         "username",
-        "password"
+        "password",
+        "port",
+        "sender_email",
+        "sender_name",
+        "reply_to",
+        "sender_confirmed"
       ],
       "interest": false
     },

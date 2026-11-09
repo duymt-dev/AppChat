@@ -100,12 +100,12 @@ describe('kênh + nhập / xuất', () => {
     const acc2 = uuidv7();
     const r1 = await db.$transaction((tx) => svc.resolve(tx, { channelType: 'zalo_personal', channelAccountId: acc1, externalId: 'zl-1', displayName: 'Chị Hoa', phone: '+84 977 111 222' }, h.clock.now()));
     expect(r1).toMatchObject({ created: true, events: [{ topic: 'contact.created' }] });
-    expect(await db.contact.findUniqueOrThrow({ where: { id: r1.contactId } })).toMatchObject({ name: 'Chị Hoa', source: 'zalo_personal', ownerUserId: null, stage: 'lead', phoneNorm: '0977111222' });
+    expect(await db.contact.findUniqueOrThrow({ where: { id: r1.contactId! } })).toMatchObject({ name: 'Chị Hoa', source: 'zalo_personal', ownerUserId: null, stage: 'lead', phoneNorm: '0977111222' });
     const r2 = await db.$transaction((tx) => svc.resolve(tx, { channelType: 'zalo_personal', channelAccountId: acc1, externalId: 'zl-1' }, h.clock.now()));
-    expect(r2).toEqual({ contactId: r1.contactId, created: false, events: [] });
+    expect(r2).toEqual({ contactId: r1.contactId, created: false, state: 'active', events: [] });
     const r3 = await db.$transaction((tx) => svc.resolve(tx, { channelType: 'email', channelAccountId: acc2, externalId: 'hoa@mail.vn', phone: '0977 111 222' }, h.clock.now()));
     expect(r3).toMatchObject({ contactId: r1.contactId, created: false });
-    expect(await db.contactIdentity.count({ where: { contactId: r1.contactId } })).toBe(2);
+    expect(await db.contactIdentity.count({ where: { contactId: r1.contactId! } })).toBe(2);
   });
 
   it('AC11 contact.import (preview → tạo / trùng / của người khác / lỗi) + hoàn tác; contact.export CSV đúng scope; send_email chưa có tài khoản email → 409', async () => {
@@ -134,7 +134,9 @@ describe('kênh + nhập / xuất', () => {
     expect(csv).not.toContain('Phạm An');
 
     await undo(done.body.data.action_log_id);
-    expect(await db.contact.findFirst({ where: { name: 'Phạm An' } })).toBeNull();
+    // TIP-015f §5.2: hoàn tác nhập = xoá mềm (giữ dòng + biên nhận).
+    expect(await db.contact.findFirst({ where: { name: 'Phạm An', deletedAt: null } })).toBeNull();
+    expect((await db.contact.findFirstOrThrow({ where: { name: 'Phạm An' } })).deletedAt).not.toBeNull();
 
     expect((await act('contact.send_email', { contact_id: own, from: 'cskh@spa.vn', to: 'x@y.vn', subject: 'Chào', body: 'Nội dung' }, idem())).body.error).toMatchObject({ code: 'INVALID_STATE', fields: { connector: 'email' } });
   });

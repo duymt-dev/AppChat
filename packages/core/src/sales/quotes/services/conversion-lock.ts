@@ -6,6 +6,7 @@
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { lockQuote, type QuoteRecord } from '../quote-access';
+import { lockRootOf } from '../../../kernel/ownership/root-lock';
 
 export type ConversionKind = 'contract' | 'order';
 
@@ -26,6 +27,8 @@ async function convertedTo(tx: TenantTx, quoteId: string) {
 
 /** Khoá báo giá + kiểm chặn chéo. Gọi trong transaction của action, trước khi tạo chứng từ. */
 export async function lockConversion(tx: TenantTx, authz: AuthzContext, quoteId: string, kind: ConversionKind): Promise<Conversion> {
+  // TIP-015f §2.5: khách → báo giá (chứng từ tạo sau đó khoá lại cùng khách — không đảo thứ tự).
+  await lockRootOf(tx, 'quote', quoteId);
   const quote = await lockQuote(tx, authz, quoteId);
   const done = await convertedTo(tx, quote.id);
   const other = kind === 'contract' ? done.order : done.contract;

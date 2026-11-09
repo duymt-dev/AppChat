@@ -4,7 +4,7 @@ export type { QuoteFilter } from './quotes/repos/quotes.repo';
 export { QuoteDeps } from './quotes/services/quote-deps';
 export { quoteToken, readQuoteToken } from './quotes/services/quote-link';
 export { sweepQuotes, quoteOwnerConsumer, QUOTE_SWEEP_JOB, SALES_SCHEDULER_QUEUE } from './jobs/sales.jobs.module';
-export { expireDue, remindExpiring, markViewed, moveOpenQuotes } from './quotes/services/quote-system';
+export { expireDue, remindExpiring, markViewed } from './quotes/services/quote-system';
 export { intentByRules, matchCatalog, parseIntent } from './quotes/services/quote-draft';
 export { visibleQuote } from './quotes/quote-access';
 export { lockConversion } from './quotes/services/conversion-lock';
@@ -28,3 +28,6 @@ export { sweepPayments, paymentPackagesConsumer, PAYMENT_SWEEP_JOB } from './job
 export { PublicDocumentService } from './documents/public-document';
 export { issueDocumentLink, type DocumentKind } from './documents/document-link';
 export { redactLink } from './documents/public-token';
+// TIP-033b: reader liệu trình dùng chung (HTTP / lịch hẹn / tệp xuất).
+export { listPackages, packagesFor, packageExportIds, packageExportRows, PACKAGE_LIMIT, PACKAGE_MAX, type PackageListInput } from './payments/packages/read.service';
+export type { PackageDto } from './payments/packages/projection';

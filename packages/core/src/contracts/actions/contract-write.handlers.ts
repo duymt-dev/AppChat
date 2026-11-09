@@ -1,5 +1,5 @@
 // contract.create · create_from_quote · update · delete · renew (Blueprint §3.4; COMMERCE §9). Mã `HĐ-{n}` theo sequence; người làm
-// hợp đồng lúc tạo ghi `owner_user_id` (doanh số — §8b). Sửa / xoá chỉ ở `draft` (CONTRACT_FLOW); xoá = xoá mềm (validation-defaults
+// hợp đồng lúc tạo ghi `owner_user_id` (doanh số — §8b, bất biến; người phụ trách vận hành `assigned_user_id` — TIP-032c). Sửa / xoá chỉ ở `draft` (CONTRACT_FLOW); xoá = xoá mềm (validation-defaults
 // §4.5). "→ Hợp đồng" chỉ từ báo giá đã chốt, mỗi báo giá một hợp đồng. Gia hạn = hợp đồng MỚI (`renewal_of_id`, bắt đầu từ ngày kết
 // thúc cũ) — lại qua duyệt + ký.
 import { Inject, Injectable } from '@nestjs/common';
@@ -14,11 +14,15 @@ import { linkConversation } from '../../inbox/public';
 import { lockConversion } from '../../sales/public';
 import type { GuardedDocument } from '../../documents/public';
 import { lockContract } from '../contract-access';
+import { editContract } from '../editing/contract-edit';
+import { undoContractEdit } from '../editing/contract-undo';
+import { undoContractDelete } from '../editing/contract-create-undo';
+import { contractVersion, lockContractVersion } from '../editing/contract-version';
 import { createPreview, deletePreview, fromQuotePreview, renewPreview, updatePreview } from './previews/contract-write.handlers.preview';
-import { checkDates, fieldCols } from '../services/contract-write';
 import { ContractDeps } from '../services/contract-deps';
 import { guardUpload, sourceCols } from '../files/source';
-import { insertContract, undoCreate } from './contract-create';
+import { createdAfter, insertContract, undoCreate } from './contract-create';
+import { lockRootOf } from '../../kernel/ownership/root-lock';
 
 type Out = { contract_id: string; code: string };
 
@@ -48,11 +52,11 @@ export class ContractCreateHandler implements Handler<ActionInput<typeof contrac
     const fields = { ...input, source: undefined, source_message_id: undefined, contact_id: link.contactId!, conversation_id: link.conversationId };
     const c = await insertContract(ctx, tx, this.members, g ? { ...fields, file_name: fields.file_name ?? g.name } : fields, this.clock.now(), 'created', g ? sourceCols(g) : undefined);
     if (g) await tx.file.updateMany({ where: { id: g.fileId }, data: { confirmed: true } });
-    return { result: { contract_id: c.id, code: c.code }, after: { id: c.id } };
+    return { result: { contract_id: c.id, code: c.code }, after: await createdAfter(tx, c.id) };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await undoCreate(log, tx, this.clock.now());
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof contractCreate>, tx: TenantTx) {
@@ -83,11 +87,11 @@ export class ContractFromQuoteHandler implements Handler<ActionInput<typeof cont
       this.clock.now(),
       'created_from_quote',
     );
-    return { result: { contract_id: c.id, code: c.code }, after: { id: c.id } };
+    return { result: { contract_id: c.id, code: c.code }, after: await createdAfter(tx, c.id) };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await undoCreate(log, tx, this.clock.now());
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof contractCreateFromQuote>, tx: TenantTx) {
@@ -97,36 +101,18 @@ export class ContractFromQuoteHandler implements Handler<ActionInput<typeof cont
 
 @Injectable()
 @ActionHandler('contract.update')
-export class ContractUpdateHandler implements Handler<ActionInput<typeof contractUpdate>, { contract_id: string }> {
+export class ContractUpdateHandler implements Handler<ActionInput<typeof contractUpdate>, { contract_id: string; version: number }> {
   constructor(
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(ctx: ActionContext, input: ActionInput<typeof contractUpdate>, tx: TenantTx): Promise<HandlerOutcome<{ contract_id: string }>> {
-    const c = await lockContract(tx, ctx.authz, input.contract_id);
-    assertTransition(CONTRACT_FLOW, c.status, 'contract.update');
-    const p = input.patch;
-    // Khách / báo giá nguồn cố định sau khi tạo (bản ghi chứng từ — đổi khách thì tạo hợp đồng mới).
-    if (p.contact_id && p.contact_id !== c.contactId) throw new AppError('VALIDATION_FAILED', 422, { contact_id: 'immutable' });
-    if (p.quote_id !== undefined && p.quote_id !== (c.quoteId ?? undefined)) throw new AppError('VALIDATION_FAILED', 422, { quote_id: 'immutable' });
-    if (p.owner_user_id) await this.members.assertMember(ctx.workspaceId, p.owner_user_id, 'owner_user_id');
-    const cols = fieldCols(p);
-    checkDates(cols.startDate === undefined ? c.startDate : cols.startDate, cols.endDate === undefined ? c.endDate : cols.endDate);
-    const before = { id: c.id, number: c.number, kind: c.kind, title: c.title, value: String(c.value), signedDate: c.signedDate, startDate: c.startDate, endDate: c.endDate, fileName: c.fileName, note: c.note, ownerUserId: c.ownerUserId };
-    await tx.contract.update({ where: { id: c.id }, data: { ...cols, ...(p.owner_user_id ? { ownerUserId: p.owner_user_id } : {}), updatedAt: this.clock.now() } });
-    return { result: { contract_id: c.id }, before };
+  async execute(ctx: ActionContext, input: ActionInput<typeof contractUpdate>, tx: TenantTx): Promise<HandlerOutcome<{ contract_id: string; version: number }>> {
+    return editContract(ctx, tx, this.members, input, this.clock.now());
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as Record<string, unknown> & { id: string; value: string };
-    const c = await tx.contract.findUnique({ where: { id: b.id }, select: { status: true } });
-    if (c?.status !== 'draft') throw new AppError('INVALID_TRANSITION', 409, { status: c?.status ?? 'missing' });
-    const d = (v: unknown) => (v ? new Date(v as string) : null);
-    await tx.contract.update({
-      where: { id: b.id },
-      data: { number: b.number as string, kind: b.kind as 'service', title: b.title as string, value: BigInt(b.value), signedDate: d(b.signedDate), startDate: d(b.startDate), endDate: d(b.endDate), fileName: b.fileName as string, note: b.note as string, ownerUserId: (b.ownerUserId as string | null) ?? null },
-    });
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoContractEdit(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof contractUpdate>, tx: TenantTx) {
@@ -140,17 +126,14 @@ export class ContractDeleteHandler implements Handler<ActionInput<typeof contrac
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contractDelete>, tx: TenantTx): Promise<HandlerOutcome<{ contract_id: string }>> {
-    const c = await lockContract(tx, ctx.authz, input.contract_id);
+    const c = await lockContractVersion(tx, ctx.authz, input.contract_id, input.if_version);
     assertTransition(CONTRACT_FLOW, c.status, 'contract.delete');
     await tx.contract.update({ where: { id: c.id }, data: { deletedAt: this.clock.now(), quoteId: null } });
-    return { result: { contract_id: c.id }, before: { id: c.id, quote_id: c.quoteId } };
+    return { result: { contract_id: c.id }, before: { id: c.id, quote_id: c.quoteId }, after: { after_version: await contractVersion(tx, c.id) } };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as { id: string; quote_id: string | null };
-    // Báo giá đã có hợp đồng khác trong lúc chờ → khôi phục không kèm liên kết báo giá.
-    const taken = b.quote_id ? await tx.contract.findFirst({ where: { quoteId: b.quote_id }, select: { id: true } }) : null;
-    await tx.contract.update({ where: { id: b.id }, data: { deletedAt: null, quoteId: taken ? null : b.quote_id } });
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoContractDelete(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof contractDelete>, tx: TenantTx) {
@@ -167,6 +150,8 @@ export class ContractRenewHandler implements Handler<ActionInput<typeof contract
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contractRenew>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
+    // TIP-015f §2.5: khách → hợp đồng cũ → hợp đồng gia hạn.
+    await lockRootOf(tx, 'contract', input.contract_id);
     const old = await lockContract(tx, ctx.authz, input.contract_id);
     if (!CONTRACT_RENEWABLE.includes(old.status)) throw new AppError('INVALID_TRANSITION', 409, { status: old.status });
     const iso = (d: Date | null) => (d ? d.toISOString().slice(0, 10) : undefined);
@@ -178,11 +163,11 @@ export class ContractRenewHandler implements Handler<ActionInput<typeof contract
       this.clock.now(),
       'created',
     );
-    return { result: { contract_id: c.id, code: c.code }, after: { id: c.id } };
+    return { result: { contract_id: c.id, code: c.code }, after: await createdAfter(tx, c.id) };
   }
 
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    await undoCreate(log, tx, this.clock.now());
+  async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    await undoCreate(ctx, log, tx, this.clock.now());
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof contractRenew>, tx: TenantTx) {

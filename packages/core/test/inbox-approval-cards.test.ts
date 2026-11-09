@@ -18,18 +18,17 @@ const row = (id: number, o: Record<string, unknown>) => ({
   status: 'pending', requestedAt: now, expiresAt: later, decisionNote: null, executedAt: null, ...o,
 });
 
+const ROWS = [row(10, {}), row(11, { status: 'approved' }), row(12, { status: 'approved', executedAt: now }), row(13, { expiresAt: before }), row(14, { permission: 'contract.sign' })];
+
 function fakeTx() {
   const q: string[] = [];
   const tx = {
     q,
     conversation: { findUnique: async ({ where }: { where: { id: string } }) => (q.push('conv'), where.id === C ? { id: C, kind: 'direct', contactId: null, assigneeUserId: me, teamId: null } : where.id === HID ? { id: HID, kind: 'direct', contactId: null, assigneeUserId: U(98), teamId: null } : null) },
     aiRun: { findMany: async ({ where }: { where: { conversationId: string } }) => (q.push('runs'), where.conversationId === C ? [{ id: U(50) }] : []) },
-    approvalRequest: {
-      findMany: async ({ where }: { where: { runId: { in: string[] } } }) => (
-        q.push('approvals'),
-        where.runId.in.includes(U(50)) ? [row(10, {}), row(11, { status: 'approved' }), row(12, { status: 'approved', executedAt: now }), row(13, { expiresAt: before }), row(14, { permission: 'contract.sign' })] : []
-      ),
-    },
+    // TIP-015d: id chọn bằng SQL (vị từ domain trước LIMIT) rồi đọc dòng theo id — vẫn số truy vấn cố định.
+    $queryRaw: async () => (q.push('approvals'), ROWS.map((r) => ({ id: r.id }))),
+    approvalRequest: { findMany: async ({ where }: { where: { id: { in: string[] } } }) => (q.push('rows'), ROWS.filter((r) => where.id.in.includes(r.id))) },
     aiAgent: { findMany: async () => (q.push('agents'), []) },
   };
   return tx;
@@ -60,6 +59,6 @@ describe('conversationApprovals', () => {
     expect(by[U(13)]!.status).toBe('expired');
     expect(by[U(14)]!.can_decide).toBe(false);
     expect(r.pending).toBe(2);
-    expect(tx.q).toEqual(['conv', 'runs', 'approvals']);
+    expect(tx.q).toEqual(['conv', 'runs', 'approvals', 'rows']);
   });
 });

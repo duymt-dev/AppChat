@@ -29,7 +29,7 @@ export function useTransfer() {
     setUploading(true);
     try {
       const up = await transport.upload(f, 'import');
-      const r = await mk.run({ entity: ui.entity, file_id: up.file_id }, { silent: true });
+      const r = await mk.run({ entity: ui.entity, ...(ui.dataset !== 'base' ? { dataset: ui.dataset } : {}), file_id: up.file_id }, { silent: true });
       if (r) ui.setPlan(r.result.id);
     } catch {
       setUploadErr(true);
@@ -40,7 +40,8 @@ export function useTransfer() {
 
   const update = async (patch: { mapping?: Mapping; row_policy?: TransferPlanDto['row_policy'] }) => {
     if (!p) return;
-    await remap.run({ plan_id: p.id, if_version: p.version, ...patch }, { silent: true });
+    // Gửi kèm tập ĐÃ LƯU của kế hoạch — server 409 nếu lệch (không lấy lựa chọn UI sau cùng).
+    await remap.run({ plan_id: p.id, if_version: p.version, dataset: p.dataset, ...patch }, { silent: true });
   };
 
   const setField = (field: string, column: string) => {
@@ -55,7 +56,7 @@ export function useTransfer() {
 
   const submit = async () => {
     if (!p) return null;
-    const r = await commit.run({ plan_id: p.id, if_version: p.version });
+    const r = await commit.run({ plan_id: p.id, if_version: p.version, dataset: p.dataset });
     await plan.refetch();
     return r?.result ?? null;
   };

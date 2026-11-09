@@ -2,10 +2,11 @@
 // theo lô 1.000 id của tập CHỐT (keyset seq) dưới quyền HIỆN TẠI của người xuất; ghi Storage một lần (`<ws>/exports/<job>.xlsx`, hạn 24 giờ);
 // biên nhận chỉ đánh dấu khi tệp đã ghi (đã ra dòng → done, xoá / ra ngoài scope → skipped). Dấu quyền (vai trò trường + phiên bản định
 // nghĩa + scope module + nhóm) ghi vào việc: tải lại khi dấu khác → 410 (kernel bulk-status) — scope thu hẹp sau khi xuất không phát tệp cũ.
-import { serverMessages, type AuthzContext, type ListExportKind, type ScopeModule } from '@appchat/shared';
+import { serverMessages, type AuthzContext, type ListExportFormat, type ListExportKind, type ScopeModule } from '@appchat/shared';
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import { fieldRoleOf } from '@appchat/shared';
 import { liveDefs } from '../../authz/public';
+import { canReadAmount } from '../../crm/activities/authority';
 import { registerDataJobKind, type KindContext } from '../../kernel/jobs/bulk-dispatch';
 import { registerExportStamp } from '../../kernel/jobs/bulk-status';
 import { dataJobUrl } from '../../kernel/jobs/data-jobs/handlers';
@@ -14,6 +15,9 @@ import { exportCustomKeys, withCustom, workbook } from './export-columns';
 import { contractReader, orderReader, quoteReader } from './sales-readers';
 import { ticketReader } from './ticket-reader';
 import { invoiceReader, productReader } from './catalog-readers';
+import { contactNoteReader, contactOpportunityReader, contactTaskReader } from './activity-readers';
+import { packageReader } from './package-reader';
+import { csvFile } from './export-csv';
 import type { Cell, ExportDb, ExportPlace, ListReader } from './types';
 
 export const EXPORT_BATCH = 1000;
@@ -26,6 +30,10 @@ export const READERS: Record<ListExportKind, ListReader<unknown>> = {
   'ticket.export': ticketReader as ListReader<unknown>,
   'product.export': productReader as ListReader<unknown>,
   'invoice.export': invoiceReader as ListReader<unknown>,
+  'contact_note.export': contactNoteReader as ListReader<unknown>,
+  'contact_task.export': contactTaskReader as ListReader<unknown>,
+  'contact_opportunity.export': contactOpportunityReader as ListReader<unknown>,
+  'package.export': packageReader as ListReader<unknown>,
 };
 const MODULE: Record<ListExportKind, ScopeModule> = {
   'quote.export': 'sales',
@@ -35,6 +43,11 @@ const MODULE: Record<ListExportKind, ScopeModule> = {
   // Sản phẩm không có data scope (danh mục chung) — dấu quyền theo cost_view ở fieldRole; đề nghị thanh toán theo scope sales.
   'product.export': 'sales',
   'invoice.export': 'sales',
+  'contact_note.export': 'crm',
+  'contact_task.export': 'crm',
+  'contact_opportunity.export': 'crm',
+  // Liệu trình: khách theo crm + gói theo scope đơn — dấu quyền ghi cả hai (thu hẹp một trong hai → tệp cũ không tải).
+  'package.export': 'sales',
 };
 
 /** Dấu quyền của tệp: đổi vai trò trường / định nghĩa trường / scope đọc của module / nhóm → tệp cũ không tải nữa. */
@@ -46,13 +59,19 @@ export async function exportStamp(
   const entity = READERS[kind].entity;
   const defs = entity ? (await liveDefs(db, entity)).version : '-';
   const scope = a.isOwner ? 'all' : (a.scope[MODULE[kind]] ?? 'none');
-  return `${fieldRoleOf(a)}|${defs}|${scope}|${[...a.teamIds].sort().join(',')}`;
+  // Cơ hội: cột giá trị kỳ vọng theo quyền đọc tiền báo giá — mất quyền sau khi xuất → tệp cũ không tải nữa.
+  const money = kind === 'contact_opportunity.export' ? `|m${canReadAmount(a) ? 1 : 0}` : '';
+  const crm = kind === 'package.export' ? `|c${a.isOwner ? 'all' : (a.scope.crm ?? 'none')}|o${a.isOwner || a.permissions.has('order.view') ? 1 : 0}` : '';
+  return `${fieldRoleOf(a)}|${defs}|${scope}|${[...a.teamIds].sort().join(',')}${money}${crm}`;
 }
 for (const kind of Object.keys(READERS) as ListExportKind[])
   registerExportStamp(kind, (db, a) => exportStamp(db, kind, a));
 
-export const exportFileName = (kind: ListExportKind, locale: string, now: Date) =>
-  `${serverMessages(locale).insights.export.file[kind]}-${now.toISOString().slice(0, 10)}.xlsx`;
+/** Định dạng tệp từ input việc (chỉ `csv` được chọn tường minh; mặc định XLSX). */
+export const formatOf = (input: unknown): ListExportFormat => ((input as { format?: unknown } | null)?.format === 'csv' ? 'csv' : 'xlsx');
+
+export const exportFileName = (kind: ListExportKind, locale: string, now: Date, format: ListExportFormat = 'xlsx') =>
+  `${serverMessages(locale).insights.export.file[kind]}-${now.toISOString().slice(0, 10)}.${format}`;
 
 /** Giờ workspace + ngôn ngữ người xuất + tên người (nền tảng). */
 export async function exportPlace(
@@ -92,6 +111,7 @@ export async function buildExport(
   now: Date,
   next: Batches,
   shouldStop?: () => Promise<boolean>,
+  format: ListExportFormat = 'xlsx',
 ) {
   const reader = READERS[kind];
   const place: ExportPlace = { ...base, custom: await exportCustomKeys(db, reader.entity, a) };
@@ -117,13 +137,10 @@ export async function buildExport(
       yield r.rows;
     }
   }
-  const body = await workbook(
-    m.sheet[kind],
-    `${m.sheet[kind]} · ${place.timeZone}`,
-    withCustom(reader.columns(m), place.custom),
-    rows(),
-  );
-  return { body, shown, missed, stopped, fileName: exportFileName(kind, place.locale, now) };
+  const cols = withCustom(reader.columns(m, a), place.custom);
+  const note = `${m.sheet[kind]} · ${place.timeZone}`;
+  const body = format === 'csv' ? await csvFile(note, cols, rows()) : await workbook(m.sheet[kind], note, cols, rows());
+  return { body, shown, missed, stopped, format, fileName: exportFileName(kind, place.locale, now, format) };
 }
 
 async function mark(
@@ -150,7 +167,7 @@ export async function storeExport(
   built: Awaited<ReturnType<typeof buildExport>>,
   now: Date,
 ) {
-  const fileKey = `${ws}/exports/${jobId}.xlsx`;
+  const fileKey = `${ws}/exports/${jobId}.${built.format}`;
   await storage.put(fileKey, built.body);
   await mark(db, jobId, built.shown, 'done', now);
   await mark(db, jobId, built.missed, 'skipped', now);
@@ -186,6 +203,7 @@ export function registerListExportKinds(
           now,
           itemBatches(c.db, c.job.id),
           shouldStop,
+          formatOf(c.job.input),
         );
         if (built.stopped) return { status: 'cancelled' };
         const file = await storeExport(c.db, storage, c.ws, c.job.id, built, now);

@@ -10,15 +10,15 @@ import type { AppointmentRecord } from '../booking-access';
 export type Ev = { topic: string; payload: Record<string, unknown> };
 export type Actor = { type: string; id: string | null };
 
-/** Lỗi ràng buộc EXCLUDE (23P01) → CONFLICT; lỗi khác ném lại. */
+/** Lỗi ràng buộc EXCLUDE (23P01) → SLOT_TAKEN 409 `fields.start = slot_taken` (concurrency §8, DC-261 thay mã CONFLICT của DC-206); lỗi khác ném lại. */
 export function conflictOf(e: unknown): never {
   const msg = String((e as { message?: string })?.message ?? '');
   const code = (e as { code?: string; meta?: { code?: string } })?.meta?.code ?? (e as { code?: string })?.code;
-  if (code === '23P01' || msg.includes('appointment_no_overlap')) throw new AppError('CONFLICT', 409, { start: 'slot_taken' });
+  if (code === '23P01' || msg.includes('appointment_no_overlap')) throw new AppError('SLOT_TAKEN', 409, { start: 'slot_taken' });
   throw e;
 }
 
-/** Ghi chiếm khung giờ: lỗi EXCLUDE → CONFLICT (executor huỷ cả transaction — không ghi dở). */
+/** Ghi chiếm khung giờ: lỗi EXCLUDE → SLOT_TAKEN (executor huỷ cả transaction — không ghi dở). */
 export async function guarded<T>(fn: () => Promise<T>): Promise<T> {
   try {
     return await fn();

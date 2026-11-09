@@ -87,8 +87,10 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
   const lastTurn = msgs.slice(lastOut + 1).filter((m) => m.direction === 'in').map((m) => m.body).join('\n');
   const previous = customer.slice(0, Math.max(0, customer.length - msgs.slice(lastOut + 1).filter((m) => m.direction === 'in').length)).reverse().map((m) => foldText(m.body));
 
-  const contact = c.contactId ? await db.contact.findUnique({ where: { id: c.contactId }, select: { name: true, group: true, locale: true, stage: true, tierKey: true, pointsBalance: true } }) : null;
-  const memory = c.contactId ? await recentFacts(db, c.contactId, MEMORY) : [];
+  // TIP-015f §4.1: khách đã xoá mềm → không nạp hồ sơ / ghi nhớ CRM (lượt cũ / chạy tiếp không mang ngữ cảnh khách đã xoá).
+  const row = c.contactId ? await db.contact.findUnique({ where: { id: c.contactId }, select: { name: true, group: true, locale: true, stage: true, tierKey: true, pointsBalance: true, deletedAt: true } }) : null;
+  const contact = row && !row.deletedAt ? row : null;
+  const memory = contact && c.contactId ? await recentFacts(db, c.contactId, MEMORY) : [];
   const account = await db.channelAccount.findUnique({ where: { id: c.channelAccountId } });
   const st = account ? settingsOf(account) : null;
 
@@ -109,7 +111,7 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
     // Hạng / điểm thật của chính khách đang phục vụ (TIP-036) — 1 điểm = 100đ; không có số liệu khách khác.
     ...(contact && c.contactId ? [`- Khách thân thiết: hạng ${contact.tierKey ?? 'member'} · ${contact.pointsBalance} điểm (≈ ${contact.pointsBalance * 100n}đ)`] : []),
     ...memory.map((m) => `- Ghi nhớ: ${mask(m.fact)}`),
-    ...(a.cfg.tools.includes('contact.remember') && c.contactId ? ['', REMEMBER_RULE] : []),
+    ...(a.cfg.tools.includes('contact.remember') && contact ? ['', REMEMBER_RULE] : []),
     ...(st?.greeting ? ['', `# LỜI CHÀO CỦA KÊNH\n${st.greeting}`] : []),
     ...(msgs.some((m) => m.kind !== 'text' && m.kind !== 'sticker') ? ['', ATTACHMENT_RULE] : []),
     '',

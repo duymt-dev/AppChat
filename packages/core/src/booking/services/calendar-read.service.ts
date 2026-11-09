@@ -8,6 +8,9 @@ import { UUID, bookingScopeSql, visibleAppointment, type AppointmentRecord } fro
 import type { BookingPlace } from './booking-place';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { bookingSetting, slotsFor } from './slots';
+import { assertSlotDate, authorizedExclude } from '../operations/slot-policy';
+import { packagesFor } from '../../sales/public';
+import { readBookingSettings, type SettingsPage } from '../operations/settings-read';
 import { calendarFollowUps } from '../../insights/services/calendar-follow-ups';
 
 export interface CalendarViewer {
@@ -43,11 +46,12 @@ export class CalendarReadService {
     const fv = await fieldView(tx, 'appointment', a0);
     const [contacts, pkgs, orders] = await Promise.all([
       tx.contact.findMany({ where: { id: { in: [...new Set(list.map((a) => a.contactId))] } }, select: { id: true, name: true, phone: true } }),
-      tx.customerPackage.findMany({ where: { id: { in: list.map((a) => a.packageId).filter((x): x is string => !!x) } }, select: { id: true, name: true, usedSessions: true, totalSessions: true } }),
+      // TIP-033b §4.3: chiếu liệu trình qua PackagesRead (khách CRM + đơn sales) — gói bị chặn → package_id / package = null.
+      packagesFor(tx, a0, list.map((a) => a.packageId)),
       tx.order.findMany({ where: { id: { in: list.map((a) => a.orderId).filter((x): x is string => !!x) } }, select: { id: true, payStatus: true } }),
     ]);
     const c = new Map(contacts.map((x) => [x.id, x]));
-    const p = new Map(pkgs.map((x) => [x.id, x]));
+    const p = pkgs;
     const o = new Map(orders.map((x) => [x.id, x.payStatus]));
     const payOf = (a: AppointmentRecord) => {
       const s = a.orderId ? o.get(a.orderId) : undefined;
@@ -73,12 +77,13 @@ export class CalendarReadService {
         note: a.note,
         cancel_reason: a.cancelReason ?? '',
         reschedule_count: a.rescheduleCount,
-        package_id: a.packageId,
+        package_id: pk ? a.packageId : null,
         order_id: a.orderId,
-        package: pk ? { id: pk.id, name: pk.name, used: pk.usedSessions, total: pk.totalSessions } : null,
+        package: pk ? { id: pk.id, name: pk.name, used: pk.used, total: pk.total } : null,
         reminders: [...(a.confirmedAt ? [{ kind: 'confirm', at: utcToWall(a.confirmedAt, timeZone).iso }] : []), ...sent],
         // Chỉ key người xem được thấy (FieldPolicy — TIP-045b annex C).
         custom: projectCustom(fv, a.custom) as AppointmentRow['custom'],
+        version: a.version,
       };
     });
   }
@@ -120,7 +125,12 @@ export class CalendarReadService {
 
   async slots(v: CalendarViewer, q: { serviceId: string; date: string; staffId?: string; excludeId?: string }) {
     const { timeZone } = await this.place.of(v.workspaceId);
-    return this.tx(v, async (tx) => ({ slots: await slotsFor(tx, { ...q, timeZone, now: this.now() }) }));
+    // TIP-033b §3.5: exclude_id chỉ khi người xem sửa được lịch đó (404 đồng nhất), cùng chính sách với tool find_slots.
+    return this.tx(v, async (tx) => {
+      assertSlotDate(q.date);
+      const excludeId = await authorizedExclude(tx, v.authz, q.excludeId);
+      return { slots: await slotsFor(tx, { ...q, excludeId, timeZone, now: this.now() }) };
+    });
   }
 
   async meta(v: CalendarViewer, appointmentId?: string) {
@@ -184,32 +194,8 @@ export class CalendarReadService {
     });
   }
 
-  async settings(v: CalendarViewer) {
-    return this.tx(v, async (tx) => {
-      const [setting, hours, staff] = await Promise.all([
-        bookingSetting(tx),
-        tx.businessHours.findMany({ orderBy: { weekday: 'asc' } }),
-        tx.staff.findMany({ orderBy: [{ active: 'desc' }, { sort: 'asc' }, { name: 'asc' }], include: { schedules: true } }),
-      ]);
-      return {
-        days: hours.map((h) => ({ weekday: h.weekday, open: h.open, start: h.startTime, end: h.endTime })),
-        slot_step_min: setting.slotStepMin,
-        default_buffer_min: setting.defaultBufferMin,
-        no_show_deducts: setting.noShowDeducts,
-        staff: staff.map((s) => ({
-          id: s.id,
-          name: s.name,
-          role: s.role,
-          initial: initial(s.name),
-          color: s.color,
-          team: s.team,
-          room: s.room,
-          active: s.active,
-          skills: s.skills,
-          user_id: s.userId,
-          schedule: s.schedules.map((x) => ({ weekday: x.weekday, open: true, start: x.startTime, end: x.endTime })),
-        })),
-      };
-    });
+  /** Cài đặt lịch hẹn (TIP-033b §3.6) — metadata + trang nhân sự (operations/settings-read.ts). */
+  async settings(v: CalendarViewer, page: SettingsPage = {}) {
+    return this.tx(v, (tx) => readBookingSettings(tx, page));
   }
 }

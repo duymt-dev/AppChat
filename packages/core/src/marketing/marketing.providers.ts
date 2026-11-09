@@ -23,9 +23,13 @@ import { CampaignAudienceImportHandler, CampaignRecipientExportHandler, Campaign
 import { CampaignAnalyzeHandler, CampaignDraftContentHandler, CampaignStoreAnalysisHandler, CampaignSuggestHandler } from './actions/campaign-ai.handlers';
 import { CampaignDispatchHandler, CampaignRecordDeliveryHandler } from './actions/campaign-system.handlers';
 import { CampaignRecordMetricHandler, CampaignUnsubscribeHandler } from './actions/campaign-metric.handlers';
+import { CampaignMailSendersHandler } from './actions/mail-senders.handler';
+import { CampaignGetHandler } from './actions/campaign-get.handler';
 import { ANALYZE_CONSUMER, CampaignAnalyzeQueue, analyzeConsumer } from './ai/marketing-ai.jobs';
 import { ATTRIBUTION_CONSUMER, attributionConsumer } from './events/campaign-attribution';
 import { CampaignReadService } from './services/campaign-read.service';
+import { campaignMailEvents } from './events/mail-events';
+import { registerMailEventSink, unregisterMailEventSink } from '../integrations/mail/results';
 import { MarketingDeps } from './services/marketing-deps';
 import { UnsubscribeService } from './services/unsubscribe.service';
 import { unsubLinksFor } from './services/unsubscribe-token';
@@ -38,6 +42,8 @@ export const MARKETING_HANDLERS = [
   CampaignPauseHandler, CampaignResumeHandler, CampaignCancelHandler, CampaignSendTestHandler, CampaignResendUnreadHandler,
   CampaignAudienceImportHandler, CampaignRecipientExportHandler, CampaignSuggestHandler, CampaignAnalyzeHandler, CampaignDraftContentHandler,
   CampaignStoreAnalysisHandler, CampaignDispatchHandler, CampaignRecordDeliveryHandler, CampaignRecordMetricHandler, CampaignUnsubscribeHandler,
+  CampaignMailSendersHandler,
+  CampaignGetHandler,
 ];
 
 /** Đăng ký consumer marketing một lần mỗi tiến trình (nhiều app Nest trong cùng tiến trình test dùng chung bản đầu). */
@@ -54,9 +60,12 @@ export class MarketingInstaller implements OnApplicationBootstrap, OnApplication
     if (this.executor && !have(ATTRIBUTION_CONSUMER)) this.mine.push(attributionConsumer(this.executor));
     if (this.queue && !have(ANALYZE_CONSUMER)) this.mine.push(analyzeConsumer(this.queue));
     this.mine.forEach(registerEventConsumer);
+    // TIP-012c: sự kiện giao thư mail của DN (callback ở API) → tác dụng miền cùng transaction tiêu thụ sự kiện.
+    registerMailEventSink(campaignMailEvents);
   }
 
   async onApplicationShutdown(): Promise<void> {
+    unregisterMailEventSink();
     for (const c of this.mine) if (eventConsumers().includes(c)) unregisterEventConsumer(c.name);
     this.mine = [];
     await this.queue?.close();

@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "provider": "smtp",
+  "captured": "2026-11-08",
+  "evidence": "protocol_rfc_and_nodemailer",
+  "note": "SMTP chuẩn (RFC 5321 / 3207 STARTTLS / 8314 TLS ngầm) qua nodemailer. Không có máy chủ SMTP thật của DN (Q-004): test dùng transport giả. KHÔNG phải nghiệm thu với provider thật.",
+  "sources": ["RFC 5321 §4.2 (mã trả lời)", "RFC 3207 (STARTTLS)", "RFC 8314 (TLS ngầm cổng 465)", "nodemailer SMTP transport: secure / requireTLS / tls.servername / info.accepted / info.rejected / info.response"],
+  "ports": { "465": "TLS ngầm (secure: true)", "587": "STARTTLS bắt buộc (secure: false, requireTLS: true)", "25": "từ chối", "khác": "từ chối" },
+  "tls": "luôn kiểm chứng chỉ theo hostname gốc (servername = host gốc, rejectUnauthorized mặc định true); không ignoreTLS / không auth trước TLS",
+  "dns": "phân giải mọi A / AAAA, từ chối nếu có bất kỳ địa chỉ không công khai; kết nối IP đã ghim",
+  "acceptance": {
+    "accepted": "info.accepted chứa đúng người nhận VÀ info.response bắt đầu 250 sau DATA → accepted với provider_message_ref = Message-ID đã gửi + response",
+    "rejected_before_data": "lỗi responseCode 5xx ở MAIL / RCPT hoặc info.rejected chứa người nhận → failed_before_accept (vĩnh viễn)",
+    "transient_before_data": "4xx ở MAIL / RCPT, lỗi kết nối / TLS / auth trước khi gửi DATA → failed_before_accept (thử lại được)",
+    "lost_after_data": "đứt kết nối / hết giờ sau khi gửi DATA (command = 'DATA' hoặc message) → unknown (không gửi lại tự động)"
+  },
+  "sender_verification": "SMTP chỉ chứng minh đăng nhập + TLS (authenticated_transport), KHÔNG chứng minh sở hữu domain → trạng thái declared_sender do người tích hợp xác nhận",
+  "delivery_events": "không có (SMTP không báo delivered / open / click) → hiển thị 'không hỗ trợ', không phải 0",
+  "fixtures": {
+    "accepted": { "accepted": ["khach@example.test"], "rejected": [], "response": "250 2.0.0 OK queued as 9F1E2", "messageId": "<c1.r1@appchat.local>" },
+    "rcpt_rejected": { "error": { "responseCode": 550, "command": "RCPT TO" } },
+    "transient": { "error": { "responseCode": 451, "command": "MAIL FROM" } },
+    "lost_after_data": { "error": { "code": "ETIMEDOUT", "command": "DATA" } },
+    "tls_failed": { "error": { "code": "ESOCKET", "command": "CONN" } }
+  }
+}

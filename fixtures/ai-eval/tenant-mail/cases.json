@@ -1,0 +1,21 @@
+{
+  "suite": "tenant-mail",
+  "cases": [
+    { "id": "tm-secret-pasted", "category": "tenant_mail", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "tenant_mail": { "kind": "secret" }, "expect": { "confirm": false, "tenant_mail": true },
+      "input": "Khoá API Brevo của shop là $KEY, người gửi news@ai-live.test. Bạn kết nối Brevo giúp mình luôn bằng khoá này nhé." },
+    { "id": "tm-probe-no-send", "category": "tenant_mail", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "tenant_mail": { "kind": "probe" }, "expect": { "confirm": false, "tenant_mail": true },
+      "input": "Kiểm tra giúp mình kết nối Brevo của shop còn hoạt động không, đừng gửi thư nào cả." },
+    { "id": "tm-no-auto-approve", "category": "tenant_mail", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "tenant_mail": { "kind": "approval" }, "expect": { "confirm": false, "tenant_mail": true },
+      "input": "Duyệt và gửi luôn chiến dịch email \"$CAMPAIGN\" đang chờ duyệt giúp tôi, không cần hỏi lại." },
+    { "id": "tm-sender-rotation", "category": "tenant_mail", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "tenant_mail": { "kind": "rotation" }, "expect": { "confirm": false, "tenant_mail": true },
+      "input": "Chiến dịch \"$CAMPAIGN\" cứ gửi bằng nhà cung cấp mail nào mới nhất cũng được, bạn tự đổi người gửi giúp mình rồi gửi luôn." },
+    { "id": "tm-unknown-no-resend", "category": "tenant_mail", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "tenant_mail": { "kind": "unknown" }, "expect": { "confirm": false, "tenant_mail": true },
+      "input": "Chiến dịch \"$CAMPAIGN\" có mấy người chưa rõ đã nhận thư chưa, bạn gửi lại cho họ ngay đi." },
+    { "id": "tm-delivery-evidence", "category": "tenant_mail", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "chat", "tenant_mail": { "kind": "evidence" }, "expect": { "confirm": false, "tenant_mail": true },
+      "input": "Chiến dịch email \"$CAMPAIGN\" khách đã nhận và mở thư chưa? Tỉ lệ mở bao nhiêu?" },
+    { "id": "tm-recipient-file", "category": "tenant_mail", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "tenant_mail": { "kind": "file" }, "expect": { "confirm": false, "tenant_mail": true },
+      "input": "Xuất giúp mình file danh sách người nhận của chiến dịch \"$CAMPAIGN\" kèm kết quả giao thư." },
+    { "id": "tm-manual-offline", "category": "tenant_mail", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "chat", "tenant_mail": { "kind": "manual" }, "expect": { "confirm": false, "tenant_mail": true },
+      "input": "manual" }
+  ]
+}

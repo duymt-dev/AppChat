@@ -1,12 +1,13 @@
 // Ghi Lịch hẹn ở mock — cùng bảng APPOINTMENT_FLOW với server (REQ-G02, COMMERCE §6 / 8b): sai bước → INVALID_TRANSITION 409; trùng giờ
-// KTV + đệm → CONFLICT; huỷ cần lý do; hoàn thành thuộc liệu trình trừ 1 buổi, ngoài liệu trình chỉ gợi ý đơn (order.create_from_appointment
-// tạo đơn một lần). Nhân sự / giờ mở cửa (booking.config) ở mock chỉ xác nhận (fixture prototype cố định).
-import { ApiRequestError, APPOINTMENT_FLOW, assertTransition, toHm, toMin, type AppError } from '@appchat/shared';
+// KTV + đệm → SLOT_TAKEN; huỷ cần lý do; hoàn thành thuộc liệu trình trừ 1 buổi, ngoài liệu trình chỉ gợi ý đơn (order.create_from_appointment
+// tạo đơn một lần). Nhân sự / giờ mở cửa (booking.config): booking-config.ts (version, tri-state).
+import { APPOINTMENT_FLOW, assertTransition, toHm, toMin, type AppError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
 import { ME } from './customers';
 import { insertOrder } from './orders-actions';
-import { assertFree, day, deny, find, hm, iso, svcOf, type Appointment, type ApptStatus } from './calendar';
+import { bookingConfigHandlers } from './booking-config';
+import { assertFree, day, deny, find, hm, isPast, iso, svcOf, type Appointment, type ApptStatus } from './calendar';
 
 const step = (a: Appointment, action: string): ApptStatus => {
   try {
@@ -27,6 +28,9 @@ type CreateIn = {
   status?: 'pending' | 'confirmed';
   note?: string;
 };
+
+/** Trạng thái trước khi xác nhận — hoàn tác trả đúng về pending / expired. */
+const confirmedFrom = new Map<string, ApptStatus>();
 
 const move = (db: MockDb, id: string, action: string) => {
   const a = find(db, id);
@@ -78,12 +82,23 @@ export const calendarHandlers: Record<string, MockHandler> = {
       db.calendar.seq--;
     },
   },
+  // TIP-033b: expired → xác nhận lại đúng khung cũ (khung bị chiếm → SLOT_TAKEN, giờ đã qua → INVALID_STATE); if_version lệch → STALE_VERSION.
   'appointment.confirm': {
-    execute: (db, i: { appointment_id: string }) => {
-      const { a } = move(db, i.appointment_id, 'appointment.confirm');
-      return { appointment_id: a.id, status: a.status };
+    execute: (db, i: { appointment_id: string; if_version?: number }) => {
+      const a = find(db, i.appointment_id);
+      const v = a.version ?? 1;
+      if (i.if_version !== undefined && i.if_version !== v) deny('STALE_VERSION', String(v));
+      const prior = a.status;
+      if (prior === 'expired') {
+        if (isPast(a)) deny('INVALID_STATE', 'in_past');
+        assertFree(db, a.service_id, day(a.start_at), hm(a.start_at), a.staff_id, a.id);
+      }
+      a.status = step(a, 'appointment.confirm');
+      a.version = v + 1;
+      confirmedFrom.set(a.id, prior);
+      return { appointment_id: a.id, status: a.status, version: a.version };
     },
-    undo: (db, i: { appointment_id: string }) => back(db, i.appointment_id, 'pending'),
+    undo: (db, i: { appointment_id: string }) => back(db, i.appointment_id, confirmedFrom.get(i.appointment_id) ?? 'pending'),
   },
   'appointment.reschedule': {
     execute: (db, i: { appointment_id: string; date: string; start: string; staff_id?: string }) => {
@@ -146,14 +161,5 @@ export const calendarHandlers: Record<string, MockHandler> = {
       return { order_id: o.id, code: o.code };
     },
   },
-  'staff.create': { execute: () => ({ staff_id: `s_new_${Date.now()}` }) },
-  'staff.update': { execute: (_db, i: { staff_id: string }) => ({ staff_id: i.staff_id }) },
-  'staff.deactivate': {
-    execute: (db, i: { staff_id: string }) => {
-      if (db.calendar.appointments.some((a) => a.staff_id === i.staff_id && ['pending', 'confirmed', 'in_progress'].includes(a.status) && day(a.start_at) >= '2026-06-24'))
-        throw new ApiRequestError(409, { code: 'INVALID_STATE', message: i.staff_id, fields: { staff_id: 'has_upcoming' } });
-      return { staff_id: i.staff_id };
-    },
-  },
-  'business_hours.update': { execute: () => ({ ok: true }) },
+  ...bookingConfigHandlers,
 };

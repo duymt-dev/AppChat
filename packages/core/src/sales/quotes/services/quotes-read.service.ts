@@ -46,7 +46,7 @@ export class QuotesReadService {
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
     const contacts = await contactsOf(tx, rows.map((r) => r.contactId));
-    const userIds = [...rows.map((r) => r.ownerUserId), ...[...comments.values()].flat().map((c) => c.authorId)];
+    const userIds = [...rows.flatMap((r) => [r.ownerUserId, r.assignedUserId]), ...[...comments.values()].flat().map((c) => c.authorId)];
     const names = await this.d.members.names(userIds);
     // contract_quote_id_key (unique) — tra theo đúng các id của trang.
     const contracted = new Set((await tx.contract.findMany({ where: { quoteId: { in: ids }, deletedAt: null }, select: { quoteId: true } })).map((c) => c.quoteId!));

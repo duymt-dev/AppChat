@@ -4,7 +4,14 @@ export const notify = {
     msg_assigned: { title: 'Hội thoại mới được gán cho bạn: {contact}', label: 'Tin mới được gán cho tôi' },
     msg_mention: { title: '{actor} nhắc đến bạn trong hội thoại {contact}', label: 'Nhắc đến tôi trong hội thoại' },
     msg_vip: { title: 'Tin mới từ khách ưu tiên {contact}', label: 'Tin từ VIP / khách ưu tiên' },
-    crm_owner: { title: '{actor} chuyển khách {contact} cho bạn phụ trách', label: 'Khách được chuyển cho tôi' },
+    // TIP-015d: biến thể `to` (người mới) / `from` (người cũ) chiếu lúc đọc theo quyền hiện tại; `generic` = dòng gốc / người không còn thấy khách.
+    crm_owner: {
+      title: '{actor} chuyển khách {contact} cho bạn phụ trách',
+      to: '{actor} chuyển khách {contact} cho bạn phụ trách',
+      from: '{actor} đã chuyển khách {contact} của bạn cho {to} phụ trách',
+      generic: 'Phân công khách hàng của bạn đã thay đổi',
+      label: 'Khách được chuyển cho tôi',
+    },
     // Biến thể theo `params.variant` (approved / rejected) — kết quả duyệt gửi người xin.
     crm_access: {
       title: '{actor} xin cùng phụ trách khách {contact}',

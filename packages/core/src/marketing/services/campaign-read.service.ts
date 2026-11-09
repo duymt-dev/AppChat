@@ -8,6 +8,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { crmScopeSql, type CrmMembers } from '../../crm/public';
 import { countsFor } from '../repos/recipients.repo';
 import { CHANNEL_CAPS, allowedActions, emptyCounts, statsOf } from './campaign-policy';
+import { deliveryOf, listMailSenders, senderKey, senderView } from './mail-sender';
 
 export interface MarketingViewer {
   workspaceId: string;
@@ -47,6 +48,7 @@ export class CampaignReadService {
     const picked = new Map(audience.map((a) => [a.campaignId, a._count._all]));
     const events = withHistory ? await tx.campaignEvent.findMany({ where: { campaignId: { in: rows.map((r) => r.id) } }, orderBy: [{ createdAt: 'asc' }, { id: 'asc' }] }) : [];
     const names = await this.members.names(rows.map((r) => r.approvedByUserId));
+    const mail = rows.some((r) => r.senderKind === 'tenant_mail') ? new Map((await listMailSenders(tx)).map((m) => [senderKey(m), m])) : new Map();
     return rows.map((r) => {
       const ch = r.channel as CampaignChannel;
       const content = r.content as CampaignDto['content'];
@@ -64,6 +66,7 @@ export class CampaignReadService {
         version: r.version,
         account_id: r.accountId,
         account_name: r.accountId ? (accounts.get(r.accountId) ?? '') : '',
+        sender: senderView(r, mail),
         segment: [...segNames, ...(n ? [`+${n}`] : [])].join(', '),
         segment_ids: r.segmentIds,
         est_recipients: r.estRecipients,
@@ -139,10 +142,12 @@ export class CampaignReadService {
       FROM (SELECT r.id FROM campaign_recipient r WHERE r.campaign_id = ${campaignId}::uuid ${st} AND ${scope} ORDER BY r.id LIMIT ${lim} OFFSET ${(pg - 1) * lim}) p
       JOIN campaign_recipient r ON r.id = p.id JOIN contact c ON c.id = r.contact_id ORDER BY r.id`;
     const total = Number(n);
+    const mail = await deliveryOf(tx, campaignId, rows.map((x) => x.id));
     const data: RecipientDto[] = rows.map((x) => ({
       id: x.id, contact_id: x.contact_id, conversation_id: x.conversation_id, name: x.name, endpoint: x.endpoint,
       status: x.status as RecipientDto['status'], skip_reason: x.skip_reason as RecipientDto['skip_reason'], outcome: x.outcome as RecipientDto['outcome'],
       variant: x.variant as 'a' | 'b', sent_at: iso(x.sent_at), replied_at: iso(x.replied_at), read_at: iso(x.read_at),
+      ...(mail.has(x.id) ? { delivery: mail.get(x.id) } : {}),
     }));
     return { data, next_cursor: pg * lim < total ? String(pg + 1) : null, meta: { total, page: pg, limit: lim } };
   }
@@ -184,6 +189,11 @@ export class CampaignReadService {
   }
 
   /** Meta màn Marketing — số đo thật từ người nhận; chỉ số kênh không hỗ trợ (đọc / click) = null. Nhãn là khoá (FE dịch). */
+  /** TIP-012c: người gửi mail của DN (quyền campaign.manage kiểm ở controller — cùng bộ đọc với action campaign.mail_senders). */
+  async mailSenders(v: MarketingViewer) {
+    return this.tx(v, (tx) => listMailSenders(tx));
+  }
+
   async meta(v: MarketingViewer) {
     const now = this.now();
     return this.tx(v, async (tx) => {

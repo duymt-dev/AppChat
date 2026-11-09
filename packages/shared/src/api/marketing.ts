@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import { CAMPAIGN_CHANNELS, CAMPAIGN_KINDS, CAMPAIGN_STATUSES, DELIVERY_OUTCOMES, RECIPIENT_STATUSES, SKIP_REASONS } from '../marketing/state';
 import { segmentNodeSchema } from '../marketing/segment-filter';
+import { campaignSenderSchema } from './tenant-mail';
 
 export const segmentDtoSchema = z.object({
   id: z.string(),
@@ -47,6 +48,8 @@ export const campaignDtoSchema = z.object({
   version: z.number().int(),
   account_id: z.string().nullable(),
   account_name: z.string(),
+  /** TIP-012c: người gửi đã chốt (kênh hoặc mail của DN + trạng thái dùng được hiện tại). Vắng ở dữ liệu cũ = channel_account. */
+  sender: campaignSenderSchema.optional(),
   segment: z.string(),
   segment_ids: z.array(z.string()),
   est_recipients: z.number().int(),
@@ -83,6 +86,11 @@ export const recipientDtoSchema = z.object({
   replied_at: z.string().nullable(),
   /** null = kênh không có xác nhận đọc (không khẳng định "chưa đọc"). */
   read_at: z.string().nullable(),
+  /**
+   * TIP-012c: bằng chứng giao thư của mail DN — accepted (provider nhận) ≠ delivered (sự kiện giao). `unavailable` = provider không có sự
+   * kiện (SMTP); vắng = không gửi qua mail DN.
+   */
+  delivery: z.enum(['queued', 'accepted', 'delivered', 'unknown', 'failed', 'bounced', 'complained', 'unavailable']).optional(),
 });
 export type RecipientDto = z.infer<typeof recipientDtoSchema>;
 

@@ -12,6 +12,13 @@ import { hardeningCase } from './hardening-judge';
 import { channelCase } from './channel-judge';
 import { marketingCase } from './marketing-judge';
 import { transferCase } from './transfer-judge';
+import { activityCase } from './activity-judge';
+import { ctransferCase } from './ctransfer-judge';
+import { lifecycleCase } from './lifecycle-judge';
+import { mergeCase } from './merge-judge';
+import { tenantMailCase } from './tenant-mail-judge';
+import { bookingCase } from './booking-judge';
+import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
 
 export interface Api {
@@ -93,6 +100,13 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.insights) return insightsCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.marketing) return marketingCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.runtime) return runtimeCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
+  if (c.ctransfer) return ctransferCase(api, c, attempt, o);
+  if (c.lifecycle) return lifecycleCase(api, c, attempt, o);
+  if (c.merge) return mergeCase(api, c, attempt, o);
+  if (c.tenant_mail) return tenantMailCase(api, c, attempt, o);
+  if (c.booking) return bookingCase(api, c, attempt, o);
+  if (c.cedit) return ceditCase(api, c, attempt, o);
+  if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.transfer) return transferCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.hardening) return hardeningCase(api, c, attempt, o, (s) => fillInput(s, o.seed), contextOf(c, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };

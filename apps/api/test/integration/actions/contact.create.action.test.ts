@@ -1,4 +1,4 @@
-// Ma trận contact.create (TIP-023b): dữ liệu mới (không có ghi chú rỗng); undo xoá; trùng SĐT → 409; thiếu SĐT lẫn email → 422; idempotency.
+// Ma trận contact.create (TIP-023b → TIP-015f): dữ liệu mới (không có ghi chú rỗng); undo = xoá mềm bản còn nguyên trạng (có quan hệ / bị sửa → 409); trùng SĐT → 409; thiếu SĐT lẫn email → 422; idempotency.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
@@ -26,7 +26,24 @@ describe('contact.create', () => {
     expect(done.status, JSON.stringify(done.body)).toBe(200);
     expect(done.body.data.result.code).toMatch(/^KH-/);
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
-    expect(await (await m.db()).contact.count({ where: { phone: '0909440002' } })).toBe(0);
+    // TIP-015f §5.1: hoàn tác tạo = xoá mềm (giữ dữ liệu + biên nhận 30 ngày), không DELETE.
+    const db = await m.db();
+    expect(await db.contact.count({ where: { phone: '0909440002', deletedAt: null } })).toBe(0);
+    const row = await db.contact.findFirstOrThrow({ where: { phone: '0909440002' } });
+    expect(row.deletedAt).not.toBeNull();
+    expect(await db.contactLifecycleReceipt.count({ where: { contactId: row.id } })).toBe(1);
+  });
+
+  it('hoàn tác tạo bị chặn khi đã có quan hệ / bị sửa sau đó (409, không xoá)', async () => {
+    const a = await m.act({ full_name: 'Chị Đã Có Đơn', phone: '0909440003' });
+    const id = a.body.data.result.contact_id as string;
+    await m.seed('order.create', { contact_id: id, items: [{ name: 'HIFU', qty: 1, unit_price: '1000000', tax_rate: 0 }] });
+    expect((await m.undo(a.body.data.action_log_id)).body.error).toMatchObject({ code: 'CONFLICT', fields: { contact_id: 'has_relations' } });
+    const b = await m.act({ full_name: 'Chị Bị Sửa', phone: '0909440004' });
+    await m.seed('contact.update', { contact_id: b.body.data.result.contact_id, patch: { city: 'Huế' } });
+    expect((await m.undo(b.body.data.action_log_id)).body.error).toMatchObject({ code: 'CONFLICT', fields: { contact_id: 'changed' } });
+    const db = await m.db();
+    expect(await db.contact.count({ where: { id: { in: [id, b.body.data.result.contact_id] }, deletedAt: null } })).toBe(2);
   });
 
   it('ô không áp dụng có lý do', () => {

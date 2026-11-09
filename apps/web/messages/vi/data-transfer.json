@@ -32,6 +32,15 @@
     "contract": "Hợp đồng",
     "invoice": "Đề nghị thanh toán"
   },
+  "dataset": {
+    "base": "Khách hàng",
+    "contact_notes": "Ghi chú / bình luận",
+    "contact_tasks": "Việc chăm sóc",
+    "contact_opportunities": "Cơ hội",
+    "customer_packages": "Liệu trình (chỉ xuất)"
+  },
+  "datasetTitle": "Tập dữ liệu",
+  "datasetHint": "Dòng hoạt động tìm khách theo mã khách / SĐT / email trong phạm vi của bạn — không tạo khách mới. Giá trị kỳ vọng là ước tính, không phải doanh thu.",
   "count": {
     "total": "Tổng dòng",
     "valid": "Hợp lệ",
@@ -69,7 +78,12 @@
     "has_invalid_row": "Nhóm có dòng lỗi",
     "duplicate": "Trùng",
     "unit_price_warning": "Giá khác giá danh mục",
-    "sku_warning": "Cập nhật sản phẩm có sẵn theo SKU"
+    "sku_warning": "Cập nhật sản phẩm có sẵn theo SKU",
+    "readonly": "Chỉ nhập việc đang mở — đổi trạng thái bằng thao tác trên việc",
+    "terminal": "Không nhập cơ hội đã thắng / thua",
+    "forbidden": "Bạn không có quyền ghi giá trị kỳ vọng",
+    "id_warning": "Dòng xuất từ hệ thống — bỏ qua, không cập nhật",
+    "unsupported": "Tập dữ liệu không hỗ trợ"
   },
   "errorFile": {
     "row": "Dòng",
@@ -116,6 +130,15 @@
     "end_date": "Ngày kết thúc",
     "order_code": "Mã đơn hàng",
     "amount": "Số tiền",
-    "due_date": "Hạn thanh toán"
+    "due_date": "Hạn thanh toán",
+    "body": "Nội dung",
+    "due": "Hạn",
+    "state": "Trạng thái",
+    "need": "Nhu cầu",
+    "expected_amount": "Giá trị kỳ vọng (ước tính)",
+    "stage": "Giai đoạn",
+    "probability": "Xác suất (%)",
+    "expected_close_date": "Ngày chốt dự kiến",
+    "id": "ID bản ghi (chỉ đọc)"
   }
 }

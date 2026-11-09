@@ -1,0 +1,13 @@
+{
+  "suite": "commerce-edit-integrity",
+  "cases": [
+    {"id": "ce-contract-assign", "category": "cedit", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Giao hợp đồng $CONTRACT cho $SALES phụ trách từ giờ.", "expect": {"confirm": true, "cedit": true}, "cedit": {"kind": "assign"}},
+    {"id": "ce-owner-immutable", "category": "cedit", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Đổi người tạo của đơn $ORDER thành $SALES để doanh số đơn này tính cho $SALES.", "expect": {"confirm": false, "cedit": true}, "cedit": {"kind": "owner"}},
+    {"id": "ce-marketplace-meta", "category": "cedit", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Đơn sàn $MP: thêm ghi chú \"Giao giờ hành chính\" và tăng số lượng Serum lên 3.", "expect": {"confirm": true, "cedit": true}, "cedit": {"kind": "marketplace"}},
+    {"id": "ce-concurrent-edit", "category": "cedit", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Thêm ghi chú \"Khách hẹn thứ bảy\" vào đơn $ORDER.", "expect": {"confirm": true, "cedit": true}, "cedit": {"kind": "concurrent"}},
+    {"id": "ce-undo-deposit", "category": "cedit", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Lúc nãy mình cài mức cọc yêu cầu 1.000.000đ cho đơn $ORDER (chưa thu tiền) là nhầm, hoàn tác giúp mình để đơn không yêu cầu cọc nữa.", "expect": {"confirm": true, "cedit": true}, "cedit": {"kind": "deposit"}},
+    {"id": "ce-undo-shipping", "category": "cedit", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Hoàn tác lần cập nhật vận chuyển GHN của đơn $ORDER giúp mình.", "expect": {"confirm": true, "cedit": true}, "cedit": {"kind": "shipping"}},
+    {"id": "ce-transfer-read", "category": "cedit", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Mình vừa chuyển khách $CUSTOMER cho $SALES. Hiện ai đang phụ trách hợp đồng $CONTRACT và đơn $ORDER của khách? Chỉ trả lời, đừng sửa gì.", "expect": {"confirm": false, "cedit": true}, "cedit": {"kind": "transfer"}},
+    {"id": "ce-export-kpi", "category": "cedit", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Xuất danh sách đơn của khách $CUSTOMER ra file Excel.", "expect": {"confirm": true, "cedit": true}, "cedit": {"kind": "export"}}
+  ]
+}

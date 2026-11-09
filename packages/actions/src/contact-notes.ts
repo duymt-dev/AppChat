@@ -16,7 +16,7 @@ export const contactAddNote = defineAction({
   module: 'crm',
   title: 'actions.contact.add_note.title',
   description:
-    'Add an internal CRM note to a customer (never sent to the customer). Optional source_conversation_id / source_message_id from the current conversation. Example: {"contact_id":"0190f000-0000-7000-8000-000000000001","body":"Khách muốn gói chăm sóc da cuối tuần"}',
+    'Add an internal CRM note (ghi chú) to a customer — a timeline entry, NOT an edit of contact fields (use this, not contact.update, when the user says "ghi chú cho khách …"); never sent to the customer. Optional source_conversation_id / source_message_id from the current conversation. Example: {"contact_id":"0190f000-0000-7000-8000-000000000001","body":"Khách muốn gói chăm sóc da cuối tuần"}',
   input: z.object({ contact_id: uuid, body }).merge(activitySource),
   output: noteOut,
   permission: 'crm.edit',
@@ -45,7 +45,7 @@ export const contactActivityList = defineAction({
   module: 'crm',
   title: 'actions.contact_activity.list.title',
   description:
-    'List a customer\'s CRM activities of one kind: notes, comments, manual follow-up tasks (not AI tasks) or opportunities (expected value, not revenue). Paged with cursor. Example: {"contact_id":"0190f000-0000-7000-8000-000000000001","kind":"tasks"}',
+    'List a customer\'s CRM activities of one kind: notes, comments, manual follow-up tasks (not AI tasks) or opportunities (expected value, not revenue). Use it to ANSWER questions about one customer\'s notes / tasks / opportunity value — never export a file just to read a value. Paged with cursor. Example: {"contact_id":"0190f000-0000-7000-8000-000000000001","kind":"tasks"}',
   input: z.object({ contact_id: uuid, kind: z.enum(ACTIVITY_KINDS), activity_id: uuid.optional(), cursor: z.string().max(400).optional(), limit: z.number().int().min(1).max(100).optional() }),
   output: z.object({ kind: z.string(), items: z.array(z.record(z.string(), z.unknown())), next_cursor: z.string().nullable() }),
   permission: 'crm.view',

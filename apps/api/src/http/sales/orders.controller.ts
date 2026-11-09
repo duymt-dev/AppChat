@@ -17,7 +17,7 @@ const int = (v: string | undefined, field: string) => {
 
 export function orderFilterOf(q: Record<string, string | undefined>): OrderFilter {
   const custom = Object.fromEntries(Object.entries(q).filter(([k, x]) => k.startsWith('cf.') && x).map(([k, x]) => [k.slice(3), String(x).slice(0, 100)]));
-  return { chip: q.chip, ownerId: q.owner_id, contactId: q.contact_id, value: q.value, source: q.source, q: q.q?.slice(0, 100), custom };
+  return { chip: q.chip, ownerId: q.owner_id, assignedId: q.assigned_user_id, contactId: q.contact_id, value: q.value, source: q.source, q: q.q?.slice(0, 100), custom };
 }
 
 @Controller('orders')

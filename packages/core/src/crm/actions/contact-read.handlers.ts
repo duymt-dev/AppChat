@@ -14,6 +14,7 @@ import { supportScopeSql } from '../../support/ticket-access';
 import { quoteScopeSql } from '../../sales/quotes/quote-access';
 import { orderScopeSql } from '../../sales/orders/order-access';
 import { invoiceScopeSql } from '../../sales/payments/invoice-access';
+import { inFamilySql } from '../lifecycle/family-sql';
 
 type ContactRow = Awaited<ReturnType<typeof visibleContact>>['contact'];
 
@@ -57,15 +58,16 @@ export class ContactGet360Handler implements Handler<ActionInput<typeof contactG
     const { contact: c } = await visibleContact(tx, ctx.authz, i.contact_id);
     const a = ctx.authz;
     const id = c.id;
+    // TIP-015e: chứng từ giữ id khách gốc sau gộp — đếm theo họ (mỗi chứng từ một lần).
     // Index: quote (contact_id) · order / invoice (contact_id) · ticket (contact_id) · appointment (contact_id, start_at).
     const [quotes, orders, invoices, tickets, next, facts] = await Promise.all([
-      can(a, 'quote.view') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM quote q WHERE q.contact_id = ${id}::uuid AND q.deleted_at IS NULL AND q.status IN ('draft','pending_approval','approved','sent','viewed','revision_requested') AND ${quoteScopeSql(a)}`) : 0,
-      can(a, 'order.view') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM "order" o WHERE o.contact_id = ${id}::uuid AND o.deleted_at IS NULL AND o.status IN ('new','processing') AND ${orderScopeSql(a)}`) : 0,
-      can(a, 'invoice.manage') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM invoice i WHERE i.contact_id = ${id}::uuid AND i.status IN ('sent','partial','overdue') AND ${invoiceScopeSql(a)}`) : 0,
-      can(a, 'ticket.view') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM ticket t WHERE t.contact_id = ${id}::uuid AND t.status <> 'closed' AND ${supportScopeSql(a)}`) : 0,
+      can(a, 'quote.view') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM quote q WHERE ${inFamilySql('q.contact_id', id)} AND q.deleted_at IS NULL AND q.status IN ('draft','pending_approval','approved','sent','viewed','revision_requested') AND ${quoteScopeSql(a)}`) : 0,
+      can(a, 'order.view') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM "order" o WHERE ${inFamilySql('o.contact_id', id)} AND o.deleted_at IS NULL AND o.status IN ('new','processing') AND ${orderScopeSql(a)}`) : 0,
+      can(a, 'invoice.manage') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM invoice i WHERE ${inFamilySql('i.contact_id', id)} AND i.status IN ('sent','partial','overdue') AND ${invoiceScopeSql(a)}`) : 0,
+      can(a, 'ticket.view') ? n(tx.$queryRaw`SELECT count(*)::bigint AS n FROM ticket t WHERE ${inFamilySql('t.contact_id', id)} AND t.status <> 'closed' AND ${supportScopeSql(a)}`) : 0,
       can(a, 'booking.view')
         ? tx.$queryRaw<{ id: string; code: string; start_at: Date; status: string }[]>`SELECT a.id, a.code, a.start_at, a.status::text AS status FROM appointment a
-            WHERE a.contact_id = ${id}::uuid AND a.deleted_at IS NULL AND a.start_at >= ${now} AND a.status IN ('pending','confirmed') AND ${bookingScopeSql(a)}
+            WHERE ${inFamilySql('a.contact_id', id)} AND a.deleted_at IS NULL AND a.start_at >= ${now} AND a.status IN ('pending','confirmed') AND ${bookingScopeSql(a)}
             ORDER BY a.start_at ASC LIMIT 1`
         : Promise.resolve([]),
       // Trí nhớ khách (TIP-015b): cùng quyền crm.view với contact.memory_list — lượt Trợ lý sau dùng lại fact (dị ứng, sở thích).

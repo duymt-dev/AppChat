@@ -2,7 +2,7 @@
 // transaction executor. Không ghi dữ liệu nghiệp vụ. Quyền nhập của thực thể kiểm trên người gọi hiện tại. Đổi ánh xạ = đọc lại CÙNG tệp
 // (checksum phải khớp), kiểm lại toàn bộ, tăng version (thẻ xác nhận commit cũ không còn khớp input).
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, type TransferEntity, type TransferPlanDto } from '@appchat/shared';
+import { AppError, type TransferPlanDto, type TransferTarget } from '@appchat/shared';
 import type { ActionInput, ActionPreview, transferPlan, transferUpdateMapping } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import {
@@ -15,10 +15,11 @@ import { actorUserId } from '../../crm/public';
 import { TransferDeps } from '../data-transfer.providers';
 import { classify, createPlan, markReimported, ownPlan, preparePlan, replanRows } from '../services/planner';
 import { planView, requireImport } from '../services/plan-view';
+import { assertDataset, planTarget, resolveTarget } from '../services/dataset';
 
 type PlanIn = ActionInput<typeof transferPlan>;
 type MapIn = ActionInput<typeof transferUpdateMapping>;
-type Prepared = Awaited<ReturnType<typeof preparePlan>>;
+type Prepared = Awaited<ReturnType<typeof preparePlan>> & { target: TransferTarget };
 
 const me = (ctx: ActionContext) => {
   const id = actorUserId(ctx);
@@ -34,22 +35,25 @@ export class TransferPlanHandler implements Handler<PlanIn, TransferPlanDto> {
   /** Kế hoạch chỉ ghi bản xem trước (không ghi dữ liệu nghiệp vụ) — thẻ nêu tệp + thực thể. */
   async preview(_ctx: ActionContext, i: PlanIn, tx: TenantTx): Promise<ActionPreview> {
     const f = await tx.file.findUnique({ where: { id: i.file_id }, select: { name: true } });
-    return preview('write', line(f?.name, i.entity, i.sheet), {
-      changes: [{ entity: 'transfer_plan', after: { entity: i.entity, file: f?.name ?? i.file_id } }],
+    const dataset = i.dataset ?? 'base';
+    return preview('write', line(f?.name, i.entity, dataset === 'base' ? null : dataset, i.sheet), {
+      changes: [{ entity: 'transfer_plan', after: { entity: i.entity, dataset, file: f?.name ?? i.file_id } }],
     });
   }
 
   async prepare(ctx: ActionContext, i: PlanIn): Promise<Prepared> {
-    requireImport(ctx.authz, i.entity);
+    const target = resolveTarget(i.entity, i.dataset);
+    requireImport(ctx.authz, target);
     const db = await this.d.db(ctx.workspaceId, 'transfer.plan');
-    return preparePlan(db, this.d.files(), {
+    const p = await preparePlan(db, this.d.files(), {
       userId: me(ctx),
-      entity: i.entity,
+      entity: target,
       fileId: i.file_id,
       sheet: i.sheet,
       mapping: i.mapping,
       now: this.d.now(),
     });
+    return { ...p, target };
   }
 
   async execute(
@@ -63,15 +67,15 @@ export class TransferPlanHandler implements Handler<PlanIn, TransferPlanDto> {
     const now = this.d.now();
     const rows = await markReimported(
       tx,
-      i.entity,
+      p.target,
       me(ctx),
       p.file,
       p.table.sheet,
-      await classify(tx, i.entity, { userId: me(ctx), authz: ctx.authz }, p.checked),
+      await classify(tx, p.target, { userId: me(ctx), authz: ctx.authz }, p.checked),
     );
     const id = await createPlan(
       tx,
-      { userId: me(ctx), entity: i.entity, aiRunId: ctx.runId ?? null, now },
+      { userId: me(ctx), entity: p.target, aiRunId: ctx.runId ?? null, now },
       { ...p, rows },
     );
     const plan = await tx.transferPlan.findUniqueOrThrow({ where: { id } });
@@ -82,6 +86,8 @@ export class TransferPlanHandler implements Handler<PlanIn, TransferPlanDto> {
       after: {
         plan_id: id,
         entity: i.entity,
+        dataset: plan.dataset,
+        dataset_schema_version: plan.datasetSchemaVersion,
         file_sha256: p.file.sha256,
         total: plan.total,
         valid: plan.valid,
@@ -114,13 +120,15 @@ export class TransferUpdateMappingHandler implements Handler<MapIn, TransferPlan
     });
   }
 
-  async prepare(ctx: ActionContext, i: MapIn): Promise<Prepared & { entity: TransferEntity }> {
+  async prepare(ctx: ActionContext, i: MapIn): Promise<Prepared> {
     const db = await this.d.db(ctx.workspaceId, 'transfer.update_mapping');
     const plan = await ownPlan(db, i.plan_id, actorUserId(ctx));
     if (plan.status !== 'draft') throw new AppError('INVALID_STATE', 409, { status: plan.status });
     if (plan.version !== i.if_version)
       throw new AppError('CONFLICT', 409, { if_version: 'stale', version: String(plan.version) });
-    const entity = plan.entity as TransferEntity;
+    // Tập cố định của kế hoạch (không theo lựa chọn UI sau cùng); gửi kèm dataset khác → 409, lược đồ đổi → 409 lập lại.
+    assertDataset(plan, i.dataset);
+    const entity = planTarget(plan);
     requireImport(ctx.authz, entity);
     const mapping = i.mapping ?? (plan.mapping as Record<string, string>);
     const p = await preparePlan(db, this.d.files(), {
@@ -132,7 +140,7 @@ export class TransferUpdateMappingHandler implements Handler<MapIn, TransferPlan
       expectSha: plan.fileSha256,
       now: this.d.now(),
     });
-    return { ...p, entity };
+    return { ...p, target: entity };
   }
 
   async execute(
@@ -142,16 +150,16 @@ export class TransferUpdateMappingHandler implements Handler<MapIn, TransferPlan
     _ptx?: unknown,
     prepared?: unknown,
   ): Promise<HandlerOutcome<TransferPlanDto>> {
-    const p = prepared as Prepared & { entity: TransferEntity };
+    const p = prepared as Prepared;
     const now = this.d.now();
     await ownPlan(tx, i.plan_id, actorUserId(ctx), true);
     const rows = await markReimported(
       tx,
-      p.entity,
+      p.target,
       me(ctx),
       p.file,
       p.table.sheet,
-      await classify(tx, p.entity, { userId: me(ctx), authz: ctx.authz }, p.checked),
+      await classify(tx, p.target, { userId: me(ctx), authz: ctx.authz }, p.checked),
     );
     await replanRows(
       tx,

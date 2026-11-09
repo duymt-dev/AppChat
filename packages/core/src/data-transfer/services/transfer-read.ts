@@ -3,9 +3,11 @@
 import { getAction } from '@appchat/actions';
 import {
   AppError,
+  DATASETS_OF,
   TRANSFER_ENTITIES,
   TRANSFER_FORMATS,
   can,
+  targetOf,
   transferSpec,
   type AuthzContext,
   type PermissionKey,
@@ -15,7 +17,7 @@ import {
 import { TransferDeps } from '../data-transfer.providers';
 import { parseTransferFile } from './file-parser';
 import { ownPlan } from './planner';
-import { planView } from './plan-view';
+import { canImport, planView } from './plan-view';
 
 const MAX = 100;
 const CHECKS = new Set(['valid', 'invalid', 'duplicate', 'owned']);
@@ -71,17 +73,21 @@ export class TransferReadService {
     };
   }
 
-  /** Năng lực theo thực thể: nhập (đã nối + quyền nhập) và xuất (action xuất có sẵn + quyền của action đó). */
+  /**
+   * Năng lực theo thực thể × tập (TIP-026b §5 — khách có thêm 3 tập hoạt động): nhập (đã nối + quyền nhập ∩ quyền action) và xuất (action
+   * xuất có sẵn + quyền của action đó). Chỉ CSV / XLSX — PDF / DOCX không phải nguồn bảng cho các tập này (không giả bộ đọc).
+   */
   capabilities(authz: AuthzContext): TransferCapabilityDto[] {
-    return TRANSFER_ENTITIES.map((entity) => {
-      const s = transferSpec(entity);
+    return TRANSFER_ENTITIES.flatMap((entity) => DATASETS_OF[entity].map((dataset) => ({ entity, dataset }))).map(({ entity, dataset }) => {
+      const s = transferSpec(targetOf(entity, dataset));
       const exportPerm = getAction(s.exportAction)?.permission;
-      const canImport = can(authz, s.importPermission as PermissionKey);
+      const allowed = canImport(authz, targetOf(entity, dataset));
       return {
         entity,
+        dataset,
         import: {
-          supported: s.importReady && canImport,
-          reason: !s.importReady ? 'not_available' : canImport ? null : 'forbidden',
+          supported: s.importReady && allowed,
+          reason: !s.importReady ? 'not_available' : allowed ? null : 'forbidden',
           formats: [...TRANSFER_FORMATS],
           fields: s.fields.map((f) => ({ key: f.key, required: !!f.required })),
         },

@@ -1,7 +1,8 @@
 // Đọc thông báo của CHÍNH người gọi (Blueprint §4.4 misc `GET /v1/notifications?unread=`): cursor `(created_at, id)`,
 // index `notification(user_id, created_at DESC, id DESC)` + partial `WHERE read_at IS NULL` (migration 006).
-import { AppError, NOTIFY_KINDS, createFmt, isNotifyKind, type NotificationItemDto } from '@appchat/shared';
-import type { TenantDb } from '@appchat/db';
+import { AppError, NOTIFY_KINDS, createFmt, isNotifyKind, type AuthzContext, type NotificationItemDto } from '@appchat/shared';
+import type { PlatformDb, TenantDb } from '@appchat/db';
+import { applyProjection, projectNotices } from './ownership-notice';
 
 export const NOTIFICATIONS_PAGE = 20;
 export const NOTIFICATIONS_PAGE_MAX = 100;
@@ -32,9 +33,11 @@ export function toNotificationDto(r: Row, locale: string, timeZone: string, nowM
   };
 }
 
+/** `viewer` = quyền HIỆN TẠI của người gọi — thông báo chuyển phụ trách chiếu theo lô (TIP-015d §5), không ghi lại dòng gốc. */
 export async function listNotifications(
-  db: Pick<TenantDb, 'notification'>,
+  db: Pick<TenantDb, 'notification' | 'contactTransferNotice' | 'contactTransfer' | '$queryRaw'>,
   q: { userId: string; unread: boolean; cursor?: string; limit?: number; locale: string; timeZone: string; nowMs: number },
+  current?: { platform: Pick<PlatformDb, 'user'>; viewer: AuthzContext },
 ): Promise<{ data: NotificationItemDto[]; next_cursor: string | null }> {
   const limit = Math.min(Math.max(q.limit ?? NOTIFICATIONS_PAGE, 1), NOTIFICATIONS_PAGE_MAX);
   const c = q.cursor ? decode(q.cursor) : null;
@@ -49,8 +52,9 @@ export async function listNotifications(
     select: { id: true, type: true, title: true, link: true, readAt: true, createdAt: true },
   });
   const page = rows.slice(0, limit);
+  const shown = current ? applyProjection(page, await projectNotices(db, current.platform, current.viewer, page, q.locale)) : page;
   return {
-    data: page.map((r) => toNotificationDto(r, q.locale, q.timeZone, q.nowMs)),
+    data: shown.map((r) => toNotificationDto(r, q.locale, q.timeZone, q.nowMs)),
     next_cursor: rows.length > limit ? encode(page[page.length - 1]!) : null,
   };
 }

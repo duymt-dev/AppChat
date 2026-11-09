@@ -65,7 +65,9 @@ export async function reviewTiers(db: TenantDb, ws: string, timeZone: string, d:
     const rows = await db.$queryRaw<{ id: string }[]>`
       SELECT c.id FROM contact c WHERE c.deleted_at IS NULL AND c.id > ${after}::uuid
         AND (c.tier_key IS NOT NULL AND c.tier_key <> 'member'
-          OR EXISTS (SELECT 1 FROM loyalty_ledger l WHERE l.contact_id = c.id AND l.kind IN ('earn', 'adjust') AND l.delta > 0 AND l.created_at >= ${w.from} AND l.created_at < ${w.to}))
+          OR EXISTS (SELECT 1 FROM loyalty_ledger l WHERE l.contact_id = c.id AND l.kind IN ('earn', 'adjust') AND l.delta > 0 AND l.created_at >= ${w.from} AND l.created_at < ${w.to})
+          -- TIP-015e: khách gốc có nguồn đã gộp — điểm tích của họ nằm ở id nguồn; xét theo họ (review_tier không đổi thì không ghi).
+          OR EXISTS (SELECT 1 FROM contact s WHERE s.merged_into_id = c.id))
       ORDER BY c.id LIMIT ${BATCH}`;
     for (const r of rows) {
       try {

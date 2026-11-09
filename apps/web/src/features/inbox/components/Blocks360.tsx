@@ -1,11 +1,12 @@
 // Tab tuỳ biến của Hồ sơ 360° (REQ-F12, TIP-026): mỗi khối của thư viện 12 khối (Cài đặt › Hồ sơ 360°) là một thẻ. Khối hồ sơ (liên hệ,
 // trường tuỳ biến, ghi chú, điểm, tín hiệu / tóm tắt AI) đọc Contact360; khối module khác (ticket, SLA, CSAT, báo giá, đơn, lịch hẹn) đọc
-// `insights.links` (TIP-015b — LinkBlocks360).
+// `insights.links` (TIP-015b — LinkBlocks360); khối `packages` = thẻ Liệu trình dùng chung (TIP-033b).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { CustomFieldList } from '@/shared/custom-fields';
+import { CustomerPackagesCard } from '@/shared/customer-packages';
 import { usePanelStyles } from '../styles/panel.styles';
 import { useCardStyles } from '../styles/card360.styles';
 import { Rich } from './Rich';
@@ -80,6 +81,8 @@ function Block({ k, c }: { k: string; c: Contact360 }) {
       ) : (
         none
       );
+    case 'packages':
+      return <CustomerPackagesCard contactId={c.id} bare />;
     default:
       return (LINK_BLOCKS as readonly string[]).includes(k) ? <LinkBlock k={k as (typeof LINK_BLOCKS)[number]} links={c.insights?.links} /> : none;
   }

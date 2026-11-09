@@ -192,6 +192,33 @@
     "mine": "This customer is already in your list.",
     "open": "Open customer profile"
   },
+  "trash": {
+    "open": "Deleted",
+    "title": "Deleted customers",
+    "close": "Close",
+    "search": "Search name, phone, code…",
+    "hint": "Deleted customers are kept for 30 days for restore. Restoring does not change the owner or other data; pending connector sync may resume on the next sync.",
+    "loading": "Loading…",
+    "error": "Could not load the list — try again later",
+    "empty": "No deleted customers in your scope",
+    "deletedAt": "Deleted {at}",
+    "until": "restorable until {at}",
+    "expiredAt": "expired since {at}",
+    "restore": "Restore",
+    "cancel": "Cancel",
+    "more": "Load more",
+    "confirmTitle": "Restore {name}?",
+    "confirmBody": "The customer returns to the list with the same owner and data as before deletion.",
+    "status": {
+      "expired": "Expired",
+      "blocked": "Cannot restore"
+    },
+    "problem": {
+      "expired": "More than 30 days have passed — it can no longer be restored",
+      "phone_taken": "The phone number belongs to another active customer — resolve that customer first",
+      "changed": "The customer just changed — the list was refreshed, try again"
+    }
+  },
   "dd": {
     "title": "Duplicate check",
     "search": "Enter tax ID, name, company, phone or email to check…",
@@ -205,8 +232,7 @@
     "rules": "RULES",
     "rulesVal": "Email · Phone · Name+Company · Tax ID",
     "aiSuggest": "AI SUGGESTS",
-    "aiSuggestVal": "Auto-merge {auto}/{groups} groups score >90",
-    "pct": "{pct}% match",
+    "aiSuggestVal": "{auto}/{groups} pairs match strong rules — ask the Assistant to explain",
     "by": "By:",
     "booking": "New appointment",
     "ticket": "New ticket",
@@ -214,6 +240,22 @@
     "merge": "Merge",
     "cancel": "Cancel",
     "mergeSelected": "Merge selected",
+    "mergeSelectedN": "Merge {n} selected pairs",
+    "pick": "Select this pair",
+    "primary": "Keep {name} as primary",
+    "rank": {
+      "strong": "Strong match",
+      "medium": "Medium match",
+      "weak": "Weak match"
+    },
+    "ev": {
+      "email": "Email",
+      "tax_code": "Tax ID",
+      "name": "Name"
+    },
+    "conflict": "The customers changed or can no longer be merged. Your selection is kept — review and merge again.",
+    "loadError": "Could not load duplicates. Try again later.",
+    "more": "Load more",
     "close": "Close"
   },
   "cf": {
@@ -321,7 +363,17 @@
     "submit": "Transfer owner",
     "close": "Close",
     "bulkTitle": "Assign {count} customers",
-    "bulkDone": "Transferred {count} customers"
+    "bulkDone": "Transferred {count} customers",
+    "stop": "Stop",
+    "result": {
+      "transferred": "transferred",
+      "skipped": "already owner",
+      "pending": "awaiting approval",
+      "errors": "failed",
+      "cancelled": "not run (stopped)",
+      "moved": "Moved along: {conversations} conversations · {quotes} quotes · {appointments} appointments",
+      "pendingHint": "Sent for approval — the owner does not change until it is approved."
+    }
   },
   "unit": "customers",
   "sorts": {

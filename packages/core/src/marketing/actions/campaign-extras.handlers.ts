@@ -19,10 +19,11 @@ import { classifyRows, countKinds, parseRows, rowErrors } from '../services/audi
 import { CHANNEL_CAPS, renderContent, type CampaignContent } from '../services/campaign-policy';
 import { MarketingDeps } from '../services/marketing-deps';
 import { exportRows } from '../services/recipient-export';
+import { queueMailTest } from '../services/mail-test';
 
 @Injectable()
 @ActionHandler('campaign.send_test')
-export class CampaignSendTestHandler implements Handler<ActionInput<typeof campaignSendTest>, { sent_to: string }> {
+export class CampaignSendTestHandler implements Handler<ActionInput<typeof campaignSendTest>, { sent_to: string; delivery_ref?: string }> {
   constructor(
     @Inject(MarketingDeps) private readonly d: MarketingDeps,
     @Inject(CLOCK) private readonly clock: Clock,
@@ -35,10 +36,12 @@ export class CampaignSendTestHandler implements Handler<ActionInput<typeof campa
   }
 
   /** Thư thử tới email của người bấm qua tài khoản email đang kết nối (hàng gửi chung — tính tốc độ, không tính trần chủ động / số đo). */
-  async execute(ctx: ActionContext, input: ActionInput<typeof campaignSendTest>, tx: TenantTx): Promise<HandlerOutcome<{ sent_to: string }>> {
+  async execute(ctx: ActionContext, input: ActionInput<typeof campaignSendTest>, tx: TenantTx): Promise<HandlerOutcome<{ sent_to: string; delivery_ref?: string }>> {
     const c = await findCampaign(tx, input.campaign_id);
     const me = await this.d.userEmail(actorUserId(ctx));
     if (!me?.email) throw new AppError('VALIDATION_FAILED', 422, { user: 'no_email' });
+    // TIP-012c: mail của DN — biên nhận gửi thử riêng qua đúng kết nối đã chọn (không qua tài khoản kênh, không thống kê chiến dịch).
+    if (c.senderKind === 'tenant_mail') return queueMailTest(tx, ctx.workspaceId, c, { userId: actorUserId(ctx)!, email: me.email, name: me.name }, this.clock.now());
     const acc = c.channel === 'email' && c.accountId ? await tx.channelAccount.findUnique({ where: { id: c.accountId } }) : await tx.channelAccount.findFirst({ where: { type: 'email', status: 'connected', pausedAt: null }, orderBy: { createdAt: 'asc' } });
     if (!acc || acc.type !== 'email' || acc.status !== 'connected' || acc.pausedAt) throw new AppError('INVALID_STATE', 409, { connector: 'email' });
     if (!this.d.send) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'Hàng gửi chưa cấu hình');

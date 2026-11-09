@@ -5,10 +5,14 @@ import { TenantSql as Prisma } from '@appchat/db';
 import { QUOTE_STATUSES, foldText, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { UUID, quoteScopeSql } from '../quote-access';
+import { inFamilySql } from '../../../crm/lifecycle/family-sql';
 
 export interface QuoteFilter {
   status?: string;
+  /** Người tạo (doanh số) — giữ nghĩa cũ của `owner_id`. */
   ownerId?: string;
+  /** Người phụ trách vận hành (TIP-015d) — bộ lọc riêng `assigned_user_id`. */
+  assignedId?: string;
   contactId?: string;
   /** `old` = khách cũ (đã mua), `new` = khách mới. */
   returning?: string;
@@ -22,7 +26,8 @@ function where(authz: AuthzContext, f: QuoteFilter): Prisma.Sql {
   const parts: Prisma.Sql[] = [LIVE, quoteScopeSql(authz)];
   if (f.status && f.status !== 'all') parts.push((QUOTE_STATUSES as readonly string[]).includes(f.status) ? Prisma.sql`q.status = ${f.status}::quote_status` : Prisma.sql`FALSE`);
   if (f.ownerId && f.ownerId !== 'all') parts.push(UUID.test(f.ownerId) ? Prisma.sql`q.owner_user_id = ${f.ownerId}::uuid` : Prisma.sql`FALSE`);
-  if (f.contactId) parts.push(UUID.test(f.contactId) ? Prisma.sql`q.contact_id = ${f.contactId}::uuid` : Prisma.sql`FALSE`);
+  if (f.assignedId && f.assignedId !== 'all') parts.push(UUID.test(f.assignedId) ? Prisma.sql`q.assigned_user_id = ${f.assignedId}::uuid` : Prisma.sql`FALSE`);
+  if (f.contactId) parts.push(UUID.test(f.contactId) ? inFamilySql('q.contact_id', f.contactId) : Prisma.sql`FALSE`);
   if (f.returning === 'old' || f.returning === 'new') {
     const old = Prisma.sql`EXISTS (SELECT 1 FROM contact c WHERE c.id = q.contact_id AND (c.stage = 'won' OR c.last_order_at IS NOT NULL))`;
     parts.push(f.returning === 'old' ? old : Prisma.sql`NOT ${old}`);

@@ -11,7 +11,17 @@ export const LIST_EXPORT_KINDS = [
   'ticket.export',
   'product.export',
   'invoice.export',
+  // TIP-026b §5 — 3 tập hoạt động CRM (cùng khung tệp / việc / tải có hạn).
+  'contact_note.export',
+  'contact_task.export',
+  'contact_opportunity.export',
+  // TIP-033b §5.1 — liệu trình của một khách (tập chỉ xuất customer_packages; CSV hoặc XLSX).
+  'package.export',
 ] as const;
+/** Xuất toàn workspace (Cài đặt › Xuất dữ liệu): bỏ loại phải chọn một khách. */
+export const WORKSPACE_EXPORT_KINDS = LIST_EXPORT_KINDS.filter((k) => k !== 'package.export');
+export const LIST_EXPORT_FORMATS = ['xlsx', 'csv'] as const;
+export type ListExportFormat = (typeof LIST_EXPORT_FORMATS)[number];
 export type ListExportKind = (typeof LIST_EXPORT_KINDS)[number];
 
 /** ≤ ngưỡng: dựng tệp ngay trong action; > ngưỡng: việc nền (concurrency §7 — cùng ngưỡng sửa hàng loạt). */
@@ -34,6 +44,8 @@ export const quoteExportFilter = z.object({
 export const orderExportFilter = z.object({
   chip: text(20),
   owner_id: text(64),
+  /** Người phụ trách vận hành (TIP-032c) — `owner_id` = người tạo. */
+  assigned_user_id: text(64),
   contact_id: text(64),
   value: text(10),
   source: text(20),
@@ -43,6 +55,8 @@ export const orderExportFilter = z.object({
 export const contractExportFilter = z.object({
   status: text(20),
   owner_id: text(64),
+  /** Người phụ trách vận hành (TIP-032c) — `owner_id` = người tạo. */
+  assigned_user_id: text(64),
   contact_id: text(64),
   value: text(10),
   q: text(100),
@@ -83,3 +97,24 @@ export const listExportResultSchema = z.object({
   expires_at: z.string().nullable(),
 });
 export type ListExportResult = z.infer<typeof listExportResultSchema>;
+
+/** Bộ lọc xuất hoạt động CRM (TIP-026b §5): theo khách (cùng bộ lọc danh sách khách — scope crm hiện tại) + trạng thái / loại của tập. */
+const contactScope = {
+  contact_id: text(64),
+  owner_id: text(64),
+  stage: text(20),
+  q: text(100),
+};
+export const contactNoteExportFilter = z.object({ ...contactScope, kind: z.enum(['note', 'comment']).optional() });
+export const contactTaskExportFilter = z.object({ ...contactScope, state: z.enum(['open', 'done', 'cancelled']).optional() });
+export const contactOpportunityExportFilter = z.object({
+  ...contactScope,
+  opp_stage: z.enum(['open', 'qualified', 'proposal', 'won', 'lost']).optional(),
+  archived: z.boolean().optional(),
+});
+/** Xuất liệu trình (TIP-033b §5.1): bắt buộc MỘT khách (PackagesRead — CRM trước, scope đơn trong SQL), trạng thái tuỳ chọn, CSV / XLSX. */
+export const packageExportFilter = z.object({
+  contact_id: z.string().trim().min(1).max(64),
+  status: z.enum(['active', 'exhausted', 'expired', 'refunded']).optional(),
+  format: z.enum(LIST_EXPORT_FORMATS).optional(),
+});

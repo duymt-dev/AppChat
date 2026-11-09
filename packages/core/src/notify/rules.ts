@@ -14,6 +14,8 @@ export interface NotifyIntent {
   excludeUserId?: string;
   /** Gửi đúng một lần theo khoá nghiệp vụ (vd. `approval_expiry:<id>`) dù event phát lại / người nhận đổi (notifier giữ biên nhận). */
   onceKey?: string;
+  /** TIP-015d: thông báo chuyển phụ trách — dòng gốc tiêu đề chung + link null, ràng `contact_transfer_notice`, chiếu lúc đọc. */
+  ownershipNotice?: { transferId: string; direction: 'from' | 'to' };
 }
 
 type NotifyBuild = (e: DomainEvent) => NotifyIntent[];

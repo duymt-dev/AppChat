@@ -13,12 +13,13 @@ import { line, preview, updated } from '../../kernel/actions/preview-kit';
 import { CrmMembers } from '../../crm/public';
 import { actorOf, casUpdate, changed, findCampaign, lockCampaign, logEvent, senderAccount, stepOf } from '../repos/campaigns.repo';
 import { assertContent, contentHash, type CampaignContent } from '../services/campaign-policy';
+import { assertMailSenderCurrent } from '../services/mail-sender';
 import { snapshotHash, takeSnapshot } from '../services/recipient-snapshot';
 import { suggestionFilter } from '../services/segments.service';
 
 type Out = { campaign_id: string; status: string; version?: number };
 
-const hashOf = (c: { channel: string; content: unknown; ab: unknown; accountId: string | null; scheduledAt: Date | null }) => contentHash(c);
+const hashOf = (c: Parameters<typeof contentHash>[0]) => contentHash(c);
 
 @Injectable()
 @ActionHandler('campaign.submit')
@@ -39,15 +40,19 @@ export class CampaignSubmitHandler implements Handler<ActionInput<typeof campaig
     const to = stepOf(c, 'campaign.submit');
     const channel = c.channel as CampaignChannel;
     assertContent(channel, c.content as unknown as CampaignContent, c.ab as { text_b: string } | null);
-    const account = await senderAccount(tx, CAMPAIGN_ACCOUNT_TYPE[channel], c.accountId);
-    if (!account) throw new AppError('VALIDATION_FAILED', 422, { account_id: 'required' });
+    // TIP-012c: mail của DN — người gửi đã chọn phải còn đúng phiên bản và dùng được; snapshot người nhận theo địa chỉ email (không cần tài
+    // khoản kênh). Email cũ chỉ có kênh (không chọn người gửi) vẫn đi tài khoản kênh như trước — không tự gán kết nối mới nhất.
+    const mail = c.senderKind === 'tenant_mail';
+    if (mail) await assertMailSenderCurrent(tx, c);
+    const account = mail ? null : await senderAccount(tx, CAMPAIGN_ACCOUNT_TYPE[channel], c.accountId);
+    if (!mail && !account) throw new AppError('VALIDATION_FAILED', 422, { account_id: 'required' });
     if ((c.sendMode === 'schedule' || c.sendMode === 'ai_time') && (!c.scheduledAt || c.scheduledAt.getTime() <= now.getTime())) throw new AppError('VALIDATION_FAILED', 422, { scheduled_at: c.scheduledAt ? 'past' : 'required' });
-    const snap = await takeSnapshot(tx, ctx.authz, { campaignId: c.id, channel, accountId: account.id, segmentIds: c.segmentIds, filter: await suggestionFilter(tx, c.suggestionId), ab: !!c.ab }, now);
+    const snap = await takeSnapshot(tx, ctx.authz, { campaignId: c.id, channel, accountId: account?.id ?? null, segmentIds: c.segmentIds, filter: await suggestionFilter(tx, c.suggestionId), ab: !!c.ab }, now);
     if (!snap.eligible) throw new AppError('VALIDATION_FAILED', 422, { audience: snap.total ? 'no_reachable' : 'empty' });
     const actor = await actorOf(ctx, this.members);
     const row = await casUpdate(tx, c, {
-      status: to, accountId: account.id, submittedAt: now, submittedByUserId: actor.userId, estRecipients: snap.eligible,
-      contentHash: hashOf({ ...c, accountId: account.id }), recipientSnapshotHash: snap.hash, updatedAt: now,
+      status: to, accountId: account?.id ?? null, submittedAt: now, submittedByUserId: actor.userId, estRecipients: snap.eligible,
+      contentHash: hashOf({ ...c, accountId: account?.id ?? null }), recipientSnapshotHash: snap.hash, updatedAt: now,
     });
     await logEvent(tx, c.id, 'submitted', actor, now, { recipients: snap.total, eligible: snap.eligible });
     return { result: { campaign_id: c.id, status: to, version: row.version }, before: { id: c.id, status: c.status }, after: { version: row.version }, events: [changed('campaign.submitted', row, actor.userId)] };
@@ -89,8 +94,11 @@ export class CampaignApproveHandler implements Handler<ActionInput<typeof campai
     // Bản duyệt phải đúng bản đã gửi duyệt: nội dung / tài khoản / giờ hẹn / người nhận không đổi giữa hai bước.
     if (c.contentHash !== hashOf(c) || c.recipientSnapshotHash !== (await snapshotHash(tx, c.id))) throw new AppError('CONFLICT', 409, { campaign_id: 'snapshot_changed' });
     if (c.scheduledAt && c.scheduledAt.getTime() <= now.getTime()) throw new AppError('INVALID_STATE', 409, { scheduled_at: 'past' });
-    const account = c.accountId ? await tx.channelAccount.findUnique({ where: { id: c.accountId }, select: { status: true, pausedAt: true } }) : null;
-    if (!account || account.status !== 'connected' || account.pausedAt) throw new AppError('INVALID_STATE', 409, { account_id: account ? (account.pausedAt ? 'paused' : account.status) : 'missing' });
+    if (c.senderKind === 'tenant_mail') await assertMailSenderCurrent(tx, c);
+    else {
+      const account = c.accountId ? await tx.channelAccount.findUnique({ where: { id: c.accountId }, select: { status: true, pausedAt: true } }) : null;
+      if (!account || account.status !== 'connected' || account.pausedAt) throw new AppError('INVALID_STATE', 409, { account_id: account ? (account.pausedAt ? 'paused' : account.status) : 'missing' });
+    }
     const to = c.scheduledAt ? 'scheduled' : 'approved';
     const actor = await actorOf(ctx, this.members);
     const recipients = await tx.campaignRecipient.count({ where: { campaignId: c.id, status: 'pending' } });

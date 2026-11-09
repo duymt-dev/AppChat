@@ -1,9 +1,11 @@
 // Hợp đồng đọc nhập / xuất dữ liệu (TIP-038b, DC-374): kế hoạch nhập của người tạo (`GET /v1/data-transfer/plans/:id`), trang dòng xem
 // trước / lỗi (`/rows?check&cursor`), năng lực (`GET /v1/data-transfer/capabilities`). Chỉ người tạo đọc được kế hoạch của mình.
 import { z } from 'zod';
-import { TRANSFER_ENTITIES, TRANSFER_FORMATS } from '../data-transfer/registry';
+import { TRANSFER_DATASETS, TRANSFER_ENTITIES, TRANSFER_FORMATS } from '../data-transfer/registry';
 
 export const transferEntitySchema = z.enum(TRANSFER_ENTITIES);
+/** Tập dữ liệu (TIP-026b §5) — `base` khi bỏ trống; tập con chỉ hợp lệ dưới thực thể của nó (server kiểm). */
+export const transferDatasetSchema = z.enum(TRANSFER_DATASETS);
 export const TRANSFER_PLAN_STATUSES = [
   'draft',
   'committing',
@@ -18,6 +20,9 @@ export const TRANSFER_ROW_STATUSES = ['pending', 'applied', 'skipped', 'failed']
 export const transferPlanSchema = z.object({
   id: z.string(),
   entity: transferEntitySchema,
+  /** Tập dữ liệu cố định của kế hoạch + phiên bản lược đồ lúc lập (TIP-026b §5). */
+  dataset: transferDatasetSchema,
+  dataset_schema_version: z.number().int(),
   file_name: z.string(),
   sheet: z.string().nullable(),
   /** Danh sách cột của tệp (để sửa ánh xạ). */
@@ -59,6 +64,7 @@ export const transferRowsPageSchema = z.object({
 
 export const transferCapabilitySchema = z.object({
   entity: transferEntitySchema,
+  dataset: transferDatasetSchema,
   import: z.object({
     supported: z.boolean(),
     reason: z.string().nullable(),
@@ -71,6 +77,7 @@ export type TransferCapabilityDto = z.infer<typeof transferCapabilitySchema>;
 
 /** Mẫu tệp cho Trợ lý / màn nhập (`transfer.sample`): ô đã che — không dữ liệu liên hệ thật. */
 export const transferSampleSchema = z.object({
+  dataset: transferDatasetSchema,
   file_name: z.string(),
   sheets: z.array(z.string()),
   sheet: z.string().nullable(),

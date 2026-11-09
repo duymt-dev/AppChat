@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import { FIRST_PAGE, type PageState } from '@/shared/list/paged';
 import type { ContactFilter } from './api';
 
-export type CrmModal = 'create' | 'edit' | 'dedupe' | 'fields' | 'ai' | 'peek' | 'collab' | 'transfer' | 'import' | 'bulkTransfer' | null;
+export type CrmModal = 'create' | 'edit' | 'dedupe' | 'fields' | 'ai' | 'peek' | 'collab' | 'transfer' | 'import' | 'bulkTransfer' | 'trash' | null;
 
 interface CrmUiState {
   filter: ContactFilter;

@@ -7,6 +7,7 @@ import { bookingScopeSql } from '../../booking/booking-access';
 import { orderScopeSql } from '../../sales/orders/order-access';
 import { quoteScopeSql } from '../../sales/quotes/quote-access';
 import { supportScopeSql } from '../../support/ticket-access';
+import { inFamilySql } from '../lifecycle/family-sql';
 
 export const LINKS_LIMIT = 3;
 
@@ -37,29 +38,29 @@ export async function customerLinks(tx: Tx, a: AuthzContext, id: string, now: Da
   const [quotes, orders, appts, tickets, sla, csat] = await Promise.all([
     can(a, 'quote.view')
       ? tx.$queryRaw<Raw[]>`SELECT q.id, q.code, NULL::text AS title, q.status::text AS status, q.total AS amount, q.created_at AS at FROM quote q
-          WHERE q.contact_id = ${id}::uuid AND q.deleted_at IS NULL AND ${quoteScopeSql(a)} ORDER BY q.created_at DESC, q.id DESC LIMIT ${LINKS_LIMIT}`.then(rows)
+          WHERE ${inFamilySql('q.contact_id', id)} AND q.deleted_at IS NULL AND ${quoteScopeSql(a)} ORDER BY q.created_at DESC, q.id DESC LIMIT ${LINKS_LIMIT}`.then(rows)
       : null,
     can(a, 'order.view')
       ? tx.$queryRaw<Raw[]>`SELECT o.id, o.code, NULL::text AS title, o.status::text AS status, o.total AS amount, o.created_at AS at FROM "order" o
-          WHERE o.contact_id = ${id}::uuid AND o.deleted_at IS NULL AND ${orderScopeSql(a)} ORDER BY o.created_at DESC, o.id DESC LIMIT ${LINKS_LIMIT}`.then(rows)
+          WHERE ${inFamilySql('o.contact_id', id)} AND o.deleted_at IS NULL AND ${orderScopeSql(a)} ORDER BY o.created_at DESC, o.id DESC LIMIT ${LINKS_LIMIT}`.then(rows)
       : null,
     can(a, 'booking.view')
       ? tx.$queryRaw<Raw[]>`SELECT a.id, a.code, p.name AS title, a.status::text AS status, NULL::bigint AS amount, a.start_at AS at FROM appointment a
           JOIN product p ON p.id = a.service_id
-          WHERE a.contact_id = ${id}::uuid AND a.deleted_at IS NULL AND a.start_at >= ${now} AND a.status IN ('pending', 'confirmed') AND ${bookingScopeSql(a)}
+          WHERE ${inFamilySql('a.contact_id', id)} AND a.deleted_at IS NULL AND a.start_at >= ${now} AND a.status IN ('pending', 'confirmed') AND ${bookingScopeSql(a)}
           ORDER BY a.start_at ASC, a.id ASC LIMIT ${LINKS_LIMIT}`.then(rows)
       : null,
     can(a, 'ticket.view')
       ? tx.$queryRaw<Raw[]>`SELECT t.id, t.code, t.title, t.status::text AS status, NULL::bigint AS amount, t.created_at AS at FROM ticket t
-          WHERE t.contact_id = ${id}::uuid AND t.status <> 'closed' AND ${supportScopeSql(a)} ORDER BY t.created_at DESC, t.id DESC LIMIT ${LINKS_LIMIT}`.then(rows)
+          WHERE ${inFamilySql('t.contact_id', id)} AND t.status <> 'closed' AND ${supportScopeSql(a)} ORDER BY t.created_at DESC, t.id DESC LIMIT ${LINKS_LIMIT}`.then(rows)
       : null,
     can(a, 'ticket.view')
       ? tx.$queryRaw<{ code: string; result: string }[]>`SELECT t.code, t.sla_result AS result FROM ticket t
-          WHERE t.contact_id = ${id}::uuid AND t.sla_result IS NOT NULL AND ${supportScopeSql(a)} ORDER BY t.created_at DESC, t.id DESC LIMIT 1`.then((r) => r[0] ?? null)
+          WHERE ${inFamilySql('t.contact_id', id)} AND t.sla_result IS NOT NULL AND ${supportScopeSql(a)} ORDER BY t.created_at DESC, t.id DESC LIMIT 1`.then((r) => r[0] ?? null)
       : null,
     can(a, 'ticket.view')
       ? tx.$queryRaw<{ code: string; score: number; at: Date }[]>`SELECT t.code, t.csat AS score, t.updated_at AS at FROM ticket t
-          WHERE t.contact_id = ${id}::uuid AND t.csat IS NOT NULL AND ${supportScopeSql(a)} ORDER BY t.created_at DESC, t.id DESC LIMIT 1`.then((r) => (r[0] ? { code: r[0].code, score: r[0].score, at: r[0].at.toISOString() } : null))
+          WHERE ${inFamilySql('t.contact_id', id)} AND t.csat IS NOT NULL AND ${supportScopeSql(a)} ORDER BY t.created_at DESC, t.id DESC LIMIT 1`.then((r) => (r[0] ? { code: r[0].code, score: r[0].score, at: r[0].at.toISOString() } : null))
       : null,
   ]);
   return { quotes, orders, appts, tickets, sla, csat };

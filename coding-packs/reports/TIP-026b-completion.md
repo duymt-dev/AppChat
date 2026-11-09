@@ -1,10 +1,10 @@
 ### COMPLETION REPORT — TIP-026b (Hoạt động CRM: ghi chú / bình luận, việc chăm sóc, cơ hội)
 
-**STATUS:** ĐANG LÀM — pha 1 / 4 (DC-387). P2 giao diện, P3 Kanban + CAS bố cục, P4 nhập / xuất + ai:live + chốt.
+**STATUS:** **TIP DONE** sau pha 4 (DC-390). P1 server (DC-387) · P2 giao diện + Trợ lý (DC-388) · P3 Kanban + CAS bố cục (DC-389) · P4 nhập / xuất AI-first + ai:live + cổng chốt D59.
 
 **COMMIT:** nhánh `tip/026b-crm-activities` xếp chồng trên `tip/012b-bank-connectors-p5` (#126). SHA ở bảng tiến độ `goals/GOAL-RELEASE.md`.
 
-**MIGRATION:** P1 **tenant** `20261108040000_crm_activities` → sau merge chạy `db:migrate-tenants` + build lại api / worker.
+**MIGRATION:** tenant `20261108040000_crm_activities` (P1), `20261108050000_crm_board_layout_cas` (P3), `20261108060000_transfer_dataset` (P4) → sau merge chạy `db:migrate-tenants` + build lại api / worker.
 
 ---
 
@@ -122,3 +122,51 @@
 | `ui/interaction-patterns.md` | không báo thành công trước xác nhận; xung đột giữ nháp; đóng khi đang lưu hỏi |
 | `ui/frontend-structure.md` | màn orchestrator; hook / component tách; slot primitive mặc định không đổi |
 | `code/file-size-module-layout.md` | contacts.repo / crm-read.service ≤ 260 dòng; test riêng |
+
+---
+
+## Pha 4 — nhập / xuất AI-first 3 tập hoạt động CRM + ai:live + chốt TIP (§5, §6 — AC7–AC10; DC-390)
+
+**MIGRATION:** tenant `20261108060000_transfer_dataset` (`transfer_plan.dataset` + `dataset_schema_version`, CHECK tập theo thực thể, trigger bất biến) → `db:migrate-tenants` + build api / worker. Kế hoạch cũ giữ `base` v1.
+
+**FILES CHANGED** (lệch ghi ở DV-064)
+- db: migration trên; `data-transfer.prisma` (2 cột).
+- shared: `data-transfer/registry.ts` (`TRANSFER_DATASETS`, `DATASETS_OF`, `targetOf`, spec `dataset` / `schemaVersion` / `alsoRequires`, 3 entry tập con), `data-transfer/activity-fields.ts` (mới), `api/data-transfer.ts` (`dataset` ở plan / capability / sample), `api/list-exports.ts` (3 kind + bộ lọc), `i18n/server/*/insights.ts` (cột tệp).
+- actions: `data-transfer.ts` (`dataset` ở plan / sample / update_mapping / commit + mô tả), `list-exports.ts` (3 action xuất), mô tả `contact.add_note` / `contact_activity.list` / `contact_opportunity.create`.
+- core: `data-transfer/services/dataset.ts` (mới), `adapters/activities.ts` + `activity-party.ts` (mới), planner / plan.handlers / commit.handlers / sample.handler / transfer.runner / plan-view / transfer-read / validation / adapters (phân phối theo tập đã lưu), `insights/exports/activity-readers.ts` (mới) + export-runner (dấu quyền tiền) + 3 handler; `crm/public.ts`, `tip-owners.ts`, `assistant/catalog.ts`, `assistant-extension.ts`.
+- web: TransferPanel (hàng chọn tập dưới khách, nhãn tập của kế hoạch), useTransfer (gửi tập đã lưu), transfer-store (`dataset`), mock data-transfer (tập, luật dòng, 409 / 422) + list-exports (3 kind); i18n vi + en (`data-transfer`, `actions`, `settings`).
+- ai-live: `activity-judge.ts`, `cases.ts` / `cli.ts` / `runner.ts`; `fixtures/ai-eval/crm-activities/{cases.json,seed.mjs}`; `fixtures/data-transfer/crm-activities.csv`.
+- test mới: core `contact-activity-transfer.test.ts` (11), api `contact-activity-transfer.test.ts` (6 — CSV + XLSX thật 3 tập, 409 khác tập, trigger, replay, forbidden tiền, 403, xuất XLSX thật + cột tiền theo quyền, EXPLAIN 10k), 3 ma trận `contact_*.export`, web `data-transfer-shape.test.ts` (+1), e2e mock + http `data-transfer.spec.ts` (+1 mỗi bản).
+
+**Giả định đã chọn (gap-filling)**
+- Hạn việc nhập từ tệp là ngày lịch → 23:59 giờ Việt Nam ngày đó (tệp không mang giờ); workspace khác múi giờ vẫn theo +07:00 ở pha này.
+- Người nhập tự nhận việc (mặc định của action) — tệp không có cột người phụ trách (không giao việc / không đổi phụ trách bằng tệp).
+- Dòng tệp xuất (có cột id) khi nhập lại → loại `exported_record`, không cập nhật — cập nhật chỉ qua thao tác tường minh có version.
+
+**CỔNG TEST (P4 + chốt TIP — D59)**
+- `db:test-reset` → integration 15 file **64/64**: contact-activity-transfer, data-transfer (+ commerce, assistant), list-exports, contact-activities, crm-board-page, 3 ma trận export mới + add_note / opportunity.create / task.create / quote.export / contact.import.
+- EXPLAIN 10k khách + 10k việc: `.data/gate/026b-p4-explain.txt` — `Index Only Scan using contact_task_list_idx`, Heap Fetches 0, không Seq Scan.
+- `pnpm turbo run lint typecheck test --filter="...[origin/dev]"`: **36/36**. core unit 729/729, actions 12/12, web unit mock + data-transfer 215/215. `pnpm depcheck` 0 lỗi. `i18n-check` 100% (6537). `lint:size`, `lint:tokens` pass.
+- Build api + worker + web pass; `pnpm check:bundle` pass.
+- E2E mock: data-transfer 4/4, crm-activities + customers + settings 22/22 (+22 skip bản thiết bị khác), settings-data + settings-ops 9/9, list-exports + workspace-danger 9/9. E2E http data-transfer 3/3 (desktop 2 luồng + mobile 390).
+- Parity: `customers:table` 0,99%, `customers:kanban` 3,59%, `customers:360` 3,39%, `settings:general` 0,08%.
+- **AI LIVE (AC7–AC9)** — `reports/ai-live-crm-activities-2026-11-08.md`: model thật 9router `ag/gemini-3-flash`, stack riêng cổng 4617, Redis DB 14, DB test; 10 ca × 3 lượt → **10/10 ĐẠT (30/30 lượt), 0 vi phạm an toàn**. Vòng đầu (1 lượt) 7/10 bắt lỗi thật: model dùng `contact.update` để "ghi chú cho khách", xuất tệp để đọc một giá trị kỳ vọng, không tạo cơ hội trước khi mở form báo giá → sửa mô tả action + từ khoá `find_actions`.
+- Harness ai:live đăng nhập Owner — ca theo vai trò (CS không thấy tiền, Sales thiếu crm.import, người nhập không quote.create) kiểm ở integration native, không ở ai:live.
+
+**ĐỐI CHIẾU STANDARDS (P4)**
+
+| Standard | Kết quả |
+|---|---|
+| `actions/action-registry.md` | 3 action xuất mới zod in / out, quyền crm.export, risk write, không cấp agent; nhập vẫn qua transfer.* + action canonical mỗi dòng (không đường ghi thứ hai) |
+| `authz/rbac-permissions.md` | tập con = crm.import ∩ crm.edit; tiền ghi cần quote.create, đọc cần quote.view; khách theo phạm vi GHI; không quyền mới |
+| `domain/concurrency.md` | tập + lược đồ bất biến (trigger) — xác nhận / tiếp tục khác tập 409; biên nhận dòng unique (plan, row_key), replay → duplicate |
+| `domain/validation-defaults.md` | lỗi theo ô (`state: readonly`, `stage: terminal`, `expected_amount: forbidden`, `contact: not_found / ambiguous`), không tự sửa / đoán |
+| `domain/money-time-numbering.md` | tiền VND chuỗi chữ số (bigint), hạn ngày lịch → 23:59 +07:00; giá trị kỳ vọng ≠ doanh thu ở nhãn cột + mô tả |
+| `database/indexing.md` | chốt id xuất đi index hoạt động (khách `=`, trạng thái `=`, sort), deferred join theo PK; EXPLAIN 10k |
+| `ai/agent-gateway.md` / `ai/eval.md` | mẫu tệp đã che cho model; ai:live 10 ca 3 lượt ≥ 9/10, an toàn 10/10 |
+| `api/response-envelope.md` | `{data}`; 409 / 422 / 403 có `fields` |
+| `i18n/i18n.md` | vi + en đủ, nhãn tệp server theo locale người xuất |
+| `code/file-size-module-layout.md` | file mới ≤ 230 dòng; registry 260; test riêng |
+
+**Chưa nghiệm thu với provider thật:** không — LLM 9router thật đã chạy (ai:live). Không cần Zalo / SePay / Brevo cho pha này.
+

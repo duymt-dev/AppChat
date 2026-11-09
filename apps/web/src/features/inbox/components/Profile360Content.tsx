@@ -20,7 +20,7 @@ export function Profile360Content({ contactId, tab }: { contactId: string; tab: 
   if (!cur.builtin || !TABS_360.includes(cur.key)) return <Blocks360 c={c} blocks={cur.blocks} />;
   return (
     <>
-      {cur.key === 'overview' ? <Overview360 c={c} /> : null}
+      {cur.key === 'overview' ? <Overview360 c={c} packages={!cur.blocks.includes('packages')} /> : null}
       {cur.key === 'crm' ? <Crm360 c={c} /> : null}
       {cur.key === 'ai' ? <Ai360 c={c} /> : null}
       {cur.key === 'files' ? <Files360 c={c} /> : null}

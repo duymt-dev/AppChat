@@ -13,6 +13,8 @@ export interface ContractDraft {
   value: string;
   kind: ContractKind;
   owner_user_id: string;
+  /** Người phụ trách vận hành (TIP-032c) — form sửa đổi trường này, người tạo bất biến. */
+  assigned_user_id: string;
   title: string;
   file_name: string;
   note: string;
@@ -35,6 +37,7 @@ export function initialContractDraft(today: string, prefill?: Record<string, unk
       ? (p.kind as ContractKind)
       : 'service',
     owner_user_id: str(p.owner_user_id),
+    assigned_user_id: str(p.assigned_user_id),
     title: str(p.title),
     file_name: str(p.file_name),
     note: str(p.note),
@@ -66,5 +69,8 @@ export function useContractForm(init: ContractDraft) {
     ...(d.file_name ? { file_name: d.file_name } : {}),
     ...(d.note.trim() ? { note: d.note.trim() } : {}),
   };
-  return { d, set, money: digits, missing, badRange, input };
+  // Sửa (TIP-032c): không gửi người tạo (bất biến) — người phụ trách qua `assigned_user_id` (rỗng = bỏ giao).
+  const { owner_user_id: _owner, ...rest } = input;
+  const patch = { ...rest, assigned_user_id: d.assigned_user_id || null };
+  return { d, set, money: digits, missing, badRange, input, patch };
 }

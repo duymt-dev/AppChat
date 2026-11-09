@@ -52,6 +52,9 @@ export type TurnOutcome = 'sent' | 'suggested' | 'handoff' | 'waiting_approval' 
 /** Lượt khách nguồn đang xử lý (receipt) — null khi chạy tiếp run cũ không có receipt. */
 type Source = { conversationId: string; sourceMessageId: string } | null;
 
+/** Khách của hội thoại đã xoá mềm (TIP-015f) — không bắt đầu / chạy tiếp lượt agent. */
+const contactDeleted = async (db: TenantDb, c: Conv) =>
+  !!c.contactId && !!(await db.contact.findUnique({ where: { id: c.contactId }, select: { deletedAt: true } }))?.deletedAt;
 const blocked = (c: Conv) => c.aiMode === 'off' || c.aiState === 'handoff' || c.aiState === 'waiting_approval' || c.status === 'closed';
 
 /** Gửi câu trả lời qua `message.send` với ngữ cảnh agent (hội thoại đang phục vụ — chạy luôn, §3.3). */
@@ -232,7 +235,7 @@ export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string
 
 async function ownedTurn(d: ReplyDeps, db: TenantDb, ws: string, conversationId: string, turn: TurnLease): Promise<TurnOutcome> {
   const c = await db.conversation.findUnique({ where: { id: conversationId } });
-  if (!c || blocked(c)) return 'skipped';
+  if (!c || blocked(c) || (await contactDeleted(db, c))) return 'skipped';
   const pending = await pendingSource(db, c.id);
   if (!pending) return 'skipped';
   const now = d.now();
@@ -277,6 +280,8 @@ export async function finishResumedTurn(d: ReplyDeps, db: TenantDb, ws: string, 
   const a = await publishedAgent(db, run.agentId);
   if (!c || !a) return 'skipped';
   // Chạy tiếp sau duyệt: giành lại lượt cho cùng run (owner theo run id) — lượt khác đang giữ → không chạy song song.
+  // TIP-015f §4.2: khách đã xoá sau khi run dừng chờ duyệt → không chạy tiếp lượt cũ (khôi phục cũng không hồi sinh run đã rào).
+  if (await contactDeleted(db, c)) return 'skipped';
   const turn = await acquireTurn(db, c.id, `resume:${run.id}`, d.now());
   if (!turn) return 'skipped';
   try {

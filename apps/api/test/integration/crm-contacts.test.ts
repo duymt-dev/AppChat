@@ -77,7 +77,8 @@ describe('tạo khách + chống giành khách', () => {
 
     const tmp = await create({ full_name: 'Tạm', phone: '0911000003' });
     expect((await undo(tmp.body.data.action_log_id)).status).toBe(200);
-    expect(await (await tenant()).contact.findUnique({ where: { id: tmp.body.data.result.contact_id } })).toBeNull();
+    // TIP-015f §5.1: hoàn tác tạo = xoá mềm (giữ dòng + biên nhận), không DELETE.
+    expect((await (await tenant()).contact.findUniqueOrThrow({ where: { id: tmp.body.data.result.contact_id } })).deletedAt).not.toBeNull();
   });
 
   it('AC3 role-isolation: sales B không thấy / không sửa khách của A; collaborator thấy + sửa; watcher chỉ đọc; mine gồm khách đồng phụ trách', async () => {
@@ -133,8 +134,8 @@ describe('tạo khách + chống giành khách', () => {
     const move = { conversations: true, quotes: true, appointments: false };
     expect((await act('contact.transfer_owner', { contact_id: lan, to_user_id: salesB.id, move }, as(salesA))).status).toBe(403);
     const r = await act('contact.transfer_owner', { contact_id: lan, to_user_id: salesB.id, move }, as(manager));
-    expect(r.body.data.result).toEqual({ owner_user_id: salesB.id, moved: { conversations: 0, quotes: 0, appointments: 0 } });
-    expect(await outbox('contact.owner_changed')).toContainEqual(expect.objectContaining({ contact_id: lan, from: salesA.id, to: salesB.id, move }));
+    expect(r.body.data.result).toMatchObject({ status: 'transferred', owner_user_id: salesB.id, moved: { conversations: 0, quotes: 0, appointments: 0 } });
+    expect(await outbox('contact.owner_changed')).toContainEqual(expect.objectContaining({ contact_id: lan, from: salesA.id, to: salesB.id, move, transfer_id: r.body.data.result.transfer_id }));
     expect(ids((await get('/contacts', salesA)).body)).not.toContain(lan);
     expect((await get(`/contacts/${lan}`, salesB)).status).toBe(200);
     await undo(r.body.data.action_log_id, manager);
@@ -162,7 +163,9 @@ describe('tạo khách + chống giành khách', () => {
     const db = await tenant();
     // Bản trùng email từ kênh (không qua create — chống trùng chặn ở create).
     const b = uuidv7();
-    await db.contact.create({ data: { id: b, code: 'KH-9001', name: 'Bảo Trần', email: 'bao@gmail.com', phone: '0938000000', phoneNorm: '0938000000', source: 'zalo_personal' } });
+    // Cùng người phụ trách với bản chính (TIP-015e: gộp không hợp quyền — khác chủ / ACL → 409).
+    const owner = (await db.contact.findUniqueOrThrow({ where: { id: a } })).ownerUserId;
+    await db.contact.create({ data: { id: b, code: 'KH-9001', name: 'Bảo Trần', email: 'bao@gmail.com', phone: '0938000000', phoneNorm: '0938000000', source: 'zalo_personal', ownerUserId: owner } });
     await db.contactNote.create({ data: { id: uuidv7(), contactId: b, body: 'Ghi chú bản phụ', authorUserId: h.user } });
     const dup = duplicatesSchema.parse((await get('/contacts/duplicates')).body.data);
     const g = dup.groups.find((x) => x.id === `${a}~${b}`);

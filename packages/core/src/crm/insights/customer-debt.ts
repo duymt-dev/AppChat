@@ -7,6 +7,7 @@ import { TenantSql as Prisma } from '@appchat/db';
 import { can, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { invoiceScopeSql } from '../../sales/payments/invoice-access';
+import { inFamilySql } from '../lifecycle/family-sql';
 
 export interface Debt {
   /** Phải thu còn lại (VND, chuỗi). */
@@ -37,6 +38,13 @@ export async function debtOf(tx: Pick<TenantTx, '$queryRaw'>, a: AuthzContext, c
 
 /** Công nợ một khách; không quyền → null; không có đề nghị mở → 0 / 0 / 0. */
 export async function customerDebt(tx: Pick<TenantTx, '$queryRaw'>, a: AuthzContext, contactId: string, today: string): Promise<Debt | null> {
-  const m = await debtOf(tx, a, [contactId], today);
-  return m ? (m.get(contactId) ?? { due: '0', overdue: '0', open: 0 }) : null;
+  if (!canSeeDebt(a)) return null;
+  // TIP-015e: đề nghị giữ id khách gốc sau gộp — cộng cả họ (mỗi đề nghị một lần).
+  const [r] = await tx.$queryRaw<{ due: bigint | null; overdue: bigint | null; open: bigint }[]>`
+    SELECT sum(i.amount - i.paid_amount)::bigint AS due,
+           coalesce(sum(i.amount - i.paid_amount) FILTER (WHERE i.due_date < ${today}::date), 0)::bigint AS overdue,
+           count(*)::bigint AS open
+    FROM invoice i
+    WHERE ${inFamilySql('i.contact_id', contactId)} AND i.status IN ('sent', 'partial', 'overdue') AND ${invoiceScopeSql(a)}`;
+  return { due: String(r?.due ?? 0n), overdue: String(r?.overdue ?? 0n), open: Number(r?.open ?? 0n) };
 }

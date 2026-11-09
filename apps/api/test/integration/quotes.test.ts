@@ -306,12 +306,12 @@ describe('xoá + AI soạn + chuyển phụ trách', () => {
     expect(await db.aiRun.count({ where: { title: 'quote.draft_from_content' } })).toBe(1);
   });
 
-  it('chuyển phụ trách khách kèm báo giá đang mở (consumer contact.owner_changed)', async () => {
+  it('TIP-015d: event contact.owner_changed cũ trong hàng đợi không đổi báo giá (consumer chỉ ghi log, không phát lại `to`)', async () => {
     const db = await tenant();
-    const open = await db.quote.findMany({ where: { contactId: ids.lan, deletedAt: null, status: { in: ['draft', 'sent'] } }, select: { id: true } });
+    const open = await db.quote.findMany({ where: { contactId: ids.lan, deletedAt: null, status: { in: ['draft', 'sent'] } }, select: { id: true, ownerUserId: true, assignedUserId: true } });
     expect(open.length).toBeGreaterThan(0);
-    await quoteOwnerConsumer(() => h.clock.now()).handle({ id: uuidv7(), topic: 'contact.owner_changed', workspaceId: h.ws, traceId: null, payload: { contact_id: ids.lan, from: h.user, to: sales.id, move: { conversations: false, quotes: true, appointments: false } } }, db);
-    expect((await db.quote.findMany({ where: { id: { in: open.map((o) => o.id) } } })).every((q) => q.ownerUserId === sales.id)).toBe(true);
-    expect((await db.quote.findUniqueOrThrow({ where: { id: ids.big2 } })).ownerUserId).toBe(sales.id);
+    await quoteOwnerConsumer().handle({ id: uuidv7(), topic: 'contact.owner_changed', workspaceId: h.ws, traceId: null, payload: { contact_id: ids.lan, from: h.user, to: sales.id, move: { conversations: false, quotes: true, appointments: false } } }, db);
+    const after = await db.quote.findMany({ where: { id: { in: open.map((o) => o.id) } }, select: { id: true, ownerUserId: true, assignedUserId: true } });
+    expect(after.sort((x, y) => x.id.localeCompare(y.id))).toEqual(open.sort((x, y) => x.id.localeCompare(y.id)));
   });
 });

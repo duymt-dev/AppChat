@@ -9,12 +9,18 @@ import { POLICIES, docColumns, guardRecord, recordScopeSql, type AccessMode } fr
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-const COLS = docColumns('o');
+// TIP-032c §1.5: nhánh own theo người phụ trách VẬN HÀNH (`assigned_user_id`), không theo người tạo (doanh số không phải quyền ghi vĩnh viễn).
+const COLS = { ...docColumns('o'), owner: Prisma.raw('o.assigned_user_id') };
 const NF = { order_id: 'not_found' };
 
 /** Điều kiện SQL (alias `o`) cho danh sách theo scope sales. */
 export function orderScopeSql(authz: AuthzContext, mode: AccessMode = 'read'): Prisma.Sql {
   return recordScopeSql(authz, POLICIES.sales, mode, COLS);
+}
+
+/** KPI doanh số (TIP-038 / 032c §3.3): nhánh own theo NGƯỜI TẠO (`owner_user_id`) — đổi người phụ trách không chuyển doanh số. */
+export function orderAttributionScopeSql(authz: AuthzContext): Prisma.Sql {
+  return recordScopeSql(authz, POLICIES.sales, 'read', docColumns('o'));
 }
 
 export type OrderRecord = NonNullable<Awaited<ReturnType<TenantTx['order']['findUnique']>>>;
@@ -23,7 +29,7 @@ export type OrderRecord = NonNullable<Awaited<ReturnType<TenantTx['order']['find
 export async function visibleOrder(tx: TenantTx, authz: AuthzContext, id: string, mode: AccessMode = 'read'): Promise<OrderRecord> {
   const o = UUID.test(id) ? await tx.order.findUnique({ where: { id } }) : null;
   if (!o || o.deletedAt) throw new AppError('NOT_FOUND', 404, NF);
-  await guardRecord(tx, authz, POLICIES.sales, mode, { owner: o.ownerUserId, team: o.teamId, contact: o.contactId }, NF);
+  await guardRecord(tx, authz, POLICIES.sales, mode, { owner: o.assignedUserId, team: o.teamId, contact: o.contactId }, NF);
   return o;
 }
 

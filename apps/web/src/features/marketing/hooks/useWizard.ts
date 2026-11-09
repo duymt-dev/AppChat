@@ -23,6 +23,8 @@ export interface WizardDraft {
   step: number;
   channel: MkChannel;
   account_id: string;
+  /** Email: `acc:<id>` | `mail:<connection>:<sender>` (TIP-012c — người gửi tường minh). */
+  sender: string;
   q: string;
   group: string;
   segment_ids: string[];
@@ -46,6 +48,16 @@ const isoLocal = (v: string) => {
   return `${v.length === 16 ? `${v}:00` : v}${sign}${pad(off / 60)}:${pad(off % 60)}`;
 };
 
+/** Người gửi gửi lên server: email chọn mail của DN → `sender` tenant_mail; còn lại tài khoản kênh như cũ. */
+function senderInput(d: WizardDraft) {
+  if (d.channel === 'email' && d.sender.startsWith('mail:')) {
+    const [, connection_id, sender_id] = d.sender.split(':');
+    return { sender: { kind: 'tenant_mail' as const, connection_id: connection_id!, sender_id: sender_id! } };
+  }
+  const acc = d.channel === 'email' && d.sender.startsWith('acc:') ? d.sender.slice(4) : d.account_id;
+  return acc ? { account_id: acc } : {};
+}
+
 export function useWizard(meta: MarketingMeta, s: Suggestion | undefined, prefill: Record<string, unknown>) {
   const t = useTranslations('marketing.wiz');
   const { message } = App.useApp();
@@ -57,6 +69,7 @@ export function useWizard(meta: MarketingMeta, s: Suggestion | undefined, prefil
     step: 1,
     channel,
     account_id: meta.accounts.find((a) => a.type === (channel === 'zalo' ? 'zalo_personal' : 'email') && a.status === 'connected')?.id ?? '',
+    sender: '',
     q: '',
     group: 'all',
     segment_ids: [],
@@ -99,7 +112,7 @@ export function useWizard(meta: MarketingMeta, s: Suggestion | undefined, prefil
       name: d.name.trim(),
       kind: s?.kind ?? 'manual',
       channel: d.channel,
-      ...(d.account_id ? { account_id: d.account_id } : {}),
+      ...senderInput(d),
       ...(d.segment_ids.length ? { segment_ids: d.segment_ids } : {}),
       ...(d.picked.length ? { contact_ids: d.picked } : {}),
       ...(d.batch ? { audience_batch_id: d.batch.id } : {}),

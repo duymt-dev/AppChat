@@ -252,5 +252,25 @@
       "save": "Lưu",
       "cancel": "Huỷ"
     }
+  },
+  "packages": {
+    "title": "Liệu trình",
+    "loading": "Đang tải liệu trình…",
+    "error": "Không tải được liệu trình.",
+    "retry": "Thử lại",
+    "denied": "Bạn không còn quyền xem liệu trình của khách này.",
+    "empty": "Khách chưa có liệu trình.",
+    "more": "Tải thêm",
+    "usage": "Đã dùng {used}/{total} buổi · còn {remaining}",
+    "expires": "hạn {date}",
+    "remainingNote": "\"Còn\" là số buổi chưa dùng, không phải số buổi còn đặt được.",
+    "export_csv": "Xuất CSV",
+    "export_xlsx": "Xuất Excel",
+    "status": {
+      "active": "Đang dùng",
+      "exhausted": "Hết buổi",
+      "expired": "Hết hạn",
+      "refunded": "Đã hoàn"
+    }
   }
 }

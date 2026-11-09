@@ -3,6 +3,15 @@ export * from './kernel';
 export * from './kernel/actions/genui-intent';
 export * from './kernel/actions/secret-vault';
 export * from './kernel/actions/secret-fields';
+export * from './kernel/ownership/ports';
+export * from './kernel/ownership/registry';
+export * from './kernel/contact-lifecycle/ports';
+export * from './kernel/contact-lifecycle/registry';
+export { ContactLifecycleModule, CONTACT_LIFECYCLE_PORTS, registerContactLifecyclePorts } from './composition/contact-lifecycle.module';
+// Port domain (TIP-015d) — test thay port lỗi rồi trả lại port thật.
+export { conversationOwnershipPort } from './inbox/services/ownership-port';
+export { quoteOwnershipPort } from './sales/quotes/services/ownership-port';
+export { appointmentOwnershipPort } from './booking/services/ownership-port';
 // GenUI (TIP-023c): gửi action từ node cây Trợ lý, render / refs / phần ui đã lưu.
 export { runGenUiAction, genUiCtx, type GenUiSubmitDeps } from './ai/assistant/genui/submit';
 export { renderTool, markSecretFields, errorTree, RENDER_TOOL } from './ai/assistant/genui/render';

@@ -99,12 +99,12 @@ describe('đặt lịch', () => {
     expect([row.status, row.holdExpiresAt?.toISOString(), row.blockEndAt.toISOString()]).toEqual(['pending', '2026-10-30T10:00:00.000Z', '2026-10-31T03:10:00.000Z']);
     ids.lan = row.contactId;
     expect((await db.contact.findUniqueOrThrow({ where: { id: row.contactId } })).name).toBe('Ngô Bảo Ngọc');
-    expect(err(await act('appointment.create', { contact_name: 'Khác', phone: '0909500001', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '09:30' }))).toBe('409 CONFLICT');
+    expect(err(await act('appointment.create', { contact_name: 'Khác', phone: '0909500001', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '09:30' }))).toBe('409 SLOT_TAKEN');
     // 10:00 dính đệm 10 phút của lịch 09:00–10:00 → lưới 30 phút trả 10:30.
-    expect(err(await act('appointment.create', { contact_name: 'Khác', phone: '0909500001', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '10:00' }))).toBe('409 CONFLICT');
+    expect(err(await act('appointment.create', { contact_name: 'Khác', phone: '0909500001', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '10:00' }))).toBe('409 SLOT_TAKEN');
     const b = ok(await act('appointment.create', { contact_name: 'Bảo Ngọc', phone: '0909500001', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '10:30', status: 'confirmed' }));
     expect((await db.appointment.findUniqueOrThrow({ where: { id: b.result.appointment_id } })).contactId).toBe(ids.lan);
-    expect(err(await act('appointment.create', { contact_name: 'X', service_id: ids.massage, staff_id: ids.s2, date: TOMORROW, start: '13:00' }))).toBe('409 CONFLICT');
+    expect(err(await act('appointment.create', { contact_name: 'X', service_id: ids.massage, staff_id: ids.s2, date: TOMORROW, start: '13:00' }))).toBe('409 SLOT_TAKEN');
   });
 
   it('ràng buộc DB: hai lịch chồng nhau cùng nhân sự bị EXCLUDE chặn (đặt đồng thời)', async () => {
@@ -115,16 +115,16 @@ describe('đặt lịch', () => {
     ).rejects.toThrow(/appointment_no_overlap|exclusion/i);
   });
 
-  it('hoàn tác tạo (xoá mềm, trả khung giờ); đổi giờ giữ mã + tăng lần dời + hoàn tác', async () => {
+  it('hoàn tác tạo (giữ bản ghi → cancelled có lý do, trả khung giờ — TIP-033b §2.6); đổi giờ giữ mã + tăng lần dời + hoàn tác', async () => {
     const c = ok(await act('appointment.create', { contact_id: ids.lan, contact_name: 'x', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '14:00' }));
     expect((await undo(c.action_log_id)).status).toBe(200);
-    expect((await get(`/calendar/${c.result.appointment_id}`)).status).toBe(404);
+    expect(await appt(c.result.appointment_id)).toMatchObject({ status: 'cancelled', cancel_reason: 'undo_create' });
     ok(await act('appointment.create', { contact_id: ids.lan, contact_name: 'x', service_id: ids.massage, staff_id: ids.s1, date: TOMORROW, start: '14:00' }));
     const before = await appt(a1);
     const m = ok(await act('appointment.reschedule', { appointment_id: a1, date: TOMORROW, start: '16:00' }));
     const moved = await appt(a1);
     expect([moved.code, moved.start_at, moved.reschedule_count]).toEqual([before.code, `${TOMORROW}T16:00:00+07:00`, 1]);
-    expect(err(await act('appointment.reschedule', { appointment_id: a1, date: TOMORROW, start: '14:00' }))).toBe('409 CONFLICT');
+    expect(err(await act('appointment.reschedule', { appointment_id: a1, date: TOMORROW, start: '14:00' }))).toBe('409 SLOT_TAKEN');
     expect((await undo(m.action_log_id)).status).toBe(200);
     expect((await appt(a1)).start_at).toBe(`${TOMORROW}T09:00:00+07:00`);
   });

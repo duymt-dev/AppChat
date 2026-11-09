@@ -1,10 +1,10 @@
 // Preview hồ sơ khách (TIP-023b R2.8): create → dữ liệu mới (không lộ ghi chú dài); update → trước / sau chỉ trường đổi (trường tuỳ biến theo
 // khoá); set_stage → giai đoạn trước / sau; tag → danh sách thẻ trước / sau (thẻ chưa có → cảnh báo tạo mới); delete → mã + tên. Khách ngoài
 // scope → 404 / 403 như execute (editableContact). Trùng SĐT / email vẫn do execute chặn.
-import type { ActionInput, ActionPreview, contactCreate, contactDelete, contactSetStage, contactTag, contactUpdate } from '@appchat/actions';
+import type { ActionInput, ActionPreview, contactCreate, contactSetStage, contactTag, contactUpdate } from '@appchat/actions';
 import type { AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
-import { created, line, preview, removed, updated } from '../../../kernel/actions/preview-kit';
+import { created, line, preview, updated } from '../../../kernel/actions/preview-kit';
 import { editableContact } from '../../services/access';
 import { columnsOf } from '../../services/contacts.service';
 
@@ -50,9 +50,4 @@ export async function tagPreview(tx: TenantTx, a: AuthzContext, i: ActionInput<t
     changes: updated('contact', c.id, { tags: cur }, { tags: next }),
     ...(!hit && i.op === 'add' ? { warnings: [`new_tag:${name}`] } : {}),
   });
-}
-
-export async function deletePreview(tx: TenantTx, a: AuthzContext, i: ActionInput<typeof contactDelete>): Promise<ActionPreview> {
-  const { contact: c } = await editableContact(tx, a, i.contact_id);
-  return preview('delete', line(c.code, c.name), { changes: [removed('contact', c.id, { code: c.code, name: c.name, phone: c.phone })] });
 }

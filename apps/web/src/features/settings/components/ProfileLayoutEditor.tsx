@@ -1,10 +1,11 @@
 // Hộp Tuỳ chỉnh Hồ sơ 360° (REQ-F12) — prototype L690–735: đổi mẫu, bật/tắt · đổi tên · đổi thứ tự · xoá tab (khôi phục được),
-// thêm tab mới từ thư viện 12 khối. Mở từ Cài đặt → Hồ sơ 360° và từ nút ⚙ trên Panel360 (Hộp thư) — dùng chung qua index.ts.
+// thêm tab mới từ thư viện 13 khối. Mở từ Cài đặt → Hồ sơ 360° và từ nút ⚙ trên Panel360 (Hộp thư) — dùng chung qua index.ts.
 'use client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { App } from 'antd';
 import { Icon, ModalShell, color } from '@appchat/ui';
+import { LAYOUT_BLOCKS } from '@appchat/shared';
 import { useProfileLayoutDraft } from '../hooks/useProfileLayoutDraft';
 import { useProfileLayoutUi } from '../profile-layout-store';
 import { useProfileLayoutEditorStyles } from '../styles/profile-layout-editor.styles';
@@ -12,7 +13,7 @@ import { useProfileLayoutCommonStyles } from '../styles/profile-layout-common.st
 import { profileLayoutsQuery } from '../api';
 import type { LayoutTab, ProfileLayout } from '../types';
 
-const BLOCK_KEYS = ['contact', 'fields', 'ticket', 'sla', 'csat', 'careNote', 'quotes', 'orders', 'appts', 'loyalty', 'signals', 'summary'] as const;
+const BLOCK_KEYS = LAYOUT_BLOCKS;
 const BUILTIN_RESTORE: [string, string][] = [
   ['overview', 'Tổng quan'],
   ['crm', 'CRM'],

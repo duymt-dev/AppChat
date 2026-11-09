@@ -39,6 +39,8 @@ const env = {
   CORS_ORIGINS: [base.CORS_ORIGINS, `http://localhost:${process.env.E2E_HTTP_PORT ?? 3418}`].filter(Boolean).join(','),
   // Hộp thư kênh Email giả (TIP-018): API kiểm tra / kết nối, worker poll + gửi — không đăng nhập IMAP / SMTP thật.
   MAIL_TRANSPORT: 'fake',
+  // Mail của DN (TIP-012c): Brevo giả trong bộ nhớ — không mạng / không thư thật.
+  TENANT_MAIL_TRANSPORT: 'fake',
   // Model giả (TIP-019, Q-001 chưa có key 9router): engine AI SDK thật, câu trả lời theo kịch bản.
   AI_ENGINE: 'mock',
   FILES_DIR: filesDir,

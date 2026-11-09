@@ -4,6 +4,7 @@
 import { ApiRequestError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
+import { mockMailSenders } from './tenant-mail';
 import { importTexts } from './product-import';
 import { CUSTOMERS, MOCK_UUID, NOW, SEGMENTS } from './marketing-seed';
 
@@ -100,6 +101,18 @@ export const marketingExtraHandlers: Record<string, MockHandler> = {
       const id = MOCK_UUID(rows.length, 9900);
       exportBlobs.set(`/files/${id}`, csv);
       return { file_id: id, rows: rows.length, url: `/v1/files/${id}` };
+    },
+  },
+  // TIP-012c: người gửi suy từ thẻ connector Brevo / SMTP của mock (tenant-mail.ts).
+  'campaign.mail_senders': { execute: (db) => ({ senders: mockMailSenders(db) }) },
+  'campaign.get': {
+    execute: (db, i: { campaign_id: string }) => {
+      const c = db.marketing.campaigns.find((x) => !x.deleted && (x.id === i.campaign_id || x.code === i.campaign_id || x.name === i.campaign_id));
+      if (!c) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.campaign_id });
+      const delivery: Record<string, number> = {};
+      for (const r of c.recipients) if (r.delivery) delivery[r.delivery] = (delivery[r.delivery] ?? 0) + 1;
+      const s = c.sender;
+      return { id: c.id, code: c.code, name: c.name, status: c.status, channel: c.channel, sender: c.channel === 'email' && s ? { kind: s.kind, email: s.kind === 'tenant_mail' ? s.email || null : null, usable: s.kind === 'tenant_mail' ? s.usable : true } : null, recipients: c.recipients.length, delivery, opened: null };
     },
   },
   'campaign.analyze': {

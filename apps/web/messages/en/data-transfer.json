@@ -32,6 +32,15 @@
     "contract": "Contracts",
     "invoice": "Payment requests"
   },
+  "dataset": {
+    "base": "Customers",
+    "contact_notes": "Notes / comments",
+    "contact_tasks": "Follow-up tasks",
+    "contact_opportunities": "Opportunities",
+    "customer_packages": "Packages (export only)"
+  },
+  "datasetTitle": "Dataset",
+  "datasetHint": "Activity rows find the customer by customer code / phone / email within your scope — no new customers are created. The expected amount is an estimate, not revenue.",
   "count": {
     "total": "Total rows",
     "valid": "Valid",
@@ -69,7 +78,12 @@
     "has_invalid_row": "Group has an invalid row",
     "duplicate": "Duplicate",
     "unit_price_warning": "Price differs from catalog",
-    "sku_warning": "Updates an existing product by SKU"
+    "sku_warning": "Updates an existing product by SKU",
+    "readonly": "Only open tasks can be imported — change state with the task actions",
+    "terminal": "Won / lost opportunities cannot be imported",
+    "forbidden": "You are not allowed to write the expected amount",
+    "id_warning": "Row exported from the system — skipped, not updated",
+    "unsupported": "Dataset not supported"
   },
   "errorFile": {
     "row": "Row",
@@ -116,6 +130,15 @@
     "end_date": "End date",
     "order_code": "Order code",
     "amount": "Amount",
-    "due_date": "Due date"
+    "due_date": "Due date",
+    "body": "Content",
+    "due": "Due",
+    "state": "State",
+    "need": "Need",
+    "expected_amount": "Expected amount (estimate)",
+    "stage": "Stage",
+    "probability": "Probability (%)",
+    "expected_close_date": "Expected close date",
+    "id": "Record ID (read-only)"
   }
 }

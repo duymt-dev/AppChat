@@ -81,7 +81,7 @@ export const appointmentCreate = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
   uiTarget: opened,
 });
 
@@ -89,14 +89,15 @@ export const appointmentConfirm = defineAction({
   id: 'appointment.confirm',
   module: 'booking',
   title: 'actions.appointment.confirm.title',
-  description: 'Confirm a pending appointment (pending → confirmed). Example: {"appointment_id":"ap_1215"}',
-  input: z.object({ appointment_id: apptId }),
-  output: out,
+  description:
+    'Confirm a pending appointment, or reconfirm an expired hold for the SAME slot (same staff / time / package) when it is still free and in the future — never moves it; if the slot or package is no longer valid it fails (409) and a new booking is needed. Pass if_version (the appointment version you saw) to refuse a stale change. Example: {"appointment_id":"ap_1215","if_version":2}',
+  input: z.object({ appointment_id: apptId, if_version: z.number().int().positive().optional() }),
+  output: out.extend({ version: z.number().int().optional() }),
   permission: 'booking.manage',
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentReschedule = defineAction({
@@ -111,7 +112,7 @@ export const appointmentReschedule = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentCancel = defineAction({
@@ -125,7 +126,7 @@ export const appointmentCancel = defineAction({
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentCheckIn = defineAction({
@@ -139,7 +140,7 @@ export const appointmentCheckIn = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentComplete = defineAction({
@@ -157,7 +158,7 @@ export const appointmentComplete = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });
 
 export const appointmentMarkNoShow = defineAction({
@@ -171,5 +172,5 @@ export const appointmentMarkNoShow = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['calendar'],
+  invalidates: ['calendar', 'packages'],
 });

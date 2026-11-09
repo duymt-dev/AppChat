@@ -21,6 +21,8 @@ export interface WriteUnit {
   /** Phần riêng của khoá idempotency `transfer:<plan>:<key>:<version>`. */
   key: string;
   input: unknown;
+  /** Action riêng của đơn vị (ghi chú / bình luận theo `kind` của dòng) — mặc định `writeAction` của registry. */
+  action?: string;
 }
 
 /** Dòng → bản ghi tạo ra (null = bỏ qua — trùng phát sinh lúc ghi). */

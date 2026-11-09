@@ -55,6 +55,14 @@ export function QuotesToolbar({ meta }: { meta?: QuotesMeta }) {
             ],
           },
           {
+            key: 'assigned_user_id',
+            label: t('filter.assigned'),
+            options: [
+              { value: 'all', label: t('filter.assignedAll') },
+              ...members.map((m) => ({ value: m.id, label: m.name })),
+            ],
+          },
+          {
             key: 'returning',
             label: t('filter.cust'),
             options: [
@@ -67,12 +75,14 @@ export function QuotesToolbar({ meta }: { meta?: QuotesMeta }) {
         ]}
         value={{
           owner_id: ui.filter.owner_id,
+          assigned_user_id: ui.filter.assigned_user_id ?? 'all',
           returning: ui.filter.returning,
           ...customFilterValue(ui.filter.custom),
         }}
         onApply={(v) =>
           ui.setFilter({
             owner_id: v.owner_id ?? 'all',
+            assigned_user_id: v.assigned_user_id ?? 'all',
             returning: v.returning ?? 'all',
             custom: pickCustomFilter(v),
           })

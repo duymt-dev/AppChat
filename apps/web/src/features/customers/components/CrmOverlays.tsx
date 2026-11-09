@@ -15,6 +15,7 @@ import { FieldsModal } from './FieldsModal';
 import { TransferOwnerModal } from './TransferOwnerModal';
 import { BulkTransferModal } from './BulkTransferModal';
 import { ImportModal } from './ImportModal';
+import { DeletedContactsDrawer } from './DeletedContactsDrawer';
 import type { ContactRow } from '../types';
 
 function AiPeek() {
@@ -60,6 +61,7 @@ export function CrmOverlays({ rows, selected, onBulkDone }: { rows: ContactRow[]
     <>
       <Customer360Drawer />
       <CrmAiDrawer />
+      <DeletedContactsDrawer />
       {ui.modal === 'create' ? <ContactFormModal mode="create" /> : null}
       {ui.modal === 'edit' && target ? <ContactFormModal key={target.id} mode="edit" contact={target} /> : null}
       {ui.modal === 'dedupe' ? <DedupeModal /> : null}

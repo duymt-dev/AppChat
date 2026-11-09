@@ -31,6 +31,7 @@ import {
   exportFileName,
   exportPlace,
   exportStamp,
+  formatOf,
   itemBatches,
   storeExport,
 } from '../exports/export-runner';
@@ -101,7 +102,7 @@ abstract class ListExportHandler implements Handler<In, ListExportResult> {
         result: {
           job_id: id,
           rows: ids.length,
-          file_name: exportFileName(this.kind, base.locale, now),
+          file_name: exportFileName(this.kind, base.locale, now, formatOf(input)),
           download_url: null,
           expires_at: null,
         },
@@ -112,7 +113,7 @@ abstract class ListExportHandler implements Handler<In, ListExportResult> {
     }
     // Nhỏ: dựng ngay trong transaction (cùng ảnh chụp với tập id) — việc kết thúc `completed` cùng commit; rollback → không có việc, tệp mồ côi
     // không tải được (khoá theo id việc chưa commit).
-    const built = await buildExport(db, this.kind, ctx.authz, base, now, itemBatches(tx, id));
+    const built = await buildExport(db, this.kind, ctx.authz, base, now, itemBatches(tx, id), undefined, formatOf(input));
     const file = await storeExport(tx, this.storage, ctx.workspaceId, id, built, now);
     await tx.dataJob.update({
       where: { id },
@@ -181,6 +182,44 @@ export class ProductExportHandler extends ListExportHandler {
 @ActionHandler('invoice.export')
 export class InvoiceExportHandler extends ListExportHandler {
   protected readonly kind = 'invoice.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}
+
+// TIP-026b §5: 3 tập hoạt động CRM — cùng khung (tập id chốt, tệp XLSX, tải có hạn, dấu quyền).
+@Injectable()
+@ActionHandler('contact_note.export')
+export class ContactNoteExportHandler extends ListExportHandler {
+  protected readonly kind = 'contact_note.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}
+
+@Injectable()
+@ActionHandler('contact_task.export')
+export class ContactTaskExportHandler extends ListExportHandler {
+  protected readonly kind = 'contact_task.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}
+
+@Injectable()
+@ActionHandler('contact_opportunity.export')
+export class ContactOpportunityExportHandler extends ListExportHandler {
+  protected readonly kind = 'contact_opportunity.export' as const;
+  async preview(ctx: ActionContext, input: In, tx: TenantTx) {
+    return this.count(ctx, input, tx);
+  }
+}
+
+// TIP-033b §5.1: liệu trình MỘT khách (tập chỉ xuất customer_packages) — cùng khung (tập id chốt, tệp CSV / XLSX, tải có hạn, dấu quyền).
+@Injectable()
+@ActionHandler('package.export')
+export class PackageExportHandler extends ListExportHandler {
+  protected readonly kind = 'package.export' as const;
   async preview(ctx: ActionContext, input: In, tx: TenantTx) {
     return this.count(ctx, input, tx);
   }

@@ -77,6 +77,9 @@ export const contactOwnerChangedEvent = z.object({
   from: z.string().uuid().nullable(),
   to: z.string().uuid(),
   move: z.object({ conversations: z.boolean(), quotes: z.boolean(), appointments: z.boolean() }),
+  /** TIP-015d: biên nhận của lần chuyển (đã commit cùng event) — event chỉ là tín hiệu làm mới / thông báo, không consumer nào chuyển lại. */
+  transfer_id: z.string().uuid().optional(),
+  undo: z.boolean().optional(),
 });
 /** Khách vừa tạo từ tin vào 1-1 live (TIP-042b, DC-238) — consumer ROLE=jobs gọi `lead_routing.apply` (system) cấp chủ đầu tiên theo rule. */
 export const leadRoutingRequestedEvent = z.object({ ...contactBase, conversation_id: z.string().uuid(), channel_account_id: z.string().uuid(), message_id: z.string().uuid() });
@@ -97,7 +100,7 @@ const convBase = {
   /** Nhóm của hội thoại (DC-299, TIP-042c) — scope team của người nhận realtime; thiếu = không nhóm. */
   team_id: z.string().uuid().nullable().optional(),
 };
-export const messageReceivedEvent = z.object({ ...convBase, message_id: z.string().uuid(), new_conversation: z.boolean(), is_group: z.boolean(), mentions_me: z.boolean(), vip: z.boolean(), title: z.string() });
+export const messageReceivedEvent = z.object({ ...convBase, message_id: z.string().uuid(), new_conversation: z.boolean(), is_group: z.boolean(), mentions_me: z.boolean(), vip: z.boolean(), title: z.string(), contact_deleted: z.boolean().optional() });
 export const messageSentEvent = z.object({ ...convBase, message_id: z.string().uuid(), sender_type: z.enum(['user', 'agent', 'system']), sender_id: z.string().nullable() });
 export const messageFailedEvent = z.object({ ...convBase, message_id: z.string().uuid(), error: z.string().max(200) });
 export const messageUpdatedEvent = z.object({ ...convBase, message_id: z.string().uuid(), change: z.enum(['recalled', 'deleted', 'restored', 'reaction', 'status', 'operation']) });
@@ -306,6 +309,9 @@ export const EVENT_SCHEMAS = {
   'product.import_requested': z.object({ ...base, import_id: z.string().uuid() }),
   /** Trí nhớ / dữ liệu tóm tắt của khách đổi (TIP-015b) — chỉ là gợi ý làm mới cache; bản sửa thật ở contact_revision. */
   'contact.memory_changed': z.object({ ...base, contact_id: z.string().uuid(), memory_rev: z.number().int() }),
+  /** Vòng đời khách (TIP-015f): xoá mềm / khôi phục — chỉ id + thế hệ (không PII); UI làm mới danh sách / 360 / Hộp thư. */
+  'contact.deleted': z.object({ ...base, contact_id: z.string().uuid(), lifecycle_revision: z.number().int(), receipt_id: z.string().uuid() }),
+  'contact.restored': z.object({ ...base, contact_id: z.string().uuid(), lifecycle_revision: z.number().int() }),
   'appointment.created': appointmentEvent,
   'appointment.confirmed': appointmentEvent,
   'appointment.rescheduled': appointmentEvent,
@@ -314,6 +320,8 @@ export const EVENT_SCHEMAS = {
   'appointment.no_show': appointmentEvent,
   'appointment.cancelled': appointmentEvent,
   'appointment.expired': appointmentEvent,
+  /** Cấu hình lịch hẹn đổi (TIP-033b §5.3): chỉ phạm vi + id / version — không tên / ca / khách. UI Cài đặt + lịch tải lại. */
+  'booking.config_changed': z.object({ ...base, scope: z.enum(['hours', 'staff']), staff_id: uuidOrNull.optional(), version: z.number().int() }),
   'ticket.created': ticketEvent,
   'ticket.assigned': ticketEvent,
   'ticket.updated': ticketEvent,

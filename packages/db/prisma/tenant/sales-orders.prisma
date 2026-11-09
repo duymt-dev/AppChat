@@ -48,8 +48,12 @@ model Order {
   platformStatus       String?     @map("platform_status")
   syncedAt             DateTime?   @map("synced_at") @db.Timestamptz(6)
   lockedLines          Boolean     @default(false) @map("locked_lines")
-  /// Người tạo / phụ trách đơn (doanh số — COMMERCE §8b).
+  /// Người tạo đơn (doanh số — COMMERCE §8b), bất biến sau khi tạo.
   ownerUserId          String?     @map("owner_user_id") @db.Uuid
+  /// Người phụ trách VẬN HÀNH (TIP-032c) — scope own / bộ lọc "Phụ trách"; sửa qua order.update (cả đơn sàn). Null = chưa giao. owner_user_id bất biến (trigger).
+  assignedUserId       String?     @map("assigned_user_id") @db.Uuid
+  /// Phiên bản dòng (TIP-032c) — trigger tăng mỗi UPDATE (handler, đồng bộ sàn, sổ thu); `if_version` của action sửa so số này.
+  version              Int         @default(1)
   /// Nhóm của bản ghi — scope `team` (DC-299, TIP-042c); chụp lúc tạo, không đổi theo nhóm người phụ trách. Null = mơ hồ.
   teamId               String?     @map("team_id") @db.Uuid
   contactId            String      @map("contact_id") @db.Uuid
@@ -144,4 +148,42 @@ model OrderEvent {
 
   @@index([orderId, createdAt])
   @@map("order_event")
+}
+
+/// TIP-015f §3.4: đơn sàn mới bị chặn (khách gốc đã xoá mềm / định danh không xác định) — biên nhận riêng tư, không phải đơn.
+enum BlockedOrderState {
+  pending
+  conflict
+  imported
+  superseded
+
+  @@map("blocked_order_state")
+}
+
+enum BlockedOrderReason {
+  contact_deleted
+  identity_unavailable
+
+  @@map("blocked_order_reason")
+}
+
+model BlockedExternalOrder {
+  id                String             @id @db.Uuid
+  connectionId      String             @map("connection_id") @db.Uuid
+  externalId        String             @map("external_id")
+  /// Payload đã chuẩn hoá + kiểm (external-order-payload.ts) — không bao giờ đưa ra log / model / lỗi.
+  payload           Json
+  payloadHash       String             @map("payload_hash")
+  providerUpdatedAt DateTime           @map("provider_updated_at") @db.Timestamptz(6)
+  contactRef        String?            @map("contact_ref") @db.Uuid
+  reason            BlockedOrderReason
+  state             BlockedOrderState  @default(pending)
+  sourceEventId     String?            @map("source_event_id") @db.Uuid
+  orderId           String?            @map("order_id") @db.Uuid
+  receivedAt        DateTime           @map("received_at") @db.Timestamptz(6)
+  updatedAt         DateTime           @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([connectionId, externalId], map: "blocked_external_order_conn_ext_key")
+  @@index([connectionId, state, receivedAt, id], map: "blocked_external_order_retry_idx")
+  @@map("blocked_external_order")
 }

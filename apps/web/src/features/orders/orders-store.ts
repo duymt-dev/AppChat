@@ -1,4 +1,4 @@
-// UI state Đơn hàng: bộ lọc, chế độ xem, chọn nhiều, drawer, form tạo, huỷ đơn, AI panel, menu dòng.
+// UI state Đơn hàng: bộ lọc, chế độ xem, chọn nhiều, drawer, form tạo / sửa (TIP-032c — `editId` riêng, không dùng prefill làm đích), huỷ đơn, AI panel, menu dòng.
 import { create } from 'zustand';
 import { FIRST_PAGE, type PageState } from '@/shared/list/paged';
 import type { OrderFilter } from './types';
@@ -12,7 +12,9 @@ interface OrdersUi {
   selected: string[];
   detail: string | null;
   tab: string;
-  form: 'create' | null;
+  form: 'create' | 'edit' | null;
+  /** Đơn đang sửa (form = edit) — đóng / mở tạo mới thì xoá. */
+  editId: string | null;
   /** Đơn đang mở hộp "Huỷ đơn" (lý do bắt buộc). */
   cancelFor: string | null;
   aiOpen: boolean;
@@ -25,12 +27,13 @@ interface OrdersUi {
 
 export const useOrdersUi = create<OrdersUi>((set) => ({
   pg: FIRST_PAGE,
-  filter: { chip: 'all', owner_id: 'all', value: 'all', source: 'all', q: '' },
+  filter: { chip: 'all', owner_id: 'all', assigned_user_id: 'all', value: 'all', source: 'all', q: '' },
   layout: 'list',
   selected: [],
   detail: null,
   tab: 'overview',
   form: null,
+  editId: null,
   cancelFor: null,
   aiOpen: false,
   menuFor: null,

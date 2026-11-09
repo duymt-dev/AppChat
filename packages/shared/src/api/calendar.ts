@@ -29,6 +29,8 @@ export const appointmentRowSchema = z.object({
   package: z.object({ id: z.string(), name: z.string(), used: z.number().int(), total: z.number().int() }).nullable(),
   reminders: z.array(z.object({ kind: z.string(), at: z.string() })),
   custom: customValuesSchema.optional(),
+  /** Phiên bản lịch (TIP-033b) — client mới gửi `if_version` khi xác nhận / xác nhận lại. */
+  version: z.number().int().optional(),
 });
 export type AppointmentRow = z.infer<typeof appointmentRowSchema>;
 
@@ -67,5 +69,11 @@ export const bookingSettingsSchema = z.object({
   slot_step_min: z.number().int(),
   default_buffer_min: z.number().int(),
   no_show_deducts: z.boolean(),
-  staff: z.array(bookingStaffSchema.extend({ active: z.boolean(), skills: z.array(z.string()), user_id: z.string().nullable(), schedule: z.array(z.object({ weekday: z.number().int(), open: z.boolean(), start: z.string(), end: z.string() })) })),
+  /** TIP-033b: phiên bản cấu hình (CAS cho business_hours.update). */
+  version: z.number().int().optional(),
+  // schedule: thứ không có = theo giờ mở cửa; open=false = nghỉ tường minh (tri-state).
+  staff: z.array(bookingStaffSchema.extend({ active: z.boolean(), skills: z.array(z.string()), user_id: z.string().nullable(), schedule: z.array(z.object({ weekday: z.number().int(), open: z.boolean(), start: z.string(), end: z.string() })), version: z.number().int().optional() })),
+  /** Trang nhân sự kế (TIP-033b §3.6); null = hết. */
+  staff_next_cursor: z.string().nullable().optional(),
 });
+export type BookingSettingsDto = z.infer<typeof bookingSettingsSchema>;

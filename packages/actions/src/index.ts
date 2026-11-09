@@ -9,6 +9,7 @@ import * as inboxAliases from './inbox-aliases';
 import * as inboxGroups from './inbox-groups';
 import * as crm from './crm';
 import * as ai from './ai';
+import * as aiUtilities from './ai-utilities';
 import * as catalog from './catalog';
 import * as catalogOperations from './catalog-operations';
 import * as contactMemory from './contact-memory';
@@ -25,6 +26,8 @@ import * as payments from './payments';
 import * as booking from './booking';
 import * as bookingConfig from './booking-config';
 import * as bookingUpdate from './booking-update';
+import * as bookingRead from './booking-read';
+import * as customerPackages from './customer-packages';
 import * as conversationGroups from './conversation-groups';
 import * as groupResults from './group-results';
 import * as channelOperations from './channel-operations';
@@ -32,6 +35,7 @@ import * as channelFriends from './channel-friends';
 import * as support from './support';
 import * as marketing from './marketing';
 import * as marketingExtras from './marketing-extras';
+import * as tenantMail from './tenant-mail';
 import * as loyalty from './loyalty';
 import * as loyaltySystem from './loyalty-system';
 import * as loyaltyPayments from './loyalty-payments';
@@ -64,6 +68,9 @@ import * as assistantUi from './assistant-ui';
 import * as integrationProbe from './integration-probe';
 import * as integrationRuntime from './integration-runtime';
 import * as contactNotes from './contact-notes';
+import * as contactTransfer from './contact-transfer';
+import * as contactLifecycle from './contact-lifecycle';
+import * as contactMergeReads from './contact-merge';
 import * as contactTasks from './contact-tasks';
 import * as contactOpportunities from './contact-opportunities';
 import * as dataJobs from './data-jobs';
@@ -83,7 +90,10 @@ export * from './inbox';
 export * from './inbox-aliases';
 export * from './inbox-groups';
 export * from './crm';
+export * from './contact-lifecycle';
+export * from './contact-merge';
 export * from './ai';
+export * from './ai-utilities';
 export * from './catalog';
 export * from './catalog-operations';
 export * from './contact-memory';
@@ -100,6 +110,8 @@ export * from './payments';
 export * from './booking';
 export * from './booking-config';
 export * from './booking-update';
+export * from './booking-read';
+export * from './customer-packages';
 export * from './conversation-groups';
 export * from './group-results';
 export * from './channel-operations';
@@ -107,6 +119,7 @@ export * from './channel-friends';
 export * from './support';
 export * from './marketing';
 export * from './marketing-extras';
+export * from './tenant-mail';
 export * from './loyalty';
 export * from './loyalty-reasons';
 export * from './loyalty-system';
@@ -139,6 +152,7 @@ export * from './reads/documents';
 export * from './integration-probe';
 export * from './integration-runtime';
 export * from './contact-notes';
+export * from './contact-transfer';
 export * from './contact-tasks';
 export * from './contact-opportunities';
 export * from './data-jobs';
@@ -160,6 +174,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(inboxGroups),
   ...Object.values(crm),
   ...Object.values(ai),
+  ...Object.values(aiUtilities),
   ...Object.values(catalog),
   ...Object.values(catalogOperations),
   ...Object.values(contactMemory),
@@ -175,6 +190,8 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(payments),
   ...Object.values(booking),
   ...Object.values(bookingConfig),
+  ...Object.values(bookingRead),
+  ...Object.values(customerPackages),
   ...Object.values(bookingUpdate),
   ...Object.values(conversationGroups),
   ...Object.values(groupResults),
@@ -183,6 +200,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(support),
   ...Object.values(marketing),
   ...Object.values(marketingExtras),
+  ...Object.values(tenantMail),
   ...Object.values(loyalty),
   ...Object.values(loyaltySystem),
   ...Object.values(loyaltyPayments),
@@ -222,6 +240,9 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(integrationProbe),
   ...Object.values(integrationRuntime),
   ...Object.values(contactNotes),
+  ...Object.values(contactTransfer),
+  ...Object.values(contactLifecycle),
+  ...Object.values(contactMergeReads),
   ...Object.values(contactTasks),
   ...Object.values(contactOpportunities),
 ] as ActionDef[];

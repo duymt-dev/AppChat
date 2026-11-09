@@ -11,11 +11,14 @@
 // người lạ → hội thoại không gắn khách (+ participant) — không tạo khách. Nhóm: người gửi không bao giờ thành khách.
 // Ảnh đại diện (TIP-014b D): tin live của kênh có năng lực `profiles` xếp lấy ảnh người gửi (1-1 và thành viên nhóm) khi chưa có / lần kiểm
 // cuối quá 7 ngày — worker giữ phiên lấy theo lô (avatar-sync.processor). Lịch sử không xếp.
+// Khách đã xoá mềm (TIP-015f §3.2): tin / hội thoại / chưa đọc vẫn giữ, gắn đúng id khách cũ; KHÔNG làm giàu CRM (tên / nhóm / VIP / người
+// phụ trách), không agent mặc định, không kích agent. Định danh hỏng chuỗi gộp → giữ khách sẵn có của hội thoại hoặc không gắn khách.
 import type { NormalizedInbound } from '@appchat/channels';
 import type { TenantDb } from '@appchat/db';
 import { foldText, interpolate, serverMessages } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
+import { lockContactRow } from '../../kernel/ownership/root-lock';
 import { writeOutbox, type OutboxEventInput } from '../../kernel/outbox/outbox';
 import type { ContactIdentityService } from '../../crm/public';
 import { settingsOf } from '../../channels/public';
@@ -97,15 +100,20 @@ export class InboundPipeline {
     const who = { channelType: account.type, channelAccountId: account.id, externalId: m.sender.externalId, displayName: m.sender.name ?? null, phone: m.sender.phone ?? null, email: m.sender.email ?? null };
     if (!m.isGroup && st.sync_auto_create_contact) {
       const r = await this.identity.resolve(tx, who, at, { forward: !live });
-      contactId = r.contactId;
+      contactId = r.contactId ?? conv0?.contactId ?? null;
       contactCreated = r.created;
       if (live) events.push(...r.events);
     } else if (!m.isGroup) {
       // Chỉ khớp: khách đã có (identity / SĐT duy nhất) giữ nguyên; người lạ / SĐT mơ hồ → không gắn khách (gắn tay sau theo quyền).
       const r = await this.identity.match(tx, who);
-      contactId = r.kind === 'known' || r.kind === 'phone' ? r.contactId : (conv0?.contactId ?? null);
+      contactId = r.kind === 'known' || r.kind === 'phone' || r.kind === 'deleted' ? r.contactId : (conv0?.contactId ?? null);
     }
-    const contact = contactId ? await tx.contact.findUnique({ where: { id: contactId }, select: { ownerUserId: true, teamId: true, name: true, group: true } }) : null;
+    // TIP-015d §2.3: khoá khách gốc trước khi đọc người phụ trách / tạo / gắn hội thoại (chuyển phụ trách đồng thời không bỏ sót hội thoại mới).
+    await lockContactRow(tx, contactId);
+    const row = contactId ? await tx.contact.findUnique({ where: { id: contactId }, select: { ownerUserId: true, teamId: true, name: true, group: true, deletedAt: true } }) : null;
+    // Đọc SAU khoá: khách đã xoá → không dùng hồ sơ CRM cho hội thoại / event / agent.
+    const deleted = !!row?.deletedAt;
+    const contact = deleted ? null : row;
 
     // 3. Hội thoại
     const preview = previewOf(m.kind, m.text ?? '');
@@ -147,7 +155,7 @@ export class InboundPipeline {
           assigneeUserId: m.isGroup ? null : (contact?.ownerUserId ?? null),
           // DC-299: hội thoại 1-1 theo nhóm của khách; nhóm Zalo (không khách) → null (chỉ người được gán / all).
           teamId: m.isGroup ? null : (contact?.teamId ?? null),
-          assigneeAgentId: st.agent_id || null,
+          assigneeAgentId: deleted ? null : st.agent_id || null,
           aiMode: AI_MODE[st.ai_mode] ?? 'copilot',
           groupAiPolicy: m.isGroup ? 'mention' : null,
           lastMessageAt: at,
@@ -193,13 +201,13 @@ export class InboundPipeline {
     // 5. Event
     const title = conv.title ?? contact?.name ?? senderName ?? '';
     const base = { conversation_id: conv.id, channel_account_id: account.id, contact_id: conv.contactId, assignee_user_id: conv.assigneeUserId, contact_owner_user_id: contact?.ownerUserId ?? null, team_id: conv.teamId };
-    const vip = contact?.group === 'vip' || (await this.hasVipTag(tx, contactId));
-    events.push({ topic: 'message.received', payload: { ...base, message_id: msgId, new_conversation: isNew, is_group: m.isGroup, mentions_me: !!m.mentionsMe, vip, title } });
+    const vip = !deleted && (contact?.group === 'vip' || (await this.hasVipTag(tx, contactId)));
+    events.push({ topic: 'message.received', payload: { ...base, message_id: msgId, new_conversation: isNew, is_group: m.isGroup, mentions_me: !!m.mentionsMe, vip, title, ...(deleted ? { contact_deleted: true } : {}) } });
     if (isNew && conv.assigneeUserId) {
       events.push({ topic: 'conversation.assigned', payload: { ...base, assignee_agent_id: conv.assigneeAgentId, by_user_id: null, auto: true, title } });
     }
     events.push(...routing);
-    return { messageId: msgId, conversationId: conv.id, events, agentReply: wantsAgent(conv, st.agent_id || null, !!m.mentionsMe), avatarQueued };
+    return { messageId: msgId, conversationId: conv.id, events, agentReply: !deleted && wantsAgent(conv, st.agent_id || null, !!m.mentionsMe), avatarQueued };
   }
 
   /** Khách có thẻ "VIP" (thông báo `msg_vip`). */

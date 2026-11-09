@@ -38,7 +38,9 @@ const earnsOf = (o: Pick<OrderLike, 'source'>, conf: { enabled: boolean; marketp
 /** Căn cứ + điểm của lượt hoàn tất (dùng chung hoàn tất thật, đồng bộ sàn và preview). */
 export async function earnSnapshot(tx: TenantTx, o: OrderLike): Promise<{ points: number; net: bigint; basis: EarnBasis }> {
   const conf = await readConfig(tx);
-  const c = await tx.contact.findUnique({ where: { id: o.contactId }, select: { tierKey: true } });
+  // Hạng theo khách gốc (đơn của khách đã gộp giữ id gốc — TIP-015e).
+  let c = await tx.contact.findUnique({ where: { id: o.contactId }, select: { tierKey: true, mergedIntoId: true } });
+  for (let k = 0; c?.mergedIntoId && k < 32; k++) c = await tx.contact.findUnique({ where: { id: c.mergedIntoId }, select: { tierKey: true, mergedIntoId: true } });
   const net = netBeforeVat(o);
   const b = earnBase({ net, total: o.total, paidTotal: o.paidTotal, refundedTotal: o.refundedTotal, pointsUsed: o.pointsUsed });
   const on = earnsOf(o, conf);
@@ -67,6 +69,8 @@ export interface ReverseIn {
   /** Hậu tố khoá chống lặp (`reverse:<earn>:<tag>`). */
   tag: string;
   balance: bigint;
+  /** Thành viên gốc đã khoá (`lockMember`) — đơn của khách đã gộp ghi sổ vào gốc (TIP-015e). */
+  memberId?: string;
   actor: Actor;
   now: Date;
 }
@@ -76,11 +80,11 @@ export async function reverseEarn(tx: TenantTx, r: ReverseIn): Promise<{ posted:
   const left = r.earn.delta - r.reversed;
   const d = r.points > left ? left : r.points;
   if (d <= 0n) return null;
-  const p = await post(tx, { contactId: r.order.contactId, kind: 'reverse', delta: -d, balance: r.balance, actor: r.actor, now: r.now, ref: { type: 'order', id: r.order.id }, dedupeKey: `reverse:${r.earn.id}:${r.tag}`, preferLot: r.earn.id, allowDebt: true });
+  const p = await post(tx, { contactId: r.memberId ?? r.order.contactId, kind: 'reverse', delta: -d, balance: r.balance, actor: r.actor, now: r.now, ref: { type: 'order', id: r.order.id }, dedupeKey: `reverse:${r.earn.id}:${r.tag}`, preferLot: r.earn.id, allowDebt: true });
   if (r.reversed + d >= r.earn.delta) await tx.loyaltyLedger.update({ where: { id: r.earn.id }, data: { reversedById: p.id } });
   if (p.duplicate) return { posted: p, events: [] };
   await writeTimeline(tx, { contactId: r.order.contactId, type: 'loyalty', key: 'loyalty_reverse', params: { points: String(d), code: r.order.code }, actor: r.actor, ref: { type: 'order', id: r.order.id }, at: r.now });
-  return { posted: p, events: [pointsChanged(r.order.contactId, 'reverse', p)] };
+  return { posted: p, events: [pointsChanged(r.memberId ?? r.order.contactId, 'reverse', p)] };
 }
 
 /** Điểm đảo khi hoàn tiền đã duyệt: tỉ lệ luỹ kế (đã hoàn sau hoàn tất / thực thu lúc hoàn tất) trừ phần đã đảo. */
@@ -101,7 +105,7 @@ export async function reverseCompletion(tx: TenantTx, o: { id: string; code: str
   if (!m) return [];
   const rev = await tx.loyaltyLedger.aggregate({ where: { refType: 'order', refId: o.id, kind: 'reverse', dedupeKey: { startsWith: `reverse:${earn.id}:` } }, _sum: { delta: true } });
   const reversed = -(rev._sum.delta ?? 0n);
-  const r = await reverseEarn(tx, { order: o, earn, reversed, points: earn.delta - reversed, tag: 'undo', balance: m.points_balance, actor, now });
+  const r = await reverseEarn(tx, { order: o, earn, reversed, points: earn.delta - reversed, tag: 'undo', balance: m.points_balance, memberId: m.id, actor, now });
   return r?.events ?? [];
 }
 

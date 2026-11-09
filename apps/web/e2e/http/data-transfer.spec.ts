@@ -60,6 +60,37 @@ test.describe('nhập dữ liệu dùng chung (http)', () => {
     await expect(page.getByText(`Serum ${TAG}`).first()).toBeVisible();
   });
 
+  test('tập ghi chú khách (TIP-026b): chọn tập → kế hoạch giữ tập → khách theo SĐT → nhập → ghi chú thật trên khách', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await onboarded(page, 'dtn');
+    await page.goto('/customers?transfer=contact');
+    const dt = page.getByTestId('dt-panel');
+    await dt.getByTestId('dt-file').setInputFiles({ name: 'k.csv', mimeType: 'text/csv', buffer: Buffer.from(`Tên khách,Điện thoại\r\nNote ${TAG},0986${TAG}\r\n`) });
+    await dt.getByTestId('dt-commit').click();
+    await page.getByRole('button', { name: 'Xác nhận', exact: true }).click();
+    await expect(dt.getByTestId('dt-result')).toHaveAttribute('data-status', 'completed', { timeout: 30_000 });
+    await dt.getByTestId('dt-done').click();
+
+    await page.goto('/customers?transfer=contact');
+    await dt.locator('[data-dataset="contact_notes"]').click();
+    // Dòng 2: loại "Hoàn thành" không phải ghi chú / bình luận → lỗi option (không đoán).
+    const notes = `SĐT,Loại,Nội dung\r\n0986${TAG},Ghi chú,Hẹn tái khám ${TAG}\r\n0986${TAG},Hoàn thành,Sai loại ${TAG}\r\n`;
+    await dt.getByTestId('dt-file').setInputFiles({ name: 'ghi-chu.csv', mimeType: 'text/csv', buffer: Buffer.from(notes) });
+    await expect(dt.getByTestId('dt-plan-dataset')).toContainText('Ghi chú');
+    await expect(dt.locator('[data-stat="valid"] b')).toHaveText('1');
+    await expect(dt.locator('[data-stat="invalid"] b')).toHaveText('1');
+    await dt.getByTestId('dt-only-valid').click();
+    await dt.getByTestId('dt-commit').click();
+    await page.getByRole('button', { name: 'Xác nhận', exact: true }).click();
+    await expect(dt.getByTestId('dt-result')).toHaveAttribute('data-status', 'completed', { timeout: 30_000 });
+    await expect(dt.locator('[data-stat="applied"] b')).toHaveText('1');
+    await dt.getByTestId('dt-done').click();
+    // Hồ sơ 360° đọc ghi chú thật từ server (tác giả = người nhập).
+    await page.locator('[data-contact]').filter({ hasText: `Note ${TAG}` }).first().click();
+    await expect(page.getByText(`Hẹn tái khám ${TAG}`).first()).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(`Sai loại ${TAG}`)).toHaveCount(0);
+  });
+
   test('mobile 390: mở bằng liên kết sâu, không tràn ngang, nút đủ lớn', async ({ page }) => {
     test.skip(!isMobile(page), 'chỉ mobile');
     await onboarded(page, 'dtm');

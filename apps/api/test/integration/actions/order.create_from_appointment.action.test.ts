@@ -1,5 +1,5 @@
 // Ma trận order.create_from_appointment (TIP-023b): lịch đã hoàn thành ngoài liệu trình → preview khách + dịch vụ × giá hiện tại + mã lịch
-// → xác nhận → undo (xoá đơn, gỡ order_id của lịch); lịch đã có đơn → preview báo `existing:<mã>`; chưa hoàn thành → 409 ở preview.
+// → xác nhận → undo (TIP-032c: huỷ đơn giữ lịch sử, giữ liên kết lịch ↔ đơn); lịch đã có đơn → preview báo `existing:<mã>`; chưa hoàn thành → 409 ở preview.
 // 403 cs (không có order.manage) · sales: lịch của owner ngoài scope → 404 · id lạ 404. Lịch dựng ở DB (vòng đời lịch kiểm ở booking.test).
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -45,7 +45,8 @@ describe('order.create_from_appointment', () => {
     const code = done.body.data.result.code;
     expect((await m.act({ appointment_id: appt.id }, undefined, ASSIST)).body.data.preview).toEqual({ summary: `${code} · Chị Lan ĐH`, risk: 'write', changes: [], warnings: [`existing:${code}`] });
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
-    expect((await db.appointment.findUniqueOrThrow({ where: { id: appt.id } })).orderId).toBeNull();
+    const oid = (await db.appointment.findUniqueOrThrow({ where: { id: appt.id } })).orderId!;
+    expect((await db.order.findUniqueOrThrow({ where: { id: oid } })).status).toBe('cancelled');
   });
 
   it('ô không áp dụng có lý do', () => {

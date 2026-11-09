@@ -89,7 +89,11 @@ export const quotesHandlers: Record<string, MockHandler> = {
     execute: (db, i: { quote_id: string; patch: Fields }) => {
       const q = find(db, i.quote_id);
       step(q, 'quote.update');
-      Object.assign(q, i.patch);
+      // TIP-015d: người tạo bất biến — gửi lại đúng giá trị được bỏ qua, khác → 422.
+      if (i.patch.owner_user_id !== undefined && i.patch.owner_user_id !== q.owner_user_id) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'immutable', fields: { 'patch.owner_user_id': 'immutable' } });
+      const patch: Fields = { ...i.patch };
+      delete patch.owner_user_id;
+      Object.assign(q, patch);
       return { quote_id: q.id };
     },
   },
@@ -137,6 +141,8 @@ export const quotesHandlers: Record<string, MockHandler> = {
         root_id: q.root_id,
         version: q.version + 1,
         owner_name: q.owner_name,
+        assigned_user_id: q.assigned_user_id ?? q.owner_user_id,
+        assigned_name: q.assigned_name ?? q.owner_name,
         comments: [...q.comments],
         gift: q.gift,
         off_catalog: q.off_catalog,

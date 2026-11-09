@@ -90,6 +90,7 @@ export const orderReader: ListReader<OrderFilter> = {
   filter: (i: In) => ({
     chip: s(i.chip),
     ownerId: s(i.owner_id),
+    assignedId: s(i.assigned_user_id),
     contactId: s(i.contact_id),
     value: s(i.value),
     source: s(i.source),
@@ -103,7 +104,8 @@ export const orderReader: ListReader<OrderFilter> = {
     { key: 'source', header: m.col.source },
     { key: 'status', header: m.col.status },
     { key: 'pay', header: m.col.pay, width: 18 },
-    { key: 'owner', header: m.col.owner, width: 20 },
+    { key: 'owner', header: m.col.createdBy, width: 20 },
+    { key: 'assigned', header: m.col.assigned, width: 20 },
     { key: 'total', header: m.col.total },
     { key: 'paid', header: m.col.paid },
     { key: 'refunded', header: m.col.refunded },
@@ -115,7 +117,7 @@ export const orderReader: ListReader<OrderFilter> = {
       { id: string }[]
     >`SELECT o.id FROM "order" o WHERE o.id IN (${ids(xs)}) AND o.deleted_at IS NULL AND ${orderScopeSql(a)}`;
     const list = ordered(xs, await tx.order.findMany({ where: { id: { in: live.map((r) => r.id) } } }));
-    const [names, people] = [await contacts(tx, list), await place.names(list.map((o) => o.ownerUserId))];
+    const [names, people] = [await contacts(tx, list), await place.names(list.flatMap((o) => [o.ownerUserId, o.assignedUserId]))];
     const m = labels(place);
     return {
       ids: list.map((o) => o.id),
@@ -126,6 +128,7 @@ export const orderReader: ListReader<OrderFilter> = {
         m.order[o.status as keyof typeof m.order] ?? o.status,
         m.pay[o.payStatus as keyof typeof m.pay] ?? o.payStatus,
         people.get(o.ownerUserId ?? '') ?? '',
+        people.get(o.assignedUserId ?? '') ?? '',
         money(o.total),
         money(o.paidTotal),
         money(o.refundedTotal),
@@ -142,6 +145,7 @@ export const contractReader: ListReader<ContractFilter> = {
   filter: (i: In) => ({
     status: s(i.status),
     ownerId: s(i.owner_id),
+    assignedId: s(i.assigned_user_id),
     contactId: s(i.contact_id),
     value: s(i.value),
     q: s(i.q),
@@ -154,7 +158,8 @@ export const contractReader: ListReader<ContractFilter> = {
     { key: 'contact', header: m.col.contact, width: 26 },
     { key: 'kind', header: m.col.kind },
     { key: 'status', header: m.col.status },
-    { key: 'owner', header: m.col.owner, width: 20 },
+    { key: 'owner', header: m.col.createdBy, width: 20 },
+    { key: 'assigned', header: m.col.assigned, width: 20 },
     { key: 'value', header: m.col.value },
     { key: 'signedDate', header: m.col.signedDate },
     { key: 'startDate', header: m.col.startDate },
@@ -167,7 +172,7 @@ export const contractReader: ListReader<ContractFilter> = {
       { id: string }[]
     >`SELECT c.id FROM contract c WHERE c.id IN (${ids(xs)}) AND c.deleted_at IS NULL AND ${contractScopeSql(a)}`;
     const list = ordered(xs, await tx.contract.findMany({ where: { id: { in: live.map((r) => r.id) } } }));
-    const [names, people] = [await contacts(tx, list), await place.names(list.map((c) => c.ownerUserId))];
+    const [names, people] = [await contacts(tx, list), await place.names(list.flatMap((c) => [c.ownerUserId, c.assignedUserId]))];
     const m = labels(place);
     return {
       ids: list.map((c) => c.id),
@@ -179,6 +184,7 @@ export const contractReader: ListReader<ContractFilter> = {
         m.contractKind[c.kind as keyof typeof m.contractKind] ?? c.kind,
         m.contract[c.status as keyof typeof m.contract] ?? c.status,
         people.get(c.ownerUserId ?? '') ?? '',
+        people.get(c.assignedUserId ?? '') ?? '',
         money(c.value),
         day(c.signedDate),
         day(c.startDate),

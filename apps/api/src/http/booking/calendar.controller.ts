@@ -54,7 +54,9 @@ export class CalendarController {
   }
 
   @Get('settings/booking')
-  async settings(@Req() req: IncomingMessage) {
-    return { data: await this.read.settings(await this.viewer(req, 'booking.config')) };
+  async settings(@Req() req: IncomingMessage, @Query() q: Record<string, string | undefined>) {
+    // TIP-033b §3.6: trang nhân sự (staff_cursor / staff_limit ≤ 100); người gọi cũ nhận trang đầu + staff_next_cursor tường minh.
+    const limit = q.staff_limit ? Number(q.staff_limit) : undefined;
+    return { data: await this.read.settings(await this.viewer(req, 'booking.config'), { cursor: q.staff_cursor || undefined, limit: Number.isFinite(limit) ? limit : undefined }) };
   }
 }

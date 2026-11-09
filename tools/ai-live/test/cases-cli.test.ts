@@ -95,6 +95,12 @@ describe('--cases suite bổ sung', () => {
     expect(loadDefault().cases).toHaveLength(DEFAULT_COUNT);
   });
 
+  it('suite booking-operations (TIP-033b AC8): 8 ca, cổng 7/8; đủ 8 loại ca', () => {
+    const p = plan(parseArgs(['--cases', 'fixtures/ai-eval/booking-operations/cases.json']));
+    expect([p.suite.suite, p.suite.cases.length, p.gate]).toEqual(['booking-operations', 8, 7]);
+    expect(new Set(p.suite.cases.map((c) => c.booking?.kind)).size).toBe(8);
+  });
+
   it('suite inbox-vertical (TIP-025b AC10): 10 ca, cổng 9/10; đủ 4 đích dịch + thẻ duyệt + xuất lịch sử', () => {
     const p = plan(parseArgs(['--cases', 'fixtures/ai-eval/inbox-vertical/cases.json']));
     expect([p.suite.suite, p.suite.cases.length, p.gate]).toEqual(['inbox-vertical', 10, 9]);

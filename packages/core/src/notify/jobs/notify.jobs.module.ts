@@ -4,7 +4,7 @@ import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicati
 import { type Worker } from 'bullmq';
 import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
-import type { PlatformDb } from '@appchat/db';
+import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import type { MailProvider } from '@appchat/integrations';
 import { AuthzModule } from '../../authz/authz.module';
 import { AuthzResolver } from '../../authz/services/authz-resolver';
@@ -16,7 +16,7 @@ import { registerEventConsumer, unregisterEventConsumer } from '../../kernel/eve
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
-import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
+import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import '../events/domain.rules';
 import { notifyConsumer, realtimeConsumer } from '../events/notify.consumers';
 import { NotifyModule } from '../notify.module';
@@ -31,6 +31,7 @@ class NotifyJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
     @Optional() @Inject(PLATFORM_DB) private readonly platform: PlatformDb | undefined,
+    @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined,
     @Inject(AuthzResolver) private readonly authz: AuthzResolver | null,
     @Inject(NotifyPrefsService) private readonly prefs: NotifyPrefsService | null,
     @Inject(REALTIME_EMITTER) private readonly emitter: RealtimeEmitter,
@@ -45,7 +46,7 @@ class NotifyJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown 
     const mailOn = !!(this.mail && this.env);
     if (mailOn) {
       this.queue = new Queue(NOTIFY_MAIL_QUEUE, { connection: this.redis.duplicate() });
-      this.worker = startMailWorker(this.redis, { platform: this.platform, mail: this.mail!, publicUrl: this.env!.APP_PUBLIC_URL }, this.log);
+      this.worker = startMailWorker(this.redis, { platform: this.platform, mail: this.mail!, publicUrl: this.env!.APP_PUBLIC_URL, tenants: this.tenants, authz: this.authz }, this.log);
     }
     const deps = {
       platform: this.platform,

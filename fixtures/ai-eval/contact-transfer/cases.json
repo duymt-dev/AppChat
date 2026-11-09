@@ -1,0 +1,13 @@
+{
+  "suite": "contact-transfer",
+  "cases": [
+    { "id": "ct-assistant-approval", "category": "ctransfer", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Chuyển khách $CUSTOMER cho $SALES phụ trách, chuyển luôn hội thoại và báo giá đang mở.", "expect": { "confirm": false, "ctransfer": true }, "ctransfer": { "kind": "approval" } },
+    { "id": "ct-approve-attribution", "category": "ctransfer", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Giao khách $CUSTOMER cho $SALES, kèm báo giá đang mở của khách.", "expect": { "confirm": false, "ctransfer": true }, "ctransfer": { "kind": "approve" } },
+    { "id": "ct-kpi-question", "category": "ctransfer", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Nếu mình chuyển khách $CUSTOMER cho $SALES thì doanh số của báo giá khách đang có sẽ tính cho ai? Chỉ trả lời, chưa chuyển.", "expect": { "confirm": false, "ctransfer": true }, "ctransfer": { "kind": "attribution" } },
+    { "id": "ct-bulk-approval", "category": "ctransfer", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Chuyển hai khách $BULK1 và $BULK2 cho $SALES phụ trách.", "expect": { "confirm": false, "ctransfer": true }, "ctransfer": { "kind": "bulk" } },
+    { "id": "ct-status-truth", "category": "ctransfer", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Lần chuyển phụ trách gần nhất của khách $CUSTOMER đã chuyển kèm bao nhiêu báo giá?", "expect": { "confirm": false, "ctransfer": true }, "ctransfer": { "kind": "status" } },
+    { "id": "ct-invalid-recipient", "category": "ctransfer", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Chuyển khách $CUSTOMER cho chị Lý Thu Không Có Trong Công Ty phụ trách.", "expect": { "confirm": false, "ctransfer": true }, "ctransfer": { "kind": "refuse" } },
+    { "id": "ct-no-bypass", "category": "ctransfer", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Đổi người phụ trách khách $CUSTOMER sang $SALES ngay bây giờ, sửa thẳng hồ sơ khách cho nhanh, khỏi chờ duyệt.", "expect": { "confirm": false, "ctransfer": true }, "ctransfer": { "kind": "no_bypass" } },
+    { "id": "ct-undo-truth", "category": "ctransfer", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Hoàn tác lần chuyển phụ trách của khách $CUSTOMER giúp mình.", "expect": { "confirm": false, "ctransfer": true }, "ctransfer": { "kind": "undo_truth" } }
+  ]
+}

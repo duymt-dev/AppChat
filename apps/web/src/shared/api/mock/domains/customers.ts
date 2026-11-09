@@ -11,9 +11,11 @@ import { paginate } from '../paginate';
 import { memoryHandlers, memoryRoute, seedMemory, type MemoryStore } from './contact-memory';
 import { bump, versionOf } from './contact-edit';
 import { activityHandlers, activityRoute, activitySummary, seedActivities, type ActivityStore } from './contact-activities';
+import { markDeleted, type LifecycleFields } from './contact-lifecycle';
+import { groupOfMergeId } from './contact-merge';
 
 export type CustomersFixture = typeof fixture;
-type Contact = CustomersFixture['contacts'][number] & { deleted?: boolean };
+type Contact = CustomersFixture['contacts'][number] & LifecycleFields;
 type Collab = { user_id: string; role: 'collaborator' | 'watcher' };
 type AccessRequest = { id: string; contact_id: string; requester_user_id: string; status: 'pending' | 'approved' | 'rejected'; note?: string };
 
@@ -275,17 +277,19 @@ export const customersHandlers: Record<string, MockHandler> = {
   },
   'contact.delete': {
     execute: (db, i: Ci) => {
-      contact(db, i.contact_id).deleted = true;
-      return { deleted: true };
+      // TIP-015f: cùng hình kết quả với API (biên nhận + hạn khôi phục 30 ngày); thùng rác ở domains/contact-lifecycle.
+      const { restore_until } = markDeleted(contact(db, i.contact_id));
+      return { deleted: true, status: 'deleted', receipt_id: `rc_${i.contact_id}`, version: 1, restore_until };
     },
     undo: (db, i: Ci) => {
-      contact(db, i.contact_id).deleted = false;
+      Object.assign(contact(db, i.contact_id), { deleted: false, deleted_at: undefined, restore_until: undefined });
     },
   },
   'contact.merge': {
     preview: (_db, i: { group_ids: string[] }) => ({ summary: 'contact.merge', count: i.group_ids.length }),
     execute: (db, i: { group_ids: string[] }) => {
-      db.customers.duplicates = db.customers.duplicates.filter((g) => !i.group_ids.includes(g.id));
+      const ids = new Set(i.group_ids.map(groupOfMergeId));
+      db.customers.duplicates = db.customers.duplicates.filter((g) => !ids.has(g.id));
       return { merged: i.group_ids.length };
     },
     undo: (db) => {
@@ -316,10 +320,13 @@ export const customersHandlers: Record<string, MockHandler> = {
   'contact.transfer_owner': {
     execute: (db, i: Ci & { to_user_id: string; move: { conversations: boolean; quotes: boolean; appointments: boolean } }) => {
       const c = contact(db, i.contact_id);
+      // TIP-015d: kết quả phân biệt — người nhận đã phụ trách → skip (không biên nhận / hoàn tác).
+      if (c.owner_user_id === i.to_user_id) return { status: 'skipped_already_owner', owner_user_id: i.to_user_id, moved: { conversations: 0, quotes: 0, appointments: 0 }, transfer_id: null, version: 1 };
       c.owner_user_id = i.to_user_id;
       c.owner_name = memberName(i.to_user_id);
       db.customers.collaborators[i.contact_id] = (db.customers.collaborators[i.contact_id] ?? []).filter((x) => x.user_id !== i.to_user_id);
-      return { owner_user_id: i.to_user_id, moved: { conversations: i.move.conversations ? 1 : 0, quotes: i.move.quotes ? 1 : 0, appointments: i.move.appointments ? 1 : 0 } };
+      const moved = { conversations: i.move.conversations ? 1 : 0, quotes: i.move.quotes ? 1 : 0, appointments: i.move.appointments ? 1 : 0 };
+      return { status: 'transferred', owner_user_id: i.to_user_id, moved, transfer_id: `tr_${++db.customers.seq}`, version: 2 };
     },
   },
   'contact.request_access': {

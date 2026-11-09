@@ -1,6 +1,6 @@
 // Worker ROLE=jobs của domain `sales` (TIP-029): scheduler `sales.quote-sweep` mỗi 15 phút trên queue riêng `sales-scheduler` (queue
 // `scheduler` dùng chung thì worker domain khác nhận job này và bỏ qua như đã xong — DC; jobId cố định → một lịch dù nhiều worker) — báo giá quá hạn → `expired`, còn ≤ 2 ngày → nhắc người phụ trách; consumer `sales.quote-owner`
-// (`contact.owner_changed` có move.quotes → chuyển báo giá đang mở cho người mới — COMMERCE §8b). TIP-031: queue `order-sync` (poll sàn 5 phút) + consumer webhook sàn — order-sync.jobs.ts. TIP 032 thêm processor.
+// (TIP-015d: không còn ghi — báo giá chuyển cùng transaction với khách; event cũ bỏ qua có log). TIP-031: queue `order-sync` (poll sàn 5 phút) + consumer webhook sàn — order-sync.jobs.ts. TIP 032 thêm processor.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
@@ -14,7 +14,7 @@ import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.provide
 import { SalesModule } from '../sales.module';
 import { ChannelsModule } from '../../channels/channels.module';
 import { CrmModule } from '../../crm/crm.module';
-import { expireDue, moveOpenQuotes, remindExpiring } from '../quotes/services/quote-system';
+import { expireDue, remindExpiring } from '../quotes/services/quote-system';
 import { OrderSyncService } from '../orders/services/order-sync';
 import { ORDER_SYNC_EVERY_MS, ORDER_SYNC_JOB, ORDER_SYNC_QUEUE, orderSyncConsumer, syncOrders } from './order-sync.jobs';
 import { PAYMENT_SWEEP_EVERY_MS, PAYMENT_SWEEP_JOB, paymentPackagesConsumer, sweepPayments } from './payment.jobs';
@@ -31,13 +31,16 @@ export const SALES_SCHEDULER_QUEUE = 'sales-scheduler';
 export const QUOTE_SWEEP_JOB = 'sales.quote-sweep';
 const EVERY_MS = 15 * 60_000;
 
-/** Consumer chuyển báo giá theo phụ trách mới của khách. */
-export const quoteOwnerConsumer = (now: () => Date): EventConsumer => ({
+/**
+ * TIP-015d: báo giá chuyển CÙNG transaction với khách (port `quote` của contact.transfer_owner) — consumer này KHÔNG còn ghi. Event cũ
+ * còn trong hàng đợi (trước khi nâng cấp) được nhận và bỏ qua có ghi log kiểm toán; không bao giờ phát lại `to` của event lên khách hiện tại.
+ */
+export const quoteOwnerConsumer = (log?: { info(o: object, m: string): void }): EventConsumer => ({
   name: 'sales.quote-owner',
   topics: ['contact.owner_changed'],
-  async handle(e, db) {
-    const p = e.payload as { contact_id: string; to: string; move?: { quotes?: boolean } };
-    if (p.move?.quotes) await moveOpenQuotes(db, p.contact_id, p.to, now());
+  async handle(e) {
+    const p = e.payload as { contact_id: string; transfer_id?: string; move?: { quotes?: boolean } };
+    if (p.move?.quotes && !p.transfer_id) log?.info({ event_id: e.id, ws: e.workspaceId, contact_id: p.contact_id, marker: 'legacy_owner_event_nonmutating' }, 'bỏ qua event chuyển báo giá cũ');
   },
 });
 
@@ -81,7 +84,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   async onApplicationBootstrap(): Promise<void> {
     if (!this.redis || !this.platform || !this.tenants) return;
     const now = () => this.clock.now();
-    registerEventConsumer(quoteOwnerConsumer(now));
+    registerEventConsumer(quoteOwnerConsumer(this.log));
     registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone));
     // TIP-012b P2: biên nhận ngân hàng đã ACK → khớp / ghi nhận qua ActionExecutor nguồn system (ngoài transaction consumer).
     if (this.executor) registerEventConsumer(bankIngestConsumer(this.executor));

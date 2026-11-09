@@ -100,6 +100,8 @@ export function toQuoteRow(
     returning: !!x.contact && (x.contact.stage === 'won' || !!x.contact.lastOrderAt),
     owner_user_id: q.ownerUserId ?? '',
     owner_name: (q.ownerUserId && ctx.names.get(q.ownerUserId)) || '',
+    assigned_user_id: q.assignedUserId ?? '',
+    assigned_name: (q.assignedUserId && ctx.names.get(q.assignedUserId)) || '',
     status: q.status,
     items: x.items,
     header_discount: header,

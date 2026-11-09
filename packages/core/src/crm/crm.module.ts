@@ -1,6 +1,9 @@
 // Domain `crm` (TIP-015): khách hàng, phụ trách + đồng phụ trách + xin chia sẻ (D32), gộp trùng, liên kết khách theo kênh (C06),
 // trường tuỳ biến (D56), bố cục Hồ sơ 360° (F12), xuất / nhập. Seed mặc định đăng ký khi nạp `seeds.ts`. Thiếu DB → service null.
-import { Module } from '@nestjs/common';
+import { Inject, Module, Optional, type OnModuleInit } from '@nestjs/common';
+import { registerApprovalDomain } from '../ai/approvals/domain-authorization';
+import { transferApprovalHook, transferBulkApprovalHook } from './ownership/approval-projection';
+import { ContactTransferOwnerBulkHandler } from './ownership/bulk-transfer.handler';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
@@ -9,9 +12,12 @@ import { ENV_SOURCE } from '../kernel/kernel.module';
 import { fileLinksFrom } from '../kernel/files/file-links';
 import './seeds';
 import { ContactAddCollaboratorHandler, ContactDecideAccessHandler, ContactRemoveCollaboratorHandler, ContactRequestAccessHandler, ContactTransferOwnerHandler } from './actions/contact-owner.handlers';
+import { ContactTransferStatusHandler } from './ownership/status.handler';
 import { ContactExportHandler, ContactImportHandler } from './actions/contact-io.handlers';
 import { ContactMergeHandler } from './actions/contact-merge.handler';
-import { ContactCreateHandler, ContactDeleteHandler, ContactSetStageHandler, ContactTagHandler, ContactUpdateHandler } from './actions/contact-write.handlers';
+import { ContactCreateHandler, ContactSetStageHandler, ContactTagHandler, ContactUpdateHandler } from './actions/contact-write.handlers';
+import { LIFECYCLE_HANDLERS } from './lifecycle/module';
+import { MERGE_HANDLERS } from './merge/module';
 import { ContactSearchHandler } from './actions/contact-search.handler';
 import { ContactEditContextHandler } from './actions/contact-edit-read.handler';
 import { ContactTimelineExportHandler } from './actions/contact-timeline-export.handler';
@@ -37,8 +43,8 @@ const HANDLERS = [
   ContactTimelineExportHandler,
   ContactGetHandler,
   ContactGet360Handler,
-  ContactCreateHandler, ContactUpdateHandler, ContactSetStageHandler, ContactTagHandler, ContactDeleteHandler, ContactMergeHandler,
-  ContactAddCollaboratorHandler, ContactRemoveCollaboratorHandler, ContactTransferOwnerHandler, ContactRequestAccessHandler, ContactDecideAccessHandler,
+  ContactCreateHandler, ContactUpdateHandler, ContactSetStageHandler, ContactTagHandler, ...LIFECYCLE_HANDLERS, ...MERGE_HANDLERS, ContactMergeHandler,
+  ContactAddCollaboratorHandler, ContactRemoveCollaboratorHandler, ContactTransferOwnerHandler, ContactTransferStatusHandler, ContactTransferOwnerBulkHandler, ContactRequestAccessHandler, ContactDecideAccessHandler,
   ContactExportHandler, ContactImportHandler,
   // TIP-045b annex D: sửa hàng loạt (≤ 50 ngay, > 50 việc nền).
   ContactBulkUpdateHandler,
@@ -66,4 +72,14 @@ const HANDLERS = [
   ],
   exports: [CrmMembers, CrmReadService, ContactIdentityService, LeadRoutingReadService, DataJobActionsModule],
 })
-export class CrmModule {}
+export class CrmModule implements OnModuleInit {
+  constructor(@Optional() @Inject(CrmMembers) private readonly members: CrmMembers | null) {}
+
+  /** Duyệt chuyển phụ trách theo quyền khách hiện tại (TIP-015d §1.3) — hook trung lập, AI không import CRM. */
+  onModuleInit(): void {
+    if (this.members) {
+      registerApprovalDomain('contact.transfer_owner', transferApprovalHook(this.members));
+      registerApprovalDomain('contact.transfer_owner_bulk', transferBulkApprovalHook(this.members));
+    }
+  }
+}

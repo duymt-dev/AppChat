@@ -10,6 +10,7 @@ import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import type { QuoteItem } from './quotes';
 import { paginate } from '../paginate';
+import { withEditFields } from './commerce-edit';
 
 type Fixed = (typeof fixture.orders)[number];
 export type OrderStatus = 'new' | 'processing' | 'completed' | 'cancelled';
@@ -35,6 +36,10 @@ export type Order = Omit<
   contract_id: string | null;
   refunded_total?: string;
   deleted?: boolean;
+  /** TIP-032c: người phụ trách vận hành + phiên bản dòng (seed: withEditFields). */
+  assigned_user_id?: string;
+  assigned_name?: string;
+  version?: number;
 };
 
 export interface OrdersState {
@@ -44,7 +49,7 @@ export interface OrdersState {
 }
 
 export const createOrdersState = (): OrdersState => ({
-  orders: structuredClone(fixture.orders) as Order[],
+  orders: withEditFields(structuredClone(fixture.orders) as Order[]),
   seq: 290411,
 });
 
@@ -81,7 +86,7 @@ export const enrichOrder = (o: Order) => {
 export const visible = (db: MockDb, o: Order) => {
   if (o.deleted) return false;
   const scope = ROLE_DEFS[db.role].scope.sales;
-  return scope === 'all' || (scope === 'own' && o.owner_user_id === ME);
+  return scope === 'all' || (scope === 'own' && o.assigned_user_id === ME);
 };
 
 export const findOrder = (db: MockDb, id: string) => {
@@ -113,6 +118,7 @@ export const ordersRoutes: Record<string, MockRoute> = {
         (o) =>
           (!p.chip || p.chip === 'all' || (CHIP[String(p.chip)]?.(o) ?? true)) &&
           (!p.owner_id || p.owner_id === 'all' || o.owner_user_id === p.owner_id) &&
+          (!p.assigned_user_id || p.assigned_user_id === 'all' || o.assigned_user_id === p.assigned_user_id) &&
           (!p.value || p.value === 'all' || (VALUE[String(p.value)]?.(Number(o.total)) ?? true)) &&
           (!p.source || p.source === 'all' || o.source === p.source) &&
           (!s || [o.code, o.contact_name, o.items[0]?.name ?? ''].some((v) => v.toLowerCase().includes(s))),

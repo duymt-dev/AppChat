@@ -3,7 +3,7 @@
 // mọi transaction → ghi kết quả theo thế hệ. Lỗi lưu MÃ đã làm sạch (ProviderError code / `internal`), không thông điệp provider.
 // Queue `integration-ops` chỉ mang (workspace, call_id) — không bí mật / payload / quyền; quét khôi phục ở bank-sync.scheduler.ts.
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
-import { isProviderError, type ConnectionCtx, type ConnectorAdapter, type ConnectorRegistry, type ProviderHttp } from '@appchat/integrations';
+import { isProviderError, type ConnectionCtx, type ConnectorAdapter, type ConnectorRegistry, type MailTransports, type ProviderHttp } from '@appchat/integrations';
 import { Queue } from '../../kernel/jobs/with-job-context';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
@@ -21,6 +21,8 @@ export interface OpRunArgs {
   connectorKey: string;
   adapter: ConnectorAdapter | null;
   http: ProviderHttp;
+  /** TIP-012c: cầu mạng mail của DN (safeFetch POST / SMTP ghim IP) — op mail dùng; op khác bỏ qua. */
+  mail?: MailTransports;
   now: () => Date;
 }
 
@@ -40,6 +42,7 @@ export interface RunnerDeps {
   registry: ConnectorRegistry;
   key: Buffer;
   http: ProviderHttp;
+  mail?: MailTransports;
   kv: KeyValueStore | null;
   now: () => Date;
 }
@@ -71,6 +74,7 @@ export async function executeCall(d: RunnerDeps, workspaceId: string, callId: st
       connectorKey: conn.connectorKey,
       adapter: adapterOf(d.registry, conn.connectorKey, conn.mode),
       http: d.http,
+      ...(d.mail ? { mail: d.mail } : {}),
       now: d.now,
     });
     const ok = await finishCall(db, callId, generation, { status: 'succeeded', latencyMs: Date.now() - started, outcome }, d.now());

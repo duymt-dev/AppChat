@@ -1,5 +1,5 @@
 // Ma trận appointment.create (TIP-023b): đặt lịch → khách (có sẵn / theo SĐT / mới — cảnh báo new_contact) + dịch vụ + nhân sự + giờ + trạng thái;
-// slot đã có người → 409 ở preview; undo xoá mềm. 403 kế toán · sales: khách của owner → 404 · idempotency.
+// slot đã có người → 409 ở preview; undo giữ bản ghi → cancelled `undo_create` (TIP-033b §2.6). 403 kế toán · sales: khách của owner → 404 · idempotency.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
@@ -32,7 +32,7 @@ describe('appointment.create', () => {
     expect((await m.act(inp(), undefined, { 'x-action-source': 'assistant' })).body.error.fields).toEqual({ start: 'slot_taken' });
     const id = done.body.data.result.appointment_id;
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
-    expect((await (await m.db()).appointment.findUniqueOrThrow({ where: { id } })).deletedAt).not.toBeNull();
+    expect(await (await m.db()).appointment.findUniqueOrThrow({ where: { id } })).toMatchObject({ status: 'cancelled', cancelReason: 'undo_create', deletedAt: null });
   });
 
   it('khách mới theo SĐT → cảnh báo new_contact', async () => {
