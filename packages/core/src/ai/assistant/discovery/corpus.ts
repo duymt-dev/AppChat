@@ -3,7 +3,7 @@
 // agent / ví dụ khách hàng / giá trị input lúc chạy vào văn bản — chỉ dữ liệu TĨNH của registry (mô tả viết cho model, không phải dữ
 // liệu người dùng). Document quá khổ bị HASH (không cắt rồi coi là tương đương) — build thất bại nếu không serialize được khuôn input.
 import { createHash } from 'node:crypto';
-import { registry, type ActionDef } from '@appchat/actions';
+import { isInternalAction, registry, type ActionDef } from '@appchat/actions';
 import { DISCOVERY_CORPUS_MAX_BYTES, DISCOVERY_DOC_MAX_CHARS, DISCOVERY_LABEL_VERSION, DISCOVERY_MAX_ACTIONS, DISCOVERY_RANKING_VERSION, serverMessages } from '@appchat/shared';
 import { inputSchemaOf } from '../../runs/tools';
 import { stableJson } from '../../../kernel/actions/confirm-token';
@@ -43,7 +43,8 @@ function schemaHashOf(a: ActionDef): string {
 /** Danh sách action đưa vào kho: registry đã triển khai (implemented), KHÔNG lọc theo quyền — quyền lọc lúc TRUY VẤN
  *  (discovery/authority.ts, pha sau), không lọc lúc build (một kho dùng chung mọi thành viên của workspace). */
 export function buildCorpus(implemented: (id: string) => boolean): DiscoveryCorpus {
-  const actions = registry.filter((a) => implemented(a.id)).sort((x, y) => (x.id < y.id ? -1 : x.id > y.id ? 1 : 0));
+  // Action riêng (TIP-003c) không bao giờ vào kho / embedding — kể cả khi có handler.
+  const actions = registry.filter((a) => implemented(a.id) && !isInternalAction(a)).sort((x, y) => (x.id < y.id ? -1 : x.id > y.id ? 1 : 0));
   if (actions.length > DISCOVERY_MAX_ACTIONS) throw new Error(`action_discovery: ${actions.length} action vượt trần ${DISCOVERY_MAX_ACTIONS}`);
   const docs: DiscoveryDoc[] = actions.map((a) => {
     const text = textOf(a);

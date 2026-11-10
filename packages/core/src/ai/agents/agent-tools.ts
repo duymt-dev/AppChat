@@ -1,13 +1,13 @@
 // Quyền agent (D51, Blueprint §3.3b): danh sách Tools = action `agentGrantable`, nhóm theo module + "Kỹ năng AI" (`skill`), n/tổng
 // mỗi nhóm; action cần connector chưa kết nối → badge `needs_connector`, chưa có manifest → `coming_soon` — vẫn hiện, KHÔNG vào run.
 // Một nguồn cho Builder (`GET /v1/agents/:id/tools`), menu ＋ Hộp thư (`GET /v1/conversations/:id/agent-tools`) và runtime (TIP-022/023).
-import { registry, type ActionDef } from '@appchat/actions';
+import { registry, type ActionDef, isAgentGrantable } from '@appchat/actions';
 import { channelRegistry } from '@appchat/channels';
 import { connectorRegistry } from '@appchat/integrations';
 import type { AgentToolsDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 
-const GRANTABLE: ActionDef[] = registry.filter((a) => a.agentGrantable);
+const GRANTABLE: ActionDef[] = registry.filter(isAgentGrantable);
 
 type Badge = 'needs_connector' | 'coming_soon' | null;
 

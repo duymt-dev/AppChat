@@ -1,6 +1,6 @@
 // Domain `contracts` (TIP-030): hợp đồng + ký điện tử native (OTP + ký tay — COMMERCE §9 C1). Handler 13 action `contract.*`, đọc cho
 // /v1/contracts*, trang ký công khai /v1/public/sign/:token, PDF (DocRenderer — TIP-028). Thiếu DB / khoá → service null / 501.
-import { Module } from '@nestjs/common';
+import { Module, type OnModuleInit } from '@nestjs/common';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import type { MailProvider } from '@appchat/integrations';
 import type { Redis } from 'ioredis';
@@ -34,6 +34,8 @@ import { ContractsReadService } from './services/contracts-read.service';
 import { PublicSignService } from './services/public-sign.service';
 import { APPENDIX_HANDLERS, APPENDIX_SERVICES } from './appendix/appendix.module';
 import { AppendixPublicService } from './appendix/public.service';
+import { registerSystemVerifier } from '../kernel/actions/system';
+import { APPENDIX_PUBLIC_ACTIONS, verifyAppendixPublic } from './appendix/system-verifier';
 import { AppendixReadService } from './appendix/read.service';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ChannelSendQueue) => ({ token, optional: true });
@@ -90,4 +92,9 @@ const HANDLERS = [
   ],
   exports: [ContractsReadService, PublicSignService, ContractDeps, AppendixReadService, AppendixPublicService],
 })
-export class ContractsModule {}
+export class ContractsModule implements OnModuleInit {
+  /** TIP-003c: verifier nguồn (token phụ lục đã lưu) cho `contract.appendix_public_*`. */
+  onModuleInit(): void {
+    for (const id of APPENDIX_PUBLIC_ACTIONS) registerSystemVerifier(id, verifyAppendixPublic);
+  }
+}

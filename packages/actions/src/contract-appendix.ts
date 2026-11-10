@@ -129,6 +129,7 @@ export const contractAppendixPublicOtp = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['contracts', 'inbox'],
 });
 
@@ -142,6 +143,7 @@ export const contractAppendixPublicSign = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   secret: { paths: ['otp'] },
   invalidates: ['contracts', 'inbox'],
 });
@@ -156,5 +158,6 @@ export const contractAppendixPublicDecline = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['contracts'],
 });

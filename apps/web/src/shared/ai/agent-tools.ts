@@ -1,9 +1,9 @@
 // Quyền agent = tập action id (ai_agent.tool_ids, D51 §3.3b). Builder Tools, menu ＋ Hộp thư, tab Công cụ & Quyền Cowork
 // đều nhóm theo module + "Kỹ năng AI" từ cùng nguồn này — tránh 3 nơi tự suy luận khác nhau.
-import { registry, type ActionDef, type ModuleKey } from '@appchat/actions';
+import { registry, type ActionDef, type ModuleKey, isAgentGrantable } from '@appchat/actions';
 
 /** Mọi action agent có thể được cấp (D51 điểm 1–2): module thường + action đọc đánh dấu `skill`. */
-export const AGENT_GRANTABLE: ActionDef[] = registry.filter((a) => a.agentGrantable);
+export const AGENT_GRANTABLE: ActionDef[] = registry.filter(isAgentGrantable);
 export const SKILL_ACTIONS: ActionDef[] = AGENT_GRANTABLE.filter((a) => a.skill);
 export const MODULE_ACTIONS: ActionDef[] = AGENT_GRANTABLE.filter((a) => !a.skill);
 

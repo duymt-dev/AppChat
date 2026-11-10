@@ -18,7 +18,7 @@ export { syncOrders, orderSyncConsumer, ORDER_SYNC_QUEUE, ORDER_SYNC_JOB } from 
 export { InvoicesReadService, type InvoiceViewer } from './payments/services/invoices-read.service';
 export type { InvoiceFilter } from './payments/repos/invoices.repo';
 export { TenantBankHook, webhookPathOf, type HookAck } from './payments/services/bank-feed';
-export { bankIngestConsumer, bankIngressCtx, BANK_INGEST_CONSUMER } from './payments/bank/bank-event.consumer';
+export { bankIngestConsumer, bankIngressTrigger, verifyBankIngress, BANK_INGEST_CONSUMER } from './payments/bank/bank-event.consumer';
 export { RECEIPT_TOPIC, stagePulledReceipts } from './payments/bank/receipt';
 export { BANK_INGRESS_ACTOR } from './payments/actions/bank-ingest.handler';
 export { markOverdue, remindDue, packagesOnConfirm } from './payments/services/payment-system';

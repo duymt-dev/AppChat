@@ -87,7 +87,7 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     registerEventConsumer(quoteOwnerConsumer(this.log));
     registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone));
     // TIP-012b P2: biên nhận ngân hàng đã ACK → khớp / ghi nhận qua ActionExecutor nguồn system (ngoài transaction consumer).
-    if (this.executor) registerEventConsumer(bankIngestConsumer(this.executor));
+    if (this.executor) registerEventConsumer(bankIngestConsumer(this.executor, this.tenants));
     // TIP-012b P3: op kéo giao dịch của integrations ghi biên nhận bằng luật của sales (hội tụ với webhook).
     registerCallOp(BANK_PULL_OP, bankPullOp(stagePulledReceipts));
     const deps = { platform: this.platform, tenants: this.tenants, now, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: QUOTE_SWEEP_JOB }, 'quét báo giá lỗi ở workspace') };

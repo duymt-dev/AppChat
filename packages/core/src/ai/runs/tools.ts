@@ -3,7 +3,7 @@
 // read-dispatch.ts (200 → ok đã lọc cho model; 202 phân nhánh exhaustive); AppError → error (run tiếp, model thấy lý do).
 // Không logic nghiệp vụ ở đây. Tên tool = id action đổi `.` → `__` (provider không nhận dấu chấm trong tên tool).
 import { z } from 'zod';
-import type { ActionDef } from '@appchat/actions';
+import { isInternalAction, type ActionDef } from '@appchat/actions';
 import type { JsonSchema, ToolOutcome, ToolSpec } from '@appchat/ai';
 import { AppError } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
@@ -21,6 +21,8 @@ export function inputSchemaOf(def: ActionDef): JsonSchema {
 }
 
 export function actionTool(def: ActionDef, executor: ToolExecutor, ctxOf: (stepIdx: number, toolCallId: string) => ActionContext): ToolSpec {
+  // Action riêng (TIP-003c §1.5) không bao giờ thành tool — cấu hình agent cũ còn id này thì tool đó bị bỏ, không lộ schema.
+  if (isInternalAction(def)) throw new AppError('FORBIDDEN', 403, { capability: 'internal' });
   return {
     name: toolNameOf(def.id),
     description: def.description,

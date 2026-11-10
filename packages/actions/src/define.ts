@@ -29,6 +29,11 @@ export interface ActionDef<I extends z.ZodTypeAny = z.ZodTypeAny, O extends z.Zo
   risk: Risk;
   bulk?: boolean;
   agentGrantable: boolean;
+  /**
+   * `internal` (TIP-003c §1.1): action hệ thống riêng — chỉ chạy với capability gắn nguồn do domain cấp (kernel/actions/system); không
+   * bao giờ vào menu / tool grant / khám phá / corpus embedding; không thể agentGrantable. Mặc định `public`.
+   */
+  exposure?: 'public' | 'internal';
   /** Nhóm "Kỹ năng AI" trong Builder Tools — chỉ action đọc (risk 'read') hữu ích cho AI trực kênh (D51). */
   skill?: boolean;
   /** Key connector/channel cần kết nối để tool chạy được — Builder hiện badge "Cần kết nối X" (D51 §3.3b). */
@@ -55,7 +60,15 @@ export interface SecretSpec {
   connector?: { provider: string; fields: string };
 }
 
-export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: ActionDef<I, O>): ActionDef<I, O> => d;
+export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: ActionDef<I, O>): ActionDef<I, O> => {
+  if (d.exposure === 'internal' && d.agentGrantable) throw new Error(`action ${d.id}: internal không thể agentGrantable`);
+  return d;
+};
+
+/** Action hệ thống riêng (TIP-003c) — loại khỏi mọi bề mặt công khai. */
+export const isInternalAction = (d: Pick<ActionDef, 'exposure'>): boolean => d.exposure === 'internal';
+/** Cấp được cho agent: `agentGrantable` VÀ không internal (phòng thủ kép — registry đã chặn tổ hợp này lúc define). */
+export const isAgentGrantable = (d: Pick<ActionDef, 'exposure' | 'agentGrantable'>): boolean => !!d.agentGrantable && !isInternalAction(d);
 
 /**
  * "Quên khách" (TIP-015c §1.3): không thể đảo ngược — bắt buộc Idempotency-Key dù risk không phải send/money/create, để gửi lại

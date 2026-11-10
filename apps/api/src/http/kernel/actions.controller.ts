@@ -10,7 +10,7 @@
 import { Body, Controller, Get, HttpCode, Inject, Optional, Param, Post, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import { z } from 'zod';
-import { registry } from '@appchat/actions';
+import { isInternalAction, registry } from '@appchat/actions';
 import { ActionExecutor, AUTHORIZER, GenUiIntents, LIFECYCLE_ACTIONS, lifecycleContext, RequestContext, platformContext, runGenUiAction, SecretVault, UndoService, type ActionContext, type ActionSource, type Authorizer } from '@appchat/core';
 import { AppError } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from './request-actor';
@@ -55,7 +55,8 @@ export class ActionsController {
     const out = [];
     for (const a of registry) {
       // Action quản trị không thuộc danh mục của workspace (trang /admin đọc riêng — TIP-040).
-      if (a.permission === 'platform_admin' || !(await this.authorizer.can(ctx, a.permission))) continue;
+      // Action riêng (TIP-003c) không có trong danh mục công khai — không lộ id / schema, kể cả Owner.
+      if (a.permission === 'platform_admin' || isInternalAction(a) || !(await this.authorizer.can(ctx, a.permission))) continue;
       out.push({
         id: a.id,
         module: a.module,

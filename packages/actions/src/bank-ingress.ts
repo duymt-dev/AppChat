@@ -16,5 +16,6 @@ export const bankFeedIngest = defineAction({
   permission: 'finance.manage',
   risk: 'money',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['invoices', 'orders'],
 });

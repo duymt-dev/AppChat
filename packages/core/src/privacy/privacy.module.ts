@@ -3,7 +3,9 @@
 // contact.allow_recreation (pha 3 — permit mở lại tạo mới từ định danh đã tombstone) + journal nền tảng (reserve/acknowledge trong
 // forget.handler.ts — PLATFORM_DB/ENC_KEY @Optional, không platform thì bỏ qua journal, chỉ fence tenant).
 // Handler chỉ dùng CLOCK + domain CRM (lockFamily/dependencies — port kernel-only, không import module CRM aggregate).
-import { Module } from '@nestjs/common';
+import { Module, type OnModuleInit } from '@nestjs/common';
+import { registerSystemVerifier } from '../kernel/actions/system';
+import { verifyPrivacyCleanup } from './jobs/privacy.scheduler';
 import { ContactForgetHandler } from './actions/forget.handler';
 import { ContactPrivacyPreviewHandler, ContactPrivacyStatusHandler } from './actions/read.handlers';
 import { PrivacyCleanupStepHandler } from './actions/cleanup-step.handler';
@@ -13,4 +15,9 @@ import { ContactAllowRecreationHandler } from './actions/recreation.handler';
 const HANDLERS = [ContactForgetHandler, ContactPrivacyPreviewHandler, ContactPrivacyStatusHandler, PrivacyCleanupStepHandler, PrivacyReviewResolveHandler, ContactAllowRecreationHandler];
 
 @Module({ providers: HANDLERS, exports: HANDLERS })
-export class PrivacyModule {}
+export class PrivacyModule implements OnModuleInit {
+  /** TIP-003c: verifier nguồn cho action riêng `privacy.cleanup_step`. */
+  onModuleInit(): void {
+    registerSystemVerifier('privacy.cleanup_step', verifyPrivacyCleanup);
+  }
+}

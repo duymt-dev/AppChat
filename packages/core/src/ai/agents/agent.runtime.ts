@@ -1,7 +1,7 @@
 // Chạy agent trên runtime TIP-019 (AiRunner + RunStore): system prompt từ cấu hình, bộ tool = quyền agent (D51, agent-tools)
 // gọi ActionExecutor với ngữ cảnh agent; chạy một lượt + chờ kết quả (chat thử Builder, soạn cấu hình, tối ưu prompt). Credit trừ
 // qua CreditMeter như mọi run. Agent trực kênh (queue `agent-reply`) dùng lại `agentSystem` / `agentToolSpecs` ở TIP-022.
-import { registry, type ActionDef } from '@appchat/actions';
+import { isInternalAction, registry, type ActionDef } from '@appchat/actions';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
 import type { AuthzContext } from '@appchat/shared';
 import type { TenantDb } from '@appchat/db';
@@ -102,7 +102,7 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
   const { mapInput: map, db } = r;
   const commanderId = r.authority?.commanderId ?? r.commander?.userId;
   const readCommander = r.authority?.commander ?? (r.commander ? async () => r.commander! : undefined);
-  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d && has(d.id)).map((d) => {
+  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d && has(d.id) && !isInternalAction(d)).map((d) => {
     const tool = actionTool(d, executor, (i, c) => ctxOf(d, i, c));
     if (!db) return tool;
     // SPEC A: mỗi lời gọi đọc lại agent / grant đã xuất bản / connector / người ra lệnh — thu hồi có hiệu lực ngay lần gọi kế.

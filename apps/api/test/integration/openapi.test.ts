@@ -7,7 +7,7 @@ import { RequestMethod } from '@nestjs/common';
 import { METHOD_METADATA, PATH_METADATA } from '@nestjs/common/constants';
 import { DiscoveryService } from '@nestjs/core';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { registry } from '@appchat/actions';
+import { isInternalAction, registry } from '@appchat/actions';
 import { env, startApi, type Harness } from './setup';
 import { validator } from '../fixtures/json-schema-lite';
 
@@ -61,7 +61,8 @@ describe('GET /v1/docs', () => {
     const routes = nestRoutes().filter((r) => !/ \/(hooks\/|metrics$|v1\/docs)/.test(r) && r !== 'post /v1/actions/{id}');
     expect(routes.length).toBeGreaterThan(150);
     expect(routes.filter((r) => !inSpec.has(r))).toEqual([]);
-    for (const a of registry) expect(inSpec.has(`post /v1/actions/${a.id}`), a.id).toBe(true);
+    // Action riêng (TIP-003c) không có operation công khai — cổng capability chặn mọi lời gọi HTTP.
+    for (const a of registry) expect(inSpec.has(`post /v1/actions/${a.id}`), a.id).toBe(!isInternalAction(a));
     expect([...inSpec].filter((r) => /\/hooks\/|\/metrics$/.test(r))).toEqual([]);
   });
 

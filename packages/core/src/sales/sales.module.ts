@@ -3,6 +3,8 @@
 import { Module, type OnModuleInit } from '@nestjs/common';
 import { registerOwnershipPort } from '../kernel/ownership/registry';
 import { quoteOwnershipPort } from './quotes/services/ownership-port';
+import { registerSystemVerifier } from '../kernel/actions/system';
+import { verifyBankIngress } from './payments/bank/bank-event.consumer';
 import type { Redis } from 'ioredis';
 import { connectorRegistry } from '@appchat/integrations';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
@@ -125,5 +127,6 @@ export class SalesModule implements OnModuleInit {
   /** Port chuyển phụ trách báo giá (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Sales. */
   onModuleInit(): void {
     registerOwnershipPort(quoteOwnershipPort);
+    registerSystemVerifier('bank_feed.ingest', verifyBankIngress);
   }
 }

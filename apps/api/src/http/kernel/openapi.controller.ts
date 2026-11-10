@@ -5,7 +5,7 @@
 import { Controller, Get, Header, Inject, Optional, Req, Res } from '@nestjs/common';
 import { DiscoveryService } from '@nestjs/core';
 import type { IncomingMessage, ServerResponse } from 'node:http';
-import { registry } from '@appchat/actions';
+import { isInternalAction, registry } from '@appchat/actions';
 import { ENV_SOURCE } from '@appchat/core';
 import { AppError } from '@appchat/shared';
 import { buildDocument, type OpenApiDocument } from '../../openapi/document';
@@ -32,7 +32,7 @@ export class OpenApiController {
 
   private document(): OpenApiDocument {
     if (!docsEnabled(this.env)) throw new AppError('NOT_FOUND', 404, { route: 'not_found' });
-    return (this.doc ??= buildDocument({ routes: scanRoutes(this.discovery), actions: registry, version: this.version() }));
+    return (this.doc ??= buildDocument({ routes: scanRoutes(this.discovery), actions: registry.filter((a) => !isInternalAction(a)), version: this.version() }));
   }
 
   @Get()
