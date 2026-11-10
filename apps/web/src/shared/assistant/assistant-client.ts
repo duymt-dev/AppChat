@@ -24,6 +24,8 @@ export interface TurnRequest {
   requestId?: string;
   /** Tệp đã tải (`file_id` + tên) — server kiểm lại bằng guard trước model (TIP-023c 8c). */
   attachments?: { id: string; name: string }[];
+  /** TIP-023f: tệp đã chuẩn bị (handle + revision) — nội dung đi vào model; server kiểm lại chủ / ready / nguồn. */
+  inputs?: { artifact_id: string; revision: number }[];
 }
 
 export const newRequestId = () => `req-${crypto.randomUUID()}`;

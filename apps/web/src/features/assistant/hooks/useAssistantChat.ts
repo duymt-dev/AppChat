@@ -9,7 +9,8 @@ import { dispatchUiCommand } from '@/shared/assistant/ui-command-bus';
 import { utilityCommandOf } from '@/shared/ai-utilities';
 import { confirmTurn } from '../api';
 import { useAssistantStream } from './useAssistantStream';
-import { useAttachStore } from './useAssistantAttachments';
+import { carriesFileId } from '@/shared/assistant/attachment-extensions';
+import { handlesOf, useAttachStore } from './useAssistantAttachments';
 import { useAssistantUi } from '../assistant-store';
 import type { ChatMessage, TurnEvent } from '../types';
 
@@ -54,22 +55,36 @@ export function useAssistantChat() {
   const send = useCallback(
     async (raw?: string, from?: string) => {
       const text = (raw ?? useAssistantUi.getState().draft).trim();
-      const files = useAttachStore.getState().items;
-      // Tệp còn đang tải / lỗi → chưa gửi (chip hiện trạng thái; người dùng thử lại hoặc bỏ).
-      if (!text || files.some((f) => f.status !== 'ready')) return;
+      // Câu hỏi gửi từ nơi khác (`?ask=`) không mang khay tệp của ô soạn.
+      const files = raw === undefined ? useAttachStore.getState().items : [];
+      // Tệp còn đang tải / chuẩn bị / lỗi → chưa gửi (chip hiện trạng thái; người dùng thử lại hoặc bỏ). Chỉ tệp (không chữ) được gửi khi
+      // người dùng bấm Gửi — server điền câu hỏi trung tính, không tự bịa việc.
+      if ((!text && !files.length) || files.some((f) => f.status !== 'ready')) return;
       // `/ai.*` đã nhận diện → mở form kỹ năng tiện ích (TIP-019c §4.2), không gửi thành lượt chat.
-      const cmd = utilityCommandOf(text);
+      const cmd = text ? utilityCommandOf(text) : null;
       if (cmd) return useAssistantUi.getState().set({ utility: cmd, draft: '', pop: null });
-      const attachments = files.map((f) => ({ id: f.file_id!, name: f.name }));
+      // Metadata `file_id` chỉ cho extension domain (038b nhập CSV / XLSX…); nội dung tệp đi qua handle đã chuẩn bị.
+      const attachments = files.filter((f) => f.file_id && carriesFileId(f.mime)).map((f) => ({ id: f.file_id!, name: f.name }));
+      const inputs = handlesOf(files);
       const { push, set, mode, sessionId, tier } = useAssistantUi.getState();
-      push({ id: mid(), role: 'user', text });
+      const draft = useAssistantUi.getState().draft;
+      const userMsg = { id: mid(), role: 'user' as const, text, ...(files.length ? { files: files.map((f) => ({ name: f.name, kind: f.mime.startsWith('image/') ? 'image' : 'file' })) } : {}) };
+      push(userMsg);
       set({ draft: '', typing: true, pop: null });
-      useAttachStore.getState().set(() => []);
+      // Một request_id cho lượt — gửi lại sau khi mất phản hồi giữ cùng khoá (cùng run), không tải / tạo lại.
+      const requestId = `req-${crypto.randomUUID()}`;
+      let sent = false;
       try {
-        const [turn] = await Promise.all([stream.run({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId: `req-${crypto.randomUUID()}`, ...(attachments.length ? { attachments } : {}) }), new Promise((r) => setTimeout(r, TYPING_MS))]);
+        const [turn] = await Promise.all([stream.run({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId, ...(attachments.length ? { attachments } : {}), ...(inputs.length ? { inputs } : {}) }), new Promise((r) => setTimeout(r, TYPING_MS))]);
+        sent = true;
+        if (files.length) useAttachStore.getState().renew();
         show(turn.events);
         useAssistantUi.getState().set({ sessionId: turn.session_id, ...(mode === 'cowork' && turn.run_id ? { lastRunId: turn.run_id } : {}) });
         if (mode === 'cowork') await qc.invalidateQueries({ queryKey: ['runs'] });
+      } catch (e) {
+        // Lượt bị từ chối: giữ nguyên chữ + khay tệp để người dùng sửa / gửi lại (không mất bản nháp).
+        if (!sent) useAssistantUi.setState((s) => ({ messages: s.messages.filter((m) => m.id !== userMsg.id), draft: s.draft || draft }));
+        throw e;
       } finally {
         useAssistantUi.getState().set({ typing: false });
       }

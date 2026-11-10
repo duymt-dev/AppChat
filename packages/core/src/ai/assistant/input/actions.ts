@@ -11,8 +11,8 @@ import { checkFile, type FileDenied } from '../../../kernel/files/file-access';
 import { line, preview } from '../../../kernel/actions/preview-kit';
 import { ownSession } from '../sessions';
 import { ATTACHMENT_RULE } from '../genui/attachments';
-import { ownArtifact, toDto, upsertArtifact } from './artifact-store';
-import { readParts } from './read';
+import { ownArtifact, upsertArtifact } from './artifact-store';
+import { getArtifact, readParts } from './read';
 
 type Mut = { artifact_id: string; revision: number; phase: InputArtifactDto['phase'] };
 const userOf = (ctx: ActionContext) => ctx.onBehalfOfUserId ?? ctx.actor.id;
@@ -85,10 +85,7 @@ export class AttachmentGetHandler implements Handler<ActionInput<typeof assistan
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, i: ActionInput<typeof assistantAttachmentGet>, tx: TenantTx): Promise<HandlerOutcome<InputArtifactDto>> {
-    const userId = userOf(ctx);
-    const a = await ownArtifact(tx, userId, i.artifact_id);
-    const src = await checkFile(tx, userId, a.fileId, { ...SOURCE_RULE, maxAgeMs: Number.MAX_SAFE_INTEGER }, this.clock.now());
-    return { result: toDto(a, !('denied' in src)) };
+    return { result: await getArtifact(tx, userOf(ctx), i.artifact_id, this.clock.now()) };
   }
 }
 

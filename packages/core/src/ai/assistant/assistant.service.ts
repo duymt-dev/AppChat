@@ -28,6 +28,9 @@ import { presentUi } from './genui/history';
 import { CursorSigner, EventStore } from './genui/event-store';
 import { resolveRefs } from './genui/refs';
 import { sessionMessages } from './sessions';
+import { getArtifact, readParts } from './input/read';
+
+const ATTACHMENT_ONLY = { vi: 'Tệp đính kèm nói gì?', en: 'What does the attached file say?' } as const;
 import { listSessionsPage } from './session-list';
 import { agentChoicesPage } from './plans/agent-choices';
 import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type PreparedTurn, type ConfirmRequest, type TurnRequest } from './turn.service';
@@ -125,7 +128,9 @@ export class AssistantService {
 
   private async request(c: Caller, q: Omit<TurnRequest, 'ws' | 'userId' | 'authz' | 'userName' | 'locale' | 'role'>): Promise<TurnRequest> {
     const p = await this.profile(c);
-    return { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale, role: p.role };
+    // Chỉ gửi tệp (TIP-023f §4.1): câu hỏi trung tính theo ngôn ngữ — không tự bịa việc nghiệp vụ.
+    const text = q.text.trim() || (q.inputs?.length ? ATTACHMENT_ONLY[p.locale === 'en' ? 'en' : 'vi'] : q.text);
+    return { ...q, text, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale, role: p.role };
   }
 
   private redis(): Redis | null {
@@ -164,6 +169,15 @@ export class AssistantService {
   /** Trang AI Agent có thể chọn làm chuyên viên Cowork (TIP-023d §5.2) — cùng service với action `assistant.agent_choices`. */
   async agentChoices(c: Caller, page: { cursor?: string; limit?: number } = {}) {
     return agentChoicesPage(await this.db(c), page);
+  }
+
+  /** `GET /assistant/input/:id` (+ `/parts`) — cùng service đọc có guard với action `assistant.attachment_get` / `_read` (TIP-023f §5.3). */
+  async input(c: Caller, id: string) {
+    return getArtifact(await this.db(c), c.userId, id, this.clock.now());
+  }
+
+  async inputParts(c: Caller, q: { artifact_id: string; revision: number; cursor?: string; limit?: number }) {
+    return readParts(await this.db(c), c.userId, q);
   }
 
   async messages(c: Caller, id: string) {

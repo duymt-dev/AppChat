@@ -12,6 +12,7 @@ import { contactEditHandlers } from './domains/contact-edit';
 import { inboxTranslationHandlers } from './domains/inbox-translation';
 import { aiUtilityHandlers } from './domains/ai-utilities';
 import { assistantHandlers } from './domains/assistant';
+import { assistantInputHandlers } from './domains/assistant-input';
 import { aiTasksHandlers } from './domains/ai-tasks';
 import { agentsHandlers } from './domains/agents';
 import { productsHandlers } from './domains/products';
@@ -118,6 +119,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...dataJobsHandlers,
   ...listExportsHandlers,
   ...assistantHandlers,
+  ...assistantInputHandlers,
   ...aiTasksHandlers,
   ...agentsHandlers,
   ...productsHandlers,

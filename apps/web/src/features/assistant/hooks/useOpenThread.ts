@@ -3,7 +3,7 @@
 'use client';
 import { useEffect, useRef } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { sessionMessages } from '../api';
+import { sessionMessages, threadOf } from '../api';
 import { useAssistantUi } from '../assistant-store';
 
 export function useOpenThread(allowed: boolean) {
@@ -15,7 +15,7 @@ export function useOpenThread(allowed: boolean) {
     if (!thread || !allowed || opened.current === thread) return;
     opened.current = thread;
     void sessionMessages(thread)
-      .then((r) => useAssistantUi.getState().set({ messages: r.data.map((m) => ({ id: m.id, role: m.role, text: m.text, card: m.card, status: m.status, ui: m.ui })), sessionId: thread, mode: 'cowork', draft: '' }))
+      .then((r) => useAssistantUi.getState().set({ messages: threadOf(r.data), sessionId: thread, mode: 'cowork', draft: '' }))
       .catch(() => undefined)
       .finally(() => {
         opened.current = null;

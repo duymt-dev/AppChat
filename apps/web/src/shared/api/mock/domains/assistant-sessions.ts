@@ -14,6 +14,7 @@ interface Msg {
   text: string;
   card?: Event;
   ui?: Event;
+  attachment?: { artifact_id: string; name: string; kind: string };
 }
 interface Session {
   id: string;
@@ -28,11 +29,13 @@ let seq = 0;
 const mid = () => `asm_${++seq}`;
 
 /** Ghi một lượt (câu hỏi + phần trả lời; `ui_command` không thành tin như server). */
-export function recordTurn(session: string, mode: string, text: string, events: readonly Event[]) {
+export function recordTurn(session: string, mode: string, text: string, events: readonly Event[], files?: readonly { name: string; kind: string }[]) {
   let s = sessions.get(session);
   if (!s) sessions.set(session, (s = { id: session, title: text.slice(0, 80), mode, last: '', msgs: [] }));
   s.last = new Date().toISOString();
   s.msgs.push({ id: mid(), role: 'user', text });
+  // Tệp của tin (TIP-023f): mỗi tệp một phần như server — chỉ tên / loại, không nội dung.
+  for (const f of files ?? []) s.msgs.push({ id: mid(), role: 'user', text: '', attachment: { artifact_id: '', name: f.name, kind: f.kind } });
   for (const ev of events) {
     if (ev.type === 'delta') s.msgs.push({ id: mid(), role: 'ai', text: String(ev.text ?? '') });
     else if (ev.type === 'confirm') s.msgs.push({ id: mid(), role: 'ai', text: '', card: ev });
