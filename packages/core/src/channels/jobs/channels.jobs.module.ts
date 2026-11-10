@@ -78,7 +78,8 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
 
   async onApplicationBootstrap(): Promise<void> {
     const { redis, platform, tenants, key, accounts, control } = this;
-    if (!redis || !platform || !tenants || !key || !accounts || !control) return;
+    const executor = this.executor;
+    if (!redis || !platform || !tenants || !key || !accounts || !control || !executor) return;
     const env = readChannelsEnv(this.src ?? {});
     const now = () => this.clock.now();
     const leases = new ChannelLeases(redis, `${hostname()}:${process.pid}:${Math.random().toString(36).slice(2, 8)}`);
@@ -104,7 +105,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
       this.opQueue ?? undefined,
     ));
     const sessions: ChannelSessions = new ChannelSessions({
-      platform, tenants, registry: this.registry, accounts, leases, inbound: this.inbound, providerEvents: this.providerEvents, kv: redis, key, log: this.log, now,
+      platform, tenants, executor, registry: this.registry, accounts, leases, inbound: this.inbound, providerEvents: this.providerEvents, kv: redis, key, log: this.log, now,
       // Worker gửi + worker tạo nhóm (TIP-023b) cùng vòng đời phiên: chỉ nơi giữ lease mới gọi nhà cung cấp.
       onStarted: async (id, ws, adapter, generation) => {
         // Ảnh chụp danh bạ quá 24 giờ (TIP-014b D3) — dọn khi giành phiên (best-effort, không chặn phiên).
@@ -132,7 +133,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     });
     this.sessions = sessions;
     this.senders = senders;
-    this.login = startLoginWorker(redis, { tenants, registry: this.registry, accounts, control, emitter: this.emitter, kv: redis, key, log: this.log, now, claim: (id, ws) => sessions.claim(id, ws) });
+    this.login = startLoginWorker(redis, { tenants, registry: this.registry, accounts, control, emitter: this.emitter, kv: redis, key, log: this.log, now, executor, claim: (id, ws) => sessions.claim(id, ws) });
     this.sub = redis.duplicate();
     await this.sub.subscribe(CHANNEL_CONTROL);
     this.sub.on('message', (_ch, raw: string) => {

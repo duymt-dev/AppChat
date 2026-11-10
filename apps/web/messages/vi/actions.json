@@ -1213,6 +1213,9 @@
     },
     "status": {
       "title": "Xem trạng thái kết nối kênh"
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái tài khoản kênh (hệ thống)"
     }
   },
   "webchat": {

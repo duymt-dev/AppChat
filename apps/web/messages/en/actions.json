@@ -1213,6 +1213,9 @@
     },
     "status": {
       "title": "Check channel connection status"
+    },
+    "system_transition": {
+      "title": "Channel account transition (system)"
     }
   },
   "webchat": {
