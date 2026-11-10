@@ -27,6 +27,7 @@ import { FilesService } from '../../kernel/files/files.service';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
+import { discoveryCacheOf } from '../assistant/discovery/cache';
 import { TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { AiModule } from '../ai.module';
 import { KB_EMBEDDER } from '../kb/kb-search.handler';
@@ -111,11 +112,11 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
         registerResumeExpired('agent_reply', (db, run, x, ws) => handoffAfterApproval({ kv: x.kv, now: x.now }, db, ws, run, 'approval_expired'));
         // TIP-023: run Trợ lý dừng vì delegate / tool cần duyệt → chạy tiếp với quyền hiện tại của người ra lệnh.
         registerResumeSpec('assistant', async (db, run, x, ws) =>
-          assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now, discovery: { models: this.discoveryModels, meter: this.meter } }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),
+          assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now, discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(redis, this.intents?.derive('discovery-cache')) } }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),
         );
         this.reply = startAgentReplyWorker(redis, reply, this.log);
         // TIP-023c: lượt Trợ lý đã claim ở API → chạy ở đây (lease có fence, quyền hiện hành của người ra lệnh).
-        this.turns = startAssistantTurnWorker(redis, { ...deps, runner: this.runner, intents: this.intents, pub: redis, discovery: { models: this.discoveryModels, meter: this.meter } }, this.log);
+        this.turns = startAssistantTurnWorker(redis, { ...deps, runner: this.runner, intents: this.intents, pub: redis, discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(redis, this.intents?.derive('discovery-cache')) } }, this.log);
       }
       // TIP-043: đề xuất hỏi–đáp từ hội thoại đã đóng (model qua AiRunner, ghi qua Executor nguồn system).
       // TIP-037: phân tích marketing (gợi ý chiến dịch) — model ở đây, ghi gợi ý qua action hệ thống.

@@ -12,6 +12,7 @@ import { resolveEmbeddingSpace } from './embedding-space';
 import { pinnedEmbedder } from './pinned-embedder';
 import { discoverActions, type DiscoveryResult, type QueryVector } from './service';
 import { embeddingSpaceKey } from './types';
+import type { DiscoveryCache } from './cache';
 
 export const QUERY_MAX = 1000;
 
@@ -19,6 +20,8 @@ export const QUERY_MAX = 1000;
 export interface DiscoveryRuntime {
   models: ModelSource | null;
   meter: EmbedMeter | null;
+  /** Cache câu hỏi riêng theo gốc (§3); vắng (thiếu Redis / APP_ENC_KEY) → không cache. */
+  cache?: DiscoveryCache | null;
 }
 
 export const normalizeQuery = (q: string) => q.normalize('NFC').replace(/\s+/g, ' ').trim();
@@ -52,5 +55,7 @@ export async function runFindActions(
   const rt = d.discovery ?? null;
   const space = rt ? await resolveEmbeddingSpace(rt.models) : null;
   const queryVector = rt && space ? queryVectorFor(d.db, t, rt, embeddingSpaceKey(space), d.now) : null;
-  return discoverActions({ db: d.db, space, queryVector }, { authz: t.authz, mode, query, module: i.module, limit, implemented });
+  const root = rt?.cache && space ? await d.db.aiRun.findUnique({ where: { id: t.runId }, select: { rootRunId: true } }) : null;
+  const cache = rt?.cache && root ? { store: rt.cache, ws: t.ws, rootRunId: root.rootRunId, userId: t.userId } : null;
+  return discoverActions({ db: d.db, space, queryVector, cache }, { authz: t.authz, mode, query, module: i.module, limit, implemented });
 }

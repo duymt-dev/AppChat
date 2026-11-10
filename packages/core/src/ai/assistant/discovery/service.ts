@@ -10,7 +10,8 @@ import { findGeneration } from './generation';
 import { filterAuthorized } from './authority';
 import { rankAndAuthorize } from './ranking';
 import { vectorTopK } from './vector-query';
-import type { EmbeddingSpace } from './types';
+import { embeddingSpaceKey, type EmbeddingSpace } from './types';
+import type { DiscoveryCache } from './cache';
 
 export type DiscoveryStrategy = 'hybrid' | 'keyword' | 'none';
 
@@ -67,6 +68,8 @@ export interface DiscoveryDeps {
    *  được (lỗi provider đã được caller phân loại là an toàn để fallback, vd. `provider_unavailable`) — KHÔNG throw vào đây cho lỗi
    *  cứng (budget/privacy/usage-unknown) — những lỗi đó phải dừng lượt ở tầng gọi, không được nuốt thành "keyword honest". */
   queryVector: QueryVector | null;
+  /** Cache riêng theo gốc run (§3) — vắng / không rõ gốc → luôn đường không cache. */
+  cache?: { store: DiscoveryCache; ws: string; rootRunId: string; userId: string } | null;
 }
 
 /** Tìm action theo ngữ nghĩa + từ khoá, luôn trả kết quả đã lọc quyền hiện hành. Không có generation `ready` khớp corpus+space
@@ -88,14 +91,19 @@ export async function discoverActions(d: DiscoveryDeps, i: DiscoveryQueryInput):
   if (gen.phase === 'building' || gen.phase === 'unknown') return fallback('corpus_building');
   if (gen.phase === 'failed') return fallback('corpus_failed');
 
-  const vector = await d.queryVector(i.query);
-  if (!vector) return fallback('provider_unavailable');
-
   // Ứng viên vector CHỈ trong tập đã lọc quyền hiện hành (§2.2-§2.3 "Fetch generation+authorized IDs before rank/limit") — không
   // top-K toàn cục rồi lọc sau (lọc sau sẽ làm đói kết quả khi top-K toàn cục trùng nhiều action người dùng không được gọi).
   const allowedIds = filterAuthorized(registry.map((a) => a.id), i.authz, i.mode, i.implemented, i.module).map((a) => a.id);
-  const vectorIds = await vectorTopK(d.db, gen.id, vector, allowedIds, VECTOR_TOP);
+  const scope = d.cache ? { ws: d.cache.ws, rootRunId: d.cache.rootRunId, userId: d.cache.userId, corpusHash: corpus.corpusHash, spaceKey: embeddingSpaceKey(d.space), module: i.module, allowedIds, query: i.query } : null;
+  const cached = scope ? await d.cache!.store.get(scope) : null;
+  let vectorIds = cached;
+  if (!vectorIds) {
+    const vector = await d.queryVector(i.query);
+    if (!vector) return fallback('provider_unavailable');
+    vectorIds = await vectorTopK(d.db, gen.id, vector, allowedIds, VECTOR_TOP);
+    if (scope) await d.cache!.store.set(scope, vectorIds);
+  }
 
   const ranked = rankAndAuthorize({ vectorIds, keywordIds, exactId, authz: i.authz, mode: i.mode, implemented: i.implemented, module: i.module, limit: i.limit });
-  return { actions: projectFound(ranked.map((r) => r.id)), discovery: { strategy: ranked.length ? 'hybrid' : 'none', corpus_version: corpus.corpusHash, cache_hit: false } };
+  return { actions: projectFound(ranked.map((r) => r.id)), discovery: { strategy: ranked.length ? 'hybrid' : 'none', corpus_version: corpus.corpusHash, cache_hit: !!cached } };
 }

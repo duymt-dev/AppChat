@@ -7,6 +7,7 @@ import { AppError, type AuthzContext } from '@appchat/shared';
 import { CreditMeter, QuotaService } from '../../billing/public';
 import type { ModelSource } from '@appchat/ai';
 import { DISCOVERY_MODEL_SOURCE } from './discovery/prepare.handler';
+import { discoveryCacheOf } from './discovery/cache';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { ActionExecutor, implementedBy } from '../../kernel/actions/executor';
 import { GenUiIntents } from '../../kernel/actions/genui-intent';
@@ -75,7 +76,7 @@ export class AssistantService {
   private deps(): AssistantDeps {
     if (!this.executor || !this.runner || !this.kv) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' }, 'AI runtime chưa cấu hình');
     const quota = this.quota;
-    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, pub: this.publisher(), now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free'), discovery: { models: this.discoveryModels, meter: this.meter } };
+    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, pub: this.publisher(), now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free'), discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(this.kv, this.intents?.derive('discovery-cache')) } };
   }
 
   /** Tên, locale, vai trò của người gọi (system prompt + ngôn ngữ trả lời). */
