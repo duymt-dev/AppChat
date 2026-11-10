@@ -25,7 +25,7 @@ describe('order.sync_now', () => {
   it('preview Trợ lý → xác nhận (chưa có kết nối)', async () => {
     const { preview, done } = await m.confirm({});
     expect(preview).toEqual({ summary: '0', risk: 'write', count: 0, changes: [], warnings: ['no_connection'] });
-    expect(done.body.data.result).toEqual({ imported: 0 });
+    expect(done.body.data.result).toEqual({ imported: 0, blocked: 0, failed: 0 });
   });
 
   it('ô không áp dụng có lý do', () => {

@@ -792,6 +792,9 @@
     "send_confirmation": {
       "title": "Gửi xác nhận đơn cho khách",
       "desc": "Gửi PDF xác nhận đơn (dòng hàng, tổng, đã thu / còn lại) vào hội thoại của khách."
+    },
+    "system_import": {
+      "title": "Nhập bản đơn sàn đã kiểm (hệ thống)"
     }
   },
   "invoice": {

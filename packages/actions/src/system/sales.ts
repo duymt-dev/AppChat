@@ -1,6 +1,6 @@
 // Action riêng của sales (TIP-003c §2): báo giá (xem qua locator công khai / hết hạn / nhắc T-2), đề nghị thanh toán (quá hạn / nhắc
 // mốc), liệu trình (cấp khi đơn xác nhận / hết hạn). Chỉ chạy qua capability gắn nguồn (kernel/actions/system); luật nghiệp vụ giữ ở
-// domain (QUOTE_FLOW, COMMERCE T-2, INVOICE_REMINDERS, grantPackages 032b).
+// domain (QUOTE_FLOW, COMMERCE T-2, INVOICE_REMINDERS, grantPackages 032b). Nhập đơn sàn: bản đã kiểm qua importExternal sẵn có.
 import { defineAction } from '../define';
 import { systemInput, systemOutput } from './common';
 
@@ -34,4 +34,15 @@ export const packageSystemTransition = defineAction({
   description: 'Internal: grant customer packages for a confirmed paid order, or expire a package past its expiry.',
   input: systemInput(['grant_on_confirm', 'expire']),
   risk: 'money',
+});
+
+export const orderSystemImport = defineAction({
+  ...common,
+  id: 'order.system_import',
+  module: 'sales',
+  title: 'actions.order.system_import.title',
+  description: 'Internal: apply one verified marketplace order revision (staged from an authenticated connector event or poll) through the existing importer.',
+  input: systemInput(['apply_verified_revision']),
+  risk: 'money',
+  invalidates: ['orders', 'sales'],
 });

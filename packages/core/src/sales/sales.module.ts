@@ -47,6 +47,7 @@ import { OrderSyncNowHandler } from './orders/actions/order-sync.handler';
 import { OrderFromAppointmentHandler } from './orders/actions/order-from-appointment.handler';
 import { OrdersReadService } from './orders/services/orders-read.service';
 import { OrderSyncService } from './orders/services/order-sync';
+import { OrderSystemImportHandler, verifyOrderImport } from './orders/system/import';
 import { InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler } from './payments/actions/invoice-write.handlers';
 import { InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler } from './payments/actions/invoice-pay.handlers';
 import { PaymentRefundApproveHandler, PaymentRefundHandler, PaymentRefundRejectHandler } from './payments/actions/refund.handlers';
@@ -58,7 +59,7 @@ import { PackagesReadModule } from './payments/packages/read.module';
 import { TenantBankHook, genericBankSink } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
 
-const opt = (token: symbol | typeof FilesService | typeof DocRenderer) => ({ token, optional: true });
+const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ActionExecutor) => ({ token, optional: true });
 const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
 
 const HANDLERS = [
@@ -69,7 +70,7 @@ const HANDLERS = [
   QuoteDraftFromContentHandler,
   OrderCreateHandler, OrderFromQuoteHandler, OrderFromContractHandler,
   OrderUpdateHandler, OrderSetDepositHandler, OrderShippingHandler,
-  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderFromAppointmentHandler,
+  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderSystemImportHandler, OrderFromAppointmentHandler,
   InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
   PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler, PackageSearchHandler,
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler, BankFeedIngestHandler,
@@ -101,9 +102,9 @@ const HANDLERS = [
     { provide: ORDER_SYNC_KV, inject: [opt(REDIS)], useFactory: (r?: Redis) => r ?? null },
     {
       provide: OrderSyncService,
-      inject: [opt(TENANT_RESOLVER), opt(ENC_KEY), ORDER_SYNC_KV, CLOCK],
-      useFactory: (t: TenantDbResolver | undefined, k: Buffer | undefined, kv: Redis | null, c: Clock) =>
-        t && k ? new OrderSyncService({ tenants: t, registry: connectorRegistry, key: k, kv, now: () => c.now() }) : null,
+      inject: [opt(TENANT_RESOLVER), opt(ENC_KEY), ORDER_SYNC_KV, CLOCK, opt(ActionExecutor)],
+      useFactory: (t: TenantDbResolver | undefined, k: Buffer | undefined, kv: Redis | null, c: Clock, ex?: ActionExecutor) =>
+        t && k && ex ? new OrderSyncService({ tenants: t, executor: ex, registry: connectorRegistry, key: k, kv, now: () => c.now() }) : null,
     },
     {
       provide: InvoicesReadService,
@@ -136,5 +137,6 @@ export class SalesModule implements OnModuleInit {
     registerSystemVerifier('bank_feed.ingest', verifyBankIngress, { receipt: 'domain' });
     // TIP-003c: họ action riêng sales — biên nhận trigger bền (mặc định).
     for (const id of ['quote.system_transition', 'invoice.system_transition', 'package.system_transition']) registerSystemVerifier(id, verifySalesTrigger);
+    registerSystemVerifier('order.system_import', verifyOrderImport);
   }
 }

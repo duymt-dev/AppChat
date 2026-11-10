@@ -18,7 +18,8 @@ export type ScanRow = { id: string; at: Date };
 /** Cursor keyset (at, id) — null ở trang đầu. */
 export type ScanCursor = { at: Date | null; id: string | null };
 
-async function settled(d: SystemRunDeps, t: SystemTrigger): Promise<boolean> {
+/** Biên nhận của trigger đã kết thúc (applied / no_effect / handed_off) — người gọi đếm hiệu ứng MỚI thì bỏ qua (Executor phát lại kết quả cũ). */
+export async function settled(d: Pick<SystemRunDeps, 'tenants'>, t: SystemTrigger): Promise<boolean> {
   const db = await d.tenants.get(TenantContexts.system(t.workspaceId, `system:${t.actionId}`));
   const [r] = await db.$queryRaw<{ phase: string }[]>`
     SELECT phase::text AS phase FROM system_action_receipt WHERE source_kind = ${t.sourceKind}::system_source_kind AND source_ref = ${t.sourceRef}

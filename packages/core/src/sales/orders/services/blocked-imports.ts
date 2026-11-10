@@ -55,9 +55,9 @@ export async function settleBlocked(tx: TenantTx, connectionId: string, external
 }
 
 /** Id các biên nhận còn chờ của một kết nối (lô có giới hạn, theo index thử lại) — người gọi lấy payload từng dòng. */
-export async function pendingBlocked(tx: Pick<TenantTx, 'blockedExternalOrder'>, connectionId: string, limit = 100): Promise<{ id: string; payload: ExternalOrder; providerUpdatedAt: Date; payloadHash: string; sourceEventId: string | null }[]> {
+export async function pendingBlocked(tx: Pick<TenantTx, 'blockedExternalOrder'>, connectionId: string, limit = 100): Promise<{ id: string; payload: ExternalOrder; providerUpdatedAt: Date; payloadHash: string; sourceEventId: string | null; contactRef: string | null }[]> {
   const ids = await tx.blockedExternalOrder.findMany({ where: { connectionId, state: 'pending' }, orderBy: [{ receivedAt: 'asc' }, { id: 'asc' }], take: limit, select: { id: true } });
   if (!ids.length) return [];
-  const rows = await tx.blockedExternalOrder.findMany({ where: { id: { in: ids.map((r) => r.id) } }, select: { id: true, payload: true, providerUpdatedAt: true, payloadHash: true, sourceEventId: true, receivedAt: true } });
-  return rows.sort((a, b) => a.receivedAt.getTime() - b.receivedAt.getTime() || a.id.localeCompare(b.id)).map((r) => ({ id: r.id, payload: r.payload as unknown as ExternalOrder, providerUpdatedAt: r.providerUpdatedAt, payloadHash: r.payloadHash, sourceEventId: r.sourceEventId }));
+  const rows = await tx.blockedExternalOrder.findMany({ where: { id: { in: ids.map((r) => r.id) } }, select: { id: true, payload: true, providerUpdatedAt: true, payloadHash: true, sourceEventId: true, contactRef: true, receivedAt: true } });
+  return rows.sort((a, b) => a.receivedAt.getTime() - b.receivedAt.getTime() || a.id.localeCompare(b.id)).map((r) => ({ id: r.id, payload: r.payload as unknown as ExternalOrder, providerUpdatedAt: r.providerUpdatedAt, payloadHash: r.payloadHash, sourceEventId: r.sourceEventId, contactRef: r.contactRef }));
 }

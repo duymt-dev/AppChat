@@ -792,6 +792,9 @@
     "send_confirmation": {
       "title": "Send order confirmation",
       "desc": "Send the order confirmation PDF (items, total, paid / left) to the customer conversation."
+    },
+    "system_import": {
+      "title": "Import verified marketplace order revision (system)"
     }
   },
   "invoice": {
