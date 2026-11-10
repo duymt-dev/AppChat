@@ -22,6 +22,8 @@ export interface PublishedEvent {
   protocolVersion?: 2;
   /** v2: jobId = `${id}-g${generation}` (đánh thức, không phải id hiệu ứng). */
   generation?: number;
+  /** Khoá đánh thức tường minh (khôi phục dispatch) — ưu tiên hơn generation. */
+  wakeKey?: string;
 }
 
 export interface EventPublisher {

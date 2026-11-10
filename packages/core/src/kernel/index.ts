@@ -31,6 +31,10 @@ export * from './events/protocol/types';
 export { registerEventContract, freezeEventRegistry, frozenEventRegistry, registryDigest, resetEventRegistryForTest, type FrozenRegistry } from './events/protocol/registry';
 export { dispatchV2, type DispatchOutcome, type DispatchV2Deps } from './events/protocol/dispatch-claim';
 export { inputDigest, ActionInputConflictError } from './events/protocol/dispatch-action-port';
+export { evaluateReadiness, eventReadiness, setEventReadiness, resetEventReadinessForTest, type EventProtocolManifest, type ManifestConsumer, type Readiness } from './events/protocol/readiness';
+export { startEventProtocol, persistRegistryVersion, type StartEventsOptions } from './events/protocol/start';
+export { recoverDispatch } from './events/protocol/dispatch-recovery';
+export { dispatchV2Job, EventProtocolNotReadyError } from './events/protocol/v2-job';
 export * from './outbox/outbox.jobs.module';
 // Việc dữ liệu nặng (TIP-045b annex D): đọc trạng thái / tải tệp cho /v1/data-jobs (+ runner cho test).
 export { DataJobStatusService, allowedAction } from './jobs/bulk-status';

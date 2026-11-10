@@ -4,7 +4,7 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { randomUUID } from 'node:crypto';
 import { MemoryWorkspaceRegistry, TenantContexts, TenantDbResolver, TenantProvisioner, tenantDbName } from '@appchat/db';
-import { claimDue, dispatchV2, markFailed, markPublished, withEventTransaction, writeOutbox, type EventContract, type RegistryTable } from '@appchat/core';
+import { claimDue, dispatchV2, markFailed, markPublished, recoverDispatch, withEventTransaction, writeOutbox, type EventContract, type PublishedEvent, type RegistryTable } from '@appchat/core';
 import { env } from './setup';
 
 const ws = randomUUID();
@@ -136,5 +136,25 @@ describe('dispatch head theo aggregate', () => {
     const bad: EventContract = { ...counter, apply: async () => undefined as never };
     const r = await dispatchV2({ db: await db(), workspaceId: ws, contracts: new Map([[bad.name, bad]]), epoch: 1, now }, id!);
     expect(r).toMatchObject({ kind: 'retry', code: 'invalid_outcome' });
+  });
+
+  it('mất job Redis: quét khôi phục đánh thức lại hàng dispatch chưa xong với khoá MỚI mỗi lượt; không đụng blocked / completed', async () => {
+    const t = await db();
+    const [lost] = await emit(randomUUID());
+    const [blocked] = await emit(randomUUID());
+    await t.$executeRaw`UPDATE outbox_event SET status = 'published', relay_phase = 'published' WHERE id = ANY(${[lost!, blocked!]}::uuid[])`;
+    await t.$executeRaw`UPDATE event_dispatch SET phase = 'blocked_unknown' WHERE event_id = ${blocked!}::uuid`;
+    const woke: PublishedEvent[] = [];
+    const pub = { publish: async (e: PublishedEvent) => void woke.push(e) };
+    await recoverDispatch(t, ws, pub, new Date());
+    await recoverDispatch(t, ws, pub, new Date());
+    const mine = woke.filter((w) => w.id === lost || w.id === blocked);
+    expect(mine.map((w) => w.id)).toEqual([lost, lost]);
+    expect(new Set(mine.map((w) => w.wakeKey)).size).toBe(2);
+    expect(mine.every((w) => w.payload === null && w.protocolVersion === 2)).toBe(true);
+    expect(await run(lost!)).toMatchObject({ kind: 'completed' });
+    woke.length = 0;
+    await recoverDispatch(t, ws, pub, new Date());
+    expect(woke.some((w) => w.id === lost)).toBe(false);
   });
 });

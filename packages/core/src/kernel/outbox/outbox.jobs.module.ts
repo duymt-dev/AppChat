@@ -20,7 +20,7 @@ export class BullEventPublisher implements EventPublisher {
     // v2 (TIP-003b): job = đánh thức chỉ mang id; thử lại / back-off do event_dispatch bền quyết, không do BullMQ (attempts 1).
     if (e.protocolVersion === 2) {
       const wake = { id: e.id, topic: e.topic, workspaceId: e.workspaceId, traceId: e.traceId, protocolVersion: 2 as const };
-      await this.queue.add(e.topic, wake, { jobId: `${e.id}-g${e.generation ?? 0}`, attempts: 1, removeOnComplete: 1000, removeOnFail: 5000 });
+      await this.queue.add(e.topic, wake, { jobId: e.wakeKey ?? `${e.id}-g${e.generation ?? 0}`, attempts: 1, removeOnComplete: 1000, removeOnFail: 5000 });
       return;
     }
     // Consumer lỗi → retry back-off mũ (outbox §2), tối đa 8 lần; consumer đã xong không chạy lại (event_consumption).
