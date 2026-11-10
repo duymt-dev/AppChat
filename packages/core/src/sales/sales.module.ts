@@ -123,8 +123,9 @@ const HANDLERS = [
     },
     {
       provide: QuotesReadService,
-      inject: [QuoteDeps, CLOCK, ActionExecutor],
-      useFactory: (d: QuoteDeps, c: Clock, ex: ActionExecutor) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now(), ex) : null),
+      // Executor có khi kernel có DB + Redis (ActionsModule) — thiếu thì không có dịch vụ đọc (như thiếu tenants / platform).
+      inject: [QuoteDeps, CLOCK, opt(ActionExecutor)],
+      useFactory: (d: QuoteDeps, c: Clock, ex?: ActionExecutor) => (d.tenants && d.platform && ex ? new QuotesReadService(d, () => c.now(), ex) : null),
     },
   ],
   exports: [SalesSettingsModule, SalesDocumentsModule, PackagesReadModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
