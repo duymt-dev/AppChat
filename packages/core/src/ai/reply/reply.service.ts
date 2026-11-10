@@ -25,6 +25,9 @@ import { finalizeReceipt, openReceipt, pendingSource, sendGreeting, wantsGreetin
 import { normalizeIntent, recordIntent } from './intent';
 import { buildReplyContext, publishedAgent, type ReplyContext } from './reply-context';
 import { META, replyTools } from './reply-tools';
+import type { SystemOutput } from '@appchat/actions';
+import { runSystemAction } from '../../kernel/actions/system';
+import { assignTrigger, transferTrigger } from './system/sources';
 import { isSuperseded } from './send-fence';
 import { handoff, reasonText, setState, type ReasonKey } from './turn-handoff';
 import { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './turn-lease';
@@ -171,7 +174,10 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
     const store = new RunStore(db, d.now);
     await store.step(run.id, { idx: await store.nextIdx(run.id), type: 'handoff', input: { to: next.agent.id, reason: coord.reason }, output: { summary: coord.summary } });
     await store.finish(run.id, 'completed', { output: { transfer_to: next.agent.id } });
-    const moved = await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: next.agent.id } });
+    // TIP-003c: đổi agent phụ trách qua action riêng (đích đọc lại từ bước transfer_to_agent đã lưu, theo ai_epoch hiện tại).
+    const r0 = await runSystemAction<SystemOutput>(d.executor, d.tenants, transferTrigger(ws, c, run.id));
+    if ((r0.data as { result: SystemOutput }).result.disposition !== 'applied') return 'skipped';
+    const moved = (await db.conversation.findUnique({ where: { id: c.id } }))!;
     if (source) await db.aiTurnReceipt.updateMany({ where: source, data: { agentId: next.agent.id, agentVersion: next.version, bindingSource: 'transfer', bindingReason: 'transfer', updatedAt: d.now() } });
     // Chuyển agent giữ CÙNG lượt (fence) và cùng gốc run (lineage) — không mở lượt thứ hai, không cấp ví gốc mới.
     // Lineage bền (TIP-019b §4.1): ghi lần chuyển + agent đã ghé lên run con TRƯỚC khi chạy — chạy tiếp / khởi động lại đọc lại từ đây.
@@ -246,7 +252,8 @@ async function ownedTurn(d: ReplyDeps, db: TenantDb, ws: string, conversationId:
   if (!pick.agent) return 'skipped';
   const a = pick.agent;
   const receipt = await openReceipt(db, c.id, pending.src.id, turn, { agentId: a.agent.id, version: a.version, source: pick.source, reason: pick.reason }, now);
-  if (!c.assigneeAgentId) await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: a.agent.id } });
+  // TIP-003c: gán agent của lượt qua action riêng (theo biên nhận lượt + ai_epoch) — đã có agent / người tiếp quản → no_effect.
+  if (!c.assigneeAgentId) await runSystemAction(d.executor, d.tenants, assignTrigger(ws, c, pending.src.id));
   const source = { conversationId: c.id, sourceMessageId: pending.src.id };
   // Lượt tự trả lời đang chạy → thư mục "AI đang xử lý" (TIP-025); `decide` đưa về idle / chờ duyệt / cần người. Gợi ý copilot
   // không đổi trạng thái (người vẫn đang xử lý).
@@ -304,7 +311,7 @@ export async function finishResumedTurn(d: ReplyDeps, db: TenantDb, ws: string, 
 }
 
 /** Duyệt bị từ chối / hết hạn: chuyển người với tóm tắt đầy đủ (không chỉ đánh dấu run). */
-export async function handoffAfterApproval(d: Pick<ReplyDeps, 'kv' | 'now'>, db: TenantDb, ws: string, run: RunRow, kind: 'approval_rejected' | 'approval_expired'): Promise<void> {
+export async function handoffAfterApproval(d: Pick<ReplyDeps, 'kv' | 'now' | 'executor' | 'tenants'>, db: TenantDb, ws: string, run: RunRow, kind: 'approval_rejected' | 'approval_expired'): Promise<void> {
   if (!run.conversationId || run.kind !== 'agent_reply') return;
   const c = await db.conversation.findUnique({ where: { id: run.conversationId } });
   if (!c) return;

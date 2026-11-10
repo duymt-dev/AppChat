@@ -6,7 +6,7 @@
 //        chuyển; chạy lại không chuyển đôi; `credits.restored` không tự giành lại hội thoại đã chuyển.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { REDIS, WalletService, handoffForCredit, uuidv7, type CreditHandoffDeps } from '@appchat/core';
+import { ActionExecutor, REDIS, WalletService, handoffForCredit, uuidv7, type CreditHandoffDeps } from '@appchat/core';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver, type TenantDb } from '@appchat/db';
 import { authzForRole } from '@appchat/shared';
 import { call, env, startApi, type Harness } from './setup';
@@ -24,6 +24,8 @@ const deps = (): CreditHandoffDeps => ({
   balance: async (ws) => (await wallet().balance(ws)).total,
   kv: h.app.get(REDIS, { strict: false }),
   now: () => h.clock.now(),
+  executor: h.app.get(ActionExecutor, { strict: false }),
+  tenants: resolver,
 });
 
 async function conv(

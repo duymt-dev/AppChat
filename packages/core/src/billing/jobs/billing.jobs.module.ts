@@ -57,7 +57,8 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     registerEventConsumer(trialConsumer(subs));
     // Hết Credit → hội thoại AI tự động sang người (bền qua outbox; kiểm lại số dư hiện tại — event trễ sau khi nạp không chuyển).
     const wallet = this.wallet;
-    if (wallet) registerEventConsumer(creditHandoffConsumer({ balance: async (ws) => (await wallet.balance(ws)).total, kv: this.redis, now: () => this.clock?.now() ?? new Date() }));
+    const executor = this.executor;
+    if (wallet && executor && this.tenants) registerEventConsumer(creditHandoffConsumer({ balance: async (ws) => (await wallet.balance(ws)).total, kv: this.redis, now: () => this.clock?.now() ?? new Date(), executor, tenants: this.tenants }));
     this.queue = new Queue(SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(TRIAL_EXPIRY_JOB, { every: EVERY_MS }, { name: TRIAL_EXPIRY_JOB });
     if (this.invoices) await this.queue.upsertJobScheduler(INVOICE_SWEEP_JOB, { every: INVOICE_EVERY_MS }, { name: INVOICE_SWEEP_JOB });

@@ -1606,5 +1606,10 @@
       "title": "Resolve one quarantined item (forget customer)",
       "desc": "Decide one shared / unidentified data item in a \"forget customer\" operation: unrelated, this customer only, shared (strip this subject, keep others), or retained as issued evidence."
     }
+  },
+  "inbox": {
+    "system_agent_transition": {
+      "title": "Conversation agent transition (system)"
+    }
   }
 }

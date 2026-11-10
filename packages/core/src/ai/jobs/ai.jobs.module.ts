@@ -113,7 +113,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
           });
         }
         // TIP-022b: duyệt hết hạn ở lượt agent → chuyển người kèm tóm tắt + receipt lượt xong.
-        registerResumeExpired('agent_reply', (db, run, x, ws) => handoffAfterApproval({ kv: x.kv, now: x.now }, db, ws, run, 'approval_expired'));
+        registerResumeExpired('agent_reply', (db, run, x, ws) => handoffAfterApproval({ kv: x.kv, now: x.now, executor: x.executor, tenants: x.tenants }, db, ws, run, 'approval_expired'));
         // TIP-023: run Trợ lý dừng vì delegate / tool cần duyệt → chạy tiếp với quyền hiện tại của người ra lệnh.
         registerResumeSpec('assistant', async (db, run, x, ws) =>
           assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now, discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(redis, this.intents?.derive('discovery-cache')) }, storage: this.storage }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),

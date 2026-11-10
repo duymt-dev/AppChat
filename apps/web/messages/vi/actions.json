@@ -1606,5 +1606,10 @@
       "title": "Xét một mục chờ duyệt (Quên khách)",
       "desc": "Quyết định một mục dữ liệu chung / chưa rõ chủ thể trong lượt Quên khách: không liên quan, chỉ của khách này, xoá phần của khách giữ phần khác, hoặc giữ vì là chứng từ đã phát hành."
     }
+  },
+  "inbox": {
+    "system_agent_transition": {
+      "title": "Chuyển agent / chuyển người hội thoại (hệ thống)"
+    }
   }
 }

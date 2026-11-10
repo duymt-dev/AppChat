@@ -20,6 +20,7 @@ import * as systemSupport from './system/support';
 import * as systemChannels from './system/channels';
 import * as systemKb from './system/kb';
 import * as systemAi from './system/ai';
+import * as systemInbox from './system/inbox';
 import * as contracts from './contracts';
 import * as contractFiles from './contract-files';
 import * as contractDraft from './contract-draft';
@@ -117,6 +118,7 @@ export * from './system/support';
 export * from './system/channels';
 export * from './system/kb';
 export * from './system/ai';
+export * from './system/inbox';
 export * from './system/common';
 export * from './contracts';
 export * from './contract-files';
@@ -206,6 +208,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(systemChannels),
   ...Object.values(systemKb),
   ...Object.values(systemAi),
+  ...Object.values(systemInbox),
   ...Object.values(contracts),
   ...Object.values(contractFiles),
   ...Object.values(contractDraft),
