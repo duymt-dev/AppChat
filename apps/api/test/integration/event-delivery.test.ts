@@ -2,10 +2,11 @@
 // (AC1) thông báo + ý định mail + ý định realtime commit cùng nhau; "crash" trước khi đánh thức mail → phát lại + quét đua nhau → đúng
 // một thông báo, một ý định mỗi kênh, một thư. (AC3) cohort niêm phong: thành viên mới vào SAU lần chọn không nhận khi phát lại; người
 // đã chọn bị gỡ trước khi gửi → suppressed; Owner biểu tượng đổi A → B trước khi gửi → chỉ B nhận, một biên nhận logic. (AC4) mất job
-// (Redis) → quét đánh thức thế hệ mới; claim `dispatching` quá hạn → unknown, không gửi lại; job thô cũ không gửi.
+// (Redis) → quét đánh thức thế hệ mới; claim `dispatching` quá hạn → unknown, không gửi lại; job thô cũ không gửi. (§6.3) "Quên khách"
+// xoá event nguồn → thông báo mất chữ cũ (đọc thấy chữ chung), mail chờ → suppressed, realtime chờ → failed, phát lại không tạo lại.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { AuthzResolver, MemoryRealtimeEmitter, NotifyPrefsService, deliverIntent, deliverMail, notifyIntents, recoverDeliveries, sendNotificationMail, uuidv7, type DomainEvent, type MailWakeup } from '@appchat/core';
+import { AuthzResolver, MemoryRealtimeEmitter, NotifyPrefsService, deliverIntent, deliverMail, eraseOutboxEvent, listNotifications, notifyIntents, recoverDeliveries, sendNotificationMail, uuidv7, type DomainEvent, type MailWakeup } from '@appchat/core';
 import { MemoryMailProvider } from '@appchat/integrations';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver, type TenantDb } from '@appchat/db';
 import { env, startApi, type Harness } from './setup';
@@ -127,5 +128,30 @@ describe('người nhận theo quyền hiện tại (AC3)', () => {
     } finally {
       await h.platform.workspace.update({ where: { id: h.ws }, data: { ownerUserId: h.user } });
     }
+  });
+});
+
+describe('Quên khách (§6.3)', () => {
+  it('xoá event nguồn → chữ cũ bị xoá, mail chờ suppressed, realtime chờ failed; phát lại không tạo lại / không gửi', async () => {
+    const d = await db();
+    const e = await stored({ user_ids: [h.user] });
+    // Commit nhưng không đẩy được gì (Redis + publish lỗi) → mọi ý định còn pending.
+    const down = { ...notifier(), emitter: { publish: () => { throw new Error('redis down'); } }, mail: { wake: async () => Promise.reject(new Error('redis down')) } };
+    await deliverIntent(down as never, d, e, intent(e), 0);
+    await d.$transaction((tx) => eraseOutboxEvent(tx as never, e.id));
+    const n = await d.notification.findFirstOrThrow({ where: { sourceEventId: e.id } });
+    expect([n.title, n.link]).toEqual(['', null]);
+    expect((await d.notificationDelivery.findFirstOrThrow({ where: { sourceEventId: e.id } })).phase).toBe('suppressed');
+    expect((await d.realtimeDelivery.findFirstOrThrow({ where: { sourceEventId: e.id } })).phase).toBe('failed');
+    const list = await listNotifications(d, { userId: h.user, unread: false, locale: 'vi', timeZone: 'Asia/Ho_Chi_Minh', nowMs: Date.now(), limit: 100 });
+    const row = list.data.find((x) => x.id === n.id)!;
+    expect(row.title).not.toBe('');
+    expect(row.title).not.toContain('Lan');
+    const before = provider.sent.length;
+    await deliverIntent(notifier(), d, e, intent(e), 0);
+    expect(await d.notification.count({ where: { sourceEventId: e.id } })).toBe(1);
+    expect((await d.notification.findFirstOrThrow({ where: { sourceEventId: e.id } })).title).toBe('');
+    await recoverDeliveries(d, h.ws, { mail: queue, emitter, now: () => h.clock.now() });
+    expect(provider.sent.length).toBe(before);
   });
 });

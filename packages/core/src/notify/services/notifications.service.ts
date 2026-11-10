@@ -2,7 +2,7 @@
 // index `notification(user_id, created_at DESC, id DESC)` + partial `WHERE read_at IS NULL` (migration 006).
 import { AppError, NOTIFY_KINDS, createFmt, isNotifyKind, type AuthzContext, type NotificationItemDto } from '@appchat/shared';
 import type { PlatformDb, TenantDb } from '@appchat/db';
-import { applyProjection, projectNotices } from './ownership-notice';
+import { applyProjection, genericNoticeTitle, projectNotices } from './ownership-notice';
 
 export const NOTIFICATIONS_PAGE = 20;
 export const NOTIFICATIONS_PAGE_MAX = 100;
@@ -24,7 +24,8 @@ export function toNotificationDto(r: Row, locale: string, timeZone: string, nowM
     id: r.id,
     icon: k?.icon ?? 'ic-bell',
     tone: k?.tone ?? 'info',
-    title: r.title,
+    // Tiêu đề rỗng = nguồn đã xoá theo "Quên khách" (TIP-006b §6.3) → chữ chung theo locale người xem, không lộ nội dung cũ.
+    title: r.title || genericNoticeTitle(locale),
     ago: createFmt({ locale, timeZone }).relative(r.createdAt, nowMs),
     kind: r.type,
     link: r.link,

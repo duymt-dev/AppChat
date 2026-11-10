@@ -7,6 +7,7 @@ import { channelsFor, inQuietHours } from '@appchat/shared';
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import type { AuthzResolver } from '../../authz/services/authz-resolver';
 import type { DomainEvent } from '../../kernel/events/consumer';
+import type { TenantTx } from '../../kernel/actions/action-context';
 import { notificationTitle } from '../mail';
 import type { RealtimeEmitter } from '../realtime/emitter';
 import { rooms } from '../realtime/envelope';
@@ -43,11 +44,21 @@ export function deterministicId(key: string): string {
 
 const policyOf = (i: NotifyIntent) => (i.to.ownerOnly ? 'owner' : (i.to.permission ?? 'list'));
 
-export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEvent, intent: NotifyIntent, index: number): Promise<string[]> {
+export interface IntentPlan {
+  saved: string[];
+  mails: string[];
+  rts: string[];
+}
+
+/**
+ * Ghi một ý định trong transaction `tx` (v1: transaction riêng; v2: transaction biên nhận projection của 003b). Đọc người nhận / tuỳ chọn
+ * ở DB nền tảng (chỉ đọc) — không gọi provider / Redis. Trả id ý định mail / realtime cần đẩy sau commit.
+ */
+export async function writeIntent(d: Omit<NotifierDeps, 'emitter'>, tx: TenantTx, e: DomainEvent, intent: NotifyIntent, index: number): Promise<IntentPlan> {
   const ws = await d.platform.workspace.findUnique({ where: { id: e.workspaceId }, select: { timezone: true } });
   const timeZone = ws?.timezone ?? 'Asia/Ho_Chi_Minh';
   const once = intent.onceKey ? receiptFor(intent.onceKey) : null;
-  if (once?.receipt && (await once.receipt.sent(db, once.id))) return [];
+  if (once?.receipt && (await once.receipt.sent(tx as never, once.id))) return { saved: [], mails: [], rts: [] };
   let to = await resolveRecipients(d.platform, d.authz, e.workspaceId, intent.to, intent.excludeUserId);
   // Gửi một lần: một người nhận, id theo khoá (không theo người) — event phát lại không tạo thông báo thứ hai.
   if (once) to = to.slice(0, 1);
@@ -55,7 +66,7 @@ export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEven
   const now = d.now();
   const notice = intent.ownershipNotice;
   const src = { sourceEventId: e.id, sourceEntityKind: typeof e.payload.aggregate_kind === 'string' ? e.payload.aggregate_kind : null, sourceEntityId: null };
-  const plan = await db.$transaction(async (tx) => {
+  {
     // Cohort thường: niêm phong lần đầu, phát lại chỉ gửi người trong tập đã chọn (và còn quyền hiện tại). Owner biểu tượng: không chụp.
     const sealed = intent.to.ownerOnly || once ? null : await sealedRecipients(tx, e.id, index, to);
     const pick = sealed ? to.filter((r) => sealed.has(r.userId)) : to;
@@ -102,8 +113,17 @@ export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEven
       );
     }
     return { saved: pick.filter((r, i) => byId.get(rows[i]!.id)?.userId === r.userId).map((r) => r.userId), mails, rts };
-  });
+  }
+}
+
+/** Sau commit: publish realtime + đánh thức mail (lỗi → ý định còn pending, quét khôi phục đẩy lại). */
+export async function flushPlan(d: Pick<NotifierDeps, 'emitter' | 'mail' | 'now'>, db: TenantDb, ws: string, plan: IntentPlan): Promise<void> {
   for (const id of plan.rts) await publishRealtime(db, d.emitter, id, d.now()).catch(() => undefined);
-  if (d.mail) for (const id of plan.mails) await d.mail.wake({ ws: e.workspaceId, delivery_id: id, generation: 0 }).catch(() => undefined);
+  if (d.mail) for (const id of plan.mails) await d.mail.wake({ ws, delivery_id: id, generation: 0 }).catch(() => undefined);
+}
+
+export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEvent, intent: NotifyIntent, index: number): Promise<string[]> {
+  const plan = await db.$transaction((tx) => writeIntent(d, tx, e, intent, index));
+  await flushPlan(d, db, e.workspaceId, plan);
   return plan.saved;
 }

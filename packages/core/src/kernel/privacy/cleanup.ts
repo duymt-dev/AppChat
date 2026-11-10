@@ -13,4 +13,21 @@ export async function eraseOutboxEvent(tx: TenantTx, recordId: string): Promise<
   await tx.$executeRaw`
     UPDATE event_dispatch SET phase = 'blocked_unknown', last_error_code = 'privacy_suppressed', dispatch_lease_until = NULL
      WHERE event_id = ${recordId}::uuid AND phase NOT IN ('completed')`;
+  await eraseDeliveries(tx, recordId);
+}
+
+/**
+ * TIP-006b §6.3: thông báo + ý định giao sinh từ event đã xoá — bỏ tiêu đề / liên kết / thân (đọc hiện chữ chung theo locale người xem),
+ * GIỮ id tất định + dòng ý định làm khoá chống trùng (phát lại không tạo lại). Mail chưa gọi provider → `suppressed`; đang gọi
+ * (`dispatching`) giữ nguyên — có thể đã tới provider, không thu hồi được (thành `unknown` khi hết hạn). Realtime chưa publish → thay gói
+ * bằng tham chiếu tối thiểu + `failed` (client làm mới khi nối lại, đọc REST đã xoá).
+ */
+async function eraseDeliveries(tx: TenantTx, eventId: string): Promise<void> {
+  await tx.$executeRaw`UPDATE notification SET title = '', link = NULL, body = NULL, source_entity_id = NULL WHERE source_event_id = ${eventId}::uuid`;
+  await tx.$executeRaw`
+    UPDATE notification_delivery SET phase = 'suppressed', safe_code = 'source_gone', updated_at = now()
+     WHERE source_event_id = ${eventId}::uuid AND phase = 'pending'`;
+  await tx.$executeRaw`
+    UPDATE realtime_delivery SET phase = 'failed', envelope = jsonb_build_object('ws', envelope->'ws', 'privacy_erased', true)
+     WHERE source_event_id = ${eventId}::uuid AND phase = 'pending'`;
 }

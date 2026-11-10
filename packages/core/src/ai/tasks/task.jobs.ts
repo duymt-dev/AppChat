@@ -1,6 +1,7 @@
 // Tiến trình nền của tác vụ (Blueprint §1.3 queue `ai-task`, ROLE=ai): worker chạy từng lượt (`runTask`) + job lịch `ai-task.sweep`
-// mỗi phút (tác vụ tới giờ → đẩy; chỉ mở DB workspace trong tập `ai-task:armed` — không chạm mọi tenant mỗi phút). Consumer sự kiện `ai-tasks` đăng ký ở mọi tiến trình có queue (chỉ ROLE=jobs có worker `events`
-// nên chỉ ở đó chạy thật) — `TaskEventsInstaller`.
+// mỗi phút: tác vụ lịch tới giờ (chỉ workspace trong tập `ai-task:armed`) + khôi phục ý định đẩy run / nạp kho tri thức trên mọi workspace
+// active (TIP-006b). Consumer sự kiện `ai-tasks` đăng ký ở mọi tiến trình có queue (chỉ ROLE=jobs có worker `events` nên chỉ ở đó chạy
+// thật) — `TaskEventsInstaller`.
 import { Inject, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
@@ -12,6 +13,11 @@ import { TASK_QUEUE, AI_TASK_QUEUE, TASK_ARMED_KEY, type TaskJob, type TaskQueue
 import { runTask, type TaskRunDeps } from './task.runner';
 import { rebuildArmed, sweepAllTasks, taskEventConsumer, type ArmedSet } from './task-scheduler';
 import { recoverTasks } from './recovery';
+import { TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
+import { taskEventsContract } from './event-fanout';
+import { installContract } from '../../notify/delivery/admission';
+import { KbIngestQueue } from '../kb/kb.queue';
+import { recoverAllIngest } from '../kb/ingest-recovery';
 
 export const TASK_SCHEDULER_QUEUE = 'ai-task-scheduler';
 export const TASK_SWEEP_JOB = 'ai-task.sweep';
@@ -32,12 +38,15 @@ export async function startTaskWorkers(redis: Redis, tenants: TenantDbResolver, 
   const onError = (ws: string, err: unknown) => log.warn({ err, ws }, 'ai-task sweep lỗi');
   if ((await redis.set(ARMED_BUILT_KEY, '1', 'NX')) === 'OK') await rebuildArmed(platform, tenant, (ws) => queue.arm(ws), onError);
   const sched = new Queue(TASK_SCHEDULER_QUEUE, { connection: redis.duplicate() });
+  const kb = new KbIngestQueue(redis);
   await sched.upsertJobScheduler(TASK_SWEEP_JOB, { every: SWEEP_MS }, { name: TASK_SWEEP_JOB });
   const sweeper = new Worker(
     TASK_SCHEDULER_QUEUE,
     async () => {
       await sweepAllTasks(platform, tenant, armed, queue, deps.now, onError);
       await redispatchAll(platform, tenant, queue, deps.now, onError);
+      // TIP-006b AC5: nguồn kho tri thức chờ nạp quá hạn (đẩy job mất sau commit) → đẩy lại đúng lần nạp (mọi workspace active).
+      await recoverAllIngest(platform, (ws) => tenants.get(TenantContexts.system(ws, 'kb-ingest')), (ws, s) => kb.push(ws, s), deps.now, onError);
     },
     { connection: redis.duplicate(), concurrency: 1 },
   );
@@ -47,6 +56,7 @@ export async function startTaskWorkers(redis: Redis, tenants: TenantDbResolver, 
       await runs.close();
       await sweeper.close();
       await sched.close();
+      await kb.onApplicationShutdown();
     },
   };
 }
@@ -73,12 +83,15 @@ export class TaskEventsInstaller implements OnApplicationBootstrap, OnApplicatio
   constructor(
     @Optional() @Inject(TASK_QUEUE) private readonly queue: TaskQueue | null,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | null = null,
   ) {}
 
   onApplicationBootstrap(): void {
     if (!this.queue || eventConsumers().some((c) => c.name === 'ai-tasks')) return;
     this.mine = taskEventConsumer(this.queue, () => this.clock.now());
     registerEventConsumer(this.mine);
+    // TIP-006b: v2 handoff — tập tác vụ niêm phong cùng biên nhận; mục xử lý bởi quét khôi phục ROLE=ai.
+    installContract(taskEventsContract(this.tenants ? { tenants: this.tenants, queue: this.queue, now: () => this.clock.now() } : null));
   }
 
   async onApplicationShutdown(): Promise<void> {

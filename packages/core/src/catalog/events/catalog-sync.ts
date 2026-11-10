@@ -4,7 +4,6 @@
 // nguồn + xoá đoạn; khôi phục → nạp lại. Idempotent theo trạng thái đích (một nguồn mỗi sản phẩm).
 import { interpolate, serverMessages } from '@appchat/shared';
 import type { TenantDb } from '@appchat/db';
-import type { DomainEvent, EventConsumer } from '../../kernel/events/consumer';
 import { uuidv7 } from '../../kernel/ids';
 import { attrsOf } from '../services/product-view';
 
@@ -68,15 +67,4 @@ export async function syncProduct(db: Db, ws: string, productId: string, d: Cata
   });
   await d.push(ws, [{ id: s.id, seq: s.ingestSeq }]);
   return 'updated';
-}
-
-export function catalogSyncConsumer(d: CatalogSyncDeps): EventConsumer {
-  return {
-    name: 'catalog-sync',
-    topics: ['product.changed'],
-    async handle(e: DomainEvent, db: TenantDb) {
-      const id = e.payload.product_id;
-      if (typeof id === 'string') await syncProduct(db, e.workspaceId, id, d);
-    },
-  };
 }

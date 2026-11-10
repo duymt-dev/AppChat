@@ -15,7 +15,7 @@ export interface DeliverySweep {
   published: number;
 }
 
-export async function recoverDeliveries(db: TenantDb, ws: string, d: { mail: MailQueue | null; emitter: RealtimeEmitter; now: () => Date }): Promise<DeliverySweep> {
+export async function recoverDeliveries(db: TenantDb, ws: string, d: { mail: MailQueue | null; emitter: RealtimeEmitter; now: () => Date; invalidate?: (ws: string) => Promise<void> }): Promise<DeliverySweep> {
   const at = d.now();
   const r: DeliverySweep = { woken: 0, unknown: 0, published: 0 };
   r.unknown = await db.$executeRaw`
@@ -30,11 +30,11 @@ export async function recoverDeliveries(db: TenantDb, ws: string, d: { mail: Mai
     }
   }
   const rts = await db.$queryRaw<{ id: string }[]>`SELECT id::text AS id FROM realtime_delivery WHERE phase = 'pending' AND next_attempt_at <= ${at} ORDER BY next_attempt_at, id LIMIT ${PAGE}`;
-  for (const x of rts) if (await publishRealtime(db, d.emitter, x.id, at)) r.published++;
+  for (const x of rts) if (await publishRealtime(db, d.emitter, x.id, at, d.invalidate)) r.published++;
   return r;
 }
 
-export async function recoverAllDeliveries(platform: Pick<PlatformDb, 'workspace'>, tenant: (ws: string) => Promise<TenantDb>, d: { mail: MailQueue | null; emitter: RealtimeEmitter; now: () => Date }, onError: (ws: string, err: unknown) => void): Promise<void> {
+export async function recoverAllDeliveries(platform: Pick<PlatformDb, 'workspace'>, tenant: (ws: string) => Promise<TenantDb>, d: { mail: MailQueue | null; emitter: RealtimeEmitter; now: () => Date; invalidate?: (ws: string) => Promise<void> }, onError: (ws: string, err: unknown) => void): Promise<void> {
   const list = await platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true } });
   for (const w of list) {
     try {
@@ -43,4 +43,14 @@ export async function recoverAllDeliveries(platform: Pick<PlatformDb, 'workspace
       onError(w.id, err);
     }
   }
+}
+
+/** Đẩy ý định của MỘT event ngay sau commit biên nhận v2 (projection notify / realtime) — tối ưu độ trễ; lỗi → quét 10 phút làm nốt. */
+export async function flushEvent(db: TenantDb, ws: string, eventId: string, d: { mail: MailQueue | null; emitter: RealtimeEmitter; now: () => Date; invalidate?: (ws: string) => Promise<void> }): Promise<void> {
+  const at = d.now();
+  const rts = await db.$queryRaw<{ id: string }[]>`SELECT id::text AS id FROM realtime_delivery WHERE source_event_id = ${eventId}::uuid AND phase = 'pending' ORDER BY id LIMIT ${PAGE}`;
+  for (const x of rts) await publishRealtime(db, d.emitter, x.id, at, d.invalidate);
+  if (!d.mail) return;
+  const mails = await db.$queryRaw<{ id: string }[]>`SELECT id::text AS id FROM notification_delivery WHERE source_event_id = ${eventId}::uuid AND phase = 'pending' ORDER BY id LIMIT ${PAGE}`;
+  for (const x of mails) await d.mail.wake({ ws, delivery_id: x.id, generation: 0 });
 }

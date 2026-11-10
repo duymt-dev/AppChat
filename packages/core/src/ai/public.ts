@@ -102,6 +102,7 @@ export { taskEventsContract, sealTaskFanout, drainTaskFanout } from './tasks/eve
 export { pushIntent } from './tasks/dispatch-intent';
 export { admitScheduled } from './tasks/occurrence';
 export { admitEventItem } from './tasks/event-admission';
+export { recoverIngest, recoverAllIngest, KB_PENDING_STALE_MS } from './kb/ingest-recovery';
 export { dispatchTaskEvent, redispatchPending, LIVE_RUN } from './tasks/event-dispatch';
 export { collectTargets } from './tasks/task-targets';
 export { buildBriefing } from './tasks/task-briefing';

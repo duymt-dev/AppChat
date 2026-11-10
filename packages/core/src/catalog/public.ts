@@ -2,7 +2,8 @@
 export { CatalogReadService, type Viewer as CatalogViewer } from './services/catalog-read.service';
 export type { ProductFilter } from './repos/products.repo';
 export { recordMovement, lowOf, type Movement } from './services/catalog-write';
-export { productDocument, syncProduct, catalogSyncConsumer, type CatalogSyncDeps } from './events/catalog-sync';
+export { productDocument, syncProduct, type CatalogSyncDeps } from './events/catalog-sync';
+export { acceptProduct, catalogSyncConsumer, catalogSyncContract, CATALOG_SYNC_CONSUMER } from './events/catalog-handoff';
 export { ImportDeps, ImportStatusService } from './import/status';
 export { runImport, tally } from './import/processor';
 export { validateRow as validateProductRow, markDuplicates as markProductDuplicates, isRowError as isProductRowError } from './import/validate';

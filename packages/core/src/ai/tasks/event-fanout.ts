@@ -2,7 +2,7 @@
 // thế hệ trigger của tác vụ đang bật nghe topic, tạo trước thời điểm sự kiện — niêm phong cùng transaction nhận (v1: consumer; v2: biên
 // nhận handoff). Phát lại dùng lại đúng tập; tác vụ tạo / đổi sau lúc chọn không vào. Xử lý từng trang ≤ 100 tới hết (không cắt 100).
 import { AI_TASK_EVENTS } from '@appchat/shared';
-import { TenantSql, type TenantDb } from '@appchat/db';
+import { TenantContexts, TenantSql, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { insertSelected, leaseSelection, openFanout, pendingPage, sealSelection } from '../../kernel/events/fanout';
 import type { HandoffContract } from '../../kernel/events/protocol/types';
@@ -53,8 +53,11 @@ export async function drainTaskFanout(db: TenantDb, queue: Pick<TaskQueue, 'push
   }
 }
 
-/** Hợp đồng v2 (003b chế độ handoff): niêm phong tập tác vụ cùng biên nhận; xử lý mục do quét khôi phục ROLE=ai (recovery.ts). */
-export const taskEventsContract: HandoffContract = {
+/**
+ * Hợp đồng v2 (003b chế độ handoff): niêm phong tập tác vụ cùng biên nhận; sau commit xử lý luôn các mục (tối ưu) — chết giữa chừng thì
+ * quét khôi phục ROLE=ai (recovery.ts) làm nốt.
+ */
+export const taskEventsContract = (d: { tenants: Pick<TenantDbResolver, 'get'>; queue: Pick<TaskQueue, 'push'> | null; now: () => Date } | null): HandoffContract => ({
   name: TASK_EVENTS_CONSUMER,
   mode: 'handoff',
   contractVersion: TASK_EVENTS_CONTRACT_VERSION,
@@ -62,4 +65,13 @@ export const taskEventsContract: HandoffContract = {
   async accept(e, tx) {
     return { kind: 'handed_off', effectRef: `fanout:${await sealTaskFanout(tx, e, cutoffOf(e, new Date()))}` };
   },
-};
+  ...(d
+    ? {
+        async after(e) {
+          const db = await d.tenants.get(TenantContexts.system(e.workspaceId, 'ai-tasks'));
+          const [f] = await db.$queryRaw<{ id: string }[]>`SELECT id::text AS id FROM event_fanout WHERE event_id = ${e.id}::uuid AND consumer_name = ${TASK_EVENTS_CONSUMER} AND contract_version = ${TASK_EVENTS_CONTRACT_VERSION}`;
+          if (f) await drainTaskFanout(db, d.queue, e.workspaceId, f.id, e, d.now);
+        },
+      }
+    : {}),
+});

@@ -24,7 +24,8 @@ import { NotifyModule } from '../notify.module';
 import { REALTIME_EMITTER, type RealtimeEmitter } from '../realtime/emitter';
 import { NotifyPrefsService } from '../services/prefs.service';
 import { BullMailQueue, NOTIFY_MAIL_QUEUE, startMailWorker } from './notify-mail.processor';
-import { DELIVERY_SWEEP_MS, recoverAllDeliveries } from './delivery-recovery';
+import { DELIVERY_SWEEP_MS, flushEvent, recoverAllDeliveries } from './delivery-recovery';
+import { installContract, notifyContract, realtimeContract } from '../delivery/admission';
 
 const DELIVERY_SWEEP_QUEUE = 'notify.delivery-sweep';
 
@@ -65,7 +66,17 @@ class NotifyJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown 
     };
     registerEventConsumer(notifyConsumer(deps));
     registerEventConsumer(realtimeConsumer({ emitter: this.emitter, authz: this.authz }));
+    // TIP-006b: hợp đồng v2 projection (ý định bền cùng biên nhận); v1 giữ tới cutover theo workspace (DC-426).
+    const flush = this.tenants ? this.flusher(deps.mail, now) : undefined;
+    installContract(notifyContract(deps, flush));
+    installContract(realtimeContract(flush));
     if (this.tenants) void this.startSweep(deps.mail, now);
+  }
+
+  private flusher(mail: BullMailQueue | null, now: () => Date) {
+    const tenants = this.tenants!;
+    return async (ws: string, eventId: string) =>
+      flushEvent(await tenants.get(TenantContexts.system(ws, 'notify-delivery')), ws, eventId, { mail, emitter: this.emitter, now, invalidate: (w) => this.authz!.invalidate(w) });
   }
 
   private async startSweep(mail: BullMailQueue | null, now: () => Date): Promise<void> {
@@ -74,7 +85,7 @@ class NotifyJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown 
     await this.sweepQ.upsertJobScheduler(DELIVERY_SWEEP_QUEUE, { every: DELIVERY_SWEEP_MS }, { name: DELIVERY_SWEEP_QUEUE });
     const tenant = (ws: string) => tenants.get(TenantContexts.system(ws, 'notify-delivery'));
     const onError = (ws: string, err: unknown) => this.log.warn({ err, ws }, 'khôi phục giao thông báo lỗi');
-    this.sweeper = new JobWorker(DELIVERY_SWEEP_QUEUE, () => recoverAllDeliveries(this.platform!, tenant, { mail, emitter: this.emitter, now }, onError), { connection: this.redis!.duplicate(), concurrency: 1 });
+    this.sweeper = new JobWorker(DELIVERY_SWEEP_QUEUE, () => recoverAllDeliveries(this.platform!, tenant, { mail, emitter: this.emitter, now, invalidate: (ws) => this.authz!.invalidate(ws) }, onError), { connection: this.redis!.duplicate(), concurrency: 1 });
     this.sweeper.on('error', (err) => this.log.warn({ err }, 'notify delivery sweep error'));
   }
 
