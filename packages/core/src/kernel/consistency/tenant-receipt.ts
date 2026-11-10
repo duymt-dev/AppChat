@@ -10,6 +10,7 @@ import { writeOutbox } from '../outbox/outbox';
 import { isSecurityAction } from '../audit/audit-projection';
 import { securityEvents } from '../audit/audit.service';
 import type { OperationRow } from './operation-store';
+import { inEventTransaction } from '../outbox/transaction';
 
 const json = (v: unknown) => (v === undefined ? undefined : (JSON.parse(JSON.stringify(v, (_k, x) => (typeof x === 'bigint' ? x.toString() : x))) as object));
 
@@ -41,7 +42,7 @@ export async function applyTenantStage<O>(
   deps: TenantApplyDeps = {},
 ): Promise<{ data: ActionResult<O>; events: number }> {
   const at = new Date(op.context.at);
-  return db.$transaction(async (tx) => {
+  return inEventTransaction(db, ctx.workspaceId, async (tx) => {
     const receipt = await tx.operationReceipt.findUnique({ where: { operationId: op.id } });
     if (receipt) {
       const log = await tx.actionLog.findUnique({ where: { id: receipt.actionLogId }, select: { result: true, undoUntil: true } });

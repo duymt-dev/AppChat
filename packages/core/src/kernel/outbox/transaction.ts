@@ -56,3 +56,11 @@ export async function withEventTransaction<T>(db: Pick<TenantDb, '$transaction'>
     }
   }, opts);
 }
+
+/**
+ * Như `db.$transaction(fn, opts)` nhưng có collector — dùng cho chủ transaction trực tiếp (processor / service hệ thống) ghi outbox.
+ * Trả đúng giá trị của `fn` (thay thế 1-1 cho `$transaction`), flush cuối trước commit.
+ */
+export async function inEventTransaction<T>(db: Pick<TenantDb, '$transaction'>, workspaceId: string, fn: (tx: TenantTx) => Promise<T>, opts?: { timeout?: number; maxWait?: number }): Promise<T> {
+  return (await withEventTransaction(db, workspaceId, fn, opts)).value;
+}

@@ -7,6 +7,7 @@ import type { AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../actions/action-context';
 import { writeOutbox } from '../outbox/outbox';
 import { ITEM_BATCH, claimJob, finishJob, jobStatus, markItem, nextItems, renewJob, saveProgress, type JobLease } from './data-jobs/store';
+import { inEventTransaction } from '../outbox/transaction';
 
 type Db = Pick<TenantDb, 'dataJob' | 'dataJobItem' | '$transaction'>;
 
@@ -90,7 +91,7 @@ export async function runDataJob(db: TenantDb, ws: string, jobId: string, d: Run
     if (!batch.length) break;
     for (const it of batch) {
       try {
-        await db.$transaction(async (tx) => {
+        await inEventTransaction(db, ctx.ws, async (tx) => {
           const st = await kind.item!(ctx, tx as TenantTx, it.targetId, it.seq);
           // Biên nhận cùng commit với phần ghi: bản ghi đã có biên nhận (worker khác / lần trước) → huỷ phần ghi lần này.
           if (!(await markItem(tx, jobId, it.seq, st, null, d.now()))) throw new ItemTaken();
@@ -120,7 +121,7 @@ const stillMine = async (db: TenantDb, l: JobLease) => (await db.dataJob.count({
 /** Kết thúc đúng fence + báo người tạo (cùng transaction — mất fence thì không ghi gì, không báo trùng). */
 async function end(db: TenantDb, ws: string, l: JobLease, job: JobRow, kind: KindRunner | undefined, status: 'completed' | 'cancelled' | 'failed', d: RunDeps, error: string | null, file: FileOut): Promise<RunOutcome> {
   const now = d.now();
-  const ok = await db.$transaction(async (tx) => {
+  const ok = await inEventTransaction(db, ws, async (tx) => {
     if (!(await finishJob(tx as never, l, status, now, { error, ...file }))) return false;
     if (job.actorId) {
       const t = await tx.dataJob.findUnique({ where: { id: l.id }, select: { done: true, total: true } });

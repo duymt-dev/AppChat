@@ -13,12 +13,13 @@ import type { TicketRecord } from '../ticket-access';
 import { defaultPolicy, escalationOf, resumeDue, type SlaCalendar } from './sla-clock';
 import { evOf, logEvent, SYSTEM_ACTOR, type Ev } from './ticket-write';
 import { reopenTicket } from '../actions/ticket-flow.handlers';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 const BATCH = 200;
 type Cal = Awaited<ReturnType<SlaCalendar['of']>>;
 
 async function locked(db: TenantDb, id: string, fn: (tx: Parameters<Parameters<TenantDb['$transaction']>[0]>[0], t: TicketRecord) => Promise<Ev[]>, ws: string, now: Date): Promise<boolean> {
-  return db.$transaction(async (tx) => {
+  return inEventTransaction(db, ws, async (tx) => {
     await tx.$queryRaw`SELECT 1 FROM ticket WHERE id = ${id}::uuid FOR UPDATE`;
     const t = await tx.ticket.findUnique({ where: { id } });
     if (!t) return false;

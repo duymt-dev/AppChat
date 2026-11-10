@@ -6,6 +6,7 @@ import type { TenantDb } from '@appchat/db';
 import { uuidv7 } from '../../../kernel/ids';
 import { writeOutbox } from '../../../kernel/outbox/outbox';
 import type { TenantTx } from '../../../kernel/actions/action-context';
+import { inEventTransaction } from '../../../kernel/outbox/transaction';
 
 export const RECEIPT_TOPIC = 'bank_receipt.accepted';
 
@@ -30,7 +31,7 @@ function ignoreReason(feedAccount: string, t: BankTransaction): string | null {
 /** Nhận một lô giao dịch đã xác thực + chuẩn hoá: mỗi giao dịch một biên nhận; trả số mới / trùng / bỏ qua. Một transaction cho cả lô. */
 export async function acceptReceipts(db: TenantDb, ws: string, items: AcceptInput[], now: Date) {
   if (!items.length) return { accepted: 0, duplicate: 0, ignored: 0 };
-  return db.$transaction((tx) => acceptReceiptsIn(tx, ws, items, now));
+  return inEventTransaction(db, ws, (tx) => acceptReceiptsIn(tx, ws, items, now));
 }
 
 /** Như `acceptReceipts` nhưng trong transaction của người gọi (kéo: lô biên nhận + con trỏ cùng commit — TIP-012b §4.3). */

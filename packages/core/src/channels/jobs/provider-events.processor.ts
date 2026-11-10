@@ -11,6 +11,7 @@ import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { applyProviderEvent } from '../operations/provider-event';
 import type { OperationQueue } from './provider-operations.processor';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const PROVIDER_EVENT_QUEUE = 'channel-provider-event';
 
@@ -33,7 +34,7 @@ export function startProviderEventWorker(d: { redis: Redis; kv: KeyValueStore; t
       const { ws, event } = job.data;
       const db = await d.tenants.get(TenantContexts.fromRoute(ws, 'channel'));
       const now = d.now();
-      const wrote = await db.$transaction(async (tx) => {
+      const wrote = await inEventTransaction(db, ws, async (tx) => {
         // Tài khoản không thuộc workspace này / đã ngắt → bỏ qua (không áp sự kiện chéo tài khoản).
         const acc = await tx.channelAccount.findUnique({ where: { id: event.accountId }, select: { status: true } });
         if (!acc || acc.status === 'disconnected') return false;

@@ -7,6 +7,7 @@ import { QUOTE_FLOW, dayEndAfter, daysLeft, nextState } from '@appchat/shared';
 import { writeOutbox, type OutboxEventInput } from '../../../kernel/outbox/outbox';
 import { writeTimeline } from '../../../crm/public';
 import { closeLost } from '../actions/quote-decide.handlers';
+import { inEventTransaction } from '../../../kernel/outbox/transaction';
 
 const SYSTEM = { type: 'system', id: null };
 const REMIND_DAYS = 2;
@@ -15,7 +16,7 @@ const cut = (s: string) => s.slice(0, 200);
 
 /** Khách mở link: sent → viewed (lần đầu); trạng thái khác chỉ ghi lần xem đầu nếu chưa có. */
 export async function markViewed(db: TenantDb, ws: string, quoteId: string, now: Date): Promise<void> {
-  await db.$transaction(async (tx) => {
+  await inEventTransaction(db, ws, async (tx) => {
     const rows = await tx.$queryRaw<{ id: string }[]>`SELECT id FROM quote WHERE id = ${quoteId}::uuid AND deleted_at IS NULL FOR UPDATE`;
     if (!rows.length) return;
     const q = (await tx.quote.findUnique({ where: { id: quoteId } }))!;
@@ -33,7 +34,7 @@ export async function expireDue(db: TenantDb, ws: string, now: Date): Promise<nu
   const due = await db.quote.findMany({ where: { status: { in: ['sent', 'viewed'] }, deletedAt: null, validUntil: { lt: now } }, select: { id: true }, take: BATCH });
   let n = 0;
   for (const { id } of due) {
-    const done = await db.$transaction(async (tx) => {
+    const done = await inEventTransaction(db, ws, async (tx) => {
       const q = await tx.quote.findUnique({ where: { id } });
       // Đọc lại: đã chốt / gia hạn giữa lúc quét và lúc xử lý → bỏ qua.
       if (!q || q.deletedAt || !q.validUntil || q.validUntil >= now) return false;
@@ -59,7 +60,7 @@ export async function remindExpiring(db: TenantDb, ws: string, now: Date, timeZo
   });
   let n = 0;
   for (const { id } of due) {
-    const done = await db.$transaction(async (tx) => {
+    const done = await inEventTransaction(db, ws, async (tx) => {
       const r = await tx.quote.updateMany({ where: { id, remindedAt: null, status: { in: ['sent', 'viewed'] } }, data: { remindedAt: now } });
       if (!r.count) return false;
       const q = (await tx.quote.findUnique({ where: { id } }))!;

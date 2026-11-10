@@ -11,6 +11,7 @@ import { CHANNEL_INBOUND_QUEUE, type ChannelSendQueue, type SendResult } from '.
 import { applySendResult } from '../services/outbound';
 import { scanRoutes } from '../../channels/jobs/lease';
 import { DuplicateInbound, type InboundPipeline } from '../services/pipeline';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export interface InboxJobDeps {
   redis: Redis;
@@ -67,7 +68,7 @@ export function sendResultSink(d: InboxJobDeps) {
   return async (r: SendResult): Promise<void> => {
     const t = await db(d, r.ws);
     const now = d.now();
-    const wrote = await t.$transaction(async (tx) => {
+    const wrote = await inEventTransaction(t, r.ws, async (tx) => {
       const events = await applySendResult(tx, r, now);
       if (events?.length) await writeOutbox(tx, r.ws, events, now);
       return !!events?.length;

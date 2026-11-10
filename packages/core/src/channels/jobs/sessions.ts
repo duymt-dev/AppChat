@@ -16,6 +16,7 @@ import type { ControlOp } from '../services/control';
 import { LEASE_HEARTBEAT_MS, scanRoutes, type ChannelLeases } from './lease';
 import { claimGeneration, currentGeneration, fenceGeneration } from '../operations/session-generation';
 import { enqueueProviderEvent } from './provider-events.processor';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export interface SessionDeps {
   platform: Pick<PlatformDb, 'tenantChannelRoute'>;
@@ -178,7 +179,7 @@ export class ChannelSessions {
   async markDown(ws: string, accountId: string, reason: 'expired' | 'send_errors', detail?: string): Promise<void> {
     const db = await this.db(ws);
     const now = this.d.now();
-    const res = await db.$transaction(async (tx) => {
+    const res = await inEventTransaction(db, ws, async (tx) => {
       const row = await tx.channelAccount.findUnique({ where: { id: accountId } });
       if (!row || row.status === 'disconnected') return null;
       const patch = reason === 'expired' ? { status: 'expired' as const, health: { status: 'expired' as const, detail } } : { pausedAt: now, health: { status: 'degraded' as const, detail } };

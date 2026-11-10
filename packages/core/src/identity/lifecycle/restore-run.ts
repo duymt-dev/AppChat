@@ -9,6 +9,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { runTenantSeeds } from '../../kernel/tenant-seeds';
 import type { LifecycleJobs } from './jobs';
 import type { LifecycleInfra, LifecycleJobRow } from './types';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export interface RestoreRunDeps {
   platform: PlatformDb;
@@ -67,7 +68,7 @@ export async function runRestore(d: RestoreRunDeps, job: LifecycleJobRow, owner:
     d.resolver.invalidate(job.workspaceId);
     // `workspace.ready` sau khi active (UI "Đang khôi phục" nghe WS; polling trạng thái là đường dự phòng).
     const tenant = await d.resolver.get(TenantContexts.system(job.workspaceId, 'tenant.restore'));
-    await tenant.$transaction((tx) => writeOutbox(tx, job.workspaceId, [{ topic: 'workspace.ready', payload: { workspace_id: job.workspaceId, restored: true } }], d.now()));
+    await inEventTransaction(tenant, job.workspaceId, (tx) => writeOutbox(tx, job.workspaceId, [{ topic: 'workspace.ready', payload: { workspace_id: job.workspaceId, restored: true } }], d.now()));
     await markDirty(d.kv, job.workspaceId);
     return { metrics };
   } finally {

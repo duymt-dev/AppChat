@@ -9,6 +9,7 @@ import { writeTimeline } from '../../crm/public';
 import type { ContractDeps } from './contract-deps';
 import { OTP_TTL_MS, newOtp, otpHash } from './sign-link';
 import { logSignEvent } from './contract-write';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 const SYSTEM = { type: 'system', id: null };
 const BATCH = 200;
@@ -27,7 +28,7 @@ export async function expireLinks(db: TenantDb, ws: string, now: Date, locale: s
   const due = await db.contract.findMany({ where: { status: 'pending_signature', deletedAt: null, signLinkExpiresAt: { lt: now } }, select: { id: true }, take: BATCH });
   let n = 0;
   for (const { id } of due) {
-    const done = await db.$transaction(async (tx) => {
+    const done = await inEventTransaction(db, ws, async (tx) => {
       const c = await tx.contract.findUnique({ where: { id } });
       if (!c || c.deletedAt || !c.signLinkExpiresAt || c.signLinkExpiresAt >= now) return false;
       // Link đã được gia hạn (token còn hạn) giữa lúc quét → bỏ qua.
@@ -58,7 +59,7 @@ export async function remindRenewal(db: TenantDb, ws: string, now: Date, timeZon
   });
   let n = 0;
   for (const { id } of due) {
-    const done = await db.$transaction(async (tx) => {
+    const done = await inEventTransaction(db, ws, async (tx) => {
       const r = await tx.contract.updateMany({ where: { id, status: 'signed', renewNoticeAt: null }, data: { renewNoticeAt: now } });
       if (!r.count) return false;
       const c = (await tx.contract.findUnique({ where: { id } }))!;
@@ -78,7 +79,7 @@ export async function expireContracts(db: TenantDb, ws: string, now: Date, timeZ
   const due = await db.contract.findMany({ where: { status: 'signed', deletedAt: null, endDate: { lt: d0 } }, select: { id: true }, take: BATCH });
   let n = 0;
   for (const { id } of due) {
-    const done = await db.$transaction(async (tx) => {
+    const done = await inEventTransaction(db, ws, async (tx) => {
       const c = await tx.contract.findUnique({ where: { id } });
       if (!c || !c.endDate || c.endDate >= d0) return false;
       const to = nextState(CONTRACT_FLOW, c.status, 'contract.expire');

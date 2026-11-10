@@ -23,7 +23,7 @@ export * from './actions/tip-owners';
 export * from './actions/authorizer';
 export * from './actions/actions.module';
 export * from './outbox/outbox';
-export { withEventTransaction, enroll as enrollEventTransaction, collectorOf } from './outbox/transaction';
+export { withEventTransaction, inEventTransaction, enroll as enrollEventTransaction, collectorOf } from './outbox/transaction';
 export { EventCollector, readProtocolState, type ProtocolPhase, type ProtocolState } from './outbox/collector';
 export * from './outbox/relay';
 export { claimDue, markPublished, markFailed, MAX_RELAY_ATTEMPTS, type RelayClaim } from './outbox/claim';

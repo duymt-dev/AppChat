@@ -11,6 +11,7 @@ import { writeOutbox, markDirty } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { uuidv7 } from '../../kernel/ids';
 import { createLifecycleJob } from './jobs';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const WARN_DAYS = 14;
 const DAY = 86_400_000;
@@ -75,7 +76,7 @@ async function warn(d: ScanDeps, c: Candidate, on: Date): Promise<boolean> {
   const base = { id: uuidv7(now.getTime()), workspaceId: c.id, windowKey: windowKey(c.last_active_at!), channel: 'in_app', createdAt: now };
   try {
     const db = await d.resolver.get(TenantContexts.system(c.id, 'lifecycle.archive-scan'));
-    await db.$transaction((tx) =>
+    await inEventTransaction(db, c.id, (tx) =>
       writeOutbox(tx, c.id, [{ topic: 'notify.requested', payload: { kind: 'archive_warning', to: { user_ids: [c.owner_user_id] }, params: { date: day(effective) }, link: '/dashboard' } }], now),
     );
     await markDirty(d.kv, c.id);
