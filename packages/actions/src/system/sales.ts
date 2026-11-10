@@ -31,8 +31,8 @@ export const packageSystemTransition = defineAction({
   id: 'package.system_transition',
   module: 'sales',
   title: 'actions.package.system_transition.title',
-  description: 'Internal: grant customer packages for a confirmed paid order, or expire a package past its expiry.',
-  input: systemInput(['grant_on_confirm', 'expire']),
+  description: 'Internal: grant customer packages for a confirmed paid order, expire a package past its expiry, or remind the owner when one session is left after a completed appointment.',
+  input: systemInput(['grant_on_confirm', 'expire', 'remind_remaining']),
   risk: 'money',
 });
 

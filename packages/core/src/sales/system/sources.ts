@@ -33,6 +33,7 @@ export const invoiceOverdueTrigger = (ws: string, i: { id: string; dueDate: Date
 export const invoiceRemindTrigger = (ws: string, i: { id: string; dueDate: Date }, step: string) => salesTrigger(ws, { actionId: 'invoice.system_transition', operation: 'remind' }, 'schedule', 'invoice.remind', i.id, iso(i.dueDate), step);
 export const packageExpireTrigger = (ws: string, p: { id: string; expiresAt: Date | null }) => salesTrigger(ws, { actionId: 'package.system_transition', operation: 'expire' }, 'schedule', 'package.expire', p.id, iso(p.expiresAt));
 export const packageGrantTrigger = (ws: string, eventId: string, orderId: string) => salesTrigger(ws, { actionId: 'package.system_transition', operation: 'grant_on_confirm' }, 'event', eventId, orderId, eventId);
+export const packageRemainingTrigger = (ws: string, eventId: string, packageId: string) => salesTrigger(ws, { actionId: 'package.system_transition', operation: 'remind_remaining' }, 'event', eventId, packageId, eventId);
 
 const stale = () => new AppError('CONFLICT', 409, { trigger: 'stale' });
 const missing = () => new AppError('NOT_FOUND', 404, { trigger: 'source_not_found' });
@@ -60,6 +61,12 @@ async function generationOf(db: TenantDb, actionId: string, op: string, id: stri
     // Nguồn là event `order.confirmed` đã lưu trong outbox (không tin payload job): đúng topic + đúng đơn.
     const [e, o] = await Promise.all([db.outboxEvent.findUnique({ where: { id: sourceRef }, select: { topic: true, payload: true } }), db.order.findUnique({ where: { id }, select: { id: true } })]);
     if (!e || !o || e.topic !== 'order.confirmed' || (e.payload as { order_id?: string }).order_id !== id) return null;
+    return sourceRef;
+  }
+  if (op === 'remind_remaining') {
+    // Nguồn là event `appointment.completed` đã lưu đúng gói (buổi đã trừ); số buổi còn lại kiểm lại dưới khoá trong handler.
+    const [e, p] = await Promise.all([db.outboxEvent.findUnique({ where: { id: sourceRef }, select: { topic: true, payload: true } }), db.customerPackage.findUnique({ where: { id }, select: { id: true } })]);
+    if (!e || !p || e.topic !== 'appointment.completed' || (e.payload as { package_id?: string }).package_id !== id) return null;
     return sourceRef;
   }
   const p = await db.customerPackage.findUnique({ where: { id }, select: { expiresAt: true } });

@@ -17,7 +17,8 @@ import { CrmModule } from '../../crm/crm.module';
 import { expireDue, remindExpiring } from '../quotes/services/quote-system';
 import { OrderSyncService } from '../orders/services/order-sync';
 import { ORDER_SYNC_EVERY_MS, ORDER_SYNC_JOB, ORDER_SYNC_QUEUE, orderSyncConsumer, syncOrders } from './order-sync.jobs';
-import { PAYMENT_SWEEP_EVERY_MS, PAYMENT_SWEEP_JOB, paymentPackagesConsumer, sweepPayments } from './payment.jobs';
+import { PAYMENT_PACKAGES_CONSUMER, PAYMENT_PACKAGES_TOPICS, PAYMENT_SWEEP_EVERY_MS, PAYMENT_SWEEP_JOB, paymentPackagesConsumer, sweepPayments } from './payment.jobs';
+import { paymentPackageTriggers } from '../system/dispatch';
 import { QuoteDeps } from '../quotes/services/quote-deps';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { BANK_INGEST_CONSUMER, bankIngestConsumer, bankIngestEventTrigger } from '../payments/bank/bank-event.consumer';
@@ -85,7 +86,8 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     const now = () => this.clock.now();
     const sys = { executor: this.executor, tenants: this.tenants };
     registerEventConsumer(quoteOwnerConsumer(this.log));
-    registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone, sys));
+    registerEventConsumer(paymentPackagesConsumer(sys));
+    registerSystemAdapter({ name: PAYMENT_PACKAGES_CONSUMER, topics: PAYMENT_PACKAGES_TOPICS, actionId: 'package.system_transition', triggers: paymentPackageTriggers }, sys);
     // TIP-012b P2: biên nhận ngân hàng đã ACK → khớp / ghi nhận qua ActionExecutor nguồn system (ngoài transaction consumer).
     registerEventConsumer(bankIngestConsumer(this.executor, this.tenants));
     // TIP-003c: adapter action-mode v2 (cùng trigger / biên nhận domain của 012b; v1 giữ tới cutover).

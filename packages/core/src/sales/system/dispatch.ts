@@ -3,11 +3,11 @@
 // handler đọc lại vị từ hiện tại. Lỗi một mục không chặn mục khác (onError có mã an toàn).
 import { dayEndAfter } from '@appchat/shared';
 import type { TenantDb } from '@appchat/db';
-import { runTrigger, scanDue, SCAN_PAGE, type ScanCursor, type ScanRow, type SystemRunDeps } from '../../kernel/actions/system';
+import { runTrigger, scanDue, SCAN_PAGE, type ScanCursor, type ScanRow, type SystemRunDeps, type SystemTrigger } from '../../kernel/actions/system';
 import { localDay } from '../payments/services/payment-write';
 import { reminderStep } from './payment-effects';
 import { QUOTE_REMIND_DAYS } from './quote-effects';
-import { invoiceOverdueTrigger, invoiceRemindTrigger, packageExpireTrigger, packageGrantTrigger, quoteExpireTrigger, quoteRemindTrigger, quoteViewTrigger } from './sources';
+import { invoiceOverdueTrigger, invoiceRemindTrigger, packageExpireTrigger, packageGrantTrigger, packageRemainingTrigger, quoteExpireTrigger, quoteRemindTrigger, quoteViewTrigger } from './sources';
 
 export type SalesSystemDeps = SystemRunDeps;
 
@@ -67,3 +67,11 @@ export const recordQuoteView = (d: SalesSystemDeps, ws: string, q: { id: string;
 
 /** Consumer `order.confirmed` (event đã lưu): cấp liệu trình qua action riêng. */
 export const grantPackagesOnConfirm = (d: SalesSystemDeps, ws: string, eventId: string, orderId: string) => runTrigger(d, packageGrantTrigger(ws, eventId, orderId));
+
+/** Trigger của consumer `sales.payment-packages` từ event đã lưu (v1 + adapter v2 dùng chung): cấp gói / nhắc còn 1 buổi. */
+export function paymentPackageTriggers(e: { id: string; workspaceId: string; topic: string; payload: unknown }): SystemTrigger[] {
+  const p = (e.payload ?? {}) as { order_id?: string; package_id?: string | null };
+  if (e.topic === 'order.confirmed' && p.order_id) return [packageGrantTrigger(e.workspaceId, e.id, p.order_id)];
+  if (e.topic === 'appointment.completed' && p.package_id) return [packageRemainingTrigger(e.workspaceId, e.id, p.package_id)];
+  return [];
+}

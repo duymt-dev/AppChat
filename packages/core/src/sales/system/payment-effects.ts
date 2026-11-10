@@ -8,6 +8,7 @@ import type { Outgoing } from '../../inbox/public';
 import type { QuoteDeps } from '../quotes/services/quote-deps';
 import { invoiceText, postInvoice, type InvoiceChannel } from '../payments/services/invoice-send';
 import { grantPackages } from '../payments/services/packages';
+import { packageReminderIn } from '../payments/services/package-reminders';
 import { localDay, statusAfter } from '../payments/services/payment-write';
 import { applied, none, type Effect } from './quote-effects';
 
@@ -67,4 +68,10 @@ export async function expirePackage(tx: TenantTx, id: string, now: Date): Promis
   if (r.count !== 1) return none(id, 'not_due');
   const p = (await tx.customerPackage.findUnique({ where: { id } }))!;
   return applied(id, [{ topic: 'package.expired', payload: { package_id: id, contact_id: p.contactId } }]);
+}
+
+/** `appointment.completed` trừ buổi → còn đúng 1 buổi thì nhắc ngay (biên nhận `package_reminder` unique — một lần mỗi gói). */
+export async function remindRemainingPackage(tx: TenantTx, id: string, now: Date, timeZone: string): Promise<Effect> {
+  const events = await packageReminderIn(tx, id, 'remaining_1', now, timeZone);
+  return events ? applied(id, events) : none(id, 'not_due');
 }

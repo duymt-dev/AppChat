@@ -12,7 +12,7 @@ import { CrmMembers } from '../../crm/public';
 import { enqueueOutgoing } from '../../inbox/public';
 import { QuoteDeps } from '../quotes/services/quote-deps';
 import { expireQuote, recordView, remindQuote, type Effect } from './quote-effects';
-import { expirePackage, grantOnConfirm, markInvoiceOverdue, remindInvoice } from './payment-effects';
+import { expirePackage, grantOnConfirm, markInvoiceOverdue, remindInvoice, remindRemainingPackage } from './payment-effects';
 
 /** Capability đã niêm phong phải trỏ đúng mục tiêu của input (Executor đã kiểm digest; đây là phòng thủ kép theo id). */
 export function boundTarget(ctx: ActionContext, entityId: string): { milestone: string } {
@@ -72,7 +72,10 @@ export class InvoiceSystemTransitionHandler implements Handler<ActionInput<typeo
 @Injectable()
 @ActionHandler('package.system_transition')
 export class PackageSystemTransitionHandler implements Handler<ActionInput<typeof packageSystemTransition>, SystemOutput> {
-  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
+  constructor(
+    @Inject(QuoteDeps) private readonly d: QuoteDeps,
+    @Inject(CLOCK) private readonly clock: Clock,
+  ) {}
 
   async preview(): Promise<never> {
     throw new AppError('FORBIDDEN', 403, { capability: 'internal' });
@@ -81,7 +84,9 @@ export class PackageSystemTransitionHandler implements Handler<ActionInput<typeo
   async execute(ctx: ActionContext, i: ActionInput<typeof packageSystemTransition>, tx: TenantTx): Promise<HandlerOutcome<SystemOutput>> {
     boundTarget(ctx, i.entity_id);
     const now = this.clock.now();
-    return outcome(i.operation === 'grant_on_confirm' ? await grantOnConfirm(tx, i.entity_id, now) : await expirePackage(tx, i.entity_id, now));
+    if (i.operation === 'grant_on_confirm') return outcome(await grantOnConfirm(tx, i.entity_id, now));
+    if (i.operation === 'remind_remaining') return outcome(await remindRemainingPackage(tx, i.entity_id, now, (await this.d.place(ctx.workspaceId)).timeZone));
+    return outcome(await expirePackage(tx, i.entity_id, now));
   }
 }
 

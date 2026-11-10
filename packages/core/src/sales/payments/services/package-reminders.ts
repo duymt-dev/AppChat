@@ -6,7 +6,8 @@
 import type { TenantDb } from '@appchat/db';
 import { dayEndAfter, daysLeft } from '@appchat/shared';
 import { uuidv7 } from '../../../kernel/ids';
-import { writeOutbox } from '../../../kernel/outbox/outbox';
+import type { TenantTx } from '../../../kernel/actions/action-context';
+import { writeOutbox, type OutboxEventInput } from '../../../kernel/outbox/outbox';
 import { inEventTransaction } from '../../../kernel/outbox/transaction';
 
 export const PACKAGE_REMIND_DAYS = 7;
@@ -15,37 +16,39 @@ const cut = (s: string) => s.slice(0, 200);
 
 export type PackageMilestone = 'remaining_1' | 'expiry_t7';
 
+/** Biên nhận + event một mốc trong transaction của caller (khoá gói). null = đã nhắc / gói đổi giữa chừng. TIP-003c: dùng chung cho action riêng. */
+export async function packageReminderIn(tx: TenantTx, packageId: string, milestone: PackageMilestone, now: Date, timeZone: string): Promise<OutboxEventInput[] | null> {
+  await tx.$queryRaw`SELECT 1 FROM customer_package WHERE id = ${packageId}::uuid FOR UPDATE`;
+  const p = await tx.customerPackage.findUnique({ where: { id: packageId } });
+  if (!p || p.status !== 'active') return null;
+  const left = p.totalSessions - p.usedSessions;
+  if (milestone === 'remaining_1' && left !== 1) return null;
+  if (milestone === 'expiry_t7' && (!p.expiresAt || p.expiresAt < now || p.expiresAt > dayEndAfter(now, PACKAGE_REMIND_DAYS, timeZone))) return null;
+  // "Còn 1 buổi" không phụ thuộc hạn → một lần mỗi gói (bản 0); T-7 một lần mỗi bản hạn.
+  const version = milestone === 'remaining_1' ? 0 : p.expiryVersion;
+  const r = await tx.$executeRaw`INSERT INTO package_reminder (id, package_id, milestone, expiry_version, created_at)
+    VALUES (${uuidv7(now.getTime())}::uuid, ${p.id}::uuid, ${milestone}, ${version}, ${now})
+    ON CONFLICT (package_id, milestone, expiry_version) DO NOTHING`;
+  if (!r) return null;
+  const [o, c] = await Promise.all([
+    tx.order.findUnique({ where: { id: p.orderId }, select: { ownerUserId: true } }),
+    tx.contact.findUnique({ where: { id: p.contactId }, select: { name: true } }),
+  ]);
+  const days = milestone === 'expiry_t7' ? Math.max(0, daysLeft(now, p.expiresAt!, timeZone)) : null;
+  return [
+    {
+      topic: 'package.reminder_due',
+      payload: { package_id: p.id, contact_id: p.contactId, order_id: p.orderId, milestone, expiry_version: p.expiryVersion, owner_user_id: o?.ownerUserId ?? null, name: cut(p.name), contact: cut(c?.name ?? ''), days },
+    },
+  ];
+}
+
 /** Ghi biên nhận + thông báo một mốc cho một gói (transaction riêng). false = đã nhắc / gói đổi giữa chừng. */
 async function remindOne(db: TenantDb, ws: string, packageId: string, milestone: PackageMilestone, now: Date, timeZone: string): Promise<boolean> {
   return inEventTransaction(db, ws, async (tx) => {
-    await tx.$queryRaw`SELECT 1 FROM customer_package WHERE id = ${packageId}::uuid FOR UPDATE`;
-    const p = await tx.customerPackage.findUnique({ where: { id: packageId } });
-    if (!p || p.status !== 'active') return false;
-    const left = p.totalSessions - p.usedSessions;
-    if (milestone === 'remaining_1' && left !== 1) return false;
-    if (milestone === 'expiry_t7' && (!p.expiresAt || p.expiresAt < now || p.expiresAt > dayEndAfter(now, PACKAGE_REMIND_DAYS, timeZone))) return false;
-    // "Còn 1 buổi" không phụ thuộc hạn → một lần mỗi gói (bản 0); T-7 một lần mỗi bản hạn.
-    const version = milestone === 'remaining_1' ? 0 : p.expiryVersion;
-    const r = await tx.$executeRaw`INSERT INTO package_reminder (id, package_id, milestone, expiry_version, created_at)
-      VALUES (${uuidv7(now.getTime())}::uuid, ${p.id}::uuid, ${milestone}, ${version}, ${now})
-      ON CONFLICT (package_id, milestone, expiry_version) DO NOTHING`;
-    if (!r) return false;
-    const [o, c] = await Promise.all([
-      tx.order.findUnique({ where: { id: p.orderId }, select: { ownerUserId: true } }),
-      tx.contact.findUnique({ where: { id: p.contactId }, select: { name: true } }),
-    ]);
-    const days = milestone === 'expiry_t7' ? Math.max(0, daysLeft(now, p.expiresAt!, timeZone)) : null;
-    await writeOutbox(
-      tx,
-      ws,
-      [
-        {
-          topic: 'package.reminder_due',
-          payload: { package_id: p.id, contact_id: p.contactId, order_id: p.orderId, milestone, expiry_version: p.expiryVersion, owner_user_id: o?.ownerUserId ?? null, name: cut(p.name), contact: cut(c?.name ?? ''), days },
-        },
-      ],
-      now,
-    );
+    const events = await packageReminderIn(tx, packageId, milestone, now, timeZone);
+    if (!events) return false;
+    await writeOutbox(tx, ws, events, now);
     return true;
   });
 }

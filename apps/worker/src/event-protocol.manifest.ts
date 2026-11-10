@@ -15,7 +15,7 @@ export const EVENT_PROTOCOL_MANIFEST: EventProtocolManifest = {
   consumers: [
     // 015d: không còn ghi — v2 không đăng ký hợp đồng (chỉ v1 drain log event cũ tới cutover).
     { name: 'sales.quote-owner', status: 'retired', owner: '015d', roles: jobs },
-    pending('sales.payment-packages', '003c'),
+    action('sales.payment-packages', ['order.confirmed', 'appointment.completed']),
     pending('sales.order-sync', '003c'),
     action('sales.bank-ingest', ['bank_receipt.accepted']),
     pending('billing.trial', '003c'),
