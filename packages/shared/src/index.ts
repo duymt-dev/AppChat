@@ -50,3 +50,4 @@ export * from './privacy/state';
 export * from './privacy/events';
 export * from './assistant/plan';
 export * from './assistant/plan-events';
+export * from './assistant/discovery';
