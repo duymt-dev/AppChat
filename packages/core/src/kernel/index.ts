@@ -26,6 +26,11 @@ export * from './outbox/outbox';
 export { withEventTransaction, enroll as enrollEventTransaction, collectorOf } from './outbox/transaction';
 export { EventCollector, readProtocolState, type ProtocolPhase, type ProtocolState } from './outbox/collector';
 export * from './outbox/relay';
+export { claimDue, markPublished, markFailed, MAX_RELAY_ATTEMPTS, type RelayClaim } from './outbox/claim';
+export * from './events/protocol/types';
+export { registerEventContract, freezeEventRegistry, frozenEventRegistry, registryDigest, resetEventRegistryForTest, type FrozenRegistry } from './events/protocol/registry';
+export { dispatchV2, type DispatchOutcome, type DispatchV2Deps } from './events/protocol/dispatch-claim';
+export { inputDigest, ActionInputConflictError } from './events/protocol/dispatch-action-port';
 export * from './outbox/outbox.jobs.module';
 // Việc dữ liệu nặng (TIP-045b annex D): đọc trạng thái / tải tệp cho /v1/data-jobs (+ runner cho test).
 export { DataJobStatusService, allowedAction } from './jobs/bulk-status';

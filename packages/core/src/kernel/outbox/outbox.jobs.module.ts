@@ -17,6 +17,12 @@ import { ConsistencyJobsModule } from '../consistency/consistency.jobs.module';
 export class BullEventPublisher implements EventPublisher {
   constructor(private readonly queue: Queue) {}
   async publish(e: Parameters<EventPublisher['publish']>[0]): Promise<void> {
+    // v2 (TIP-003b): job = đánh thức chỉ mang id; thử lại / back-off do event_dispatch bền quyết, không do BullMQ (attempts 1).
+    if (e.protocolVersion === 2) {
+      const wake = { id: e.id, topic: e.topic, workspaceId: e.workspaceId, traceId: e.traceId, protocolVersion: 2 as const };
+      await this.queue.add(e.topic, wake, { jobId: `${e.id}-g${e.generation ?? 0}`, attempts: 1, removeOnComplete: 1000, removeOnFail: 5000 });
+      return;
+    }
     // Consumer lỗi → retry back-off mũ (outbox §2), tối đa 8 lần; consumer đã xong không chạy lại (event_consumption).
     await this.queue.add(e.topic, { ...e }, { jobId: e.id, attempts: 8, backoff: { type: 'exponential', delay: 2000 }, removeOnComplete: 1000, removeOnFail: 5000 });
   }

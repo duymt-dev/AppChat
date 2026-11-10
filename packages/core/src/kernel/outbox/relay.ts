@@ -1,16 +1,32 @@
 // Outbox relay (events/outbox.md §2, worker ROLE=jobs): drain workspace trong outbox:dirty → publish → published;
 // lỗi retry back-off 2^n giây, tối đa 8 lần rồi failed. Sweep toàn bộ DB làm lưới an toàn (gọi định kỳ 10 phút).
+// TIP-003b §3.4: mỗi lượt CLAIM có fence (claim.ts) — nhiều tiến trình relay không ghi đè thành công của nhau, claim hết lease được
+// nhận lại. Event v2: job chỉ mang id (consumer đọc lại hàng có thẩm quyền), jobId theo generation để job cũ còn giữ không nuốt lần
+// đánh thức cần thiết; event v1 giữ nguyên hành vi (payload + jobId = id).
 import { TenantContexts, WorkspaceNotFoundError, type TenantDbResolver, type WorkspaceRegistry } from '@appchat/db';
 import type { Clock } from '../clock';
 import type { KeyValueStore } from '../redis';
 import { appMetrics } from '../metrics/registry';
 import { OUTBOX_DIRTY } from './outbox';
+import { MAX_RELAY_ATTEMPTS, claimDue, markFailed, markPublished } from './claim';
 
-export const MAX_ATTEMPTS = 8;
+export const MAX_ATTEMPTS = MAX_RELAY_ATTEMPTS;
+
+export interface PublishedEvent {
+  id: string;
+  topic: string;
+  /** v1: payload đi theo job. v2: null — consumer nạp lại hàng có thẩm quyền. */
+  payload: unknown;
+  workspaceId: string;
+  traceId: string | null;
+  protocolVersion?: 2;
+  /** v2: jobId = `${id}-g${generation}` (đánh thức, không phải id hiệu ứng). */
+  generation?: number;
+}
 
 export interface EventPublisher {
-  /** Publish sang queue `events`; jobId = event id để không trùng khi relay chạy lại. */
-  publish(e: { id: string; topic: string; payload: unknown; workspaceId: string; traceId: string | null }): Promise<void>;
+  /** Publish sang queue `events`. v1 jobId = event id (không trùng khi relay chạy lại); v2 jobId theo generation. */
+  publish(e: PublishedEvent): Promise<void>;
 }
 
 export interface RelayDeps {
@@ -26,38 +42,29 @@ export interface DrainResult {
   published: number;
   retried: number;
   failed: number;
+  /** Claim đã bị tiến trình khác lấy lại khi CAS — không ghi đè. */
+  stale?: number;
 }
 
 export async function drainWorkspace(d: RelayDeps, workspaceId: string): Promise<DrainResult> {
   const db = await d.resolver.get(TenantContexts.system(workspaceId, 'outbox-relay'));
   const now = d.clock.now();
-  const rows = await db.outboxEvent.findMany({
-    where: { status: 'pending', availableAt: { lte: now } },
-    orderBy: { availableAt: 'asc' },
-    take: d.batch ?? 200,
-  });
+  const rows = await claimDue(db, now, d.batch);
   const res: DrainResult = { published: 0, retried: 0, failed: 0 };
   // outbox_lag_seconds (TIP-045b): tuổi event cũ nhất của lượt drain — gauge của tiến trình, không nhãn workspace.
-  if (rows[0]) appMetrics().outboxLag.set(Math.max(0, (now.getTime() - rows[0].createdAt.getTime()) / 1000));
+  const oldest = rows.reduce<Date | null>((m, r) => (!m || r.createdAt < m ? r.createdAt : m), null);
+  if (oldest) appMetrics().outboxLag.set(Math.max(0, (now.getTime() - oldest.getTime()) / 1000));
   for (const e of rows) {
+    const v2 = e.protocolVersion === 2;
     try {
-      await d.publisher.publish({ id: e.id, topic: e.topic, payload: e.payload, workspaceId, traceId: e.traceId });
-      await db.outboxEvent.updateMany({ where: { id: e.id, status: 'pending' }, data: { status: 'published', attempts: e.attempts + 1 } });
-      res.published++;
+      await d.publisher.publish(v2 ? { id: e.id, topic: e.topic, payload: null, workspaceId, traceId: e.traceId, protocolVersion: 2, generation: e.generation } : { id: e.id, topic: e.topic, payload: e.payload, workspaceId, traceId: e.traceId });
+      if (await markPublished(db, e)) res.published++;
+      else res.stale = (res.stale ?? 0) + 1;
     } catch (err) {
-      const attempts = e.attempts + 1;
-      const dead = attempts >= MAX_ATTEMPTS;
-      await db.outboxEvent.update({
-        where: { id: e.id },
-        data: {
-          attempts,
-          status: dead ? 'failed' : 'pending',
-          availableAt: new Date(now.getTime() + 2 ** attempts * 1000),
-          lastError: (err as Error).message.slice(0, 500),
-        },
-      });
-      if (dead) res.failed++;
-      else res.retried++;
+      const r = await markFailed(db, e, (err as Error).message ?? 'publish_failed', now);
+      if (r === 'failed') res.failed++;
+      else if (r === 'retry') res.retried++;
+      else res.stale = (res.stale ?? 0) + 1;
     }
   }
   return res;
