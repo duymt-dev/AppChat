@@ -71,7 +71,7 @@ describe('AssistantDiscoveryPrepareHandler (TIP-023e §1.4)', () => {
 
   it('preview: đọc corpus + không gian embedding hiện hành, không ghi gì (bounded, trước xác nhận)', async () => {
     const h = new AssistantDiscoveryPrepareHandler(clock, null, mockModels as never);
-    const p = await h.preview();
+    const p = await h.preview(ctxOf('run-1'));
     expect(p.risk).toBe('write');
     expect(typeof p.count).toBe('number');
     expect(p.changes?.[0]?.entity).toBe('action_discovery_generation');
@@ -79,7 +79,7 @@ describe('AssistantDiscoveryPrepareHandler (TIP-023e §1.4)', () => {
 
   it('preview: chưa cấu hình model embedding → vẫn trả preview (không ném) nhưng cảnh báo no_model_route', async () => {
     const h = new AssistantDiscoveryPrepareHandler(clock, null, noModels);
-    const p = await h.preview();
+    const p = await h.preview(ctxOf('run-1'));
     expect(p.warnings).toContain('no_model_route');
   });
 });

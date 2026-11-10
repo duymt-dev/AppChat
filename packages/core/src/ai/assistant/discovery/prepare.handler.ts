@@ -66,7 +66,11 @@ export class AssistantDiscoveryPrepareHandler implements Handler<ActionInput<typ
     };
   }
 
-  async preview(): Promise<ActionPreview> {
+  // `_ctx` không dùng (corpus/space không phụ thuộc người gọi) nhưng GIỮ tham số: assistant-coverage.test.ts dò preview thật bằng
+  // regex `preview(_?ctx` trên mọi action KHÔNG trong SYSTEM_ONLY — bỏ hẳn tham số (như digest.dispatch, billing.lifecycle_step)
+  // chỉ đúng cho action đó, vốn ẩn khỏi Trợ lý hoàn toàn; discovery_prepare thì không.
+  async preview(_ctx: ActionContext): Promise<ActionPreview> {
+    void _ctx;
     const corpus = this.corpus();
     const space = await resolveEmbeddingSpace(this.models);
     return preview('write', line(`${corpus.docs.length} action`, space ? `${space.provider}:${space.model}` : 'chưa có model embedding'), {

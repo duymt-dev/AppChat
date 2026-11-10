@@ -4,7 +4,7 @@
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
-import type { Embedder } from '@appchat/ai';
+import type { Embedder, ModelSource } from '@appchat/ai';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import type { AuthzContext } from '@appchat/shared';
 import { AuthzModule } from '../../authz/authz.module';
@@ -42,6 +42,9 @@ import { TASK_QUEUE, type TaskQueue } from '../tasks/task.queue';
 import { startTaskWorkers, type TaskWorkers } from '../tasks/task.jobs';
 import { startKbSuggestWorker } from '../kb/suggestions/suggestion.jobs';
 import { startAnalyzeWorker } from '../../marketing/ai/marketing-ai.jobs';
+import { DISCOVERY_MODEL_SOURCE } from '../assistant/discovery/prepare.handler';
+import { startDiscoveryBuildWorker } from '../assistant/discovery/build.processor';
+import { markDirty } from '../../kernel/outbox/outbox';
 
 class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private kb?: Worker<KbIngestJob>;
@@ -52,12 +55,14 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private turns?: Worker<TurnJob>;
   private suggest?: { close(): Promise<void> };
   private analyze?: { close(): Promise<void> };
+  private discovery?: Worker<{ ws: string; generation_id: string }>;
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined,
     @Optional() @Inject(FilesService) private readonly files: FilesService | undefined,
     @Inject(KB_EMBEDDER) private readonly embedder: Embedder | null,
+    @Inject(DISCOVERY_MODEL_SOURCE) private readonly discoveryModels: ModelSource | null,
     @Inject(CreditMeter) private readonly meter: CreditMeter | null,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
@@ -83,6 +88,9 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     this.kb = startKbIngestWorker(redis, tenants, { files, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
     // TIP-023c: dọn sổ sự kiện stream Trợ lý quá 24h (chỉ workspace đã đánh dấu).
     this.events = await startAssistantEventsPrune(redis, tenants, () => this.clock.now(), this.log);
+    // TIP-023e §1.4: dựng vector kho mô tả action (generation đã được assistant.discovery_prepare xác nhận) — cần executor để
+    // dựng lại corpus (buildCorpus(implementedBy(executor))) đúng registry hiện hành, không cần platform (chỉ ghi tenant).
+    if (this.executor) this.discovery = startDiscoveryBuildWorker(redis, { tenants, executor: this.executor, models: this.discoveryModels, meter: this.meter, log: this.log, now: () => this.clock.now(), dirty: (ws) => markDirty(redis, ws) });
     if (this.executor && this.platform) {
       const deps = { tenants, executor: this.executor, runner: this.runner, kv: redis, log: this.log, now: () => this.clock.now(), commander: (ws: string, u: string) => this.commander(ws, u) };
       this.resume = startAiResumeWorker(redis, deps, this.log);
@@ -132,6 +140,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     await this.turns?.close();
     await this.suggest?.close();
     await this.analyze?.close();
+    await this.discovery?.close();
   }
 }
 

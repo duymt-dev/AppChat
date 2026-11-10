@@ -25,6 +25,7 @@ import { AgentSearchHandler, AiTaskSearchHandler } from './agents/agent-read.han
 import { KbSourceSearchHandler } from './kb/source-read.handler';
 import { RunSearchHandler } from './runs/run-read.handler';
 import { KbIngestQueue } from './kb/kb.queue';
+import { DiscoveryBuildInstaller, DiscoveryBuildQueue } from './assistant/discovery/build.queue';
 import { RunCancelListener } from './runs/cancel.listener';
 import { RunCancelHandler } from './runs/run-cancel.handler';
 import { AiRunner } from './runs/runner';
@@ -112,6 +113,9 @@ class ProviderSeed implements OnModuleInit {
       useFactory: (env: AiEnv, store: ProviderStore | null): ModelSource | null => (env.AI_ENGINE === 'mock' ? mockEmbedSource() : store ? new LlmRouter(store) : null),
     },
     { provide: KbIngestQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new KbIngestQueue(r) : null) },
+    // TIP-023e §1.4: assistant.discovery_requested → queue discovery-build (ROLE=ai, build.processor.ts pha sau).
+    { provide: DiscoveryBuildQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new DiscoveryBuildQueue(r) : null) },
+    DiscoveryBuildInstaller,
     {
       provide: AiRunner,
       inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace, opt(PLATFORM_DB), opt(REDIS)],
@@ -176,6 +180,6 @@ class ProviderSeed implements OnModuleInit {
     ...ASSISTANT_PLAN_PROVIDERS,
     ...ASSISTANT_DISCOVERY_PROVIDERS,
   ],
-  exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
+  exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, DISCOVERY_MODEL_SOURCE, DiscoveryBuildQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
 })
 export class AiModule {}
