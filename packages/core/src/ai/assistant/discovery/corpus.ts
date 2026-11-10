@@ -18,7 +18,11 @@ function textOf(a: ActionDef): string {
   const parts = [a.id.replaceAll('.', ' ').replaceAll('_', ' '), a.description, a.module, a.risk];
   for (const l of ['vi', 'en'] as const) {
     const m = serverMessages(l).ai.assistant;
-    parts.push((m.entity as Record<string, string>)[entityOf(a.id)] ?? '');
+    const entity = (m.entity as Record<string, string>)[entityOf(a.id)] ?? '';
+    // Cụm động từ + đối tượng ĐÚNG như tiêu đề thẻ xác nhận (card.ts) — "Tạo khách hàng" / "Gửi báo giá" — một nguồn nhãn, không dịch thêm.
+    const verb = (m.verbOf as Record<string, string>)[a.id] ?? (/\.create(_and_publish)?$/.test(a.id) ? m.verb.create : ((m.verb as Record<string, string>)[a.risk] ?? ''));
+    if (verb && entity) parts.push(`${verb} ${entity}`);
+    parts.push(entity);
     parts.push((m.module as Record<string, string>)[a.module] ?? '');
   }
   return parts.filter(Boolean).join(' ').slice(0, DISCOVERY_DOC_MAX_CHARS);
