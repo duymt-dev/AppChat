@@ -21,6 +21,7 @@ export const billingLifecycleStep = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['billing'],
   db: 'platform',
 });
@@ -40,6 +41,7 @@ export const billingApplyInvoice = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['billing'],
   db: 'platform',
 });

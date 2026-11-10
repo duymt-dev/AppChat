@@ -4,6 +4,8 @@ import { Module, type OnApplicationBootstrap } from '@nestjs/common';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { ActionExecutor } from '../kernel/actions/executor';
+import { domainVerifier, registerSystemVerifier } from '../kernel/actions/system';
+import { BILLING_ACTOR } from './lifecycle/types';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { ENV_SOURCE } from '../kernel/kernel.module';
 import { REDIS } from '../kernel/redis';
@@ -116,4 +118,10 @@ class BillingBoot implements OnApplicationBootstrap {
   ],
   exports: [WalletService, SubscriptionsService, QuotaService, BillingReadService, CreditMeter, PRICE_BOOK, BILLING_SINK, PAYMENTS_ENV, InvoicesService, InvoiceFulfiller, PlatformBankHook],
 })
-export class BillingModule {}
+export class BillingModule {
+  constructor() {
+    // TIP-003c: action riêng tiền nhiệm 039 (sổ nền tảng 045b) — biên nhận kỳ / fulfilled_at là chống lặp (biên nhận domain).
+    registerSystemVerifier('billing.lifecycle_step', domainVerifier(BILLING_ACTOR, ['schedule']), { receipt: 'domain', db: false });
+    registerSystemVerifier('billing.apply_invoice', domainVerifier(BILLING_ACTOR, ['accepted_operation']), { receipt: 'domain', db: false });
+  }
+}

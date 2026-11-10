@@ -6,11 +6,18 @@ import type { ActionExecutor } from '../../kernel/actions/executor';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import type { EventConsumer } from '../../kernel/events/consumer';
 import { LOYALTY_ACTOR } from '../actions/ledger-system.handlers';
+import { domainTrigger, runSystemAction } from '../../kernel/actions/system';
 
 export const LOYALTY_ORDERS_CONSUMER = 'loyalty.orders';
 
 /** Ngữ cảnh system của loyalty; `key` = Idempotency-Key tất định (event / bucket) — job chạy lại trả đúng kết quả cũ, không ghi lần hai. */
 export const loyaltySystemCtx = (ws: string, key?: string): ActionContext => ({ workspaceId: ws, source: 'system', actor: { type: 'system', id: LOYALTY_ACTOR }, authz: { isOwner: true } as never, ...(key ? { idempotencyKey: `loyalty:${key}` } : {}) });
+
+/** TIP-003c: gọi action riêng tiền nhiệm 036 qua capability gắn nguồn (sự kiện / lịch); khoá sổ `dedupe_key` của domain vẫn là chống lặp. */
+export function runLoyalty<O = unknown>(executor: Pick<ActionExecutor, 'execute'>, ws: string, kind: 'event' | 'schedule', key: string, actionId: string, targetId: string, input: Record<string, unknown>) {
+  const t = domainTrigger({ workspaceId: ws, actionId, actor: LOYALTY_ACTOR, sourceKind: kind, sourceRef: key, targetId, input, idempotencyKey: `loyalty:${key}` });
+  return runSystemAction<O>(executor, null, t, loyaltySystemCtx(ws, key));
+}
 
 export const loyaltyOrdersConsumer = (executor: Pick<ActionExecutor, 'execute'>): EventConsumer => ({
   name: LOYALTY_ORDERS_CONSUMER,
@@ -18,12 +25,12 @@ export const loyaltyOrdersConsumer = (executor: Pick<ActionExecutor, 'execute'>)
   async handle(e) {
     const p = e.payload as { order_id?: string | null; completion_id?: string; basis?: Record<string, unknown> };
     if (!p.order_id) return;
-    const ctx = loyaltySystemCtx(e.workspaceId, `${e.id}:${LOYALTY_ORDERS_CONSUMER}`);
+    const key = `${e.id}:${LOYALTY_ORDERS_CONSUMER}`;
     if (e.topic === 'order.completed') {
       // Event trước TIP-036 (không có lượt hoàn tất) → bỏ qua; điểm đơn cũ ghi bù bằng điều chỉnh tay (lý do missing_earn).
-      if (p.completion_id) await executor.execute(ctx, 'loyalty.earn', { order_id: p.order_id, completion_id: p.completion_id, basis: p.basis ?? {} });
+      if (p.completion_id) await runLoyalty(executor, e.workspaceId, 'event', key, 'loyalty.earn', p.order_id, { order_id: p.order_id, completion_id: p.completion_id, basis: p.basis ?? {} });
       return;
     }
-    await executor.execute(ctx, 'loyalty.reverse', { order_id: p.order_id, cause: 'cancel' });
+    await runLoyalty(executor, e.workspaceId, 'event', key, 'loyalty.reverse', p.order_id, { order_id: p.order_id, cause: 'cancel' });
   },
 });

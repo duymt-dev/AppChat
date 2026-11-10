@@ -20,6 +20,9 @@ import {
   QuotaService,
   WalletService,
   billingCtx,
+  BILLING_ACTOR,
+  domainTrigger,
+  runSystemAction,
   recoverOperations,
   runLifecycle,
   uuidv7,
@@ -198,7 +201,10 @@ describe('AC02 ghi nhận lại hoá đơn đã trả', () => {
     expect(await w.f.fulfil(id)).toBe(false);
     expect(await w.f.fulfilPending()).toBe(0);
     const ex = w.h.app.get(ActionExecutor, { strict: false });
-    const again = (await ex.execute(billingCtx(w.h.ws), 'billing.apply_invoice', { invoice_id: id })) as {
+    // TIP-003c: action riêng — chỉ chạy qua capability gắn nguồn (hoá đơn đã trả), không gọi thẳng executor.
+    const t = domainTrigger({ workspaceId: w.h.ws, actionId: 'billing.apply_invoice', actor: BILLING_ACTOR, sourceKind: 'accepted_operation', sourceRef: `billing_invoice:${id}`, targetId: id, input: { invoice_id: id } });
+    await expect(ex.execute(billingCtx(w.h.ws), 'billing.apply_invoice', { invoice_id: id })).rejects.toMatchObject({ httpStatus: 403 });
+    const again = (await runSystemAction(ex, null, t, billingCtx(w.h.ws))) as {
       data: { result: { status: string } };
     };
     expect(again.data.result.status).toBe('replayed');

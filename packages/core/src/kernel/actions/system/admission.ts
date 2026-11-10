@@ -27,16 +27,18 @@ export interface SystemTrigger {
 export type SystemVerifier = (t: Readonly<SystemTrigger>, db: TenantDb) => Promise<void>;
 
 export interface VerifierOptions {
-  /** Mặc định `trigger`. `domain` chỉ cho action tiền nhiệm có khoá chống lặp riêng đã duyệt (012b / 015c / 030b). */
+  /** Mặc định `trigger`. `domain` chỉ cho action tiền nhiệm có khoá chống lặp riêng đã duyệt (012b / 015c / 030b / 036 / 038 / 039). */
   receipt?: 'trigger' | 'domain';
+  /** false: verifier chỉ kiểm actor / loại nguồn (không đọc DB tenant) — người gọi có thể không có resolver (sổ nền tảng 039). */
+  db?: boolean;
 }
 
-const verifiers = new Map<string, { verify: SystemVerifier; receipt: 'trigger' | 'domain' }>();
+const verifiers = new Map<string, { verify: SystemVerifier; receipt: 'trigger' | 'domain'; db: boolean }>();
 
 export function registerSystemVerifier(actionId: string, v: SystemVerifier, o: VerifierOptions = {}): void {
   const prev = verifiers.get(actionId);
   if (prev && prev.verify !== v) throw new Error(`Trùng system verifier: ${actionId}`);
-  verifiers.set(actionId, { verify: v, receipt: o.receipt ?? 'trigger' });
+  verifiers.set(actionId, { verify: v, receipt: o.receipt ?? 'trigger', db: o.db ?? true });
 }
 
 export const systemVerifierRegistered = (actionId: string): boolean => verifiers.has(actionId);
@@ -55,12 +57,13 @@ export function systemContext(t: Pick<SystemTrigger, 'workspaceId' | 'actor' | '
 }
 
 /** `ctx` truyền vào chỉ khi domain cần niêm phong thêm capability hẹp của riêng nó lên cùng object (vd. ký phụ lục công khai). */
-export async function runSystemAction<O = unknown>(executor: Pick<ActionExecutor, 'execute'>, tenants: Pick<TenantDbResolver, 'get'>, t: SystemTrigger, ctx: ActionContext = systemContext(t)): Promise<ExecuteOutcome<O>> {
+export async function runSystemAction<O = unknown>(executor: Pick<ActionExecutor, 'execute'>, tenants: Pick<TenantDbResolver, 'get'> | null, t: SystemTrigger, ctx: ActionContext = systemContext(t)): Promise<ExecuteOutcome<O>> {
   const reg = verifiers.get(t.actionId);
   if (!reg) throw new AppError('NOT_IMPLEMENTED', 501, { capability: 'verifier_missing' }, t.actionId);
   if (ctx.workspaceId !== t.workspaceId) throw new AppError('FORBIDDEN', 403, { capability: 'workspace' });
+  if (reg.db && !tenants) throw new AppError('NOT_IMPLEMENTED', 501, { capability: 'resolver_missing' }, t.actionId);
   // DB tenant theo workspace của trigger (ngữ cảnh tin cậy), không theo payload.
-  const db = await tenants.get(TenantContexts.system(t.workspaceId, `system:${t.actionId}`));
+  const db = reg.db && tenants ? await tenants.get(TenantContexts.system(t.workspaceId, `system:${t.actionId}`)) : (null as unknown as TenantDb);
   await reg.verify(Object.freeze({ ...t }), db);
   const cap: SystemCapability = {
     workspaceId: t.workspaceId,
