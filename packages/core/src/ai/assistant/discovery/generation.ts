@@ -37,13 +37,17 @@ export async function findGeneration(db: Db, corpusHash: string, space: Embeddin
   return r ? toRow(r) : null;
 }
 
-export type ClaimResult = { kind: 'claimed'; generation: GenerationRow } | { kind: 'existing'; generation: GenerationRow };
+export type ClaimResult = { kind: 'claimed' | 'reclaimed'; generation: GenerationRow } | { kind: 'existing'; generation: GenerationRow };
 
 /**
  * Giành lease dựng kho — nguyên tử, không khoá dòng qua mạng (§1.5 "giải phóng transaction nền tảng trước khi gọi provider").
  * Thắng (`claimed`): generation mới ở phase `building`, ràng với operation/root ĐÃ xác nhận qua `assistant.discovery_prepare`.
- * Thua (`existing`): một gốc khác đã giành — KHÔNG mở lease thứ hai, trả đúng dòng đang có (building/ready/failed/unknown) để người
- * gọi tự quyết (dùng kho ready sẵn có, hay trả fallback `corpus_building`/`corpus_unknown` — không bao giờ launch batch song song).
+ * `reclaimed`: generation CÙNG khoá đã từng `failed` — một xác nhận MỚI (bounds/budget đã kiểm lại) được phép thử lại, CAS
+ * `failed → building` trên ĐÚNG dòng cũ (không tạo dòng thứ hai — UNIQUE(corpus_hash, embedding_space) chỉ cho một dòng sống;
+ * không có đường reclaim thì một lần dựng hỏng sẽ khoá vĩnh viễn corpus/space đó, đi ngược §1.5 "A different authorized root
+ * may continue only after a fresh explicit discovery_prepare confirmation... a new bounded claim is committed").
+ * Thua (`existing`): một gốc khác đang building/ready/unknown — KHÔNG mở lease thứ hai, trả đúng dòng đang có để người gọi tự
+ * quyết (dùng kho ready sẵn có, hay trả fallback `corpus_building`/`corpus_unknown` — không bao giờ launch batch song song).
  */
 export async function claimGeneration(db: Db, i: { corpusHash: string; space: EmbeddingSpace; buildOperationId: string; ownerRootRunId: string; expectedCount: number; now: Date }): Promise<ClaimResult> {
   const id = uuidv7(i.now.getTime());
@@ -58,7 +62,17 @@ export async function claimGeneration(db: Db, i: { corpusHash: string; space: Em
     if ((e as { code?: string })?.code !== 'P2002') throw e;
     const existing = await findGeneration(db, i.corpusHash, i.space);
     if (!existing) throw e; // dòng vừa bị xoá giữa hai lệnh — cực hiếm, để người gọi thử lại.
-    return { kind: 'existing', generation: existing };
+    if (existing.phase !== 'failed') return { kind: 'existing', generation: existing };
+    const reclaimed = await db.actionDiscoveryGeneration.updateMany({
+      where: { id: existing.id, phase: 'failed' },
+      data: { phase: 'building', buildOperationId: i.buildOperationId, ownerRootRunId: i.ownerRootRunId, expectedCount: i.expectedCount, completedCount: 0, failedReason: null, updatedAt: i.now },
+    });
+    if (reclaimed.count === 0) {
+      // Gốc khác reclaim trước (race trên CAS) — đọc lại, không tự coi mình thắng.
+      const fresh = await findGeneration(db, i.corpusHash, i.space);
+      return { kind: 'existing', generation: fresh ?? existing };
+    }
+    return { kind: 'reclaimed', generation: { ...existing, phase: 'building', buildOperationId: i.buildOperationId, ownerRootRunId: i.ownerRootRunId, expectedCount: i.expectedCount, completedCount: 0, failedReason: null } };
   }
 }
 

@@ -5,7 +5,7 @@
 // Thiếu DB → service null (route trả 501).
 import { Module, type OnModuleInit } from '@nestjs/common';
 import type { Redis } from 'ioredis';
-import { AiSdkEmbedder, AiSdkEngine, LlmRouter, mockEmbedSource, mockModelSource, type AgentEngine, type Embedder } from '@appchat/ai';
+import { AiSdkEmbedder, AiSdkEngine, LlmRouter, mockEmbedSource, mockModelSource, type AgentEngine, type Embedder, type ModelSource } from '@appchat/ai';
 import type { PlatformDb } from '@appchat/db';
 import { CreditMeter } from '../billing/public';
 import { BillingModule } from '../billing/billing.module';
@@ -46,6 +46,8 @@ import { AssistantResumeHandler } from './assistant/genui/resume.handler';
 import { TASK_EXPORTS, TASK_PROVIDERS } from './tasks/tasks.providers';
 import { TaskPlace } from './tasks/task-place';
 import { ASSISTANT_PLAN_PROVIDERS } from './assistant/plans/providers';
+import { ASSISTANT_DISCOVERY_PROVIDERS } from './assistant/discovery/providers';
+import { DISCOVERY_MODEL_SOURCE } from './assistant/discovery/prepare.handler';
 import { CLOCK, type Clock } from '../kernel/clock';
 
 export { AI_ENV } from './ai.env';
@@ -101,6 +103,13 @@ class ProviderSeed implements OnModuleInit {
       inject: [AI_ENV, ProviderStore],
       useFactory: (env: AiEnv, store: ProviderStore | null): Embedder | null =>
         env.AI_ENGINE === 'mock' ? new AiSdkEmbedder(mockEmbedSource()) : store ? new AiSdkEmbedder(new LlmRouter(store)) : null,
+    },
+    // Không gian embedding ghim cho discovery (TIP-023e §1.6) — CÙNG router purpose `embed` mà KB_EMBEDDER dùng (một cấu hình
+    // embed cho cả hai, không tạo route riêng); AssistantDiscoveryPrepareHandler chỉ ĐỌC candidate (configRevision), không embed ở đây.
+    {
+      provide: DISCOVERY_MODEL_SOURCE,
+      inject: [AI_ENV, ProviderStore],
+      useFactory: (env: AiEnv, store: ProviderStore | null): ModelSource | null => (env.AI_ENGINE === 'mock' ? mockEmbedSource() : store ? new LlmRouter(store) : null),
     },
     { provide: KbIngestQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new KbIngestQueue(r) : null) },
     {
@@ -165,6 +174,7 @@ class ProviderSeed implements OnModuleInit {
     RunGuardInstaller,
     ...TASK_PROVIDERS,
     ...ASSISTANT_PLAN_PROVIDERS,
+    ...ASSISTANT_DISCOVERY_PROVIDERS,
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
 })

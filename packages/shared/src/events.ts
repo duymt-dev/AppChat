@@ -5,6 +5,7 @@ import { LOYALTY_EVENT_SCHEMAS } from './loyalty/events';
 import { MARKETING_EVENT_SCHEMAS } from './marketing/events';
 import { KB_SUGGESTION_EVENT_SCHEMAS } from './kb/suggestion-events';
 import { INSIGHTS_EVENT_SCHEMAS } from './insights/events';
+import { ACTION_DISCOVERY_EVENT_SCHEMAS } from './events/action-discovery';
 import { PERMISSIONS } from './authz/permissions';
 import { NOTIFY_KIND_KEYS, type NotifyKind } from './notify/catalog';
 
@@ -301,6 +302,7 @@ export const EVENT_SCHEMAS = {
   ...MARKETING_EVENT_SCHEMAS,
   ...KB_SUGGESTION_EVENT_SCHEMAS,
   ...INSIGHTS_EVENT_SCHEMAS,
+  ...ACTION_DISCOVERY_EVENT_SCHEMAS,
   'bank_tx.received': bankTxEvent,
   'package.granted': packageEvent,
   'package.expired': packageEvent,

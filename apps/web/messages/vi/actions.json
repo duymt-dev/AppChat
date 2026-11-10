@@ -1492,6 +1492,10 @@
     "agent_choices": {
       "title": "Danh sách AI Agent để chọn làm chuyên viên",
       "desc": "Trang AI Agent đang hoạt động / đã xuất bản có thể chọn làm chuyên viên Cowork — chỉ tên/vai trò/mức AI, không prompt/persona."
+    },
+    "discovery_prepare": {
+      "title": "Chuẩn bị tìm kiếm thao tác theo ngữ nghĩa",
+      "desc": "Dựng chỉ mục tìm thao tác theo ngữ nghĩa cho workspace — việc chạy nền, chỉ cần khi tìm từ khoá chưa đủ; không ảnh hưởng dữ liệu khách hàng."
     }
   },
   "sales_settings": {
