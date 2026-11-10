@@ -40,6 +40,9 @@ export interface ModelCandidate {
   model: string;
   /** LanguageModel (AI SDK) — chỉ engine trong gói này dùng. */
   handle: unknown;
+  /** Thế hệ cấu hình opaque của route đã chọn (TIP-023e §1.2) — route có, provider không → vẫn route's; cả hai vắng → undefined.
+   *  Dùng để ghim `embedding_space` của một generation vào đúng cấu hình đã phục vụ nó (023e §1.6), không suy luận ngầm. */
+  configRevision?: string;
 }
 
 export interface ModelSource {

@@ -44,7 +44,10 @@ export class LlmRouter implements ModelSource {
         handle = this.build(p, r.model, purpose);
         this.built.set(k, handle);
       }
-      out.push({ provider: p.key, model: r.model, handle });
+      // Thế hệ cấu hình đưa ra ngoài cho người gọi ghim không gian embedding (TIP-023e §1.6) — opaque, chỉ ghép khi có ít nhất
+      // một nửa (provider hoặc route); vắng cả hai (test/mock cũ) → undefined, người gọi tự quyết không ghim được.
+      const configRevision = p.configRevision || r.configRevision ? `${p.configRevision ?? ''}:${r.configRevision ?? ''}` : undefined;
+      out.push({ provider: p.key, model: r.model, handle, ...(configRevision ? { configRevision } : {}) });
     }
     return out;
   }
