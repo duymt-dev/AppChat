@@ -38,7 +38,7 @@
 | `authz/rbac-permissions.md` | Không mượn Owner; actor hệ thống có tên; capability gắn nguồn, không nâng quyền agent | — |
 | `ops/observability-security.md` | Input chỉ id; staging trong tiến trình (không log / Redis), kết quả đăng nhập kênh mã hoá TTL 10 phút | Chưa mục privacy inventory cho biên nhận (DV-100 mục 5) |
 | `code/file-size-module-layout.md` · `testing.md` | Mọi file ≤ 600; test ở file riêng | Bố cục `system/` không module riêng (DV-100 mục 2) |
-| `workflow/git-flow-ci.md` | Nhánh `tip/003c-*`, PR vào dev, xếp chồng #178 | — |
+| `workflow/git-flow-ci.md` | Nhánh `tip/003c-*`, PR #179 vào dev, xếp chồng #178 | — |
 
 **GIẢ ĐỊNH ĐÃ CHỌN:**
 - Action tiền nhiệm giữ biên nhận của domain, không thêm `system_action_receipt` (DC-427 a).
