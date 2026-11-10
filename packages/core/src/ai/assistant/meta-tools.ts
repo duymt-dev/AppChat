@@ -17,7 +17,7 @@ import type { ActionContext } from '../../kernel/actions/action-context';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
 import { secretValuesPresent, stripSecrets } from '../../kernel/actions/secret-fields';
 import { allowedFor, briefSchema, exampleInput, findActions, modeAllows } from './catalog';
-import { runFindActions, type DiscoveryRuntime } from './discovery/find-tool';
+import { ACTION_MODULES, runFindActions, type DiscoveryRuntime } from './discovery/find-tool';
 import { resolveCodes } from './code-refs';
 import { pinVersion } from './version-pin';
 import { aiCustomErrors, withCustomSchema } from './custom-schema';
@@ -155,7 +155,7 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
     {
       name: ASSISTANT_TOOLS.find,
       description: 'Search the AppChat actions the user may run (by keywords, Vietnamese or English; optional module). Returns id, risk, description and input fields.',
-      inputSchema: { type: 'object', properties: { query: { type: 'string' }, module: { type: 'string' } }, required: ['query'] },
+      inputSchema: { type: 'object', properties: { query: { type: 'string' }, module: { type: 'string', enum: ACTION_MODULES } }, required: ['query'] },
       origin: 'meta',
       execute: async (input) => {
         const i = (input ?? {}) as { query?: unknown; module?: unknown };

@@ -61,6 +61,15 @@ describe('runFindActions', () => {
     expect(r.discovery.reason).toBe('provider_unavailable');
   });
 
+  it('module đoán sai ("contact", "") → bỏ lọc; module thật nhưng rỗng → tìm lại không lọc', async () => {
+    for (const module of ['contact', '', 'contacts']) {
+      const r = await runFindActions({ db: db(), now }, t, { query: 'tạo khách hàng', module }, all);
+      expect(r.actions.map((a) => a.id), module).toContain('contact.create');
+    }
+    const r = await runFindActions({ db: db(), now }, t, { query: 'tạo khách hàng', module: 'billing' }, all);
+    expect(r.actions.map((a) => a.id)).toContain('contact.create');
+  });
+
   it('chuẩn hoá Unicode + khoảng trắng', () => {
     expect(normalizeQuery('  tạo\n\t báo   giá ')).toBe('tạo báo giá');
   });

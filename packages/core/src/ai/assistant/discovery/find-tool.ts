@@ -2,6 +2,7 @@
 // đường). Có route embed + generation ready → hybrid; còn lại honest keyword fallback (findActions cũ giữ làm nhánh fallback có tên).
 // Câu hỏi chuẩn hoá Unicode/khoảng trắng + che PII (PiiMasker) TRƯỚC khi embed (§3.3). Embed có đo dưới chính run của lượt (019b).
 // Lỗi dừng cứng (budget/credit/huỷ/usage không rõ) KHÔNG nuốt thành fallback — ném lên; lỗi provider khác → provider_unavailable.
+import { registry } from '@appchat/actions';
 import { PiiMasker, type ModelSource } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import { isMeteringStop, queryEmbedder, type EmbedMeter } from '../../runs/metered-embedding';
@@ -15,6 +16,8 @@ import { embeddingSpaceKey } from './types';
 import type { DiscoveryCache } from './cache';
 
 export const QUERY_MAX = 1000;
+export const ACTION_MODULES = [...new Set(registry.map((a) => a.module))].sort();
+const MODULES: ReadonlySet<string> = new Set(ACTION_MODULES);
 
 /** Phụ thuộc tuỳ chọn: vắng (test cũ / process không có router) → luôn keyword fallback `no_model_route`. */
 export interface DiscoveryRuntime {
@@ -57,5 +60,9 @@ export async function runFindActions(
   const queryVector = rt && space ? queryVectorFor(d.db, t, rt, embeddingSpaceKey(space), d.now) : null;
   const root = rt?.cache && space ? await d.db.aiRun.findUnique({ where: { id: t.runId }, select: { rootRunId: true } }) : null;
   const cache = rt?.cache && root ? { store: rt.cache, ws: t.ws, rootRunId: root.rootRunId, userId: t.userId } : null;
-  return discoverActions({ db: d.db, space, queryVector, cache }, { authz: t.authz, mode, query, module: i.module, limit, implemented });
+  // Model hay đoán module không có thật ("contact", "") → bỏ bộ lọc; module thật mà rỗng → tìm lại không lọc (không trả rỗng câm).
+  const module = i.module && MODULES.has(i.module) ? i.module : undefined;
+  const run = (m: string | undefined) => discoverActions({ db: d.db, space, queryVector, cache }, { authz: t.authz, mode, query, module: m, limit, implemented });
+  const r = await run(module);
+  return module && !r.actions.length ? run(undefined) : r;
 }
