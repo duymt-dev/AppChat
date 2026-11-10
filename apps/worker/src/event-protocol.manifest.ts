@@ -13,14 +13,15 @@ const action = (name: string, topics: readonly string[]): ManifestConsumer => ({
 export const EVENT_PROTOCOL_MANIFEST: EventProtocolManifest = {
   version: 1,
   consumers: [
-    pending('sales.quote-owner', '003c'),
+    // 015d: không còn ghi — v2 không đăng ký hợp đồng (chỉ v1 drain log event cũ tới cutover).
+    { name: 'sales.quote-owner', status: 'retired', owner: '015d', roles: jobs },
     pending('sales.payment-packages', '003c'),
     pending('sales.order-sync', '003c'),
     action('sales.bank-ingest', ['bank_receipt.accepted']),
     pending('billing.trial', '003c'),
     action('support', ['message.received', 'message.sent']),
     pending('support.ai-complaint', '003c'),
-    pending('crm.lead-routing', '003c'),
+    action('crm.lead-routing', ['lead.routing_requested']),
     action('loyalty.orders', ['order.completed', 'order.cancelled']),
     action('loyalty.payments', ['payment.refunded']),
     pending('notify', '006b'),
