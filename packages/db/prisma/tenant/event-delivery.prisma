@@ -105,6 +105,8 @@ model NotificationDelivery {
   sourceEventId    String                    @map("source_event_id") @db.Uuid
   kind             String
   intentIndex      Int                       @map("intent_index")
+  /// Chính sách người nhận (permission key | 'owner' | 'list') — kiểm lại quyền hiện tại trước khi gửi.
+  policyReference  String?                   @map("policy_reference")
   phase            NotificationDeliveryPhase @default(pending)
   attemptNo        Int                       @default(0) @map("attempt_no")
   claimToken       String?                   @map("claim_token") @db.Uuid

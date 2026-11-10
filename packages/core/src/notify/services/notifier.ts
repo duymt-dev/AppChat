@@ -1,6 +1,7 @@
-// Gửi một ý định thông báo (consumer `notify`): người nhận → ghi `notification` (id tất định theo event + user + loại →
-// chạy lại không nhân đôi) → WS `notification.new` vào `user:{id}` (toast theo desktop + giờ không làm phiền, sound) →
-// email (queue `notify-mail`, jobId = id thông báo) khi tuỳ chọn email bật.
+// Gửi một ý định thông báo (consumer `notify`, TIP-006 → TIP-006b §1.2–1.3, §2.3, §3.1): người nhận hiện tại → tập niêm phong (phát lại
+// không thêm người mới) → MỘT transaction: dòng `notification` (id tất định theo event + chỉ số + user + loại) + nguồn + ý định mail (email
+// bật) + ý định realtime `notification.new` (toast theo desktop + giờ không làm phiền, sound). Sau commit: publish realtime + đánh thức mail
+// theo id ý định (queue không mang email / thân). Mất Redis → quét khôi phục mỗi 10 phút đẩy lại ý định còn pending.
 import { createHash } from 'node:crypto';
 import { channelsFor, inQuietHours } from '@appchat/shared';
 import type { PlatformDb, TenantDb } from '@appchat/db';
@@ -14,19 +15,15 @@ import type { NotifyPrefsService } from './prefs.service';
 import { toNotificationDto } from './notifications.service';
 import { resolveRecipients } from './recipients';
 import { receiptFor } from '../delivery-receipts';
-import { currentAuthz, genericNoticeTitle, projectNotices } from './ownership-notice';
+import { genericNoticeTitle } from './ownership-notice';
+import { sealedRecipients } from '../delivery/selection';
+import { addMailIntent, addRealtimeIntent } from '../delivery/store';
+import { publishRealtime } from '../delivery/realtime';
+import type { MailWakeup } from '../delivery/types';
 
-export interface MailJob {
-  notification_id: string;
-  workspace_id: string;
-  user_id: string;
-  kind: NotifyIntent['kind'];
-  params: Record<string, string | number>;
-  link: string | null;
-}
-
+/** Đánh thức gửi mail theo id ý định (BullMQ `notify-mail`) — job chỉ mang (ws, id, thế hệ). */
 export interface MailQueue {
-  enqueue(job: MailJob): Promise<void>;
+  wake(job: MailWakeup): Promise<void>;
 }
 
 export interface NotifierDeps {
@@ -44,6 +41,8 @@ export function deterministicId(key: string): string {
   return `${h.slice(0, 8)}-${h.slice(8, 12)}-8${h.slice(13, 16)}-${((parseInt(h[16]!, 16) & 0x3) | 0x8).toString(16)}${h.slice(17, 20)}-${h.slice(20, 32)}`;
 }
 
+const policyOf = (i: NotifyIntent) => (i.to.ownerOnly ? 'owner' : (i.to.permission ?? 'list'));
+
 export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEvent, intent: NotifyIntent, index: number): Promise<string[]> {
   const ws = await d.platform.workspace.findUnique({ where: { id: e.workspaceId }, select: { timezone: true } });
   const timeZone = ws?.timezone ?? 'Asia/Ho_Chi_Minh';
@@ -52,52 +51,59 @@ export async function deliverIntent(d: NotifierDeps, db: TenantDb, e: DomainEven
   let to = await resolveRecipients(d.platform, d.authz, e.workspaceId, intent.to, intent.excludeUserId);
   // Gửi một lần: một người nhận, id theo khoá (không theo người) — event phát lại không tạo thông báo thứ hai.
   if (once) to = to.slice(0, 1);
-  if (!to.length) return [];
   const prefs = await d.prefs.loadMany(to.map((r) => r.userId));
   const now = d.now();
   const notice = intent.ownershipNotice;
-  const rows = to.map((r) => ({
-    // Chuyển phụ trách: id theo lần chuyển + chiều + người nhận (event phát lại / event khác cùng lần chuyển không nhân đôi).
-    id: deterministicId(notice ? `notice|${notice.transferId}|${notice.direction}|${r.userId}` : intent.onceKey ? `once|${intent.onceKey}|${intent.kind}` : `${e.id}|${index}|${r.userId}|${intent.kind}`),
-    userId: r.userId,
-    type: intent.kind,
-    title: notice ? genericNoticeTitle(r.locale) : notificationTitle(intent.kind, r.locale, intent.params),
-    link: notice ? null : (intent.link ?? null),
-    createdAt: now,
-  }));
-  if (notice) {
-    // Dòng gốc + binding cùng transaction; unique (transfer, người nhận, chiều) chặn bản thứ hai.
-    const binds = rows.map((r) => ({ notificationId: r.id, transferId: notice.transferId, recipientUserId: r.userId, direction: notice.direction }));
-    await db.$transaction([db.notification.createMany({ data: rows, skipDuplicates: true }), db.contactTransferNotice.createMany({ data: binds, skipDuplicates: true })]);
-  } else await db.notification.createMany({ data: rows, skipDuplicates: true });
-  // Lần chạy lại: dòng đã có giữ nguyên thời điểm cũ → đọc lại để WS / email dùng đúng bản ghi.
-  const saved = new Map((await db.notification.findMany({ where: { id: { in: rows.map((r) => r.id) } } })).map((r) => [r.id, r]));
-  const sent: string[] = [];
-  for (const [i, r] of to.entries()) {
-    const row = saved.get(rows[i]!.id);
-    if (!row) continue;
-    // Thông báo một lần đã ghi cho người khác (tiến trình trước chết sau khi ghi, Owner đổi sau đó) → chỉ ghi biên nhận, không gửi lại.
-    if (once?.receipt) await once.receipt.mark(db, once.id, { eventId: e.id, recipientUserId: row.userId, notificationId: row.id }, now);
-    if (row.userId !== r.userId) continue;
-    let shown = row;
-    if (notice) {
-      // Chiếu theo quyền HIỆN TẠI của người nhận lúc gửi WS (bị gỡ → không gửi gì).
-      const v = (await projectNotices(db, d.platform, await currentAuthz(d.platform, d.authz, e.workspaceId, r.userId), [row], r.locale)).get(row.id);
-      if (!v) continue;
-      shown = { ...row, title: v.title, link: v.link };
+  const src = { sourceEventId: e.id, sourceEntityKind: typeof e.payload.aggregate_kind === 'string' ? e.payload.aggregate_kind : null, sourceEntityId: null };
+  const plan = await db.$transaction(async (tx) => {
+    // Cohort thường: niêm phong lần đầu, phát lại chỉ gửi người trong tập đã chọn (và còn quyền hiện tại). Owner biểu tượng: không chụp.
+    const sealed = intent.to.ownerOnly || once ? null : await sealedRecipients(tx, e.id, index, to);
+    const pick = sealed ? to.filter((r) => sealed.has(r.userId)) : to;
+    const rows = pick.map((r) => ({
+      // Chuyển phụ trách: id theo lần chuyển + chiều + người nhận (event phát lại / event khác cùng lần chuyển không nhân đôi).
+      id: deterministicId(notice ? `notice|${notice.transferId}|${notice.direction}|${r.userId}` : intent.onceKey ? `once|${intent.onceKey}|${intent.kind}` : `${e.id}|${index}|${r.userId}|${intent.kind}`),
+      userId: r.userId,
+      type: intent.kind,
+      title: notice ? genericNoticeTitle(r.locale) : notificationTitle(intent.kind, r.locale, intent.params),
+      link: notice ? null : (intent.link ?? null),
+      createdAt: now,
+      ...src,
+    }));
+    if (!rows.length) return { saved: [], mails: [] as string[], rts: [] as string[] };
+    await tx.notification.createMany({ data: rows, skipDuplicates: true });
+    if (notice)
+      await tx.contactTransferNotice.createMany({ data: rows.map((r) => ({ notificationId: r.id, transferId: notice.transferId, recipientUserId: r.userId, direction: notice.direction })), skipDuplicates: true });
+    // Lần chạy lại: dòng đã có giữ nguyên thời điểm cũ → đọc lại để WS / email dùng đúng bản ghi.
+    const saved = await tx.notification.findMany({ where: { id: { in: rows.map((r) => r.id) } } });
+    const byId = new Map(saved.map((r) => [r.id, r]));
+    const mails: string[] = [];
+    const rts: string[] = [];
+    for (const [i, r] of pick.entries()) {
+      const row = byId.get(rows[i]!.id);
+      if (!row) continue;
+      // Thông báo một lần đã ghi cho người khác (tiến trình trước chết, Owner đổi sau đó) → chỉ ghi biên nhận, không gửi lại.
+      if (once?.receipt) await once.receipt.mark(tx as never, once.id, { eventId: e.id, recipientUserId: row.userId, notificationId: row.id }, now);
+      if (row.userId !== r.userId) continue;
+      const p = prefs.get(r.userId)!;
+      const ch = channelsFor(p, intent.kind);
+      if (ch.email && d.mail) {
+        const m = await addMailIntent(tx, { notificationId: row.id, userId: intent.to.ownerOnly ? null : r.userId, logicalTargetKey: intent.to.ownerOnly ? 'owner' : r.userId, sourceEventId: e.id, kind: intent.kind, intentIndex: index, policy: policyOf(intent) }, now);
+        if (m.phase === 'pending') mails.push(m.id);
+      }
+      // Thông báo chuyển phụ trách: realtime chỉ mang id + chữ chung — người nhận tải lại danh sách (chiếu theo quyền hiện tại).
+      const shown = notice ? { ...row, title: genericNoticeTitle(r.locale), link: null } : row;
+      rts.push(
+        await addRealtimeIntent(tx, e.id, {
+          ws: e.workspaceId,
+          rooms: [rooms.user(r.userId)],
+          event: 'notification.new',
+          data: { ...toNotificationDto(shown, r.locale, timeZone, now.getTime()), toast: ch.desktop && !inQuietHours(p.dnd, now, timeZone), sound: p.sound },
+        }, now),
+      );
     }
-    const p = prefs.get(r.userId)!;
-    const ch = channelsFor(p, intent.kind);
-    d.emitter.publish({
-      ws: e.workspaceId,
-      rooms: [rooms.user(r.userId)],
-      event: 'notification.new',
-      data: { ...toNotificationDto(shown, r.locale, timeZone, now.getTime()), toast: ch.desktop && !inQuietHours(p.dnd, now, timeZone), sound: p.sound },
-    });
-    // Email chuyển phụ trách chỉ mang id thông báo — worker mail chiếu lại ngay trước khi gửi (không mang PII đã render).
-    if (ch.email && d.mail)
-      await d.mail.enqueue({ notification_id: row.id, workspace_id: e.workspaceId, user_id: r.userId, kind: intent.kind, params: notice ? {} : intent.params, link: notice ? null : row.link });
-    sent.push(r.userId);
-  }
-  return sent;
+    return { saved: pick.filter((r, i) => byId.get(rows[i]!.id)?.userId === r.userId).map((r) => r.userId), mails, rts };
+  });
+  for (const id of plan.rts) await publishRealtime(db, d.emitter, id, d.now()).catch(() => undefined);
+  if (d.mail) for (const id of plan.mails) await d.mail.wake({ ws: e.workspaceId, delivery_id: id, generation: 0 }).catch(() => undefined);
+  return plan.saved;
 }

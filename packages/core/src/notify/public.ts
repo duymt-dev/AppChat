@@ -3,7 +3,12 @@
 export { registerNotificationRule, registerRealtimeRule, notifyIntents, realtimeEnvelopes, type NotifyIntent } from './rules';
 export { NotifyPrefsService } from './services/prefs.service';
 export { listNotifications, toNotificationDto, NOTIFICATIONS_PAGE, NOTIFICATIONS_PAGE_MAX } from './services/notifications.service';
-export { deliverIntent, deterministicId, type MailJob, type MailQueue, type NotifierDeps } from './services/notifier';
+export { deliverIntent, deterministicId, type MailQueue, type NotifierDeps } from './services/notifier';
+export { deliverMail, type MailDeliveryDeps } from './delivery/mail';
+export { publishRealtime } from './delivery/realtime';
+export { claimMail, settleMail } from './delivery/store';
+export { recoverDeliveries, recoverAllDeliveries } from './jobs/delivery-recovery';
+export type { MailWakeup } from './delivery/types';
 export { resolveRecipients, type Recipient } from './services/recipients';
 export { notificationMail, notificationTitle } from './mail';
 export { notifyConsumer, realtimeConsumer } from './events/notify.consumers';
