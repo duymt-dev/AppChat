@@ -36,7 +36,8 @@ export function contextLine(c: AssistantContext | undefined, attachments: Assist
   if (c?.entity && c.id) lines.push(`- ${c.entity.slice(0, 40)}: ${c.id.slice(0, 80)}`);
   if (c?.selection?.length) lines.push(`- selection: ${c.selection.slice(0, 20).join(', ')}`);
   // `file_id` để model truyền vào action đọc / nhập tệp (transfer.plan, contract.inspect_file…) — id đã qua guard, không URL / nội dung.
-  if (attachments?.length) lines.push(`- attachments: ${attachments.map((a) => `${a.name.slice(0, 120)}${a.mime ? ` (${a.mime})` : ''} [file_id: ${a.id}]${a.handlers?.length ? ` → ${a.handlers.join('/')}${a.hints?.length ? ` (${a.hints.join('; ')})` : ''}` : ''}`).join(', ')}`);
+  // Tên tệp là dữ liệu người dùng (TIP-023f §2.6): bỏ ký tự điều khiển / ngoặc vuông để không giả được cú pháp ngữ cảnh.
+  if (attachments?.length) lines.push(`- attachments: ${attachments.map((a) => `${a.name.slice(0, 120).replace(/[\u0000-\u001f[\]]/g, ' ')}${a.mime ? ` (${a.mime})` : ''} [file_id: ${a.id}]${a.handlers?.length ? ` → ${a.handlers.join('/')}${a.hints?.length ? ` (${a.hints.join('; ')})` : ''}` : ''}`).join(', ')}`);
   return lines.length ? lines.join('\n') : fallback;
 }
 

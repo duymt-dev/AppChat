@@ -11,6 +11,8 @@ export interface RouteRow {
   model: string;
   /** Thế hệ cấu hình opaque của route (TIP-023e §1.2) — vắng ở test cũ, router lùi về khoá theo priority/model. */
   configRevision?: string;
+  /** Route đọc được ảnh (TIP-023f §3.2) — khai rõ ở `model_route.params.vision` cho ĐÚNG model đó; vắng = không (fail closed). */
+  vision?: boolean;
 }
 
 /** Nguồn cấu hình (core đọc DB nền tảng, cache 60 giây). */
@@ -28,7 +30,7 @@ export class LlmRouter implements ModelSource {
     private readonly build: typeof buildModel = buildModel,
   ) {}
 
-  async candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean }): Promise<ModelCandidate[]> {
+  async candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean; vision?: boolean }): Promise<ModelCandidate[]> {
     const routes = [...(await this.config.routes(tier, purpose))].sort((a, b) => a.priority - b.priority);
     const out: ModelCandidate[] = [];
     for (const r of routes) {
@@ -36,6 +38,8 @@ export class LlmRouter implements ModelSource {
       if (!p) continue;
       if (purpose === 'chat' && needs.tools && p.capabilities.tools === false) continue;
       if (purpose === 'embed' && !p.capabilities.embeddings) continue;
+      // Ảnh trong tin: chỉ route khai vision cho đúng model (provider vision=true chưa đủ — cùng provider có model chỉ đọc chữ).
+      if (needs.vision && (!r.vision || p.capabilities.vision === false)) continue;
       // Khoá cache theo thế hệ cấu hình opaque (TIP-023e §1.2) — xoay khoá cùng độ dài / đổi route params vẫn dựng lại handle;
       // vắng cả hai (test/mock cũ) mới lùi về độ dài key (phương án cũ, kém chặt nhưng không vỡ test hiện có).
       const k = `${p.key}\u0000${r.model}\u0000${purpose}\u0000${p.configRevision ?? ''}\u0000${r.configRevision ?? p.apiKey.length}`;

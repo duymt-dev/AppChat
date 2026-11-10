@@ -10,6 +10,7 @@ import { classifyAttemptError, type AttemptOutcome } from './attempts';
 import { outputTokens, requestBytes, REQUEST_MAX_BYTES } from './limits';
 import { liveStep } from './delta-stream';
 import { callKey, countCalls, resultPart, toJson } from './messages';
+import { hydrateMessages, stripMedia } from './input-parts';
 import type { AgentEngine, ModelCandidate, ModelSource, RunEvent, RunMessage, RunRequest, StopReason, ToolCallRef, ToolOutcome, ToolSpec } from './types';
 
 export const LOOP_LIMIT = 3;
@@ -125,9 +126,15 @@ export class AiSdkEngine implements AgentEngine {
 
   /** Một bước model: thử lần lượt các ứng viên; chuyển ứng viên khi lỗi đáng chuyển và chưa có chữ nào phát ra. */
   private async step(req: RunRequest, stepIdx: number, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
-    const candidates = await this.models.candidates(req.tier, 'chat', { tools: req.tools.length > 0 });
-    if (!candidates.length) throw new EngineError('NO_MODEL_ROUTE', `Chưa có model cho mức ${req.tier}`);
-    const bytes = requestBytes(req.system, messages, req.tools);
+    // TIP-023f §3.1-3.2: tham chiếu tệp dựng lại MỖI lần gửi (quyền / nguồn hiện hành), bản sao — tin lưu không chứa bytes.
+    const hydrated = await hydrateMessages(messages, req.inputs);
+    const candidates = await this.models.candidates(req.tier, 'chat', { tools: req.tools.length > 0, vision: hydrated.vision });
+    if (!candidates.length) {
+      if (hydrated.vision) throw new EngineError('VISION_UNAVAILABLE', `Chưa có model đọc được ảnh cho mức ${req.tier} — không gửi thiếu ảnh`);
+      throw new EngineError('NO_MODEL_ROUTE', `Chưa có model cho mức ${req.tier}`);
+    }
+    // Chữ (kể cả phần trích từ tệp) tính theo trần request; bytes ảnh inline đã giới hạn ở resolver (≤ 4 ảnh / cửa sổ, §2.2).
+    const bytes = requestBytes(req.system, stripMedia(hydrated.messages), req.tools);
     if (bytes > REQUEST_MAX_BYTES) throw new EngineError('REQUEST_TOO_LARGE', `Yêu cầu ${bytes} byte vượt trần ${REQUEST_MAX_BYTES} — rút gọn ngữ cảnh / bớt tool`);
     let last: unknown;
     for (let i = 0; i < candidates.length; i++) {
@@ -138,7 +145,7 @@ export class AiSdkEngine implements AgentEngine {
       let emitted = 0;
       const t0 = Date.now();
       try {
-        const r = await this.once(c, req, messages, tools, signal, (d) => {
+        const r = await this.once(c, req, hydrated.messages, tools, signal, (d) => {
           emitted++;
           onDelta(d);
         });
@@ -189,7 +196,7 @@ export class AiSdkEngine implements AgentEngine {
       else if (p.type === 'abort') throw Object.assign(new Error('aborted'), { name: 'AbortError' });
     }
     const response = await s.response;
-    return { text, calls, messages: toJson(response.messages) as RunMessage[], tokensIn, tokensOut, candidate: c, latencyMs: Date.now() - t0 };
+    return { text, calls, messages: stripMedia(toJson(response.messages) as RunMessage[]), tokensIn, tokensOut, candidate: c, latencyMs: Date.now() - t0 };
   }
 }
 

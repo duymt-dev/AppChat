@@ -15,7 +15,9 @@ const TITLE_MAX = 80;
 
 /** Trạng thái thẻ: `approval` = đã xác nhận nhưng governance chuyển sang duyệt — chưa thực hiện. */
 export type CardStatus = 'pending' | 'done' | 'cancelled' | 'approval';
-export type Part = { type: 'text'; text: string } | { type: 'card'; card: ConfirmEventDto; status: CardStatus } | { type: 'ui_command'; command: UiCommandDto } | StoredUiPart;
+/** `input` (TIP-023f §3.1): tham chiếu tệp đã buộc — chỉ id / revision / tên / loại; nội dung dựng lại khi gửi model, theo quyền hiện hành. */
+export type InputPart = { type: 'input'; artifact_id: string; revision: number; name: string; kind: string | null };
+export type Part = { type: 'text'; text: string } | { type: 'card'; card: ConfirmEventDto; status: CardStatus } | { type: 'ui_command'; command: UiCommandDto } | StoredUiPart | InputPart;
 type Db = Pick<TenantDb, 'assistantSession' | 'assistantMessage' | '$queryRaw'>;
 type Row = Awaited<ReturnType<TenantDb['assistantMessage']['findMany']>>[number];
 
@@ -78,11 +80,15 @@ const recent = (db: Db, sessionId: string, take: number) =>
 export async function historyMessages(db: Db, sessionId: string): Promise<RunMessage[]> {
   const out: RunMessage[] = [];
   for (const r of await recent(db, sessionId, HISTORY_LIMIT)) {
-    const text = partsOf(r.content)
+    const parts = partsOf(r.content);
+    const text = parts
       .map((p) => (p.type === 'text' ? p.text : p.type === 'card' ? `[${p.card.action_id}: ${p.card.title} — ${p.status}]` : p.type === 'ui' ? '[ui]' : ''))
       .filter(Boolean)
       .join('\n');
-    if (text) out.push({ role: r.role === 'user' ? 'user' : 'assistant', content: text });
+    const inputs = r.role === 'user' ? parts.filter((p): p is InputPart => p.type === 'input') : [];
+    // Tin có tệp: chữ + tham chiếu `appchat-input` (engine dựng nội dung trước mỗi lời gọi, kiểm lại quyền) — không bao giờ bytes.
+    if (inputs.length) out.push({ role: 'user', content: [...(text ? [{ type: 'text', text }] : []), ...inputs.map((p) => ({ type: 'appchat-input', artifact_id: p.artifact_id, revision: p.revision }))] });
+    else if (text) out.push({ role: r.role === 'user' ? 'user' : 'assistant', content: text });
   }
   return out;
 }
@@ -95,6 +101,7 @@ const dto = (r: Row): AssistantMessageDto[] =>
       role: r.role === 'user' ? ('user' as const) : ('ai' as const),
       text: p.type === 'text' ? p.text : '',
       ...(p.type === 'card' ? { card: p.card, status: p.status } : {}),
+      ...(p.type === 'input' ? { attachment: { artifact_id: p.artifact_id, name: p.name, kind: p.kind } } : {}),
       run_id: r.runId,
     }));
 

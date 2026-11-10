@@ -20,6 +20,8 @@ const turnBody = z.object({
     .object({ route: z.string().max(300).optional(), entity: z.string().max(40).optional(), id: z.string().max(80).optional(), selection: z.array(z.string().max(80)).max(50).optional(), surface: z.enum(['drawer', 'assistant']).optional() })
     .optional(),
   attachments: z.array(z.object({ id: z.string().max(80), name: z.string().max(200) })).max(10).optional(),
+  /** TIP-023f: tệp đã chuẩn bị qua assistant.attachment_prepare — handle + revision (server kiểm lại chủ / ready / nguồn). */
+  inputs: z.array(z.object({ artifact_id: z.string().uuid(), revision: z.number().int().min(1) })).max(5).optional(),
   /** Khoá idempotent của lượt (TIP-023c) — gửi lại cùng khoá → cùng run. */
   request_id: z.string().min(8).max(80).regex(/^[A-Za-z0-9_-]+$/).optional(),
 });
@@ -68,6 +70,7 @@ export class AssistantController {
       ...(b.tier ? { tier: b.tier } : {}),
       ...(b.context ? { context: b.context } : {}),
       ...(b.attachments ? { attachments: b.attachments } : {}),
+      ...(b.inputs?.length ? { inputs: b.inputs } : {}),
       ...(b.request_id ? { requestId: b.request_id } : {}),
     };
     if (!String(req.headers.accept ?? '').includes('text/event-stream')) return { data: await this.svc.turn(c, q) };

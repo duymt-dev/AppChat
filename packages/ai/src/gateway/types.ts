@@ -10,6 +10,23 @@ export type RunMessage = Record<string, unknown> & { role: 'system' | 'user' | '
 
 export type JsonSchema = Record<string, unknown>;
 
+// TIP-023f §3.1: tham chiếu tệp trong tin + resolver dựng nội dung trước mỗi lời gọi (logic ở input-parts.ts).
+/** Phần tham chiếu trong `content` của tin user (thay cho bytes). */
+export interface InputRefPart {
+  type: 'appchat-input';
+  artifact_id: string;
+  revision: number;
+}
+
+/** Kết quả dựng một tham chiếu — chữ đã giới hạn (có locator) và / hoặc ảnh inline. */
+export type HydratedPart = { type: 'text'; text: string } | { type: 'image'; image: Uint8Array; mediaType: 'image/png' | 'image/jpeg' };
+
+export interface InputResolver {
+  /** Dựng các tham chiếu (theo thứ tự). Thiếu quyền / bị quên / đổi revision → một phần chữ báo không khả dụng. */
+  hydrate(refs: readonly InputRefPart[]): Promise<HydratedPart[][]>;
+}
+
+
 export type ToolOutcome =
   | { kind: 'ok'; output: unknown }
   /** `canonicalInput`: input đã chuẩn hoá (mã → id) mà token gắn — xác nhận phải chạy đúng input này (TIP-023b R1.6). */
@@ -46,7 +63,7 @@ export interface ModelCandidate {
 }
 
 export interface ModelSource {
-  candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean }): Promise<ModelCandidate[]>;
+  candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean; vision?: boolean }): Promise<ModelCandidate[]>;
 }
 
 export interface ToolCallRef {
@@ -109,6 +126,8 @@ export interface RunRequest {
   /** Trần chữ ra mỗi lời gọi (mặc định 2048, tối đa 8192 — TIP-019b §1.4). */
   maxOutputTokens?: number;
   hooks?: RunHooks;
+  /** TIP-023f §3.1: dựng tham chiếu tệp (`appchat-input`) ngay trước mỗi lời gọi thật — vắng → tham chiếu thành chữ "không khả dụng". */
+  inputs?: InputResolver | null;
 }
 
 export type StopReason = 'stop' | 'max_steps' | 'loop_guard' | 'budget' | 'cancelled';

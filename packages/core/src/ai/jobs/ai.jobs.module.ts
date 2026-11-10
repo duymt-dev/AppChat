@@ -24,6 +24,7 @@ import { CreditMeter } from '../../billing/public';
 import { BillingModule } from '../../billing/billing.module';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { FilesService } from '../../kernel/files/files.service';
+import { STORAGE, type Storage } from '../../kernel/files/storage';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
@@ -76,6 +77,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Optional() @Inject(TASK_QUEUE) private readonly taskQueue: TaskQueue | null,
     @Optional() @Inject(WalletService) private readonly wallet: WalletService | null,
     @Optional() @Inject(GenUiIntents) private readonly intents: GenUiIntents | null,
+    @Optional() @Inject(STORAGE) private readonly storage: Storage | null = null,
   ) {}
 
   /** AuthzContext hiện tại của người ra lệnh (thành viên còn hoạt động) — §3.3b kiểm lại khi chạy action đã duyệt. */
@@ -113,11 +115,11 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
         registerResumeExpired('agent_reply', (db, run, x, ws) => handoffAfterApproval({ kv: x.kv, now: x.now }, db, ws, run, 'approval_expired'));
         // TIP-023: run Trợ lý dừng vì delegate / tool cần duyệt → chạy tiếp với quyền hiện tại của người ra lệnh.
         registerResumeSpec('assistant', async (db, run, x, ws) =>
-          assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now, discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(redis, this.intents?.derive('discovery-cache')) } }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),
+          assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now, discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(redis, this.intents?.derive('discovery-cache')) }, storage: this.storage }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),
         );
         this.reply = startAgentReplyWorker(redis, reply, this.log);
         // TIP-023c: lượt Trợ lý đã claim ở API → chạy ở đây (lease có fence, quyền hiện hành của người ra lệnh).
-        this.turns = startAssistantTurnWorker(redis, { ...deps, runner: this.runner, intents: this.intents, pub: redis, discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(redis, this.intents?.derive('discovery-cache')) } }, this.log);
+        this.turns = startAssistantTurnWorker(redis, { ...deps, runner: this.runner, intents: this.intents, pub: redis, discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(redis, this.intents?.derive('discovery-cache')) }, storage: this.storage }, this.log);
       }
       // TIP-043: đề xuất hỏi–đáp từ hội thoại đã đóng (model qua AiRunner, ghi qua Executor nguồn system).
       // TIP-037: phân tích marketing (gợi ý chiến dịch) — model ở đây, ghi gợi ý qua action hệ thống.

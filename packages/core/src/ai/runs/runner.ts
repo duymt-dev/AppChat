@@ -2,7 +2,7 @@
 // (DB nền tảng, idempotent `runId:stepIdx`) rồi mới ghi `ai_run_step(llm)` + `credits_used` ở DB tenant; bước tool ghi
 // `ai_run_step(tool)`. Tool cần người → `waiting_approval` + `state` (không giữ RAM); `resume` nạp state ở bất kỳ process nào.
 // Huỷ: `run.cancel` đổi trạng thái cả cây + phát lệnh huỷ (pub/sub) → runner đang chạy run đó dừng ở bước kế tiếp.
-import { resumeMessages, type AgentEngine, type PausedState, type RunEvent, type RunMessage, type ToolOutcome, type ToolSpec } from '@appchat/ai';
+import { resumeMessages, type AgentEngine, type InputResolver, type PausedState, type RunEvent, type RunMessage, type ToolOutcome, type ToolSpec } from '@appchat/ai';
 import { recordLlmError, recordLlmUsage } from '../../kernel/metrics/ai';
 import { AppError, utcToWall } from '@appchat/shared';
 import type { CreditMeter } from '../../billing/public';
@@ -25,6 +25,8 @@ export interface RunSpec {
   source: string;
   /** Sự kiện engine của riêng lượt này (Trợ lý stream delta — TIP-023c); không ảnh hưởng ghi run. */
   onEvent?: (e: RunEvent) => void;
+  /** TIP-023f §3.1: dựng tham chiếu tệp trước mỗi lời gọi thật (quyền / nguồn hiện hành) — dùng cho lượt đầu, chạy tiếp, xác nhận. */
+  inputs?: InputResolver | null;
 }
 
 export interface RunResult {
@@ -121,6 +123,7 @@ export class AiRunner {
           maxSteps: spec.maxSteps,
           budget: { maxCredits: run.maxCredits ?? DEFAULT_RUN_BUDGET, spent: metered ? run.subtreeCredits : run.creditsUsed },
           startStep,
+          ...(spec.inputs ? { inputs: spec.inputs } : {}),
           hooks: metered
             ? {
                 beforeStep: async () => {
