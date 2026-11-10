@@ -63,7 +63,7 @@ export { listApprovals, isApprovalTab, type ApprovalTab } from './approvals/appr
 export { approvalPermissionOf } from './approvals/approval-permission';
 export { DbApprovalGateway } from './approvals/approval.gateway';
 export { ResumeQueue, AI_RESUME_QUEUE, type ResumeJob } from './approvals/resume.queue';
-export { continueParents, resumeApproval, registerResumeSpec, registerResumeFinish, type ResumeDeps } from './approvals/resume';
+export { continueParents, resumeApproval, registerResumeSpec, registerResumeFinish, resumeSpecOf, type ResumeDeps } from './approvals/resume';
 export { childOutcome } from './runs/child-continuation';
 export { governanceDto, readGovernance, defaultGovernance } from './governance/governance';
 export { AgentReplyQueue, AGENT_REPLY_QUEUE, REPLY_DEBOUNCE_MS, type ReplyJob } from './reply/reply.queue';

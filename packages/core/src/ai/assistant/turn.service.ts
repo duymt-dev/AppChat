@@ -39,6 +39,7 @@ import { appendMessage, historyMessages, markCard, openSession, ownSession, type
 export const TURN_REQUESTED = 'assistant.turn_requested';
 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
+const ALIAS_ACTION: Record<string, string> = { [ASSISTANT_TOOLS.plan]: 'assistant.plan_propose', [ASSISTANT_TOOLS.query]: 'insight.query' };
 
 export interface AssistantDeps {
   executor: ToolExecutor;
@@ -119,7 +120,8 @@ async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | '
   const paused = r.paused?.outcome;
   if (r.status === 'waiting_approval' && paused?.kind === 'needs_confirmation') {
     const call = r.paused!.state.pendingToolCall.input as { action_id?: string };
-    const def = DEFS.get(call.action_id ?? '');
+    // Alias meta-tool không mang action_id trong input (`plan` → assistant.plan_propose — TIP-023d §1.4) — tra theo tên tool.
+    const def = DEFS.get(call.action_id ?? ALIAS_ACTION[r.paused!.state.pendingToolCall.toolName] ?? '');
     if (def) {
       const card = confirmCard(def, paused.preview, paused.confirmToken, locale, r.paused!.state.canonicalInput ?? (call as { input?: unknown }).input ?? {});
       await bindToken(d.kv, paused.confirmToken, run.id);
@@ -293,7 +295,8 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const { run, state, input: canonical } = await takePending(d.kv, db, d.now, q.userId, q.token);
   const store = new RunStore(db, d.now);
   const input = run.input as unknown as AssistantRunInput;
-  const call = state.pendingToolCall.input as { action_id: string; input?: unknown };
+  const raw = state.pendingToolCall.input as { action_id?: string; input?: unknown };
+  const call = { ...raw, action_id: raw.action_id ?? ALIAS_ACTION[state.pendingToolCall.toolName] ?? '' };
   const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
 
   let outcome: ToolOutcome;

@@ -141,7 +141,7 @@ async function proposePlan(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepI
 /** `update_step` (§1.5): KHÔNG còn ghi trạng thái theo lời model — chỉ đọc tiến độ thật của plan đang gắn run hiện hành
  *  (receipt đã admitted, không phải lời model tự nhận "done"). Chưa propose plan nào ở lượt này → báo rõ, không giả 404 im lặng. */
 async function stepProgress(d: MetaDeps, t: AssistantTurnCtx): Promise<ToolOutcome> {
-  const found = await planOfRoot(d.db, t.userId, t.runId);
+  const found = await planOfRoot(d.db, t.userId, t.runId, t.sessionId);
   if (!found) return err('NOT_FOUND', 'Chưa có kế hoạch nào gắn với lượt này — gọi plan để tạo trước');
   return ok({
     plan_id: found.plan.id,

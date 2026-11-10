@@ -55,8 +55,10 @@ export async function ownPlan(tx: PlansDb, ownerUserId: string, planId: string):
 }
 
 /** Plan hiện đang gắn root run này (null nếu chưa propose) — dùng cho `update_step` đọc tiến độ thật (§1.5, chỉ đọc). */
-export async function planOfRoot(db: PlansDb, ownerUserId: string, rootRunId: string): Promise<{ plan: PlanRow; steps: PlanStepRow[] } | null> {
-  const plan = await db.assistantPlan.findUnique({ where: { rootRunId } });
+export async function planOfRoot(db: PlansDb, ownerUserId: string, rootRunId: string, sessionId?: string): Promise<{ plan: PlanRow; steps: PlanStepRow[] } | null> {
+  const bound = await db.assistantPlan.findUnique({ where: { rootRunId } });
+  // Lượt sau cùng phiên (run mới) hỏi tiến độ → plan còn sống mới nhất của phiên; đi index assistant_plan_owner_idx (owner, updated_at).
+  const plan = bound ?? (sessionId ? await db.assistantPlan.findFirst({ where: { ownerUserId, sessionId, phase: { notIn: ['completed', 'cancelled', 'failed'] } }, orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }] }) : null);
   if (!plan || plan.ownerUserId !== ownerUserId) return null;
   const steps = await db.assistantPlanStep.findMany({ where: { planId: plan.id }, orderBy: { position: 'asc' } });
   return { plan, steps };

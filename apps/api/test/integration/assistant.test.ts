@@ -210,10 +210,11 @@ describe('lượt hội thoại (AC3)', () => {
   });
 
   it('plan: alias gọi canonical assistant.plan_propose → thẻ xác nhận, confirm → assistant_plan commit revision 1 gắn root_run_id; update_step đọc tiến độ thật, không nhận status từ model; query_data metric lạ → VALIDATION_FAILED (allowlist, TIP-038), metric hợp lệ → kết quả', async () => {
-    const script: MockScript = ({ call: n }) =>
-      n === 0
+    // Confirm dựng deps mới (bộ đếm call về 0) → chọn lượt theo tool vừa chạy, không theo số lượt.
+    const script: MockScript = ({ lastTool }) =>
+      !lastTool
         ? { tool: 'plan', input: { steps: [{ kind: 'analysis', title: 'Lọc khách', instructions: 'Lọc khách theo tiêu chí' }, { kind: 'analysis', title: 'Soạn tin', instructions: 'Soạn tin nhắn', depends_on: ['1'] }] } }
-        : n === 1
+        : lastTool.tool === 'plan'
           ? { tools: [{ tool: 'query_data', input: { metric: 'revenue' } }, { tool: 'query_data', input: { metric: 'sales.booked', params: { bucket: 'week' } } }] }
           : { text: 'ok' };
     const r = await turn(script, { text: 'lập kế hoạch' });
@@ -241,8 +242,8 @@ describe('lượt hội thoại (AC3)', () => {
     const step1 = await db.aiRunStep.findFirstOrThrow({ where: { runId: r1.run_id!, actionId: 'update_step' } });
     expect(step1.output).toMatchObject({ kind: 'error', code: 'NOT_FOUND' });
 
-    const script2: MockScript = ({ call: n }) =>
-      n === 0 ? { tool: 'plan', input: { steps: [{ kind: 'analysis', title: 'Rà soát', instructions: 'Rà soát dữ liệu' }] } } : { text: 'ok' };
+    const script2: MockScript = ({ lastTool }) =>
+      !lastTool ? { tool: 'plan', input: { steps: [{ kind: 'analysis', title: 'Rà soát', instructions: 'Rà soát dữ liệu' }] } } : { text: 'ok' };
     const r2 = await turn(script2, { text: 'lập kế hoạch rà soát' });
     const card2 = r2.events.find((e) => e.type === 'confirm') as { confirm_token: string };
     await assistantConfirm(deps(script2), db, { ws: h.ws, userId: h.user, authz: authzForRole('owner', h.user), token: card2.confirm_token, decision: 'confirm' });

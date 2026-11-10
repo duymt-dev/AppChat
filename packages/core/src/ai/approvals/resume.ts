@@ -39,6 +39,8 @@ type SpecFn = (db: TenantDb, run: RunRow, d: ResumeDeps, ws: string) => Promise<
 /** Dựng lại system + tool khi chạy tiếp, theo loại run. TIP-023 (Trợ lý) / 035 (Cowork) đăng ký loại của mình. */
 const SPECS = new Map<string, SpecFn>();
 export const registerResumeSpec = (kind: string, fn: SpecFn) => SPECS.set(kind, fn);
+/** Spec chạy tiếp đã đăng ký cho loại run (kiểm ghép DI ở worker — không dùng ở đường chạy). */
+export const resumeSpecOf = (kind: string): SpecFn | undefined => SPECS.get(kind);
 
 /** Run của agent (trực kênh / được giao): cấu hình theo phiên bản đã chạy, tool = quyền agent ∩ người ra lệnh. */
 const agentSpec: SpecFn = async (db, run, d, ws) => {
