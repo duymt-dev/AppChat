@@ -18,8 +18,8 @@
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 396 | 37 | 1 | 4 | 18 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 58 | 0 | 28 | 0 | 2 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 76 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
-| **Tổng** | **1191** | **109** | **32** | **49** | **108** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 76 | 7 | 1 | 14 | 25 | 2 | 0 | 0 |
+| **Tổng** | **1191** | **110** | **32** | **49** | **107** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1634,7 +1634,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-023-1 | `preview` cụ thể cho mọi handler ghi (thay thẻ mặc định DC-128) | reports/TIP-023-completion.md:43 | 023b | ĐẠT | PREVIEW_DEBT rỗng (packages/core/test/assistant-coverage.test.ts) |
 | DEF-023-2 | Màn lịch sử phiên Trợ lý dùng `GET /assistant/sessions` | reports/TIP-023-completion.md:41 | 023c | ĐẠT | apps/web/src/features/assistant/components/SessionBrowser.tsx + HistoryButton.tsx gọi GET /assistant/sessions (keyset + tìm trigram); test assistant-sessions.test.ts, e2e screen-assistant.spec.ts lịch sử trò chuyện (PD-009) |
 | DEF-023-3 | `query_data` thật qua `insight.query` | reports/TIP-023-completion.md:42 | 038 | ĐẠT | meta-tools.ts query_data = insight.query qua executor; integration assistant.test.ts + insights.test.ts AC01 |
-| DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | 023e | CHƯA | DC-129 bản từ khoá; TIP-023b không ghi embedding |
+| DEF-023-4 | `find_actions` tìm bằng embedding description (Blueprint §5.2, DC-129) | reports/TIP-023-completion.md:37 | 023e | MỘT PHẦN | corpus.ts buildCorpus() dựng kho văn bản xác định (document/schema hash, corpus_hash) + schema action-discovery.prisma (generation/document, vector 1536) — PR #172; chưa có build processor/query/ranking/metering thật, find_actions vẫn chỉ từ khoá |
 | DEF-023-5 | 7 drawer "Trợ lý AI · [module]" + hộp lệnh Hộp thư gọi Trợ lý thật (REQ-E06) | reports/TIP-023-completion.md:46 | 023c | ĐẠT | 7 drawer + Agents + Hộp thư gửi lượt thật qua useScreenAssistant / useDrawerAsk (apps/web/src/shared/assistant/useDrawerAsk.ts), bỏ regex / ack; test e2e screen-assistant.spec.ts (mock) + e2e/http/screen-assistant.spec.ts |
 | DEF-023-6 | Action đọc `search` / `get` từng bản ghi + khuôn input lồng nhau + `pnpm ai:live` | reports/TIP-023-completion.md:46 | 023b | ĐẠT | Action đọc search/get (packages/actions/src/reads/*) + khuôn lồng nhau (schema-brief.ts) + pnpm ai:live 27/30 (reports/ai-live-2026-11-03.md) |
 | DEF-024-1 | Lịch hoạt động tuỳ chỉnh agent theo ngày / ca (`custom`) | reports/TIP-024-completion.md:35 | 022b | ĐẠT | custom dùng weekly_schedule có cấu trúc (agent.runtime withinHours → inSchedule); custom cũ chưa lịch = needs_configuration; test agent-schedules; coding-packs/reports/TIP-022b-completion.md |
