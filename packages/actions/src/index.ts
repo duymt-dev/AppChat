@@ -81,10 +81,12 @@ import * as inboxTranslation from './inbox-translation';
 import * as privacy from './privacy';
 import * as assistantPlans from './assistant-plans';
 import * as assistantDiscovery from './assistant-discovery';
+import * as assistantInput from './assistant-input';
 
 export * from './define';
 export * from './assistant-plans';
 export * from './assistant-discovery';
+export * from './assistant-input';
 export * from './assistant-ui';
 export * from './identity';
 export * from './onboarding';
@@ -254,6 +256,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(privacy),
   ...Object.values(assistantPlans),
   ...Object.values(assistantDiscovery),
+  ...Object.values(assistantInput),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

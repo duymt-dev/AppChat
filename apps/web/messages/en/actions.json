@@ -1496,6 +1496,22 @@
     "discovery_prepare": {
       "title": "Prepare semantic action search",
       "desc": "Build the semantic action-search index for this workspace — a background job, only needed when keyword search falls short; no effect on customer data."
+    },
+    "attachment_prepare": {
+      "title": "Prepare Assistant attachment",
+      "desc": "Bind an uploaded file to the draft and extract bounded content for the Assistant to read — no analysis or import."
+    },
+    "attachment_remove": {
+      "title": "Remove draft attachment",
+      "desc": "Detach an unsent file from the draft — never deletes the source file or sent history."
+    },
+    "attachment_get": {
+      "title": "View attachment status",
+      "desc": "Preparation status of an attachment in the current Assistant context."
+    },
+    "attachment_read": {
+      "title": "Read attachment content",
+      "desc": "Read the next content segments of the turn's file with page / row locators to cite."
     }
   },
   "sales_settings": {
