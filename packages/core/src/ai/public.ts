@@ -10,6 +10,14 @@ export { openAttempt, recordOutcome, rawCost, groupId as usageGroupId } from './
 export { settleReceipt } from './runs/usage-settlement';
 export { recoverUsage, USAGE_RECOVERY_GRACE_MS } from './runs/usage-recovery';
 export { trustedParent, existingChild, reuseChild, type TrustedParent } from './runs/run-lineage';
+// TIP-023e: discovery theo ngữ nghĩa — async service (find_actions thật); keyword `findActions` (catalog) chỉ là nhánh fallback có tên.
+export { runFindActions, type DiscoveryRuntime } from './assistant/discovery/find-tool';
+export { discoverActions, type DiscoveryResult, type DiscoveryMeta } from './assistant/discovery/service';
+export { buildCorpus } from './assistant/discovery/corpus';
+export { claimGeneration, findGeneration } from './assistant/discovery/generation';
+export { buildGeneration } from './assistant/discovery/build.processor';
+export { DiscoveryCache, discoveryCacheOf } from './assistant/discovery/cache';
+export { redactSensitiveQueryInput } from '../authz/fields/history-provenance';
 export { meteredEmbed, queryEmbedder, claimEmbedStep, isMeteringStop, type EmbedMeter, type QueryEmbed } from './runs/metered-embedding';
 export { embedChunks } from './kb/ingest-usage';
 export { expiryDelivery, EXPIRY_ONCE } from './approvals/expiry-delivery';
