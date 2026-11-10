@@ -32,6 +32,7 @@ import { ExecutionLease, execStateOf } from './genui/execution-lease';
 import { ASSISTANT_ARMED_KEY, failTurn } from './genui/recovery';
 import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
+import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
 
 /** Outbox: lượt đã claim, chờ ROLE=ai chạy (genui/turn-request.consumer). */
@@ -50,6 +51,8 @@ export interface AssistantDeps {
   intents?: GenUiIntents | null;
   /** Phát sự kiện lượt (Redis pub/sub) cho SSE — sự kiện luôn ghi sổ trước (TIP-023c). */
   pub?: Publisher | null;
+  /** TIP-023e: route embed + ví cho find_actions theo ngữ nghĩa — dùng chung lượt đầu và chạy tiếp. */
+  discovery?: DiscoveryRuntime | null;
 }
 
 export interface TurnRequest {
@@ -77,10 +80,10 @@ async function tierOf(d: Pick<AssistantDeps, 'planKey'>, db: TenantDb, ws: strin
   return 'standard';
 }
 
-type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now'>;
+type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery'>;
 
 function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
-  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant' };
+  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant' };
 }
 
 /** Dựng lại system + tool của run `assistant` từ `ai_run.input` với quyền HIỆN TẠI của người ra lệnh (job `ai-resume`). */
@@ -189,7 +192,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   }
 }
 
-export type RunDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'kv' | 'now' | 'intents' | 'pub'>;
+export type RunDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'kv' | 'now' | 'intents' | 'pub' | 'discovery'>;
 
 /**
  * Bước 2 của lượt (worker ROLE=ai; trong tiến trình khi không có hàng đợi): nhận lease có fence → chạy run `queued` với quyền HIỆN HÀNH

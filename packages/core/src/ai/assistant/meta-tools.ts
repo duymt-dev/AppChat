@@ -17,6 +17,7 @@ import type { ActionContext } from '../../kernel/actions/action-context';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
 import { secretValuesPresent, stripSecrets } from '../../kernel/actions/secret-fields';
 import { allowedFor, briefSchema, exampleInput, findActions, modeAllows } from './catalog';
+import { runFindActions, type DiscoveryRuntime } from './discovery/find-tool';
 import { resolveCodes } from './code-refs';
 import { pinVersion } from './version-pin';
 import { aiCustomErrors, withCustomSchema } from './custom-schema';
@@ -65,6 +66,8 @@ interface PlanStepIn {
 export interface MetaDeps extends DelegateDeps {
   db: TenantDb;
   executor: ToolExecutor;
+  /** TIP-023e: route embed + ví — vắng thì find_actions luôn keyword fallback (no_model_route). */
+  discovery?: DiscoveryRuntime | null;
 }
 
 /** Ngữ cảnh action của Trợ lý: quyền = quyền người dùng (§3.3b), run / bước để log nối về run. */
@@ -156,9 +159,9 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       origin: 'meta',
       execute: async (input) => {
         const i = (input ?? {}) as { query?: unknown; module?: unknown };
-        const found = findActions(t.authz, t.mode, String(i.query ?? '').slice(0, 200), typeof i.module === 'string' ? i.module : undefined, undefined, implementedBy(d.executor));
+        const r = await runFindActions(d, t, { query: String(i.query ?? ''), ...(typeof i.module === 'string' ? { module: i.module } : {}) }, implementedBy(d.executor));
         // Ô `custom` → trường tuỳ biến hiện hành của workspace mà người dùng được ghi (SPEC A.5).
-        return ok({ actions: await Promise.all(found.map(async (a) => ({ ...a, input: await withCustomSchema(d.db, a, a.input, roleOf(t)) }))) });
+        return ok({ actions: await Promise.all(r.actions.map(async (a) => ({ ...a, input: await withCustomSchema(d.db, a, a.input, roleOf(t)) }))), discovery: r.discovery });
       },
     },
     {
