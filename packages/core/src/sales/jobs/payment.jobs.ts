@@ -4,10 +4,9 @@
 // còn 1 buổi ngay). Lỗi một workspace không chặn workspace khác.
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { EventConsumer } from '../../kernel/events/consumer';
-import type { CrmMembers } from '../../crm/public';
-import type { Outgoing } from '../../inbox/public';
-import type { QuoteDeps } from '../quotes/services/quote-deps';
-import { expireDuePackages } from '../payments/services/packages';
+import type { ActionExecutor } from '../../kernel/actions/executor';
+import type { SalesSystemDeps } from '../system/dispatch';
+import { expirePackages as expireDuePackages } from '../system/dispatch';
 import { remindPackages, remindRemaining } from '../payments/services/package-reminders';
 import { markOverdue, packagesOnConfirm, remindDue } from '../payments/services/payment-system';
 
@@ -17,10 +16,9 @@ export const PAYMENT_SWEEP_EVERY_MS = 30 * 60_000;
 export interface PaymentSweepDeps {
   platform: Pick<PlatformDb, 'workspace'>;
   tenants: TenantDbResolver;
-  quotes: QuoteDeps;
-  members: CrmMembers;
+  /** TIP-003c: chuyển trạng thái chạy qua action riêng (invoice / package.system_transition) — nhắc tự đẩy hàng gửi sau commit. */
+  executor: Pick<ActionExecutor, 'execute'>;
   now: () => Date;
-  enqueue: (ws: string, o: Outgoing) => Promise<void>;
   onError?: (ws: string, err: unknown) => void;
 }
 
@@ -31,9 +29,10 @@ export async function sweepPayments(d: PaymentSweepDeps) {
     try {
       const db = await d.tenants.get(TenantContexts.system(w.id, PAYMENT_SWEEP_JOB));
       const now = d.now();
-      total.overdue += await markOverdue(db, w.id, now, w.timezone);
-      total.reminded += await remindDue(db, w.id, now, w.timezone, d.quotes, d.members, (o) => d.enqueue(w.id, o));
-      total.expired += await expireDuePackages(db, w.id, now);
+      const sys = { executor: d.executor, tenants: d.tenants, onError: (_id: string, err: unknown) => d.onError?.(w.id, err) };
+      total.overdue += await markOverdue(db, w.id, now, w.timezone, sys);
+      total.reminded += await remindDue(db, w.id, now, w.timezone, sys);
+      total.expired += await expireDuePackages(db, w.id, now, sys);
       total.packageReminders += await remindPackages(db, w.id, now, w.timezone);
     } catch (err) {
       d.onError?.(w.id, err);
@@ -42,12 +41,13 @@ export async function sweepPayments(d: PaymentSweepDeps) {
   return total;
 }
 
-export const paymentPackagesConsumer = (now: () => Date, timeZoneOf: (ws: string) => Promise<string>): EventConsumer => ({
+export const paymentPackagesConsumer = (now: () => Date, timeZoneOf: (ws: string) => Promise<string>, sys: Omit<SalesSystemDeps, 'onError'>): EventConsumer => ({
   name: 'sales.payment-packages',
   topics: ['order.confirmed', 'appointment.completed'],
   async handle(e, db) {
     const p = e.payload as { order_id?: string; package_id?: string | null };
-    if (e.topic === 'order.confirmed' && p.order_id) await packagesOnConfirm(db, e.workspaceId, p.order_id, now());
+    // Cấp liệu trình qua action riêng — nguồn là event đã lưu (verifier đọc lại outbox), lỗi ném lại để consumer thử lại.
+    if (e.topic === 'order.confirmed' && p.order_id) await packagesOnConfirm({ ...sys, onError: (_id, err) => { throw err; } }, e.workspaceId, e.id, p.order_id);
     if (e.topic === 'appointment.completed' && p.package_id) await remindRemaining(db, e.workspaceId, p.package_id, now(), await timeZoneOf(e.workspaceId));
   },
 });

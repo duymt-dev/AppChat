@@ -3,20 +3,16 @@
 // hạn = hôm sinh + `valid_days`). Đọc ẢNH CHỤP trên dòng đơn (không tra danh mục hiện tại); dòng chưa có ảnh chụp (đơn cũ) đọc sản
 // phẩm như trước. Gọi khi thu tiền và khi đơn được xác nhận (consumer `order.confirmed`). Idempotent theo dòng đơn (unique partial
 // `order_item_id`); đơn đã có gói cũ theo (đơn, sản phẩm) — `legacy_product` — không sinh thêm cho sản phẩm đó (không chia / nhân gói).
-// Trừ buổi theo lịch hẹn: TIP-033 (`package_usage`). Quét hết hạn: `expireDuePackages`. Nhắc gia hạn: `package-reminders.ts`.
-import type { TenantDb } from '@appchat/db';
+// Trừ buổi theo lịch hẹn: TIP-033 (`package_usage`). Quét hết hạn: action riêng `package.system_transition` (sales/system — TIP-003c). Nhắc gia hạn: `package-reminders.ts`.
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
-import { writeOutbox } from '../../../kernel/outbox/outbox';
 import { writeTimeline } from '../../../crm/public';
 import type { Actor } from '../../orders/services/order-write';
-import { inEventTransaction } from '../../../kernel/outbox/transaction';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
 type OrderLike = { id: string; code: string; contactId: string; status: string; payStatus: string; total: bigint; paidTotal: bigint; depositRequired: boolean };
 
 const DAY = 86_400_000;
-const BATCH = 200;
 
 type Line = { id: string; productId: string; name: string; qty: unknown; sessions: number | null; validDays: number | null; onDeposit: boolean };
 
@@ -68,21 +64,4 @@ export function packageStatusOf(p: { status: string; totalSessions: number; used
   if (p.usedSessions >= p.totalSessions) return 'exhausted' as const;
   if (p.expiresAt && p.expiresAt < now) return 'expired' as const;
   return 'active' as const;
-}
-
-/** Quét gói đang dùng đã quá hạn → expired (khoá). Trả số gói đã chuyển. */
-export async function expireDuePackages(db: TenantDb, ws: string, now: Date): Promise<number> {
-  const due = await db.customerPackage.findMany({ where: { status: 'active', expiresAt: { lt: now } }, select: { id: true }, take: BATCH });
-  let n = 0;
-  for (const { id } of due) {
-    const done = await inEventTransaction(db, ws, async (tx) => {
-      const r = await tx.customerPackage.updateMany({ where: { id, status: 'active', expiresAt: { lt: now } }, data: { status: 'expired', updatedAt: now } });
-      if (r.count !== 1) return false;
-      const p = (await tx.customerPackage.findUnique({ where: { id } }))!;
-      await writeOutbox(tx, ws, [{ topic: 'package.expired', payload: { package_id: id, contact_id: p.contactId } }], now);
-      return true;
-    });
-    if (done) n++;
-  }
-  return n;
 }

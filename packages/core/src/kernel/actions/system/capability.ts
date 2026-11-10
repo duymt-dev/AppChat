@@ -18,6 +18,9 @@ export interface SystemCapability {
   generation: string;
   milestone: string;
   inputDigest: string;
+  /** `trigger`: biên nhận bền system_action_receipt (mặc định); `domain`: action có khoá chống lặp riêng của domain đã duyệt (lease /
+   *  trạng thái biên nhận / token) và CỐ Ý gọi lặp — không ghi biên nhận trigger (sẽ phát lại kết quả cũ mãi). */
+  receipt: 'trigger' | 'domain';
 }
 
 const SEALED = new WeakMap<ActionContext, Readonly<SystemCapability>>();

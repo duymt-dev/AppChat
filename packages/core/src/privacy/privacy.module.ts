@@ -18,6 +18,7 @@ const HANDLERS = [ContactForgetHandler, ContactPrivacyPreviewHandler, ContactPri
 export class PrivacyModule implements OnModuleInit {
   /** TIP-003c: verifier nguồn cho action riêng `privacy.cleanup_step`. */
   onModuleInit(): void {
-    registerSystemVerifier('privacy.cleanup_step', verifyPrivacyCleanup);
+    // 015c: gọi lặp tiến từng bước, lease_epoch CAS là khoá chống lặp (domain).
+    registerSystemVerifier('privacy.cleanup_step', verifyPrivacyCleanup, { receipt: 'domain' });
   }
 }

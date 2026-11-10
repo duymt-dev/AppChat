@@ -12,6 +12,7 @@ import type { QuoteDeps } from './quote-deps';
 import { readQuoteToken } from './quote-link';
 import { aiRuns, quoteInsights, quoteKpis } from './quote-insights';
 import { markViewed } from './quote-system';
+import type { ActionExecutor } from '../../../kernel/actions/executor';
 import { commentsByQuote, contactsOf, itemsByQuote, toQuoteRow, type ViewCtx } from './quote-view';
 import { agentDiscountCap, readApprovalPolicy } from '../../settings/policy';
 
@@ -27,6 +28,7 @@ export class QuotesReadService {
   constructor(
     private readonly d: QuoteDeps,
     private readonly now: () => Date,
+    private readonly executor: Pick<ActionExecutor, 'execute'>,
   ) {}
 
   private async tx<T>(v: QuoteViewer, fn: (tx: TenantTx) => Promise<T>): Promise<T> {
@@ -123,7 +125,8 @@ export class QuotesReadService {
     // Bản nháp / chờ duyệt chưa từng gửi thì khách không xem được.
     if (!q || q.deletedAt || !q.sentAt) throw new AppError('NOT_FOUND', 404, { token: 'invalid' });
     const now = this.now();
-    await markViewed(db, t.ws, q.id, now);
+    // TIP-003c: locator đã kiểm chữ ký → action riêng `quote.system_transition` (record_view) theo đúng báo giá + lần gửi hiện tại.
+    await markViewed({ executor: this.executor, tenants: this.d.need('tenants'), onError: () => undefined }, t.ws, { id: q.id, sentAt: q.sentAt });
     const doc = await quoteDocData(db, this.d.doc(), t.ws, q, q.validUntil);
     const lines = (await itemsByQuote(db as never, [q.id])).get(q.id) ?? [];
     const totals = doc.totals;

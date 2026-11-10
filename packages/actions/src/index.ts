@@ -14,6 +14,7 @@ import * as catalog from './catalog';
 import * as catalogOperations from './catalog-operations';
 import * as contactMemory from './contact-memory';
 import * as quotes from './quotes';
+import * as systemSales from './system/sales';
 import * as contracts from './contracts';
 import * as contractFiles from './contract-files';
 import * as contractDraft from './contract-draft';
@@ -105,6 +106,8 @@ export * from './catalog';
 export * from './catalog-operations';
 export * from './contact-memory';
 export * from './quotes';
+export * from './system/sales';
+export * from './system/common';
 export * from './contracts';
 export * from './contract-files';
 export * from './contract-draft';
@@ -187,6 +190,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(catalogOperations),
   ...Object.values(contactMemory),
   ...Object.values(quotes),
+  ...Object.values(systemSales),
   ...Object.values(contracts),
   ...Object.values(contractFiles),
   ...Object.values(contractDraft),

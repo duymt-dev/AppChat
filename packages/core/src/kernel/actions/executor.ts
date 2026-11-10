@@ -28,6 +28,7 @@ import type { PlatformContext } from './platform-context';
 import { executeLifecycleAction, LIFECYCLE_ACTIONS, type LifecycleContext } from './workspace-lifecycle-context';
 import { activityEvent } from './activity-event';
 import { admitInternal } from './system/capability';
+import { systemAdmission } from './system/executor-hook';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
 
@@ -208,8 +209,9 @@ export class ActionExecutor {
     }
     const approved = (tx: TenantTx) => (ctx.approvalId ? this.d.approvals!.consume(tx, ctx, actionId, input) : Promise.resolve());
     const runFinal = async (tx: TenantTx) => {
-      // Kiểm lại capability ngay trước hiệu ứng (TIP-003c §1.3): cổng sớm không phải giấy phép vĩnh viễn (ctx có thể đã gỡ niêm phong).
-      if (isInternalAction(def)) admitInternal(ctx, actionId, rawInput ?? {});
+      // Action riêng (TIP-003c §1.3, §3.3): kiểm lại capability ngay trước hiệu ứng + nhận biên nhận trigger trong CÙNG transaction.
+      const sys = isInternalAction(def) ? await systemAdmission(tx, ctx, actionId, rawInput ?? {}, now) : undefined;
+      if (sys?.replay) return { data: sys.replay, queued: null, afterCommit: undefined };
       await approved(tx);
       const r = await handler.execute(ctx, input, tx, undefined, prepared);
       const undoUntil = r.noUndo ? undefined : undoWindow;
@@ -244,6 +246,7 @@ export class ActionExecutor {
           createdAt: now,
         },
       });
+      if (sys) await sys.settle(tx, output, logId);
       const sec = securityEvents(actionId, logId, ctx.actor, ctx.onBehalfOfUserId, ctx.source);
       await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec, ...activityEvent(ctx, def, logId)], now, traceId);
       // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.

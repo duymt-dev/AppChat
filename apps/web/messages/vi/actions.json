@@ -600,6 +600,9 @@
     "get": {
       "title": "Xem báo giá",
       "desc": "Đọc chi tiết một báo giá: dòng hàng, tổng tiền, hiệu lực."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái báo giá (hệ thống)"
     }
   },
   "contract": {
@@ -813,6 +816,9 @@
     "get": {
       "title": "Xem đề nghị thanh toán",
       "desc": "Đọc một đề nghị thanh toán: số tiền, đã thu, hạn."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái đề nghị thanh toán (hệ thống)"
     }
   },
   "booking": {
@@ -1167,18 +1173,18 @@
       "title": "Đồng bộ danh bạ tài khoản kênh"
     },
     "friend": {
-        "accept": {
-          "title": "Nhận lời mời kết bạn Zalo"
-        },
-        "reject": {
-          "title": "Từ chối lời mời kết bạn Zalo"
-        },
-        "send": {
-          "title": "Gửi lời mời kết bạn Zalo"
-        },
-        "undo": {
-          "title": "Thu hồi lời mời kết bạn Zalo"
-        }
+      "accept": {
+        "title": "Nhận lời mời kết bạn Zalo"
+      },
+      "reject": {
+        "title": "Từ chối lời mời kết bạn Zalo"
+      },
+      "send": {
+        "title": "Gửi lời mời kết bạn Zalo"
+      },
+      "undo": {
+        "title": "Thu hồi lời mời kết bạn Zalo"
+      }
     },
     "lookup_user": {
       "title": "Tìm người trên Zalo theo SĐT"
@@ -1449,6 +1455,9 @@
     "search": {
       "title": "Tìm liệu trình của khách",
       "desc": "Tra liệu trình: số buổi đã dùng, hạn, trạng thái."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái liệu trình (hệ thống)"
     }
   },
   "payment_account": {

@@ -22,7 +22,7 @@ const handlers = { get: () => ({ prepare, execute: vi.fn() }), isImplemented: ()
 const executor = new ActionExecutor({ registry: [def], handlers: handlers as never, resolver: { get: resolverGet } as never, authorizer: { can }, confirm: {} as never, kv: {} as never, clock: { now: () => new Date() } });
 
 const trigger = (o: Partial<SystemTrigger> = {}): SystemTrigger => ({ workspaceId: WS, actionId: ID, sourceKind: 'event', sourceRef: 'e1', targetId: 't1', generation: '1', input: { target: 't1' }, actor: 'test', ...o });
-const cap = (o: Record<string, unknown> = {}) => ({ workspaceId: WS, actionId: ID, sourceKind: 'event' as const, sourceRef: 'e1', targetId: 't1', generation: '1', milestone: '', inputDigest: canonicalDigest({ target: 't1' }), ...o });
+const cap = (o: Record<string, unknown> = {}) => ({ workspaceId: WS, actionId: ID, sourceKind: 'event' as const, sourceRef: 'e1', targetId: 't1', generation: '1', milestone: '', inputDigest: canonicalDigest({ target: 't1' }), receipt: 'trigger' as const, ...o });
 const forbidden = { code: 'FORBIDDEN', httpStatus: 403, fields: { capability: 'missing' } };
 const untouched = () => {
   expect(prepare).not.toHaveBeenCalled();

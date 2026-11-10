@@ -4,6 +4,9 @@ import { Module, type OnModuleInit } from '@nestjs/common';
 import { registerOwnershipPort } from '../kernel/ownership/registry';
 import { quoteOwnershipPort } from './quotes/services/ownership-port';
 import { registerSystemVerifier } from '../kernel/actions/system';
+import { ActionExecutor } from '../kernel/actions/executor';
+import { SALES_SYSTEM_HANDLERS } from './system/handlers';
+import { verifySalesTrigger } from './system/sources';
 import { verifyBankIngress } from './payments/bank/bank-event.consumer';
 import type { Redis } from 'ioredis';
 import { connectorRegistry } from '@appchat/integrations';
@@ -74,6 +77,8 @@ const HANDLERS = [
   QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
   // Gửi chứng từ cho khách (TIP-032b P2).
   OrderSendConfirmationHandler, ReceiptSendHandler,
+  // Action riêng chuyển trạng thái hệ thống (TIP-003c).
+  ...SALES_SYSTEM_HANDLERS,
 ];
 
 @Module({
@@ -117,8 +122,8 @@ const HANDLERS = [
     },
     {
       provide: QuotesReadService,
-      inject: [QuoteDeps, CLOCK],
-      useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
+      inject: [QuoteDeps, CLOCK, ActionExecutor],
+      useFactory: (d: QuoteDeps, c: Clock, ex: ActionExecutor) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now(), ex) : null),
     },
   ],
   exports: [SalesSettingsModule, SalesDocumentsModule, PackagesReadModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
@@ -127,6 +132,9 @@ export class SalesModule implements OnModuleInit {
   /** Port chuyển phụ trách báo giá (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Sales. */
   onModuleInit(): void {
     registerOwnershipPort(quoteOwnershipPort);
-    registerSystemVerifier('bank_feed.ingest', verifyBankIngress);
+    // 012b: claim FOR UPDATE + trạng thái biên nhận ngân hàng là khoá chống ghi đôi (domain).
+    registerSystemVerifier('bank_feed.ingest', verifyBankIngress, { receipt: 'domain' });
+    // TIP-003c: họ action riêng sales — biên nhận trigger bền (mặc định).
+    for (const id of ['quote.system_transition', 'invoice.system_transition', 'package.system_transition']) registerSystemVerifier(id, verifySalesTrigger);
   }
 }

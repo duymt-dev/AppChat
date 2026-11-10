@@ -600,6 +600,9 @@
     "get": {
       "title": "View quote",
       "desc": "Read one quote: lines, totals, validity."
+    },
+    "system_transition": {
+      "title": "Quote system transition"
     }
   },
   "contract": {
@@ -813,6 +816,9 @@
     "get": {
       "title": "View payment request",
       "desc": "Read one payment request: amount, paid, due date."
+    },
+    "system_transition": {
+      "title": "Payment request system transition"
     }
   },
   "booking": {
@@ -1167,18 +1173,18 @@
       "title": "Sync channel account address book"
     },
     "friend": {
-        "accept": {
-          "title": "Accept Zalo friend request"
-        },
-        "reject": {
-          "title": "Reject Zalo friend request"
-        },
-        "send": {
-          "title": "Send Zalo friend request"
-        },
-        "undo": {
-          "title": "Withdraw Zalo friend request"
-        }
+      "accept": {
+        "title": "Accept Zalo friend request"
+      },
+      "reject": {
+        "title": "Reject Zalo friend request"
+      },
+      "send": {
+        "title": "Send Zalo friend request"
+      },
+      "undo": {
+        "title": "Withdraw Zalo friend request"
+      }
     },
     "lookup_user": {
       "title": "Find a Zalo user by phone"
@@ -1449,6 +1455,9 @@
     "search": {
       "title": "Find customer packages",
       "desc": "Look up packages: sessions used, expiry, status."
+    },
+    "system_transition": {
+      "title": "Package system transition"
     }
   },
   "payment_account": {

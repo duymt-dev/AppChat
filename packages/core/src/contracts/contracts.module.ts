@@ -95,6 +95,7 @@ const HANDLERS = [
 export class ContractsModule implements OnModuleInit {
   /** TIP-003c: verifier nguồn (token phụ lục đã lưu) cho `contract.appendix_public_*`. */
   onModuleInit(): void {
-    for (const id of APPENDIX_PUBLIC_ACTIONS) registerSystemVerifier(id, verifyAppendixPublic);
+    // 030b: token + Idempotency-Key theo nội dung là khoá chống lặp; xin OTP lại là yêu cầu mới (domain).
+    for (const id of APPENDIX_PUBLIC_ACTIONS) registerSystemVerifier(id, verifyAppendixPublic, { receipt: 'domain' });
   }
 }

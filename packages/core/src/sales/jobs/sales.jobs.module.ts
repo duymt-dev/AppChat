@@ -19,9 +19,6 @@ import { OrderSyncService } from '../orders/services/order-sync';
 import { ORDER_SYNC_EVERY_MS, ORDER_SYNC_JOB, ORDER_SYNC_QUEUE, orderSyncConsumer, syncOrders } from './order-sync.jobs';
 import { PAYMENT_SWEEP_EVERY_MS, PAYMENT_SWEEP_JOB, paymentPackagesConsumer, sweepPayments } from './payment.jobs';
 import { QuoteDeps } from '../quotes/services/quote-deps';
-import { ChannelSendQueue } from '../../channels/public';
-import { CrmMembers } from '../../crm/public';
-import { enqueueOutgoing } from '../../inbox/public';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { BANK_INGEST_CONSUMER, bankIngestConsumer } from '../payments/bank/bank-event.consumer';
 import { stagePulledReceipts } from '../payments/bank/receipt';
@@ -45,7 +42,7 @@ export const quoteOwnerConsumer = (log?: { info(o: object, m: string): void }): 
 });
 
 /** Quét mọi workspace đang hoạt động: hết hạn + nhắc T-2. Lỗi một workspace (DB chưa nâng migration…) không chặn workspace khác. */
-export async function sweepQuotes(d: { platform: Pick<PlatformDb, 'workspace'>; tenants: TenantDbResolver; now: () => Date; onError?: (ws: string, err: unknown) => void }) {
+export async function sweepQuotes(d: { platform: Pick<PlatformDb, 'workspace'>; tenants: TenantDbResolver; executor: Pick<ActionExecutor, 'execute'>; now: () => Date; onError?: (ws: string, err: unknown) => void }) {
   const wss = await d.platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true, timezone: true } });
   let expired = 0;
   let reminded = 0;
@@ -53,8 +50,9 @@ export async function sweepQuotes(d: { platform: Pick<PlatformDb, 'workspace'>; 
     try {
       const db = await d.tenants.get(TenantContexts.system(w.id, QUOTE_SWEEP_JOB));
       const now = d.now();
-      expired += await expireDue(db, w.id, now);
-      reminded += await remindExpiring(db, w.id, now, w.timezone);
+      const sys = { executor: d.executor, tenants: d.tenants, onError: (_id: string, err: unknown) => d.onError?.(w.id, err) };
+      expired += await expireDue(db, w.id, now, sys);
+      reminded += await remindExpiring(db, w.id, now, w.timezone, sys);
     } catch (err) {
       d.onError?.(w.id, err);
     }
@@ -76,28 +74,22 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     @Inject(LOGGER) private readonly log: AppLogger,
     @Optional() @Inject(OrderSyncService) private readonly sync: OrderSyncService | null,
     @Inject(QuoteDeps) private readonly quotes: QuoteDeps,
-    @Inject(CrmMembers) private readonly members: CrmMembers,
-    @Optional() @Inject(ChannelSendQueue) private readonly send: ChannelSendQueue | null,
     @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    if (!this.redis || !this.platform || !this.tenants) return;
+    // TIP-003c: chuyển trạng thái hệ thống chạy qua action riêng — không executor thì không chạy (không còn đường ghi thẳng).
+    if (!this.redis || !this.platform || !this.tenants || !this.executor) return;
     const now = () => this.clock.now();
+    const sys = { executor: this.executor, tenants: this.tenants };
     registerEventConsumer(quoteOwnerConsumer(this.log));
-    registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone));
+    registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone, sys));
     // TIP-012b P2: biên nhận ngân hàng đã ACK → khớp / ghi nhận qua ActionExecutor nguồn system (ngoài transaction consumer).
-    if (this.executor) registerEventConsumer(bankIngestConsumer(this.executor, this.tenants));
+    registerEventConsumer(bankIngestConsumer(this.executor, this.tenants));
     // TIP-012b P3: op kéo giao dịch của integrations ghi biên nhận bằng luật của sales (hội tụ với webhook).
     registerCallOp(BANK_PULL_OP, bankPullOp(stagePulledReceipts));
-    const deps = { platform: this.platform, tenants: this.tenants, now, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: QUOTE_SWEEP_JOB }, 'quét báo giá lỗi ở workspace') };
-    const pay = {
-      ...deps,
-      quotes: this.quotes,
-      members: this.members,
-      enqueue: (ws: string, o: Parameters<typeof enqueueOutgoing>[2]) => enqueueOutgoing(this.send, ws, o),
-      onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: PAYMENT_SWEEP_JOB }, 'quét khoản thu lỗi ở workspace'),
-    };
+    const deps = { platform: this.platform, tenants: this.tenants, executor: this.executor, now, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: QUOTE_SWEEP_JOB }, 'quét báo giá lỗi ở workspace') };
+    const pay = { ...deps, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: PAYMENT_SWEEP_JOB }, 'quét khoản thu lỗi ở workspace') };
     this.queue = new Queue(SALES_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(QUOTE_SWEEP_JOB, { every: EVERY_MS }, { name: QUOTE_SWEEP_JOB });
     await this.queue.upsertJobScheduler(PAYMENT_SWEEP_JOB, { every: PAYMENT_SWEEP_EVERY_MS }, { name: PAYMENT_SWEEP_JOB });
