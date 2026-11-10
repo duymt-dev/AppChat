@@ -20,6 +20,9 @@ import { ProviderStore } from './router/provider.store';
 import { KbAddSourceHandler, KbRefreshSourceHandler, KbRemoveSourceHandler, KbUpdateSourceHandler } from './kb/kb.handlers';
 import { KbFolderCreateHandler, KbFolderDeleteHandler, KbFolderUpdateHandler } from './kb/folder.handlers';
 import { KB_SUGGESTION_PROVIDERS } from './kb/suggestions/suggestions.providers';
+import { registerSystemVerifier } from '../kernel/actions/system';
+import { KbSystemPublishHandler } from './kb/system/handlers';
+import { verifyKbPublish } from './kb/system/sources';
 import { KB_EMBEDDER, KbSearchHandler } from './kb/kb-search.handler';
 import { AgentSearchHandler, AiTaskSearchHandler } from './agents/agent-read.handlers';
 import { KbSourceSearchHandler } from './kb/source-read.handler';
@@ -146,6 +149,7 @@ class ProviderSeed implements OnModuleInit {
     KbUpdateSourceHandler,
     KbRemoveSourceHandler,
     KbRefreshSourceHandler,
+    KbSystemPublishHandler,
     KbFolderCreateHandler,
     KbFolderUpdateHandler,
     KbFolderDeleteHandler,
@@ -187,4 +191,9 @@ class ProviderSeed implements OnModuleInit {
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, DISCOVERY_MODEL_SOURCE, DiscoveryBuildQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
 })
-export class AiModule {}
+export class AiModule implements OnModuleInit {
+  /** TIP-003c: verifier nguồn của action riêng `kb.system_publish`. */
+  onModuleInit(): void {
+    registerSystemVerifier('kb.system_publish', verifyKbPublish);
+  }
+}

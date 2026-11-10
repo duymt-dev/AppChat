@@ -1321,6 +1321,9 @@
     "source_search": {
       "title": "Tìm tài liệu kho tri thức",
       "desc": "Tra nguồn trong kho tri thức theo tên hoặc thẻ."
+    },
+    "system_publish": {
+      "title": "Công bố kết quả nạp nguồn tri thức (hệ thống)"
     }
   },
   "governance": {

@@ -89,7 +89,8 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   async onApplicationBootstrap(): Promise<void> {
     const { redis, tenants, files } = this;
     if (!redis || !tenants || !files) return;
-    this.kb = startKbIngestWorker(redis, tenants, { files, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
+    // TIP-003c: công bố kết quả nạp qua action riêng — không có executor thì không chạy worker nạp (không có đường ghi thứ hai).
+    if (this.executor) this.kb = startKbIngestWorker(redis, tenants, { files, executor: this.executor, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
     // TIP-023c: dọn sổ sự kiện stream Trợ lý quá 24h (chỉ workspace đã đánh dấu).
     this.events = await startAssistantEventsPrune(redis, tenants, () => this.clock.now(), this.log);
     // TIP-023e §1.4: dựng vector kho mô tả action (generation đã được assistant.discovery_prepare xác nhận) — cần executor để

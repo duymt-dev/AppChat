@@ -1321,6 +1321,9 @@
     "source_search": {
       "title": "Find knowledge sources",
       "desc": "Look up knowledge-base sources by name or tag."
+    },
+    "system_publish": {
+      "title": "Publish knowledge source ingest result (system)"
     }
   },
   "governance": {
