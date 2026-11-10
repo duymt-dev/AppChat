@@ -1,6 +1,6 @@
 // Queue `ai-task` (worker ROLE=ai — Blueprint §1.3, §5.4): một job = một lần chạy tác vụ. Người đẩy: `ai_task.create` (chạy ngay) /
-// `ai_task.run_now`, job lịch `ai-task-scheduler` (tác vụ tới giờ), consumer sự kiện (ROLE=jobs). Job id theo lần chạy → đẩy trùng
-// (job lịch chạy lại, sự kiện giao lại) không chạy hai lần. Run `queued` được tạo trước khi đẩy để màn "đang điều phối" thấy ngay.
+// `ai_task.run_now`, job lịch `ai-task-scheduler` (tác vụ tới giờ), consumer sự kiện (ROLE=jobs). Job id theo (run, thế hệ đẩy) — runner
+// chỉ nhận run `queued` (claim CAS) nên đẩy trùng không chạy hai lần; ý định đẩy bền ở `task_dispatch_intent` (TIP-006b). Run `queued` được tạo trước khi đẩy để màn "đang điều phối" thấy ngay.
 import { Queue } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 
@@ -32,8 +32,9 @@ export class TaskQueue {
     await this.redis.sadd(TASK_ARMED_KEY, ws);
   }
 
-  async push(job: TaskJob): Promise<void> {
-    await this.q.add('run', job, { jobId: `task-${job.run_id}`, attempts: 1, removeOnComplete: 1000, removeOnFail: 1000 });
+  /** TIP-006b: `generation` = thế hệ claim của ý định đẩy → jobId mới mỗi lần đẩy lại (job cũ BullMQ giữ lại không nuốt lần đẩy). */
+  async push(job: TaskJob, generation = 0): Promise<void> {
+    await this.q.add('run', job, { jobId: `task-${job.run_id}-${generation}`, attempts: 1, removeOnComplete: 1000, removeOnFail: 1000 });
   }
 
   close(): Promise<void> {

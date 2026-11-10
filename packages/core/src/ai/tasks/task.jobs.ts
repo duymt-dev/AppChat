@@ -11,7 +11,7 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { TASK_QUEUE, AI_TASK_QUEUE, TASK_ARMED_KEY, type TaskJob, type TaskQueue } from './task.queue';
 import { runTask, type TaskRunDeps } from './task.runner';
 import { rebuildArmed, sweepAllTasks, taskEventConsumer, type ArmedSet } from './task-scheduler';
-import { redispatchPending } from './event-dispatch';
+import { recoverTasks } from './recovery';
 
 export const TASK_SCHEDULER_QUEUE = 'ai-task-scheduler';
 export const TASK_SWEEP_JOB = 'ai-task.sweep';
@@ -52,14 +52,14 @@ export async function startTaskWorkers(redis: Redis, tenants: TenantDbResolver, 
 }
 
 /**
- * Khôi phục phát sự kiện (TIP-012b P4): run tạo do sự kiện mà job chưa xác nhận đẩy (crash giữa commit và push / Redis tạm mất) → đẩy
- * lại đúng run đó. Index partial `ai_task_event_receipt_undispatched_idx` → workspace không có gì thì gần như miễn phí.
+ * Khôi phục (TIP-006b §3.7): mọi workspace active của DB nền tảng (không dựa tập Redis) — ý định đẩy tới hạn, job mất sau khi đẩy, fanout
+ * sự kiện dở → đẩy lại đúng run_id với thế hệ mới. Index partial theo hạn → workspace không có gì thì gần như miễn phí.
  */
 async function redispatchAll(platform: PlatformDb, tenant: (ws: string) => Promise<TenantDb>, queue: TaskQueue, now: () => Date, onError: (ws: string, err: unknown) => void) {
   const list = await platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true } });
   for (const w of list) {
     try {
-      await redispatchPending(await tenant(w.id), queue, w.id, now);
+      await recoverTasks(await tenant(w.id), queue, w.id, now, (err) => onError(w.id, err));
     } catch (err) {
       onError(w.id, err);
     }

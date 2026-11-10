@@ -124,7 +124,7 @@ describe('schema (AC1)', () => {
       await c.query('SET enable_seqscan = off');
       const plan = async (q: string) => (await c.query(`EXPLAIN ${q}`)).rows.map((x) => x['QUERY PLAN']).join('\n');
       expect(await plan(`SELECT id FROM ai_task WHERE "trigger" = 'schedule' AND status = 'active' AND deleted_at IS NULL AND next_run_at <= now() ORDER BY next_run_at LIMIT 100`)).toMatch(/ai_task_due_idx/);
-      expect(await plan(`SELECT id FROM ai_task WHERE "trigger" = 'event' AND status = 'active' AND deleted_at IS NULL AND event_type = 'order.completed'`)).toMatch(/ai_task_event(_active)?_idx/);
+      expect(await plan(`SELECT id FROM ai_task WHERE "trigger" = 'event' AND status = 'active' AND deleted_at IS NULL AND event_type = 'order.completed'`)).toMatch(/ai_task_event(_active|_select)?_idx/);
       expect(await plan(`SELECT count(*) FROM ai_run WHERE task_id = 'x' AND started_at >= now() - interval '1 day'`)).toMatch(/ai_run_task_idx/);
       expect(await plan(`SELECT contact_id FROM quote WHERE status IN ('sent','viewed') AND deleted_at IS NULL AND sent_at < now() - interval '3 day' ORDER BY sent_at LIMIT 40`)).toMatch(/quote_open_sent_idx/);
       expect(await plan(`SELECT contact_id FROM "order" WHERE status = 'completed' AND deleted_at IS NULL AND completed_at >= now() - interval '4 day' AND completed_at < now() ORDER BY completed_at LIMIT 40`)).toMatch(/order_completed_at_idx/);
