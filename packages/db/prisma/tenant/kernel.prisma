@@ -80,6 +80,17 @@ model OutboxEvent {
   lastError   String?      @map("last_error")
   traceId     String?      @map("trace_id")
   createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  /// Envelope v2 (TIP-003b §1.1, §3.1) — null = sự kiện v1 cũ (không bịa thứ tự lịch sử). `status` giữ làm hình chiếu tương thích.
+  protocolVersion     Int?            @map("protocol_version")
+  aggregateKind       String?         @map("aggregate_kind")
+  aggregateId         String?         @map("aggregate_id") @db.Uuid
+  aggregateSeq        BigInt?         @map("aggregate_seq")
+  registryVersion     Int?            @map("registry_version")
+  causationEventId    String?         @map("causation_event_id") @db.Uuid
+  relayPhase          EventRelayPhase @default(pending) @map("relay_phase")
+  relayClaimToken     String?         @map("relay_claim_token") @db.Uuid
+  relayGeneration     Int             @default(0) @map("relay_generation")
+  relayLeaseUntil     DateTime?       @map("relay_lease_until") @db.Timestamptz(6)
 
   @@map("outbox_event")
 }

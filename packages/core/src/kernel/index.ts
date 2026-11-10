@@ -23,6 +23,8 @@ export * from './actions/tip-owners';
 export * from './actions/authorizer';
 export * from './actions/actions.module';
 export * from './outbox/outbox';
+export { withEventTransaction, enroll as enrollEventTransaction, collectorOf } from './outbox/transaction';
+export { EventCollector, readProtocolState, type ProtocolPhase, type ProtocolState } from './outbox/collector';
 export * from './outbox/relay';
 export * from './outbox/outbox.jobs.module';
 // Việc dữ liệu nặng (TIP-045b annex D): đọc trạng thái / tải tệp cho /v1/data-jobs (+ runner cho test).
