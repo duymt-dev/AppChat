@@ -14,7 +14,7 @@ import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { registerEventConsumer, unregisterEventConsumer, type EventConsumer } from '../../kernel/events/consumer';
 import { SupportModule } from '../support.module';
-import { SlaCalendar } from '../services/sla-clock';
+import type { SystemRunDeps } from '../../kernel/actions/system';
 import { onAgentReply, onCustomerMessage, sweepSla } from '../services/support-system';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { agentAuthz } from '../../ai/agents/agent-authz';
@@ -25,8 +25,10 @@ export const SLA_SWEEP_JOB = 'support.sla-sweep';
 const EVERY_MS = 60_000;
 
 export interface SlaSweepDeps {
-  platform: PlatformDb;
+  platform: Pick<PlatformDb, 'workspace'>;
   tenants: TenantDbResolver;
+  /** TIP-003c: mốc SLA chạy qua action riêng `ticket.system_transition`. */
+  executor: Pick<ActionExecutor, 'execute'>;
   now: () => Date;
   onError?: (ws: string, err: unknown) => void;
 }
@@ -37,7 +39,7 @@ export async function sweepSupport(d: SlaSweepDeps) {
   for (const w of wss) {
     try {
       const db = await d.tenants.get(TenantContexts.system(w.id, SLA_SWEEP_JOB));
-      const r = await sweepSla(db, w.id, d.now());
+      const r = await sweepSla(db, w.id, d.now(), { executor: d.executor, tenants: d.tenants, onError: (_id, err) => d.onError?.(w.id, err) });
       total.warned += r.warned;
       total.breached += r.breached;
     } catch (err) {
@@ -47,16 +49,14 @@ export async function sweepSupport(d: SlaSweepDeps) {
   return total;
 }
 
-export const supportConsumer = (cal: SlaCalendar, now: () => Date): EventConsumer => ({
+/** Consumer `support` (event đã lưu → action riêng). Lỗi ném lại để consumer thử lại (biên nhận trigger chống lặp). */
+export const supportConsumer = (sys: Omit<SystemRunDeps, 'onError'>): EventConsumer => ({
   name: 'support',
   topics: ['message.received', 'message.sent'],
   async handle(e, db) {
-    if (e.topic === 'message.received') {
-      const p = messageReceivedEvent.parse(e.payload);
-      await onCustomerMessage(db, e.workspaceId, p, now(), await cal.of(e.workspaceId));
-    } else {
-      await onAgentReply(db, messageSentEvent.parse(e.payload), now());
-    }
+    const d: SystemRunDeps = { ...sys, onError: (_id, err) => { throw err; } };
+    if (e.topic === 'message.received') await onCustomerMessage(db, e.workspaceId, messageReceivedEvent.parse(e.payload), d);
+    else await onAgentReply(db, e.workspaceId, messageSentEvent.parse(e.payload), d);
   },
 });
 
@@ -68,19 +68,18 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
     @Optional() @Inject(PLATFORM_DB) private readonly platform: PlatformDb | undefined,
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined,
-    @Inject(SlaCalendar) private readonly cal: SlaCalendar,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
     @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    if (!this.redis || !this.platform || !this.tenants) return;
+    if (!this.redis || !this.platform || !this.tenants || !this.executor) return;
     const now = () => this.clock.now();
-    registerEventConsumer(supportConsumer(this.cal, now));
+    registerEventConsumer(supportConsumer({ executor: this.executor, tenants: this.tenants }));
     // TIP-022b D: khiếu nại phát hiện ở lượt agent → ticket qua Executor (actor agent, grant hiện hành).
-    if (this.executor) registerEventConsumer(aiComplaintConsumer(this.executor, (a) => agentAuthz(a)));
-    const deps: SlaSweepDeps = { platform: this.platform, tenants: this.tenants, now, onError: (ws, err) => this.log.warn({ err, ws, job: SLA_SWEEP_JOB }, 'quét SLA lỗi ở workspace') };
+    registerEventConsumer(aiComplaintConsumer(this.executor, (a) => agentAuthz(a)));
+    const deps: SlaSweepDeps = { platform: this.platform, tenants: this.tenants, executor: this.executor, now, onError: (ws, err) => this.log.warn({ err, ws, job: SLA_SWEEP_JOB }, 'quét SLA lỗi ở workspace') };
     this.queue = new Queue(SUPPORT_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(SLA_SWEEP_JOB, { every: EVERY_MS }, { name: SLA_SWEEP_JOB });
     this.worker = new Worker(

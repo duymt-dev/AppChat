@@ -942,6 +942,9 @@
     "get": {
       "title": "Xem ticket",
       "desc": "Đọc một ticket: trạng thái, ưu tiên, hạn SLA, người phụ trách."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái ticket (hệ thống)"
     }
   },
   "segment": {

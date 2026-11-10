@@ -942,6 +942,9 @@
     "get": {
       "title": "View ticket",
       "desc": "Read one ticket: status, priority, SLA due times, assignee."
+    },
+    "system_transition": {
+      "title": "Ticket system transition"
     }
   },
   "segment": {
