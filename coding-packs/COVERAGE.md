@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 152 | 9 | 2 | 13 | 11 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 6 | 0 | 2 | 10 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 165 | 10 | 0 | 9 | 10 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 396 | 36 | 1 | 4 | 19 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 396 | 37 | 1 | 4 | 18 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 58 | 0 | 28 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 76 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
-| **Tổng** | **1191** | **108** | **32** | **49** | **109** | **35** | **69** | **0** |
+| **Tổng** | **1191** | **109** | **32** | **49** | **108** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1111,7 +1111,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRIVACY-FILE-REPLAY | Current privacy disposition on signedraw/auth/publicdownloads, sharedblobpurge andAI-first/manual actualCSV/XLSX | DC244/264/265; files.controller48–67; signed-url6–16 | 015c | CHƯA | Existing URLsignature/uploaderpermission doesnotverify privacyrevision;015cAC8 realfile/dataset/queue gates planned |
 | PRIVACY-RESTORE-FENCE | Durable versionedexternaljournal prevents tenantbackup/archiverestore from resurrecting forgotten data/permits/oldrouting | DC260/264/265;041 restorecontract | 015c | MỘT PHẦN | TIP-015c P3: privacy-journal.prisma (tạo sẵn pha 1) nay có code ghi thật — services/journal.ts reserveJournal()/acknowledgeJournal() chạy mỗi lượt contact.forget (revision bất biến, capsule mã hoá, acknowledged_at). CHƯA làm: kernel/privacy/restore-gate.ts (041 restore đọc lại journal trước khi mở workspace) — pha 5 "native verification". Test privacy-recreation.test.ts (ca journal). |
 | DISCOVERY-CURRENT-AUTHORITY | Semantic ranking/cache filters current implemented/user/selected-agent/active-step set before topK | DC268; TIP023e §2–3 | 023e | CHƯA | catalog.ts82–97 keyword-only; no semantic current-admissible-set cache |
-| DISCOVERY-METERED-CACHE | Explicit confirmed corpus preparation; pinned model/config vectors and root-metered query/cache | DC268; TIP023e §1/4 | 023e | CHƯA | embedder.ts currently fallback; ModelCandidate lacks revision, router handle uses key length; new contracts planned |
+| DISCOVERY-METERED-CACHE | Explicit confirmed corpus preparation; pinned model/config vectors and root-metered query/cache | DC268; TIP023e §1/4 | 023e | MỘT PHẦN | core/ai/router/config-revision.ts providerRevision/routeRevision (HMAC khoá APP_ENC_KEY trên trường canonical); ProviderStore gắn configRevision; LlmRouter khoá cache theo digest thay apiKey.length (§1.2 — PR #172); corpus/build/prepare action §1.1/1.3-1.6 chưa làm |
 | DISCOVERY-PRIVACY-LINEAGE | Private discovery query/attempt/cache protected across generic history and forget/restore | DC268; TIP023e §3 | 023e | CHƯA | runner.ts126 stores raw call input; protected replay/projection registration planned |
 | BP-5.3b-tools-discovery | Agent draft selects tools using current-authorized find_actions before generation | plans/BLUEPRINT.md:1125 | 021b | CHƯA | agent-draft.ts44–49 only post-filters returned IDs; agent-llm.handlers.ts draft generation has no discovery call. Separate from023e finder itself; TIP021b owns discovery-before-generation with current authorization and protected publication |
 | AGENT-DRAFT-TRUTHFULNESS | Draft generation distinguishes schema-valid model proposal from deterministic fallback; hard safety/accounting stops never become success | agent-llm.handlers.ts82–90; agent-draft.ts95–114; Blueprint5.3b | 021b | MỘT PHẦN | Current fallback can hide failed/malformed model output. TIP021b spec2–3/AC3–5/7 owns same-root billing, bounded schema and protected validation/publication. |
