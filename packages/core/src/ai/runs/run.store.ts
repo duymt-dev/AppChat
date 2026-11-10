@@ -5,6 +5,7 @@ import { toJson, type PausedState } from '@appchat/ai';
 import { getAction } from '@appchat/actions';
 import { uuidv7 } from '../../kernel/ids';
 import { maskToolInput } from '../../kernel/actions/secret-fields';
+import { redactSensitiveQueryInput } from '../../authz/fields/history-provenance';
 import type { MeteredDb } from './metered-db';
 import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty } from '../../kernel/outbox/outbox';
@@ -153,8 +154,10 @@ export class RunStore {
         type: s.type,
         status: s.status ?? 'ok',
         actionId: s.actionId ?? null,
-        // Ô bí mật (ActionDef.secret) không bao giờ nằm trong bước run (TIP-023c) — kể cả lời gọi bị chặn.
-        input: json(s.type === 'tool' ? maskToolInput(s.actionId ?? null, s.input ?? {}, getAction) : (s.input ?? {})),
+        // Ô bí mật (ActionDef.secret) không bao giờ nằm trong bước run (TIP-023c); câu hỏi tự do của tool nhạy (`find_actions` —
+        // TIP-023e §3.5) cũng không — cả hai che TRƯỚC khi ghi, một điểm duy nhất nên mọi nơi đọc lại (trace / GenUI / run-detail /
+        // SSE) tự động an toàn.
+        input: json(s.type === 'tool' ? redactSensitiveQueryInput(s.actionId ?? null, maskToolInput(s.actionId ?? null, s.input ?? {}, getAction)) : (s.input ?? {})),
         output: s.output === undefined ? undefined : json(s.output),
         provider: s.provider ?? null,
         model: s.model ?? null,
