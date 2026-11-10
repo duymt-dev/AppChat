@@ -45,6 +45,7 @@ import { startKbSuggestWorker } from '../kb/suggestions/suggestion.jobs';
 import { startAnalyzeWorker } from '../../marketing/ai/marketing-ai.jobs';
 import { DISCOVERY_MODEL_SOURCE } from '../assistant/discovery/prepare.handler';
 import { startDiscoveryBuildWorker } from '../assistant/discovery/build.processor';
+import { AssistantInputInstaller } from '../assistant/input/installer';
 import { markDirty } from '../../kernel/outbox/outbox';
 
 class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -148,5 +149,5 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
 export const AI_RUNTIME = AiJobsRunner;
 
 // Handler domain như API (TIP-023b): chạy tiếp run sau duyệt / agent / tác vụ không gặp NOT_IMPLEMENTED.
-@Module({ imports: [AiModule, BillingModule, AuthzModule, AiDomainHandlersModule], providers: [AiJobsRunner] })
+@Module({ imports: [AiModule, BillingModule, AuthzModule, AiDomainHandlersModule], providers: [AiJobsRunner, AssistantInputInstaller] })
 export class AiJobsModule {}

@@ -26,6 +26,7 @@ import { KbSourceSearchHandler } from './kb/source-read.handler';
 import { RunSearchHandler } from './runs/run-read.handler';
 import { KbIngestQueue } from './kb/kb.queue';
 import { DiscoveryBuildInstaller, DiscoveryBuildQueue } from './assistant/discovery/build.queue';
+import { AssistantInputConsumerInstaller, AssistantInputQueue } from './assistant/input/queue';
 import { RunCancelListener } from './runs/cancel.listener';
 import { RunCancelHandler } from './runs/run-cancel.handler';
 import { AiRunner } from './runs/runner';
@@ -47,6 +48,7 @@ import { AssistantResumeHandler } from './assistant/genui/resume.handler';
 import { TASK_EXPORTS, TASK_PROVIDERS } from './tasks/tasks.providers';
 import { TaskPlace } from './tasks/task-place';
 import { ASSISTANT_PLAN_PROVIDERS } from './assistant/plans/providers';
+import { ASSISTANT_INPUT_PROVIDERS } from './assistant/input/providers';
 import { ASSISTANT_DISCOVERY_PROVIDERS } from './assistant/discovery/providers';
 import { DISCOVERY_MODEL_SOURCE } from './assistant/discovery/prepare.handler';
 import { CLOCK, type Clock } from '../kernel/clock';
@@ -116,6 +118,8 @@ class ProviderSeed implements OnModuleInit {
     // TIP-023e §1.4: assistant.discovery_requested → queue discovery-build (ROLE=ai, build.processor.ts pha sau).
     { provide: DiscoveryBuildQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new DiscoveryBuildQueue(r) : null) },
     DiscoveryBuildInstaller,
+    { provide: AssistantInputQueue, inject: [opt(REDIS)], useFactory: (r?: Redis) => (r ? new AssistantInputQueue(r) : null) },
+    AssistantInputConsumerInstaller,
     {
       provide: AiRunner,
       inject: [AGENT_ENGINE, CreditMeter, LOGGER, CLOCK, TaskPlace, opt(PLATFORM_DB), opt(REDIS)],
@@ -178,6 +182,7 @@ class ProviderSeed implements OnModuleInit {
     RunGuardInstaller,
     ...TASK_PROVIDERS,
     ...ASSISTANT_PLAN_PROVIDERS,
+    ...ASSISTANT_INPUT_PROVIDERS,
     ...ASSISTANT_DISCOVERY_PROVIDERS,
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, DISCOVERY_MODEL_SOURCE, DiscoveryBuildQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
