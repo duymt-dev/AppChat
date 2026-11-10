@@ -428,6 +428,9 @@
     },
     "edit_and_approve": {
       "title": "Edit & approve action"
+    },
+    "system_expire": {
+      "title": "Expire approval request (system)"
     }
   },
   "ai": {

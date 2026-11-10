@@ -428,6 +428,9 @@
     },
     "edit_and_approve": {
       "title": "Sửa & duyệt hành động"
+    },
+    "system_expire": {
+      "title": "Hết hạn yêu cầu duyệt (hệ thống)"
     }
   },
   "ai": {

@@ -23,6 +23,7 @@ import { KB_SUGGESTION_PROVIDERS } from './kb/suggestions/suggestions.providers'
 import { registerSystemVerifier } from '../kernel/actions/system';
 import { KbSystemPublishHandler } from './kb/system/handlers';
 import { verifyKbPublish } from './kb/system/sources';
+import { ApprovalSystemExpireHandler, verifyApprovalExpire } from './approvals/system/expire';
 import { KB_EMBEDDER, KbSearchHandler } from './kb/kb-search.handler';
 import { AgentSearchHandler, AiTaskSearchHandler } from './agents/agent-read.handlers';
 import { KbSourceSearchHandler } from './kb/source-read.handler';
@@ -150,6 +151,7 @@ class ProviderSeed implements OnModuleInit {
     KbRemoveSourceHandler,
     KbRefreshSourceHandler,
     KbSystemPublishHandler,
+    ApprovalSystemExpireHandler,
     KbFolderCreateHandler,
     KbFolderUpdateHandler,
     KbFolderDeleteHandler,
@@ -192,8 +194,9 @@ class ProviderSeed implements OnModuleInit {
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, DISCOVERY_MODEL_SOURCE, DiscoveryBuildQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
 })
 export class AiModule implements OnModuleInit {
-  /** TIP-003c: verifier nguồn của action riêng `kb.system_publish`. */
+  /** TIP-003c: verifier nguồn của action riêng `kb.system_publish` + `approval.system_expire`. */
   onModuleInit(): void {
     registerSystemVerifier('kb.system_publish', verifyKbPublish);
+    registerSystemVerifier('approval.system_expire', verifyApprovalExpire);
   }
 }
