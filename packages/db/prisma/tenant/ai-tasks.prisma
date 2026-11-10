@@ -43,6 +43,8 @@ model AiTask {
   nextRunAt         DateTime?         @map("next_run_at") @db.Timestamptz(6)
   runCount          Int               @default(0) @map("run_count")
   version           Int               @default(1)
+  /// TIP-006b: thế hệ trigger — tăng khi đổi trigger / lịch / sự kiện / bật lại (không theo updated_at); lần xảy ra khoá theo nó.
+  triggerGeneration Int               @default(1) @map("trigger_generation")
   deletedAt         DateTime?         @map("deleted_at") @db.Timestamptz(6)
   createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
