@@ -81,7 +81,8 @@ export const adminModelRouteUpsert = defineAction({
       /** Phiên bản nhóm (tier, purpose) đọc được ở GET /admin/config/routes — 0 khi nhóm chưa từng sửa. */
       if_version: z.number().int().min(0),
       routes: z
-        .array(z.object({ provider_key: key, model: z.string().trim().min(1).max(120) }).strict())
+        // `vision` (TIP-023f §3.2): Chủ nền tảng khai model của route đọc được ảnh — mặc định false (fail closed: ảnh không gửi tới route này).
+        .array(z.object({ provider_key: key, model: z.string().trim().min(1).max(120), vision: z.boolean().optional() }).strict())
         .max(10),
     })
     .strict(),

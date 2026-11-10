@@ -152,6 +152,18 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
       return { ...f, file_id: await dt.attach(api, c, f.name, f.body) };
     } };
   }
+  // Suite đầu vào tệp (TIP-023f): dựng tệp thật theo khoá lượt → tải lên + chuẩn bị (worker ROLE=ai) → handle cho lượt.
+  if (suite.cases.some((x) => x.input_file)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const ai = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'assistant-input-seed.mjs')).href)) as {
+      files(tag: string): Record<string, { name: string; mime: string; body: Buffer; fact: string[] }>;
+      prepared(api: string, c: unknown, f: unknown): Promise<{ artifact_id: string; revision: number }>;
+    };
+    seed = { ...(seed as object), inputFile: async (tag: string, key: string) => {
+      const f = ai.files(tag)[key]!;
+      return { ...f, handle: await ai.prepared(api, c, f) };
+    } };
+  }
   // Suite chuyển phụ trách (TIP-015d): Sales thật (người nhận) + bộ khách theo khoá lượt (khách chính có báo giá nháp + 2 khách hàng loạt).
   if (suite.cases.some((x) => x.ctransfer)) {
     const ct = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'contact-transfer', 'seed.mjs')).href)) as { seedTransfer(c: unknown, base: unknown, o: unknown): Promise<unknown> };

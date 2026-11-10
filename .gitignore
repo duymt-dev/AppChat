@@ -22,3 +22,4 @@ __pycache__/
 
 # Storage local (TIP-020 — tệp tải lên dev)
 .data/
+infra/parser/windows/AppChat.Parser.dll

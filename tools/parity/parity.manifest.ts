@@ -7,6 +7,7 @@ import { INTEGRATION_RUNTIME } from './manifests/integration-runtime';
 import { GENUI_DRAWERS } from './modules/genui';
 import { CONTACT_MEMORY } from './modules/contact-memory';
 import { DATA_TRANSFER } from './modules/data-transfer';
+import { ASSISTANT_INPUT } from './modules/assistant-input';
 import { hardeningEntries } from './modules/hardening';
 import { PLATFORM_ADMIN } from './modules/platform-admin';
 import { tenantMailEntries } from './modules/tenant-mail';
@@ -1489,5 +1490,6 @@ export const MANIFEST: ParityEntry[] = [
   ...hardeningEntries(settingsProto),
   ...PLATFORM_ADMIN,
   ...DATA_TRANSFER,
+  ...ASSISTANT_INPUT,
   ...tenantMailEntries(settingsProto),
 ];

@@ -30,6 +30,8 @@ const act = async (id: string, input: unknown, headers: Record<string, string> =
   const r = await call(h, `/actions/${id}`, { input }, { 'idempotency-key': uuidv7(), ...headers });
   return { status: r.status, body: (await r.json()) as { data?: { result?: Record<string, unknown> }; error?: { code: string } } };
 };
+type Json = { data: Record<string, unknown> };
+const json = async (r: Response) => (await r.json()) as Json;
 const prepare = async (id: string) => prepareArtifact(await tenant(), id, { storage: h.app.get(STORAGE, { strict: false }), sandbox: { entry }, now: () => new Date(), owner: 'test' });
 
 beforeAll(async () => {
@@ -111,11 +113,11 @@ describe('đầu vào Trợ lý trên DB thật', () => {
 
   it('GET /assistant/input/:id (+ /parts): cùng dịch vụ đọc có guard với action; người khác / id lạ → 404; lượt rỗng không tệp → 422', async () => {
     const id = (await act('assistant.attachment_prepare', { file_id: await upload('ghi.txt', 'GET-CANARY dòng một', 'text/plain'), draft_nonce: uuidv7() })).body.data!.result!.artifact_id as string;
-    const queued = await (await call(h, `/assistant/input/${id}`)).json();
+    const queued = await json(await call(h, `/assistant/input/${id}`));
     expect(queued.data).toMatchObject({ artifact_id: id, phase: 'queued', source_available: true });
     expect(await prepare(id)).toBe('ready');
-    expect((await (await call(h, `/assistant/input/${id}`)).json()).data).toMatchObject({ phase: 'ready', kind: 'text', part_count: 1 });
-    const parts = await (await call(h, `/assistant/input/${id}/parts?revision=1&limit=1`)).json();
+    expect((await json(await call(h, `/assistant/input/${id}`))).data).toMatchObject({ phase: 'ready', kind: 'text', part_count: 1 });
+    const parts = await json(await call(h, `/assistant/input/${id}/parts?revision=1&limit=1`));
     expect(parts.data).toMatchObject({ has_more: false, parts: [{ locator: { kind: 'paragraph', paragraph: 1 } }] });
     expect(JSON.stringify(parts)).toContain('GET-CANARY');
     expect((await call(h, `/assistant/input/${id}/parts?revision=7`)).status).toBe(409);
