@@ -7,6 +7,8 @@ import type { EventProtocolManifest, ManifestConsumer } from '@appchat/core';
 
 const jobs = ['jobs', 'all'] as const;
 const pending = (name: string, owner: string): ManifestConsumer => ({ name, status: 'requires_adapter', owner, roles: jobs });
+/** TIP-003c: adapter action-mode v2 đã đăng ký (kernel/actions/system/event-adapter) — v1 giữ tới cutover. */
+const action = (name: string, topics: readonly string[]): ManifestConsumer => ({ name, status: 'active', mode: 'action', contractVersion: 1, topics, owner: '003c', roles: jobs });
 
 export const EVENT_PROTOCOL_MANIFEST: EventProtocolManifest = {
   version: 1,
@@ -14,13 +16,13 @@ export const EVENT_PROTOCOL_MANIFEST: EventProtocolManifest = {
     pending('sales.quote-owner', '003c'),
     pending('sales.payment-packages', '003c'),
     pending('sales.order-sync', '003c'),
-    pending('sales.bank-ingest', '003c'),
+    action('sales.bank-ingest', ['bank_receipt.accepted']),
     pending('billing.trial', '003c'),
-    pending('support', '003c'),
+    action('support', ['message.received', 'message.sent']),
     pending('support.ai-complaint', '003c'),
     pending('crm.lead-routing', '003c'),
-    pending('loyalty.orders', '003c'),
-    pending('loyalty.payments', '003c'),
+    action('loyalty.orders', ['order.completed', 'order.cancelled']),
+    action('loyalty.payments', ['payment.refunded']),
     pending('notify', '006b'),
     pending('realtime', '006b'),
     pending('catalog-sync', '006b'),

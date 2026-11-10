@@ -4,7 +4,7 @@
 // không đảo thêm. Đơn đã huỷ: điểm đã đảo hết ở `order.cancelled` → không còn gì để đảo.
 import type { ActionExecutor } from '../../kernel/actions/executor';
 import type { EventConsumer } from '../../kernel/events/consumer';
-import { runLoyalty } from './order-consumer';
+import { loyaltyTrigger, runLoyalty } from './order-consumer';
 
 export const LOYALTY_PAYMENTS_CONSUMER = 'loyalty.payments';
 
@@ -17,3 +17,10 @@ export const loyaltyPaymentsConsumer = (executor: Pick<ActionExecutor, 'execute'
     await runLoyalty(executor, e.workspaceId, 'event', `${e.id}:${LOYALTY_PAYMENTS_CONSUMER}`, 'loyalty.reverse', p.order_id, { order_id: p.order_id, cause: 'refund', ...(p.payment_id ? { payment_id: p.payment_id } : {}) });
   },
 });
+
+/** Trigger v2 của `payment.refunded` — cùng khoá với consumer v1. */
+export function loyaltyRefundTrigger(e: { id: string; workspaceId: string; payload: Record<string, unknown> }) {
+  const p = e.payload as { order_id?: string | null; payment_id?: string };
+  if (!p.order_id) return null;
+  return loyaltyTrigger(e.workspaceId, 'event', `${e.id}:${LOYALTY_PAYMENTS_CONSUMER}`, 'loyalty.reverse', p.order_id, { order_id: p.order_id, cause: 'refund', ...(p.payment_id ? { payment_id: p.payment_id } : {}) });
+}

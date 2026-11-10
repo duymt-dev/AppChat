@@ -20,7 +20,9 @@ import { ORDER_SYNC_EVERY_MS, ORDER_SYNC_JOB, ORDER_SYNC_QUEUE, orderSyncConsume
 import { PAYMENT_SWEEP_EVERY_MS, PAYMENT_SWEEP_JOB, paymentPackagesConsumer, sweepPayments } from './payment.jobs';
 import { QuoteDeps } from '../quotes/services/quote-deps';
 import { ActionExecutor } from '../../kernel/actions/executor';
-import { BANK_INGEST_CONSUMER, bankIngestConsumer } from '../payments/bank/bank-event.consumer';
+import { BANK_INGEST_CONSUMER, bankIngestConsumer, bankIngestEventTrigger } from '../payments/bank/bank-event.consumer';
+import { registerSystemAdapter } from '../../kernel/actions/system';
+import { RECEIPT_TOPIC } from '../payments/bank/receipt';
 import { stagePulledReceipts } from '../payments/bank/receipt';
 import { BANK_PULL_OP, bankPullOp, registerCallOp, unregisterCallOp } from '../../integrations/public';
 
@@ -86,6 +88,8 @@ class SalesJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     registerEventConsumer(paymentPackagesConsumer(now, async (ws) => (await this.quotes.place(ws)).timeZone, sys));
     // TIP-012b P2: biên nhận ngân hàng đã ACK → khớp / ghi nhận qua ActionExecutor nguồn system (ngoài transaction consumer).
     registerEventConsumer(bankIngestConsumer(this.executor, this.tenants));
+    // TIP-003c: adapter action-mode v2 (cùng trigger / biên nhận domain của 012b; v1 giữ tới cutover).
+    registerSystemAdapter({ name: BANK_INGEST_CONSUMER, topics: [RECEIPT_TOPIC], actionId: 'bank_feed.ingest', triggers: (e) => [bankIngestEventTrigger(e)].filter((t) => !!t) }, { executor: this.executor, tenants: this.tenants });
     // TIP-012b P3: op kéo giao dịch của integrations ghi biên nhận bằng luật của sales (hội tụ với webhook).
     registerCallOp(BANK_PULL_OP, bankPullOp(stagePulledReceipts));
     const deps = { platform: this.platform, tenants: this.tenants, executor: this.executor, now, onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: QUOTE_SWEEP_JOB }, 'quét báo giá lỗi ở workspace') };

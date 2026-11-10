@@ -4,4 +4,5 @@ export { registerSystemVerifier, runSystemAction, systemContext, systemVerifierR
 export { dispositionOf, type SystemDisposition } from './receipt';
 export { stableTriggerId } from './trigger-id';
 export { domainTrigger, domainVerifier, type DomainTriggerInput } from './domain';
+export { registerSystemAdapter, resetSystemAdaptersForTest, type SystemAdapterDeps, type SystemAdapterSpec } from './event-adapter';
 export { runTrigger, scanDue, settled, SCAN_PAGE, type ScanCursor, type ScanRow, type SystemRunDeps } from './schedule';

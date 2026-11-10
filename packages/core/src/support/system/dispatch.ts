@@ -1,7 +1,7 @@
 // Bộ quét / fanout mỏng của `ticket.system_transition` (TIP-003c §4.4, §5.1): mốc SLA theo keyset (hạn, id) ≤ 200 trên index partial;
 // tin khách → ticket mới nhất của hội thoại; phản hồi → mọi ticket chưa phản hồi của hội thoại (≤ 200, mỗi ticket một biên nhận).
 import type { TenantDb } from '@appchat/db';
-import { runTrigger, scanDue, SCAN_PAGE, type ScanRow, type SystemRunDeps } from '../../kernel/actions/system';
+import { runTrigger, scanDue, SCAN_PAGE, type ScanRow, type SystemRunDeps, type SystemTrigger } from '../../kernel/actions/system';
 import { messageTrigger, slaTrigger } from './sources';
 
 type SlaRow = ScanRow & { ttr: Date; frt: Date };
@@ -34,4 +34,16 @@ export async function firstResponseToTickets(db: TenantDb, ws: string, conversat
   let n = 0;
   for (const r of rows) if (await runTrigger(d, messageTrigger(ws, 'first_response', r.id, messageId))) n++;
   return n;
+}
+
+/** Trigger v2 cho `message.received` / `message.sent` (event đã nạp lại) — cùng mục tiêu / biên nhận với consumer v1 (≤ 200 ticket). */
+export async function supportEventTriggers(db: TenantDb, ws: string, topic: string, p: { conversation_id?: string; message_id?: string; sender_type?: string }): Promise<SystemTrigger[]> {
+  if (!p.conversation_id || !p.message_id) return [];
+  if (topic === 'message.received') {
+    const t = await db.ticket.findFirst({ where: { conversationId: p.conversation_id }, orderBy: { createdAt: 'desc' }, select: { id: true } });
+    return t ? [messageTrigger(ws, 'customer_message', t.id, p.message_id)] : [];
+  }
+  if (p.sender_type === 'system') return [];
+  const rows = await db.ticket.findMany({ where: { conversationId: p.conversation_id, status: { not: 'closed' }, firstResponseAt: null }, select: { id: true }, orderBy: { id: 'asc' }, take: SCAN_PAGE });
+  return rows.map((r) => messageTrigger(ws, 'first_response', r.id, p.message_id!));
 }

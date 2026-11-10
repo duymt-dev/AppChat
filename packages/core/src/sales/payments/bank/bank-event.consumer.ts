@@ -40,3 +40,9 @@ export const bankIngestConsumer = (executor: Pick<ActionExecutor, 'execute'>, te
     await runSystemAction(executor, tenants, bankIngressTrigger(e.workspaceId, id));
   },
 });
+
+/** Trigger v2 (event đã nạp lại) — cùng biên nhận ngân hàng (domain) với consumer v1. */
+export const bankIngestEventTrigger = (e: { workspaceId: string; payload: Record<string, unknown> }) => {
+  const id = (e.payload as { receipt_id?: string }).receipt_id;
+  return id ? bankIngressTrigger(e.workspaceId, id) : null;
+};

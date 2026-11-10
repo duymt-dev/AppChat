@@ -14,7 +14,8 @@ import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { registerEventConsumer, unregisterEventConsumer, type EventConsumer } from '../../kernel/events/consumer';
 import { SupportModule } from '../support.module';
-import type { SystemRunDeps } from '../../kernel/actions/system';
+import { registerSystemAdapter, type SystemRunDeps } from '../../kernel/actions/system';
+import { supportEventTriggers } from '../system/dispatch';
 import { onAgentReply, onCustomerMessage, sweepSla } from '../services/support-system';
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { agentAuthz } from '../../ai/agents/agent-authz';
@@ -77,6 +78,11 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     if (!this.redis || !this.platform || !this.tenants || !this.executor) return;
     const now = () => this.clock.now();
     registerEventConsumer(supportConsumer({ executor: this.executor, tenants: this.tenants }));
+    // TIP-003c: adapter action-mode v2 — fanout có giới hạn, mỗi ticket một biên nhận trigger (v1 giữ tới cutover).
+    registerSystemAdapter(
+      { name: 'support', topics: ['message.received', 'message.sent'], actionId: 'ticket.system_transition', triggers: (e, db) => (db ? supportEventTriggers(db, e.workspaceId, e.topic, e.payload as never) : []) },
+      { executor: this.executor, tenants: this.tenants },
+    );
     // TIP-022b D: khiếu nại phát hiện ở lượt agent → ticket qua Executor (actor agent, grant hiện hành).
     registerEventConsumer(aiComplaintConsumer(this.executor, (a) => agentAuthz(a)));
     const deps: SlaSweepDeps = { platform: this.platform, tenants: this.tenants, executor: this.executor, now, onError: (ws, err) => this.log.warn({ err, ws, job: SLA_SWEEP_JOB }, 'quét SLA lỗi ở workspace') };
