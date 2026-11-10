@@ -28,6 +28,8 @@ export interface DispatchV2Deps {
 export async function dispatchV2(d: DispatchV2Deps, eventId: string): Promise<DispatchOutcome> {
   const e = await loadEvent(d.db, d.workspaceId, eventId);
   if (!e) return { kind: 'missing' };
+  // Thân đã xoá theo "Quên khách" (015c / §6.1) — không chạy consumer trên payload rỗng, không coi là xong giả.
+  if (e.payload.privacy_erased === true) return { kind: 'blocked', reason: 'privacy_suppressed' };
   const table = d.registryCache?.get(e.registryVersion) ?? (await loadRegistry(d.db, e.registryVersion));
   if (!table) return { kind: 'blocked', reason: 'registry_version_missing' };
   d.registryCache?.set(e.registryVersion, table);

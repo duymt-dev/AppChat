@@ -4,7 +4,7 @@ import { Counter, type Registry } from 'prom-client';
 import { appMetrics } from '../../metrics/registry';
 import type { DispatchOutcome } from './dispatch-claim';
 
-const REASONS = new Set(['missing_capability', 'registry_version_missing', 'topic_not_in_registry', 'waiting_completion', 'receipts_incomplete', 'invalid_outcome']);
+const REASONS = new Set(['missing_capability', 'registry_version_missing', 'topic_not_in_registry', 'waiting_completion', 'receipts_incomplete', 'invalid_outcome', 'privacy_suppressed']);
 let bound: { registry: Registry; counter: Counter<'outcome' | 'reason'> } | null = null;
 
 function counter(): Counter<'outcome' | 'reason'> {
