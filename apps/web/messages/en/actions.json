@@ -727,6 +727,9 @@
     "appendix_public_decline": {
       "title": "Customer declines appendix (public page)",
       "desc": "Internal — public signing page"
+    },
+    "system_transition": {
+      "title": "Contract system transition"
     }
   },
   "order": {
@@ -892,6 +895,9 @@
     "update": {
       "title": "Edit appointment",
       "desc": "Edit time, service, staff, note, reminder or custom fields of an open appointment."
+    },
+    "system_transition": {
+      "title": "Appointment system transition"
     }
   },
   "ticket": {

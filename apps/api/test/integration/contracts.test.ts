@@ -10,7 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { contractRowSchema, contractsMetaSchema, contractsPageSchema, signViewSchema } from '@appchat/shared';
-import { WalletService, sweepContracts, uuidv7 } from '@appchat/core';
+import { ActionExecutor, WalletService, sweepContracts, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -266,7 +266,7 @@ describe('gửi ký + trang ký công khai', () => {
 });
 
 describe('quét định kỳ + gia hạn + chấm dứt', () => {
-  const deps = () => ({ platform: { workspace: { findMany: () => h.platform.workspace.findMany({ where: { id: h.ws }, select: { id: true, timezone: true, locale: true } }) } } as never, tenants: resolver, now: () => h.clock.now() });
+  const deps = () => ({ platform: { workspace: { findMany: () => h.platform.workspace.findMany({ where: { id: h.ws }, select: { id: true, timezone: true, locale: true } }) } } as never, tenants: resolver, executor: h.app.get(ActionExecutor, { strict: false }), now: () => h.clock.now() });
 
   it('link quá hạn mà khách chưa ký → declined', async () => {
     h.clock.advance(1000);

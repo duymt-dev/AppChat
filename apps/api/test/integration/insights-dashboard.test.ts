@@ -142,7 +142,7 @@ describe('AC06 gia hạn T-30', () => {
     await db.contract.create({ data: { id, code: code('HD'), contactId: k, title: 'Gói năm', status: 'signed', ownerUserId: h.user, endDate: end, signedFileId: file, signedSha256: 'a'.repeat(64) } });
     const items = (await get('/dashboard')).body.data.my_work.filter((w: { type: string }) => w.type === 'contract_renewal');
     expect(items).toEqual([expect.objectContaining({ id, route: `/contracts?open=${id}`, ask: expect.stringContaining('chỉ soạn nháp') })]);
-    const deps = { platform: h.platform, tenants: resolver, now: () => h.clock.now() };
+    const deps = { platform: h.platform, tenants: resolver, executor: h.app.get(ActionExecutor, { strict: false }), now: () => h.clock.now() };
     await sweepContracts(deps);
     await sweepContracts(deps);
     expect(await db.outboxEvent.count({ where: { topic: 'contract.expiring', payload: { path: ['contract_id'], equals: id } } })).toBe(1);

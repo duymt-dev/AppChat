@@ -727,6 +727,9 @@
     "appendix_public_decline": {
       "title": "Khách từ chối phụ lục (trang công khai)",
       "desc": "Nội bộ — trang ký công khai"
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái hợp đồng (hệ thống)"
     }
   },
   "order": {
@@ -892,6 +895,9 @@
     "update": {
       "title": "Sửa lịch hẹn",
       "desc": "Sửa giờ, dịch vụ, nhân sự, ghi chú, nhắc hẹn hoặc trường tuỳ biến của lịch hẹn còn mở."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái lịch hẹn (hệ thống)"
     }
   },
   "ticket": {
