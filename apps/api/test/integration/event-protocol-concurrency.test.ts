@@ -90,4 +90,31 @@ describe('giao thức sự kiện — sequence trên DB thật', () => {
     expect(await plan(`SELECT id FROM outbox_event WHERE status = 'pending' AND available_at <= now() ORDER BY available_at, id LIMIT 200`)).toContain('outbox_event_relay_due_idx');
     expect(await plan(`SELECT id FROM outbox_event WHERE aggregate_kind = 'tag' AND aggregate_id = '${A}' AND aggregate_seq = 1`)).toContain('outbox_event_aggregate_seq_key');
   });
+
+  it('EXPLAIN trên 100k event / 1000 aggregate lệch: relay, dispatch đến hạn, claim hết hạn, head khôi phục đều dùng index (không Seq Scan)', async () => {
+    const t = await db();
+    await t.$executeRawUnsafe(`
+      INSERT INTO outbox_event (id, topic, payload, status, available_at, protocol_version, aggregate_kind, aggregate_id, aggregate_seq, registry_version, relay_phase)
+      SELECT gen_random_uuid(), 'tag.created', '{}'::jsonb, CASE WHEN g % 50 = 0 THEN 'pending' ELSE 'published' END::outbox_status, now() - (g || ' seconds')::interval,
+             2, 'bulk', ('00000000-0000-7000-8000-' || lpad(((g % 1000) * (g % 7 + 1) % 1000)::text, 12, '0'))::uuid, g, 1,
+             CASE WHEN g % 50 = 0 THEN 'pending' ELSE 'published' END::event_relay_phase
+        FROM generate_series(1, 100000) g`);
+    await t.$executeRawUnsafe(`INSERT INTO event_dispatch (event_id, protocol_version, registry_version, phase, available_at)
+      SELECT id, 2, 1, CASE WHEN aggregate_seq % 40 = 0 THEN 'pending' ELSE 'completed' END::event_dispatch_phase, available_at FROM outbox_event WHERE aggregate_kind = 'bulk'`);
+    await t.$executeRawUnsafe('ANALYZE outbox_event');
+    await t.$executeRawUnsafe('ANALYZE event_dispatch');
+    const plan = async (sql: string) => (await t.$queryRawUnsafe<{ 'QUERY PLAN': string }[]>(`EXPLAIN ${sql}`)).map((r) => r['QUERY PLAN']).join('\n');
+    const relay = await plan(`SELECT id FROM outbox_event WHERE status = 'pending' AND relay_phase = 'pending' AND available_at <= now() ORDER BY available_at, id LIMIT 200`);
+    expect(relay).toContain('outbox_event_relay_due_idx');
+    expect(relay).not.toContain('Seq Scan');
+    const claim = await plan(`SELECT id FROM outbox_event WHERE relay_phase = 'claimed' AND relay_lease_until < now() ORDER BY relay_lease_until, id LIMIT 200`);
+    expect(claim).toContain('outbox_event_relay_claim_idx');
+    const due = await plan(`SELECT event_id FROM event_dispatch WHERE phase = 'pending' AND available_at <= now() ORDER BY available_at, event_id LIMIT 200`);
+    expect(due).toContain('event_dispatch_due_idx');
+    expect(due).not.toContain('Seq Scan');
+    const running = await plan(`SELECT event_id FROM event_dispatch WHERE phase = 'running' AND dispatch_lease_until < now() LIMIT 200`);
+    expect(running).toContain('event_dispatch_claim_idx');
+    const head = await plan(`SELECT kind, id FROM event_aggregate_head WHERE active_event_id IS NOT NULL AND head_lease_until < now() ORDER BY head_lease_until LIMIT 200`);
+    expect(head).not.toContain('Seq Scan on outbox_event');
+  }, 120_000);
 });
