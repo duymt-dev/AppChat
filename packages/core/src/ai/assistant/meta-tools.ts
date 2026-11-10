@@ -3,14 +3,14 @@
 //   call_action(action_id, input)  — ActionExecutor `source='assistant'`, `onBehalfOfUserId` = người dùng: read chạy ngay, còn lại
 //                                    executor trả preview + confirm_token → `needs_confirmation` → run dừng, FE hiện thẻ xác nhận.
 //   ui(command)                    — UiCommand (zod) → sự kiện `ui_command` (kết quả tool, turn.service đọc lại từ bước run).
-//   plan(steps) / update_step      — `ai_run.plan` (thẻ kế hoạch).
+//   plan(steps)                    — TIP-023d §1.4: alias mỏng gọi canonical `assistant.plan_propose` qua Executor (cùng đường
+//                                    callAction — preview/confirm giữ nguyên); update_step (§1.5) đổi thành chỉ đọc tiến độ thật.
 //   query_data(metric, params)     — = call_action `insight.query` (TIP-038): metric allowlist, chỉ đọc, qua ActionExecutor với quyền người dùng.
 //   delegate(role|agent_id, task)  — run con `delegate` (delegate.ts).
 //   render(tree)                   — cây GenUI (genui/render.ts — TIP-023c): khối đóng, số liệu chỉ `$ref`, nút / form qua intent.
 // Chế độ Chat: find_actions (chỉ read) + call_action (chỉ read) + query_data + ui. Cowork: đủ.
 import { registry } from '@appchat/actions';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
-import { toJson } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import { AGENT_FIELD_ROLE, AppError, INSIGHT_LIMITS, METRIC_KEYS, uiCommandSchema } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
@@ -22,6 +22,7 @@ import { pinVersion } from './version-pin';
 import { aiCustomErrors, withCustomSchema } from './custom-schema';
 import { delegateTool, type DelegateDeps } from './delegate';
 import { renderTool } from './genui/render';
+import { planOfRoot } from './plans/repo';
 import { dispatchOutcome } from './read-dispatch';
 import type { AssistantTurnCtx } from './types';
 
@@ -37,10 +38,28 @@ const queryInput = (raw: unknown) => {
   const i = (raw ?? {}) as { metric?: unknown; params?: unknown };
   return { metric: i.metric, ...(i.params && typeof i.params === 'object' ? { params: i.params } : {}) };
 };
-const STEP_STATUS = ['pending', 'running', 'done', 'failed', 'skipped'] as const;
 /** Vai trò cho trường tuỳ biến (FieldPolicy — TIP-045b annex C): Owner `owner`; còn lại vai trò membership hiện tại của người ra lệnh
  *  (authz.roleKey → t.role); không có → `agent` (chỉ trường AI không giới hạn vai trò). */
 const roleOf = (t: AssistantTurnCtx) => (t.authz.isOwner ? 'owner' : (t.authz.roleKey ?? t.role ?? AGENT_FIELD_ROLE));
+/** Khuôn input `plan` (TIP-023d §1.4) — đúng `steps` của assistant.plan_propose; `session_id`/root run do server gắn, model không gửi. */
+const PLAN_STEP_SCHEMA = {
+  type: 'object',
+  properties: {
+    kind: { type: 'string', enum: ['action', 'delegate', 'analysis'] },
+    title: { type: 'string' },
+    instructions: { type: 'string' },
+    action_or_agent_id: { type: 'string' },
+    depends_on: { type: 'array', items: { type: 'string' } },
+  },
+  required: ['kind', 'title', 'instructions'],
+} as const;
+interface PlanStepIn {
+  kind?: unknown;
+  title?: unknown;
+  instructions?: unknown;
+  action_or_agent_id?: unknown;
+  depends_on?: unknown;
+}
 
 
 export interface MetaDeps extends DelegateDeps {
@@ -102,13 +121,30 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
   }
 }
 
-async function savePlan(db: TenantDb, runId: string, change: (steps: { id: string; title: string; status: string }[]) => { id: string; title: string; status: string }[] | string) {
-  const run = await db.aiRun.findUnique({ where: { id: runId }, select: { plan: true } });
-  const cur = ((run?.plan ?? {}) as { steps?: { id: string; title: string; status: string }[] }).steps ?? [];
-  const next = change(cur);
-  if (typeof next === 'string') return err('NOT_FOUND', next);
-  await db.aiRun.update({ where: { id: runId }, data: { plan: toJson({ steps: next }) as object } });
-  return ok({ steps: next });
+/** `plan` alias (§1.4): model gọi `plan(steps)` → đi đúng đường callAction tới `assistant.plan_propose` (preview/confirm giữ
+ *  nguyên như mọi action ghi khác — plan_propose risk=write). `session_id` lấy từ phiên hiện hành của lượt, model không tự gửi. */
+async function proposePlan(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepIdx: number, toolCallId: string): Promise<ToolOutcome> {
+  if (!t.sessionId) return err('NOT_FOUND', 'Chưa có phiên Trợ lý hiện hành để gắn kế hoạch');
+  const steps = ((raw as { steps?: PlanStepIn[] } | null)?.steps ?? []).slice(0, 12).map((s) => ({
+    kind: s.kind,
+    title: s.title,
+    instructions: s.instructions,
+    ...(typeof s.action_or_agent_id === 'string' ? { action_or_agent_id: s.action_or_agent_id } : {}),
+    ...(Array.isArray(s.depends_on) ? { depends_on: s.depends_on } : {}),
+  }));
+  return callAction(d, t, { action_id: 'assistant.plan_propose', input: { session_id: t.sessionId, steps } }, stepIdx, toolCallId);
+}
+
+/** `update_step` (§1.5): KHÔNG còn ghi trạng thái theo lời model — chỉ đọc tiến độ thật của plan đang gắn run hiện hành
+ *  (receipt đã admitted, không phải lời model tự nhận "done"). Chưa propose plan nào ở lượt này → báo rõ, không giả 404 im lặng. */
+async function stepProgress(d: MetaDeps, t: AssistantTurnCtx): Promise<ToolOutcome> {
+  const found = await planOfRoot(d.db, t.userId, t.runId);
+  if (!found) return err('NOT_FOUND', 'Chưa có kế hoạch nào gắn với lượt này — gọi plan để tạo trước');
+  return ok({
+    plan_id: found.plan.id,
+    phase: found.plan.phase,
+    steps: found.steps.map((s) => ({ id: s.id, position: s.position, title: s.title, state: s.state })),
+  });
 }
 
 export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
@@ -157,24 +193,17 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
     ...tools,
     {
       name: ASSISTANT_TOOLS.plan,
-      description: 'Show a step-by-step plan card for multi-step work. Each step: id, title.',
-      inputSchema: { type: 'object', properties: { steps: { type: 'array', items: { type: 'object', properties: { id: { type: 'string' }, title: { type: 'string' } }, required: ['id', 'title'] } } }, required: ['steps'] },
+      description: 'Propose a step-by-step plan (1-12 steps) for multi-step work. Each step: kind action|delegate|analysis, title, instructions, optional action_or_agent_id, depends_on (earlier step positions). Shows a confirmation card like any write action.',
+      inputSchema: { type: 'object', properties: { steps: { type: 'array', items: PLAN_STEP_SCHEMA, minItems: 1, maxItems: 12 } }, required: ['steps'] },
       origin: 'meta',
-      execute: (input) => {
-        const steps = ((input as { steps?: { id?: unknown; title?: unknown }[] } | null)?.steps ?? []).slice(0, 12).map((s, n) => ({ id: String(s.id ?? n + 1).slice(0, 40), title: String(s.title ?? '').slice(0, 200), status: 'pending' }));
-        return savePlan(d.db, t.runId, () => steps);
-      },
+      execute: (input, meta) => proposePlan(d, t, input, meta.stepIdx, meta.toolCallId),
     },
     {
       name: ASSISTANT_TOOLS.step,
-      description: 'Update the status of a plan step: pending | running | done | failed | skipped.',
-      inputSchema: { type: 'object', properties: { id: { type: 'string' }, status: { type: 'string', enum: [...STEP_STATUS] } }, required: ['id', 'status'] },
+      description: 'Read the real progress of the plan bound to this run (actual persisted step states) — this does not set step status; status only changes from real execution receipts.',
+      inputSchema: { type: 'object', properties: {} },
       origin: 'meta',
-      execute: (input) => {
-        const i = (input ?? {}) as { id?: unknown; status?: unknown };
-        const status = STEP_STATUS.find((s) => s === i.status) ?? 'running';
-        return savePlan(d.db, t.runId, (cur) => (cur.some((s) => s.id === i.id) ? cur.map((s) => (s.id === i.id ? { ...s, status } : s)) : `Không có bước ${String(i.id)}`));
-      },
+      execute: () => stepProgress(d, t),
     },
     delegateTool(d, t),
   ];

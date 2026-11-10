@@ -209,15 +209,48 @@ describe('lượt hội thoại (AC3)', () => {
     expect(r.events).toEqual([{ type: 'ui_command', command: { type: 'navigate', route: '/tickets' } }, { type: 'delta', text: 'Đã mở Hỗ trợ.' }]);
   });
 
-  it('plan / update_step lưu ai_run.plan; query_data metric lạ → VALIDATION_FAILED (allowlist, TIP-038), metric hợp lệ → kết quả', async () => {
+  it('plan: alias gọi canonical assistant.plan_propose → thẻ xác nhận, confirm → assistant_plan commit revision 1 gắn root_run_id; update_step đọc tiến độ thật, không nhận status từ model; query_data metric lạ → VALIDATION_FAILED (allowlist, TIP-038), metric hợp lệ → kết quả', async () => {
     const script: MockScript = ({ call: n }) =>
-      n === 0 ? { tool: 'plan', input: { steps: [{ id: 's1', title: 'Lọc khách' }, { id: 's2', title: 'Soạn tin' }] } } : n === 1 ? { tools: [{ tool: 'update_step', input: { id: 's1', status: 'done' } }, { tool: 'query_data', input: { metric: 'revenue' } }, { tool: 'query_data', input: { metric: 'sales.booked', params: { bucket: 'week' } } }] } : { text: 'ok' };
+      n === 0
+        ? { tool: 'plan', input: { steps: [{ kind: 'analysis', title: 'Lọc khách', instructions: 'Lọc khách theo tiêu chí' }, { kind: 'analysis', title: 'Soạn tin', instructions: 'Soạn tin nhắn', depends_on: ['1'] }] } }
+        : n === 1
+          ? { tools: [{ tool: 'query_data', input: { metric: 'revenue' } }, { tool: 'query_data', input: { metric: 'sales.booked', params: { bucket: 'week' } } }] }
+          : { text: 'ok' };
     const r = await turn(script, { text: 'lập kế hoạch' });
+    const card = r.events.find((e) => e.type === 'confirm') as { type: string; action_id: string; confirm_token: string } | undefined;
+    expect(card).toMatchObject({ type: 'confirm', action_id: 'assistant.plan_propose' });
     const db = await tenant();
-    expect((await db.aiRun.findUniqueOrThrow({ where: { id: r.run_id! } })).plan).toEqual({ steps: [{ id: 's1', title: 'Lọc khách', status: 'done' }, { id: 's2', title: 'Soạn tin', status: 'pending' }] });
+    // Chưa xác nhận → chưa có plan nào ghi DB.
+    expect(await db.assistantPlan.count({ where: { sessionId: r.session_id } })).toBe(0);
+    const c = await assistantConfirm(deps(script), db, { ws: h.ws, userId: h.user, authz: authzForRole('owner', h.user), token: card!.confirm_token, decision: 'confirm' });
+    expect(c).toMatchObject({ status: 'done' });
+    const plan = await db.assistantPlan.findFirstOrThrow({ where: { sessionId: r.session_id } });
+    expect(plan).toMatchObject({ revision: 1, phase: 'active', rootRunId: r.run_id, ownerUserId: h.user });
+    const steps = await db.assistantPlanStep.findMany({ where: { planId: plan.id }, orderBy: { position: 'asc' } });
+    expect(steps.map((s) => s.title)).toEqual(['Lọc khách', 'Soạn tin']);
+
     const [bad, good] = await db.aiRunStep.findMany({ where: { runId: r.run_id!, actionId: 'query_data' }, orderBy: { idx: 'asc' } });
     expect(bad!.output).toMatchObject({ kind: 'error', code: 'VALIDATION_FAILED' });
     expect(good!.output).toMatchObject({ kind: 'ok', output: { metric: 'sales.booked', window: { bucket: 'week' }, availability: { status: 'ok' } } });
+  });
+
+  it('update_step: chưa propose plan nào ở lượt này → NOT_FOUND; propose + confirm rồi gọi lại → đọc đúng state thật (không phải lời model)', async () => {
+    const script: MockScript = ({ call: n }) => (n === 0 ? { tool: 'update_step', input: {} } : { text: 'chưa có kế hoạch' });
+    const r1 = await turn(script, { text: 'tiến độ sao rồi' });
+    const db = await tenant();
+    const step1 = await db.aiRunStep.findFirstOrThrow({ where: { runId: r1.run_id!, actionId: 'update_step' } });
+    expect(step1.output).toMatchObject({ kind: 'error', code: 'NOT_FOUND' });
+
+    const script2: MockScript = ({ call: n }) =>
+      n === 0 ? { tool: 'plan', input: { steps: [{ kind: 'analysis', title: 'Rà soát', instructions: 'Rà soát dữ liệu' }] } } : { text: 'ok' };
+    const r2 = await turn(script2, { text: 'lập kế hoạch rà soát' });
+    const card2 = r2.events.find((e) => e.type === 'confirm') as { confirm_token: string };
+    await assistantConfirm(deps(script2), db, { ws: h.ws, userId: h.user, authz: authzForRole('owner', h.user), token: card2.confirm_token, decision: 'confirm' });
+
+    const script3: MockScript = ({ call: n }) => (n === 0 ? { tool: 'update_step', input: {} } : { text: 'đã xem tiến độ' });
+    const r3 = await turn(script3, { text: 'tiến độ sao rồi', sessionId: r2.session_id });
+    const step3 = await db.aiRunStep.findFirstOrThrow({ where: { runId: r3.run_id!, actionId: 'update_step' } });
+    expect(step3.output).toMatchObject({ kind: 'ok', output: { phase: 'active', steps: [{ title: 'Rà soát', state: 'pending' }] } });
   });
 
   it('delegate → run con delegate depth 1 (agent đích, tool ∩ quyền người ra lệnh) + GET /runs?root_run_id= có tên agent', async () => {

@@ -28,7 +28,7 @@ export class AssistantPlanProposeHandler implements Handler<ActionInput<typeof a
     await ownSession(tx, userId, i.session_id);
     if (this.executor) await validatePlanSteps(tx, (id) => this.executor!.isImplemented(id), i.steps);
     const now = this.clock.now();
-    const plan = await createPlan(tx, { id: uuidv7(now.getTime()), ownerUserId: userId, sessionId: i.session_id, steps: i.steps, now });
+    const plan = await createPlan(tx, { id: uuidv7(now.getTime()), ownerUserId: userId, sessionId: i.session_id, steps: i.steps, now, ...(ctx.runId ? { rootRunId: ctx.runId } : {}) });
     return {
       result: { plan_id: plan.id, revision: plan.revision, phase: plan.phase },
       events: [{ topic: 'assistant.plan_proposed', payload: { plan_id: plan.id, owner_user_id: userId, session_id: i.session_id, revision: plan.revision } }],
