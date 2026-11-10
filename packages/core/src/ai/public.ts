@@ -2,6 +2,7 @@
 export { AI_ENV, AGENT_ENGINE } from './ai.module';
 export { readAiEnv, type AiEnv } from './ai.env';
 export { ProviderStore } from './router/provider.store';
+export { providerRevision, routeRevision, type ProviderFingerprint, type RouteFingerprint } from './router/config-revision';
 export { RunStore, type NewRun } from './runs/run.store';
 export { AiRunner, MAX_STEPS, DEFAULT_RUN_BUDGET, type RunSpec, type RunResult } from './runs/runner';
 export { admitAttempt, releaseAttempt, ensureRootBudget, assertRootOpen } from './runs/root-budget';
