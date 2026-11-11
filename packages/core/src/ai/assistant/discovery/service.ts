@@ -80,14 +80,26 @@ export interface DiscoveryDeps {
  * IDF; chỉ action còn được phép (quyền + chế độ + handler + mục đích); điểm giảm dần, hoà theo id. Không mở rộng câu hỏi bằng model.
  */
 function purposeKeywordIds(i: DiscoveryQueryInput): string[] {
-  const words = [...new Set(foldText(i.query).split(/[^a-z0-9_]+/).filter((w) => w.length > 1))];
-  if (!words.length) return [];
-  const docs = buildCorpus(i.implemented).docs.map((d) => ({ id: d.actionId, text: foldText(d.text) }));
-  const df = new Map(words.map((w) => [w, docs.filter((d) => d.text.includes(w)).length]));
+  // Khớp NGUYÊN từ (không chuỗi con — "cu" không khớp "cuoc") + cụm hai từ liền kề ("tao ticket", "lich hen") — tiếng Việt là âm tiết
+  // nên cụm mới mang nghĩa (cụm nặng gấp đôi). Không chuẩn hoá độ dài: action đúng nghĩa thường có mô tả dài hơn.
+  const tokens = (t: string) => foldText(t).split(/[^a-z0-9_]+/).filter((w) => w.length > 1);
+  const grams = (ws: string[]) => ws.slice(1).map((w, k) => `${ws[k]} ${w}`);
+  const q = tokens(i.query);
+  const terms = [...new Set([...q, ...grams(q)])];
+  if (!terms.length) return [];
+  const docs = buildCorpus(i.implemented).docs.map((d) => {
+    // Ví dụ JSON trong mô tả là nhiễu từ khoá (tên khách, mã mẫu) — bỏ trước khi đếm.
+    const ws = tokens(d.text.replace(/Example:\s*\{[^}]*\}/g, ' '));
+    return { id: d.actionId, set: new Set([...ws, ...grams(ws)]) };
+  });
+  const df = new Map(terms.map((w) => [w, docs.filter((d) => d.set.has(w)).length]));
   const allowed = new Set(filterAuthorized(docs.map((d) => d.id), i.authz, i.mode, i.implemented, i.module, i.admit).map((a) => a.id));
   return docs
     .filter((d) => allowed.has(d.id))
-    .map((d) => ({ id: d.id, score: words.reduce((t, w) => (d.text.includes(w) ? t + Math.log((docs.length + 1) / (df.get(w)! + 0.5)) : t), 0) }))
+    .map((d) => {
+      const raw = terms.reduce((t, w) => (d.set.has(w) ? t + Math.log((docs.length + 1) / (df.get(w)! + 0.5)) * (w.includes(' ') ? 2 : 1) : t), 0);
+      return { id: d.id, score: raw };
+    })
     .filter((x) => x.score > 0)
     .sort((x, y) => y.score - x.score || x.id.localeCompare(y.id))
     .slice(0, KEYWORD_TOP)

@@ -23,6 +23,9 @@ export const draftSystem = (hasCandidates: boolean) =>
     hasCandidates
       ? 'Khối ỨNG VIÊN liệt kê các action agent ĐƯỢC PHÉP dùng (đã lọc quyền). `tools` chỉ chọn id trong danh sách này, chọn những action thật sự cần cho nhiệm vụ.'
       : 'Không có action nào được phép cho mô tả này — `tools` phải là mảng rỗng; agent chỉ trả lời và chuyển người khi cần.',
+    // Router OpenAI-compatible có thể không ép `strict` → nêu đủ khoá bắt buộc ngay trong chỉ dẫn (core vẫn kiểm schema đầy đủ).
+    'Đối tượng PHẢI có đủ 11 khoá, không thêm khoá khác: name (chuỗi 1–80), emoji (một emoji), role (' + ROLES.join(' | ') + '), role_label (chuỗi ≤ 80),',
+    `language (${DRAFT_LANGUAGES.join(' | ')}), prompt (chuỗi), intents (mảng số nguyên), model_tier (${DRAFT_TIERS.join(' | ')}), tools (mảng id), channels (mảng: ${DRAFT_CHANNELS.join(' | ')}), threshold (số nguyên 50–95).`,
     `Ý định (index): ${AGENT_INTENTS.map((x, i) => `${i}=${x}`).join(', ')}.`,
     'prompt: system prompt tiếng Việt cho agent — vai trò, nhiệm vụ, giới hạn (không bịa giá / chính sách), khi nào chuyển nhân viên.',
   ].join('\n');
