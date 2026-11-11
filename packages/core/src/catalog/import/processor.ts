@@ -10,6 +10,7 @@ import { writeOutbox } from '../../kernel/outbox/outbox';
 import { parseImport, type Mapping } from './parse';
 import { writeRow } from './receipt';
 import { markDuplicates, validateRow } from './validate';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 const BATCH = 50;
 type ImportFile = { name: string; mime: string; body: Buffer };
@@ -38,7 +39,7 @@ export async function runImport(db: TenantDb, ws: string, importId: string, d: I
   const imp = await db.productImport.findUnique({ where: { id: importId } });
   if (!imp || !['queued', 'running', 'cancelling'].includes(imp.status)) return 'skipped';
   const finish = async (status: 'completed' | 'cancelled' | 'failed', error: string | null = null) => {
-    await db.$transaction(async (tx) => {
+    await inEventTransaction(db, ws, async (tx) => {
       const t = await tally(tx, importId);
       await tx.productImport.update({ where: { id: importId }, data: { status, error, created: t.created, updated: t.updated, failed: t.failed, finishedAt: d.now(), nextAttemptAt: null } });
       // RAG nạp lại đúng các sản phẩm lần nhập đã ghi (một event mỗi sản phẩm — cùng schema `product.changed`).

@@ -27,7 +27,7 @@ const ALLOWED: Record<UploadPurpose, readonly Sniffed[]> = {
 const EXT: Record<string, readonly Sniffed[]> = {
   png: ['png'], jpg: ['jpeg'], jpeg: ['jpeg'], gif: ['gif'], webp: ['webp'], pdf: ['pdf'], mp4: ['mp4'], m4v: ['mp4'], mov: ['mp4'],
   docx: ['docx'], xlsx: ['xlsx'], pptx: ['pptx'], csv: ['text'], txt: ['text'], md: ['text'], markdown: ['text'], json: ['text'],
-  html: ['markup', 'text'], htm: ['markup', 'text'],
+  html: ['markup', 'text'], htm: ['markup', 'text'], eml: ['text', 'markup'],
   // Đuôi nguy hiểm / không hỗ trợ — luôn từ chối dù nội dung là gì.
   exe: [], dll: [], bat: [], cmd: [], com: [], msi: [], scr: [], ps1: [], vbs: [], js: [], sh: [], jar: [], apk: [], svg: [], svgz: [],
   docm: [], xlsm: [], pptm: [], dotm: [], doc: [], xls: [], ppt: [],
@@ -39,14 +39,14 @@ const MIME: Record<Exclude<Sniffed, 'text' | 'markup' | 'zip' | 'executable' | '
   xlsx: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   pptx: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
 };
-const TEXT_MIME: Record<string, string> = { csv: 'text/csv', md: 'text/markdown', markdown: 'text/markdown', json: 'application/json', html: 'text/html', htm: 'text/html' };
+const TEXT_MIME: Record<string, string> = { eml: 'message/rfc822', csv: 'text/csv', md: 'text/markdown', markdown: 'text/markdown', json: 'application/json', html: 'text/html', htm: 'text/html' };
 
 /** Mime khai báo cụ thể (không phải chung chung) mà mâu thuẫn với nội dung → từ chối. */
 const GENERIC = /^(application\/octet-stream|binary\/octet-stream|application\/x-download|)$/i;
 function mimeAgrees(declared: string, kind: Sniffed): boolean {
   const m = declared.toLowerCase().split(';')[0]!.trim();
   if (GENERIC.test(m)) return true;
-  if (kind === 'text' || kind === 'markup') return m.startsWith('text/') || m === 'application/json' || m === 'application/csv' || m === 'application/vnd.ms-excel';
+  if (kind === 'text' || kind === 'markup') return m.startsWith('text/') || m === 'application/json' || m === 'application/csv' || m === 'application/vnd.ms-excel' || m === 'message/rfc822';
   if (kind === 'xlsx') return m === MIME.xlsx || m === 'application/vnd.ms-excel';
   if (kind === 'jpeg') return m === 'image/jpeg' || m === 'image/jpg' || m === 'image/pjpeg';
   if (kind === 'mp4') return m === 'video/mp4' || m === 'video/quicktime' || m === 'video/x-m4v';
@@ -81,7 +81,9 @@ export function guardUpload(f: { name: string; mime: string; body: Uint8Array; p
   if (kind === 'executable') reject(415, 'executable');
   if (kind === 'cfb') reject(415, 'legacy_or_encrypted_office');
   if (kind === 'unknown' || kind === 'zip') reject(415, 'unsupported_type');
-  if (!ALLOWED[f.purpose as UploadPurpose].includes(kind)) reject(415, 'type_not_allowed');
+  // TIP-023f: Trợ lý đọc HTML / .eml đính kèm như DỮ LIỆU — markup chỉ nhận khi đuôi đúng là html/htm/eml (SVG / ảnh giả vẫn bị chặn).
+  const markupDoc = f.purpose === 'attachment' && kind === 'markup' && (ext === 'html' || ext === 'htm' || ext === 'eml');
+  if (!markupDoc && !ALLOWED[f.purpose as UploadPurpose].includes(kind)) reject(415, 'type_not_allowed');
   const want = EXT[ext];
   if (want && !want.includes(kind)) reject(415, want.length ? 'type_mismatch' : 'extension_not_allowed');
   if (!mimeAgrees(f.mime, kind)) reject(415, 'type_mismatch');

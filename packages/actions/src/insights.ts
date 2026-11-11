@@ -32,6 +32,7 @@ export const followUpReconcile = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['dashboard', 'calendar'],
 });
 
@@ -48,5 +49,6 @@ export const digestDispatch = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: [],
 });

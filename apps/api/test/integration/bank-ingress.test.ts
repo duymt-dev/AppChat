@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { mockSignature } from '@appchat/integrations';
 import { invoiceRowSchema } from '@appchat/shared';
-import { ActionExecutor, bankIngressCtx, uuidv7 } from '@appchat/core';
+import { ActionExecutor, bankIngressTrigger, runSystemAction, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 import { drainBankReceipts } from './helpers/bank-ingress';
 
@@ -88,7 +88,7 @@ describe('ingress bền: ACK trước, khớp sau', () => {
     const rc = await db.bankReceipt.findFirstOrThrow({ where: { externalId: 'IN-3' } });
     const ex = h.app.get(ActionExecutor, { strict: false });
     // Hai worker khác idempotency key (như hai job trùng) — khoá chống ghi đôi là trạng thái biên nhận, không phải khoá idempotent.
-    const run = (k: string) => ex.execute({ ...bankIngressCtx(h.ws, rc.id), idempotencyKey: k }, 'bank_feed.ingest', { receipt_id: rc.id });
+    const run = (k: string) => runSystemAction(ex, resolver, { ...bankIngressTrigger(h.ws, rc.id), idempotencyKey: k });
     const [a, b] = await Promise.all([run(`a-${rc.id}`), run(`b-${rc.id}`)]);
     const statuses = [a, b].map((x) => (x as unknown as { data: { result: { status: string } } }).data.result.status).sort();
     expect(statuses).toEqual(['duplicate', 'matched']);
@@ -118,13 +118,16 @@ describe('ingress bền: ACK trước, khớp sau', () => {
     expect((await inv(id)).payments).toHaveLength(0);
   });
 
-  it('bank_feed.ingest từ HTTP (ui / assistant) → 403; biên nhận tự dựng id lạ qua system → 404', async () => {
+  it('bank_feed.ingest từ HTTP (ui / assistant) → 403; ctx system không niêm phong (đúng actor + key) → 403; biên nhận lạ → 404', async () => {
     const rc = await (await tenant()).bankReceipt.findFirstOrThrow({ where: { externalId: 'IN-1' } });
     expect((await act('bank_feed.ingest', { receipt_id: rc.id })).status).toBe(403);
     expect((await act('bank_feed.ingest', { receipt_id: rc.id }, { 'x-action-source': 'assistant' })).status).toBe(403);
     expect((await act('bank_feed.ingest', { receipt_id: rc.id }, { 'x-action-source': 'system' })).status).toBe(422);
     const ex = h.app.get(ActionExecutor, { strict: false });
-    await expect(ex.execute(bankIngressCtx(h.ws, uuidv7()), 'bank_feed.ingest', { receipt_id: uuidv7() })).rejects.toMatchObject({ code: 'NOT_FOUND' });
+    const forged = { workspaceId: h.ws, source: 'system' as const, actor: { type: 'system' as const, id: 'bank-ingress' }, authz: { isOwner: true } as never, idempotencyKey: `bank-receipt:${rc.id}` };
+    await expect(ex.execute(forged, 'bank_feed.ingest', { receipt_id: rc.id })).rejects.toMatchObject({ code: 'FORBIDDEN', fields: { capability: 'missing' } });
+    const fake = uuidv7();
+    await expect(runSystemAction(ex, resolver, bankIngressTrigger(h.ws, fake))).rejects.toMatchObject({ code: 'NOT_FOUND' });
   });
 
   it('EXPLAIN: hàng chờ dùng partial index; khoá chuẩn tắc unique', async () => {

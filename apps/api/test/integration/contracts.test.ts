@@ -10,7 +10,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { contractRowSchema, contractsMetaSchema, contractsPageSchema, signViewSchema } from '@appchat/shared';
-import { WalletService, sweepContracts, uuidv7 } from '@appchat/core';
+import { ActionExecutor, WalletService, sweepContracts, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -38,7 +38,9 @@ const as = (u: { id: string }) => ({ authorization: `Bearer ${h.tokenFor(u.id)}`
 const act = (id: string, input: unknown, who?: { id: string }) => call(h, `/actions/${id}`, { input }, { 'idempotency-key': uuidv7(), ...(who ? as(who) : {}) }).then(json);
 const get = (path: string, who?: { id: string }) => call(h, path, undefined, who ? as(who) : {}).then(json);
 const post = (path: string, body: unknown = {}, who?: { id: string }) => call(h, path, body, who ? as(who) : {}).then(json);
-const pub = (path: string, body?: unknown) => fetch(`${h.base}/v1/public/sign/${path}`, { method: body === undefined ? 'GET' : 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'vitest' }, body: body === undefined ? undefined : JSON.stringify(body) }).then(json);
+const pub = (path: string, body?: unknown) => fetch(`${h.base}/v1/public/sign/${path}`, { method: body === undefined ? 'GET' : 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'vitest' }, body: body === undefined ? undefined : JSON.stringify(withRequest(path, body)) }).then(json);
+/** TIP-030c: POST open / otp / decline mang request_id (UUID) — mỗi lần gọi test là một yêu cầu mới. */
+const withRequest = (path: string, body: unknown) => (/\/(open|otp|decline)$/.test(path) && body && typeof body === 'object' && !('request_id' in body) ? { ...body, request_id: crypto.randomUUID() } : body);
 const tenant = () => resolver.get(TenantContexts.system(h.ws, 't'));
 const ok = (r: { status: number; body: unknown }) => {
   expect(r.status, JSON.stringify(r.body)).toBe(200);
@@ -266,7 +268,7 @@ describe('gửi ký + trang ký công khai', () => {
 });
 
 describe('quét định kỳ + gia hạn + chấm dứt', () => {
-  const deps = () => ({ platform: { workspace: { findMany: () => h.platform.workspace.findMany({ where: { id: h.ws }, select: { id: true, timezone: true, locale: true } }) } } as never, tenants: resolver, now: () => h.clock.now() });
+  const deps = () => ({ platform: { workspace: { findMany: () => h.platform.workspace.findMany({ where: { id: h.ws }, select: { id: true, timezone: true, locale: true } }) } } as never, tenants: resolver, executor: h.app.get(ActionExecutor, { strict: false }), now: () => h.clock.now() });
 
   it('link quá hạn mà khách chưa ký → declined', async () => {
     h.clock.advance(1000);

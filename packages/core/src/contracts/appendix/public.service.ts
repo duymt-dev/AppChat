@@ -10,6 +10,8 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ContractDeps } from '../services/contract-deps';
 import { maskTarget, sha256Hex } from '../services/sign-link';
 import { seal, unseal, type PublicAppendixAction } from './capability';
+import { runSystemAction } from '../../kernel/actions/system';
+import { APPENDIX_SIGN_ACTOR, appendixTrigger } from './system-verifier';
 import { logAppendixEvent } from './events';
 import { readAppendixToken } from './tokens';
 
@@ -108,7 +110,7 @@ export class AppendixPublicService {
     const ctx: ActionContext = {
       workspaceId: ws,
       source: 'system',
-      actor: { type: 'system', id: 'appendix.public_sign' },
+      actor: { type: 'system', id: APPENDIX_SIGN_ACTOR },
       // Không mượn quyền người dùng nào: action `self` + capability; ghi đều kiểm lại token trong transaction.
       authz: { userId: '', isOwner: false, permissions: new Set(), scope: {} as never, teamIds: [] },
       // Ký / từ chối: cùng nội dung gửi lại → cùng kết quả (không hai chữ ký). Xin OTP: mỗi lần một yêu cầu mới.
@@ -116,7 +118,8 @@ export class AppendixPublicService {
     };
     seal(ctx, { action, tokenId: t.id, tokenHash: hash, appendixId: a.id, appendixVersion: t.appendixVersion, documentHash: t.documentHash, signerId: t.signerId, idempotencyKey: ctx.idempotencyKey!, client });
     try {
-      const r = await this.executor.execute<O>(ctx, action, { appendix_id: a.id, ...input });
+      // TIP-003c: cổng chung action riêng (capability theo token đã lưu) + capability hẹp của phụ lục trên CÙNG ctx.
+      const r = await runSystemAction<O>(this.executor, this.d.need('tenants'), appendixTrigger(ws, action, t, { appendix_id: a.id, ...input }), ctx);
       return { ws, db, t, out: (r.data as { result: O }).result };
     } finally {
       unseal(ctx);

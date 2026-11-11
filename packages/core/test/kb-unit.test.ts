@@ -54,10 +54,13 @@ describe('parse', () => {
   });
 });
 
-describe('kb.search visibility (D54)', () => {
-  it('kb.manage / Owner → public + internal; người khác → public; agent trực kênh → public', () => {
+describe('kb.search visibility (D54, TIP-020c — trần hiển thị; quyền thật theo từng nguồn ở scope/authority)', () => {
+  it('đọc được một nhóm nguồn internal (tài liệu / sản phẩm / hội thoại) → public + internal; không nhóm nào → public; agent trực kênh → public', () => {
     expect(kbVisibility({ source: 'ui', authz: authzForRole('owner', 'u') })).toEqual(['public', 'internal']);
-    expect(kbVisibility({ source: 'assistant', onBehalfOfUserId: 'u', authz: authzForRole('sales', 'u') })).toEqual(['public']);
+    // Sales đọc sản phẩm / hội thoại → nguồn internal GẮN các bản ghi đó (không phải toàn kho như kb.manage cũ).
+    expect(kbVisibility({ source: 'assistant', onBehalfOfUserId: 'u', authz: authzForRole('sales', 'u') })).toEqual(['public', 'internal']);
+    const bare = { ...authzForRole('sales', 'u'), permissions: new Set<never>() };
+    expect(kbVisibility({ source: 'assistant', onBehalfOfUserId: 'u', authz: bare })).toEqual(['public']);
     expect(kbVisibility({ source: 'agent', authz: authzForRole('owner', 'u') })).toEqual(['public']);
   });
 });

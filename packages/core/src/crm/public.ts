@@ -7,6 +7,9 @@ export type { IdentityMatch } from './services/identity-match';
 export { scopeSql as crmScopeSql, visibleContact, editableContact, actorUserId } from './services/access';
 export { writeTimeline, type TimelineInput } from './services/timeline.service';
 export { applyStageRule, type StageRule } from './services/stage-rules';
+// TIP-015g: producer chứng từ khoá họ khách chuẩn TRƯỚC chứng từ (ràng buộc cho applyStageRule).
+export { lockStageFamily, lockStageFamilyOf } from './lifecycle/lock';
+export { stageBinding } from './stage/types';
 export { CRM_SEED } from './seeds';
 export type { ContactFilter } from './repos/contacts.repo';
 export { where as contactWhereSql } from './repos/contacts.repo';

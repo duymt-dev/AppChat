@@ -1,0 +1,174 @@
+// tenant/assistant-plans.prisma — sở hữu: TIP-023d (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Kế hoạch Cowork có thể sửa/tái dùng (TIP-023d §1): phiên bản hoá (`revision`), tách bạch "tiến độ công bố" (projected, không nội dung
+// thô, an toàn gửi FE/model) khỏi "mục đích đã xác nhận" (payload cần quyền hiện hành mới đọc, qua read.ts). `plan_epoch` tăng khi yêu
+// cầu sửa (request_edit) — KHÁC `cancel`/`privacy` generation (019b/015c) — chặn admission cây thường, không phải fence huỷ vĩnh viễn.
+// Không PII thô: title/instructions là văn bản người dùng/model tự nhập (không phải PII hệ thống) nhưng vẫn qua rà soát 015c §4 khi
+// forget (source/read/write catalog — write-catalog.ts/read-catalog.ts/source-catalog.ts, pha sau). Không workspace_id (DB tenant).
+
+enum AssistantPlanPhase {
+  draft
+  active
+  pause_requested
+  paused
+  editing
+  resuming
+  completed
+  cancelled
+  failed
+
+  @@map("assistant_plan_phase")
+}
+
+enum AssistantPlanStepKind {
+  action
+  delegate
+  analysis
+
+  @@map("assistant_plan_step_kind")
+}
+
+enum AssistantPlanStepState {
+  pending
+  running
+  waiting_confirmation
+  waiting_approval
+  waiting_external
+  succeeded
+  failed
+  cancelled
+  skipped
+  unknown
+
+  @@map("assistant_plan_step_state")
+}
+
+/// Kế hoạch nhiều bước của Cowork (TIP-023d §1.1) — một root_run_id tối đa một plan đang sống (unique). `selected_agent_id/version`
+/// ghim lúc chốt chọn chuyên viên (§5), không đổi ngầm khi agent được publish bản mới. `source_plan_id/revision` = nguồn tái dùng
+/// (plan_reuse, §4) — null nếu tạo mới trực tiếp.
+model AssistantPlan {
+  id              String             @id @db.Uuid
+  ownerUserId     String             @map("owner_user_id") @db.Uuid
+  sessionId       String             @map("session_id") @db.Uuid
+  rootRunId       String?            @unique @map("root_run_id") @db.Uuid
+  revision        Int                @default(1)
+  planEpoch       Int                @default(0) @map("plan_epoch")
+  phase           AssistantPlanPhase @default(draft)
+  selectedAgentId String?            @map("selected_agent_id") @db.Uuid
+  selectedAgentVersion Int?          @map("selected_agent_version")
+  sourcePlanId    String?            @map("source_plan_id") @db.Uuid
+  sourceRevision  Int?               @map("source_revision")
+  createdAt       DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  steps       AssistantPlanStep[]
+  attempts    AssistantPlanAttempt[]
+  claims      AssistantPlanPrimaryClaim[]
+  checkpoints AssistantPlanCheckpoint[]
+
+  @@index([ownerUserId, updatedAt(sort: Desc), id], map: "assistant_plan_owner_idx")
+  @@map("assistant_plan")
+}
+
+/// Một bước (TIP-023d §1.1-1.2) — `id` ổn định do server cấp lúc propose, không đổi qua các revision (chỉ nội dung chưa admitted mới
+/// được plan_update sửa). `actionOrAgentId` = action_id (kind=action) hoặc agent_id (kind=delegate); null khi kind=analysis.
+model AssistantPlanStep {
+  planId       String                 @map("plan_id") @db.Uuid
+  id           String                 @db.Uuid
+  position     Int
+  kind         AssistantPlanStepKind
+  title        String
+  instructions String
+  actionOrAgentId String?             @map("action_or_agent_id")
+  dependsOn    String[]               @map("depends_on") @db.Uuid
+  state        AssistantPlanStepState @default(pending)
+  createdAt    DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  plan AssistantPlan @relation(fields: [planId], references: [id])
+
+  @@id([planId, id])
+  @@index([planId, position, id], map: "assistant_plan_step_order_idx")
+  @@map("assistant_plan_step")
+}
+
+/// Một lần model/driver thử chạy một bước (TIP-023d §1.1, §2.2) — nhiều attempt có thể trỏ cùng một claim (idempotent, cùng
+/// input_digest). `outcomeCode` gọn (vd. "ok", "forbidden", "stale_claim") cho log/audit, không payload thô.
+model AssistantPlanAttempt {
+  id            String   @id @db.Uuid
+  planId        String   @map("plan_id") @db.Uuid
+  revision      Int
+  stepId        String   @map("step_id") @db.Uuid
+  invocationId  String   @map("invocation_id")
+  inputDigest   String   @map("input_digest")
+  admissionId   String?  @map("admission_id")
+  actionLogId   String?  @map("action_log_id") @db.Uuid
+  childRunId    String?  @map("child_run_id") @db.Uuid
+  artifactId    String?  @map("artifact_id") @db.Uuid
+  phase         String
+  outcomeCode   String?  @map("outcome_code")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  plan AssistantPlan @relation(fields: [planId], references: [id])
+
+  @@unique([planId, revision, stepId, invocationId], map: "assistant_plan_attempt_key")
+  @@index([planId, revision, stepId, id], map: "assistant_plan_attempt_lookup_idx")
+  @@map("assistant_plan_attempt")
+}
+
+/// Claim hiệu ứng CHÍNH của một bước (TIP-023d §2.2) — danh tính = (plan_id, stable_step_id, execution_generation), ĐỘC LẬP với
+/// toolCallId của provider và revision plan. `executionGeneration` tăng khi edit cho phép thử lại một bước CHƯA admitted; không bao
+/// giờ reset một bước đã admitted (claim cũ vẫn giữ nguyên định danh, chỉ thêm claim mới ở generation sau nếu bước đó bị huỷ/sửa
+/// trước khi admit). `receiptRef` trỏ tới action_log/child_run/artifact đã admitted (đọc lại tiến độ thật, không phải lời model).
+model AssistantPlanPrimaryClaim {
+  planId              String   @map("plan_id") @db.Uuid
+  stableStepId        String   @map("stable_step_id") @db.Uuid
+  executionGeneration Int      @map("execution_generation")
+  actionOrDelegateTarget String @map("action_or_delegate_target")
+  inputDigest         String   @map("input_digest")
+  phase               String
+  admissionId         String?  @map("admission_id")
+  receiptRef          String?  @map("receipt_ref")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  plan AssistantPlan @relation(fields: [planId], references: [id])
+
+  @@id([planId, stableStepId, executionGeneration])
+  @@map("assistant_plan_primary_claim")
+}
+
+/// Checkpoint dừng giữa chừng (TIP-023d §3.2) — một dòng mỗi (root, plan_epoch): batch đã thực thi + lời gọi chưa admitted trở thành
+/// "superseded" đúng một lần. `engineCheckpointRef`/`drainState` là JSON nội bộ gateway (packages/ai/src/gateway/plan-checkpoint.ts),
+/// không phải payload thô cho model.
+model AssistantPlanCheckpoint {
+  planId              String   @map("plan_id") @db.Uuid
+  rootRunId           String   @map("root_run_id") @db.Uuid
+  planEpoch           Int      @map("plan_epoch")
+  engineCheckpointRef Json     @map("engine_checkpoint_ref")
+  drainState          String   @map("drain_state")
+  createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  plan AssistantPlan @relation(fields: [planId], references: [id])
+
+  @@id([rootRunId, planEpoch])
+  @@map("assistant_plan_checkpoint")
+}
+
+/// Cấu trúc tái dùng (TIP-023d §4) — CHỈ action_id/kind/vị trí phụ thuộc tương đối + nhãn registry hiện hành (generic_title), KHÔNG
+/// record id/giá trị input đã chọn/kết quả/receipt/token. `genericTitle` sinh từ registry lúc materialize (read.ts), không copy
+/// title/instructions riêng tư của plan gốc.
+model AssistantPlanReuseCandidate {
+  id            String   @id @db.Uuid
+  ownerUserId   String   @map("owner_user_id") @db.Uuid
+  sourcePlanId  String   @map("source_plan_id") @db.Uuid
+  sourceRevision Int     @map("source_revision")
+  genericTitle  String   @map("generic_title")
+  structure     Json
+  eligible      Boolean  @default(true)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([ownerUserId, updatedAt(sort: Desc), id], map: "assistant_plan_reuse_owner_idx")
+  @@map("assistant_plan_reuse_candidate")
+}

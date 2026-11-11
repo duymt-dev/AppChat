@@ -3,7 +3,8 @@
 // Gọi qua ActionExecutor nguồn system actor `system:privacy-cleanup`. Dừng giữa chừng / crash an toàn: lease_epoch CAS ở cleanupStep
 // không mất tiến độ, lần quét sau đọc lại đúng phase hiện tại. Lỗi một operation / workspace không chặn phần còn lại.
 import { TenantContexts, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';
-import type { ActionContext } from '../../kernel/actions/action-context';
+import { AppError } from '@appchat/shared';
+import { runSystemAction, type SystemTrigger } from '../../kernel/actions/system';
 import type { ActionExecutor } from '../../kernel/actions/executor';
 import { PRIVACY_CLEANUP_ACTOR } from '../services/cleanup';
 
@@ -15,12 +16,25 @@ const BATCH = 100;
 // KHÔNG gắn idempotencyKey cố định theo operation: cleanup_step phải chạy LẶP LẠI nhiều lần để tiến từng bước (mỗi lượt quét một
 // bước) — khoá cố định sẽ làm executor phát lại đúng kết quả lần gọi đầu mãi mãi thay vì tiến tiếp. An toàn lặp gọi đã có sẵn ở
 // cleanupStep (lease_epoch CAS, mỗi bước chỉ áp dụng khi đọc đúng epoch hiện tại) — không cần tầng idempotency của executor.
-export const privacyCleanupCtx = (ws: string): ActionContext => ({
+// TIP-003c: action riêng — capability gắn operation đã duyệt (nguồn schedule) + epoch hiện tại; verifier đọc lại operation đã lưu.
+export const privacyCleanupTrigger = (ws: string, operationId: string, epoch: number): SystemTrigger => ({
   workspaceId: ws,
-  source: 'system',
-  actor: { type: 'system', id: PRIVACY_CLEANUP_ACTOR },
-  authz: { isOwner: true } as never,
+  actionId: 'privacy.cleanup_step',
+  sourceKind: 'accepted_operation',
+  sourceRef: operationId,
+  targetId: operationId,
+  generation: String(epoch),
+  input: { operation_id: operationId },
+  actor: PRIVACY_CLEANUP_ACTOR,
 });
+
+/** Verifier: operation có thật, đúng epoch đã đọc (không mở rộng phạm vi — chỉ operation bất biến đã chấp nhận). Đã kết thúc → để handler
+ *  trả `advanced: false` ổn định (no_effect), không 409. */
+export async function verifyPrivacyCleanup(t: Readonly<SystemTrigger>, db: TenantDb): Promise<void> {
+  const op = await db.privacyOperation.findUnique({ where: { id: t.targetId }, select: { leaseEpoch: true } });
+  if (!op || t.input.operation_id !== t.targetId) throw new AppError('NOT_FOUND', 404, { operation_id: 'not_found' });
+  if (String(op.leaseEpoch) !== t.generation) throw new AppError('CONFLICT', 409, { operation_id: 'stale' });
+}
 
 export interface PrivacySweepDeps {
   platform: Pick<PlatformDb, 'workspace'>;
@@ -31,17 +45,16 @@ export interface PrivacySweepDeps {
 }
 
 /** Operation đang chạy (chưa completed_with_exceptions) — tối đa BATCH mỗi lượt quét mỗi workspace. */
-async function activeOperations(db: TenantDb): Promise<string[]> {
-  const rows = await db.$queryRaw<{ id: string }[]>`
-    SELECT "id" FROM "privacy_operation" WHERE "phase" <> 'completed_with_exceptions' ORDER BY "updated_at" LIMIT ${BATCH}`;
-  return rows.map((r) => r.id);
+async function activeOperations(db: TenantDb): Promise<{ id: string; lease_epoch: number }[]> {
+  return db.$queryRaw<{ id: string; lease_epoch: number }[]>`
+    SELECT "id", "lease_epoch" FROM "privacy_operation" WHERE "phase" <> 'completed_with_exceptions' ORDER BY "updated_at" LIMIT ${BATCH}`;
 }
 
-export async function sweepPrivacyWorkspace(db: TenantDb, ws: string, d: Pick<PrivacySweepDeps, 'executor'>, onError?: (operationId: string, err: unknown) => void): Promise<number> {
+export async function sweepPrivacyWorkspace(db: TenantDb, ws: string, d: Pick<PrivacySweepDeps, 'executor' | 'tenants'>, onError?: (operationId: string, err: unknown) => void): Promise<number> {
   let advanced = 0;
-  for (const id of await activeOperations(db)) {
+  for (const { id, lease_epoch } of await activeOperations(db)) {
     try {
-      const r = await d.executor.execute<{ advanced: boolean }>(privacyCleanupCtx(ws), 'privacy.cleanup_step', { operation_id: id });
+      const r = await runSystemAction<{ advanced: boolean }>(d.executor, d.tenants, privacyCleanupTrigger(ws, id, Number(lease_epoch)));
       if ((r.data as { result?: { advanced?: boolean } }).result?.advanced) advanced++;
     } catch (err) {
       onError?.(id, err);

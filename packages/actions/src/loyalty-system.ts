@@ -17,6 +17,7 @@ export const loyaltyEarn = defineAction({
   permission: 'self',
   risk: 'money',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['loyalty', 'crm'],
 });
 
@@ -30,6 +31,7 @@ export const loyaltyReverse = defineAction({
   permission: 'self',
   risk: 'money',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['loyalty', 'crm'],
 });
 
@@ -43,6 +45,7 @@ export const loyaltyExpire = defineAction({
   permission: 'self',
   risk: 'money',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['loyalty', 'crm'],
 });
 
@@ -56,5 +59,6 @@ export const loyaltyReviewTier = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['loyalty', 'crm'],
 });

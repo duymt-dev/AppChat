@@ -4,8 +4,11 @@ import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import type { RunChild, RunDetail, RunPage, RunStep } from './run-types';
 
+// TIP-020d: transport http đã bóc `{ data }` (mock trả nguyên phong bì) — nhận cả hai, không bóc hai lần (bóc hai lần → undefined → lỗi tải).
+const detailOf = (r: RunDetail | { data: RunDetail }): RunDetail => ('data' in r && r.data && typeof r.data === 'object' ? r.data : (r as RunDetail));
+
 export const runDetailQuery = (id: string) =>
-  queryOptions({ queryKey: ['runs', 'detail', id], queryFn: () => transport.get<{ data: RunDetail }>(`/runs/${id}`).then((r) => r.data) });
+  queryOptions({ queryKey: ['runs', 'detail', id], queryFn: () => transport.get<RunDetail | { data: RunDetail }>(`/runs/${id}`).then(detailOf) });
 
 export const runStepsQuery = (id: string) =>
   infiniteQueryOptions({

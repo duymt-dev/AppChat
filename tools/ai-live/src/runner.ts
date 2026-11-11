@@ -15,11 +15,18 @@ import { transferCase } from './transfer-judge';
 import { activityCase } from './activity-judge';
 import { ctransferCase } from './ctransfer-judge';
 import { lifecycleCase } from './lifecycle-judge';
+import { stageCase } from './stage-judge';
+import { agentDraftCase } from './agent-draft-judge';
+import { recordCase } from './record-judge';
+import { kbScopeCase } from './kb-scope-judge';
+import { citationCase } from './citation-judge';
 import { mergeCase } from './merge-judge';
 import { tenantMailCase } from './tenant-mail-judge';
 import { bookingCase } from './booking-judge';
 import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
+import { utilityCase } from './utility-judge';
+import { inputCase } from './input-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown, headers?: Record<string, string>): Promise<{ status: number; body: unknown }>;
@@ -102,11 +109,18 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.runtime) return runtimeCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.ctransfer) return ctransferCase(api, c, attempt, o);
   if (c.lifecycle) return lifecycleCase(api, c, attempt, o);
+  if (c.stage_hold) return stageCase(api, c, attempt, o);
+  if (c.agent_draft) return agentDraftCase(api, c, attempt, o);
+  if (c.record) return recordCase(api, c, attempt, o);
+  if (c.kb_scope) return kbScopeCase(api, c, attempt, o);
+  if (c.citation) return citationCase(api, c, attempt, o);
   if (c.merge) return mergeCase(api, c, attempt, o);
   if (c.tenant_mail) return tenantMailCase(api, c, attempt, o);
   if (c.booking) return bookingCase(api, c, attempt, o);
   if (c.cedit) return ceditCase(api, c, attempt, o);
   if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
+  if (c.utility) return utilityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
+  if (c.input_file) return inputCase(api, c, attempt, o);
   if (c.transfer) return transferCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.hardening) return hardeningCase(api, c, attempt, o, (s) => fillInput(s, o.seed), contextOf(c, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };

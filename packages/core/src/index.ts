@@ -1,5 +1,6 @@
 // Export mọi Nest module của core (Blueprint §1.2). Đăng ký sẵn ở TIP-001 — TIP sau KHÔNG sửa file này.
 export * from './kernel';
+export * from './kernel/actions/system';
 export * from './kernel/actions/genui-intent';
 export * from './kernel/actions/secret-vault';
 export * from './kernel/actions/secret-fields';
@@ -91,8 +92,9 @@ export * from './kernel/privacy/registry';
 export { isPrivacyFenced, fencedContactIds } from './kernel/privacy/guard';
 export { dropFenced } from './kernel/privacy/publication';
 export { familyInventory, type DomainArtifact } from './kernel/privacy/provenance';
+export { assertRestoreCurrent, verifyRestoreAgainstJournal, type RestoreGateQuery, type RestoreGateResult, type RestoreGateStaleEntry } from './kernel/privacy/restore-gate';
 export { PrivacyJobsModule } from './privacy/jobs/privacy.jobs.module';
-export { sweepPrivacy, sweepPrivacyWorkspace, privacyCleanupCtx, PRIVACY_SWEEP_JOB, PRIVACY_SCHEDULER_QUEUE } from './privacy/jobs/privacy.scheduler';
+export { sweepPrivacy, sweepPrivacyWorkspace, privacyCleanupTrigger, verifyPrivacyCleanup, PRIVACY_SWEEP_JOB, PRIVACY_SCHEDULER_QUEUE } from './privacy/jobs/privacy.scheduler';
 
 /** Danh sách domain (thứ tự Blueprint §1.2) — test kiểm đủ module đăng ký. `privacy` (TIP-015c) không nằm trong 19 domain gốc. */
 export const DOMAINS = ['identity', 'authz', 'billing', 'channels', 'inbox', 'crm', 'catalog', 'sales', 'contracts', 'documents', 'integrations', 'booking', 'support', 'marketing', 'loyalty', 'ai', 'insights', 'notify', 'platform'] as const;

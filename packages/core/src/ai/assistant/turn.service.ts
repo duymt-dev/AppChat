@@ -5,7 +5,7 @@
 import { registry } from '@appchat/actions';
 import type { ToolOutcome } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
+import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type RecordIntentInput, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
 import { uuidv7 } from '../../kernel/ids';
 import type { GenUiIntents } from '../../kernel/actions/genui-intent';
@@ -18,8 +18,11 @@ import { confirmCard } from './card';
 import type { AssistantMode } from './catalog';
 import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, type AssistantTurnCtx } from './meta-tools';
 import { readBack } from './action-readback';
-import { resolveContext } from './genui/context';
+import { resolveContext, resolveRecordTurnContext } from './genui/context';
 import { resolveAttachments } from './genui/attachments';
+import { bindInputs, checkInputs, inputRefParts, type InputHandle } from './input/bind';
+import { inputResolver } from './input/hydrate';
+import type { Storage } from '../../kernel/files/storage';
 import { EventStore } from './genui/event-store';
 import { presentUi, uiPartsOf } from './genui/history';
 import { RequestStore, requestHash } from './genui/request-store';
@@ -32,12 +35,16 @@ import { ExecutionLease, execStateOf } from './genui/execution-lease';
 import { ASSISTANT_ARMED_KEY, failTurn } from './genui/recovery';
 import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
+import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
+import { assistantKnowledge } from '../kb/scope/context';
 
 /** Outbox: lượt đã claim, chờ ROLE=ai chạy (genui/turn-request.consumer). */
 export const TURN_REQUESTED = 'assistant.turn_requested';
 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
+const ALIAS_ACTION: Record<string, string> = { [ASSISTANT_TOOLS.plan]: 'assistant.plan_propose', [ASSISTANT_TOOLS.query]: 'insight.query' };
 
 export interface AssistantDeps {
   executor: ToolExecutor;
@@ -50,6 +57,10 @@ export interface AssistantDeps {
   intents?: GenUiIntents | null;
   /** Phát sự kiện lượt (Redis pub/sub) cho SSE — sự kiện luôn ghi sổ trước (TIP-023c). */
   pub?: Publisher | null;
+  /** TIP-023e: route embed + ví cho find_actions theo ngữ nghĩa — dùng chung lượt đầu và chạy tiếp. */
+  discovery?: DiscoveryRuntime | null;
+  /** TIP-023f §3.1: kho tệp để nạp ảnh đính kèm khi gửi model — vắng → ảnh không khả dụng (chữ vẫn nạp). */
+  storage?: Storage | null;
 }
 
 export interface TurnRequest {
@@ -65,8 +76,12 @@ export interface TurnRequest {
   context?: AssistantContext;
   tier?: AiTierKey;
   attachments?: { id: string; name: string }[];
+  /** TIP-023f: tệp đã chuẩn bị (artifact id + revision) — nội dung đi vào model, không chỉ tên. */
+  inputs?: InputHandle[];
   /** Khoá idempotent của lượt (TIP-023c): cùng khoá + cùng input → cùng run; khác input → 409. */
   requestId?: string;
+  /** TIP-023g: lối vào theo bản ghi — bản ghi bấm thay ngữ cảnh màn (đọc lại theo quyền hiện hành; không đọc được → 404 / 403). */
+  recordIntent?: RecordIntentInput;
 }
 
 /** Mức AI của lượt: chọn của người dùng (hoặc mặc định ở Cài đặt › Mô hình AI), hạ về mức cao nhất gói cho phép. */
@@ -77,17 +92,18 @@ async function tierOf(d: Pick<AssistantDeps, 'planKey'>, db: TenantDb, ws: strin
   return 'standard';
 }
 
-type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now'>;
+type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery' | 'storage'>;
 
 function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
-  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant' };
+  const inputs = t.sessionId ? inputResolver(db, d.storage ?? null, { userId: t.userId, sessionId: t.sessionId, now: d.now }) : null;
+  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs };
 }
 
 /** Dựng lại system + tool của run `assistant` từ `ai_run.input` với quyền HIỆN TẠI của người ra lệnh (job `ai-resume`). */
 export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow, ws: string, authz: AuthzContext | null): Promise<Omit<RunSpec, 'messages'>> {
   const input = run.input as unknown as AssistantRunInput;
   if (!authz || !run.initiatedByUserId) return { system: '', tools: [], maxSteps: MAX_STEPS.assistant, source: 'assistant' };
-  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role };
+  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
   return specFor(d, db, t, await assistantSystem(db, input, authz));
 }
 
@@ -116,7 +132,8 @@ async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | '
   const paused = r.paused?.outcome;
   if (r.status === 'waiting_approval' && paused?.kind === 'needs_confirmation') {
     const call = r.paused!.state.pendingToolCall.input as { action_id?: string };
-    const def = DEFS.get(call.action_id ?? '');
+    // Alias meta-tool không mang action_id trong input (`plan` → assistant.plan_propose — TIP-023d §1.4) — tra theo tên tool.
+    const def = DEFS.get(call.action_id ?? ALIAS_ACTION[r.paused!.state.pendingToolCall.toolName] ?? '');
     if (def) {
       const card = confirmCard(def, paused.preview, paused.confirmToken, locale, r.paused!.state.canonicalInput ?? (call as { input?: unknown }).input ?? {});
       await bindToken(d.kv, paused.confirmToken, run.id);
@@ -142,7 +159,9 @@ export type PreparedTurn = { kind: 'replay' | 'queued'; session_id: string; run_
  */
 export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'planKey'>, db: TenantDb, q: TurnRequest & { requestId: string }): Promise<PreparedTurn> {
   const now = d.now();
-  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null });
+  // Tệp đã chuẩn bị: kiểm TRƯỚC (chủ / ready / revision / chưa buộc phiên khác); hash gồm id:revision:digest đã sắp → đổi danh sách = 409.
+  const inputs = await checkInputs(db, q.userId, q.inputs ?? [], q.sessionId);
+  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, ...(q.recordIntent ? { record: q.recordIntent } : {}), attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}) });
   const ledger = new RequestStore(db, d.now);
   const replay = async (): Promise<PreparedTurn | null> => {
     const prev = await db.assistantRequest.findUnique({ where: { userId_requestId: { userId: q.userId, requestId: q.requestId } } });
@@ -157,15 +176,16 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   const runId = uuidv7(now.getTime());
   const t: AssistantTurnCtx = { ws: q.ws, runId, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
   // Ngữ cảnh màn là gợi ý: chỉ bản ghi người gọi đọc được (quyền hiện hành) mới vào prompt / ai_run.input.
-  const context = await resolveContext(d.executor, t, q.context);
+  const context = q.recordIntent ? await resolveRecordTurnContext({ db, executor: d.executor }, t, q.recordIntent, q.context?.route) : await resolveContext(d.executor, t, q.context);
   // Tệp đính kèm: guard server trước model (tenant / người tải / purpose / hạn / mime / size) — tên client gửi không được tin.
   const attachments = await resolveAttachments(db, q.userId, (q.attachments ?? []).map((a) => a.id), now);
   const tier = await tierOf(d, db, q.ws, q.tier);
   try {
-    const sessionId = await db.$transaction(async (tx) => {
+    const sessionId = await inEventTransaction(db, q.ws, async (tx) => {
       const session = await openSession(tx, q.userId, q.mode, q.text, q.sessionId, now);
       await tx.assistantRequest.create({ data: { id: uuidv7(now.getTime()), userId: q.userId, requestId: q.requestId, sessionId: session.id, runId, inputHash: hash, createdAt: now, updatedAt: now } });
-      await appendMessage(tx, session.id, 'user', [{ type: 'text', text: q.text }], null, now);
+      await bindInputs(tx as never, inputs.rows, session.id, now);
+      await appendMessage(tx, session.id, 'user', [{ type: 'text', text: q.text }, ...inputRefParts(inputs.rows)], null, now);
       const input: AssistantRunInput = {
         text: q.text,
         mode: q.mode,
@@ -176,7 +196,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
         ...(context ? { context } : {}),
         ...(attachments.length ? { attachments } : {}),
       };
-      await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
+      await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET, knowledge: assistantKnowledge(q.userId) });
       await writeOutbox(tx, q.ws, [{ topic: TURN_REQUESTED, payload: { run_id: runId, user_id: q.userId } }], now);
       return session.id;
     });
@@ -189,7 +209,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   }
 }
 
-export type RunDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'kv' | 'now' | 'intents' | 'pub'>;
+export type RunDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'kv' | 'now' | 'intents' | 'pub' | 'discovery' | 'storage'>;
 
 /**
  * Bước 2 của lượt (worker ROLE=ai; trong tiến trình khi không có hàng đợi): nhận lease có fence → chạy run `queued` với quyền HIỆN HÀNH
@@ -221,7 +241,7 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
       await fail('FORBIDDEN');
       return null;
     }
-    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role };
+    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
     const spec = specFor(d, db, t, await assistantSystem(db, input, authz));
     const skeletons = new SkeletonFeed(live);
     const r = await d.runner.start(ws, store, run, {
@@ -290,8 +310,9 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const { run, state, input: canonical } = await takePending(d.kv, db, d.now, q.userId, q.token);
   const store = new RunStore(db, d.now);
   const input = run.input as unknown as AssistantRunInput;
-  const call = state.pendingToolCall.input as { action_id: string; input?: unknown };
-  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role };
+  const raw = state.pendingToolCall.input as { action_id?: string; input?: unknown };
+  const call = { ...raw, action_id: raw.action_id ?? ALIAS_ACTION[state.pendingToolCall.toolName] ?? '' };
+  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
 
   let outcome: ToolOutcome;
   let logId: string | undefined;

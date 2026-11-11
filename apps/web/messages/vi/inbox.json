@@ -39,24 +39,7 @@
     },
     "at": "@"
   },
-  "bulk": {
-    "label": "Thao tác hàng loạt",
-    "selected": "Đã chọn {n}",
-    "selectVisible": "Chọn các hội thoại đang hiện",
-    "assignTo": "Gán cho…",
-    "assign": "Gán",
-    "tagPick": "Chọn thẻ…",
-    "tag": "Gắn thẻ",
-    "close": "Đóng",
-    "archive": "Lưu trữ",
-    "clear": "Bỏ chọn",
-    "dismiss": "Đóng kết quả",
-    "summary": "Xong {done} · không đổi {skipped} · lỗi {failed}",
-    "jobAccepted": "Đã nhận — đang xử lý nền, kết quả báo qua thông báo khi xong.",
-    "hidden": "Hội thoại không truy cập được"
-  },
   "list": {
-    "select": "Chọn {name}",
     "title": "Hộp thư",
     "sub": "{total} hội thoại · {unread} chưa đọc",
     "connect": "Kết Nối Kênh",
@@ -106,6 +89,10 @@
     "assignMore": "Xem thêm",
     "assignUserHint": "{role} · {load} đang mở",
     "assignAgentHint": "Agent · {role} · v{version} · {load} đang mở",
+    "coAssigneesTitle": "Đồng phụ trách",
+    "coAssigneesNone": "Chưa có đồng phụ trách",
+    "coAssigneesAdd": "+ Thêm đồng phụ trách",
+    "coAssigneesRemove": "Gỡ {name} khỏi đồng phụ trách",
     "stageCurrent": "Giai đoạn hiện tại",
     "stages": {
       "lead": "Lead mới",
@@ -123,6 +110,10 @@
     "groupUnsupported": "Kênh này chưa hỗ trợ tạo nhóm"
   },
   "chat": {
+    "aiDraftRef": {
+      "stale": "Nháp AI đã cũ — nội dung tham khảo không còn dùng được. Hãy soạn lại hoặc gửi như tin tự viết.",
+      "revoked": "Tài liệu mà nháp AI dựa vào đã thay đổi hoặc bị thu hồi — nháp không được gửi. Hãy soạn lại."
+    },
     "back": "Quay lại danh sách",
     "search": "Tìm trong hội thoại",
     "toggle360": "Thu gọn hồ sơ",

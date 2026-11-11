@@ -3,8 +3,10 @@
 export * from './gateway/types';
 export { AiSdkEngine, EngineError, LOOP_LIMIT } from './gateway/engine';
 export { classifyAttemptError } from './gateway/attempts';
+export { StructuredError, assertStructuredRequest, parseStructured, schemaError } from './gateway/structured';
 export { OUTPUT_TOKENS_DEFAULT, OUTPUT_TOKENS_MAX, REQUEST_MAX_BYTES, outputTokens, requestBytes } from './gateway/limits';
 export { callKey, resumeMessages, toJson } from './gateway/messages';
+export { hydrateMessages, inputRefsOf, isInputRef, stripMedia, type HydratedPart, type InputRefPart, type InputResolver } from './gateway/input-parts';
 export { LlmRouter, isFallbackError, type RouteRow, type RouterConfigSource } from './router/router';
 export { buildModel, type ProviderCapabilities, type ProviderConfig, type ProviderKind } from './router/providers';
 export { mergeCapabilities, probeError, probeProvider, type ProbeCapability, type ProbeCheck, type ProbeError, type ProbeRequest } from './router/probe';
@@ -17,6 +19,6 @@ export { KB_LABELS, nameVariants, redactForKnowledge, sensitiveLeft, type KbLabe
 export { MOCK_EMBED_MODEL, mockEmbedSource, mockEmbeddingModel, mockVector } from './testing/mock-embed';
 export { PROMPTS, prompt, type PromptDoc, type PromptLocale } from './prompts';
 export { PiiMasker, unmaskPii, type PiiMap } from './reply/pii';
-export { PLAIN_CONFIDENCE, agentReplySchema, parseAgentReply, type AgentReply } from './reply/output';
+export { MAX_ANSWER_CITATIONS, PLAIN_CONFIDENCE, agentReplySchema, answerCitationSchema, parseAgentReply, type AgentReply, type AnswerCitation } from './reply/output';
 export { decideHandoff, type HandoffInput, type HandoffReason } from './reply/handoff';
 export { TreeSkeletonStream, skeletonOf, type SkeletonNode, type UiSkeleton } from './genui/structured-stream';

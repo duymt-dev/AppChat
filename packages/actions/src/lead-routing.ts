@@ -43,5 +43,6 @@ export const leadRoutingApply = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['crm', 'inbox'],
 });

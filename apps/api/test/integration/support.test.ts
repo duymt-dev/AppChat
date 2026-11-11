@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { slaSettingsSchema, ticketRowSchema, ticketsMetaSchema, ticketsPageSchema } from '@appchat/shared';
-import { onAgentReply, onCustomerMessage, sweepSla, uuidv7, DEFAULT_SLA_POLICY_ID } from '@appchat/core';
+import { ActionExecutor, onAgentReply, onCustomerMessage, sweepSla, uuidv7, DEFAULT_SLA_POLICY_ID } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -40,7 +40,7 @@ const ok = (r: { status: number; body: unknown }) => {
 const err = (r: { status: number; body: any }) => `${r.status} ${r.body?.error?.code}`; // eslint-disable-line @typescript-eslint/no-explicit-any
 const undo = (logId: string) => call(h, `/action-logs/${logId}/undo`, {}).then(json);
 const tk = async (id: string, who?: { id: string }) => ticketRowSchema.parse((await get(`/tickets/${id}`, who)).body.data);
-const cal = { days: [0, 1, 2, 3, 4, 5, 6].map((day) => ({ day, on: day < 6, from: '08:00', to: day === 5 ? '12:00' : '18:00' })), timeZone: 'UTC', enabled: true, locale: 'vi' };
+const sys = () => ({ executor: h.app.get(ActionExecutor, { strict: false }), tenants: resolver });
 
 // Đồng hồ test: 2026-10-30 08:00Z = thứ Sáu; workspace test múi UTC, giờ làm mặc định T2–T6 08:00–18:00.
 const ids = {} as Record<'contact' | 'conv' | 'acc' | 'agent' | 't1' | 't2', string>;
@@ -157,7 +157,8 @@ describe('vòng đời', () => {
     const reply = async (body: string) => {
       const id = uuidv7();
       await db.message.create({ data: { id, conversationId: ids.conv, channelAccountId: ids.acc, direction: 'in', senderType: 'contact', senderId: 'k', kind: 'text', body, externalMsgId: uuidv7(), status: 'delivered', createdAt: h.clock.now() } });
-      await onCustomerMessage(db, h.ws, { conversation_id: ids.conv, message_id: id }, h.clock.now(), cal);
+      await onCustomerMessage(db, h.ws, { conversation_id: ids.conv, message_id: id }, sys());
+      return id;
     };
     await reply('5');
     expect((await tk(ids.t2)).csat).toBe(5);
@@ -167,7 +168,9 @@ describe('vòng đời', () => {
     const re = await tk(ids.t2);
     expect([re.status, re.reopened_count, re.comments.at(-1)?.body]).toEqual(['open', 1, 'Hàng đổi vẫn lỗi']);
     // Trả lời của nhân viên qua hộp thư → chốt phản hồi đầu của lượt mở lại.
-    await onAgentReply(db, { conversation_id: ids.conv, sender_type: 'user' }, h.clock.now());
+    const out = uuidv7();
+    await db.message.create({ data: { id: out, conversationId: ids.conv, channelAccountId: ids.acc, direction: 'out', senderType: 'user', senderId: h.user, kind: 'text', body: 'Dạ em kiểm tra', externalMsgId: uuidv7(), status: 'sent', createdAt: h.clock.now() } });
+    await onAgentReply(db, h.ws, { conversation_id: ids.conv, message_id: out, sender_type: 'user' }, sys());
     expect((await db.ticket.findUniqueOrThrow({ where: { id: ids.t2 } })).firstResponseAt).not.toBeNull();
     const c2 = ok(await act('ticket.close', { ticket_id: ids.t1, reason: 'withdrawn', note: 'Khách huỷ' }));
     expect(c2.result.sla_result).toBe('breached');
@@ -197,15 +200,15 @@ describe('job SLA + đọc', () => {
     const r = ok(await act('ticket.create', { title: 'Lỗi đăng nhập app', channel: 'email', category: 'Technical', priority: 'high' }));
     const ai = ok(await act('ticket.create', { title: 'AI xử lý chậm', channel: 'webchat', category: 'Return', priority: 'low', assignee_agent_id: ids.agent }));
     h.clock.advance(200 * 60_000);
-    const s1 = await sweepSla(db, h.ws, h.clock.now());
+    const s1 = await sweepSla(db, h.ws, h.clock.now(), sys());
     expect(s1.breached).toBeGreaterThanOrEqual(2);
     expect(s1.warned).toBeGreaterThanOrEqual(1);
     const row = await db.ticket.findUniqueOrThrow({ where: { id: r.result.ticket_id } });
     expect([row.frtBreachedAt !== null, row.warnedAt !== null, row.breachedAt]).toEqual([true, true, null]);
     expect((await db.ticket.findUniqueOrThrow({ where: { id: ai.result.ticket_id } })).assigneeAgentId).toBeNull();
     h.clock.advance(60 * 60_000);
-    await sweepSla(db, h.ws, h.clock.now());
-    expect((await sweepSla(db, h.ws, h.clock.now())).breached).toBe(0);
+    await sweepSla(db, h.ws, h.clock.now(), sys());
+    expect((await sweepSla(db, h.ws, h.clock.now(), sys())).breached).toBe(0);
     const t = await tk(r.result.ticket_id);
     expect([t.sla.state, t.escalations]).toEqual(['breach', 2]);
     expect(t.events.filter((e) => e.type === 'escalated')).toHaveLength(2);

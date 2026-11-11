@@ -47,6 +47,38 @@ export const conversationAssign = defineAction({
   invalidates: ['inbox'],
 });
 
+export const conversationAddAssignee = defineAction({
+  id: 'conversation.add_assignee',
+  module: 'inbox',
+  title: 'actions.conversation.add_assignee.title',
+  description:
+    'Add an extra co-assignee (team member or AI Agent) to a conversation, in addition to the primary assignee. ' +
+    'Example: {"conversation_id":"c_lan","kind":"user","assignee_id":"u_tram"}',
+  input: z.object({ conversation_id: convId, kind: z.enum(['user', 'agent']), assignee_id: z.string().min(1) }),
+  output: z.object({ assignees: z.number().int() }),
+  permission: 'inbox.assign',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['inbox'],
+});
+
+export const conversationRemoveAssignee = defineAction({
+  id: 'conversation.remove_assignee',
+  module: 'inbox',
+  title: 'actions.conversation.remove_assignee.title',
+  description:
+    'Remove a co-assignee (team member or AI Agent) from a conversation. Removing yourself is always allowed. ' +
+    'Example: {"conversation_id":"c_lan","kind":"user","assignee_id":"u_tram"}',
+  input: z.object({ conversation_id: convId, kind: z.enum(['user', 'agent']), assignee_id: z.string().min(1) }),
+  output: z.object({ assignees: z.number().int() }),
+  permission: 'inbox.assign',
+  risk: 'write',
+  agentGrantable: false,
+  undo: { windowSec: 86_400 },
+  invalidates: ['inbox'],
+});
+
 export const conversationTag = defineAction({
   id: 'conversation.tag',
   module: 'inbox',
@@ -136,7 +168,14 @@ export const messageSend = defineAction({
   description:
     'Send a reply to the customer in a conversation through its channel; optional `attachments` = file_id from POST /files (channel must support files). Example: {"conversation_id":"c_lan","text":"Dạ em chào chị"}',
   input: z
-    .object({ conversation_id: convId, text: z.string().max(4000).default(''), reply_to_id: z.string().optional(), attachments: z.array(z.string().min(1)).max(10).optional() })
+    .object({
+      conversation_id: convId,
+      text: z.string().max(4000).default(''),
+      reply_to_id: z.string().optional(),
+      attachments: z.array(z.string().min(1)).max(10).optional(),
+      // TIP-020c: tham chiếu mờ tới nháp / gợi ý AI đang dùng (server kiểm khớp hội thoại + nguồn còn hợp lệ) — không cấp quyền.
+      ai_draft_ref: z.object({ id: z.string().uuid(), generation: z.number().int().min(0) }).strict().optional(),
+    })
     .refine((v) => v.text.trim().length > 0 || (v.attachments?.length ?? 0) > 0, { message: 'text_or_attachments', path: ['text'] }),
   output: z.object({ message_id: z.string(), agent_in_flight: z.boolean().optional() }),
   permission: 'inbox.reply',

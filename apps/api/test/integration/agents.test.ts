@@ -7,7 +7,7 @@ import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Test, type TestingModule } from '@nestjs/testing';
 import pg from 'pg';
-import { AiJobsModule, AiRunner, ActionExecutor, CLOCK, REDIS, KernelModule, LOGGER, RunStore, WalletService, createLogger, resumeApproval, uuidv7, type ActionContext, type ResumeDeps } from '@appchat/core';
+import { AiJobsModule, AiRunner, ActionExecutor, assistantKnowledge, CLOCK, REDIS, KernelModule, LOGGER, RunStore, WalletService, createLogger, resumeApproval, uuidv7, type ActionContext, type ResumeDeps } from '@appchat/core';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { agentSchema, agentTemplateSchema, agentToolsSchema, agentVersionSchema, approvalRowSchema, authzForRole, governanceSchema } from '@appchat/shared';
 import { z } from 'zod';
@@ -163,10 +163,13 @@ describe('model (giả)', () => {
     expect((await h.app.get(WalletService, { strict: false }).balance(h.ws)).total).toBeLessThan(before);
   });
 
-  it('AC3 draft_from_description → cấu hình hợp lệ (tool ⊆ quyền); optimize_prompt thêm khối định dạng một lần', async () => {
-    const d = (await act('agent.draft_from_description', { description: 'Agent CSKH cho spa, đặt lịch qua Zalo' })).body.data.result.draft;
-    expect(d).toMatchObject({ role: 'booking', channels: ['zalo_personal'] });
-    expect(d.tools.length).toBeGreaterThan(0);
+  it('AC3 draft_from_description (request_id bắt buộc) → cấu hình hợp lệ, generation_info nói thật; optimize_prompt thêm khối định dạng một lần', async () => {
+    const res = (await act('agent.draft_from_description', { description: 'Agent CSKH cho spa, đặt lịch qua Zalo', request_id: uuidv7() })).body.data.result;
+    // TIP-021b: model giả (AI_ENGINE=mock) không khai json_schema → mẫu tất định CÓ lý do, không gắn mode model.
+    expect(res.generation_info).toMatchObject({ schema_version: 1, mode: expect.stringMatching(/^(model|deterministic)$/) });
+    if (res.generation_info.mode === 'deterministic') expect(res.generation_info.fallback_reason).toBeDefined();
+    expect(res.draft).toMatchObject({ channels: ['zalo_personal'] });
+    expect((await act('agent.draft_from_description', { description: 'Agent CSKH cho spa' })).status).toBe(422);
     const p1 = (await act('agent.optimize_prompt', { prompt: 'Bạn là trợ lý' })).body.data.result.prompt;
     expect(p1).toContain('# ĐỊNH DẠNG TRẢ LỜI');
     expect((await act('agent.optimize_prompt', { prompt: p1 })).body.data.result.prompt).toBe(p1);
@@ -229,7 +232,7 @@ describe('duyệt (approval)', () => {
     const runner = ai.get(AiRunner, { strict: false });
     for (const decision of ['approval.approve', 'approval.reject'] as const) {
       const tpl = await newTemplate();
-      const run = await store.create({ kind: 'task', tier: 'standard', input: {}, title: `duyệt ${decision}` });
+      const run = await store.create({ kind: 'task', tier: 'standard', input: {}, title: `duyệt ${decision}`, knowledge: assistantKnowledge(h.user) });
       const out = await executor().execute(taskCtx(run.id), 'campaign.delete', { campaign_id: tpl });
       const apId = (out.data as { approval_id: string }).approval_id;
       const call0 = { toolCallId: 'c1', toolName: 'campaign__delete', input: { campaign_id: tpl } };
@@ -262,6 +265,10 @@ describe('duyệt (approval)', () => {
     expect(await resumeApproval(deps(), h.ws, apId, 'expire')).toBe('done');
     expect((await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).status).toBe('expired');
     expect((await store.get(run.id))!.status).toBe('handoff');
+    // TIP-003c: hết hạn qua action riêng — job chạy lại → skipped, một biên nhận đã kết thúc, không phát `approval.decided` lần hai.
+    expect(await resumeApproval(deps(), h.ws, apId, 'expire')).toBe('skipped');
+    const rc = await db.$queryRaw<{ phase: string }[]>`SELECT phase::text AS phase FROM system_action_receipt WHERE action_id = 'approval.system_expire' AND target_id = ${apId}`;
+    expect(rc).toEqual([{ phase: 'applied' }]);
   });
 
   it('AC4 worker ROLE=ai: approve qua API → job ai-resume (queue thật) tự chạy action đã duyệt + ghi kết quả tool', async () => {

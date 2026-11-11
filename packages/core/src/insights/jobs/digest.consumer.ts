@@ -13,6 +13,7 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { DIGEST_ACTOR } from '../actions/digest.handlers';
+import { domainTrigger, runSystemAction } from '../../kernel/actions/system';
 
 export const DIGEST_QUEUE = 'insights-digest';
 export const DIGEST_JOB = 'insights.digest';
@@ -41,7 +42,9 @@ export async function runDigests(d: DigestRunDeps): Promise<Counts> {
   for (const w of wss) {
     try {
       for (const step of ['plan', 'send'] as const) {
-        const out = (await d.executor.execute(digestCtx(w.id), 'digest.dispatch', { step })) as {
+        // TIP-003c: action riêng tiền nhiệm 038 qua capability gắn lượt lịch; sổ unique + CAS của domain là chống lặp.
+        const t = domainTrigger({ workspaceId: w.id, actionId: 'digest.dispatch', actor: DIGEST_ACTOR, sourceKind: 'schedule', sourceRef: `${DIGEST_JOB}:${step}`, targetId: w.id, input: { step } });
+        const out = (await runSystemAction(d.executor, null, t, digestCtx(w.id))) as {
           data?: { result?: Partial<Counts> };
         };
         for (const k of Object.keys(r) as (keyof Counts)[]) r[k] += out.data?.result?.[k] ?? 0;

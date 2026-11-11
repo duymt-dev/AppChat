@@ -14,8 +14,9 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { LoyaltyModule } from '../loyalty.module';
-import { LOYALTY_ORDERS_CONSUMER, loyaltyOrdersConsumer } from '../events/order-consumer';
-import { LOYALTY_PAYMENTS_CONSUMER, loyaltyPaymentsConsumer } from '../events/payment-consumer';
+import { LOYALTY_ORDERS_CONSUMER, loyaltyOrderTrigger, loyaltyOrdersConsumer } from '../events/order-consumer';
+import { registerSystemAdapter } from '../../kernel/actions/system';
+import { LOYALTY_PAYMENTS_CONSUMER, loyaltyPaymentsConsumer, loyaltyRefundTrigger } from '../events/payment-consumer';
 import { LOYALTY_SCHEDULER_QUEUE, LOYALTY_SWEEP_EVERY_MS, LOYALTY_SWEEP_JOB, sweepLoyalty } from './loyalty.scheduler';
 
 class LoyaltyJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -36,6 +37,9 @@ class LoyaltyJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     if (!redis || !platform || !tenants || !executor) return;
     registerEventConsumer(loyaltyOrdersConsumer(executor));
     registerEventConsumer(loyaltyPaymentsConsumer(executor));
+    // TIP-003c: adapter action-mode v2 (đăng ký trước khi worker đóng băng registry; v1 giữ tới cutover).
+    registerSystemAdapter({ name: LOYALTY_ORDERS_CONSUMER, topics: ['order.completed', 'order.cancelled'], actionId: 'loyalty.earn', also: ['loyalty.reverse'], triggers: (e) => [loyaltyOrderTrigger(e)].filter((t) => !!t) }, { executor, tenants: null });
+    registerSystemAdapter({ name: LOYALTY_PAYMENTS_CONSUMER, topics: ['payment.refunded'], actionId: 'loyalty.reverse', triggers: (e) => [loyaltyRefundTrigger(e)].filter((t) => !!t) }, { executor, tenants: null });
     const deps = { platform, tenants, executor, now: () => this.clock.now(), onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: LOYALTY_SWEEP_JOB }, 'quét loyalty lỗi ở workspace') };
     this.queue = new Queue(LOYALTY_SCHEDULER_QUEUE, { connection: redis.duplicate() });
     await this.queue.upsertJobScheduler(LOYALTY_SWEEP_JOB, { every: LOYALTY_SWEEP_EVERY_MS }, { name: LOYALTY_SWEEP_JOB });

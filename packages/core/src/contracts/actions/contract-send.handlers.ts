@@ -11,7 +11,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { uuidv7 } from '../../kernel/ids';
 import { ChannelSendQueue } from '../../channels/public';
-import { CrmMembers, actorUserId, applyStageRule, writeTimeline } from '../../crm/public';
+import { CrmMembers, actorUserId, applyStageRule, lockStageFamilyOf, writeTimeline } from '../../crm/public';
 import { enqueueOutgoing } from '../../inbox/public';
 import { customerConversation, postToCustomer, reachCustomer } from '../../sales/public';
 import { lockContract, visibleContract, type ContractRecord } from '../contract-access';
@@ -58,6 +58,7 @@ export class ContractSendHandler implements Handler<SendIn, SendOut> {
 
   async execute(ctx: ActionContext, input: SendIn, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<SendOut>> {
     const l = prepared as IssuedLink;
+    await lockStageFamilyOf(tx, 'contract', input.contract_id);
     const c = await lockContract(tx, ctx.authz, input.contract_id);
     const to = assertTransition(CONTRACT_FLOW, c.status, 'contract.send_for_signature');
     const now = this.clock.now();

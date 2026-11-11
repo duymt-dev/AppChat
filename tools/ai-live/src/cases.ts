@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking', 'ai_utility', 'input', 'stage_hold', 'agent_draft', 'record', 'kb_scope', 'citation'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0, ai_utility: 0, input: 0, stage_hold: 0, agent_draft: 0, record: 0, kb_scope: 0, citation: 0 };
 
 const expectSchema = z
   .object({
@@ -74,9 +74,23 @@ const expectSchema = z
     tenant_mail: z.literal(true).optional(),
     /** Ca lịch hẹn + liệu trình TIP-033b (booking-judge.ts): chấm theo lịch / cấu hình / agent / tệp xuất / số buổi thật. */
     booking: z.literal(true).optional(),
+    /** Ca kỹ năng tiện ích AI TIP-019c AC8 (utility-judge.ts): chấm theo `GET /ai-utilities/:runId/result` thật — không qua Trợ lý. */
+    ai_utility: z.literal(true).optional(),
+    /** Ca đầu vào tệp TIP-023f (input-judge.ts): sự kiện canary trong nội dung tệp phải có trong câu trả lời + không ghi chưa xác nhận. */
+    input_file: z.literal(true).optional(),
+    /** Ca giữ giai đoạn kéo tay TIP-015g (stage-judge.ts): chấm theo giai đoạn / lịch sử / hoàn tác đọc lại từ API. */
+    stage_hold: z.literal(true).optional(),
+    /** Ca soạn agent TIP-021b (agent-draft-judge.ts): gọi thẳng action, chấm tool theo ứng viên của binding + quyền thật. */
+    agent_draft: z.literal(true).optional(),
+    /** Ca lối vào theo bản ghi TIP-023g (record-judge.ts): chấm getter / binding đề xuất / 404 theo API thật. */
+    record: z.literal(true).optional(),
+    /** Ca phạm vi tri thức TIP-020c (kb-scope-judge.ts): chấm theo mã canary của nguồn seed (có / không có trong câu trả lời). */
+    kb_scope: z.literal(true).optional(),
+    /** Ca trích dẫn câu trả lời TIP-020d (citation-judge.ts): chấm binding trích dẫn của run + câu gửi khách đọc lại từ API. */
+    citation: z.literal(true).optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking || e.ai_utility || e.input_file || e.stage_hold || e.agent_draft || e.record || e.kb_scope || e.citation, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -131,11 +145,64 @@ export const caseSchema = z
     booking: z.object({ kind: z.enum(['entitlement', 'expired', 'conflict', 'exhausted', 'hours', 'agent', 'export', 'import']) }).strict().optional(),
     /** Ca sửa đơn / hợp đồng TIP-032c: loại ca (cedit-judge.ts) — bộ theo khoá lượt từ commerce-edit-integrity/seed.mjs. */
     cedit: z.object({ kind: z.enum(['assign', 'owner', 'marketplace', 'concurrent', 'deposit', 'shipping', 'transfer', 'export']) }).strict().optional(),
+    /** Ca kỹ năng tiện ích AI TIP-019c AC8: loại ca (utility-judge.ts) + id seed khi cần (hội thoại / tin / khách). */
+    utility: z
+      .object({
+        kind: z.enum(['summarize_vi', 'summarize_en', 'intent_ambiguous', 'extract_missing', 'lead_insufficient', 'lead_explicit', 'invalid_scope', 'injection']),
+        conversation: z.string().max(120).optional(),
+        message: z.string().max(120).optional(),
+        contact: z.string().max(120).optional(),
+      })
+      .strict()
+      .optional(),
     /** Ca nhập / xuất TIP-038b: thực thể + tệp seed (data-transfer-seed.mjs — khoá theo thực thể khi bỏ trống). */
     transfer: z
       .object({ kind: z.enum(['import', 'export']), entity: z.enum(['contact', 'product', 'quote', 'order', 'contract', 'invoice']), file: z.enum(['contacts', 'products', 'quotes', 'orders', 'contracts', 'invoices']).optional() })
       .strict()
       .optional(),
+    /** Ca giữ giai đoạn kéo tay TIP-015g: loại ca (stage-judge.ts) — khách theo khoá lượt từ crm-stage-hold/seed.mjs. */
+    stage_hold: z.object({ kind: z.enum(['move_order', 'noop', 'revoked', 'undo']) }).strict().optional(),
+    /** Ca soạn agent TIP-021b: `allowed` (Owner — tool cần có / một trong / cấm) · `limited` (Sales thật — không quyền action → không cấp). */
+    agent_draft: z
+      .object({ kind: z.enum(['allowed', 'limited']), want: z.array(z.string().max(60)).max(6).optional(), any: z.array(z.string().max(60)).max(6).optional(), forbid: z.array(z.string().max(60)).max(6).optional() })
+      .strict()
+      .optional(),
+    /** Ca lối vào theo bản ghi TIP-023g: `inspect` (lượt theo bản ghi seed) · `proposal` (đề xuất combo / chiến dịch) · `limited` (Sales ngoài scope → 404). */
+    record: z
+      .object({
+        kind: z.enum(['inspect', 'proposal', 'limited']),
+        entity: z.enum(['quote', 'contract', 'order', 'appointment', 'follow_up', 'ticket', 'invoice', 'product']),
+        intent: z.enum(['inspect', 'review_ticket', 'invoice_task', 'product_combo', 'product_campaign']).default('inspect'),
+      })
+      .strict()
+      .optional(),
+    /** Ca phạm vi tri thức TIP-020c: đường chạy + agent seed + mã nguồn phải có (`want`) / không được có (`deny`) / không mã nào (`none`). */
+    kb_scope: z
+      .object({
+        path: z.enum(['assistant', 'builder', 'nested', 'revoked']),
+        agent: z.enum(['empty', 'folder', 'tag', 'mixed', 'internal']).optional(),
+        channel: z.boolean().optional(),
+        as_sales: z.boolean().optional(),
+        want: z.array(z.enum(['fa', 'fb', 'tag', 'int', 'pub', 'out'])).max(6).optional(),
+        deny: z.array(z.enum(['fa', 'fb', 'tag', 'int', 'pub', 'out'])).max(6).optional(),
+        none: z.boolean().optional(),
+        revoke: z.enum(['fa', 'fb', 'tag', 'int', 'pub', 'out']).optional(),
+      })
+      .strict()
+      .optional(),
+    /** Ca trích dẫn TIP-020d: đường chạy (lượt agent kênh thật) + mã nguồn phải có (`want`) / không được có (`deny`). */
+    citation: z
+      .object({
+        path: z.enum(['grounded', 'none', 'copilot', 'handoff', 'revoked']),
+        want: z.array(z.enum(['gio', 'gia', 'bh', 'noibo'])).max(4).optional(),
+        deny: z.array(z.enum(['gio', 'gia', 'bh', 'noibo'])).max(4).optional(),
+        /** Câu hỏi có phần ngoài tài liệu: chuyển người kèm nháp có nguồn đã kiểm cũng đạt (không gửi khách). */
+        handoff_ok: z.boolean().optional(),
+      })
+      .strict()
+      .optional(),
+    /** Ca đầu vào tệp TIP-023f: khoá tệp seed (assistant-input-seed.mjs — tải lên + chuẩn bị mỗi lượt). */
+    input_file: z.object({ file: z.enum(['pdf_vi', 'docx_en', 'image', 'screenshot', 'eml', 'csv', 'injection']) }).strict().optional(),
     expect: expectSchema,
   })
   .strict();

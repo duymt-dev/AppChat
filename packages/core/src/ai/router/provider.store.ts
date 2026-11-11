@@ -9,6 +9,7 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ModelPrice } from '../../billing/public';
 import type { AiEnv } from '../ai.env';
 import { AI_CONFIG_SCOPE, RevisionWatch } from '../../platform/public';
+import { providerRevision, routeRevision } from './config-revision';
 
 const TTL_MS = 60_000;
 
@@ -63,12 +64,13 @@ export class ProviderStore implements RouterConfigSource {
         } catch {
           continue; // header bí mật không giải được → không gọi provider thiếu xác thực
         }
-        map.set(p.key, { key: p.key, kind: p.kind, baseUrl: p.baseUrl, apiKey, headers, capabilities: (p.capabilities ?? {}) as ProviderConfig['capabilities'] });
+        const configRevision = providerRevision(this.key, { key: p.key, kind: p.kind, baseUrl: p.baseUrl, capabilities: p.capabilities, status: p.status, version: p.version, apiKeyEnc: p.apiKeyEnc, headersEnc: p.headersEnc });
+        map.set(p.key, { key: p.key, kind: p.kind, baseUrl: p.baseUrl, apiKey, headers, capabilities: (p.capabilities ?? {}) as ProviderConfig['capabilities'], configRevision });
       }
       const snap: Snapshot = {
         at: this.now(),
         gen,
-        routes: routes.map((r) => ({ tier: r.tier, purpose: r.purpose, priority: r.priority, providerKey: r.providerKey, model: r.model })),
+        routes: routes.map((r) => ({ tier: r.tier, purpose: r.purpose, priority: r.priority, providerKey: r.providerKey, model: r.model, vision: (r.params as { vision?: unknown } | null)?.vision === true, configRevision: routeRevision(this.key, { id: r.id, model: r.model, params: r.params, priority: r.priority }) })),
         providers: map,
         prices: new Map(prices.map((x) => [`${x.providerKey}:${x.model}`, { per1kIn: Number(x.creditsPer1kIn), per1kOut: Number(x.creditsPer1kOut), tier: x.tier }])),
       };

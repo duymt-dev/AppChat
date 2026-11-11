@@ -47,6 +47,10 @@ export interface ConvExtras {
   avatars?: Map<string, string>;
   /** Khách đã xoá mềm (TIP-015f) — hội thoại mang dấu `contact_deleted`. */
   deletedContacts?: Set<string>;
+  /** Đồng phụ trách (conversation_assignee) theo hội thoại — tên đã giải (người qua CrmMembers, agent qua aiAgent). */
+  coAssignees?: Map<string, { kind: 'user' | 'agent'; id: string; name: string }[]>;
+  /** TIP-020c: hội thoại có nháp AI phụ thuộc nguồn tri thức không còn hợp lệ — không chiếu nháp. */
+  staleDrafts?: Set<string>;
 }
 
 export function toConversation(c: ConvRow, x: ConvExtras, p: Place): ConversationDto {
@@ -74,7 +78,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     ai_state: c.aiState,
     ai_mode: c.aiMode,
     ...(c.handoffReason ? { handoff_reason: c.handoffReason } : {}),
-    ...(c.aiDraft ? { ai_draft: c.aiDraft } : {}),
+    ...(c.aiDraft && !x.staleDrafts?.has(c.id) ? { ai_draft: c.aiDraft, ...(c.aiDraftRunId ? { ai_draft_ref: { id: c.aiDraftRunId, generation: c.aiDraftGen } } : {}) } : {}),
     ...(c.intent && (AGENT_INTENTS_CLOSED as readonly string[]).includes(c.intent) ? { intent: c.intent as AgentIntent } : {}),
     ...(c.handoffSummary ? { has_handoff_summary: true } : {}),
     status: c.status,
@@ -83,6 +87,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     channel_account_id: c.channelAccountId,
     assignee_user_id: c.assigneeUserId,
     assignee_agent_id: c.assigneeAgentId,
+    ...(x.coAssignees?.get(c.id)?.length ? { co_assignees: x.coAssignees.get(c.id) } : {}),
     archived: !!c.archivedAt,
     last_message_at: c.lastMessageAt.toISOString(),
   };

@@ -1,7 +1,6 @@
 // Cột DataTable Ticket — prototype L4899–4931 + thẻ kanban L4941–4947 + thẻ mobile.
 // Menu dòng: Xem chi tiết · Tạm dừng (→ waiting, SLA dừng) · Hoàn thành (mở hộp đóng ticket, lý do bắt buộc) · Mở lại (ticket đã đóng).
 'use client';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { ActionMenu, Icon, color, gradient, type TableColumnsType } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
@@ -9,6 +8,7 @@ import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useTicketCellStyles } from './styles/cells.styles';
 import { useTicketsUi } from './tickets-store';
+import { useRecordScopes } from '@/shared/assistant/record-intent/store';
 import { CHANNEL_LOOK, PRIORITY_TONE, SLA_TONE, STATUS_TONE, avColor } from './status';
 import { useSlaLabel } from './hooks/useSla';
 import type { Ticket } from './types';
@@ -53,8 +53,8 @@ export function StatusText({ k }: { k: Ticket }) {
 
 function AiCell({ k }: { k: Ticket }) {
   const t = useTranslations('tickets');
-  const { message } = App.useApp();
   const { styles } = useTicketCellStyles();
+  const set = useTicketsUi((s) => s.set);
   const hint = k.assignee_agent_id ? t('aiHint.agent') : t('aiHint.user', { name: k.assignee_name });
   return (
     <div className={styles.ai} onClick={(e) => e.stopPropagation()}>
@@ -64,7 +64,10 @@ function AiCell({ k }: { k: Ticket }) {
         className={styles.aiPeek}
         title={t('aiPeek')}
         aria-label={t('aiPeek')}
-        onClick={() => void message.info(t('aiPeekMsg', { code: k.code, hint }))}
+        onClick={() => {
+          useRecordScopes.getState().open({ module: 'tickets', entity: 'ticket', id: k.id, label: k.code });
+          set({ aiOpen: true });
+        }}
       >
         <Icon name="ic-spark" size={12} color={color.violet} />
       </button>
@@ -81,7 +84,12 @@ function RowMenu({ k }: { k: Ticket }) {
   const close = () => ui.set({ menuFor: null });
   const closed = k.status === 'closed';
   const items = [
-    { key: 'view', label: t('view'), icon: 'ic-eye' as const, onClick: () => ui.set({ menuFor: null, detail: k.id, tab: 'detail' }) },
+    {
+      key: 'view',
+      label: t('view'),
+      icon: 'ic-eye' as const,
+      onClick: () => ui.set({ menuFor: null, detail: k.id, tab: 'detail' }),
+    },
     ...(can && !closed && k.status !== 'waiting'
       ? [
           {
@@ -93,10 +101,24 @@ function RowMenu({ k }: { k: Ticket }) {
         ]
       : []),
     ...(can && !closed
-      ? [{ key: 'close', label: t('close'), icon: 'ic-check' as const, onClick: () => ui.set({ menuFor: null, closeFor: k.id }) }]
+      ? [
+          {
+            key: 'close',
+            label: t('close'),
+            icon: 'ic-check' as const,
+            onClick: () => ui.set({ menuFor: null, closeFor: k.id }),
+          },
+        ]
       : []),
     ...(can && closed
-      ? [{ key: 'reopen', label: t('reopen'), icon: 'ic-flow' as const, onClick: () => (close(), void reopen.run({ ticket_id: k.id })) }]
+      ? [
+          {
+            key: 'reopen',
+            label: t('reopen'),
+            icon: 'ic-flow' as const,
+            onClick: () => (close(), void reopen.run({ ticket_id: k.id })),
+          },
+        ]
       : []),
   ];
   return (
@@ -128,7 +150,10 @@ export function useTicketColumns(now: string): TableColumnsType<Ticket> {
         <div className={styles.min0}>
           <div className={styles.idRow}>
             <span className={styles.code}>{k.code}</span>
-            <span className={styles.pr} style={{ background: `${PRIORITY_TONE[k.priority]}18`, color: PRIORITY_TONE[k.priority] }}>
+            <span
+              className={styles.pr}
+              style={{ background: `${PRIORITY_TONE[k.priority]}18`, color: PRIORITY_TONE[k.priority] }}
+            >
               <span className={styles.prDot} style={{ background: PRIORITY_TONE[k.priority] }} />
               {t(`priority.${k.priority}`)}
             </span>

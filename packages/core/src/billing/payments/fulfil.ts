@@ -8,6 +8,7 @@ import type { ActionContext, PlatformTx } from '../../kernel/actions/action-cont
 import type { ActionExecutor } from '../../kernel/actions/executor';
 import { applyPaidInvoice } from '../lifecycle/apply-invoice';
 import { BILLING_ACTOR } from '../lifecycle/types';
+import { domainTrigger, runSystemAction } from '../../kernel/actions/system';
 import type { BillingEventSink } from '../services/subscriptions.service';
 import type { WalletService } from '../services/wallet.service';
 
@@ -51,7 +52,9 @@ export class InvoiceFulfiller {
     const inv = await this.db.billingInvoice.findUnique({ where: { id: invoiceId }, select: { id: true, workspaceId: true, status: true, fulfilledAt: true, holdReason: true } });
     if (!inv || inv.status !== 'paid' || inv.fulfilledAt || inv.holdReason) return false;
     if (this.executor) {
-      const out = (await this.executor.execute(billingCtx(inv.workspaceId), 'billing.apply_invoice', { invoice_id: inv.id })) as { status: number; data: { result?: { status?: string } } };
+      // TIP-003c: action riêng tiền nhiệm 039 theo hoá đơn đã trả (nguồn bền); fulfilled_at / biên nhận ví là chống lặp.
+      const t = domainTrigger({ workspaceId: inv.workspaceId, actionId: 'billing.apply_invoice', actor: BILLING_ACTOR, sourceKind: 'accepted_operation', sourceRef: `billing_invoice:${inv.id}`, targetId: inv.id, input: { invoice_id: inv.id } });
+      const out = (await runSystemAction(this.executor, null, t, billingCtx(inv.workspaceId))) as { status: number; data: { result?: { status?: string } } };
       return out.status === 200 && out.data.result?.status === 'applied';
     }
     const r = await this.db.$transaction((t) => applyPaidInvoice(t, this.wallet, inv.id, this.now()));

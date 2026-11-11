@@ -12,6 +12,7 @@ import type { AgentConfig } from '../agents/agent.store';
 import { MAX_STEPS, type AiRunner } from '../runs/runner';
 import { RunStore } from '../runs/run.store';
 import { publishedAgent } from './reply-context';
+import { agentKnowledge } from '../kb/scope/context';
 
 export const META = { handoff: 'handoff', transfer: 'transfer_to_agent', consult: 'consult' } as const;
 /** Độ sâu tối đa của consult / delegate (agent-gateway §5). */
@@ -108,6 +109,8 @@ async function consult(d: ReplyToolDeps, t: ReplyTurn, i: { role?: unknown; ques
     agentVersion: target.version,
     conversationId: t.conversationId,
     maxCredits: CONSULT_BUDGET,
+    // TIP-020c: con hỏi ý kiến trong lượt kênh — phạm vi của agent đích, trần public (khách), không quyền rộng của cha.
+    knowledge: agentKnowledge({ agentId: target.agent.id, version: target.version, cfg: target.cfg }, { channel: true, parentRunId: t.runId }),
   });
   const tools = agentToolSpecs(d.executor, ids, { workspaceId: t.ws, agent: { id: target.agent.id, toolIds: target.cfg.tools }, runId: row.id, source: 'agent', db: d.db });
   const system = `${agentSystem(target.cfg)}\n\nĐồng nghiệp AI hỏi ý kiến bạn. Trả lời ngắn gọn, chỉ dựa trên dữ liệu tra được; không gửi gì cho khách.`;

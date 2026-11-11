@@ -52,10 +52,28 @@ export function keysFor(event: string, data: unknown): readonly Key[] {
   return EVENT_KEYS[event] ?? [];
 }
 
+/**
+ * TIP-006b §3.6: server publish at-least-once — gói tin mang `rt_id` ổn định thì bỏ bản trùng (nhớ tối đa 500 id gần nhất). Không có id →
+ * luôn xử lý (làm mới thừa vô hại: dữ liệu thật đọc lại REST có quyền). Thứ tự lệch không quan trọng vì chỉ invalidate, không áp payload.
+ */
+export function dedupe(limit = 500) {
+  const seen = new Set<string>();
+  return (data: unknown): boolean => {
+    const id = (data as { rt_id?: unknown } | null)?.rt_id;
+    if (typeof id !== 'string') return true;
+    if (seen.has(id)) return false;
+    seen.add(id);
+    if (seen.size > limit) seen.delete(seen.values().next().value as string);
+    return true;
+  };
+}
+
 export function useEventInvalidation() {
   const qc = useQueryClient();
   useEffect(() => {
+    const fresh = dedupe();
     const on = (event: string, data?: unknown) => {
+      if (!fresh(data)) return;
       for (const key of keysFor(event, data)) void qc.invalidateQueries({ queryKey: key });
     };
     const off = apiMode() === 'mock' ? onMockEvent((event) => on(event)) : subscribeRealtime(on);

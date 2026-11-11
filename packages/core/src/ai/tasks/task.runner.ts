@@ -21,6 +21,8 @@ import { eventRecordVisible } from '../../insights/services/renewal-suggestions'
 import type { Place } from './task-place';
 import { collectTargets, type Target } from './task-targets';
 import type { TaskRow } from './task.store';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
+import { agentKnowledge } from '../kb/scope/context';
 
 export interface TaskRunDeps {
   executor: ToolExecutor;
@@ -77,7 +79,7 @@ async function report(db: TenantDb, t: TaskRow, runId: string, parts: Part[], no
 }
 
 async function notify(d: TaskRunDeps, db: TenantDb, ws: string, kind: 'ai_briefing' | 'ai_task_failed', userId: string, params: Record<string, string>, link: string) {
-  await db.$transaction((tx) => writeOutbox(tx, ws, [{ topic: 'notify.requested', payload: { kind, to: { user_ids: [userId] }, params, link } }], d.now()));
+  await inEventTransaction(db, ws, (tx) => writeOutbox(tx, ws, [{ topic: 'notify.requested', payload: { kind, to: { user_ids: [userId] }, params, link } }], d.now()));
   await markDirty(d.kv, ws);
 }
 
@@ -143,7 +145,7 @@ export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { t
     narrow: (x) => narrowScope(x, t.dataScope),
     db,
   });
-  await db.aiRun.update({ where: { id: run.id }, data: { agentVersion: a.version, input: { goal: prompt.slice(0, 4000), ...(event ? { event: event.topic } : {}) } } });
+  await db.aiRun.update({ where: { id: run.id }, data: { agentVersion: a.version, input: { goal: prompt.slice(0, 4000), ...(event ? { event: event.topic } : {}) }, knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { commanderId: t.createdByUserId }) as object } });
   let r: RunResult;
   try {
     r = await d.runner.start(ws, store, run, { system: `${agentSystem(a.cfg)}\n\n${system}`, messages: [{ role: 'user', content: prompt }], tools, maxSteps: MAX_STEPS.agent, source: 'task' });

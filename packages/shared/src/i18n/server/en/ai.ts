@@ -31,6 +31,8 @@ export const ai: typeof vi = {
     no_target: 'No suitable agent to transfer to — needs a human',
     out_of_hours: 'Outside AI opening hours — waiting for staff',
     missing_ticket_grant: 'Customer complained but the agent may not create tickets — needs a human to create one',
+    citation_invalid: 'AI cited documents invalidly — needs a human review',
+    citation_missing: 'AI answered from documents without citing sources — needs a human review',
   },
   approval: {
     title: '{action}',

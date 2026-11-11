@@ -119,6 +119,14 @@
       "title": "Assign conversation",
       "desc": "Assign a conversation to a team member or another AI Agent."
     },
+    "add_assignee": {
+      "title": "Add co-assignee",
+      "desc": "Add a team member or AI Agent as a co-assignee, alongside the primary assignee."
+    },
+    "remove_assignee": {
+      "title": "Remove co-assignee",
+      "desc": "Remove a team member or AI Agent from a conversation's co-assignees."
+    },
     "tag": {
       "title": "Tag conversation",
       "desc": "Add a tag to a conversation."
@@ -420,6 +428,9 @@
     },
     "edit_and_approve": {
       "title": "Edit & approve action"
+    },
+    "system_expire": {
+      "title": "Expire approval request (system)"
     }
   },
   "ai": {
@@ -592,6 +603,9 @@
     "get": {
       "title": "View quote",
       "desc": "Read one quote: lines, totals, validity."
+    },
+    "system_transition": {
+      "title": "Quote system transition"
     }
   },
   "contract": {
@@ -716,6 +730,37 @@
     "appendix_public_decline": {
       "title": "Customer declines appendix (public page)",
       "desc": "Internal — public signing page"
+    },
+    "system_transition": {
+      "title": "Contract system transition"
+    },
+    "public_open": {
+      "title": "Open signing link (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_otp": {
+      "title": "Contract signing OTP (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_decline": {
+      "title": "Customer declines (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_sign": {
+      "title": "Customer signs contract (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "sign_attempt_prepare": {
+      "title": "Verify signing attempt",
+      "desc": "Internal — signing pipeline"
+    },
+    "sign_attempt_stage": {
+      "title": "Stage signed copy",
+      "desc": "Internal — signing pipeline"
+    },
+    "request_sign_otp": {
+      "title": "Send approve & sign code",
+      "desc": "Email yourself a one-time code to approve & sign this contract"
     }
   },
   "order": {
@@ -775,6 +820,9 @@
     "send_confirmation": {
       "title": "Send order confirmation",
       "desc": "Send the order confirmation PDF (items, total, paid / left) to the customer conversation."
+    },
+    "system_import": {
+      "title": "Import verified marketplace order revision (system)"
     }
   },
   "invoice": {
@@ -805,6 +853,9 @@
     "get": {
       "title": "View payment request",
       "desc": "Read one payment request: amount, paid, due date."
+    },
+    "system_transition": {
+      "title": "Payment request system transition"
     }
   },
   "booking": {
@@ -878,6 +929,9 @@
     "update": {
       "title": "Edit appointment",
       "desc": "Edit time, service, staff, note, reminder or custom fields of an open appointment."
+    },
+    "system_transition": {
+      "title": "Appointment system transition"
     }
   },
   "ticket": {
@@ -922,6 +976,9 @@
     "get": {
       "title": "View ticket",
       "desc": "Read one ticket: status, priority, SLA due times, assignee."
+    },
+    "system_transition": {
+      "title": "Ticket system transition"
     }
   },
   "segment": {
@@ -1159,18 +1216,18 @@
       "title": "Sync channel account address book"
     },
     "friend": {
-        "accept": {
-          "title": "Accept Zalo friend request"
-        },
-        "reject": {
-          "title": "Reject Zalo friend request"
-        },
-        "send": {
-          "title": "Send Zalo friend request"
-        },
-        "undo": {
-          "title": "Withdraw Zalo friend request"
-        }
+      "accept": {
+        "title": "Accept Zalo friend request"
+      },
+      "reject": {
+        "title": "Reject Zalo friend request"
+      },
+      "send": {
+        "title": "Send Zalo friend request"
+      },
+      "undo": {
+        "title": "Withdraw Zalo friend request"
+      }
     },
     "lookup_user": {
       "title": "Find a Zalo user by phone"
@@ -1190,6 +1247,9 @@
     },
     "status": {
       "title": "Check channel connection status"
+    },
+    "system_transition": {
+      "title": "Channel account transition (system)"
     }
   },
   "webchat": {
@@ -1295,6 +1355,9 @@
     "source_search": {
       "title": "Find knowledge sources",
       "desc": "Look up knowledge-base sources by name or tag."
+    },
+    "system_publish": {
+      "title": "Publish knowledge source ingest result (system)"
     }
   },
   "governance": {
@@ -1441,6 +1504,9 @@
     "search": {
       "title": "Find customer packages",
       "desc": "Look up packages: sessions used, expiry, status."
+    },
+    "system_transition": {
+      "title": "Package system transition"
     }
   },
   "payment_account": {
@@ -1468,6 +1534,42 @@
   "assistant": {
     "resume": {
       "title": "Resume assistant turn"
+    },
+    "plan_propose": {
+      "title": "Propose Cowork plan",
+      "desc": "Create a new multi-step plan for the current session — proposal only, nothing executed yet."
+    },
+    "plan_get": {
+      "title": "View Cowork plan progress",
+      "desc": "Read the real status of a plan (which steps are done, waiting, failed) — not the model's claim."
+    },
+    "plan_reusable": {
+      "title": "Reusable plan suggestions",
+      "desc": "List your own prior plan structures you can reuse — action/step names only, no old values or results."
+    },
+    "agent_choices": {
+      "title": "List AI agents to choose as specialist",
+      "desc": "Page active/published AI agents selectable as a Cowork specialist — name/role/model tier only, no draft prompt/persona."
+    },
+    "discovery_prepare": {
+      "title": "Prepare semantic action search",
+      "desc": "Build the semantic action-search index for this workspace — a background job, only needed when keyword search falls short; no effect on customer data."
+    },
+    "attachment_prepare": {
+      "title": "Prepare Assistant attachment",
+      "desc": "Bind an uploaded file to the draft and extract bounded content for the Assistant to read — no analysis or import."
+    },
+    "attachment_remove": {
+      "title": "Remove draft attachment",
+      "desc": "Detach an unsent file from the draft — never deletes the source file or sent history."
+    },
+    "attachment_get": {
+      "title": "View attachment status",
+      "desc": "Preparation status of an attachment in the current Assistant context."
+    },
+    "attachment_read": {
+      "title": "Read attachment content",
+      "desc": "Read the next content segments of the turn's file with page / row locators to cite."
     }
   },
   "sales_settings": {
@@ -1531,6 +1633,11 @@
     "review_resolve": {
       "title": "Resolve one quarantined item (forget customer)",
       "desc": "Decide one shared / unidentified data item in a \"forget customer\" operation: unrelated, this customer only, shared (strip this subject, keep others), or retained as issued evidence."
+    }
+  },
+  "inbox": {
+    "system_agent_transition": {
+      "title": "Conversation agent transition (system)"
     }
   }
 }

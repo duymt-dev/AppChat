@@ -2,13 +2,14 @@
 // event + timeline (+ lùi giai đoạn khách về Đang tư vấn nếu không còn báo giá mở); xin sửa → bản hiện tại `revision_requested`, sinh
 // phiên bản n+1 `draft` cùng mã (sao chép dòng, chiết khấu, điều khoản); bản cũ thành `superseded` khi bản mới được gửi.
 import { Inject, Injectable } from '@nestjs/common';
-import { AppError, OPEN_QUOTE_STATUSES, QUOTE_FLOW, assertTransition, quoteTotals, type Discount } from '@appchat/shared';
+import { AppError, QUOTE_FLOW, assertTransition, quoteTotals, type Discount } from '@appchat/shared';
 import type { ActionInput, quoteMarkAccepted, quoteMarkRejected, quoteRequestRevision } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { uuidv7 } from '../../../kernel/ids';
-import { actorUserId, applyStageRule, writeTimeline } from '../../../crm/public';
+import { actorUserId, applyStageRule, lockStageFamilyOf, stageBinding, writeTimeline } from '../../../crm/public';
+import { familyHasOpenQuote } from '../services/open-family-quote';
 import { lockQuote, type QuoteRecord } from '../quote-access';
 import { hasNewerVersion, linesOf, moveStatus, writeLines } from '../services/quote-write';
 import { acceptPreview, rejectPreview, revisionPreview } from '../previews/quote-decide.handlers.preview';
@@ -16,15 +17,11 @@ import { acceptPreview, rejectPreview, revisionPreview } from '../previews/quote
 type Out = { quote_id: string; status: string };
 type Actor = { type: string; id: string | null };
 
-/** Còn báo giá mở (khác `exceptId`) của khách → không lùi giai đoạn (COMMERCE §8). */
-async function hasOpenQuote(tx: TenantTx, contactId: string, exceptId: string) {
-  return !!(await tx.quote.findFirst({ where: { contactId, id: { not: exceptId }, deletedAt: null, status: { in: [...OPEN_QUOTE_STATUSES] } }, select: { id: true } }));
-}
-
-/** Báo giá kết thúc không thành (từ chối / hết hạn) → timeline + lùi giai đoạn khách nếu hết báo giá mở. Dùng chung job hết hạn. */
+/** Báo giá kết thúc không thành (từ chối / hết hạn) → timeline + lùi giai đoạn khách nếu HỌ khách hết báo giá mở. Dùng chung job hết hạn.
+ *  Người gọi đã khoá họ khách TRƯỚC báo giá (lockStageFamilyOf — TIP-015g). */
 export async function closeLost(tx: TenantTx, q: Pick<QuoteRecord, 'id' | 'contactId' | 'code'>, key: 'quote_rejected' | 'quote_expired', actor: Actor, now: Date) {
   await writeTimeline(tx, { contactId: q.contactId, type: 'quote', key, params: { code: q.code }, actor, ref: { type: 'quote', id: q.id }, at: now });
-  return (await hasOpenQuote(tx, q.contactId, q.id)) ? [] : applyStageRule(tx, { contactId: q.contactId, mode: 'fallback', to: 'consulting', actor, now });
+  return (await familyHasOpenQuote(tx, stageBinding(tx, q.contactId).ids, q.id)) ? [] : applyStageRule(tx, { contactId: q.contactId, mode: 'fallback', to: 'consulting', actor, now });
 }
 
 const payload = (q: QuoteRecord, reason?: string) => ({ quote_id: q.id, contact_id: q.contactId, code: q.code, version: q.version, ...(reason ? { reason } : {}) });
@@ -68,6 +65,7 @@ export class QuoteRejectHandler implements Handler<ActionInput<typeof quoteMarkR
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof quoteMarkRejected>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
+    await lockStageFamilyOf(tx, 'quote', input.quote_id);
     const q = await lockQuote(tx, ctx.authz, input.quote_id);
     const to = assertTransition(QUOTE_FLOW, q.status, 'quote.mark_rejected');
     const now = this.clock.now();

@@ -37,7 +37,7 @@ export const adminProviderSchema = z.object({
   last_probe_at: z.string().nullable(),
   last_error: z.string().nullable(),
 });
-export const adminRouteGroupSchema = z.object({ tier, purpose, version: z.number().int(), routes: z.array(z.object({ provider_key: z.string(), model: z.string() })) });
+export const adminRouteGroupSchema = z.object({ tier, purpose, version: z.number().int(), routes: z.array(z.object({ provider_key: z.string(), model: z.string(), vision: z.boolean().optional() })) });
 export const adminPriceSchema = z.object({
   provider_key: z.string(),
   model: z.string(),

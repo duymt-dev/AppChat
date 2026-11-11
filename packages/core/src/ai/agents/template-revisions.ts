@@ -2,7 +2,7 @@
 // Booking thêm tra / đổi / huỷ lịch. Nâng cấp KHÔNG ghi đè sửa đổi của Quản trị nền tảng: chỉ mẫu còn đúng y bản dựng sẵn rev trước mới
 // được nâng; mẫu đã sửa giữ nguyên + báo xem trước thay thế cho quản trị. Agent đã tạo / đã xuất bản không đổi (không tự cấp quyền) — đề
 // xuất diff đi qua agent.update + xuất bản như thường. Mỗi id phải tồn tại + agentGrantable (sai chính tả → test đỏ, không lặng lẽ bỏ).
-import { registry } from '@appchat/actions';
+import { registry, isAgentGrantable } from '@appchat/actions';
 
 export const TEMPLATE_REVISION = 2;
 
@@ -38,7 +38,7 @@ export const ROLE_DEFAULTS_V2: Record<string, RoleDefaults> = {
 
 /** Id không tồn tại / không cấp được cho agent trong bộ mặc định — phải rỗng. */
 export function invalidTemplateTools(): string[] {
-  const ok = new Set(registry.filter((a) => a.agentGrantable).map((a) => a.id));
+  const ok = new Set(registry.filter(isAgentGrantable).map((a) => a.id));
   return [...new Set(Object.values(ROLE_DEFAULTS_V2).flatMap((d) => d.tools))].filter((id) => !ok.has(id));
 }
 

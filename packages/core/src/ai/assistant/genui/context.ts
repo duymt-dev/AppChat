@@ -4,11 +4,13 @@
 // (không kéo nội dung bản ghi vào prompt — model tự gọi action đọc khi cần). Thực thể không có action get → bỏ entity / id / selection,
 // chỉ giữ route. Đọc qua executor như mọi đọc của Trợ lý (audit nguồn assistant), không trừ credit.
 import { registry } from '@appchat/actions';
-import { AppError } from '@appchat/shared';
+import type { TenantDb } from '@appchat/db';
+import { AppError, type RecordIntentInput } from '@appchat/shared';
 import { implementedBy, type ToolExecutor } from '../../../kernel/actions/executor';
 import type { AssistantContext } from '../assistant-prompt';
 import { assistantActionCtx } from '../meta-tools';
 import type { AssistantTurnCtx } from '../types';
+import { resolveRecord } from '../record-intent/context';
 
 /** Số dòng chọn tối đa kiểm lại (FE gửi ≤ 50; prompt chỉ cần vài chục id). */
 export const SELECTION_RESOLVE_MAX = 20;
@@ -49,4 +51,14 @@ export async function resolveContext(executor: ToolExecutor, t: AssistantTurnCtx
     ...(c.id && ok.has(c.id) ? { id: c.id } : {}),
     ...(selection.length ? { selection } : {}),
   };
+}
+
+/**
+ * Ngữ cảnh của lối vào theo bản ghi (TIP-023g §1.2–1.4): bản ghi người dùng BẤM (không phải dòng chọn chung của màn) đọc lại theo quyền
+ * hiện hành — không đọc được → 404 / 403 (không âm thầm bỏ như gợi ý màn), để UI nói đúng. Chỉ id vào prompt.
+ */
+export async function resolveRecordTurnContext(d: { db: TenantDb; executor: ToolExecutor }, t: AssistantTurnCtx, ri: RecordIntentInput, route: string | undefined): Promise<AssistantContext> {
+  const r = await resolveRecord(d, t, ri.entity, ri.entity_id);
+  if (ri.displayed_version !== undefined && r.version !== null && r.version !== ri.displayed_version) throw new AppError('CONFLICT', 409, { record: 'version_changed' });
+  return { ...(route ? { route: route.slice(0, 300) } : {}), surface: 'drawer', entity: r.entity, id: r.id };
 }

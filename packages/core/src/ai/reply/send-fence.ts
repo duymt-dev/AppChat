@@ -8,6 +8,7 @@
 import type { TenantDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { dispatchKnowledgeOk } from '../kb/scope/draft-binding';
 
 export type ReserveOutcome = 'reserved' | 'not_agent' | 'rejected' | 'missing' | 'already';
 
@@ -16,8 +17,10 @@ type Db = Pick<TenantDb, '$transaction'>;
 /** Đặt chỗ một outbox gửi (ref_id = outbox id). `not_agent` = tin người → gửi bình thường. */
 export async function reserveDispatch(db: Db, outboxId: string, now: Date): Promise<ReserveOutcome> {
   return db.$transaction(async (tx) => {
-    const ob = await tx.outboxMessage.findUnique({ where: { id: outboxId }, select: { id: true, status: true, messageId: true, turnFence: true, aiEpoch: true } });
+    const ob = await tx.outboxMessage.findUnique({ where: { id: outboxId }, select: { id: true, status: true, messageId: true, turnFence: true, aiEpoch: true, knowledgeRunId: true } });
     if (!ob) return 'missing';
+    // TIP-020c: nội dung phụ thuộc nguồn tri thức (tin agent / nháp AI người gửi) — nguồn hết hiệu lực trước khi gọi kênh → không gửi.
+    if (ob.status === 'pending' && !(await dispatchKnowledgeOk(tx, ob.knowledgeRunId))) return reject(tx, ob, 'knowledge_revoked');
     if (ob.turnFence === null) return 'not_agent';
     if (ob.status === 'dispatch_reserved' || ob.status === 'sending' || ob.status === 'sent') return 'already';
     if (ob.status !== 'pending') return 'rejected';
@@ -29,14 +32,16 @@ export async function reserveDispatch(db: Db, outboxId: string, now: Date): Prom
     // Tin người mới hơn tin agent (người đã trả lời) → agent không gửi đè.
     const human = await tx.message.findFirst({ where: { conversationId: msg.conversationId, direction: 'out', senderType: 'user', createdAt: { gt: msg.createdAt } }, select: { id: true } });
     const ok = !!c && c.ai_mode === 'auto' && c.ai_epoch === ob.aiEpoch && !human;
-    if (!ok) {
-      await tx.outboxMessage.update({ where: { id: ob.id }, data: { status: 'dead', lastError: 'fence_rejected' } });
-      await tx.message.update({ where: { id: ob.messageId }, data: { status: 'failed', error: 'fence_rejected' } });
-      return 'rejected';
-    }
+    if (!ok) return reject(tx, ob, 'fence_rejected');
     await tx.outboxMessage.update({ where: { id: ob.id }, data: { status: 'dispatch_reserved', reservedAt: now } });
     return 'reserved';
   });
+}
+
+async function reject(tx: TenantTx, ob: { id: string; messageId: string }, why: string): Promise<'rejected'> {
+  await tx.outboxMessage.update({ where: { id: ob.id }, data: { status: 'dead', lastError: why } });
+  await tx.message.update({ where: { id: ob.messageId }, data: { status: 'failed', error: why } });
+  return 'rejected';
 }
 
 /**

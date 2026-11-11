@@ -7,6 +7,8 @@ import { useAction } from '@/shared/actions/useAction';
 import { useChatStyles } from '../styles/chat.styles';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useThreadWindow } from '../hooks/useThreadWindow';
+import { useAiDraftBinding } from '../hooks/useAiDraftBinding';
+import { useDraftCitations } from '../hooks/useDraftCitations';
 import { ChatHeader } from './ChatHeader';
 import { Composer } from './Composer';
 import { ThreadViewport } from './ThreadViewport';
@@ -14,6 +16,7 @@ import { InboxApprovals } from './InboxApprovals';
 import { HandoffSummaryPanel } from './HandoffSummaryPanel';
 import { AiDraftCard } from './AiDraftCard';
 import { Rich } from './Rich';
+import { CitationList } from '@/shared/ai-citations/CitationList';
 import { ThreadSearchBar } from './ThreadSearchBar';
 import { useInboxUi } from '../inbox-store';
 import type { ChannelMeta, Conversation } from '../types';
@@ -35,7 +38,9 @@ export function ChatPanel({
   const send = useAction('message.send');
   const handoff = useAction('conversation.handoff');
   const draft = useInboxUi((s) => s.draft);
-  const setDraft = (v: string) => useInboxUi.getState().set({ draft: v });
+  const draftCitations = useInboxUi((s) => s.draftCitations);
+  const bind = useAiDraftBinding();
+  const aiDraftCitations = useDraftCitations(conv);
   const [hideSuggest, setHideSuggest] = useState(false);
   const suggestion = w.suggestion;
   const plain = (s: string) => s.replace(/<\/?b>/g, '');
@@ -54,6 +59,7 @@ export function ChatPanel({
               badge={t('handoff.badge')}
               reason={conv.handoff_reason ?? ''}
               body={conv.ai_draft ?? ''}
+              footer={conv.ai_draft ? <CitationList citations={aiDraftCitations} text={conv.ai_draft} testId="handoff-citations" /> : null}
               actions={
                 <>
                   <button
@@ -66,7 +72,7 @@ export function ChatPanel({
                     {t('handoff.take')}
                   </button>
                   {conv.ai_draft ? (
-                    <button type="button" className={cs.ghost} onClick={() => setDraft(conv.ai_draft ?? '')}>
+                    <button type="button" className={cs.ghost} onClick={() => bind.use(conv.ai_draft ?? '', conv.ai_draft_ref, aiDraftCitations)} data-testid="handoff-use-draft">
                       {t('handoff.useDraft')}
                     </button>
                   ) : null}
@@ -81,6 +87,7 @@ export function ChatPanel({
             title={t('suggest.title')}
             badge={t('suggest.confidence', { pct: suggestion.confidence })}
             body={<Rich text={suggestion.text} />}
+            footer={<CitationList citations={suggestion.citations} text={plain(suggestion.text)} testId="suggest-citations" />}
             actions={
               <>
                 <button
@@ -88,8 +95,8 @@ export function ChatPanel({
                   className={cs.primary}
                   onClick={async () => {
                     const r = await send.run(
-                      { conversation_id: conv.id, text: plain(suggestion.text) },
-                      { silent: true },
+                      bind.withRef({ conversation_id: conv.id, text: plain(suggestion.text) }, suggestion.ref ?? null),
+                      { silent: true, onError: (e) => (bind.onError(e) ? (setHideSuggest(true), true) : false) },
                     );
                     if (r) setHideSuggest(true);
                   }}
@@ -100,7 +107,7 @@ export function ChatPanel({
                 <button
                   type="button"
                   className={cs.ghost}
-                  onClick={() => (setDraft(plain(suggestion.text)), setHideSuggest(true))}
+                  onClick={() => (bind.use(plain(suggestion.text), suggestion.ref, suggestion.citations), setHideSuggest(true))}
                 >
                   {t('suggest.edit')}
                 </button>
@@ -112,7 +119,8 @@ export function ChatPanel({
           />
         ) : null}
       </ThreadViewport>
-      <Composer conv={conv} channel={channel} draft={draft} onDraft={setDraft} />
+      {draft.trim() ? <CitationList citations={draftCitations} testId="draft-citations" /> : null}
+      <Composer conv={conv} channel={channel} draft={draft} onDraft={bind.edit} />
     </div>
   );
 }

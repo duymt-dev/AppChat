@@ -79,11 +79,12 @@ export class AdminModelRouteUpsertHandler extends PlatformActionHandler<RouteIn,
     const old = await ptx.modelRoute.findMany({ where: { tier: i.tier, purpose: i.purpose }, orderBy: { priority: 'asc' } });
     await ptx.modelRoute.deleteMany({ where: { tier: i.tier, purpose: i.purpose } });
     if (i.routes.length)
-      await ptx.modelRoute.createMany({ data: i.routes.map((r, priority) => ({ id: uuidv7(), tier: i.tier, purpose: i.purpose, priority, providerKey: r.provider_key, model: r.model })) });
+      // Cờ vision vào params (cùng revision cấu hình AI — 023e); chỉ route chat mới mang ảnh.
+      await ptx.modelRoute.createMany({ data: i.routes.map((r, priority) => ({ id: uuidv7(), tier: i.tier, purpose: i.purpose, priority, providerKey: r.provider_key, model: r.model, ...(r.vision && i.purpose === 'chat' ? { params: { vision: true } } : {}) })) });
     await bumpRevision(ptx, AI_CONFIG_SCOPE, now);
     return {
       result: { tier: i.tier, purpose: i.purpose, version: Number(next), count: i.routes.length },
-      before: { routes: old.map((r) => ({ provider_key: r.providerKey, model: r.model })) },
+      before: { routes: old.map((r) => ({ provider_key: r.providerKey, model: r.model, vision: (r.params as { vision?: unknown } | null)?.vision === true })) },
       after: { routes: i.routes },
     };
   }
@@ -93,7 +94,7 @@ export class AdminModelRouteUpsertHandler extends PlatformActionHandler<RouteIn,
     return {
       summary: `${i.tier} · ${i.purpose} · ${i.routes.length}`,
       risk: 'config' as const,
-      changes: [{ entity: 'model_route', id: `${i.tier}:${i.purpose}`, before: { routes: old.map((r) => `${r.providerKey}:${r.model}`) }, after: { routes: i.routes.map((r) => `${r.provider_key}:${r.model}`) } }],
+      changes: [{ entity: 'model_route', id: `${i.tier}:${i.purpose}`, before: { routes: old.map((r) => `${r.providerKey}:${r.model}`) }, after: { routes: i.routes.map((r) => `${r.provider_key}:${r.model}${r.vision ? ' (vision)' : ''}`) } }],
       warnings: i.routes.length ? [] : ['empty_group'],
     };
   }

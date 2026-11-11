@@ -34,6 +34,7 @@ const tx = {
   conversationParticipant: { findFirst: async ({ where }: { where: { conversationId: string; contactId: string } }) => (where.conversationId === G && where.contactId === K2 ? { externalId: 'zl' } : null) },
   contact: { findUnique: async () => ({ ownerUserId: U(97) }) },
   contactCollaborator: { findUnique: async () => null, findFirst: async () => null },
+  conversationAssignee: { findUnique: async () => null },
 } as never;
 const authz = { userId: me, isOwner: false, permissions: new Set(), scope: { inbox: 'own' }, teamIds: [] } as unknown as AuthzContext;
 const code = (p: Promise<unknown>) => p.then(() => 'ok', (e: { code?: string; httpStatus?: number }) => `${e.httpStatus}:${e.code}`);

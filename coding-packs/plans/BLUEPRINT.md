@@ -322,6 +322,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `message_reaction` | message_id, actor_type(user\|contact), actor_id, emoji(👍\|❤️\|😂\|😮\|😢\|🙏), created_at | pk(message_id, actor_type, actor_id, emoji) — bấm lại = xoá; chỉ kênh có `capabilities.reactions` (OQ-12) |
 | `conversation_participant` | conversation_id, external_id, display_name, contact_id? | dùng cho hội thoại nhóm |
 | `conversation_tag` | conversation_id, tag_id | pk(conversation_id, tag_id) |
+| `conversation_assignee` | conversation_id, kind(user\|agent), assignee_id, added_by?, created_at | pk(conversation_id, kind, assignee_id); idx(kind, assignee_id, conversation_id). **Đồng phụ trách** (DC-423, mirror D32 `contact_collaborator`) — khác phụ trách CHÍNH ở `conversation.assignee_user_id`/`assignee_agent_id`; luôn thêm/gỡ bằng tay qua `conversation.add_assignee`/`remove_assignee`, auto-route không bao giờ ghi vào bảng này. `least_busy` đếm tải cho cả phụ trách chính và đồng phụ trách |
 | `canned_reply` | shortcut, title, body, attachments jsonb | unique(shortcut) |
 | `outbox_message` | message_id, channel_account_id, payload jsonb, status(pending\|sending\|sent\|failed\|dead), attempts, next_attempt_at, last_error | idx(status, next_attempt_at) |
 

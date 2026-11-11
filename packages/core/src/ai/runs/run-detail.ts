@@ -4,10 +4,17 @@
 // Run thuộc kỹ năng tiện ích (TIP-019c §3.7) — nhận theo `title` (4 action id dành riêng, 019c §3.1 — không nơi khác đặt run title bằng
 // đúng các chuỗi này, kể cả run sửa lại dưới cùng operation): `result_text` LUÔN null dù run đã `completed` — đề xuất công khai chỉ qua
 // `GET /ai-utilities/:runId/result` sau khi kiểm xong (phase validated), không rò qua đọc run chung.
+// TIP-021b: run có kết quả RIÊNG (`output.protected` — soạn agent, binding `agent_draft_publication` theo run_id, không theo tiêu đề) cũng
+// không bao giờ trả `result_text`; đề xuất chỉ đọc qua action soạn (binding đã công bố + chiếu quyền hiện hành).
 import type { TenantDb } from '@appchat/db';
 import { UTILITY_ACTIONS, type AuthzContext, type RunChildDto, type RunDetailDto, type RunLifecycle, type RunStepDto } from '@appchat/shared';
 import { TenantSql as Prisma } from '@appchat/db';
 import { readableRun } from './run-status';
+import { parseAgentReply } from '@appchat/ai';
+import { knowledgeCurrent } from '../kb/scope/provenance';
+import { citationsOf } from '../citations/projection';
+import { bindingOf } from '../citations/publication';
+import { replyDigest, textRevision } from '../citations/text-revision';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAgent' | 'aiRootBudget' | 'aiUsageReceipt' | '$queryRaw'>;
 const UTILITY_TITLES: ReadonlySet<string> = new Set(UTILITY_ACTIONS);
@@ -36,8 +43,8 @@ export async function runDetail(db: Db, authz: AuthzContext, runId: string): Pro
     isRoot ? db.aiUsageReceipt.count({ where: { rootRunId: r.id, status: { in: ['dispatched', 'unknown'] } } }) : Promise.resolve(0),
   ]);
   const names = await agentNames(db, [r.agentId]);
-  const out = (r.output ?? {}) as { text?: string };
-  const isUtility = UTILITY_TITLES.has(r.title);
+  const out = (r.output ?? {}) as { text?: string; protected?: boolean };
+  const isUtility = UTILITY_TITLES.has(r.title) || out.protected === true;
   return {
     id: r.id,
     root_run_id: r.rootRunId,
@@ -58,9 +65,28 @@ export async function runDetail(db: Db, authz: AuthzContext, runId: string): Pro
     approval_id: r.status === 'waiting_approval' ? ((r.state as { approval_id?: string } | null)?.approval_id ?? null) : null,
     children,
     steps,
-    result_text: !isUtility && r.status === 'completed' && typeof out.text === 'string' ? out.text.slice(0, 2000) : null,
+    // TIP-020c: kết quả dựa trên nguồn tri thức đã hết hiệu lực → không chiếu chữ (ẩn cả kết quả, không chỉ trích dẫn).
+    result_text: await resultText(db, r, isUtility, out.text),
+    // TIP-020d: nguồn của câu trả lời theo quyền xem hiện tại; ứng viên chưa kiểm không bao giờ ra đây.
+    citations: r.citationPhase ? await citationsOf(db as never, r.id, authz) : null,
+    answer_step_idx: r.citationPhase === 'validated' ? (bindingOf(r.answerCitations)?.answer_step_idx ?? null) : null,
     event_seq: root?.eventSeq ?? 0,
   };
+}
+
+/**
+ * Chữ kết quả an toàn: run kỹ năng tiện ích / được bảo vệ → không; tri thức hết hiệu lực (TIP-020c) → không. Run trả lời có chế độ trích
+ * dẫn (TIP-020d) → CHỈ chữ đã kiểm và công bố (`validated`), chưa kiểm / không hợp lệ → không (output thô là khối JSON của model).
+ */
+async function resultText(db: Db, r: { id: string; status: string; citationPhase: string | null; answerCitations: unknown; input: unknown }, isUtility: boolean, text: unknown): Promise<string | null> {
+  if (isUtility || r.status !== 'completed' || typeof text !== 'string' || !(await knowledgeCurrent(db as never, r.id))) return null;
+  if (!r.citationPhase) return text.slice(0, 2000);
+  const b = r.citationPhase === 'validated' ? bindingOf(r.answerCitations) : null;
+  if (!b) return null;
+  const out = parseAgentReply(text);
+  const pii = ((r.input ?? {}) as { pii?: Record<string, string> }).pii ?? {};
+  const rev = textRevision(out.raw_reply ?? out.reply ?? '', pii);
+  return replyDigest(rev.text) === b.reply_digest ? rev.text.slice(0, 2000) : null;
 }
 
 const limitOf = (n?: number) => Math.min(PAGE_MAX, Math.max(1, n ?? PAGE_DEFAULT));

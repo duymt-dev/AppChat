@@ -1,7 +1,8 @@
 // UI state hộp thư (Blueprint §7.3 `inboxUi`): hội thoại đang mở, rail thư mục, hồ sơ 360°, menu / popover đang mở.
 import { create } from 'zustand';
 import type { UtilityActionId } from '@/shared/ai-utilities';
-import type { ChannelType } from './types';
+import type { AiDraftRef, ChannelType } from './types';
+import type { AiCitations } from '@/shared/ai-citations/types';
 
 export type InboxPop = 'convMenu' | 'chatMenu' | 'account' | 'qr' | 'sched' | 'xl' | 'attach' | null;
 export type InboxModal = 'connect' | 'ai' | 'forward' | 'group' | null;
@@ -35,6 +36,10 @@ interface InboxUiState {
   composerMode: 'reply' | 'note';
   /** Bản nháp composer (Trợ lý điền qua UiCommand prefill `inbox.composer`). */
   draft: string;
+  /** TIP-020c: nháp AI đang nằm trong ô soạn (giữ khi sửa chữ; xoá khi bỏ nháp / gửi / đổi hội thoại). */
+  draftRef: AiDraftRef | null;
+  /** TIP-020d: nguồn của bản nháp AI gốc đang trong ô soạn (hiện "Nguồn của bản nháp AI gốc", không xác nhận chữ đã sửa). */
+  draftCitations: AiCitations | null;
   /** Tin đang được trích để trả lời (REQ-C09 "Trả lời"). */
   replyTo: { id: string; preview: string } | null;
   /** Tìm trong hội thoại (REQ-C12). */
@@ -61,6 +66,8 @@ interface InboxUiState {
         | 'composerMode'
         | 'utility'
         | 'draft'
+        | 'draftRef'
+        | 'draftCitations'
         | 'replyTo'
         | 'searchOpen'
         | 'searchQuery'
@@ -100,11 +107,13 @@ export const useInboxUi = create<InboxUiState>((set) => ({
   groupFrom: null,
   composerMode: 'reply',
   draft: '',
+  draftRef: null,
+  draftCitations: null,
   replyTo: null,
   searchOpen: false,
   searchQuery: '',
   searchSender: 'all',
-  select: (selectedId) => set({ selectedId, mobileChat: true, pop: null, utility: null, tab360: 'overview', draft: '', replyTo: null, searchOpen: false, searchQuery: '' }),
+  select: (selectedId) => set({ selectedId, mobileChat: true, pop: null, utility: null, tab360: 'overview', draft: '', draftRef: null, draftCitations: null, replyTo: null, searchOpen: false, searchQuery: '' }),
   backToList: () => set({ mobileChat: false }),
   toggleRail: () => set((s) => ({ folderRail: !s.folderRail })),
   toggle360: () => set((s) => ({ show360: !s.show360 })),

@@ -2,7 +2,7 @@
 // Ghi trong transaction của executor; timeline + outbox cùng transaction.
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError, mergeCustomValues, type CustomValues } from '@appchat/shared';
-import type { ActionInput, contactCreate, contactSetStage, contactTag, contactUpdate } from '@appchat/actions';
+import type { ActionInput, contactCreate, contactTag, contactUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
@@ -116,46 +116,6 @@ export class ContactUpdateHandler implements Handler<ActionInput<typeof contactU
 }
 
 @Injectable()
-@ActionHandler('contact.set_stage')
-export class ContactSetStageHandler implements Handler<ActionInput<typeof contactSetStage>, { stage: string; version?: number }> {
-  constructor(@Inject(CLOCK) private readonly clock: Clock) {}
-
-  async preview(ctx: ActionContext, input: ActionInput<typeof contactSetStage>, tx: TenantTx) {
-    return pv.setStagePreview(tx, ctx.authz, input);
-  }
-
-  async execute(ctx: ActionContext, input: ActionInput<typeof contactSetStage>, tx: TenantTx): Promise<HandlerOutcome<{ stage: string; version?: number }>> {
-    // TIP-026b §4.3: khoá + đối chiếu version (025b trigger tăng — không tăng tay); hai lần kéo đồng thời → một thắng, một 409.
-    await editableContact(tx, ctx.authz, input.contact_id);
-    const version = await lockContactVersion(tx, input.contact_id, input.if_version);
-    const c = await tx.contact.findUniqueOrThrow({ where: { id: input.contact_id } });
-    const now = this.clock.now();
-    const before = { id: c.id, stage: c.stage, at: c.stageSetManuallyAt?.toISOString() ?? null };
-    if (c.stage === input.stage) return { result: { stage: c.stage, version }, before, after: before };
-    const next = await updateAtVersion(tx, c.id, version, { stage: input.stage, stageSetManuallyAt: now, lastInteractionAt: now });
-    await writeTimeline(tx, { contactId: c.id, type: 'stage', key: 'stage', params: { from: c.stage, to: input.stage }, actor: actor(ctx), at: now });
-    return {
-      result: { stage: input.stage, version: next },
-      before,
-      after: { id: c.id, stage: input.stage, version: next },
-      events: [{ topic: 'contact.stage_changed', payload: { contact_id: c.id, from: c.stage, to: input.stage, manual: true } }],
-    };
-  }
-
-  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as { id: string; stage: 'lead'; at: string | null };
-    const a = log.after as { version?: number } | null;
-    // Chỉ hoàn tác bản sau-ghi hiện tại: khách đã đổi tiếp (version khác) → 409, không đè.
-    if (a?.version !== undefined) {
-      await lockContactVersion(tx, b.id, a.version);
-      await updateAtVersion(tx, b.id, a.version, { stage: b.stage, stageSetManuallyAt: b.at ? new Date(b.at) : null });
-      return;
-    }
-    await tx.contact.update({ where: { id: b.id }, data: { stage: b.stage, stageSetManuallyAt: b.at ? new Date(b.at) : null } });
-  }
-}
-
-@Injectable()
 @ActionHandler('contact.tag')
 export class ContactTagHandler implements Handler<ActionInput<typeof contactTag>, { tags: string[] }> {
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
@@ -184,3 +144,5 @@ export class ContactTagHandler implements Handler<ActionInput<typeof contactTag>
 
 // contact.delete chuyển về crm/lifecycle (TIP-015f) — facade giữ tên import cũ.
 export { ContactDeleteHandler } from '../lifecycle/delete.handler';
+// contact.set_stage chuyển về crm/stage (TIP-015g) — facade giữ tên import cũ.
+export { ContactSetStageHandler } from '../stage/manual.handler';

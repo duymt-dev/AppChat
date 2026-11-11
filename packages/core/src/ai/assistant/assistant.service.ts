@@ -3,8 +3,14 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { PlatformDb, TenantDb, TenantDbResolver } from '@appchat/db';
 import { TenantContexts } from '@appchat/db';
-import { AppError, type AuthzContext } from '@appchat/shared';
-import { QuotaService } from '../../billing/public';
+import { AppError, type AuthzContext, type RecordProposalDto } from '@appchat/shared';
+import { isProposalIntent, parseRecordIntent } from './record-intent/registry';
+import { proposeForRecord, readProposal } from './record-intent/recovery';
+import { CreditMeter, QuotaService } from '../../billing/public';
+import { STORAGE, type Storage } from '../../kernel/files/storage';
+import type { ModelSource } from '@appchat/ai';
+import { DISCOVERY_MODEL_SOURCE } from './discovery/prepare.handler';
+import { discoveryCacheOf } from './discovery/cache';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { ActionExecutor, implementedBy } from '../../kernel/actions/executor';
 import { GenUiIntents } from '../../kernel/actions/genui-intent';
@@ -24,7 +30,11 @@ import { presentUi } from './genui/history';
 import { CursorSigner, EventStore } from './genui/event-store';
 import { resolveRefs } from './genui/refs';
 import { sessionMessages } from './sessions';
+import { getArtifact, readParts } from './input/read';
+
+const ATTACHMENT_ONLY = { vi: 'Tệp đính kèm nói gì?', en: 'What does the attached file say?' } as const;
 import { listSessionsPage } from './session-list';
+import { agentChoicesPage } from './plans/agent-choices';
 import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type PreparedTurn, type ConfirmRequest, type TurnRequest } from './turn.service';
 import { waitDone } from './genui/turn-wait';
 import { draftReply, type DraftRequest } from './genui/inbox-draft';
@@ -47,6 +57,9 @@ export class AssistantService {
     @Inject(CLOCK) private readonly clock: Clock,
     @Optional() @Inject(GenUiIntents) private readonly intents: GenUiIntents | null = null,
     @Optional() @Inject(AI_ENV) private readonly env: Pick<AiEnv, 'ASSISTANT_DISPATCH'> | null = null,
+    @Optional() @Inject(DISCOVERY_MODEL_SOURCE) private readonly discoveryModels: ModelSource | null = null,
+    @Optional() @Inject(CreditMeter) private readonly meter: CreditMeter | null = null,
+    @Optional() @Inject(STORAGE) private readonly storage: Storage | null = null,
   ) {}
 
   /** Redis của kernel (ioredis) có `publish` — dùng phát sự kiện lượt; KeyValueStore tối thiểu không có thì bỏ phát (chỉ ghi sổ). */
@@ -70,7 +83,7 @@ export class AssistantService {
   private deps(): AssistantDeps {
     if (!this.executor || !this.runner || !this.kv) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' }, 'AI runtime chưa cấu hình');
     const quota = this.quota;
-    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, pub: this.publisher(), now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free') };
+    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, pub: this.publisher(), now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free'), discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(this.kv, this.intents?.derive('discovery-cache')) }, storage: this.storage };
   }
 
   /** Tên, locale, vai trò của người gọi (system prompt + ngôn ngữ trả lời). */
@@ -117,7 +130,9 @@ export class AssistantService {
 
   private async request(c: Caller, q: Omit<TurnRequest, 'ws' | 'userId' | 'authz' | 'userName' | 'locale' | 'role'>): Promise<TurnRequest> {
     const p = await this.profile(c);
-    return { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale, role: p.role };
+    // Chỉ gửi tệp (TIP-023f §4.1): câu hỏi trung tính theo ngôn ngữ — không tự bịa việc nghiệp vụ.
+    const text = q.text.trim() || (q.inputs?.length ? ATTACHMENT_ONLY[p.locale === 'en' ? 'en' : 'vi'] : q.text);
+    return { ...q, text, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale, role: p.role };
   }
 
   private redis(): Redis | null {
@@ -131,6 +146,26 @@ export class AssistantService {
     const db = await this.db(c);
     const p = await this.profile(c);
     return draftReply(db, this.runner, () => this.clock.now(), { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale });
+  }
+
+  /** TIP-023g §3: đề xuất combo / chiến dịch theo sản phẩm — binding `record_proposal`, run schema không tool, công bố sau khi kiểm. */
+  async propose(c: Caller, raw: unknown): Promise<RecordProposalDto> {
+    const ri = parseRecordIntent(raw);
+    if (!isProposalIntent(ri.intent)) throw new AppError('VALIDATION_FAILED', 422, { record_intent: 'not_a_proposal' });
+    const d = this.deps();
+    const p = await this.profile(c);
+    return proposeForRecord({ db: await this.db(c), executor: d.executor, runner: d.runner, now: d.now }, this.turnCtx(c, p, uuidv7(d.now().getTime())), ri);
+  }
+
+  /** Đọc đề xuất theo request_id của chính người gọi (không phải của người khác → 404). */
+  async proposal(c: Caller, requestId: string): Promise<RecordProposalDto> {
+    const d = this.deps();
+    const p = await this.profile(c);
+    return readProposal({ db: await this.db(c), executor: d.executor, runner: d.runner, now: d.now }, this.turnCtx(c, p, ''), requestId);
+  }
+
+  private turnCtx(c: Caller, p: { locale: string; role: string }, runId: string) {
+    return { ws: c.workspaceId, runId, userId: c.userId, authz: c.authz, mode: 'chat' as const, locale: p.locale, role: p.role };
   }
 
   async confirm(c: Caller, q: Pick<ConfirmRequest, 'token' | 'decision'>) {
@@ -151,6 +186,20 @@ export class AssistantService {
   /** Trình duyệt phiên (REQ-E10a): keyset theo người gọi; `cursor` / `limit` tuỳ chọn. */
   async sessions(c: Caller, q: string, page: { cursor?: string; limit?: number } = {}) {
     return listSessionsPage(await this.db(c), c.userId, { q, ...page });
+  }
+
+  /** Trang AI Agent có thể chọn làm chuyên viên Cowork (TIP-023d §5.2) — cùng service với action `assistant.agent_choices`. */
+  async agentChoices(c: Caller, page: { cursor?: string; limit?: number } = {}) {
+    return agentChoicesPage(await this.db(c), page);
+  }
+
+  /** `GET /assistant/input/:id` (+ `/parts`) — cùng service đọc có guard với action `assistant.attachment_get` / `_read` (TIP-023f §5.3). */
+  async input(c: Caller, id: string) {
+    return getArtifact(await this.db(c), c.userId, id, this.clock.now());
+  }
+
+  async inputParts(c: Caller, q: { artifact_id: string; revision: number; cursor?: string; limit?: number }) {
+    return readParts(await this.db(c), c.userId, q);
   }
 
   async messages(c: Caller, id: string) {

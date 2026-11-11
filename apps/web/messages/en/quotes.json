@@ -69,7 +69,6 @@
   "pct": "{n}%",
   "aiDo": "Let an AI agent handle it now",
   "aiPeek": "View AI hint",
-  "aiDoing": "AI agent is working on quote {code}",
   "spark": "✦ {hint}",
   "empty": "No matching quotes.",
   "menu": {

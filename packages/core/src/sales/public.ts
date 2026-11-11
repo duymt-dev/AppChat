@@ -18,11 +18,12 @@ export { syncOrders, orderSyncConsumer, ORDER_SYNC_QUEUE, ORDER_SYNC_JOB } from 
 export { InvoicesReadService, type InvoiceViewer } from './payments/services/invoices-read.service';
 export type { InvoiceFilter } from './payments/repos/invoices.repo';
 export { TenantBankHook, webhookPathOf, type HookAck } from './payments/services/bank-feed';
-export { bankIngestConsumer, bankIngressCtx, BANK_INGEST_CONSUMER } from './payments/bank/bank-event.consumer';
+export { bankIngestConsumer, bankIngressTrigger, verifyBankIngress, BANK_INGEST_CONSUMER } from './payments/bank/bank-event.consumer';
 export { RECEIPT_TOPIC, stagePulledReceipts } from './payments/bank/receipt';
 export { BANK_INGRESS_ACTOR } from './payments/actions/bank-ingest.handler';
 export { markOverdue, remindDue, packagesOnConfirm } from './payments/services/payment-system';
-export { expireDuePackages, grantPackages } from './payments/services/packages';
+export { grantPackages } from './payments/services/packages';
+export { expirePackages as expireDuePackages } from './system/dispatch';
 export { remindPackages, remindRemaining } from './payments/services/package-reminders';
 export { sweepPayments, paymentPackagesConsumer, PAYMENT_SWEEP_JOB } from './jobs/payment.jobs';
 export { PublicDocumentService } from './documents/public-document';
@@ -31,3 +32,4 @@ export { redactLink } from './documents/public-token';
 // TIP-033b: reader liệu trình dùng chung (HTTP / lịch hẹn / tệp xuất).
 export { listPackages, packagesFor, packageExportIds, packageExportRows, PACKAGE_LIMIT, PACKAGE_MAX, type PackageListInput } from './payments/packages/read.service';
 export type { PackageDto } from './payments/packages/projection';
+export { quoteExpireTrigger, quoteRemindTrigger, quoteViewTrigger, invoiceOverdueTrigger, invoiceRemindTrigger, packageExpireTrigger, packageGrantTrigger, verifySalesTrigger, SALES_SYSTEM_ACTOR } from './system/sources';

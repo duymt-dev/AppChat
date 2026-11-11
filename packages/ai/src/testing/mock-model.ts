@@ -5,6 +5,8 @@ import { MockLanguageModelV4, convertArrayToReadableStream } from 'ai/test';
 import type { ModelCandidate, ModelSource } from '../gateway/types';
 import { mockKbSuggestion } from './mock-kb-suggestion';
 import { mockUtility } from './mock-utility';
+import { mockAgentDraft } from './mock-agent-draft';
+import { mockRecordProposal } from './mock-record-proposal';
 
 export type MockTurn =
   | { text: string; tokensIn?: number; tokensOut?: number }
@@ -226,6 +228,12 @@ export const echoScript: MockScript = (ctx) => {
   // Kỹ năng tiện ích chỉ đọc (TIP-019c): JSON đúng khuôn + bằng chứng offset thật.
   const util = mockUtility(system, lastUser);
   if (util) return { text: util };
+  // Soạn cấu hình agent (TIP-021b): JSON đúng khuôn, tool chỉ trong ứng viên đã lọc quyền.
+  const draft = mockAgentDraft(system, lastUser);
+  if (draft) return { text: draft };
+  // Đề xuất theo bản ghi (TIP-023g): combo / chiến dịch đúng khuôn, id chỉ trong ứng viên.
+  const proposal = mockRecordProposal(system, lastUser);
+  if (proposal) return { text: proposal };
   // Skill dịch (TIP-025 `ai.translate`, TIP-025b `ai.translate_draft`): tiền tố ngôn ngữ đích + nguyên văn.
   const xl = /^# TRANSLATE[\s\S]*Target: (vi|en|zh|ko|ja)/.exec(system);
   if (xl) return { text: `[${xl[1]!.toUpperCase()}] ${lastUser}` };
@@ -250,6 +258,12 @@ export const echoScript: MockScript = (ctx) => {
   const human = /nhân viên|gặp người|staff|human/i.test(lastUser);
   // TIP-022b: khiếu nại → ý định `complaint` + chuyển người (consumer tạo ticket nếu agent có grant).
   if (/khiếu nại|complain/i.test(lastUser)) return { text: JSON.stringify({ reply: null, confidence: 0.5, intent: 'complaint', sentiment: 'negative', needs_human: 'Khách khiếu nại' }) };
+  // TIP-020d: có tài liệu `[S1]` trong ngữ cảnh → trả lời bằng câu đầu của đoạn S1 kèm trích dẫn (quote nguyên văn) — luồng có căn cứ.
+  const doc = human ? null : /\n\[(S\d+)\]\n((?:#[^\n]*\n+)*)([^\n#][^\n]*)/.exec(system);
+  if (doc) {
+    const fact = doc[3]!.trim().slice(0, 200);
+    return { text: JSON.stringify({ reply: `Dạ, ${fact}`, confidence: 0.9, intent: 'question', sentiment: 'neutral', needs_human: null, citations: [{ ref: doc[1], quote: fact }] }) };
+  }
   return { text: JSON.stringify({ reply: human ? null : `Dạ, ${echo.charAt(0).toLowerCase()}${echo.slice(1)}`, confidence: human ? 0.4 : 0.9, intent: /giá|mua|báo giá/i.test(lastUser) ? 'buy' : 'faq', sentiment: 'neutral', needs_human: human ? 'Khách muốn gặp nhân viên' : null }) };
 };
 

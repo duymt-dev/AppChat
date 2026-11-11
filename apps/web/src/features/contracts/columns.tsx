@@ -1,7 +1,6 @@
 // Cột DataTable Hợp đồng — prototype L5376 (grid 30 100 1.2fr 1.4fr .9fr 96 .9fr .8fr 150 100 .9fr 150 44) + thẻ mobile / kanban.
 // Menu dòng: Duyệt = mở hộp "Duyệt & ký" (OTP + chữ ký, COMMERCE §9); Yêu cầu sửa / Từ chối chỉ với hợp đồng chờ duyệt.
 'use client';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { ActionMenu, Icon, color, type TableColumnsType } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
@@ -9,6 +8,7 @@ import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useContractCellStyles } from './styles/cells.styles';
 import { useContractsUi } from './contracts-store';
+import { useRecordScopes } from '@/shared/assistant/record-intent/store';
 import { STATUS_TONE, avColor, avInitial } from './status';
 import type { Contract } from './types';
 
@@ -56,8 +56,8 @@ export function Avatar({ name, small, className }: { name: string; small?: boole
 
 function AiCell({ c }: { c: Contract }) {
   const t = useTranslations('contracts');
-  const { message } = App.useApp();
   const { styles } = useContractCellStyles();
+  const set = useContractsUi((s) => s.set);
   return (
     <div className={styles.ai} onClick={(e) => e.stopPropagation()}>
       <span className={styles.aiText} title={c.ai.hint}>
@@ -69,7 +69,12 @@ function AiCell({ c }: { c: Contract }) {
           className={styles.aiDo}
           title={t('aiDo')}
           aria-label={t('aiDo')}
-          onClick={() => void message.info(t('aiDoing', { code: c.code }))}
+          onClick={() => {
+            useRecordScopes
+              .getState()
+              .open({ module: 'contracts', entity: 'contract', id: c.id, label: c.code });
+            set({ aiOpen: true });
+          }}
         >
           <Icon name="ic-bolt" size={12} color={color.white} strokeWidth={2} />
         </button>

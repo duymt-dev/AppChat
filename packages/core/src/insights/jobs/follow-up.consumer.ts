@@ -14,6 +14,7 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { FOLLOW_UP_ACTOR } from '../actions/follow-up.handlers';
+import { domainTrigger, runSystemAction } from '../../kernel/actions/system';
 
 export const INSIGHTS_SCHEDULER_QUEUE = 'insights-scheduler';
 export const FOLLOW_UP_SWEEP_JOB = 'insights.follow-up-sweep';
@@ -41,7 +42,9 @@ export async function sweepFollowUps(d: SweepDeps): Promise<{ created: number; s
   const r = { created: 0, superseded: 0 };
   for (const w of wss) {
     try {
-      const out = (await d.executor.execute(followUpCtx(w.id), 'follow_up.reconcile', { batch })) as { data?: { result?: { created?: number; superseded?: number } } };
+      // TIP-003c: action riêng tiền nhiệm 038 qua capability gắn mốc lịch; `source_key` unique của domain là chống lặp.
+      const t = domainTrigger({ workspaceId: w.id, actionId: 'follow_up.reconcile', actor: FOLLOW_UP_ACTOR, sourceKind: 'schedule', sourceRef: `${FOLLOW_UP_SWEEP_JOB}:${batch}`, targetId: w.id, input: { batch } });
+      const out = (await runSystemAction(d.executor, null, t, followUpCtx(w.id))) as { data?: { result?: { created?: number; superseded?: number } } };
       r.created += out.data?.result?.created ?? 0;
       r.superseded += out.data?.result?.superseded ?? 0;
     } catch (err) {

@@ -1,0 +1,9 @@
+{
+  "suite": "crm-stage-hold",
+  "cases": [
+    {"id": "sh-move-then-order", "category": "stage_hold", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Chuyển khách $NAME sang giai đoạn Tiềm năng giúp mình.", "expect": {"confirm": true, "stage_hold": true}, "stage_hold": {"kind": "move_order"}},
+    {"id": "sh-same-stage-noop", "category": "stage_hold", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Khách $NAME để ở giai đoạn Đang tư vấn nhé.", "expect": {"confirm": false, "stage_hold": true}, "stage_hold": {"kind": "noop"}},
+    {"id": "sh-sales-out-of-scope", "category": "stage_hold", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Chuyển khách $NAME sang giai đoạn Hợp đồng.", "expect": {"confirm": false, "stage_hold": true}, "stage_hold": {"kind": "revoked"}},
+    {"id": "sh-undo-after-newer", "category": "stage_hold", "seed": "live-seed", "actor": {"role": "owner"}, "locale": "vi", "mode": "cowork", "input": "Đưa khách $NAME sang giai đoạn Báo giá.", "expect": {"confirm": true, "stage_hold": true}, "stage_hold": {"kind": "undo"}}
+  ]
+}

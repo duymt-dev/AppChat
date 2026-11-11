@@ -53,7 +53,6 @@ export function InboxScreen() {
             counts={counts}
             accounts={accounts}
             unreadTotal={unread}
-            filterKey={JSON.stringify(params)}
             className={cx(ui.mobileChat && conv && styles.hideMobile)}
           />
           {conv ? (

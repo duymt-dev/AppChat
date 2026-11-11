@@ -69,7 +69,7 @@ export function ProductDrawer({ meta }: { meta: ProductsMeta }) {
         <div className={styles.body}>
           {ui.tab === 'overview' ? <OverviewTab p={p} /> : null}
           {ui.tab === 'crm' ? <CrmTab meta={meta} /> : null}
-          {ui.tab === 'ai' ? <AiTab /> : null}
+          {ui.tab === 'ai' ? <AiTab p={p} /> : null}
           {ui.tab === 'files' ? <FilesTab meta={meta} /> : null}
           {ui.tab === 'history' ? <HistoryTab p={p} /> : null}
         </div>

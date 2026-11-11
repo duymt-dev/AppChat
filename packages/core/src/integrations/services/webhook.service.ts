@@ -14,6 +14,7 @@ import { adapterOf } from './adapter-selection';
 import { bankIngressSink } from './bank-ingress-sink';
 import { authenticate, ingestMailEvents } from '../mail/ingress';
 import { retainedTokens } from '../mail/bindings';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -51,7 +52,7 @@ export class IntegrationWebhooks {
       const r = await sink({ db, ws: route.workspaceId, provider: connector, connId: connectionId, adapter, ctx: connectionCtx(row, this.key), payload: ev.payload, now });
       if (r) return { ok: true, duplicate: r.accepted === 0 && r.ignored === 0, accepted: r.accepted, ignored: r.ignored };
     }
-    const inserted = await db.$transaction(async (tx) => {
+    const inserted = await inEventTransaction(db, route.workspaceId, async (tx) => {
       const id = uuidv7(now.getTime());
       const r = await tx.integrationEvent.createMany({
         data: [{ id, connectionId, externalEventId: ev.id, kind: ev.kind, payload: ev.payload as object, createdAt: now }],

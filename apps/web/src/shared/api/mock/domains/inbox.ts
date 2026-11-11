@@ -7,6 +7,8 @@ import type { MockRoute } from '../routes';
 import { isRemote, requestReact, requestRecall } from './channel-operations';
 import { SEED_INTENT, handoffSummaryRoute, hasHandoffSummary } from './inbox-handoff';
 import { withActivities360 } from './customers';
+import { coAssigneeHandlers, withCoAssignees } from './inbox-co-assignees';
+import { checkDraftRef, suggestionWithRef, withDraftCitations, withDraftRef } from './inbox-draft-ref';
 
 export type InboxFixture = typeof fixture;
 type Conv = InboxFixture['conversations'][number];
@@ -29,6 +31,10 @@ export interface InboxState {
   mentioned: string[];
   /** Bản ghi nhãn trước khi `conversation.set_tags` áp — dùng để hoàn tác. */
   tagBackup: Record<string, { label: string; tone: string }[]>;
+  /** Đồng phụ trách (conversation_assignee) theo hội thoại — khác `assignee` phụ trách chính. */
+  coAssignees: Record<string, { kind: 'user' | 'agent'; id: string }[]>;
+  /** TIP-020c: hội thoại có nháp / gợi ý AI mà nguồn tri thức đã bị nạp lại / thu hồi. */
+  revokedDrafts: string[];
   seq: number;
 }
 
@@ -48,6 +54,8 @@ export const createInboxState = (): InboxState => ({
   messages: structuredClone(fixture.messages) as Record<string, Msg[]>,
   mentioned: [],
   tagBackup: {},
+  coAssignees: {},
+  revokedDrafts: [],
   seq: 0,
 });
 
@@ -111,7 +119,7 @@ export const inboxRoutes: Record<string, MockRoute> = {
     const from = Number(p.cursor ?? 0) || 0;
     const page = rows.slice(from, from + PAGE);
     const marked = deletedSeed() ? page.map((c) => (c.contact_id ? { ...c, contact_deleted: true } : c)) : page;
-    return { data: marked, next_cursor: from + PAGE < rows.length ? String(from + PAGE) : null };
+    return { data: marked.map((c) => withDraftRef(db, withCoAssignees(db, c))), next_cursor: from + PAGE < rows.length ? String(from + PAGE) : null };
   },
   // Số liệu prototype; "Nhắc đến tôi" cộng các lần @nhắc mới trong phiên mock.
   '/conversations/counts': (db, p) => {
@@ -167,8 +175,11 @@ export const inboxParamRoute = (path: string): MockRoute | null => {
     return p ? withActivities360(db, structuredClone(p)) : null;
   };
   if (kind === 'groups') return () => (fixture.groups as Record<string, unknown>)[id] ?? null;
-  if (sub) return (db) => ({ data: db.inbox.messages[id] ?? [], next_cursor: null, suggestion: (fixture.suggestions as Record<string, unknown>)[id] ?? null });
-  return (db) => db.inbox.conversations.find((c) => c.id === id) ?? null;
+  if (sub) return (db) => ({ data: db.inbox.messages[id] ?? [], next_cursor: null, suggestion: suggestionWithRef(db, id, (fixture.suggestions as Record<string, unknown>)[id]) });
+  return (db) => {
+    const c = db.inbox.conversations.find((x) => x.id === id);
+    return c ? withDraftCitations(withDraftRef(db, withCoAssignees(db, c))) : null;
+  };
 };
 
 const conv = (db: Parameters<MockRoute>[0], id: string) => db.inbox.conversations.find((c) => c.id === id)!;
@@ -203,6 +214,7 @@ export const inboxHandlers: Record<string, MockHandler> = {
       conv(db, i.conversation_id).assignee = null;
     },
   },
+  ...coAssigneeHandlers,
   'conversation.tag': {
     execute: (db, i: Ci & { tag: string }) => {
       const c = conv(db, i.conversation_id);
@@ -279,7 +291,8 @@ export const inboxHandlers: Record<string, MockHandler> = {
     },
   },
   'message.send': {
-    execute: (db, i: Ci & { text?: string; reply_to_id?: string; attachments?: string[] }) => {
+    execute: (db, i: Ci & { text?: string; reply_to_id?: string; attachments?: string[]; ai_draft_ref?: { id: string; generation: number } }) => {
+      checkDraftRef(db, i.conversation_id, i.ai_draft_ref);
       const id = `ms${++db.inbox.seq}`;
       const list = (db.inbox.messages[i.conversation_id] ??= []);
       const at = list.findIndex((m) => m.kind === 'typing');

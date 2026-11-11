@@ -2,6 +2,7 @@
 // thật, lý do dừng, dòng dõi công khai, mốc thời gian, credit của chính run / cả cây, kết quả hành động được phép xem. KHÔNG có state /
 // system prompt / input duyệt / output thô của model / dữ liệu cá nhân.
 import { z } from 'zod';
+import { aiCitationsSchema } from './ai-citations';
 
 /** Trạng thái thật (khác `status` 3 nhóm của danh sách cũ). */
 export const RUN_LIFECYCLE = ['queued', 'running', 'waiting_approval', 'waiting_child', 'waiting_operation', 'waiting_usage', 'completed', 'failed', 'cancelled', 'handoff'] as const;
@@ -36,6 +37,10 @@ export const runDetailSchema = z.object({
   steps: z.number().int(),
   /** Câu trả lời cuối của run (đã kết thúc thành công) — rút gọn. */
   result_text: z.string().nullable(),
+  /** TIP-020d: trích dẫn đã kiểm của câu trả lời (run trả lời có chế độ trích dẫn) — null = không áp dụng. Chờ kiểm → không có chữ. */
+  citations: aiCitationsSchema.nullable().optional(),
+  /** Chỉ số bước trả lời (bước LLM cuối) — khối nguồn đặt cạnh bước này. */
+  answer_step_idx: z.number().int().nullable().optional(),
   /** Seq sự kiện cuối của cây (kết nối lại WS từ đây). */
   event_seq: z.number().int(),
 });

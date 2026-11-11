@@ -9,6 +9,7 @@ import { eligibleUsers, leastBusy, nextAfter } from '../src/crm/routing/routing-
 import { assertDraft, poolUsers, ruleFor, type RuleDraft } from '../src/crm/routing/routing.repo';
 import { LEAD_ROUTING_ACTOR, LeadRoutingApplyHandler } from '../src/crm/routing/routing-apply.handler';
 import { leadRoutingConsumer, leadRoutingCtx } from '../src/crm/routing/routing-consumer';
+import { domainVerifier, registerSystemVerifier, systemCapabilityOf } from '../src/kernel/actions/system';
 
 const U = (n: number) => `0190f000-0000-7000-8000-00000000000${n}`;
 const WS = '0190f000-0000-7000-8000-0000000000ee';
@@ -146,10 +147,14 @@ describe('lead_routing.apply — biên system', () => {
   });
 
   it('consumer gọi đúng action với actor system + Idempotency-Key theo event', async () => {
+    // TIP-003c: action riêng — consumer gọi qua capability gắn event (verifier domain đăng ký ở CrmModule).
+    registerSystemVerifier('lead_routing.apply', domainVerifier(LEAD_ROUTING_ACTOR, ['event']), { receipt: 'domain', db: false });
     const calls: unknown[][] = [];
-    await leadRoutingConsumer({ execute: async (...a: unknown[]) => void calls.push(a) } as never).handle({ id: ev.id, workspaceId: WS, topic: ev.topic, payload: ev.payload } as never, {} as never);
+    const caps: unknown[] = [];
+    await leadRoutingConsumer({ execute: async (...a: unknown[]) => void (calls.push(a), caps.push(systemCapabilityOf(a[0] as never))) } as never).handle({ id: ev.id, workspaceId: WS, topic: ev.topic, payload: ev.payload } as never, {} as never);
     expect(calls).toHaveLength(1);
     const [ctx, id, input] = calls[0] as [{ source: string; actor: { id: string }; idempotencyKey: string }, string, unknown];
     expect([ctx.source, ctx.actor.id, ctx.idempotencyKey, id, input]).toEqual(['system', LEAD_ROUTING_ACTOR, `${ev.id}:lead-routing`, 'lead_routing.apply', { event_id: ev.id }]);
+    expect(caps[0]).toMatchObject({ actionId: 'lead_routing.apply', sourceKind: 'event', sourceRef: ev.id, receipt: 'domain' });
   });
 });

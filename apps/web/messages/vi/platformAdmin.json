@@ -148,7 +148,8 @@
     "model": "Tên model",
     "up": "Lên",
     "down": "Xuống",
-    "remove": "Bỏ"
+    "remove": "Bỏ",
+    "vision": "Đọc ảnh"
   },
   "prices": {
     "create": "Thêm đơn giá",

@@ -4,16 +4,20 @@
 import { Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import type { ChannelRegistry, LoginEvent } from '@appchat/channels';
-import { serverMessages } from '@appchat/shared';
 import { TenantContexts, WorkspaceNotFoundError, type TenantDbResolver } from '@appchat/db';
 import { encryptSecret } from '../../kernel/crypto';
 import type { AppLogger } from '../../kernel/logger/logger';
-import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
+import { markDirty } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { rooms } from '../../notify/realtime/envelope';
 import type { RealtimeEmitter } from '../../notify/realtime/emitter';
 import { ChannelAccounts } from '../services/accounts.service';
 import { CHANNEL_LOGIN_QUEUE, type ChannelControl, type LoginJob } from '../services/control';
+import type { SystemOutput } from '@appchat/actions';
+import type { ActionExecutor } from '../../kernel/actions/executor';
+import { runSystemAction } from '../../kernel/actions/system';
+import { loginTrigger } from '../system/sources';
+import { stageLogin } from '../system/staging';
 
 /** Quá thời gian này chưa quét xong → bỏ (zca-js tự hết hạn QR sau 100 giây). */
 export const LOGIN_TIMEOUT_MS = 150_000;
@@ -30,6 +34,8 @@ export interface LoginDeps {
   now: () => Date;
   /** Nhận phiên ngay sau khi kết nối (ChannelSessions.claim). */
   claim: (accountId: string, ws: string) => Promise<void>;
+  /** TIP-003c: chốt kết quả qua action riêng `channel.system_transition` (commit_login_result). */
+  executor: Pick<ActionExecutor, 'execute'>;
 }
 
 export async function runLogin(d: LoginDeps, j: LoginJob): Promise<'connected' | 'skipped' | 'failed'> {
@@ -51,7 +57,6 @@ export async function runLogin(d: LoginDeps, j: LoginJob): Promise<'connected' |
     await set('failed');
     return 'failed';
   }
-  const defaultName = serverMessages('vi').channels.name.zalo_personal;
   const ac = new AbortController();
   const timer = setTimeout(() => ac.abort(), LOGIN_TIMEOUT_MS);
   let last: LoginEvent['type'] | null = null;
@@ -65,34 +70,20 @@ export async function runLogin(d: LoginDeps, j: LoginJob): Promise<'connected' |
   };
   try {
     const res = await adapter.beginLogin(row.id, onEvent, ac.signal);
-    const now = d.now();
-    const out = await db.$transaction(async (tx) => {
-      const cur = await tx.channelAccount.findUnique({ where: { id: row.id } });
-      // Người dùng đã ngắt / bấm lại trong lúc chờ quét → bỏ kết quả này.
-      if (!cur || cur.status !== 'connecting') return null;
-      // Cùng Zalo đã gắn vào tài khoản khác đang dùng → không tạo bản trùng (unique partial `channel_account_external_live_key`).
-      const dup = await tx.channelAccount.findFirst({ where: { type: cur.type, externalId: res.externalId, status: { not: 'disconnected' }, id: { not: cur.id } }, select: { id: true } });
-      if (dup) return 'duplicate' as const;
-      await tx.channelAccount.update({
-        where: { id: cur.id },
-        data: {
-          externalId: res.externalId,
-          credentialsEnc: new Uint8Array(encryptSecret(JSON.stringify(res.credentials), d.key)),
-          // Nhãn người dùng đặt ở bước 2 giữ nguyên; nhãn mặc định ("Zalo cá nhân") thay bằng tên + SĐT Zalo.
-          ...(cur.name === defaultName ? { name: res.name.slice(0, 60) } : {}),
-        },
-      });
-      const { row: next, event } = await d.accounts.setStatus(tx, { ...cur, externalId: res.externalId }, { status: 'connected', pausedAt: null, health: { status: 'connected' } }, now);
-      await writeOutbox(tx, j.ws, [{ topic: 'channel.connected', payload: { channel_account_id: cur.id, type: cur.type, name: next.name } }, ...(event ? [event] : [])], now);
-      return next;
-    });
+    // Kết quả đã xác thực: mã hoá NGOÀI hiệu ứng, stage theo (tài khoản, lần đăng nhập); action riêng chốt trong transaction (tài khoản
+    // còn `connecting`, không trùng Zalo đang dùng). Không attempt (job cũ) → dùng id job làm lần đăng nhập.
+    const attempt = j.attempt ?? `job-${row.id}`;
+    await stageLogin(d.kv, row.id, attempt, { externalId: res.externalId, name: res.name, credentialsEnc: encryptSecret(JSON.stringify(res.credentials), d.key).toString('base64') });
+    const r = await runSystemAction<SystemOutput>(d.executor, d.tenants, loginTrigger(j.ws, row.id, attempt));
+    const result = (r.data as { result: SystemOutput }).result;
+    const out = result.disposition === 'applied' ? await db.channelAccount.findUnique({ where: { id: row.id } }) : result.reason_code === 'duplicate' ? ('duplicate' as const) : null;
     if (out === 'duplicate') {
       await set('failed');
       d.log.warn({ account: row.id }, 'channel login duplicate account');
       return 'failed';
     }
     if (!out) return 'skipped';
-    await d.accounts.route(j.ws, out, 'connected');
+    // Route nền tảng cập nhật sau commit bởi handler (afterCommit).
     await markDirty(d.kv, j.ws);
     await set('connected');
     await d.claim(out.id, j.ws);

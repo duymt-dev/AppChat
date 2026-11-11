@@ -1,6 +1,6 @@
 // Client lượt Trợ lý dùng chung (Blueprint §4.5, TIP-023c G2): màn Trợ lý, drawer theo màn và Dock gửi cùng một hợp đồng — shared không
 // import features/assistant. `request_id` mỗi lượt (gửi lại do mạng → cùng run); lượt đi qua SSE (turn-stream.ts); `context.surface` chọn cây gọn (drawer) / đầy đủ.
-import type { AssistantConfirmDto } from '@appchat/shared';
+import type { AssistantConfirmDto, RecordIntentInput } from '@appchat/shared';
 import { transport } from '../api/client';
 
 export type AssistantMode = 'chat' | 'cowork';
@@ -24,6 +24,10 @@ export interface TurnRequest {
   requestId?: string;
   /** Tệp đã tải (`file_id` + tên) — server kiểm lại bằng guard trước model (TIP-023c 8c). */
   attachments?: { id: string; name: string }[];
+  /** TIP-023f: tệp đã chuẩn bị (handle + revision) — nội dung đi vào model; server kiểm lại chủ / ready / nguồn. */
+  inputs?: { artifact_id: string; revision: number }[];
+  /** TIP-023g: lối vào theo bản ghi — tham chiếu có kiểu (server đọc lại theo quyền hiện hành). */
+  recordIntent?: RecordIntentInput;
 }
 
 export const newRequestId = () => `req-${crypto.randomUUID()}`;

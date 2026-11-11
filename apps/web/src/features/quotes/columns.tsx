@@ -1,10 +1,10 @@
 // Cột DataTable Báo giá — prototype L4993 (grid 34 92 1.3fr 1.2fr 108 100 84 .9fr 70 .95fr 120 44) + thẻ mobile / kanban.
 'use client';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { ActionMenu, Icon, color, type TableColumnsType } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
+import { useRecordScopes } from '@/shared/assistant/record-intent/store';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useQuoteCellStyles } from './styles/cells.styles';
 import { useQuotesUi } from './quotes-store';
@@ -40,7 +40,6 @@ export function useStamp() {
 
 function AiCell({ q }: { q: Quote }) {
   const t = useTranslations('quotes');
-  const { message } = App.useApp();
   const { styles, cx } = useQuoteCellStyles();
   const ui = useQuotesUi();
   return (
@@ -54,7 +53,10 @@ function AiCell({ q }: { q: Quote }) {
           className={cx(styles.aiDot, styles.aiDo)}
           title={t('aiDo')}
           aria-label={t('aiDo')}
-          onClick={() => void message.info(t('aiDoing', { code: q.code }))}
+          onClick={() => {
+            useRecordScopes.getState().open({ module: 'quotes', entity: 'quote', id: q.id, label: q.code });
+            ui.set({ aiOpen: true });
+          }}
         >
           <Icon name="ic-bolt" size={12} color={color.white} strokeWidth={2} />
         </button>

@@ -9,6 +9,9 @@ import { GenUiRenderer } from '../genui';
 import type { ScreenMsg } from './useScreenAssistant';
 import type { UiCommand } from '@appchat/shared';
 
+/** Lỗi có lý do riêng (TIP-023g §4.5): không thấy bản ghi / không quyền / bản ghi đã đổi / trùng request — không gộp thành lỗi chung. */
+const ERR_KEYS = new Set(['NOT_FOUND', 'FORBIDDEN', 'CONFLICT', 'VALIDATION_FAILED']);
+
 const useStyles = createStyles(({ css }) => ({
   list: css`
     display: flex;
@@ -121,7 +124,7 @@ export function ScreenAssistantThread({ msgs, typing, onDecide, onUi, testId, on
         if (m.card) return <Card key={m.id} m={m} onDecide={onDecide} />;
         return (
           <div key={m.id} className={styles.ai} data-testid="screen-ai-msg" style={m.error ? { color: color.danger } : undefined}>
-            {m.error ? t('error') : m.text}
+            {m.error ? t(m.errorCode && ERR_KEYS.has(m.errorCode) ? `err.${m.errorCode}` : 'error') : m.text}
           </div>
         );
       })}

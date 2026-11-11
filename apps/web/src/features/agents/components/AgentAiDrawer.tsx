@@ -1,12 +1,12 @@
 // Trợ lý AI · AI Agents (drawer 392px) — prototype L2421–2449: lời chào, 4 gợi ý, ô hỏi, "Mở Trợ lý AI đầy đủ".
 // D29: mô tả agent → agent.draft_from_description → thẻ xác nhận "Tạo & xuất bản" (agent.create_and_publish) | "Mở trong builder".
+// TIP-021b: thẻ đề xuất nói thật nguồn (model / mẫu có lý do) + cảnh báo; lỗi giữ mô tả, thử lại cùng request_id, "Soạn lại" = id mới.
 // TIP-023c G2: gợi ý khác "Tạo agent" và ô hỏi (khi không ở chế độ mô tả) gửi lượt Trợ lý THẬT ngay trong drawer (surface drawer,
 // cùng phiên module agents); "Mở Trợ lý AI đầy đủ" mở màn Trợ lý cùng phiên.
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { getAction } from '@appchat/actions';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useMe } from '@/shared/shell/useShellData';
@@ -14,24 +14,23 @@ import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread'
 import { useScreenAssistant } from '@/shared/assistant/useScreenAssistant';
 import { useSideStyles } from '../styles/side.styles';
 import { useAgentsUi } from '../agents-store';
-import type { AgentConfig, AgentsMeta } from '../types';
-
-type Draft = AgentConfig;
+import { useAgentDrafting } from '../hooks/useAgentDrafting';
+import { AgentDraftProposal } from './AgentDraftProposal';
+import type { AgentsMeta } from '../types';
 
 export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
   const t = useTranslations('agents');
-  const tAll = useTranslations();
   const router = useRouter();
   const { styles } = useSideStyles();
   const ui = useAgentsUi();
   const { data: me } = useMe();
-  const draftAct = useAction<{ draft: Draft }>('agent.draft_from_description');
+  const drafting = useAgentDrafting();
+  const draft = drafting.result?.draft ?? null;
   const publish = useAction<{ agent_id: string; version: number }>('agent.create_and_publish');
   const asst = useScreenAssistant('agents');
   const [text, setText] = useState('');
   const [describing, setDescribing] = useState(false);
   const [asked, setAsked] = useState<string | null>(null);
-  const [draft, setDraft] = useState<Draft | null>(null);
   const [done, setDone] = useState<string | null>(null);
   if (!ui.aiOpen) return null;
 
@@ -40,7 +39,7 @@ export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
     setText('');
     setDescribing(false);
     setAsked(null);
-    setDraft(null);
+    drafting.reset();
     setDone(null);
   };
   const ask = async () => {
@@ -50,19 +49,24 @@ export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
       setText('');
       return void asst.send(v);
     }
-    if (v.length < 4) return;
+    if (v.length < 4 || drafting.pending) return;
     setAsked(v);
-    setText('');
     setDone(null);
-    const res = await draftAct.run({ description: v }, { silent: true });
-    if (res) setDraft(res.result.draft);
+    // Thành công mới xoá ô — lỗi giữ nguyên mô tả để thử lại (cùng request_id).
+    if (await drafting.draft(v)) setText('');
+  };
+  const regenerate = async () => {
+    if (asked) await drafting.draft(asked, { regenerate: true });
+  };
+  const retry = async () => {
+    if (asked) await drafting.draft(asked);
   };
   const confirm = async () => {
     if (!draft) return;
     const res = await publish.run(draft);
     if (res) {
       setDone(draft.name);
-      setDraft(null);
+      drafting.reset();
     }
   };
   const openBuilder = () => {
@@ -77,8 +81,6 @@ export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
     else void asst.send(s.ask || s.title);
   };
   const name = me?.user.name.split(' ').pop() ?? '';
-  const ch = (k: string) => t(`b.channel.${k}` as never);
-  const tool = (id: string) => (getAction(id) ? tAll(getAction(id)!.title as never) : id);
 
   return (
     <>
@@ -109,39 +111,28 @@ export function AgentAiDrawer({ meta }: { meta: AgentsMeta }) {
               {t('ai.done', { name: done })}
             </div>
           ) : null}
-          {draft ? (
-            <div className={styles.draft} data-testid="ag-ai-draft">
-              <div className={styles.draftHead}>
-                <Icon name="ic-spark" size={14} color={color.violetInk} strokeWidth={1.9} />
-                {t('ai.draft')}
-              </div>
-              <div className={styles.draftLead}>{t('ai.draftLead')}</div>
-              <div className={styles.kv}>
-                <span className={styles.k}>{t('ai.fName')}</span>
-                <span className={styles.v}>
-                  {draft.emoji} {draft.name}
-                </span>
-                <span className={styles.k}>{t('ai.fRole')}</span>
-                <span className={styles.v}>{t(`ai.role.${draft.role ?? 'custom'}`)}</span>
-                <span className={styles.k}>{t('ai.fTier')}</span>
-                <span className={styles.v}>{t(`tier.${draft.model_tier}`)}</span>
-                <span className={styles.k}>{t('ai.fChannels')}</span>
-                <span className={styles.v}>{draft.channels.map(ch).join(', ')}</span>
-                <span className={styles.k}>{t('ai.fTools')}</span>
-                <span className={styles.v}>{draft.tools.map(tool).join(', ')}</span>
-                <span className={styles.k}>{t('ai.fThreshold')}</span>
-                <span className={styles.v}>{t('ai.pct', { n: draft.threshold })}</span>
-              </div>
+          {drafting.pending ? (
+            <div className={styles.draftLead} data-testid="ag-ai-pending">
+              {t('ai.drafting')}
+            </div>
+          ) : null}
+          {drafting.failure && !drafting.pending ? (
+            <div className={styles.draft} data-testid="ag-ai-error" data-code={drafting.failure.code}>
+              <div className={styles.draftLead}>{t('ai.draftFailed')}</div>
               <div className={styles.draftActs}>
-                <button type="button" className={styles.primary} onClick={() => void confirm()} disabled={publish.isPending} data-testid="ag-ai-publish">
-                  <Icon name="ic-check" size={14} color={color.white} strokeWidth={2} />
-                  {t('ai.publish')}
-                </button>
-                <button type="button" className={styles.ghost} onClick={openBuilder} data-testid="ag-ai-builder">
-                  {t('ai.openBuilder')}
+                {drafting.failure.retrySame ? (
+                  <button type="button" className={styles.ghost} onClick={() => void retry()} data-testid="ag-ai-retry">
+                    {t('ai.retry')}
+                  </button>
+                ) : null}
+                <button type="button" className={styles.ghost} onClick={() => router.push('/agents/new')} data-testid="ag-ai-manual">
+                  {t('ai.manual')}
                 </button>
               </div>
             </div>
+          ) : null}
+          {drafting.result && !drafting.pending ? (
+            <AgentDraftProposal value={drafting.result} publishing={publish.isPending} onPublish={() => void confirm()} onBuilder={openBuilder} onRegenerate={() => void regenerate()} />
           ) : null}
           <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} testId="ag-ai-msgs" />
           {!asked && !asst.msgs.length ? (

@@ -94,6 +94,13 @@ enum ReactionActor {
   @@map("reaction_actor")
 }
 
+enum AssigneeKind {
+  user
+  agent
+
+  @@map("assignee_kind")
+}
+
 enum OutboxMessageStatus {
   pending
   /// TIP-045b annex D: đã đặt chỗ gửi (điểm tuyến tính hoá) — sau mốc này coi như đang gửi; người tiếp quản không chặn được nữa.
@@ -130,6 +137,9 @@ model Conversation {
   aiDraft            String?            @map("ai_draft")
   /// Gợi ý trả lời của copilot `{ text, confidence (0–100), run_id }` — người gửi tin thì xoá.
   aiSuggestion       Json?              @map("ai_suggestion")
+  /// TIP-020c: run sinh `ai_draft` (nguồn tri thức phụ thuộc) + thế hệ nháp — `message.send.ai_draft_ref` phải khớp; nháp tay = null.
+  aiDraftRunId       String?            @map("ai_draft_run_id") @db.Uuid
+  aiDraftGen         Int                @default(0) @map("ai_draft_gen")
   intent             String?
   /// Ý định theo lượt (TIP-022b): `{ source_message_id, run_id, fence }` — CAS chống run cũ ghi đè lượt mới.
   intentSource       Json?              @map("intent_source")
@@ -237,6 +247,21 @@ model ConversationParticipant {
   @@map("conversation_participant")
 }
 
+/// Đồng phụ trách hội thoại (người hoặc AI Agent) — người/agent phụ trách CHÍNH vẫn ở `conversation.assignee_user_id` /
+/// `assignee_agent_id`, không đổi. Bảng này chỉ thêm người phụ trách bổ sung, luôn thêm bằng tay qua menu ⋯ (không bao giờ
+/// auto-route ghi vào đây — xem `routing-apply.handler.ts`). Mirror `ContactCollaborator` (D32) nhưng gộp cả user + agent.
+model ConversationAssignee {
+  conversationId String       @map("conversation_id") @db.Uuid
+  kind           AssigneeKind
+  assigneeId     String       @map("assignee_id") @db.Uuid
+  addedBy        String?      @map("added_by") @db.Uuid
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([conversationId, kind, assigneeId])
+  @@index([kind, assigneeId, conversationId])
+  @@map("conversation_assignee")
+}
+
 /// Thẻ hội thoại — nguồn thẻ dùng chung bảng `tag` (crm, Blueprint L336).
 model ConversationTag {
   conversationId String   @map("conversation_id") @db.Uuid
@@ -278,6 +303,8 @@ model OutboxMessage {
   turnFence        Int?                @map("turn_fence")
   aiEpoch          Int?                @map("ai_epoch")
   reservedAt       DateTime?           @map("reserved_at") @db.Timestamptz(6)
+  /// TIP-020c: run có nguồn tri thức mà nội dung tin phụ thuộc — đặt chỗ gửi kiểm lại nguồn còn hợp lệ trước khi gọi kênh.
+  knowledgeRunId   String?             @map("knowledge_run_id") @db.Uuid
   createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt        DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

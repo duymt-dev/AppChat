@@ -10,7 +10,7 @@ import type { ActionInput, orderCancel, orderComplete, orderConfirm } from '@app
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
-import { applyStageRule, writeTimeline } from '../../../crm/public';
+import { applyStageRule, lockStageFamilyOf, writeTimeline } from '../../../crm/public';
 import { lockOrder, type OrderRecord } from '../order-access';
 import { actorOf, deductStock, logEvent, moveOrder, orderPayload, returnStock, type Actor } from '../services/order-write';
 import { refundCancelled } from '../../payments/services/order-refund';
@@ -85,6 +85,7 @@ export class OrderCompleteHandler implements Handler<ActionInput<typeof orderCom
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof orderComplete>, tx: TenantTx): Promise<HandlerOutcome<St & { points: number }>> {
+    await lockStageFamilyOf(tx, 'order', input.order_id);
     const o = await lockOrder(tx, ctx.authz, input.order_id);
     const to = assertTransition(ORDER_FLOW, o.status, 'order.complete');
     const r = await completeOrder(tx, o, actorOf(ctx), this.clock.now());

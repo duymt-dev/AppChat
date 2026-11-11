@@ -6,6 +6,8 @@ import { anchorOf, monthAt } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
 import type { ActionExecutor } from '../../kernel/actions/executor';
 import { billingCtx } from '../payments/fulfil';
+import { BILLING_ACTOR } from '../lifecycle/types';
+import { domainTrigger, runSystemAction } from '../../kernel/actions/system';
 
 export const LIFECYCLE_BATCH = 100;
 
@@ -89,7 +91,9 @@ export async function runLifecycle(
     if (!live.has(r.workspaceId)) continue;
     out.workspaces++;
     try {
-      const res = (await d.executor.execute(billingCtx(r.workspaceId), 'billing.lifecycle_step', {})) as {
+      // TIP-003c: action riêng tiền nhiệm 039 qua capability gắn lịch; biên nhận kỳ của sổ nền tảng (045b) là chống lặp.
+      const t = domainTrigger({ workspaceId: r.workspaceId, actionId: 'billing.lifecycle_step', actor: BILLING_ACTOR, sourceKind: 'schedule', sourceRef: 'billing.lifecycle', targetId: r.workspaceId, input: {} });
+      const res = (await runSystemAction(d.executor, null, t, billingCtx(r.workspaceId))) as {
         status: number;
         data: { result?: { granted?: number; expired?: boolean; switched?: boolean } };
       };

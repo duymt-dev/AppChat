@@ -10,6 +10,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { connectionCtx } from '../services/connections.service';
 import { adapterOf } from '../services/adapter-selection';
 import { MAX_ATTEMPTS, backoffAt, claimCall, finishCall, retryCall, type CallRow, type CallSafety } from './call-receipt';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const INTEGRATION_OPS_QUEUE = 'integration-ops';
 
@@ -89,7 +90,7 @@ export async function executeCall(d: RunnerDeps, workspaceId: string, callId: st
     // Ghi ra ngoài không rõ đã tới provider chưa → unknown (không thử mù). Đọc hết lượt / lỗi xác thực → failed.
     const status = spec.safety === 'mutation' && code !== 'auth_failed' && code !== 'unsupported' ? 'unknown' : 'failed';
     if (!(await finishCall(db, callId, generation, { status, error: code, latencyMs }, d.now()))) return 'skipped';
-    await db.$transaction(async (tx) => {
+    await inEventTransaction(db, workspaceId, async (tx) => {
       await tx.integrationConnection.updateMany({ where: { id: conn.id, credentialRev: conn.credentialRev, status: { not: 'disconnected' } }, data: { lastError: code } });
       await writeOutbox(tx, workspaceId, [{ topic: 'integration.error', payload: { connection_id: conn.id, connector_key: conn.connectorKey, op: row.op, error: code } }], d.now());
     });

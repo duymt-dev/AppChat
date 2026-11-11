@@ -9,7 +9,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { publicQuoteSchema, quoteRowSchema, quotesMetaSchema, quotesPageSchema } from '@appchat/shared';
-import { WalletService, quoteOwnerConsumer, sweepQuotes, uuidv7 } from '@appchat/core';
+import { ActionExecutor, WalletService, quoteOwnerConsumer, sweepQuotes, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -233,7 +233,7 @@ describe('hết hạn + nhắc + gia hạn', () => {
   it('nhắc T-2 một lần; quá hạn → expired + event; gia hạn expired → sent + gửi lại link', async () => {
     const db = await tenant();
     // Chỉ quét workspace của lượt test (DB dùng chung với các file test khác).
-    const deps = { platform: { workspace: { findMany: () => h.platform.workspace.findMany({ where: { id: h.ws }, select: { id: true, timezone: true } }) } } as never, tenants: resolver, now: () => h.clock.now() };
+    const deps = { platform: { workspace: { findMany: () => h.platform.workspace.findMany({ where: { id: h.ws }, select: { id: true, timezone: true } }) } } as never, tenants: resolver, executor: h.app.get(ActionExecutor, { strict: false }), now: () => h.clock.now() };
     h.clock.advance(13 * 86_400_000);
     const r1 = await sweepQuotes(deps);
     expect(r1.reminded).toBe(1);

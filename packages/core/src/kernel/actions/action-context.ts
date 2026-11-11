@@ -37,6 +37,12 @@ export interface ActionContext {
   autoSend?: boolean;
   /** Action `db: 'platform'`: id thao tác xuyên DB (TIP-045b) — handler dùng cho đặt chỗ hạn mức / id tất định. */
   operationId?: string;
+  /**
+   * TIP-020c: quyền ĐỌC NGUỒN tri thức của người ra lệnh hiện hành (agent làm cho người — delegate / Cowork / chat thử): runtime đọc lại
+   * người đó mỗi lời gọi rồi đặt ở đây (đã thu hẹp theo tác vụ). `authz` = agent ∩ người chỉ chứa permission của tool agent nên không
+   * phản ánh quyền đọc module gốc của nguồn. Không phải input công khai (HTTP / model không đặt được).
+   */
+  knowledgeAuthz?: AuthzContext;
   /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
   authz: AuthzContext;
 }

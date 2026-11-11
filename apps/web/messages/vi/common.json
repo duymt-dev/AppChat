@@ -116,7 +116,13 @@
     "cancelled": "Đã huỷ — không thực hiện",
     "approval": "Đã gửi duyệt — chưa thực hiện",
     "count": "{n} bản ghi",
-    "openFull": "Mở trong Trợ lý"
+    "openFull": "Mở trong Trợ lý",
+    "err": {
+      "NOT_FOUND": "Không tìm thấy bản ghi này hoặc bạn không còn quyền xem.",
+      "FORBIDDEN": "Bạn không có quyền làm việc này.",
+      "CONFLICT": "Bản ghi đã thay đổi hoặc yêu cầu này đã gửi với nội dung khác — tải lại rồi thử.",
+      "VALIDATION_FAILED": "Yêu cầu không hợp lệ."
+    }
   },
   "docChannel": {
     "label": "Kênh gửi",
@@ -272,5 +278,47 @@
       "expired": "Hết hạn",
       "refunded": "Đã hoàn"
     }
+  },
+  "recordAi": {
+    "bound": "Đang gắn: {label}",
+    "intentGroup": "Việc muốn làm",
+    "taskLabel": "Việc cho Trợ lý",
+    "taskPh": "Gõ việc cần làm với bản ghi này…",
+    "taskOptional": "Thêm yêu cầu (không bắt buộc)…",
+    "send": "Gửi",
+    "suggest": "Gợi ý",
+    "working": "Đang xử lý…",
+    "proposalLead": "Đề xuất (chưa tạo gì):",
+    "audience": "Đối tượng: {criteria}",
+    "applyCombo": "Soạn combo",
+    "applyCampaign": "Soạn chiến dịch nháp",
+    "intent": {
+      "inspect": "Hỏi về bản ghi này",
+      "review_ticket": "Gợi ý xử lý ticket",
+      "invoice_task": "Việc gợi ý",
+      "product_combo": "Gợi ý combo",
+      "product_campaign": "Gợi ý quảng cáo"
+    },
+    "state": {
+      "pending": "Đang soạn đề xuất…",
+      "validated": "Đề xuất đã kiểm",
+      "invalidated": "Đề xuất không còn dùng được (sản phẩm đã đổi / không còn quyền).",
+      "failed": "Không soạn được đề xuất. Thử lại sau.",
+      "unknown": "Chưa rõ kết quả — thử lại sau."
+    },
+    "error": {
+      "NOT_FOUND": "Không tìm thấy bản ghi này hoặc bạn không còn quyền xem.",
+      "FORBIDDEN": "Bạn không có quyền làm việc này.",
+      "CONFLICT": "Bản ghi đã thay đổi — tải lại rồi thử.",
+      "other": "Không gửi được. Thử lại sau."
+    },
+    "unbind": "Bỏ gắn bản ghi",
+    "comboItem": "{qty} × {name} — {price}"
+  },
+  "citations": {
+    "title": "Nguồn của câu trả lời",
+    "originalDraft": "Nguồn của bản nháp AI gốc",
+    "unavailable": "Nguồn không còn khả dụng — nội dung đã thay đổi hoặc bạn không còn quyền xem",
+    "restricted": "Tài liệu (không đủ quyền xem tên)"
   }
 }

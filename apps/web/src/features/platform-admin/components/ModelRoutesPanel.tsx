@@ -1,9 +1,10 @@
 // /admin › Định tuyến model (TIP-040, DC-370): mỗi nhóm (mức AI × mục đích) là danh sách fallback theo thứ tự (dòng đầu = chính). Lưu =
-// THAY CẢ NHÓM qua admin.model_route.upsert với phiên bản nhóm (CAS) — server kiểm provider bật + đủ khả năng + model có giá.
+// THAY CẢ NHÓM qua admin.model_route.upsert với phiên bản nhóm (CAS) — server kiểm provider bật + đủ khả năng + model có giá. Route chat có
+// cờ "Đọc ảnh" (TIP-023f §3.2): chỉ route bật mới nhận ảnh đính kèm; mặc định tắt.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Button, Input, Select, Space } from 'antd';
+import { Button, Checkbox, Input, Select, Space } from 'antd';
 import { useTranslations } from 'next-intl';
 import { useAction } from '@/shared/actions/useAction';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
@@ -11,7 +12,7 @@ import { adminProvidersQuery, adminRoutesQuery } from '../api';
 import { useAdminStyles } from '../styles/admin.styles';
 import type { AdminRouteGroup } from '../types';
 
-type Row = { provider_key: string; model: string };
+type Row = { provider_key: string; model: string; vision?: boolean };
 const UP = '↑';
 const DOWN = '↓';
 
@@ -37,7 +38,7 @@ function RouteGroup({ g, providers }: { g: AdminRouteGroup; providers: string[] 
         <Button size="small" onClick={() => setRows((r) => [...r, { provider_key: providers[0] ?? '', model: '' }])} disabled={rows.length >= 10}>
           {t('add')}
         </Button>
-        <Button size="small" type="primary" disabled={!dirty || rows.some((r) => !r.provider_key || !r.model.trim())} loading={save.isPending} onClick={() => void save.run({ tier: g.tier, purpose: g.purpose, if_version: g.version, routes: rows.map((r) => ({ ...r, model: r.model.trim() })) })} data-testid={`adm-route-save-${id}`}>
+        <Button size="small" type="primary" disabled={!dirty || rows.some((r) => !r.provider_key || !r.model.trim())} loading={save.isPending} onClick={() => void save.run({ tier: g.tier, purpose: g.purpose, if_version: g.version, routes: rows.map((r) => ({ provider_key: r.provider_key, model: r.model.trim(), ...(g.purpose === 'chat' ? { vision: !!r.vision } : {}) })) })} data-testid={`adm-route-save-${id}`}>
           {t('save')}
         </Button>
       </div>
@@ -47,6 +48,11 @@ function RouteGroup({ g, providers }: { g: AdminRouteGroup; providers: string[] 
           <span className={styles.muted}>{i === 0 ? t('primary') : t('fallback', { n: i })}</span>
           <Select value={r.provider_key} onChange={(v) => set(i, { provider_key: v })} options={providers.map((p) => ({ value: p, label: p }))} style={{ width: 160 }} aria-label={t('provider')} />
           <Input value={r.model} onChange={(e) => set(i, { model: e.target.value })} placeholder={t('model')} aria-label={t('model')} style={{ width: 240 }} />
+          {g.purpose === 'chat' ? (
+            <Checkbox checked={!!r.vision} onChange={(e) => set(i, { vision: e.target.checked })} data-testid={`adm-route-vision-${id}-${i}`}>
+              {t('vision')}
+            </Checkbox>
+          ) : null}
           <Button size="small" disabled={i === 0} onClick={() => move(i, -1)} aria-label={t('up')}>
             {UP}
           </Button>

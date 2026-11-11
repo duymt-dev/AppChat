@@ -84,6 +84,8 @@ export interface ChatMessage {
   live?: boolean;
   /** Khung xương cây đang dựng trong bong bóng live (không tương tác). */
   skeleton?: SkeletonNode;
+  /** Tệp gửi kèm tin người dùng (TIP-023f) — chỉ tên + loại, không nội dung / URL lưu trữ. */
+  files?: { name: string; kind: string }[];
 }
 
 /** Tác vụ tự chủ + màn Coworks — cùng shape `GET /v1/ai-tasks` (packages/shared/src/api/ai-tasks.ts, TIP-035). */

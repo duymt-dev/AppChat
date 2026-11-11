@@ -10,6 +10,23 @@ export type RunMessage = Record<string, unknown> & { role: 'system' | 'user' | '
 
 export type JsonSchema = Record<string, unknown>;
 
+// TIP-023f §3.1: tham chiếu tệp trong tin + resolver dựng nội dung trước mỗi lời gọi (logic ở input-parts.ts).
+/** Phần tham chiếu trong `content` của tin user (thay cho bytes). */
+export interface InputRefPart {
+  type: 'appchat-input';
+  artifact_id: string;
+  revision: number;
+}
+
+/** Kết quả dựng một tham chiếu — chữ đã giới hạn (có locator) và / hoặc ảnh inline. */
+export type HydratedPart = { type: 'text'; text: string } | { type: 'image'; image: Uint8Array; mediaType: 'image/png' | 'image/jpeg' };
+
+export interface InputResolver {
+  /** Dựng các tham chiếu (theo thứ tự). Thiếu quyền / bị quên / đổi revision → một phần chữ báo không khả dụng. */
+  hydrate(refs: readonly InputRefPart[]): Promise<HydratedPart[][]>;
+}
+
+
 export type ToolOutcome =
   | { kind: 'ok'; output: unknown }
   /** `canonicalInput`: input đã chuẩn hoá (mã → id) mà token gắn — xác nhận phải chạy đúng input này (TIP-023b R1.6). */
@@ -40,10 +57,24 @@ export interface ModelCandidate {
   model: string;
   /** LanguageModel (AI SDK) — chỉ engine trong gói này dùng. */
   handle: unknown;
+  /** Thế hệ cấu hình opaque của route đã chọn (TIP-023e §1.2) — route có, provider không → vẫn route's; cả hai vắng → undefined.
+   *  Dùng để ghim `embedding_space` của một generation vào đúng cấu hình đã phục vụ nó (023e §1.6), không suy luận ngầm. */
+  configRevision?: string;
 }
 
 export interface ModelSource {
-  candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean }): Promise<ModelCandidate[]>;
+  /** `structured` (TIP-021b): chỉ route có provider khai `json_schema` (vắng = không lọc — test / mock). */
+  candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean; vision?: boolean; structured?: boolean }): Promise<ModelCandidate[]>;
+}
+
+/**
+ * TIP-021b §2.2: chế độ sinh theo schema do SERVER sở hữu (không bao giờ lấy từ input người dùng / model). Engine chạy một lời gọi không
+ * tool qua adapter `structured.ts`; kết quả đã kiểm schema trả qua `finish.text` (JSON chuẩn). Không phát delta chữ thô.
+ */
+export interface ResponseSchema {
+  name: string;
+  version: number;
+  schema: JsonSchema;
 }
 
 export interface ToolCallRef {
@@ -106,6 +137,10 @@ export interface RunRequest {
   /** Trần chữ ra mỗi lời gọi (mặc định 2048, tối đa 8192 — TIP-019b §1.4). */
   maxOutputTokens?: number;
   hooks?: RunHooks;
+  /** TIP-023f §3.1: dựng tham chiếu tệp (`appchat-input`) ngay trước mỗi lời gọi thật — vắng → tham chiếu thành chữ "không khả dụng". */
+  inputs?: InputResolver | null;
+  /** TIP-021b: có → chế độ structured (tools phải rỗng — trộn bị từ chối trước khi gọi provider). */
+  responseSchema?: ResponseSchema;
 }
 
 export type StopReason = 'stop' | 'max_steps' | 'loop_guard' | 'budget' | 'cancelled';

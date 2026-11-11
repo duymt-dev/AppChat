@@ -8,6 +8,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 import { writeOutbox, type OutboxEventInput } from '../../kernel/outbox/outbox';
 import type { HistoryPipeline } from './types';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const HISTORY_DAYS = [7, 30, 90] as const;
 /** Trần một lần lấy (bảo vệ bộ nhớ / hàng đợi / tài khoản Zalo): trang, tin, thời gian chờ một trang. */
@@ -38,7 +39,7 @@ export async function claimHistory(db: TenantDb, runId: string, accountId: strin
 
 /** Lưu một lô tin lịch sử — một transaction, chống trùng từng tin; trả số tin mới + event làm mới gom theo hội thoại. */
 export async function ingestHistoryBatch(db: TenantDb, ws: string, pipeline: HistoryPipeline, runId: string, batch: NormalizedInbound[], now: Date): Promise<number> {
-  return db.$transaction(async (tx) => {
+  return inEventTransaction(db, ws, async (tx) => {
     const convs = new Set<string>();
     // TIP-042b: khách mới tạo từ lịch sử → xin chia lead (ghi outbox cùng lô; rule chỉ áp khi khách tạo sau lúc bật).
     const routing: { topic: string; payload: Record<string, unknown> }[] = [];

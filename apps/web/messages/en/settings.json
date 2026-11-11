@@ -1474,6 +1474,7 @@
       "system": "System",
       "ai": "AI Assistant"
     },
+    "openRun": "Open run details: {action}",
     "aiActor": {
       "copilot": "AI Assistant — Co-pilot",
       "ops": "Operations agent",

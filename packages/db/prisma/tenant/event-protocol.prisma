@@ -1,0 +1,125 @@
+// tenant/event-protocol.prisma — sở hữu: TIP-003b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Giao thức sự kiện bền (TIP-003b §3): bộ đếm producer theo aggregate (cấp seq lúc flush cuối transaction), đầu dispatch theo aggregate
+// (chỉ dispatcher đụng — producer không bao giờ khoá / tạo), hàng dispatch mỗi event, biên nhận theo consumer (chế độ + fence), registry
+// bất biến theo phiên bản, trạng thái giao thức (epoch / cutover). Không workspace_id / RLS / FK xuyên DB. Index viết tay ở migration
+// (partial / INCLUDE) theo standards/indexing.
+
+enum EventRelayPhase {
+  pending
+  claimed
+  published
+  failed
+
+  @@map("event_relay_phase")
+}
+
+enum EventDispatchPhase {
+  pending
+  running
+  waiting
+  completed
+  failed
+  blocked_unknown
+
+  @@map("event_dispatch_phase")
+}
+
+enum EventReceiptPhase {
+  pending
+  claimed
+  applied
+  no_effect
+  handed_off
+  failed
+  blocked_unknown
+
+  @@map("event_receipt_phase")
+}
+
+enum EventReceiptMode {
+  projection
+  action
+  handoff
+
+  @@map("event_receipt_mode")
+}
+
+/// Bộ đếm producer — chỉ flush cuối transaction khoá / tăng (thứ tự (kind, id) tất định).
+model EventAggregateCounter {
+  kind    String
+  id      String @db.Uuid
+  nextSeq BigInt @map("next_seq")
+
+  @@id([kind, id])
+  @@map("event_aggregate_counter")
+}
+
+/// Đầu dispatch — chỉ dispatcher tạo lười (next_seq = 1) và giữ fence; producer không bao giờ đọc / khoá.
+model EventAggregateHead {
+  kind           String
+  id             String    @db.Uuid
+  nextSeq        BigInt    @default(1) @map("next_seq")
+  activeEventId  String?   @map("active_event_id") @db.Uuid
+  headToken      String?   @map("head_token") @db.Uuid
+  headFence      Int       @default(0) @map("head_fence")
+  headLeaseUntil DateTime? @map("head_lease_until") @db.Timestamptz(6)
+  blockedReason  String?   @map("blocked_reason")
+
+  @@id([kind, id])
+  @@map("event_aggregate_head")
+}
+
+model EventDispatch {
+  eventId            String             @id @map("event_id") @db.Uuid
+  protocolVersion    Int                @map("protocol_version")
+  registryVersion    Int                @map("registry_version")
+  phase              EventDispatchPhase @default(pending)
+  availableAt        DateTime           @default(now()) @map("available_at") @db.Timestamptz(6)
+  dispatchToken      String?            @map("dispatch_token") @db.Uuid
+  dispatchGeneration Int                @default(0) @map("dispatch_generation")
+  dispatchLeaseUntil DateTime?          @map("dispatch_lease_until") @db.Timestamptz(6)
+  dispatchAttempts   Int                @default(0) @map("dispatch_attempts")
+  lastErrorCode      String?            @map("last_error_code")
+
+  @@map("event_dispatch")
+}
+
+model EventConsumerReceipt {
+  eventId         String            @map("event_id") @db.Uuid
+  consumer        String
+  contractVersion Int               @map("contract_version")
+  mode            EventReceiptMode
+  phase           EventReceiptPhase @default(pending)
+  effectRef       String?           @map("effect_ref")
+  inputDigest     String?           @map("input_digest")
+  claimToken      String?           @map("claim_token") @db.Uuid
+  fence           Int               @default(0)
+  leaseUntil      DateTime?         @map("lease_until") @db.Timestamptz(6)
+  reason          String?
+  completedAt     DateTime?         @map("completed_at") @db.Timestamptz(6)
+
+  @@id([eventId, consumer])
+  @@map("event_consumer_receipt")
+}
+
+/// Registry bất biến: topic → [{consumer, mode, contract_version}] đã kiểm khi khởi động; event cũ resolve theo version đã lưu.
+model EventRegistryVersion {
+  version   Int      @id
+  digest    String   @unique
+  contracts Json
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("event_registry_version")
+}
+
+/// Singleton (id = 1): pha giao thức (v1 | v2), epoch, registry hiện hành, checkpoint cutover (đếm / id — không nội dung khách).
+model EventProtocolState {
+  id               Int      @id @default(1)
+  phase            String   @default("v1")
+  epoch            Int      @default(0)
+  registryVersion  Int?     @map("registry_version")
+  legacyCheckpoint Json?    @map("legacy_checkpoint")
+  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("event_protocol_state")
+}

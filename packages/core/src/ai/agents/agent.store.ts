@@ -1,7 +1,7 @@
 // Cấu hình AI Agent ↔ cột `ai_agent` (Blueprint §2.2 L397, D29): cột cấu hình là bản nháp; xuất bản chụp `AgentConfig` vào
 // `ai_agent_version.config`. Rào chắn khi ghi (§5.3b): tool ⊆ `agentGrantable` ∩ quyền người tạo; risk money / delete luôn vào
 // `approval_rules`; `plan.max_agents`. Agent mới / mẫu / Trợ lý dùng chung `blankConfig`.
-import { registry, type ActionDef } from '@appchat/actions';
+import { registry, type ActionDef, isAgentGrantable } from '@appchat/actions';
 import { AppError, can, isPermissionKey, type AuthzContext, type WeeklySchedule } from '@appchat/shared';
 import { TenantSql } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
@@ -61,7 +61,7 @@ export const blankConfig = (name = ''): AgentConfig => ({
   weekly_schedule: null,
 });
 
-const GRANTABLE = new Map(registry.filter((a) => a.agentGrantable).map((a) => [a.id, a]));
+const GRANTABLE = new Map(registry.filter(isAgentGrantable).map((a) => [a.id, a]));
 export const grantableAction = (id: string): ActionDef | undefined => GRANTABLE.get(id);
 
 /** Tool cấp cho agent: phải `agentGrantable` (D51) và người cấp có quyền của action đó (§5.3b). */

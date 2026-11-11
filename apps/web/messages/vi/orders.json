@@ -96,7 +96,6 @@
   "more": "{name} +{n}",
   "spark": "✦ {hint}",
   "aiDo": "Giao AI Agent xử lý ngay",
-  "aiDoing": "AI Agent đang xử lý {code}",
   "aiPeek": "Xem gợi ý AI",
   "menu": {
     "open": "Thao tác",

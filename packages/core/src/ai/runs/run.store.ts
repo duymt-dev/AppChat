@@ -5,11 +5,15 @@ import { toJson, type PausedState } from '@appchat/ai';
 import { getAction } from '@appchat/actions';
 import { uuidv7 } from '../../kernel/ids';
 import { maskToolInput } from '../../kernel/actions/secret-fields';
+import { redactSensitiveQueryInput } from '../../authz/fields/history-provenance';
 import type { MeteredDb } from './metered-db';
 import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty } from '../../kernel/outbox/outbox';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { appendRunEvent, type RunEventInput } from './run-events';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
+import { resumeGate } from '../kb/scope/recovery';
+import type { KnowledgeContext } from '../kb/scope/types';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | '$transaction'>;
 export type RunRow = NonNullable<Awaited<ReturnType<TenantDb['aiRun']['findUnique']>>>;
@@ -33,6 +37,10 @@ export interface NewRun {
   taskId?: string | null;
   dryRun?: boolean;
   maxCredits?: number | null;
+  /** TIP-020c: binding tri thức tin cậy (server dựng) — lưu cùng lúc tạo run, trước mọi tool. */
+  knowledge?: KnowledgeContext | null;
+  /** TIP-020d: chế độ công bố `validated_citations` (server đặt — run trả lời kênh): câu trả lời chỉ công bố sau khi kiểm trích dẫn. */
+  publicationMode?: 'validated_citations';
 }
 
 export interface StepRecord {
@@ -82,7 +90,8 @@ export class RunStore {
       if (e) await appendRunEvent(tx as unknown as TenantTx, ws, e, now);
       return r;
     };
-    const out = typeof this.db.$transaction === 'function' ? await this.db.$transaction((tx) => run(tx as unknown as Db)) : await run(this.db);
+    // TIP-003b: transaction có collector — run.step / run.done flush cuối cùng commit với trạng thái run.
+    const out = typeof this.db.$transaction === 'function' ? await inEventTransaction(this.db as unknown as TenantDb, ws, (tx) => run(tx as unknown as Db)) : await run(this.db);
     if (this.events.kv) await markDirty(this.events.kv as KeyValueStore, ws).catch(() => undefined);
     return out;
   }
@@ -90,6 +99,11 @@ export class RunStore {
   /** DB có bảng ngân sách / biên nhận (TIP-019b) — null khi store dựng trên DB giả của test đơn vị. */
   metered(): MeteredDb | null {
     return 'aiRootBudget' in (this.db as object) ? (this.db as unknown as MeteredDb) : null;
+  }
+
+  /** TIP-020c: cổng tri thức trước mỗi lời gọi model — null = được chạy; mã dừng khi thiếu binding / nguồn đã dùng hết hiệu lực. */
+  async knowledgeGate(runId: string): Promise<string | null> {
+    return 'aiAgent' in (this.db as object) ? resumeGate(this.db as unknown as Parameters<typeof resumeGate>[0], runId) : null;
   }
 
   /** Lý do dừng (TIP-019b §4.4) — ghi riêng, không đổi trạng thái. */
@@ -120,6 +134,8 @@ export class RunStore {
         taskId: r.taskId ?? null,
         dryRun: r.dryRun ?? false,
         maxCredits: r.maxCredits ?? null,
+        ...(r.knowledge ? { knowledge: r.knowledge as object } : {}),
+        ...(r.publicationMode === 'validated_citations' ? { citationPhase: 'awaiting_generation' } : {}),
         status: 'queued',
         startedAt: now,
       },
@@ -153,8 +169,10 @@ export class RunStore {
         type: s.type,
         status: s.status ?? 'ok',
         actionId: s.actionId ?? null,
-        // Ô bí mật (ActionDef.secret) không bao giờ nằm trong bước run (TIP-023c) — kể cả lời gọi bị chặn.
-        input: json(s.type === 'tool' ? maskToolInput(s.actionId ?? null, s.input ?? {}, getAction) : (s.input ?? {})),
+        // Ô bí mật (ActionDef.secret) không bao giờ nằm trong bước run (TIP-023c); câu hỏi tự do của tool nhạy (`find_actions` —
+        // TIP-023e §3.5) cũng không — cả hai che TRƯỚC khi ghi, một điểm duy nhất nên mọi nơi đọc lại (trace / GenUI / run-detail /
+        // SSE) tự động an toàn.
+        input: json(s.type === 'tool' ? redactSensitiveQueryInput(s.actionId ?? null, maskToolInput(s.actionId ?? null, s.input ?? {}, getAction)) : (s.input ?? {})),
         output: s.output === undefined ? undefined : json(s.output),
         provider: s.provider ?? null,
         model: s.model ?? null,

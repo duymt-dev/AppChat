@@ -26,6 +26,7 @@ function fakeDb(o: { assignee?: string | null } = {}) {
     conversation: { findUnique: async () => conv },
     contact: { findUnique: async () => null },
     contactCollaborator: { count: async () => 0 },
+    conversationAssignee: { findUnique: async () => null },
     message: { findMany: async (a: { select: Record<string, boolean> }) => (a.select.id && Object.keys(a.select).length === 1 ? msgs.map((m) => ({ id: m.id })) : msgs) },
   };
   let seq = 0;

@@ -14,10 +14,18 @@ import * as catalog from './catalog';
 import * as catalogOperations from './catalog-operations';
 import * as contactMemory from './contact-memory';
 import * as quotes from './quotes';
+import * as systemSales from './system/sales';
+import * as systemBooking from './system/booking';
+import * as systemSupport from './system/support';
+import * as systemChannels from './system/channels';
+import * as systemKb from './system/kb';
+import * as systemAi from './system/ai';
+import * as systemInbox from './system/inbox';
 import * as contracts from './contracts';
 import * as contractFiles from './contract-files';
 import * as contractDraft from './contract-draft';
 import * as contractAppendix from './contract-appendix';
+import * as contractSigning from './contract-signing';
 import * as commerceSettings from './commerce-settings';
 import * as commerceDelivery from './commerce-delivery';
 import * as orders from './orders';
@@ -79,8 +87,14 @@ import * as crmBulk from './crm-bulk';
 import * as crmForms from './crm-forms';
 import * as inboxTranslation from './inbox-translation';
 import * as privacy from './privacy';
+import * as assistantPlans from './assistant-plans';
+import * as assistantDiscovery from './assistant-discovery';
+import * as assistantInput from './assistant-input';
 
 export * from './define';
+export * from './assistant-plans';
+export * from './assistant-discovery';
+export * from './assistant-input';
 export * from './assistant-ui';
 export * from './identity';
 export * from './onboarding';
@@ -94,15 +108,26 @@ export * from './crm';
 export * from './contact-lifecycle';
 export * from './contact-merge';
 export * from './ai';
+export { agentConfig, agentTier } from './agent-config';
+export { draftGenerationInfo, DRAFT_FALLBACK_REASONS, DRAFT_SCHEMA_VERSION, DRAFT_WARNINGS } from './agent-drafting';
 export * from './ai-utilities';
 export * from './catalog';
 export * from './catalog-operations';
 export * from './contact-memory';
 export * from './quotes';
+export * from './system/sales';
+export * from './system/booking';
+export * from './system/support';
+export * from './system/channels';
+export * from './system/kb';
+export * from './system/ai';
+export * from './system/inbox';
+export * from './system/common';
 export * from './contracts';
 export * from './contract-files';
 export * from './contract-draft';
 export * from './contract-appendix';
+export * from './contract-signing';
 export * from './commerce-settings';
 export * from './commerce-delivery';
 export * from './orders';
@@ -181,10 +206,18 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(catalogOperations),
   ...Object.values(contactMemory),
   ...Object.values(quotes),
+  ...Object.values(systemSales),
+  ...Object.values(systemBooking),
+  ...Object.values(systemSupport),
+  ...Object.values(systemChannels),
+  ...Object.values(systemKb),
+  ...Object.values(systemAi),
+  ...Object.values(systemInbox),
   ...Object.values(contracts),
   ...Object.values(contractFiles),
   ...Object.values(contractDraft),
   ...Object.values(contractAppendix),
+  ...Object.values(contractSigning),
   ...Object.values(commerceSettings),
   ...Object.values(commerceDelivery),
   ...Object.values(orders),
@@ -248,6 +281,9 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contactTasks),
   ...Object.values(contactOpportunities),
   ...Object.values(privacy),
+  ...Object.values(assistantPlans),
+  ...Object.values(assistantDiscovery),
+  ...Object.values(assistantInput),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);

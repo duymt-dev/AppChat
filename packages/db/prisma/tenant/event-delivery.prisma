@@ -1,0 +1,173 @@
+// tenant/event-delivery.prisma — sở hữu: TIP-006b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Giao bền sau commit (TIP-006b §1): fanout theo event có tập mục tiêu niêm phong (selection generation), ý định giao thông báo (mail)
+// và realtime có claim / fence / lần thử, lần xảy ra của tác vụ AI (event / lịch) + ý định đẩy run. Queue chỉ mang id ý định; mọi nội
+// dung đọc lại từ nguồn hiện hành lúc giao. Không workspace_id / RLS / FK xuyên DB. Index viết tay ở migration (partial / INCLUDE).
+
+enum FanoutSelectionPhase {
+  building
+  sealed
+  abandoned
+
+  @@map("fanout_selection_phase")
+}
+
+enum FanoutItemPhase {
+  pending
+  applied
+  no_effect
+  handed_off
+  unknown
+
+  @@map("fanout_item_phase")
+}
+
+enum NotificationDeliveryPhase {
+  pending
+  dispatching
+  accepted
+  suppressed
+  unknown
+  failed
+
+  @@map("notification_delivery_phase")
+}
+
+enum RealtimeDeliveryPhase {
+  pending
+  published
+  failed
+
+  @@map("realtime_delivery_phase")
+}
+
+enum TaskOccurrencePhase {
+  applied
+  no_effect
+  handed_off
+
+  @@map("task_occurrence_phase")
+}
+
+enum TaskDispatchPhase {
+  pending
+  dispatched
+  terminal
+
+  @@map("task_dispatch_phase")
+}
+
+/// Một (event, consumer, version) — tập mục tiêu chọn một lần rồi niêm phong; phát lại dùng lại đúng tập này.
+model EventFanout {
+  id                  String               @id @db.Uuid
+  eventId             String               @map("event_id") @db.Uuid
+  consumerName        String               @map("consumer_name")
+  contractVersion     Int                  @map("contract_version")
+  selectionGeneration Int                  @default(1) @map("selection_generation")
+  selectionPhase      FanoutSelectionPhase @default(building) @map("selection_phase")
+  cursor              String?
+  selectedCount       Int                  @default(0) @map("selected_count")
+  processedCount      Int                  @default(0) @map("processed_count")
+  leaseToken          String?              @map("lease_token") @db.Uuid
+  leaseGeneration     Int                  @default(0) @map("lease_generation")
+  leaseUntil          DateTime?            @map("lease_until") @db.Timestamptz(6)
+  createdAt           DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([eventId, consumerName, contractVersion], map: "event_fanout_identity_key")
+  @@map("event_fanout")
+}
+
+/// Mục tiêu của một thế hệ chọn — chỉ thế hệ đã niêm phong mới có hiệu ứng; mỗi mục một kết cục.
+model EventFanoutItem {
+  fanoutId        String          @map("fanout_id") @db.Uuid
+  generation      Int
+  targetKind      String          @map("target_kind")
+  targetId        String          @map("target_id") @db.Uuid
+  capturedVersion String          @default("") @map("captured_version")
+  ordinal         Int
+  operationRef    String?         @map("operation_ref")
+  inputDigest     String?         @map("input_digest")
+  phase           FanoutItemPhase @default(pending)
+  safeReason      String?         @map("safe_reason")
+
+  @@id([fanoutId, generation, targetKind, targetId])
+  @@map("event_fanout_item")
+}
+
+/// Ý định gửi một kênh ngoài (email) của một thông báo — "accepted" = provider nhận, không phải đã tới hộp thư.
+model NotificationDelivery {
+  id               String                    @id @db.Uuid
+  notificationId   String                    @map("notification_id") @db.Uuid
+  /// null = mục tiêu biểu tượng (Owner hiện tại) chưa ràng — resolve lúc giao lần đầu có thẩm quyền.
+  userId           String?                   @map("user_id") @db.Uuid
+  logicalTargetKey String                    @map("logical_target_key")
+  channel          String
+  sourceEventId    String                    @map("source_event_id") @db.Uuid
+  kind             String
+  intentIndex      Int                       @map("intent_index")
+  /// Chính sách người nhận (permission key | 'owner' | 'list') — kiểm lại quyền hiện tại trước khi gửi.
+  policyReference  String?                   @map("policy_reference")
+  phase            NotificationDeliveryPhase @default(pending)
+  attemptNo        Int                       @default(0) @map("attempt_no")
+  claimToken       String?                   @map("claim_token") @db.Uuid
+  claimGeneration  Int                       @default(0) @map("claim_generation")
+  claimUntil       DateTime?                 @map("claim_until") @db.Timestamptz(6)
+  nextAttemptAt    DateTime                  @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  acceptedAt       DateTime?                 @map("accepted_at") @db.Timestamptz(6)
+  safeCode         String?                   @map("safe_code")
+  createdAt        DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime                  @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([notificationId, logicalTargetKey, channel], map: "notification_delivery_identity_key")
+  @@map("notification_delivery")
+}
+
+/// Ý định invalidation realtime — "published" = Redis nhận, không phải trình duyệt nhận; client dedupe theo id.
+model RealtimeDelivery {
+  id              String                @id @db.Uuid
+  sourceEventId   String                @map("source_event_id") @db.Uuid
+  /// Gói tin tối thiểu đã làm sạch (id + version + require) — không thân thông báo / trường có ràng buộc quyền.
+  envelope        Json
+  phase           RealtimeDeliveryPhase @default(pending)
+  attemptNo       Int                   @default(0) @map("attempt_no")
+  claimToken      String?               @map("claim_token") @db.Uuid
+  claimGeneration Int                   @default(0) @map("claim_generation")
+  claimUntil      DateTime?             @map("claim_until") @db.Timestamptz(6)
+  nextAttemptAt   DateTime              @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  createdAt       DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("realtime_delivery")
+}
+
+/// Một lần kích hoạt tác vụ (event hoặc mốc lịch) theo thế hệ trigger — kết cục + run gốc ghi cùng transaction.
+model TaskOccurrence {
+  id                String              @id @db.Uuid
+  taskId            String              @map("task_id") @db.Uuid
+  triggerGeneration Int                 @map("trigger_generation")
+  kind              String
+  eventId           String?             @map("event_id") @db.Uuid
+  dueAt             DateTime?           @map("due_at") @db.Timestamptz(6)
+  inputDigest       String              @map("input_digest")
+  phase             TaskOccurrencePhase
+  runId             String?             @map("run_id") @db.Uuid
+  noEffectReason    String?             @map("no_effect_reason")
+  createdAt         DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("task_occurrence")
+}
+
+/// Ý định đẩy job cho đúng một run đã tạo — mất Redis / job cũ giữ lại → quét đẩy lại đúng run_id.
+model TaskDispatchIntent {
+  runId           String            @id @map("run_id") @db.Uuid
+  taskId          String            @map("task_id") @db.Uuid
+  sourceEventRef  String?           @map("source_event_ref")
+  phase           TaskDispatchPhase @default(pending)
+  attemptNo       Int               @default(0) @map("attempt_no")
+  claimToken      String?           @map("claim_token") @db.Uuid
+  claimGeneration Int               @default(0) @map("claim_generation")
+  nextDueAt       DateTime          @default(now()) @map("next_due_at") @db.Timestamptz(6)
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("task_dispatch_intent")
+}

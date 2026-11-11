@@ -1,8 +1,9 @@
 // Hội thoại Trợ lý — prototype L1256–1311: bong bóng người dùng / AppChat AI, thẻ xác nhận (ActionPreviewCard — đổi gì, Sửa, Xác nhận /
-// Huỷ, đã lưu / đã huỷ / chờ duyệt), "đang soạn", composer đáy.
+// Huỷ, đã lưu / đã huỷ / chờ duyệt), "đang soạn", composer đáy. Tin người dùng có tệp (TIP-023f) → chip tên tệp (không nội dung).
 'use client';
 import { useEffect, useRef } from 'react';
 import { useTranslations } from 'next-intl';
+import { Icon, color } from '@appchat/ui';
 import { useThreadStyles } from '../styles/thread.styles';
 import { useAssistantUi } from '../assistant-store';
 import type { UiCommand } from '@appchat/actions';
@@ -40,6 +41,16 @@ export function ChatThread({ onSend, onDecide, onOpen, onUi, onExternal }: ChatT
               <div key={m.id} className={styles.userRow}>
                 <div className={styles.user} data-testid="asst-user-msg">
                   {m.text}
+                  {m.files?.length ? (
+                    <span className={styles.files}>
+                      {m.files.map((f, i) => (
+                        <span key={i} className={styles.file} data-testid="asst-user-file">
+                          <Icon name={f.kind === 'image' || f.kind === 'png' || f.kind === 'jpeg' ? 'ic-image' : 'ic-doc'} size={12} color={color.white} />
+                          {f.name}
+                        </span>
+                      ))}
+                    </span>
+                  ) : null}
                 </div>
               </div>
             ) : (

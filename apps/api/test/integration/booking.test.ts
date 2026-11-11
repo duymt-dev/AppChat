@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { appointmentRowSchema, appointmentsPageSchema, bookingSettingsSchema, calendarMetaSchema, slotsSchema } from '@appchat/shared';
-import { CrmMembers, expireHolds, remindAppointments, uuidv7 } from '@appchat/core';
+import { ActionExecutor, expireHolds, remindAppointments, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -196,12 +196,11 @@ describe('việc hệ thống + đọc', () => {
     await db.conversation.create({ data: { id: uuidv7(), channelAccountId: zalo, channelType: 'zalo_personal', contactId: ids.vy, externalThreadId: 'z-vy', title: 'Vy', lastMessageAt: h.clock.now() } });
     const hold = ok(await act('appointment.create', { contact_id: ids.vy, contact_name: 'x', service_id: ids.massage, staff_id: ids.s1, date: '2026-11-02', start: '11:00' }));
     h.clock.advance(2 * 3_600_000 + 60_000);
-    expect(await expireHolds(db, h.ws, h.clock.now(), 'Asia/Ho_Chi_Minh')).toBeGreaterThanOrEqual(1);
+    const sys = { executor: h.app.get(ActionExecutor, { strict: false }), tenants: resolver };
+    expect(await expireHolds(db, h.ws, h.clock.now(), sys)).toBeGreaterThanOrEqual(1);
     expect((await appt(hold.result.appointment_id)).status).toBe('expired');
     ok(await act('appointment.create', { contact_id: ids.vy, contact_name: 'x', service_id: ids.massage, staff_id: ids.s1, date: '2026-11-02', start: '11:00' }));
-    const members = h.app.get(CrmMembers, { strict: false });
-    const queued: unknown[] = [];
-    const run = () => remindAppointments(db, h.ws, h.clock.now(), { platform: h.platform, members, enqueue: async (o) => void queued.push(o) });
+    const run = () => remindAppointments(db, h.ws, h.clock.now(), sys);
     // 02/11 09:00 VN = 02:00Z; mốc 24h = 01/11 02:00Z.
     h.clock.advance(Date.parse('2026-11-01T02:30:00Z') - h.clock.now().getTime());
     expect(await run()).toBeGreaterThanOrEqual(1);

@@ -148,7 +148,8 @@
     "model": "Model name",
     "up": "Up",
     "down": "Down",
-    "remove": "Remove"
+    "remove": "Remove",
+    "vision": "Reads images"
   },
   "prices": {
     "create": "Add price",

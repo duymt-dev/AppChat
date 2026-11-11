@@ -5,6 +5,7 @@
 import type { TenantDb } from '@appchat/db';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const AI_COMPLAINT_TOPIC = 'ai.complaint_detected';
 
@@ -17,7 +18,7 @@ export interface ComplaintIntent {
 }
 
 export async function recordComplaintIntent(db: TenantDb, kv: KeyValueStore, ws: string, i: ComplaintIntent, now: Date): Promise<void> {
-  await db.$transaction((tx) =>
+  await inEventTransaction(db, ws, (tx) =>
     writeOutbox(tx, ws, [{ topic: AI_COMPLAINT_TOPIC, payload: { conversation_id: i.conversationId, source_message_id: i.sourceMessageId, run_id: i.runId, agent_id: i.agentId, fence: i.fence } }], now),
   );
   await markDirty(kv, ws);

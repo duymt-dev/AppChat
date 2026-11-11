@@ -26,6 +26,9 @@ export interface ProviderConfig {
   apiKey: string;
   headers?: Record<string, string> | null;
   capabilities: ProviderCapabilities;
+  /** Thế hệ cấu hình opaque (TIP-023e §1.2, `core/ai/router/config-revision.ts`) — đổi khi key/header/URL/capabilities/status đổi,
+   *  kể cả xoay khoá cùng độ dài. Vắng (test / mock cũ) → router dùng khoá cache cũ (độ dài key) làm phương án lùi. */
+  configRevision?: string;
 }
 
 interface Factory {
@@ -46,7 +49,8 @@ function factoryOf(p: ProviderConfig): Factory {
       return createDeepSeek(common);
     case 'openai_compatible':
       if (!p.baseUrl) throw new Error(`provider ${p.key}: openai_compatible cần base_url`);
-      return createOpenAICompatible({ name: p.key, baseURL: p.baseUrl, apiKey: p.apiKey, ...(p.headers ? { headers: p.headers } : {}), includeUsage: true });
+      // Đã khai `json_schema` → gửi `response_format: json_schema` thật (TIP-021b); thiếu cờ này SDK bỏ schema, model trả tự do.
+      return createOpenAICompatible({ name: p.key, baseURL: p.baseUrl, apiKey: p.apiKey, ...(p.headers ? { headers: p.headers } : {}), includeUsage: true, supportsStructuredOutputs: p.capabilities.json_schema === true });
   }
 }
 

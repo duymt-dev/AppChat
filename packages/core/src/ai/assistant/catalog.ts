@@ -2,7 +2,7 @@
 // tìm không dấu theo từ khoá trên id / module / mô tả (en) / tên đối tượng + module (vi) — bản đầu không dùng embedding (DC-129).
 // Trả id + mô tả + khuôn input lồng nhau (schema-brief.ts) để model gọi `call_action` đúng. Chỉ action đã có handler thật (TIP-023b R1.2):
 // action còn NOT_IMPLEMENTED không lộ ra — gọi vào chỉ nhận 501.
-import { registry, type ActionDef } from '@appchat/actions';
+import { isInternalAction, registry, type ActionDef } from '@appchat/actions';
 import { can, foldText, serverMessages, type AuthzContext, type PermissionKey } from '@appchat/shared';
 import { inputSchemaOf } from '../runs/tools';
 import { exampleOf, schemaBrief, type Brief } from './schema-brief';
@@ -28,7 +28,7 @@ export const entityOf = (actionId: string) => actionId.split('.')[0]!;
 
 /** Người dùng gọi được (quyền + Owner); `self` luôn được, `platform_admin` không qua Trợ lý. */
 export function allowedFor(a: ActionDef, authz: AuthzContext): boolean {
-  if (HIDDEN.test(a.id) || SYSTEM_ONLY.has(a.id) || a.permission === 'platform_admin') return false;
+  if (HIDDEN.test(a.id) || SYSTEM_ONLY.has(a.id) || isInternalAction(a) || a.permission === 'platform_admin') return false;
   return a.permission === 'self' || can(authz, a.permission as PermissionKey);
 }
 

@@ -1,5 +1,5 @@
 // Kiểm chung cho action cấu hình nền tảng (TIP-040 pha 2, DC-370): CAS phiên bản, provider / giá hợp lệ cho route, tool mẫu agent.
-import { registry } from '@appchat/actions';
+import { registry, isAgentGrantable } from '@appchat/actions';
 import { AppError } from '@appchat/shared';
 import type { PlatformTx } from '../../kernel/actions/action-context';
 
@@ -13,7 +13,7 @@ export const casConflict = (current: number) => new AppError('CONFLICT', 409, { 
 
 /** Tool mẫu agent: id có trong registry + agentGrantable (D51 — mẫu không tự cấp quyền vượt). Trả id sai. */
 export function invalidTools(tools: readonly string[]): string[] {
-  const ok = new Set(registry.filter((a) => a.agentGrantable).map((a) => a.id));
+  const ok = new Set(registry.filter(isAgentGrantable).map((a) => a.id));
   return [...new Set(tools)].filter((t) => !ok.has(t));
 }
 

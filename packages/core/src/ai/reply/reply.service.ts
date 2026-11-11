@@ -25,9 +25,15 @@ import { finalizeReceipt, openReceipt, pendingSource, sendGreeting, wantsGreetin
 import { normalizeIntent, recordIntent } from './intent';
 import { buildReplyContext, publishedAgent, type ReplyContext } from './reply-context';
 import { META, replyTools } from './reply-tools';
+import type { SystemOutput } from '@appchat/actions';
+import { runSystemAction } from '../../kernel/actions/system';
+import { assignTrigger, transferTrigger } from './system/sources';
 import { isSuperseded } from './send-fence';
 import { handoff, reasonText, setState, type ReasonKey } from './turn-handoff';
 import { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './turn-lease';
+import { agentKnowledge } from '../kb/scope/context';
+import { gateAnswer } from '../citations/answer-gate';
+import { writeAiDraft } from '../kb/scope/draft-binding';
 
 /** Tối đa 3 lần `transfer_to_agent` mỗi lượt khách (agent-gateway §5). */
 export const MAX_TRANSFERS = 3;
@@ -102,17 +108,19 @@ async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Publ
     conversationId: c.id,
     parentRunId: extra.parentRunId ?? null,
     maxCredits: TURN_BUDGET,
+    knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { channel: true }),
+    publicationMode: 'validated_citations',
   });
   const embed = d.embedder ? queryEmbedder({ db: store.metered(), embedder: d.embedder, meter: d.meter ?? null, now: d.now }, { ws, runId: created.id, rootRunId: created.rootRunId, source: 'inbox' }) : null;
   let ctx: ReplyContext;
   try {
-    ctx = await buildReplyContext(db, c, a, embed);
+    ctx = await buildReplyContext(db, c, a, embed, {}, created.id);
   } catch (err) {
     if (!isMeteringStop(err)) throw err;
     const code = String((err as { code?: string }).code);
     await store.stopReason(created.id, code === 'CREDIT_EXHAUSTED' ? 'credit_exhausted' : code === 'USAGE_UNKNOWN' ? 'usage_unknown' : code === 'CANCELLED' ? 'cancelled' : 'budget');
     await store.finish(created.id, 'failed', { error: code });
-    return { r: { status: 'failed' as const, text: '', creditsUsed: 0, error: { code: code === 'CREDIT_EXHAUSTED' ? code : 'BUDGET', message: (err as Error).message } }, run: created, ctx: await buildReplyContext(db, c, a, null) };
+    return { r: { status: 'failed' as const, text: '', creditsUsed: 0, error: { code: code === 'CREDIT_EXHAUSTED' ? code : 'BUDGET', message: (err as Error).message } }, run: created, ctx: await buildReplyContext(db, c, a, null, {}, null) };
   }
   const run = await db.aiRun.update({ where: { id: created.id }, data: { input: { ...(created.input as object), pii: ctx.pii }, ...(extra.visited?.length ? { transferCount: extra.visited.length, visitedAgents: extra.visited } : {}) } });
   const tools = await replyTools({ db, executor: d.executor, runner: d.runner, now: d.now }, { ws, runId: run.id, conversationId: c.id, agent: { id: a.agent.id, toolIds: a.cfg.tools }, cfg: a.cfg, pii: ctx.pii, dryRun: copilot });
@@ -139,8 +147,10 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   // không gửi kèm lý do khi chưa có nháp của người.
   if (turn && !(await stillOwns(db, turn, d.now()))) {
     const out = r.status === 'completed' ? parseAgentReply(r.text) : null;
-    const draft = out?.reply ? unmaskPii(out.reply, ctx.pii) : null;
-    if (draft) await db.conversation.updateMany({ where: { id: c.id, aiDraft: null }, data: { aiDraft: draft.slice(0, 4000) } });
+    // TIP-020d: nháp giữ lại cũng qua cổng trích dẫn (trích dẫn hỏng → không giữ nháp).
+    const g = out ? await gateAnswer(db, run.id, r.text, out, out.reply ? unmaskPii(out.reply, ctx.pii) : null, ctx.pii, d.now()) : null;
+    const draft = g?.kind === 'pass' ? g.reply : g?.kind === 'handoff' ? g.draft : null;
+    if (draft) await writeAiDraft(db, c.id, draft, run.id);
     await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
     return 'superseded';
   }
@@ -171,7 +181,10 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
     const store = new RunStore(db, d.now);
     await store.step(run.id, { idx: await store.nextIdx(run.id), type: 'handoff', input: { to: next.agent.id, reason: coord.reason }, output: { summary: coord.summary } });
     await store.finish(run.id, 'completed', { output: { transfer_to: next.agent.id } });
-    const moved = await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: next.agent.id } });
+    // TIP-003c: đổi agent phụ trách qua action riêng (đích đọc lại từ bước transfer_to_agent đã lưu, theo ai_epoch hiện tại).
+    const r0 = await runSystemAction<SystemOutput>(d.executor, d.tenants, transferTrigger(ws, c, run.id));
+    if ((r0.data as { result: SystemOutput }).result.disposition !== 'applied') return 'skipped';
+    const moved = (await db.conversation.findUnique({ where: { id: c.id } }))!;
     if (source) await db.aiTurnReceipt.updateMany({ where: source, data: { agentId: next.agent.id, agentVersion: next.version, bindingSource: 'transfer', bindingReason: 'transfer', updatedAt: d.now() } });
     // Chuyển agent giữ CÙNG lượt (fence) và cùng gốc run (lineage) — không mở lượt thứ hai, không cấp ví gốc mới.
     // Lineage bền (TIP-019b §4.1): ghi lần chuyển + agent đã ghé lên run con TRƯỚC khi chạy — chạy tiếp / khởi động lại đọc lại từ đây.
@@ -182,13 +195,17 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
 
   const out = parseAgentReply(r.text);
   const intent = out.ok && out.intent ? normalizeIntent(out.intent) : null;
-  const reply = out.reply ? unmaskPii(out.reply, ctx.pii) : null;
-  const rule = coord?.kind === 'handoff' ? 'needs_human' : decideHandoff({ out, threshold: ctx.cfg.threshold, lastCustomerFolded: ctx.lastCustomer, previousCustomerFolded: ctx.previousCustomer, banned: ctx.banned, replyFolded: foldText(reply ?? '') });
+  // TIP-020d: chốt trích dẫn trước khi dùng chữ — hỏng / thiếu nguồn → chuyển người, không tự gửi như có căn cứ.
+  const gate = await gateAnswer(db, run.id, r.text, out, out.reply ? unmaskPii(out.reply, ctx.pii) : null, ctx.pii, d.now());
+  if (gate.kind === 'superseded') return 'superseded';
+  const reply = gate.kind === 'pass' ? gate.reply : gate.draft;
+  const cited = gate.kind === 'handoff' ? gate.reason : null;
+  const rule = coord?.kind === 'handoff' ? 'needs_human' : (cited ?? decideHandoff({ out, threshold: ctx.cfg.threshold, lastCustomerFolded: ctx.lastCustomer, previousCustomerFolded: ctx.previousCustomer, banned: ctx.banned, replyFolded: foldText(reply ?? '') }));
   await db.aiRun.update({ where: { id: run.id }, data: { confidence: out.confidence } });
   if (intent && turn) await recordIntent(db, c.id, intent, { source_message_id: source?.sourceMessageId ?? null, run_id: run.id, fence: turn.fence });
 
   if (copilot) {
-    if (!reply) return 'skipped';
+    if (!reply || cited === 'citation_invalid') return 'skipped';
     await setState(d, db, ws, c, { aiSuggestion: { text: reply, confidence: Math.round(out.confidence * 100), run_id: run.id } }, 'ai_suggestion');
     return 'suggested';
   }
@@ -205,7 +222,7 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   } catch (err) {
     // Người tiếp quản giữa lúc soạn (epoch / fence lệch dưới khoá): không chuyển người, giữ nháp nếu người chưa có nháp.
     if (isSuperseded(err)) {
-      await db.conversation.updateMany({ where: { id: c.id, aiDraft: null }, data: { aiDraft: reply!.slice(0, 4000) } });
+      await writeAiDraft(db, c.id, reply!, run.id);
       await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
       return 'superseded';
     }
@@ -246,7 +263,8 @@ async function ownedTurn(d: ReplyDeps, db: TenantDb, ws: string, conversationId:
   if (!pick.agent) return 'skipped';
   const a = pick.agent;
   const receipt = await openReceipt(db, c.id, pending.src.id, turn, { agentId: a.agent.id, version: a.version, source: pick.source, reason: pick.reason }, now);
-  if (!c.assigneeAgentId) await db.conversation.update({ where: { id: c.id }, data: { assigneeAgentId: a.agent.id } });
+  // TIP-003c: gán agent của lượt qua action riêng (theo biên nhận lượt + ai_epoch) — đã có agent / người tiếp quản → no_effect.
+  if (!c.assigneeAgentId) await runSystemAction(d.executor, d.tenants, assignTrigger(ws, c, pending.src.id));
   const source = { conversationId: c.id, sourceMessageId: pending.src.id };
   // Lượt tự trả lời đang chạy → thư mục "AI đang xử lý" (TIP-025); `decide` đưa về idle / chờ duyệt / cần người. Gợi ý copilot
   // không đổi trạng thái (người vẫn đang xử lý).
@@ -295,7 +313,7 @@ export async function finishResumedTurn(d: ReplyDeps, db: TenantDb, ws: string, 
       await handoff(d, db, ws, c, { agent: a.agent, runId: run.id, reason: 'out_of_hours', text: reasonText('out_of_hours'), draft: out.reply ? unmaskPii(out.reply, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {}) : null, source });
       return 'handoff';
     }
-    const ctx = await buildReplyContext(db, c, a, null, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {});
+    const ctx = await buildReplyContext(db, c, a, null, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {}, run.id);
     // Chạy tiếp không đặt lại lịch sử chuyển (TIP-019b §4.1): A → B → (duyệt) → A vẫn là vòng lặp.
     return await decide(d, db, ws, c, run, r, ctx, run.visitedAgents ?? [], turn, source);
   } finally {
@@ -304,7 +322,7 @@ export async function finishResumedTurn(d: ReplyDeps, db: TenantDb, ws: string, 
 }
 
 /** Duyệt bị từ chối / hết hạn: chuyển người với tóm tắt đầy đủ (không chỉ đánh dấu run). */
-export async function handoffAfterApproval(d: Pick<ReplyDeps, 'kv' | 'now'>, db: TenantDb, ws: string, run: RunRow, kind: 'approval_rejected' | 'approval_expired'): Promise<void> {
+export async function handoffAfterApproval(d: Pick<ReplyDeps, 'kv' | 'now' | 'executor' | 'tenants'>, db: TenantDb, ws: string, run: RunRow, kind: 'approval_rejected' | 'approval_expired'): Promise<void> {
   if (!run.conversationId || run.kind !== 'agent_reply') return;
   const c = await db.conversation.findUnique({ where: { id: run.conversationId } });
   if (!c) return;
@@ -319,7 +337,7 @@ export async function resumeReplySpec(d: Pick<ReplyDeps, 'executor' | 'runner' |
   const c = run.conversationId ? await db.conversation.findUnique({ where: { id: run.conversationId } }) : null;
   if (!a || !c) return { system: '', tools: [], maxSteps: MAX_STEPS.agent, source: 'inbox' };
   const pii = ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {};
-  const ctx = await buildReplyContext(db, c, a, null, pii);
+  const ctx = await buildReplyContext(db, c, a, null, pii, run.id);
   const tools = await replyTools({ db, executor: d.executor, runner: d.runner, now: d.now }, { ws, runId: run.id, conversationId: c.id, agent: { id: a.agent.id, toolIds: a.cfg.tools }, cfg: a.cfg, pii, dryRun: run.kind === 'suggestion' });
   return { system: ctx.system, tools, maxSteps: MAX_STEPS.agent, source: 'inbox' };
 }

@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { appendicesSchema, appendixSignViewSchema } from '@appchat/shared';
-import { WalletService, sweepContracts, uuidv7 } from '@appchat/core';
+import { ActionExecutor, WalletService, sweepContracts, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -24,7 +24,7 @@ const as = (u: { id: string }) => ({ authorization: `Bearer ${h.tokenFor(u.id)}`
 const act = (id: string, input: unknown, who?: { id: string }, key = uuidv7()) => call(h, `/actions/${id}`, { input }, { 'idempotency-key': key, ...(who ? as(who) : {}) }).then(json);
 const get = (path: string, who?: { id: string }) => call(h, path, undefined, who ? as(who) : {}).then(json);
 const post = (path: string, body: unknown = {}) => call(h, path, body, {}).then(json);
-const pubOf = (base: string) => (path: string, body?: unknown) => fetch(`${h.base}/v1/public/${base}/${path}`, { method: body === undefined ? 'GET' : 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'vitest' }, body: body === undefined ? undefined : JSON.stringify(body) }).then(json);
+const pubOf = (base: string) => (path: string, body?: unknown) => fetch(`${h.base}/v1/public/${base}/${path}`, { method: body === undefined ? 'GET' : 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'vitest' }, body: body === undefined ? undefined : JSON.stringify(base === 'sign' && /\/(open|otp|decline)$/.test(path) && body && typeof body === 'object' ? { request_id: crypto.randomUUID(), ...body } : body) }).then(json);
 const pub = pubOf('appendix-sign');
 const pubParent = pubOf('sign');
 const tenant = () => resolver.get(TenantContexts.system(h.ws, 't'));
@@ -170,7 +170,7 @@ describe('vòng đời + ký riêng', () => {
     const tb = await db.appendixSignToken.findFirstOrThrow({ where: { appendixId: B.appendix_id, usedAt: null } });
     expect(tb.appendixId).not.toBe(C.appendix_id);
     h.clock.advance(9 * 86_400_000);
-    await sweepContracts({ platform: h.platform, tenants: resolver, now: () => h.clock.now() });
+    await sweepContracts({ platform: h.platform, tenants: resolver, executor: h.app.get(ActionExecutor, { strict: false }), now: () => h.clock.now() });
     expect((await db.contractAppendix.findUniqueOrThrow({ where: { id: C.appendix_id } })).status).toBe('declined');
     expect((await pub(`${B.token}/otp`, {})).status).toBe(410);
   }, 180_000);

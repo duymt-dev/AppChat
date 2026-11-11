@@ -54,7 +54,7 @@ test.describe('assistant', () => {
     await expect(page.getByTestId('asst-agent')).toContainText('Booking Agent (AI)');
   });
 
-  test('đính kèm (TIP-023c 8c): menu + mở chọn tệp → chip sẵn sàng; tệp lạ bị từ chối; bỏ tệp; gửi kèm → chip mất', async ({ page }) => {
+  test('đính kèm (TIP-023c 8c → 023f): chọn tệp → chip sẵn sàng (đã đọc nội dung); tệp lạ bị từ chối; bỏ tệp; gửi kèm → chip mất', async ({ page }) => {
     await page.goto(`/assistant${Q}`);
     const input = page.getByTestId('asst-attach-input');
     await input.setInputFiles([
@@ -64,7 +64,8 @@ test.describe('assistant', () => {
     ]);
     const chips = page.getByTestId('asst-attachment');
     await expect(chips).toHaveCount(2);
-    await expect(chips.first()).toHaveAttribute('data-status', 'ready');
+    await expect(chips.first()).toHaveAttribute('data-status', 'ready', { timeout: 10_000 });
+    await expect(chips.nth(1)).toHaveAttribute('data-status', 'ready', { timeout: 10_000 });
     await chips.nth(1).getByTestId('asst-attachment-remove').click();
     await expect(chips).toHaveCount(1);
     await ask(page, 'Tóm tắt tệp này');

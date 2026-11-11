@@ -119,6 +119,14 @@
       "title": "Phân công hội thoại",
       "desc": "Chỉ định hội thoại cho nhân viên hoặc một AI Agent khác."
     },
+    "add_assignee": {
+      "title": "Thêm đồng phụ trách",
+      "desc": "Thêm một nhân viên hoặc AI Agent cùng phụ trách hội thoại, bên cạnh người phụ trách chính."
+    },
+    "remove_assignee": {
+      "title": "Gỡ đồng phụ trách",
+      "desc": "Gỡ một nhân viên hoặc AI Agent khỏi danh sách đồng phụ trách hội thoại."
+    },
     "tag": {
       "title": "Gắn thẻ hội thoại",
       "desc": "Gắn thêm một thẻ vào hội thoại."
@@ -420,6 +428,9 @@
     },
     "edit_and_approve": {
       "title": "Sửa & duyệt hành động"
+    },
+    "system_expire": {
+      "title": "Hết hạn yêu cầu duyệt (hệ thống)"
     }
   },
   "ai": {
@@ -592,6 +603,9 @@
     "get": {
       "title": "Xem báo giá",
       "desc": "Đọc chi tiết một báo giá: dòng hàng, tổng tiền, hiệu lực."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái báo giá (hệ thống)"
     }
   },
   "contract": {
@@ -716,6 +730,37 @@
     "appendix_public_decline": {
       "title": "Khách từ chối phụ lục (trang công khai)",
       "desc": "Nội bộ — trang ký công khai"
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái hợp đồng (hệ thống)"
+    },
+    "public_open": {
+      "title": "Mở link ký (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "public_otp": {
+      "title": "OTP ký hợp đồng (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "public_decline": {
+      "title": "Khách từ chối ký (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "public_sign": {
+      "title": "Khách ký hợp đồng (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "sign_attempt_prepare": {
+      "title": "Kiểm lần ký",
+      "desc": "Nội bộ — quy trình ký"
+    },
+    "sign_attempt_stage": {
+      "title": "Đóng băng bản ký",
+      "desc": "Nội bộ — quy trình ký"
+    },
+    "request_sign_otp": {
+      "title": "Gửi mã duyệt & ký",
+      "desc": "Gửi mã OTP tới email của chính bạn để duyệt & ký hợp đồng"
     }
   },
   "order": {
@@ -775,6 +820,9 @@
     "send_confirmation": {
       "title": "Gửi xác nhận đơn cho khách",
       "desc": "Gửi PDF xác nhận đơn (dòng hàng, tổng, đã thu / còn lại) vào hội thoại của khách."
+    },
+    "system_import": {
+      "title": "Nhập bản đơn sàn đã kiểm (hệ thống)"
     }
   },
   "invoice": {
@@ -805,6 +853,9 @@
     "get": {
       "title": "Xem đề nghị thanh toán",
       "desc": "Đọc một đề nghị thanh toán: số tiền, đã thu, hạn."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái đề nghị thanh toán (hệ thống)"
     }
   },
   "booking": {
@@ -878,6 +929,9 @@
     "update": {
       "title": "Sửa lịch hẹn",
       "desc": "Sửa giờ, dịch vụ, nhân sự, ghi chú, nhắc hẹn hoặc trường tuỳ biến của lịch hẹn còn mở."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái lịch hẹn (hệ thống)"
     }
   },
   "ticket": {
@@ -922,6 +976,9 @@
     "get": {
       "title": "Xem ticket",
       "desc": "Đọc một ticket: trạng thái, ưu tiên, hạn SLA, người phụ trách."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái ticket (hệ thống)"
     }
   },
   "segment": {
@@ -1159,18 +1216,18 @@
       "title": "Đồng bộ danh bạ tài khoản kênh"
     },
     "friend": {
-        "accept": {
-          "title": "Nhận lời mời kết bạn Zalo"
-        },
-        "reject": {
-          "title": "Từ chối lời mời kết bạn Zalo"
-        },
-        "send": {
-          "title": "Gửi lời mời kết bạn Zalo"
-        },
-        "undo": {
-          "title": "Thu hồi lời mời kết bạn Zalo"
-        }
+      "accept": {
+        "title": "Nhận lời mời kết bạn Zalo"
+      },
+      "reject": {
+        "title": "Từ chối lời mời kết bạn Zalo"
+      },
+      "send": {
+        "title": "Gửi lời mời kết bạn Zalo"
+      },
+      "undo": {
+        "title": "Thu hồi lời mời kết bạn Zalo"
+      }
     },
     "lookup_user": {
       "title": "Tìm người trên Zalo theo SĐT"
@@ -1190,6 +1247,9 @@
     },
     "status": {
       "title": "Xem trạng thái kết nối kênh"
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái tài khoản kênh (hệ thống)"
     }
   },
   "webchat": {
@@ -1295,6 +1355,9 @@
     "source_search": {
       "title": "Tìm tài liệu kho tri thức",
       "desc": "Tra nguồn trong kho tri thức theo tên hoặc thẻ."
+    },
+    "system_publish": {
+      "title": "Công bố kết quả nạp nguồn tri thức (hệ thống)"
     }
   },
   "governance": {
@@ -1441,6 +1504,9 @@
     "search": {
       "title": "Tìm liệu trình của khách",
       "desc": "Tra liệu trình: số buổi đã dùng, hạn, trạng thái."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái liệu trình (hệ thống)"
     }
   },
   "payment_account": {
@@ -1468,6 +1534,42 @@
   "assistant": {
     "resume": {
       "title": "Tiếp tục lượt Trợ lý"
+    },
+    "plan_propose": {
+      "title": "Đề xuất kế hoạch Cowork",
+      "desc": "Tạo kế hoạch nhiều bước mới cho phiên hiện tại — chỉ đề xuất, chưa chạy gì."
+    },
+    "plan_get": {
+      "title": "Xem tiến độ kế hoạch Cowork",
+      "desc": "Đọc trạng thái thật của một kế hoạch (bước nào đã xong, đang chờ, lỗi) — không phải lời model."
+    },
+    "plan_reusable": {
+      "title": "Gợi ý kế hoạch tái dùng",
+      "desc": "Danh sách cấu trúc kế hoạch cũ của chính bạn có thể dùng lại — chỉ tên action/bước, không giá trị/kết quả cũ."
+    },
+    "agent_choices": {
+      "title": "Danh sách AI Agent để chọn làm chuyên viên",
+      "desc": "Trang AI Agent đang hoạt động / đã xuất bản có thể chọn làm chuyên viên Cowork — chỉ tên/vai trò/mức AI, không prompt/persona."
+    },
+    "discovery_prepare": {
+      "title": "Chuẩn bị tìm kiếm thao tác theo ngữ nghĩa",
+      "desc": "Dựng chỉ mục tìm thao tác theo ngữ nghĩa cho workspace — việc chạy nền, chỉ cần khi tìm từ khoá chưa đủ; không ảnh hưởng dữ liệu khách hàng."
+    },
+    "attachment_prepare": {
+      "title": "Chuẩn bị tệp đính kèm cho Trợ lý",
+      "desc": "Gắn tệp vừa tải lên vào bản nháp và trích nội dung có giới hạn để Trợ lý đọc — không phân tích, không nhập dữ liệu."
+    },
+    "attachment_remove": {
+      "title": "Gỡ tệp đính kèm khỏi bản nháp",
+      "desc": "Bỏ tệp chưa gửi khỏi bản nháp — không xoá tệp gốc hay lịch sử đã gửi."
+    },
+    "attachment_get": {
+      "title": "Xem trạng thái tệp đính kèm",
+      "desc": "Trạng thái chuẩn bị của tệp trong ngữ cảnh Trợ lý hiện hành."
+    },
+    "attachment_read": {
+      "title": "Đọc nội dung tệp đính kèm",
+      "desc": "Đọc tiếp từng đoạn nội dung tệp của lượt, kèm vị trí trang / dòng để trích dẫn."
     }
   },
   "sales_settings": {
@@ -1531,6 +1633,11 @@
     "review_resolve": {
       "title": "Xét một mục chờ duyệt (Quên khách)",
       "desc": "Quyết định một mục dữ liệu chung / chưa rõ chủ thể trong lượt Quên khách: không liên quan, chỉ của khách này, xoá phần của khách giữ phần khác, hoặc giữ vì là chứng từ đã phát hành."
+    }
+  },
+  "inbox": {
+    "system_agent_transition": {
+      "title": "Chuyển agent / chuyển người hội thoại (hệ thống)"
     }
   }
 }

@@ -1,32 +1,18 @@
-// Popover của composer — prototype L640–676: menu "+" (Chat / Cowork), chọn mức AI (D29: không hiện tên model), chọn AI Agent.
+// Popover của composer — prototype L640–676: menu "+" (Chat / Cowork — hàng nguồn đầu vào ở InputSourcePicker), chọn mức AI (D29: không
+// hiện tên model), chọn AI Agent.
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Icon, color, layout, type IconName } from '@appchat/ui';
+import { Icon, color, layout } from '@appchat/ui';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useAssistantUi } from '../assistant-store';
 import { homeQuery } from '../api';
 import { UtilityMenu } from '@/shared/ai-utilities';
-import { openAttachPicker } from './AssistantAttachments';
+import { InputSourcePicker } from './InputSourcePicker';
 import type { Tier } from '../types';
 
 const TIERS: Tier[] = ['max', 'advanced', 'standard'];
-const CHAT_ITEMS: [IconName, string, boolean][] = [
-  ['ic-doc', 'file', true],
-  ['ic-grid', 'screenshot', false],
-  ['ic-globe', 'channels', false],
-  ['ic-cog', 'integrations', false],
-  ['ic-search', 'research', false],
-  ['ic-flow', 'search', false],
-];
-const COWORK_ITEMS: [IconName, string][] = [
-  ['ic-doc', 'fileShort'],
-  ['ic-globe', 'channels'],
-  ['ic-cog', 'integrations'],
-  ['ic-bot', 'pickAgent'],
-  ['ic-plus', 'newAgent'],
-];
 const ROUTE: Record<string, string> = { channels: '/settings/channels', integrations: '/settings/integrations', newAgent: '/agents/new' };
 
 export function ComposerPopovers() {
@@ -40,7 +26,6 @@ export function ComposerPopovers() {
   const pick = (key: string) => {
     if (key === 'pickAgent') return ui.set({ pop: 'agent' });
     close();
-    if (key === 'file' || key === 'fileShort') return openAttachPicker();
     if (ROUTE[key]) router.push(ROUTE[key]);
   };
   const left = ui.pop === 'tier' ? Math.max(12, ui.popAnchor.right - layout.popTier) : ui.popAnchor.left;
@@ -50,26 +35,7 @@ export function ComposerPopovers() {
     <>
       <div className={styles.veil} onClick={close} />
       <div className={styles.pop} style={{ left, bottom: ui.popAnchor.bottom, width }} data-testid={`asst-pop-${ui.pop}`} role="menu">
-        {ui.pop === 'plus' && ui.mode === 'chat'
-          ? CHAT_ITEMS.map(([ic, key, kbd]) => (
-              <button key={key} type="button" role="menuitem" className={styles.popRow} onClick={() => pick(key)}>
-                <Icon name={ic} size={16} color={color.text3} />
-                <span className={styles.popLabel}>{t(`plus.${key}` as never)}</span>
-                {kbd ? <span className={styles.popKey}>{t('plus.fileKey')}</span> : null}
-              </button>
-            ))
-          : null}
-        {ui.pop === 'plus' && ui.mode === 'cowork' ? (
-          <>
-            <div className={styles.popHead}>{t('plus.coworkTitle')}</div>
-            {COWORK_ITEMS.map(([ic, key]) => (
-              <button key={key} type="button" role="menuitem" className={styles.popRow} onClick={() => pick(key)}>
-                <Icon name={ic} size={16} color={color.text3} />
-                <span className={styles.popLabel}>{t(`plus.${key}` as never)}</span>
-              </button>
-            ))}
-          </>
-        ) : null}
+        {ui.pop === 'plus' ? <InputSourcePicker mode={ui.mode} onPick={pick} /> : null}
         {ui.pop === 'utility' ? <UtilityMenu title={t('quick')} onSelect={(id) => ui.set({ utility: id, pop: null })} /> : null}
         {ui.pop === 'tier' ? (
           <>

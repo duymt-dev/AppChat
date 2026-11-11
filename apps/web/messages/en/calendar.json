@@ -81,8 +81,7 @@
       "overdue": "Overdue"
     },
     "aiDo": "Hand to AI Agent now",
-    "aiPeek": "View AI hint",
-    "aiDoing": "AI Agent is handling {name}"
+    "aiPeek": "View AI hint"
   },
   "dow": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
   "month": "{m}/{y}",

@@ -8,6 +8,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import { runTenantSeeds } from '../../kernel/tenant-seeds';
 import type { ProvisionQueue } from '../services/workspaces.service';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const TENANT_QUEUE = 'tenant';
 export const PROVISION_JOB = 'tenant.provision';
@@ -40,7 +41,7 @@ export async function provisionWorkspace(d: ProvisionDeps, workspaceId: string):
   if (!n.count) return 'skipped';
   d.resolver.invalidate(workspaceId);
   const tenant = await d.resolver.get(TenantContexts.system(workspaceId, 'tenant.provision'));
-  await tenant.$transaction((tx) => writeOutbox(tx, workspaceId, [{ topic: 'workspace.ready', payload: { workspace_id: workspaceId } }], now));
+  await inEventTransaction(tenant, workspaceId, (tx) => writeOutbox(tx, workspaceId, [{ topic: 'workspace.ready', payload: { workspace_id: workspaceId } }], now));
   await markDirty(d.kv, workspaceId);
   return 'created';
 }

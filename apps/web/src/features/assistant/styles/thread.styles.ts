@@ -37,6 +37,25 @@ export const useThreadStyles = createStyles(({ css, responsive }) => ({
     line-height: 1.55;
     white-space: pre-wrap;
   `,
+  files: css`
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  `,
+  file: css`
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    max-width: 240px;
+    padding: 2px 8px;
+    border-radius: ${radius.r8}px;
+    background: ${color.mkGlass};
+    font-size: ${font.scale.s12}px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  `,
   aiRow: css`
     display: flex;
     gap: 8px;

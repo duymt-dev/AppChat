@@ -9,17 +9,24 @@ import { ChannelAuthError, type ChannelAdapter, type ChannelRegistry, type Healt
 import { TenantContexts, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { decryptSecret } from '../../kernel/crypto';
 import type { AppLogger } from '../../kernel/logger/logger';
-import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
+import { markDirty } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { ChannelAccounts, routeStatusOf, settingsOf, type AccountStatus } from '../services/accounts.service';
 import type { ControlOp } from '../services/control';
 import { LEASE_HEARTBEAT_MS, scanRoutes, type ChannelLeases } from './lease';
 import { claimGeneration, currentGeneration, fenceGeneration } from '../operations/session-generation';
 import { enqueueProviderEvent } from './provider-events.processor';
+import type { SystemOutput } from '@appchat/actions';
+import type { ActionExecutor } from '../../kernel/actions/executor';
+import { runSystemAction } from '../../kernel/actions/system';
+import { unavailableTrigger } from '../system/sources';
+import { stageDownDetail } from '../system/staging';
 
 export interface SessionDeps {
   platform: Pick<PlatformDb, 'tenantChannelRoute'>;
   tenants: TenantDbResolver;
+  /** TIP-003c: hạ tài khoản qua action riêng `channel.system_transition` (mark_expired / mark_send_errors). */
+  executor: Pick<ActionExecutor, 'execute'>;
   registry: ChannelRegistry;
   accounts: ChannelAccounts;
   leases: ChannelLeases;
@@ -174,20 +181,15 @@ export class ChannelSessions {
     if (release) await this.d.leases.release(accountId).catch(() => undefined);
   }
 
-  /** Hết phiên / lỗi xác thực: `expired` + outbox `channel.status_changed` (reason → thông báo `channel_down`). */
+  /** Hết phiên / lỗi xác thực: action riêng theo thế hệ phiên hiện tại (sự kiện trễ của thế hệ cũ → no_effect); outbox `channel.status_changed`. */
   async markDown(ws: string, accountId: string, reason: 'expired' | 'send_errors', detail?: string): Promise<void> {
     const db = await this.db(ws);
-    const now = this.d.now();
-    const res = await db.$transaction(async (tx) => {
-      const row = await tx.channelAccount.findUnique({ where: { id: accountId } });
-      if (!row || row.status === 'disconnected') return null;
-      const patch = reason === 'expired' ? { status: 'expired' as const, health: { status: 'expired' as const, detail } } : { pausedAt: now, health: { status: 'degraded' as const, detail } };
-      const { row: next, event } = await this.d.accounts.setStatus(tx, row, patch, now, reason);
-      if (event) await writeOutbox(tx, ws, [event], now);
-      return next;
-    });
-    if (!res) return;
-    await this.d.accounts.route(ws, res, routeStatusOf(res.status as AccountStatus, res.pausedAt));
+    const row = await db.channelAccount.findUnique({ where: { id: accountId }, select: { status: true, sessionGeneration: true } });
+    if (!row || row.status === 'disconnected') return;
+    if (detail) await stageDownDetail(this.d.kv, accountId, row.sessionGeneration, detail);
+    const r = await runSystemAction<SystemOutput>(this.d.executor, this.d.tenants, unavailableTrigger(ws, accountId, reason, row.sessionGeneration));
+    const rc = (r.data as { result: SystemOutput }).result.reason_code;
+    if (rc === 'stale_generation' || rc === 'disconnected') return;
     await markDirty(this.d.kv, ws);
     await this.drop(accountId);
   }

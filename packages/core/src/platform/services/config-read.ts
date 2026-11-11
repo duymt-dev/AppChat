@@ -60,7 +60,7 @@ export class ConfigReadService {
           tier,
           purpose,
           version: Number(await readRevision(this.db, routeScope(tier, purpose))),
-          routes: rows.filter((r) => r.tier === tier && r.purpose === purpose).map((r) => ({ provider_key: r.providerKey, model: r.model })),
+          routes: rows.filter((r) => r.tier === tier && r.purpose === purpose).map((r) => ({ provider_key: r.providerKey, model: r.model, vision: (r.params as { vision?: unknown } | null)?.vision === true })),
         });
     return groups;
   }

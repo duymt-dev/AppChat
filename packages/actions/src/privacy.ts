@@ -78,6 +78,7 @@ export const privacyCleanupStep = defineAction({
   permission: 'self',
   risk: 'write',
   agentGrantable: false,
+  exposure: 'internal',
   invalidates: ['crm'],
 });
 

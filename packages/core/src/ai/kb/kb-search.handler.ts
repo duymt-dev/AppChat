@@ -1,8 +1,10 @@
-// `kb.search` (read, agentGrantable, Kỹ năng AI): tìm kết hợp trong kho (search.ts). Visibility theo người hiệu lực (rag §3, D54):
-// có `kb.manage` (hoặc Owner) → `public` + `internal`; còn lại → chỉ `public`. Agent trực kênh trả lời khách (source agent, không
-// người ra lệnh) → chỉ `public`; phạm vi thư mục / thẻ của agent (`kb_scope`) do TIP-021 / 022 truyền qua `searchKb` trực tiếp.
+// `kb.search` (read, agentGrantable, Kỹ năng AI): tìm kết hợp trong kho (search.ts) dưới restriction tin cậy (TIP-020c — scope/resolve.ts):
+// Trợ lý → quyền nguồn hiện hành của người hỏi; agent → phạm vi nhận ∧ phạm vi bản đang xuất bản ∧ (kênh: public | làm cho người: quyền
+// người ra lệnh); chat thử Builder → phạm vi nháp dưới quyền người thử. Phạm vi rỗng / không có binding → không căn cứ, KHÔNG gọi embed.
 // TIP-019b §3.2: embedding câu hỏi chạy ở `prepare` (NGOÀI transaction), có đo — trong một run thì trừ vào run đó (gốc tin cậy từ
-// ActionContext), gọi trực tiếp thì một run gốc riêng; truy vấn kho theo scope hiện tại chạy ngắn trong transaction của `execute`.
+// ActionContext), gọi trực tiếp thì một run gốc riêng; truy vấn kho theo restriction nhận lại chạy ngắn trong transaction của `execute`.
+// TIP-020d: run ở chế độ trích dẫn (trả lời kênh) → đoạn được cấp bí danh `S1…` trong sổ của run, model chỉ nhận bí danh + nội dung
+// (không tên / đường dẫn nguồn); trích dẫn câu trả lời kiểm theo sổ này.
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { EmbedResult, Embedder } from '@appchat/ai';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
@@ -13,12 +15,20 @@ import { TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { kbVisibility, searchPreview } from './previews/kb-search.handler.preview';
-import { searchKb, type KbSearchResult } from './search';
+import { emptyResult, minScoreOf, searchKb, type KbSearchResult } from './search';
 import { queryRunFor } from './query-run';
+import { recordRefs } from './scope/provenance';
+import { resolveFor } from './scope/resolve';
+import { registerPassages } from '../citations/binding';
+import { aliasedHits } from '../citations/prompt';
 
 export const KB_EMBEDDER = Symbol('KB_EMBEDDER');
 
-type Out = Pick<KbSearchResult, 'grounded' | 'chunks' | 'citations'>;
+type Out = Pick<KbSearchResult, 'grounded' | 'chunks' | 'citations'> | { grounded: boolean; passages: ReturnType<typeof aliasedHits> };
+/** Kết quả `prepare`: bị chặn (lý do an toàn) hoặc vector đã đo (null = nhánh từ khoá). */
+type Prepared = { denied: string } | { e: EmbedResult | null };
+
+const pick = (r: KbSearchResult): Out => ({ grounded: r.grounded, chunks: r.chunks, citations: r.citations });
 
 export { kbVisibility };
 
@@ -32,18 +42,31 @@ export class KbSearchHandler implements Handler<ActionInput<typeof kbSearch>, Ou
     @Optional() @Inject(CLOCK) private readonly clock: Clock | null = null,
   ) {}
 
-  /** Embed câu hỏi có đo, ngoài transaction. Lỗi ngân sách / ví / usage không rõ ném ra; không có route embed → nhánh từ khoá. */
-  async prepare(ctx: ActionContext, input: ActionInput<typeof kbSearch>): Promise<EmbedResult | null> {
-    if (!this.embedder) return null;
-    if (!this.tenants || !this.meter?.usage) return this.embedder.embed([input.query]);
+  /** Nhận phạm vi TRƯỚC khi gọi nhà cung cấp embed: bị chặn → không embed, không trừ credit. Lỗi ngân sách / ví / usage không rõ ném ra. */
+  async prepare(ctx: ActionContext, input: ActionInput<typeof kbSearch>): Promise<Prepared> {
+    if (!this.tenants) return { e: null };
     const db = await this.tenants.get(TenantContexts.system(ctx.workspaceId, 'kb.search'));
-    return queryRunFor({ db, embedder: this.embedder, meter: this.meter, now: () => this.clock?.now() ?? new Date() }, ctx, input.query);
+    const r = await resolveFor(db, ctx);
+    if (!r.admission.ok) return { denied: r.admission.reason };
+    if (!this.embedder) return { e: null };
+    if (!this.meter?.usage) return { e: await this.embedder.embed([input.query]) };
+    return { e: await queryRunFor({ db, embedder: this.embedder, meter: this.meter, now: () => this.clock?.now() ?? new Date() }, ctx, input.query) };
   }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof kbSearch>, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<Out>> {
-    const pre = (prepared ?? null) as EmbedResult | null;
-    const r = await searchKb(tx, pre ? null : this.embedder, { query: input.query, visibility: kbVisibility(ctx), ...(input.limit ? { limit: input.limit } : {}), queryEmbedding: pre });
-    return { result: { grounded: r.grounded, chunks: r.chunks, citations: r.citations } };
+    const pre = (prepared ?? { e: null }) as Prepared;
+    if ('denied' in pre) return { result: pick(emptyResult(await minScoreOf(tx))) };
+    // Nhận lại trong transaction ngắn sau embed: thu hồi / đổi phạm vi giữa hai bước → không đưa nội dung cho model.
+    const r = await resolveFor(tx, ctx);
+    if (!r.admission.ok) return { result: pick(emptyResult(await minScoreOf(tx))) };
+    const out = await searchKb(tx, null, { query: input.query, restriction: r.admission.r, ...(input.limit ? { limit: input.limit } : {}), queryEmbedding: pre.e });
+    if (r.bindingRunId && ctx.runId) await recordRefs(tx, ctx.runId, out.refs.map((x) => ({ ...x, b: r.bindingRunId! })));
+    const cited = ctx.runId ? await tx.aiRun.findUnique({ where: { id: ctx.runId }, select: { citationPhase: true } }) : null;
+    if (cited?.citationPhase && r.bindingRunId) {
+      const aliases = await registerPassages(tx, ctx.runId!, r.bindingRunId, out.chunks.map((h) => ({ source_id: h.source_id, chunk_id: h.chunk_id, generation: h.generation ?? 0, content: h.content })));
+      return { result: { grounded: out.grounded, passages: aliasedHits(out.chunks, aliases) } };
+    }
+    return { result: pick(out) };
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof kbSearch>): Promise<ActionPreview> {

@@ -1,41 +1,39 @@
 // Kích hoạt tác vụ (Blueprint §5.4): job `ai-task.sweep` mỗi phút (worker ROLE=ai) lấy tác vụ theo lịch tới giờ (`ai_task_due_idx`),
-// chỉ ở workspace trong tập `ai-task:armed` (action tác vụ đánh dấu); dời `next_run_at` sang mốc kế tiếp TRƯỚC khi đẩy (chạy lại job không đẩy trùng), tạo run `queued` + đẩy queue `ai-task`.
+// chỉ ở workspace trong tập `ai-task:armed` (action tác vụ đánh dấu). TIP-006b §5.3: mỗi tác vụ MỘT transaction — khoá dòng, mốc / thế hệ
+// phải khớp, occurrence (run hoặc busy) + run `queued` + ý định đẩy + dời `next_run_at` theo nextRunOf; đẩy job sau commit theo ý định.
 // Consumer `ai-tasks` (queue `events`, ROLE=jobs): sự kiện khớp `event_type` của tác vụ đang bật → biên nhận bền (task, sự kiện nguồn)
 // + run cùng transaction (event-dispatch.ts — TIP-012b P4); tác vụ đang có lượt sống thì bỏ lượt này (skipped_busy, không chồng lượt).
 import type { PlatformDb, TenantDb } from '@appchat/db';
 import { AI_TASK_EVENTS } from '@appchat/shared';
 import type { EventConsumer } from '../../kernel/events/consumer';
-import { queueRun } from './task.handlers';
 import type { TaskQueue } from './task.queue';
-import { nextRunOf, type TaskRow } from './task.store';
-import { LIVE_RUN, dispatchTaskEvent } from './event-dispatch';
+import { dispatchTaskEvent } from './event-dispatch';
+import { pushIntent } from './dispatch-intent';
+import { admitScheduled } from './occurrence';
 
 const BATCH = 100;
 
-async function busy(db: TenantDb, taskId: string): Promise<boolean> {
-  return (await db.aiRun.count({ where: { taskId, status: { in: [...LIVE_RUN] } } })) > 0;
-}
-
-/** Tạo run + đẩy job cho một tác vụ theo lịch (bỏ qua nếu đang có lượt sống). Trả id run hoặc null. */
-export async function enqueueTask(db: TenantDb, queue: TaskQueue, ws: string, t: TaskRow, now: () => Date, source: string): Promise<string | null> {
-  if (await busy(db, t.id)) return null;
-  const runId = await queueRun(db as never, now, t, source);
-  await queue.push({ ws, task_id: t.id, run_id: runId });
-  return runId;
-}
-
-/** Tác vụ theo lịch tới giờ của một workspace. */
-export async function sweepDueTasks(db: TenantDb, queue: TaskQueue, ws: string, timeZone: string, now: () => Date): Promise<number> {
+/** Tác vụ theo lịch tới giờ của một workspace (keyset theo (next_run_at, id) tới hết). Trả số run đã tạo. */
+export async function sweepDueTasks(db: TenantDb, queue: Pick<TaskQueue, 'push'> | null, ws: string, timeZone: string, now: () => Date): Promise<number> {
   const at = now();
-  const due = await db.aiTask.findMany({ where: { trigger: 'schedule', status: 'active', deletedAt: null, nextRunAt: { lte: at } }, orderBy: { nextRunAt: 'asc' }, take: BATCH });
   let n = 0;
-  for (const t of due) {
-    // Dời mốc trước (điều kiện theo mốc cũ — hai job sweep song song chỉ một bên thắng).
-    const moved = await db.aiTask.updateMany({ where: { id: t.id, nextRunAt: t.nextRunAt }, data: { nextRunAt: nextRunOf(t, at, timeZone) } });
-    if (moved.count !== 1) continue;
-    if (await enqueueTask(db, queue, ws, t, now, 'schedule')) n++;
+  let cur: { at: Date; id: string } | null = null;
+  for (;;) {
+    const due: { id: string; nextRunAt: Date | null; triggerGeneration: number }[] = await db.aiTask.findMany({
+      where: { trigger: 'schedule', status: 'active', deletedAt: null, nextRunAt: { lte: at }, ...(cur ? { OR: [{ nextRunAt: { gt: cur.at } }, { nextRunAt: cur.at, id: { gt: cur.id } }] } : {}) },
+      orderBy: [{ nextRunAt: 'asc' }, { id: 'asc' }],
+      take: BATCH,
+      select: { id: true, nextRunAt: true, triggerGeneration: true },
+    });
+    for (const c of due) {
+      const a = await db.$transaction((tx) => admitScheduled(tx, c, at, timeZone, now));
+      if (a?.phase !== 'handed_off') continue;
+      n++;
+      if (queue) await pushIntent(db, queue, ws, a.runId, now()).catch(() => undefined); // lỗi đẩy → ý định còn pending, quét khôi phục
+    }
+    if (due.length < BATCH) return n;
+    cur = { at: due.at(-1)!.nextRunAt!, id: due.at(-1)!.id };
   }
-  return n;
 }
 
 /** Nguồn workspace cần xét: tập "armed" trong Redis (gỡ workspace không còn tác vụ lịch đang bật). */
@@ -44,7 +42,7 @@ export interface ArmedSet {
   remove(ws: string): Promise<void>;
 }
 
-export async function sweepAllTasks(platform: PlatformDb, tenant: (ws: string) => Promise<TenantDb>, armed: ArmedSet, queue: TaskQueue, now: () => Date, onError: (ws: string, err: unknown) => void): Promise<void> {
+export async function sweepAllTasks(platform: PlatformDb, tenant: (ws: string) => Promise<TenantDb>, armed: ArmedSet, queue: Pick<TaskQueue, 'push'> | null, now: () => Date, onError: (ws: string, err: unknown) => void): Promise<void> {
   const ids = await armed.list();
   if (!ids.length) return;
   const list = await platform.workspace.findMany({ where: { id: { in: ids }, dbStatus: 'active' }, select: { id: true, timezone: true } });
@@ -73,8 +71,8 @@ export async function rebuildArmed(platform: PlatformDb, tenant: (ws: string) =>
   }
 }
 
-/** Consumer sự kiện → tác vụ đang bật nghe topic đó (`ai_task_event_active_idx`, cursor) — biên nhận bền mỗi (tác vụ, sự kiện). */
-export function taskEventConsumer(queue: TaskQueue, now: () => Date): EventConsumer {
+/** Consumer v1 sự kiện → tác vụ đang bật nghe topic đó: fanout niêm phong (`ai_task_event_select_idx`) + occurrence mỗi (tác vụ, sự kiện). */
+export function taskEventConsumer(queue: Pick<TaskQueue, 'push'> | null, now: () => Date): EventConsumer {
   return {
     name: 'ai-tasks',
     topics: AI_TASK_EVENTS,

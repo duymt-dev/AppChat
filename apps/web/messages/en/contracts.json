@@ -83,7 +83,6 @@
   "dash": "—",
   "spark": "✦ {hint}",
   "aiDo": "Hand to AI Agent now",
-  "aiDoing": "AI Agent is handling {code}",
   "menu": {
     "open": "Actions",
     "view": "View details",
@@ -232,6 +231,8 @@
     "otpLabel": "OTP code sent to the owner email",
     "sendOtp": "Send code",
     "otpSent": "OTP sent to {email}",
+    "otpQueued": "Sending the OTP to {email} — delivery not yet confirmed",
+    "otpUnknown": "Unsure whether the email reached {email} — if it does not arrive, press Send code for a new one",
     "sigLabel": "Handwritten signature",
     "clear": "Clear",
     "sigHint": "Sign with mouse or finger inside the box",

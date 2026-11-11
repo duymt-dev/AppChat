@@ -10,7 +10,7 @@ import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { mockSignature } from '@appchat/integrations';
 import { invoiceRowSchema, invoicesMetaSchema, invoicesPageSchema, paymentSettingsSchema } from '@appchat/shared';
-import { QuoteDeps, CrmMembers, markOverdue, remindDue, uuidv7 } from '@appchat/core';
+import { ActionExecutor, markOverdue, remindDue, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 import { drainBankReceipts } from './helpers/bank-ingress';
 
@@ -93,7 +93,7 @@ describe('migration 032', () => {
       await c.query('SET enable_seqscan = off');
       const plan = async (sql: string) => (await c.query(`EXPLAIN ${sql}`)).rows.map((x) => x['QUERY PLAN']).join('\n');
       expect(await plan(`SELECT i.id FROM invoice i ORDER BY i.created_at DESC, i.id DESC LIMIT 20`)).toMatch(/invoice_recent_idx/);
-      expect(await plan(`SELECT id FROM invoice WHERE status IN ('sent', 'partial') AND due_date < '2026-11-01'`)).toMatch(/invoice_open_due_idx/);
+      expect(await plan(`SELECT id FROM invoice WHERE status IN ('sent', 'partial') AND due_date < '2026-11-01'`)).toMatch(/invoice_open_due_(keyset_)?idx/);
       // Hoàn tiền là số âm; khoản dương phải có phiếu thu.
       await expect(c.query(`INSERT INTO customer_payment (id, contact_id, order_id, kind, amount, method, status, paid_at) VALUES (gen_random_uuid(), '${ids.lan}', NULL, 'refund', 100, 'cash', 'pending', now())`)).rejects.toThrow();
     } finally {
@@ -303,15 +303,13 @@ describe('quét + đọc + quyền', () => {
     ok(await act('invoice.send_payment_qr', { invoice_id: i, channel: 'zalo_personal' }));
     h.clock.advance(86_400_000);
     const db = await tenant();
-    expect(await markOverdue(db, h.ws, h.clock.now(), 'Asia/Ho_Chi_Minh')).toBeGreaterThanOrEqual(1);
+    const sys = { executor: h.app.get(ActionExecutor, { strict: false }), tenants: resolver };
+    expect(await markOverdue(db, h.ws, h.clock.now(), 'Asia/Ho_Chi_Minh', sys)).toBeGreaterThanOrEqual(1);
     expect((await inv(i)).status).toBe('overdue');
-    const d = h.app.get(QuoteDeps, { strict: false });
-    const members = h.app.get(CrmMembers, { strict: false });
-    const queued: unknown[] = [];
-    const n = await remindDue(db, h.ws, h.clock.now(), 'Asia/Ho_Chi_Minh', d, members, async (o) => void queued.push(o));
+    const n = await remindDue(db, h.ws, h.clock.now(), 'Asia/Ho_Chi_Minh', sys);
     expect(n).toBeGreaterThanOrEqual(1);
     expect(((await db.invoice.findUniqueOrThrow({ where: { id: i } })).remindersSent as { key: string }[]).map((r) => r.key)).toEqual(['T+1']);
-    expect(await remindDue(db, h.ws, h.clock.now(), 'Asia/Ho_Chi_Minh', d, members, async () => undefined)).toBe(0);
+    expect(await remindDue(db, h.ws, h.clock.now(), 'Asia/Ho_Chi_Minh', sys)).toBe(0);
     const conv = (await db.invoice.findUniqueOrThrow({ where: { id: i } })).conversationId!;
     const msg = await db.message.findFirstOrThrow({ where: { conversationId: conv }, orderBy: { createdAt: 'desc' } });
     expect(msg.body).toContain('quá hạn 1 ngày');

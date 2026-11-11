@@ -2,6 +2,8 @@
 // `ai_run.event_seq` của dòng gốc, tăng trong CÙNG transaction — cùng outbox `run.step` / `run.done`. Payload chỉ là tín hiệu làm mới
 // (id run + gốc + seq + trạng thái), không output / input / chữ model; client đọc lại chi tiết qua REST có scope. Không phát từ callback
 // trước commit của engine (delta SSE của 023c là luồng tạm riêng).
+// TIP-021b: hàng rào công bố — payload KHÔNG BAO GIỜ mang output (kể cả run kết quả riêng của soạn agent); lịch sử / phát lại chỉ là tín
+// hiệu. Kiểm tại một chỗ: `assertSignalOnly` từ chối khoá nội dung nếu nơi gọi sau này lỡ truyền thêm.
 import type { TenantDb } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { writeOutbox } from '../../kernel/outbox/outbox';
@@ -21,7 +23,14 @@ const DONE = new Set(['completed', 'failed', 'cancelled', 'handoff']);
 /**
  * Ghi sự kiện trong transaction đang mở. `ws` = workspace (payload outbox). Trả seq đã cấp. Run không còn (đã xoá) → null, không ghi.
  */
+const SIGNAL_KEYS: ReadonlySet<string> = new Set(['runId', 'kind', 'status', 'stepIdx']);
+export function assertSignalOnly(e: RunEventInput): void {
+  const extra = Object.keys(e).filter((k) => !SIGNAL_KEYS.has(k));
+  if (extra.length) throw new Error(`run event chỉ mang tín hiệu — khoá thừa: ${extra.join(',')}`);
+}
+
 export async function appendRunEvent(tx: TenantTx, ws: string, e: RunEventInput, now: Date): Promise<number | null> {
+  assertSignalOnly(e);
   const [run] = await tx.$queryRaw<{ root_run_id: string }[]>`SELECT root_run_id::text FROM ai_run WHERE id = ${e.runId}::uuid`;
   if (!run) return null;
   const [r] = await tx.$queryRaw<{ seq: number }[]>`UPDATE ai_run SET event_seq = event_seq + 1 WHERE id = ${run.root_run_id}::uuid RETURNING event_seq AS seq`;

@@ -1,6 +1,6 @@
 // TIP-015d §5: thông báo chuyển phụ trách — luật hai bên (người mới + người cũ, không cho hoàn tác / phân bổ tự động / cùng người), bộ chiếu
-// theo quyền hiện tại (bị gỡ → bỏ, mất scope → chữ chung không tên / link, còn thấy → tên + link), mail worker chiếu lại ngay trước khi
-// gửi (job không mang PII), action bulk khai đúng quyền / duyệt bắt buộc.
+// theo quyền hiện tại (bị gỡ → bỏ, mất scope → chữ chung không tên / link, còn thấy → tên + link), action bulk khai đúng quyền / duyệt
+// bắt buộc. Mail chiếu lại trước khi gửi: test/notify-delivery.test.ts (TIP-006b).
 import 'reflect-metadata';
 import { describe, expect, it } from 'vitest';
 import { getAction } from '@appchat/actions';
@@ -8,7 +8,6 @@ import type { AuthzContext } from '@appchat/shared';
 import { notifyIntents } from '../src/notify/rules';
 import '../src/crm/events/ownership.rules';
 import { applyProjection, genericNoticeTitle, projectNotices } from '../src/notify/services/ownership-notice';
-import { sendNotificationMail } from '../src/notify/jobs/notify-mail.processor';
 import type { DomainEvent } from '../src/kernel/events/consumer';
 
 const WS = '0190f000-0000-7000-8000-0000000000aa';
@@ -72,40 +71,6 @@ describe('bộ chiếu theo quyền hiện tại', () => {
     const p = await projectNotices(fakeDb({ visible: true }), platform, null, [row], 'vi');
     const other = { id: 'x', type: 'sla_warn', title: 'SLA', link: '/tickets' };
     expect(applyProjection([row, other], p)).toEqual([other]);
-  });
-});
-
-describe('mail worker chiếu lại ngay trước khi gửi', () => {
-  const job = { notification_id: N, workspace_id: WS, user_id: A, kind: 'crm_owner' as const, params: {}, link: null };
-  const deps = (status: string, visible: boolean) => {
-    const sent: { subject: string; html: string }[] = [];
-    return {
-      sent,
-      d: {
-        platform: {
-          user: { findUnique: async () => ({ email: 'a@x.vn', locale: 'vi' }), findMany: (platform as { user: { findMany: unknown } }).user.findMany },
-          workspace: { findUnique: async () => ({ name: 'Spa' }) },
-          membership: { findUnique: async () => ({ roleKey: 'sales', delegations: [], status }) },
-        } as never,
-        mail: { send: async (m: { subject: string; html: string }) => void sent.push(m) } as never,
-        publicUrl: 'https://app.x.vn',
-        tenants: { get: async () => fakeDb({ visible }) },
-        authz: { resolve: async () => authz(['crm.view']) },
-      },
-    };
-  };
-
-  it('bị gỡ trước khi gửi → không gửi; mất scope → chữ chung; còn thấy → tên khách', async () => {
-    const gone = deps('removed', true);
-    expect(await sendNotificationMail(gone.d, job)).toBe('skipped');
-    expect(gone.sent).toEqual([]);
-    const blind = deps('active', false);
-    expect(await sendNotificationMail(blind.d, job)).toBe('sent');
-    expect(blind.sent[0]!.html).not.toContain('Chị Lan');
-    expect(blind.sent[0]!.html).toContain(genericNoticeTitle('vi'));
-    const ok = deps('active', true);
-    await sendNotificationMail(ok.d, job);
-    expect(ok.sent[0]!.html).toContain('Chị Lan');
   });
 });
 

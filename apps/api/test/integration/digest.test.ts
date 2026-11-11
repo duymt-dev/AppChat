@@ -10,7 +10,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver, type TenantDb } from '@appchat/db';
-import { ActionExecutor, DIGEST_ACTOR, digestCtx, uuidv7 } from '@appchat/core';
+import { ActionExecutor, DIGEST_ACTOR, digestCtx, domainTrigger, runSystemAction, uuidv7 } from '@appchat/core';
 import { MailSendError } from '@appchat/integrations';
 import { env, startApi, type Harness } from './setup';
 
@@ -20,8 +20,9 @@ let resolver: TenantDbResolver;
 let db: TenantDb;
 let ownerEmail: string;
 
+// TIP-003c: action riêng tiền nhiệm — chạy qua capability gắn lượt lịch (như runDigests), không gọi thẳng executor.
 const run = (step: 'plan' | 'send', hh = h) =>
-  hh.app.get(ActionExecutor, { strict: false }).execute(digestCtx(hh.ws), 'digest.dispatch', { step });
+  runSystemAction(hh.app.get(ActionExecutor, { strict: false }), null, domainTrigger({ workspaceId: hh.ws, actionId: 'digest.dispatch', actor: DIGEST_ACTOR, sourceKind: 'schedule', sourceRef: `insights.digest:${step}`, targetId: hh.ws, input: { step } }), digestCtx(hh.ws));
 const mailsTo = (to: string, hh = h) => hh.mail.sent.filter((m) => m.to === to);
 const rowOf = (userId: string) => db.digestDelivery.findFirst({ where: { userId } });
 

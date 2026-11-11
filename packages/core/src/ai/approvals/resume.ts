@@ -10,7 +10,6 @@ import { AppError, serverMessages, type AuthzContext } from '@appchat/shared';
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import type { ToolExecutor } from '../../kernel/actions/executor';
-import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { MAX_STEPS, type AiRunner, type RunResult, type RunSpec } from '../runs/runner';
@@ -21,6 +20,9 @@ import { connectedKeys, runToolIds } from '../agents/agent-tools';
 import { agentSystem, agentToolSpecs } from '../agents/agent.runtime';
 import { blankConfig, merge, type AgentConfig } from '../agents/agent.store';
 import { approvalAccess, approvalDomainOf } from './domain-authorization';
+import type { SystemOutput } from '@appchat/actions';
+import { runSystemAction } from '../../kernel/actions/system';
+import { approvalExpireTrigger } from './system/expire';
 
 export interface ResumeDeps {
   tenants: TenantDbResolver;
@@ -39,6 +41,8 @@ type SpecFn = (db: TenantDb, run: RunRow, d: ResumeDeps, ws: string) => Promise<
 /** Dựng lại system + tool khi chạy tiếp, theo loại run. TIP-023 (Trợ lý) / 035 (Cowork) đăng ký loại của mình. */
 const SPECS = new Map<string, SpecFn>();
 export const registerResumeSpec = (kind: string, fn: SpecFn) => SPECS.set(kind, fn);
+/** Spec chạy tiếp đã đăng ký cho loại run (kiểm ghép DI ở worker — không dùng ở đường chạy). */
+export const resumeSpecOf = (kind: string): SpecFn | undefined => SPECS.get(kind);
 
 /** Run của agent (trực kênh / được giao): cấu hình theo phiên bản đã chạy, tool = quyền agent ∩ người ra lệnh. */
 const agentSpec: SpecFn = async (db, run, d, ws) => {
@@ -114,13 +118,9 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
   const now = d.now();
   if (kind === 'expire') {
     if (a.status !== 'pending' || a.expiresAt > now) return 'skipped';
-    const events = await db.$transaction(async (tx) => {
-      const r = await tx.approvalRequest.updateMany({ where: { id: a!.id, status: 'pending' }, data: { status: 'expired', decidedAt: now } });
-      if (r.count !== 1) return null;
-      return writeOutbox(tx, ws, [{ topic: 'approval.decided', payload: { approval_id: a!.id, run_id: a!.runId, status: 'expired' } }], now);
-    });
-    if (!events) return 'skipped';
-    await markDirty(d.kv, ws);
+    // TIP-003c: hết hạn qua action riêng `approval.system_expire` (biên nhận theo hạn hiện hành — job chạy lại không phát sự kiện hai lần).
+    const r = await runSystemAction<SystemOutput>(d.executor, d.tenants, approvalExpireTrigger(ws, a));
+    if ((r.data as { result: SystemOutput }).result.disposition !== 'applied') return 'skipped';
     if (a.runId) {
       const run = await db.aiRun.findUnique({ where: { id: a.runId } });
       const hook = run ? EXPIRED.get(run.kind) : undefined;

@@ -6,17 +6,14 @@
 // an toàn (hội thoại đã `handoff` không còn khớp điều kiện).
 import type { TenantDb } from '@appchat/db';
 import type { EventConsumer } from '../../kernel/events/consumer';
-import type { KeyValueStore } from '../../kernel/redis';
-import { handoff, reasonText } from './turn-handoff';
+import { handoff, reasonText, type HandoffDeps } from './turn-handoff';
 
 export const CREDIT_HANDOFF_CONSUMER = 'ai.credit-handoff';
 export const CREDIT_HANDOFF_BATCH = 200;
 
-export interface CreditHandoffDeps {
+export interface CreditHandoffDeps extends HandoffDeps {
   /** Số dư ví hiện tại (plan + topup) — DB nền tảng. */
   balance: (ws: string) => Promise<number>;
-  kv: KeyValueStore;
-  now: () => Date;
 }
 
 /** Chuyển hội thoại auto đang chạy AI sang người. Trả số hội thoại đã chuyển; dừng ngay khi ví > 0. */
@@ -25,6 +22,8 @@ export async function handoffForCredit(
   db: TenantDb,
   ws: string,
   batch = CREDIT_HANDOFF_BATCH,
+  /** Nguồn bền của lần cạn (id sự kiện `credits.exhausted`) — lần cạn sau là biên nhận mới. */
+  eventRef = 'credits.exhausted',
 ): Promise<number> {
   let n = 0;
   let after: string | null = null;
@@ -44,19 +43,10 @@ export async function handoffForCredit(
     if (!rows.length) return n;
     after = rows[rows.length - 1]!.id;
     for (const c of rows) {
-      // Giành có điều kiện: người tiếp quản / đổi chế độ giữa chừng → bỏ qua (không ghi đè trạng thái người).
-      const won = await db.conversation.updateMany({
-        where: { id: c.id, aiMode: 'auto', aiState: { in: ['idle', 'running'] } },
-        data: { aiState: 'handoff' },
-      });
-      if (won.count !== 1) continue;
-      await handoff(
-        d,
-        db,
-        ws,
-        { ...c, aiState: 'handoff' },
-        { agent: null, runId: null, reason: 'credit', text: reasonText('credit'), draft: null },
-      );
+      // TIP-003c: chỉ hội thoại auto đang rảnh / chạy, kiểm dưới khoá theo ai_epoch hiện tại (người tiếp quản / đổi chế độ giữa
+      // chừng → no_effect, không ghi đè trạng thái người). Một biên nhận / (hội thoại, epoch) — event trùng không chuyển đôi.
+      const done = await handoff(d, db, ws, c, { agent: null, runId: null, reason: 'credit', text: reasonText('credit'), draft: null, onlyAutoActive: true, eventRef });
+      if (!done) continue;
       n++;
     }
     if (rows.length < batch) return n;
@@ -67,6 +57,6 @@ export const creditHandoffConsumer = (d: CreditHandoffDeps): EventConsumer => ({
   name: CREDIT_HANDOFF_CONSUMER,
   topics: ['credits.exhausted'],
   async handle(e, db) {
-    await handoffForCredit(d, db, e.workspaceId);
+    await handoffForCredit(d, db, e.workspaceId, CREDIT_HANDOFF_BATCH, `credits.exhausted:${e.id}`);
   },
 });

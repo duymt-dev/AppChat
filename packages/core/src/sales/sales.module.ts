@@ -3,6 +3,11 @@
 import { Module, type OnModuleInit } from '@nestjs/common';
 import { registerOwnershipPort } from '../kernel/ownership/registry';
 import { quoteOwnershipPort } from './quotes/services/ownership-port';
+import { registerSystemVerifier } from '../kernel/actions/system';
+import { ActionExecutor } from '../kernel/actions/executor';
+import { SALES_SYSTEM_HANDLERS } from './system/handlers';
+import { verifySalesTrigger } from './system/sources';
+import { verifyBankIngress } from './payments/bank/bank-event.consumer';
 import type { Redis } from 'ioredis';
 import { connectorRegistry } from '@appchat/integrations';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
@@ -42,6 +47,7 @@ import { OrderSyncNowHandler } from './orders/actions/order-sync.handler';
 import { OrderFromAppointmentHandler } from './orders/actions/order-from-appointment.handler';
 import { OrdersReadService } from './orders/services/orders-read.service';
 import { OrderSyncService } from './orders/services/order-sync';
+import { OrderSystemImportHandler, verifyOrderImport } from './orders/system/import';
 import { InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler } from './payments/actions/invoice-write.handlers';
 import { InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler } from './payments/actions/invoice-pay.handlers';
 import { PaymentRefundApproveHandler, PaymentRefundHandler, PaymentRefundRejectHandler } from './payments/actions/refund.handlers';
@@ -53,7 +59,7 @@ import { PackagesReadModule } from './payments/packages/read.module';
 import { TenantBankHook, genericBankSink } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
 
-const opt = (token: symbol | typeof FilesService | typeof DocRenderer) => ({ token, optional: true });
+const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ActionExecutor) => ({ token, optional: true });
 const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
 
 const HANDLERS = [
@@ -64,7 +70,7 @@ const HANDLERS = [
   QuoteDraftFromContentHandler,
   OrderCreateHandler, OrderFromQuoteHandler, OrderFromContractHandler,
   OrderUpdateHandler, OrderSetDepositHandler, OrderShippingHandler,
-  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderFromAppointmentHandler,
+  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderSystemImportHandler, OrderFromAppointmentHandler,
   InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
   PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler, PackageSearchHandler,
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler, BankFeedIngestHandler,
@@ -72,6 +78,8 @@ const HANDLERS = [
   QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
   // Gửi chứng từ cho khách (TIP-032b P2).
   OrderSendConfirmationHandler, ReceiptSendHandler,
+  // Action riêng chuyển trạng thái hệ thống (TIP-003c).
+  ...SALES_SYSTEM_HANDLERS,
 ];
 
 @Module({
@@ -94,9 +102,9 @@ const HANDLERS = [
     { provide: ORDER_SYNC_KV, inject: [opt(REDIS)], useFactory: (r?: Redis) => r ?? null },
     {
       provide: OrderSyncService,
-      inject: [opt(TENANT_RESOLVER), opt(ENC_KEY), ORDER_SYNC_KV, CLOCK],
-      useFactory: (t: TenantDbResolver | undefined, k: Buffer | undefined, kv: Redis | null, c: Clock) =>
-        t && k ? new OrderSyncService({ tenants: t, registry: connectorRegistry, key: k, kv, now: () => c.now() }) : null,
+      inject: [opt(TENANT_RESOLVER), opt(ENC_KEY), ORDER_SYNC_KV, CLOCK, opt(ActionExecutor)],
+      useFactory: (t: TenantDbResolver | undefined, k: Buffer | undefined, kv: Redis | null, c: Clock, ex?: ActionExecutor) =>
+        t && k && ex ? new OrderSyncService({ tenants: t, executor: ex, registry: connectorRegistry, key: k, kv, now: () => c.now() }) : null,
     },
     {
       provide: InvoicesReadService,
@@ -115,8 +123,9 @@ const HANDLERS = [
     },
     {
       provide: QuotesReadService,
-      inject: [QuoteDeps, CLOCK],
-      useFactory: (d: QuoteDeps, c: Clock) => (d.tenants && d.platform ? new QuotesReadService(d, () => c.now()) : null),
+      // Executor có khi kernel có DB + Redis (ActionsModule) — thiếu thì không có dịch vụ đọc (như thiếu tenants / platform).
+      inject: [QuoteDeps, CLOCK, opt(ActionExecutor)],
+      useFactory: (d: QuoteDeps, c: Clock, ex?: ActionExecutor) => (d.tenants && d.platform && ex ? new QuotesReadService(d, () => c.now(), ex) : null),
     },
   ],
   exports: [SalesSettingsModule, SalesDocumentsModule, PackagesReadModule, QuotesReadService, QuoteDeps, OrdersReadService, OrderSyncService, InvoicesReadService, TenantBankHook],
@@ -125,5 +134,10 @@ export class SalesModule implements OnModuleInit {
   /** Port chuyển phụ trách báo giá (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Sales. */
   onModuleInit(): void {
     registerOwnershipPort(quoteOwnershipPort);
+    // 012b: claim FOR UPDATE + trạng thái biên nhận ngân hàng là khoá chống ghi đôi (domain).
+    registerSystemVerifier('bank_feed.ingest', verifyBankIngress, { receipt: 'domain' });
+    // TIP-003c: họ action riêng sales — biên nhận trigger bền (mặc định).
+    for (const id of ['quote.system_transition', 'invoice.system_transition', 'package.system_transition']) registerSystemVerifier(id, verifySalesTrigger);
+    registerSystemVerifier('order.system_import', verifyOrderImport);
   }
 }

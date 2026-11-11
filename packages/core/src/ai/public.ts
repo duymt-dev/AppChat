@@ -2,6 +2,7 @@
 export { AI_ENV, AGENT_ENGINE } from './ai.module';
 export { readAiEnv, type AiEnv } from './ai.env';
 export { ProviderStore } from './router/provider.store';
+export { providerRevision, routeRevision, type ProviderFingerprint, type RouteFingerprint } from './router/config-revision';
 export { RunStore, type NewRun } from './runs/run.store';
 export { AiRunner, MAX_STEPS, DEFAULT_RUN_BUDGET, type RunSpec, type RunResult } from './runs/runner';
 export { admitAttempt, releaseAttempt, ensureRootBudget, assertRootOpen } from './runs/root-budget';
@@ -9,10 +10,18 @@ export { openAttempt, recordOutcome, rawCost, groupId as usageGroupId } from './
 export { settleReceipt } from './runs/usage-settlement';
 export { recoverUsage, USAGE_RECOVERY_GRACE_MS } from './runs/usage-recovery';
 export { trustedParent, existingChild, reuseChild, type TrustedParent } from './runs/run-lineage';
+// TIP-023e: discovery theo ngữ nghĩa — async service (find_actions thật); keyword `findActions` (catalog) chỉ là nhánh fallback có tên.
+export { runFindActions, type DiscoveryRuntime } from './assistant/discovery/find-tool';
+export { discoverActions, type DiscoveryResult, type DiscoveryMeta } from './assistant/discovery/service';
+export { buildCorpus } from './assistant/discovery/corpus';
+export { claimGeneration, findGeneration } from './assistant/discovery/generation';
+export { buildGeneration } from './assistant/discovery/build.processor';
+export { DiscoveryCache, discoveryCacheOf } from './assistant/discovery/cache';
+export { redactSensitiveQueryInput } from '../authz/fields/history-provenance';
 export { meteredEmbed, queryEmbedder, claimEmbedStep, isMeteringStop, type EmbedMeter, type QueryEmbed } from './runs/metered-embedding';
 export { embedChunks } from './kb/ingest-usage';
 export { expiryDelivery, EXPIRY_ONCE } from './approvals/expiry-delivery';
-export { AI_USAGE_RECOVERY, AI_UTILITY_RECOVERY, AiUtilityRecoveryInstaller } from './runs/runtime.providers';
+export { AI_CITATION_RECOVERY, AI_DRAFT_RECOVERY, AI_RECORD_PROPOSAL_RECOVERY, AI_USAGE_RECOVERY, AI_UTILITY_RECOVERY, AiUtilityRecoveryInstaller } from './runs/runtime.providers';
 export { recoverUtilities, UTILITY_RECOVERY_GRACE_MS, type Revalidate, type RevalidateOutcome, type UtilityRecoveryReport } from './skills/utility-recovery';
 export { makeRevalidate, type ValidatorOf } from './skills/utility-revalidate';
 export { utilityValidatorOf } from './skills/utility-validators';
@@ -26,6 +35,19 @@ export { KB_EMBEDDER, KbSearchHandler, kbVisibility } from './kb/kb-search.handl
 export { KbIngestQueue } from './kb/kb.queue';
 export { KB_INGEST_QUEUE, ingestSource, type IngestDeps, type IngestOutcome, type KbIngestJob } from './kb/ingest';
 export { searchKb, minScoreOf, KB_CONTEXT, KB_TOP_K, DEFAULT_MIN_SCORE, type KbHit, type KbSearchInput, type KbSearchResult } from './kb/search';
+export { admit, internalRights, publishedScope, type Restriction, type Principal } from './kb/scope/authority';
+export { agentKnowledge, assistantKnowledge, builderKnowledge, knowledgeOfRun, normalizeScope, parseKnowledge } from './kb/scope/context';
+export { knowledgeCurrent, recordRefs, staleRuns } from './kb/scope/provenance';
+export { KNOWLEDGE_STOP, resumeGate } from './kb/scope/recovery';
+export { memberSql, sourceSql } from './kb/scope/query';
+export { resolveFor } from './kb/scope/resolve';
+export { dispatchKnowledgeOk, draftRefOf, verifyDraftRef, writeAiDraft } from './kb/scope/draft-binding';
+export type { KbScope, KnowledgeContext, KnowledgeRef } from './kb/scope/types';
+// TIP-020d: trích dẫn câu trả lời đã kiểm (sổ bí danh theo run, công bố có hàng rào, khôi phục cục bộ, chiếu theo quyền người xem).
+export { registerPassages, registryOf, MAX_CITATION_CANDIDATES } from './citations/binding';
+export { bindingOf, CITATION_SCHEMA_VERSION } from './citations/publication';
+export { recoverCitations } from './citations/recovery';
+export { citationsOf } from './citations/projection';
 export { readKb, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
 export { sourceDownload, safeName as kbSafeName, type KbDownload } from './kb/source-download';
 export { ParseError, csvBlocks, htmlBlocks, kindOf, markdownBlocks, parseDocument } from './kb/parse';
@@ -37,6 +59,11 @@ export { agentAuthz } from './agents/agent-authz';
 export { connectedKeys, groupTools, runToolIds, badgeOf } from './agents/agent-tools';
 export { agentSystem, agentToolSpecs, dryRunTools, runOnce, withinHours } from './agents/agent.runtime';
 export { draftFromText, parseDraft, optimizeLocal } from './agents/agent-draft';
+// TIP-021b: đường ống soạn agent (discovery trước sinh, binding công bố) — ROLE=ai / test ghép thật dùng cùng service.
+export { AgentDraftingService } from './agents/drafting/providers';
+export { chunkDescription, discoverDraftTools, grantableForAgent, CANDIDATE_MAX, CHUNK_MAX } from './agents/drafting/discovery';
+export { draftResponseSchema, DRAFT_MARK } from './agents/drafting/generation';
+export { recoverDrafts } from './agents/drafting/publication';
 export { seedAgentTemplates, templateDefaults, upgradeAgentTemplates } from './agents/templates.seed';
 // TIP-022b: hành vi agent trực kênh.
 export { channelBindingPreview } from './agents/channel-binding-preview';
@@ -54,7 +81,9 @@ export { listApprovals, isApprovalTab, type ApprovalTab } from './approvals/appr
 export { approvalPermissionOf } from './approvals/approval-permission';
 export { DbApprovalGateway } from './approvals/approval.gateway';
 export { ResumeQueue, AI_RESUME_QUEUE, type ResumeJob } from './approvals/resume.queue';
-export { continueParents, resumeApproval, registerResumeSpec, registerResumeFinish, type ResumeDeps } from './approvals/resume';
+export { continueParents, resumeApproval, registerResumeSpec, registerResumeFinish, resumeSpecOf, type ResumeDeps } from './approvals/resume';
+export { prepareArtifact } from './assistant/input/prepare';
+export { parseIsolated, type SandboxConfig } from './assistant/input/sandbox';
 export { childOutcome } from './runs/child-continuation';
 export { governanceDto, readGovernance, defaultGovernance } from './governance/governance';
 export { AgentReplyQueue, AGENT_REPLY_QUEUE, REPLY_DEBOUNCE_MS, type ReplyJob } from './reply/reply.queue';
@@ -64,6 +93,10 @@ export { reserveDispatch, type ReserveOutcome } from './reply/send-fence';
 export { buildReplyContext, publishedAgent, HISTORY } from './reply/reply-context';
 // TIP-023 — Trợ lý AI.
 export { AssistantService, type Caller } from './assistant/assistant.service';
+export { parseRecordIntent, RECORD_ENTITY_DEFS } from './assistant/record-intent/registry';
+export { resolveRecord, type RecordRef as RecordIntentRef } from './assistant/record-intent/context';
+export { proposeForRecord, readProposal, recoverProposals } from './assistant/record-intent/recovery';
+export { PROPOSAL_MARK, proposalSchema } from './assistant/record-intent/proposal';
 export { assistantTurn, assistantConfirm, assistantResumeSpec, prepareTurn, runTurn, replayTurn, TURN_REQUESTED, type AssistantDeps, type TurnRequest, type ConfirmRequest, type PreparedTurn } from './assistant/turn.service';
 export { findActions, briefSchema, allowedFor as assistantAllows, modeAllows, SYSTEM_ONLY, FIND_LIMIT, type AssistantMode, type FoundAction } from './assistant/catalog';
 export { confirmCard, lookOf } from './assistant/card';
@@ -85,7 +118,13 @@ export { TaskPlace, type Place as TaskPlaceInfo } from './tasks/task-place';
 export { TaskQueue, TASK_QUEUE, AI_TASK_QUEUE, type TaskJob } from './tasks/task.queue';
 export { listAiTasks } from './tasks/tasks.read';
 export { runTask, narrowScope, taskToolIds, taskPrompt, type TaskRunDeps } from './tasks/task.runner';
-export { sweepDueTasks, sweepAllTasks, rebuildArmed, taskEventConsumer, enqueueTask, type ArmedSet } from './tasks/task-scheduler';
+export { sweepDueTasks, sweepAllTasks, rebuildArmed, taskEventConsumer, type ArmedSet } from './tasks/task-scheduler';
+export { recoverTasks, INFLIGHT_STALE_MS } from './tasks/recovery';
+export { taskEventsContract, sealTaskFanout, drainTaskFanout } from './tasks/event-fanout';
+export { pushIntent } from './tasks/dispatch-intent';
+export { admitScheduled } from './tasks/occurrence';
+export { admitEventItem } from './tasks/event-admission';
+export { recoverIngest, recoverAllIngest, KB_PENDING_STALE_MS } from './kb/ingest-recovery';
 export { dispatchTaskEvent, redispatchPending, LIVE_RUN } from './tasks/event-dispatch';
 export { collectTargets } from './tasks/task-targets';
 export { buildBriefing } from './tasks/task-briefing';

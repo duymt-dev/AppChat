@@ -1,0 +1,264 @@
+{
+ "suite": "kb-effective-scope",
+ "cases": [
+  {
+   "id": "ks-assistant",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Tra kho tri thức (kb.search) giúp mình: mã quy trình dịch vụ của gói {out} là gì?",
+   "kb_scope": {
+    "path": "assistant",
+    "want": [
+     "out"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-empty",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Mã quy trình dịch vụ của gói {fa} là gì?",
+   "kb_scope": {
+    "path": "builder",
+    "agent": "empty",
+    "none": true
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-folder",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Cho mình mã quy trình dịch vụ của gói {fa} và của gói {fb}.",
+   "kb_scope": {
+    "path": "builder",
+    "agent": "folder",
+    "want": [
+     "fa"
+    ],
+    "deny": [
+     "fb",
+     "tag",
+     "int",
+     "pub",
+     "out"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-tag",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Cho mình mã quy trình dịch vụ của gói {tag} và của gói {out}.",
+   "kb_scope": {
+    "path": "builder",
+    "agent": "tag",
+    "want": [
+     "tag"
+    ],
+    "deny": [
+     "fa",
+     "fb",
+     "int",
+     "pub",
+     "out"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-mixed",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Cho mình mã quy trình dịch vụ của gói {fa}, gói {tag} và gói {fb}.",
+   "kb_scope": {
+    "path": "builder",
+    "agent": "mixed",
+    "want": [
+     "fa",
+     "tag"
+    ],
+    "deny": [
+     "fb",
+     "int",
+     "pub",
+     "out"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-internal-allowed",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Cho mình mã quy trình dịch vụ của gói {int} và gói {pub}.",
+   "kb_scope": {
+    "path": "builder",
+    "agent": "internal",
+    "want": [
+     "int",
+     "pub"
+    ],
+    "deny": [
+     "fa",
+     "fb",
+     "tag",
+     "out"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-internal-denied",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Tra kho tri thức (kb.search) giúp mình: mã quy trình dịch vụ của gói {int} và gói {pub} là gì?",
+   "kb_scope": {
+    "path": "assistant",
+    "as_sales": true,
+    "want": [
+     "pub"
+    ],
+    "deny": [
+     "int"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-channel",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Cho mình mã quy trình dịch vụ của gói {int} và gói {pub}.",
+   "kb_scope": {
+    "path": "builder",
+    "agent": "internal",
+    "channel": true,
+    "want": [
+     "pub"
+    ],
+    "deny": [
+     "int"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-nested",
+   "category": "kb_scope",
+   "mode": "cowork",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Giao việc (delegate) cho agent có agent_id {agent:folder}: tra kho tri thức mã quy trình dịch vụ của gói {fa} và gói {fb}, rồi báo lại.",
+   "kb_scope": {
+    "path": "nested",
+    "agent": "folder",
+    "want": [
+     "fa"
+    ],
+    "deny": [
+     "fb",
+     "tag",
+     "int",
+     "pub",
+     "out"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "ks-revoked",
+   "category": "kb_scope",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Tra kho tri thức (kb.search) giúp mình: mã quy trình dịch vụ của gói {tag} là gì?",
+   "kb_scope": {
+    "path": "revoked",
+    "want": [
+     "tag"
+    ],
+    "revoke": "tag"
+   },
+   "expect": {
+    "confirm": false,
+    "kb_scope": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  }
+ ]
+}

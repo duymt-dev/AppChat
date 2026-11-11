@@ -1,7 +1,7 @@
 // Chạy agent trên runtime TIP-019 (AiRunner + RunStore): system prompt từ cấu hình, bộ tool = quyền agent (D51, agent-tools)
 // gọi ActionExecutor với ngữ cảnh agent; chạy một lượt + chờ kết quả (chat thử Builder, soạn cấu hình, tối ưu prompt). Credit trừ
 // qua CreditMeter như mọi run. Agent trực kênh (queue `agent-reply`) dùng lại `agentSystem` / `agentToolSpecs` ở TIP-022.
-import { registry, type ActionDef } from '@appchat/actions';
+import { isInternalAction, registry, type ActionDef } from '@appchat/actions';
 import type { ToolOutcome, ToolSpec } from '@appchat/ai';
 import type { AuthzContext } from '@appchat/shared';
 import type { TenantDb } from '@appchat/db';
@@ -84,6 +84,9 @@ export interface AgentRunCtx {
 export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r: AgentRunCtx): ToolSpec[] {
   // Quyền đã đọc lại cho lời gọi đang chạy (khoá bước + id lời gọi) — ctxOf dùng thay bản dựng lúc bắt đầu run.
   const live = new Map<string, AuthzContext>();
+  // TIP-020c: người ra lệnh hiện hành cho quyền đọc nguồn của `kb.search` (đọc lại mỗi lời gọi, cùng khoá với `live`).
+  const knower = new Map<string, AuthzContext>();
+  const narrowed = (a: AuthzContext) => (r.narrow ? r.narrow(a) : a);
   const ctxOf = (def: ActionDef, stepIdx: number, toolCallId: string): ActionContext => ({
     workspaceId: r.workspaceId,
     source: r.source,
@@ -96,13 +99,14 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
     ...(def.risk === 'read' ? {} : { idempotencyKey: `${r.source}:${r.runId}:${stepIdx}:${toolCallId}` }),
     ...(r.servedConversationId ? { servedConversationId: r.servedConversationId } : {}),
     ...(r.autoSend ? { autoSend: true } : {}),
-    authz: ((a: AuthzContext) => (r.narrow ? r.narrow(a) : a))(live.get(`${stepIdx}:${toolCallId}`) ?? agentAuthz(r.agent, r.commander)),
+    authz: narrowed(live.get(`${stepIdx}:${toolCallId}`) ?? agentAuthz(r.agent, r.commander)),
+    ...(def.id === 'kb.search' && (knower.get(`${stepIdx}:${toolCallId}`) ?? r.commander) ? { knowledgeAuthz: narrowed((knower.get(`${stepIdx}:${toolCallId}`) ?? r.commander)!) } : {}),
   });
   const has = implementedBy(executor);
   const { mapInput: map, db } = r;
   const commanderId = r.authority?.commanderId ?? r.commander?.userId;
   const readCommander = r.authority?.commander ?? (r.commander ? async () => r.commander! : undefined);
-  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d && has(d.id)).map((d) => {
+  const specs = ids.map((id) => DEFS.get(id)).filter((d): d is ActionDef => !!d && has(d.id) && !isInternalAction(d)).map((d) => {
     const tool = actionTool(d, executor, (i, c) => ctxOf(d, i, c));
     if (!db) return tool;
     // SPEC A: mỗi lời gọi đọc lại agent / grant đã xuất bản / connector / người ra lệnh — thu hồi có hiệu lực ngay lần gọi kế.
@@ -116,10 +120,13 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
         if (!cur.ok) return { kind: 'error', code: cur.code, message: cur.reason };
         const key = `${meta.stepIdx}:${meta.toolCallId}`;
         live.set(key, cur.authz);
+        const who = d.id === 'kb.search' && commanderId && readCommander ? await readCommander(r.workspaceId, commanderId) : null;
+        if (who) knower.set(key, who);
         try {
           return await tool.execute(input, meta);
         } finally {
           live.delete(key);
+          knower.delete(key);
         }
       },
     };
