@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 156 | 10 | 0 | 13 | 8 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 6 | 0 | 2 | 10 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 166 | 9 | 0 | 9 | 10 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 400 | 35 | 1 | 4 | 16 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 403 | 33 | 1 | 4 | 15 | 3 | 0 | 0 |
 | E. standards/* | 222 | 34 | 0 | 7 | 25 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 61 | 0 | 25 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 25 | 2 | 0 | 0 |
-| **Tổng** | **1217** | **100** | **27** | **49** | **96** | **35** | **69** | **0** |
+| **Tổng** | **1220** | **98** | **27** | **49** | **95** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1113,9 +1113,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DISCOVERY-CURRENT-AUTHORITY | Semantic ranking/cache filters current implemented/user/selected-agent/active-step set before topK | DC268; TIP023e §2–3 | 023e | ĐẠT | authority.ts lọc quyền hiện hành trước vectorTopK + sau rank; cache.ts khoá theo dấu vân tay tập được phép (assistant-discovery-cache.test.ts). Active-step 023d nối khi 023d có chặn ngoài bước |
 | DISCOVERY-METERED-CACHE | Explicit confirmed corpus preparation; pinned model/config vectors and root-metered query/cache | DC268; TIP023e §1/4 | 023e | ĐẠT | assistant.discovery_prepare xác nhận Cowork; build.processor lô ≤64 tuần tự có đo; queryEmbedder dưới run; cache.ts TTL 5′ ≤128/gốc (023e, PR #172) |
 | DISCOVERY-PRIVACY-LINEAGE | Private discovery query/attempt/cache protected across generic history and forget/restore | DC268; TIP023e §3 | 023e | ĐẠT | history-provenance.ts che query find_actions ở RunStore.step(); PiiMasker trước embed; cache chỉ id, khoá HMAC (assistant-discovery.test.ts) |
-| BP-5.3b-tools-discovery | Agent draft selects tools using current-authorized find_actions before generation | plans/BLUEPRINT.md:1125 | 021b | CHƯA | agent-draft.ts44–49 only post-filters returned IDs; agent-llm.handlers.ts draft generation has no discovery call. Separate from023e finder itself; TIP021b owns discovery-before-generation with current authorization and protected publication |
-| AGENT-DRAFT-TRUTHFULNESS | Draft generation distinguishes schema-valid model proposal from deterministic fallback; hard safety/accounting stops never become success | agent-llm.handlers.ts82–90; agent-draft.ts95–114; Blueprint5.3b | 021b | MỘT PHẦN | Current fallback can hide failed/malformed model output. TIP021b spec2–3/AC3–5/7 owns same-root billing, bounded schema and protected validation/publication. |
-| AGENT-DRAFT-CONFIRMATION | Generated proposal has no publication authority; current grantable/implemented permissions and human preview enforced at commit | Blueprint5.3b; agent.store.ts65–78; AgentAiDrawer.tsx | 021b | MỘT PHẦN | Existing explicit publish/Builder buttons and grant checks retained; current source/capability/revocation-after-preview and private action boundaries need021b spec3/AC2/6/8. |
+| BP-5.3b-tools-discovery | Agent draft selects tools using current-authorized find_actions before generation | plans/BLUEPRINT.md:1125 | 021b | ĐẠT | drafting/discovery.ts: discoverDraftTools chạy discovery 023e (filterAuthorized + admit agentGrantable trước rank/limit, ≤ 3 đoạn × 1000, ≤ 24 ứng viên, vân tay) dưới run soạn TRƯỚC khi sinh; schema giới hạn tools = enum ứng viên; validation.ts kiểm lại quyền hiện tại. Test agent-draft-discovery / authority, integration agent-drafting, ai:live agent-drafting |
+| AGENT-DRAFT-TRUTHFULNESS | Draft generation distinguishes schema-valid model proposal from deterministic fallback; hard safety/accounting stops never become success | agent-llm.handlers.ts82–90; agent-draft.ts95–114; Blueprint5.3b | 021b | ĐẠT | generation_info.mode model | deterministic + fallback_reason (chỉ no_model_route / structured_unsupported / malformed_output); dừng cứng → lỗi (result.ts stopError), không bản soạn; engine structured (STRUCTURED_MALFORMED ghi usage trước), router json_schema; AgentDraftProposal nói thật nguồn. Test structured-generation, agent-draft-metering, agent-drafting.test.tsx, E2E agents |
+| AGENT-DRAFT-CONFIRMATION | Generated proposal has no publication authority; current grantable/implemented permissions and human preview enforced at commit | Blueprint5.3b; agent.store.ts65–78; AgentAiDrawer.tsx | 021b | ĐẠT | Bản soạn không ghi agent (publication.ts chỉ ghi binding); hai đường xác nhận giữ nguyên (create_and_publish / Builder); reproject theo quyền hiện tại, tools_revoked; run detail ẩn result_text protected; history ẩn mô tả; Quên khách invalidate. Test agent-draft-publish, integration agent-drafting (403 Sales, publish), ai:live replay |
 
 **Ghi chú / chưa rà hết:**
 
