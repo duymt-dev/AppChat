@@ -15,7 +15,7 @@ import { freezeFileSource } from '../files/artifact-store';
 import { assertResolved } from '../files/suggestions';
 import { ContractDeps } from '../services/contract-deps';
 import { renderContractPdf, storeContractPdf } from '../services/contract-doc';
-import { sameOtp } from '../services/sign-link';
+import { otpMatches } from '../signing/otp';
 import { actorNameOf, logSignEvent, moveContract } from '../services/contract-write';
 import { approveSignPreview, rejectInternalPreview, requestChangesPreview, submitPreview } from './previews/contract-approval.handlers.preview';
 
@@ -113,6 +113,8 @@ interface Prepared {
   /** Nguồn tệp: version nguồn lúc đóng băng (execute CAS) + bản DOCX đã đổi mới lưu. */
   sourceVersion: number | null;
   rendered: boolean;
+  /** Thế hệ OTP đã kiểm (TIP-030c) — chốt chỉ tiêu đúng mã này; mã mới phát trong lúc render → lần thử cũ thất bại. */
+  otpGeneration: number;
 }
 
 @Injectable()
@@ -130,12 +132,12 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
     const db = await this.d.need('tenants').get(TenantContexts.system(ctx.workspaceId, 'contract.approve_and_sign'));
     const c = await db.$transaction((tx) => visibleContract(tx, ctx.authz, input.contract_id, 'write'));
     assertTransition(CONTRACT_FLOW, c.status, 'contract.approve_and_sign');
-    await this.checkOtp(db, c.id, input.otp);
+    const otpGeneration = await this.checkOtp(db, c.id, input.otp);
     const me = actorUserId(ctx);
     const content = c.source === 'file' ? await freezeFileSource(db, this.d, ctx.workspaceId, c, me) : await this.freezeTemplate(db, ctx.workspaceId, c, me);
     const png = Buffer.from(input.signature_png.slice(input.signature_png.indexOf(',') + 1), 'base64');
     const sigFile = await this.d.need('files').upload(db, ctx.workspaceId, { name: `${c.code}-chu-ky-ben-a.png`, mime: 'image/png', body: png, purpose: 'document', uploadedBy: me });
-    return { ...content, signatureFileId: sigFile.id };
+    return { ...content, signatureFileId: sigFile.id, otpGeneration };
   }
 
   /** Nguồn mẫu: render theo mẫu rồi đóng băng PDF nội dung. */
@@ -150,12 +152,13 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
     const s = await db.contractSigner.findUnique({ where: { contractId_party: { contractId, party: 'business' } } });
     const now = this.clock.now();
     if (!s?.otpHash || !s.otpExpiresAt || s.otpExpiresAt < now || s.otpFails >= SIGN_OTP_MAX_FAILS) throw new AppError('OTP_INVALID', 422, { otp: 'expired' }, '0');
-    if (!sameOtp(s.id, otp, s.otpHash)) {
+    if (!otpMatches(this.d.need('env').key, s, otp)) {
       const fails = s.otpFails + 1;
       await db.contractSigner.update({ where: { id: s.id }, data: { otpFails: fails } });
       await logSignEvent(db, { contractId, signerId: s.id, type: 'otp_fail', actorName: s.name, at: now });
       throw new AppError('OTP_INVALID', 422, { otp: 'invalid' }, String(Math.max(0, SIGN_OTP_MAX_FAILS - fails)));
     }
+    return s.otpGeneration;
   }
 
   async execute(ctx: ActionContext, input: SignIn, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<Out>> {
@@ -165,7 +168,7 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
     const now = this.clock.now();
     const me = actorUserId(ctx);
     // OTP chỉ dùng một lần.
-    const used = await tx.contractSigner.updateMany({ where: { contractId: c.id, party: 'business', otpHash: { not: null } }, data: { otpHash: null, otpExpiresAt: null, otpFails: 0, signatureImageFileId: p.signatureFileId, signedAt: now, userId: me } });
+    const used = await tx.contractSigner.updateMany({ where: { contractId: c.id, party: 'business', otpHash: { not: null }, otpGeneration: p.otpGeneration }, data: { otpHash: null, otpExpiresAt: null, otpFails: 0, signatureImageFileId: p.signatureFileId, signedAt: now, userId: me } });
     if (!used.count) throw new AppError('OTP_INVALID', 422, { otp: 'expired' }, '0');
     // Nguồn tệp bị thay giữa lúc đóng băng và lúc ký → không ký bản cũ.
     if (p.sourceVersion !== null && c.sourceVersion !== p.sourceVersion) throw new AppError('CONFLICT', 409, { source_version: 'stale' });

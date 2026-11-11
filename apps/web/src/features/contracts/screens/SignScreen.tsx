@@ -8,6 +8,7 @@ import { Icon, color } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useSignStyles } from '../styles/sign.styles';
 import { signViewQuery } from '../api';
+import { useSignVisit } from '../hooks/useSigningAttempt';
 import { SignForm } from '../components/SignForm';
 import type { SignView } from '../types';
 
@@ -148,6 +149,8 @@ export function SignScreen({ token }: { token: string }) {
     setAfter(v);
     void qc.invalidateQueries({ queryKey: ['contracts'] });
   };
+  // Lượt mở chủ định (POST open một lần mỗi token) — mọi nhánh hiển thị, tách khỏi GET; kết quả cập nhật cache xem.
+  useSignVisit(token, q.isSuccess, (view) => qc.setQueryData(signViewQuery(token).queryKey, view));
   const v = after ?? q.data;
   const invalid =
     q.isError ||

@@ -108,7 +108,7 @@ async function upload(name: string, body: Buffer, mime: string, who?: { id: stri
 }
 
 const pub = (path: string, body?: unknown) =>
-  fetch(`${h.base}/v1/public/sign/${path}`, { method: body === undefined ? 'GET' : 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'vitest' }, body: body === undefined ? undefined : JSON.stringify(body) }).then(json);
+  fetch(`${h.base}/v1/public/sign/${path}`, { method: body === undefined ? 'GET' : 'POST', headers: { 'content-type': 'application/json', 'user-agent': 'vitest' }, body: body === undefined ? undefined : JSON.stringify(/\/(open|otp|decline)$/.test(path) && body && typeof body === 'object' ? { request_id: crypto.randomUUID(), ...body } : body) }).then(json);
 
 /** Trình duyệt + Owner duyệt & ký (OTP email) — trả phản hồi thô (DOCX không launcher → 501). */
 async function approve(id: string) {

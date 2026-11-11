@@ -1,5 +1,6 @@
 // Trang ký công khai (COMMERCE §9 C1; Blueprint §4.4 public): không đăng nhập — token một lần; rate limit theo token + IP trong
-// service. `POST /v1/public/sign/:token/open` (ghi nhận mở link — FE gọi POST vì có tác dụng phụ; GET trả cùng dữ liệu không ghi),
+// service. GET `/:token` + `/pdf` CHỈ ĐỌC (TIP-030c). POST `/open` / `/otp` / `/sign` / `/decline` mang `request_id` (UUID) — ghi qua action
+// chuẩn (capability niêm phong). `POST /v1/public/sign/:token/open` (ghi nhận một lần mỗi request_id),
 // `/otp`, `/sign {otp, signature_png, consent:true}`, `/decline {reason?}`, `GET /:token/pdf`. Không lộ dữ liệu nội bộ.
 import { Body, Controller, Get, HttpCode, Inject, Param, Post, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -19,19 +20,19 @@ export class PublicSignController {
 
   @Get(':token')
   async get(@Param('token') token: string, @Req() req: IncomingMessage) {
-    return { data: await this.sign.open(token, clientOf(req)) };
+    return { data: await this.sign.read(token, clientOf(req)) };
   }
 
   @Post(':token/open')
   @HttpCode(200)
-  async open(@Param('token') token: string, @Req() req: IncomingMessage) {
-    return { data: await this.sign.open(token, clientOf(req)) };
+  async open(@Param('token') token: string, @Req() req: IncomingMessage, @Body() body: unknown) {
+    return { data: await this.sign.open(token, clientOf(req), obj(body).request_id) };
   }
 
   @Post(':token/otp')
   @HttpCode(200)
-  async otp(@Param('token') token: string, @Req() req: IncomingMessage) {
-    return { data: await this.sign.otp(token, clientOf(req)) };
+  async otp(@Param('token') token: string, @Req() req: IncomingMessage, @Body() body: unknown) {
+    return { data: await this.sign.otp(token, clientOf(req), obj(body).request_id) };
   }
 
   @Post(':token/sign')
@@ -43,8 +44,8 @@ export class PublicSignController {
   @Post(':token/decline')
   @HttpCode(200)
   async decline(@Param('token') token: string, @Req() req: IncomingMessage, @Body() body: unknown) {
-    const r = obj(body).reason;
-    return { data: await this.sign.decline(token, clientOf(req), typeof r === 'string' ? r : undefined) };
+    const b = obj(body);
+    return { data: await this.sign.decline(token, clientOf(req), b.request_id, typeof b.reason === 'string' ? b.reason : undefined) };
   }
 
   @Get(':token/pdf')

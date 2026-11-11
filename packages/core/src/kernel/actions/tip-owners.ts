@@ -43,6 +43,9 @@ const BY_ID: Record<string, string> = {
   'assistant.attachment_get': '023f',
   'assistant.attachment_read': '023f',
   'inbox.system_agent_transition': '003c',
+  'contract.public_sign': '030c',
+  'contract.sign_attempt_prepare': '030c',
+  'contract.sign_attempt_stage': '030c',
 };
 
 const BY_PREFIX: Record<string, string> = {

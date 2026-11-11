@@ -11,7 +11,6 @@ import { renderContractPdf } from './contract-doc';
 import { signingContent } from '../files/source';
 import { listContractFiles, readContractFile } from '../files/read';
 import { contractInsights, contractKpis, contractRuns } from './contract-insights';
-import { sendOwnerOtp } from './contract-system';
 import { contactsOf, extrasOf, toContractRow, type ViewCtx } from './contract-view';
 
 export interface ContractViewer {
@@ -112,11 +111,13 @@ export class ContractsReadService {
     return readContractFile(db, this.d.need('files'), c, fileId);
   }
 
-  /** OTP "Duyệt & ký" tới email của người ký (cần `contract.sign`, controller kiểm). */
-  async ownerOtp(v: ContractViewer, id: string): Promise<{ sent_to: string }> {
+  /** Trạng thái giao OTP Owner mới nhất của người gọi cho hợp đồng (TIP-030c §4.5) — queued ≠ accepted ≠ đã tới hộp thư. */
+  async ownerOtpStatus(v: ContractViewer, id: string): Promise<'queued' | 'accepted' | 'unknown' | 'suppressed'> {
     const db = await this.db(v);
-    const c = await db.$transaction((tx) => visibleContract(tx, v.authz, id));
-    const name = (await this.d.members.names([v.userId])).get(v.userId) ?? '';
-    return { sent_to: await sendOwnerOtp(this.d, db, v.workspaceId, c, { id: v.userId, name }, this.now()) };
+    const s = await db.contractSigner.findUnique({ where: { contractId_party: { contractId: id, party: 'business' } }, select: { id: true, otpGeneration: true, userId: true } });
+    if (!s || s.userId !== v.userId) return 'queued';
+    const d = await db.contractSigningDelivery.findUnique({ where: { signerId_otpGeneration_purpose: { signerId: s.id, otpGeneration: s.otpGeneration, purpose: 'owner_otp' } }, select: { phase: true } });
+    const p = d?.phase;
+    return p === 'accepted' ? 'accepted' : p === 'unknown' ? 'unknown' : p === 'suppressed' || p === 'failed' ? 'suppressed' : 'queued';
   }
 }
