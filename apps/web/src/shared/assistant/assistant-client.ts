@@ -28,6 +28,8 @@ export interface TurnRequest {
   inputs?: { artifact_id: string; revision: number }[];
   /** TIP-023g: lối vào theo bản ghi — tham chiếu có kiểu (server đọc lại theo quyền hiện hành). */
   recordIntent?: RecordIntentInput;
+  /** TIP-023d §5.1: agent Cowork đã chọn (UUID, không tên) — server ghim bản đã xuất bản; vắng = Trợ lý thường. */
+  selectedAgentId?: string;
 }
 
 export const newRequestId = () => `req-${crypto.randomUUID()}`;

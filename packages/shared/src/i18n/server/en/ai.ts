@@ -63,6 +63,7 @@ export const ai: typeof vi = {
     owner: 'Workspace owner (full access)',
     cancelled: 'Operation cancelled.',
     planReuse: { analysis: 'Analysis', delegate: 'Delegate to an agent' },
+    selectedAgent: 'The user selected agent {name} (id: {id}) for this turn. Business writes must be delegated to exactly this agent (never another agent); you only plan, coordinate and look things up. If the agent cannot do it, say so and ask the user to clear or change the selection.',
     planPaused: 'Paused so you can edit the plan — finished work is kept. Press Resume when you are done.',
     error: { CREDIT_EXHAUSTED: 'Out of AI credits — top up in Settings › Wallet & plan to continue.', generic: 'The Assistant could not handle this request yet — please try again later.' },
     entity: {

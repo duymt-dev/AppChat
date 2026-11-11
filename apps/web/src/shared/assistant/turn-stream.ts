@@ -42,7 +42,7 @@ export async function streamTurn(q: TurnRequest, h: TurnStreamHandlers = {}, sig
     if (f.event.type === 'delta') h.onText?.((text += f.event.text));
     else if (f.event.type === 'ui_skeleton') h.onSkeleton?.(f.event.root);
   };
-  const body = { text: q.text, mode: q.mode, session_id: q.sessionId, tier: q.tier, context: q.context, ...(q.attachments?.length ? { attachments: q.attachments } : {}), ...(q.inputs?.length ? { inputs: q.inputs } : {}), request_id: q.requestId ?? newRequestId(), ...(q.recordIntent ? { record_intent: q.recordIntent } : {}) };
+  const body = { text: q.text, mode: q.mode, session_id: q.sessionId, tier: q.tier, context: q.context, ...(q.attachments?.length ? { attachments: q.attachments } : {}), ...(q.inputs?.length ? { inputs: q.inputs } : {}), request_id: q.requestId ?? newRequestId(), ...(q.recordIntent ? { record_intent: q.recordIntent } : {}), ...(q.selectedAgentId ? { selected_agent_id: q.selectedAgentId } : {}) };
   let out = await transport.stream('/assistant/messages', body, onFrame, signal);
   for (let i = 0; !out.finished && i < RECONNECTS && frames.length && !signal?.aborted; i++) {
     const run = frames[0]!.run_id;

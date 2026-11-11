@@ -25,6 +25,8 @@ const turnBody = z.object({
   inputs: z.array(z.object({ artifact_id: z.string().uuid(), revision: z.number().int().min(1) })).max(5).optional(),
   /** TIP-023d §4.3: bản nháp kế hoạch tái dùng gắn vào lượt này (server kiểm chủ / phiên / revision, một lần). */
   plan_draft: z.object({ plan_id: z.string().uuid(), revision: z.number().int().min(1) }).optional(),
+  /** TIP-023d §5.1: agent đã chọn (UUID, không tên) — server ghim bản đã xuất bản; không còn chạy → 404, không rơi về agent khác. */
+  selected_agent_id: z.string().uuid().nullish(),
   /** Khoá idempotent của lượt (TIP-023c) — gửi lại cùng khoá → cùng run. */
   request_id: z.string().min(8).max(80).regex(/^[A-Za-z0-9_-]+$/).optional(),
   /** TIP-023g: lối vào theo bản ghi — chỉ là tham chiếu (server đọc lại theo quyền hiện hành); kiểm chặt ở core (`parseRecordIntent`). */
@@ -86,6 +88,7 @@ export class AssistantController {
       ...(b.inputs?.length ? { inputs: b.inputs } : {}),
       ...(b.request_id ? { requestId: b.request_id } : {}),
       ...(b.plan_draft ? { planDraft: b.plan_draft } : {}),
+      ...(b.selected_agent_id ? { selectedAgentId: b.selected_agent_id } : {}),
       ...(b.record_intent !== undefined ? { recordIntent: parseRecordIntent(b.record_intent) } : {}),
     };
     if (!String(req.headers.accept ?? '').includes('text/event-stream')) return { data: await this.svc.turn(c, q) };

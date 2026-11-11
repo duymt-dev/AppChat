@@ -17,6 +17,7 @@ import { acceptedOutcome } from './read-dispatch';
 import { replaceCard } from './sessions';
 import type { AssistantTurnCtx } from './types';
 import { bindingOf } from './plans/driver';
+import { selectedCtx } from './plans/selected-agent';
 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
 
@@ -39,8 +40,8 @@ export async function editPreview(d: EditDeps, db: TenantDb, q: EditRequest): Pr
   const p = await takePending(d.kv, db, d.now, q.userId, q.token);
   const def = DEFS.get(p.actionId);
   if (!def) throw new AppError('ACTION_NOT_FOUND', 404, undefined, p.actionId);
-  const run = p.run.input as { mode?: 'chat' | 'cowork'; locale?: string; role?: string };
-  const t: AssistantTurnCtx = { ws: q.ws, runId: p.run.id, userId: q.userId, authz: q.authz, mode: run.mode ?? 'cowork', locale: run.locale ?? 'vi', role: q.role ?? run.role };
+  const run = p.run.input as { mode?: 'chat' | 'cowork'; locale?: string; role?: string; selected_agent?: unknown };
+  const t: AssistantTurnCtx = { ws: q.ws, runId: p.run.id, userId: q.userId, authz: q.authz, mode: run.mode ?? 'cowork', locale: run.locale ?? 'vi', role: q.role ?? run.role, ...selectedCtx(run) };
   try {
     const { input } = await resolveCodes(db, def.id, keepHidden(p.input, q.input), q.authz);
     const notAi = await aiCustomErrors(db, def, input, q.authz.isOwner ? 'owner' : (t.role ?? 'member'));

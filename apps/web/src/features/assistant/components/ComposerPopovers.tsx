@@ -59,10 +59,10 @@ export function ComposerPopovers() {
           <>
             <div className={styles.popHead}>{t('agentPick')}</div>
             {agents.map((a) => (
-              <button key={a.id} type="button" role="menuitemradio" aria-checked={ui.agent === a.name} className={styles.popRow} onClick={() => ui.set({ agent: a.name, pop: null })}>
+              <button key={a.id} type="button" role="menuitemradio" aria-checked={ui.agent?.id === a.id} disabled={a.status !== 'active'} className={styles.popRow} onClick={() => ui.set({ agent: { id: a.id, name: a.name }, pop: null })}>
                 <Icon name="ic-bot" size={15} color={color.violet} strokeWidth={1.9} />
                 <span className={styles.popLabel}>{t('agentSuffix', { name: a.name })}</span>
-                <span className={styles.check}>{ui.agent === a.name ? t('tier.check') : ''}</span>
+                <span className={styles.check}>{ui.agent?.id === a.id ? t('tier.check') : ''}</span>
               </button>
             ))}
           </>

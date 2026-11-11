@@ -38,6 +38,7 @@ import { bindToken, takePending } from './pending-action';
 import { bindingOf } from './plans/driver';
 import { planGateOf, recordCheckpoint } from './plans/checkpoint';
 import { bindDraft, type PlanDraftRef } from './plans/draft-binding';
+import { pinSelected, selectedCtx } from './plans/selected-agent';
 import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
@@ -87,6 +88,8 @@ export interface TurnRequest {
   recordIntent?: RecordIntentInput;
   /** TIP-023d §4.3: bản nháp kế hoạch (plan_reuse) gắn vào lượt này — một lần, cùng transaction claim. */
   planDraft?: PlanDraftRef;
+  /** TIP-023d §5.1: agent người dùng chọn (UUID) — server ghim bản đã xuất bản lúc nhận lượt; không còn chạy → 404, không rơi về agent khác. */
+  selectedAgentId?: string;
 }
 
 /** Mức AI của lượt: chọn của người dùng (hoặc mặc định ở Cài đặt › Mô hình AI), hạ về mức cao nhất gói cho phép. */
@@ -110,7 +113,7 @@ export function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: 
 export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow, ws: string, authz: AuthzContext | null): Promise<Omit<RunSpec, 'messages'>> {
   const input = run.input as unknown as AssistantRunInput;
   if (!authz || !run.initiatedByUserId) return { system: '', tools: [], maxSteps: MAX_STEPS.assistant, source: 'assistant' };
-  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
+  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
   return specFor(d, db, t, await assistantSystem(db, input, authz));
 }
 
@@ -174,7 +177,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   const now = d.now();
   // Tệp đã chuẩn bị: kiểm TRƯỚC (chủ / ready / revision / chưa buộc phiên khác); hash gồm id:revision:digest đã sắp → đổi danh sách = 409.
   const inputs = await checkInputs(db, q.userId, q.inputs ?? [], q.sessionId);
-  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, ...(q.recordIntent ? { record: q.recordIntent } : {}), attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}), ...(q.planDraft ? { plan_draft: q.planDraft } : {}) });
+  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, ...(q.recordIntent ? { record: q.recordIntent } : {}), attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}), ...(q.planDraft ? { plan_draft: q.planDraft } : {}), ...(q.selectedAgentId ? { selected_agent_id: q.selectedAgentId } : {}) });
   const ledger = new RequestStore(db, d.now);
   const replay = async (): Promise<PreparedTurn | null> => {
     const prev = await db.assistantRequest.findUnique({ where: { userId_requestId: { userId: q.userId, requestId: q.requestId } } });
@@ -193,6 +196,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   // Tệp đính kèm: guard server trước model (tenant / người tải / purpose / hạn / mime / size) — tên client gửi không được tin.
   const attachments = await resolveAttachments(db, q.userId, (q.attachments ?? []).map((a) => a.id), now);
   const tier = await tierOf(d, db, q.ws, q.tier);
+  const selected = q.selectedAgentId ? await pinSelected(db, q.selectedAgentId, await d.planKey(q.ws)) : null;
   try {
     const sessionId = await inEventTransaction(db, q.ws, async (tx) => {
       const session = await openSession(tx, q.userId, q.mode, q.text, q.sessionId, now);
@@ -209,6 +213,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
         role: q.role,
         ...(context ? { context } : {}),
         ...(attachments.length ? { attachments } : {}),
+        ...(selected ? { selected_agent: selected } : {}),
       };
       await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET, knowledge: assistantKnowledge(q.userId) });
       await writeOutbox(tx, q.ws, [{ topic: TURN_REQUESTED, payload: { run_id: runId, user_id: q.userId } }], now);
@@ -255,7 +260,7 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
       await fail('FORBIDDEN');
       return null;
     }
-    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
+    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
     const spec = specFor(d, db, t, await assistantSystem(db, input, authz));
     const skeletons = new SkeletonFeed(live);
     const r = await d.runner.start(ws, store, run, {
@@ -328,7 +333,7 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const input = run.input as unknown as AssistantRunInput;
   const raw = state.pendingToolCall.input as { action_id?: string; input?: unknown };
   const call = { ...raw, action_id: raw.action_id ?? ALIAS_ACTION[state.pendingToolCall.toolName] ?? '' };
-  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
+  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
 
   let outcome: ToolOutcome;
   let logId: string | undefined;

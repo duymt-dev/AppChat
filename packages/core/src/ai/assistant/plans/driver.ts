@@ -50,3 +50,10 @@ export function bindingOf(raw: unknown): PlanBinding | undefined {
     ? { planId: b.planId, stepId: b.stepId, generation: b.generation!, epoch: b.epoch! }
     : undefined;
 }
+
+/** Run con (delegate) dưới gốc có kế hoạch: binding dựng lại từ dòng dõi run tin cậy (chạy lại sau duyệt — job ai-resume), không từ yêu cầu. */
+export async function childBindingOf(db: Db & Pick<TenantDb, 'aiRun'>, runId: string, actionId: string): Promise<StepDecision> {
+  const run = await db.aiRun.findUnique({ where: { id: runId }, select: { kind: true, rootRunId: true } });
+  if (!run || run.kind !== 'delegate' || run.rootRunId === runId) return { kind: 'free' };
+  return decideStep(db, run.rootRunId, actionId);
+}

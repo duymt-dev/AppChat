@@ -8,7 +8,8 @@ export type AsstPop = 'plus' | 'tier' | 'agent' | 'utility' | null;
 interface AssistantUi {
   mode: Mode;
   tier: Tier;
-  agent: string | null;
+  /** Agent Cowork đã chọn — danh tính là `id` (UUID); `name` chỉ để hiển thị (TIP-023d §5.1, trùng tên vẫn phân biệt). */
+  agent: { id: string; name: string } | null;
   draft: string;
   messages: ChatMessage[];
   typing: boolean;
@@ -54,5 +55,6 @@ export const useAssistantUi = create<AssistantUi>((set) => ({
   },
   push: (m) => set((s) => ({ messages: [...s.messages, m] })),
   patchMsg: (id, p) => set((s) => ({ messages: s.messages.map((m) => (m.id === id ? { ...m, ...p } : m)) })),
-  reset: () => set({ messages: [], draft: '', sessionId: undefined, typing: false, lastRunId: null }),
+  // Đổi phiên / workspace: bỏ chọn agent cũ (không mang lựa chọn sang phiên khác — §6.3).
+  reset: () => set({ messages: [], draft: '', sessionId: undefined, typing: false, lastRunId: null, agent: null }),
 }));

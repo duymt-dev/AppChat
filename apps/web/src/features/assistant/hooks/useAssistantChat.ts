@@ -66,7 +66,7 @@ export function useAssistantChat() {
       // Metadata `file_id` chỉ cho extension domain (038b nhập CSV / XLSX…); nội dung tệp đi qua handle đã chuẩn bị.
       const attachments = files.filter((f) => f.file_id && carriesFileId(f.mime)).map((f) => ({ id: f.file_id!, name: f.name }));
       const inputs = handlesOf(files);
-      const { push, set, mode, sessionId, tier } = useAssistantUi.getState();
+      const { push, set, mode, sessionId, tier, agent } = useAssistantUi.getState();
       const draft = useAssistantUi.getState().draft;
       const userMsg = { id: mid(), role: 'user' as const, text, ...(files.length ? { files: files.map((f) => ({ name: f.name, kind: f.mime.startsWith('image/') ? 'image' : 'file' })) } : {}) };
       push(userMsg);
@@ -75,7 +75,7 @@ export function useAssistantChat() {
       const requestId = `req-${crypto.randomUUID()}`;
       let sent = false;
       try {
-        const [turn] = await Promise.all([stream.run({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId, ...(attachments.length ? { attachments } : {}), ...(inputs.length ? { inputs } : {}) }), new Promise((r) => setTimeout(r, TYPING_MS))]);
+        const [turn] = await Promise.all([stream.run({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId, ...(attachments.length ? { attachments } : {}), ...(inputs.length ? { inputs } : {}), ...(mode === 'cowork' && agent ? { selectedAgentId: agent.id } : {}) }), new Promise((r) => setTimeout(r, TYPING_MS))]);
         sent = true;
         if (files.length) useAttachStore.getState().renew();
         show(turn.events);

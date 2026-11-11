@@ -40,7 +40,7 @@ export function CoworkScreen() {
     useAssistantUi.getState().set({ mode: 'cowork' });
   }, []);
   const goChat = () => {
-    ui.set({ mode: 'chat' });
+    ui.set({ mode: 'chat', agent: null });
     router.push('/assistant');
   };
   const send = () => {
