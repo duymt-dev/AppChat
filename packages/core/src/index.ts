@@ -92,6 +92,7 @@ export * from './kernel/privacy/registry';
 export { isPrivacyFenced, fencedContactIds } from './kernel/privacy/guard';
 export { dropFenced } from './kernel/privacy/publication';
 export { familyInventory, type DomainArtifact } from './kernel/privacy/provenance';
+export { assertRestoreCurrent, verifyRestoreAgainstJournal, type RestoreGateQuery, type RestoreGateResult, type RestoreGateStaleEntry } from './kernel/privacy/restore-gate';
 export { PrivacyJobsModule } from './privacy/jobs/privacy.jobs.module';
 export { sweepPrivacy, sweepPrivacyWorkspace, privacyCleanupTrigger, verifyPrivacyCleanup, PRIVACY_SWEEP_JOB, PRIVACY_SCHEDULER_QUEUE } from './privacy/jobs/privacy.scheduler';
 
