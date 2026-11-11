@@ -133,6 +133,30 @@ describe('admin.model_price.upsert + admin.model_route.upsert (AC03 / AC05)', ()
   }, 60_000);
 });
 
+describe('route vision (TIP-023f §3.2)', () => {
+  it('cờ "Đọc ảnh" chỉ lưu ở route chat bật, đọc lại được; ProviderStore chiếu thành RouteRow.vision; route không bật = không nhận ảnh', async () => {
+    const groups = await get(admin.token, '/admin/config/routes');
+    const g = groups.body.data.find((x: { tier: string; purpose: string }) => x.tier === 'standard' && x.purpose === 'chat');
+    const keep = g.routes as { provider_key: string; model: string; vision?: boolean }[];
+    await act('admin.model_price.upsert', { provider_key: PROV, model: 'm-v', tier: 'standard', credits_per_1k_in: '1', credits_per_1k_out: '1', active: true });
+    const r = await act('admin.model_route.upsert', { tier: 'standard', purpose: 'chat', if_version: g.version, routes: [{ provider_key: PROV, model: 'm-v', vision: true }, ...keep.map((x) => ({ ...x, vision: false }))] });
+    expect(r.status, JSON.stringify(r.body)).toBe(200);
+    try {
+      const row = await h.platform.modelRoute.findFirstOrThrow({ where: { tier: 'standard', purpose: 'chat', providerKey: PROV } });
+      expect(row.params).toEqual({ vision: true });
+      const back = (await get(admin.token, '/admin/config/routes')).body.data.find((x: { tier: string; purpose: string }) => x.tier === 'standard' && x.purpose === 'chat');
+      expect(back.routes[0]).toEqual({ provider_key: PROV, model: 'm-v', vision: true });
+      expect(back.routes.slice(1).every((x: { vision: boolean }) => x.vision === false)).toBe(true);
+      const store = new ProviderStore(h.platform, Buffer.alloc(32));
+      const rows = await store.routes('standard', 'chat');
+      expect(rows[0]).toMatchObject({ model: 'm-v', vision: true });
+      expect(rows.slice(1).every((x) => !x.vision)).toBe(true);
+    } finally {
+      await act('admin.model_route.upsert', { tier: 'standard', purpose: 'chat', if_version: r.body.data.result.version, routes: keep.map((x) => ({ provider_key: x.provider_key, model: x.model, vision: !!x.vision })) });
+    }
+  }, 60_000);
+});
+
 describe('admin.agent_template.upsert (AC08)', () => {
   it('tool không cấp được 422; CAS; ẩn mẫu khỏi catalog; agent đã tạo không đổi', async () => {
     const key = `t${tag}tpl`;
