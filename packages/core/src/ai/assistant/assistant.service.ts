@@ -3,7 +3,9 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { PlatformDb, TenantDb, TenantDbResolver } from '@appchat/db';
 import { TenantContexts } from '@appchat/db';
-import { AppError, type AuthzContext } from '@appchat/shared';
+import { AppError, type AuthzContext, type RecordProposalDto } from '@appchat/shared';
+import { isProposalIntent, parseRecordIntent } from './record-intent/registry';
+import { proposeForRecord, readProposal } from './record-intent/recovery';
 import { CreditMeter, QuotaService } from '../../billing/public';
 import { STORAGE, type Storage } from '../../kernel/files/storage';
 import type { ModelSource } from '@appchat/ai';
@@ -144,6 +146,26 @@ export class AssistantService {
     const db = await this.db(c);
     const p = await this.profile(c);
     return draftReply(db, this.runner, () => this.clock.now(), { ...q, ws: c.workspaceId, userId: c.userId, authz: c.authz, userName: p.name, locale: p.locale });
+  }
+
+  /** TIP-023g §3: đề xuất combo / chiến dịch theo sản phẩm — binding `record_proposal`, run schema không tool, công bố sau khi kiểm. */
+  async propose(c: Caller, raw: unknown): Promise<RecordProposalDto> {
+    const ri = parseRecordIntent(raw);
+    if (!isProposalIntent(ri.intent)) throw new AppError('VALIDATION_FAILED', 422, { record_intent: 'not_a_proposal' });
+    const d = this.deps();
+    const p = await this.profile(c);
+    return proposeForRecord({ db: await this.db(c), executor: d.executor, runner: d.runner, now: d.now }, this.turnCtx(c, p, uuidv7(d.now().getTime())), ri);
+  }
+
+  /** Đọc đề xuất theo request_id của chính người gọi (không phải của người khác → 404). */
+  async proposal(c: Caller, requestId: string): Promise<RecordProposalDto> {
+    const d = this.deps();
+    const p = await this.profile(c);
+    return readProposal({ db: await this.db(c), executor: d.executor, runner: d.runner, now: d.now }, this.turnCtx(c, p, ''), requestId);
+  }
+
+  private turnCtx(c: Caller, p: { locale: string; role: string }, runId: string) {
+    return { ws: c.workspaceId, runId, userId: c.userId, authz: c.authz, mode: 'chat' as const, locale: p.locale, role: p.role };
   }
 
   async confirm(c: Caller, q: Pick<ConfirmRequest, 'token' | 'decision'>) {

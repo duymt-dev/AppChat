@@ -72,7 +72,6 @@
     "user": "{name} is handling — reply within SLA"
   },
   "aiPeek": "View AI hint",
-  "aiPeekMsg": "AI hint for {code}: {hint}",
   "empty": "No matching tickets",
   "menu": {
     "open": "Actions",

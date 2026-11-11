@@ -8,6 +8,7 @@ import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
+import { EmbeddedRecordAssistant } from '@/shared/assistant/record-intent/RecordDrawerSection';
 import { useDetailStyles } from '../styles/detail.styles';
 import { useProductsUi } from '../products-store';
 import { productActivityQuery } from '../api';
@@ -162,9 +163,8 @@ export function CrmTab({ meta }: { meta: ProductsMeta }) {
   );
 }
 
-export function AiTab() {
+export function AiTab({ p }: { p: Product }) {
   const t = useTranslations('products.detail');
-  const { message } = App.useApp();
   const { styles } = useDetailStyles();
   return (
     <div className={styles.card}>
@@ -173,19 +173,28 @@ export function AiTab() {
         <span className={styles.aiSpark}>{t('spark')}</span>
         <div>{t('aiText')}</div>
       </div>
-      <div className={styles.aiActs}>
-        <button type="button" className={styles.aiAct} onClick={() => void message.info(t('aiDoing'))}>
-          <Icon name="ic-spark" size={14} color={color.brand} />
-          {t('aiCombo')}
-        </button>
-        <button type="button" className={styles.aiAct} onClick={() => void message.info(t('aiDoing'))}>
-          <Icon name="ic-mega" size={14} color={color.pink} />
-          {t('aiAds')}
-        </button>
-      </div>
+      {/* Combo / quảng cáo: đề xuất CHỈ ĐỌC qua Trợ lý — không tạo sản phẩm / chiến dịch khi bấm (TIP-023g §3). */}
+      <EmbeddedRecordAssistant
+        module="products"
+        scopeOf={{
+          module: 'products',
+          entity: 'product',
+          id: p.id,
+          label: p.name,
+          ...(p.version !== undefined ? { version: p.version } : {}),
+        }}
+        choices={PRODUCT_CHOICES}
+        testId="pd-rai"
+      />
     </div>
   );
 }
+
+const PRODUCT_CHOICES = [
+  { intent: 'product_combo' as const, labelKey: 'intent.product_combo' },
+  { intent: 'product_campaign' as const, labelKey: 'intent.product_campaign' },
+  { intent: 'inspect' as const, labelKey: 'intent.inspect' },
+];
 
 export function FilesTab({ meta }: { meta: ProductsMeta }) {
   const t = useTranslations('products.detail');

@@ -12,6 +12,7 @@ import { recoverUsage } from './usage-recovery';
 import { recoverUtilities } from '../skills/utility-recovery';
 import { makeRevalidate } from '../skills/utility-revalidate';
 import { utilityValidatorOf } from '../skills/utility-validators';
+import { recoverProposals } from '../assistant/record-intent/publication';
 import { recoverDrafts } from '../agents/drafting/publication';
 
 export const AI_USAGE_RECOVERY = 'ai.usage';
@@ -72,10 +73,27 @@ export class AiUtilityRecoveryInstaller implements OnApplicationBootstrap {
       }
       return out;
     });
+    registerRecoveryAdapter(AI_RECORD_PROPOSAL_RECOVERY, async (now) => {
+      const at = (now ?? (() => this.clock.now()))();
+      const out = { unknown: 0, abandoned: 0 };
+      for (const w of await platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true } })) {
+        try {
+          const db = await tenants.get(TenantContexts.system(w.id, 'ai.record-proposal-recovery'));
+          const r = await db.$transaction((tx) => recoverProposals(tx as never, at, DRAFT_ABANDON_MS));
+          out.unknown += r.unknown;
+          out.abandoned += r.abandoned;
+        } catch (err) {
+          this.log.warn({ err, ws: w.id }, 'khôi phục đề xuất theo bản ghi lỗi ở workspace');
+        }
+      }
+      return out;
+    });
   }
 }
 
 export const AI_DRAFT_RECOVERY = 'ai.agent_draft';
+/** TIP-023g: binding đề xuất theo bản ghi (validated_record) — cùng luật: sinh dở → USAGE_UNKNOWN, chữ kiểm dở quá 24 giờ → vô hiệu. */
+export const AI_RECORD_PROPOSAL_RECOVERY = 'ai.record_proposal';
 /** Binding đã có chữ model nhưng không ai gửi lại cùng request_id trong 24 giờ → vô hiệu + xoá chữ thô (TIP-021b §3.6). */
 const DRAFT_ABANDON_MS = 86_400_000;
 

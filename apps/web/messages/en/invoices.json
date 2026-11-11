@@ -131,7 +131,6 @@
     "aiTitle": "AI payment forecast",
     "aiActs": "Suggested actions",
     "aiDo": "Run",
-    "aiDoing": "{act} · {code}",
     "aiNone": "No forecast for this request yet.",
     "files": "Attachments",
     "open": "Open",

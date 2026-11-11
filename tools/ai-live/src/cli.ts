@@ -191,6 +191,12 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
     const ad = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'agent-drafting-seed.mjs')).href)) as { seedAgentDrafting(c: unknown, base: unknown, o: unknown): Promise<unknown> };
     seed = await ad.seedAgentDrafting(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password });
   }
+  // Suite lối vào theo bản ghi (TIP-023g): một bản ghi mỗi loại (Owner) + Sales thật (ca ngoài scope) cho người chấm.
+  if (suite.cases.some((x) => x.record)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const ra = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'record-ai-seed.mjs')).href)) as { seedRecordAi(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    seed = await ra.seedRecordAi(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password });
+  }
   // Suite gộp khách (TIP-015e AC8): Sales thật (bản phụ khác người phụ trách) + bộ theo khoá lượt và loại ca.
   if (suite.cases.some((x) => x.merge)) {
     const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';

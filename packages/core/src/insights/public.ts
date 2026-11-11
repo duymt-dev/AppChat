@@ -5,7 +5,7 @@ export { agentStats } from './services/agent-stats';
 export { insightAuthz } from './metrics/common';
 export { DashboardService, type DashboardViewer } from './services/dashboard.service';
 export { workItems, countByType } from './services/work-items';
-export { visibleFollowUps, seedDue, supersedeStale, FOLLOW_UP_DAYS } from './services/follow-ups';
+export { visibleFollowUps, visibleFollowUp, seedDue, supersedeStale, FOLLOW_UP_DAYS } from './services/follow-ups';
 export { FOLLOW_UP_ACTOR } from './actions/follow-up.handlers';
 export { sweepFollowUps, followUpCtx, FOLLOW_UP_SWEEP_JOB, INSIGHTS_SCHEDULER_QUEUE } from './jobs/follow-up.consumer';
 export { eventRecordVisible } from './services/renewal-suggestions';

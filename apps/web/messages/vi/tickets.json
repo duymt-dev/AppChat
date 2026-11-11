@@ -72,7 +72,6 @@
     "user": "{name} đang xử lý — phản hồi theo SLA"
   },
   "aiPeek": "Xem gợi ý AI",
-  "aiPeekMsg": "Gợi ý AI cho {code}: {hint}",
   "empty": "Không có ticket phù hợp",
   "menu": {
     "open": "Thao tác",

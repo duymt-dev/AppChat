@@ -116,7 +116,13 @@
     "cancelled": "Cancelled — nothing was run",
     "approval": "Sent for approval — not run yet",
     "count": "{n} records",
-    "openFull": "Open in Assistant"
+    "openFull": "Open in Assistant",
+    "err": {
+      "NOT_FOUND": "This record was not found or you can no longer view it.",
+      "FORBIDDEN": "You do not have permission to do this.",
+      "CONFLICT": "The record changed or this request was already sent with different content — reload and try again.",
+      "VALIDATION_FAILED": "Invalid request."
+    }
   },
   "docChannel": {
     "label": "Channel",
@@ -272,5 +278,41 @@
       "expired": "Expired",
       "refunded": "Refunded"
     }
+  },
+  "recordAi": {
+    "bound": "Bound to: {label}",
+    "intentGroup": "What to do",
+    "taskLabel": "Task for the Assistant",
+    "taskPh": "Type what to do with this record…",
+    "taskOptional": "Add a request (optional)…",
+    "send": "Send",
+    "suggest": "Suggest",
+    "working": "Working…",
+    "proposalLead": "Proposal (nothing created yet):",
+    "audience": "Audience: {criteria}",
+    "applyCombo": "Draft combo",
+    "applyCampaign": "Draft campaign",
+    "intent": {
+      "inspect": "Ask about this record",
+      "review_ticket": "Suggest ticket handling",
+      "invoice_task": "Suggested task",
+      "product_combo": "Suggest a combo",
+      "product_campaign": "Suggest a campaign"
+    },
+    "state": {
+      "pending": "Drafting proposal…",
+      "validated": "Checked proposal",
+      "invalidated": "This proposal is no longer usable (product changed / access lost).",
+      "failed": "Could not draft a proposal. Try again later.",
+      "unknown": "Result unknown — try again later."
+    },
+    "error": {
+      "NOT_FOUND": "This record was not found or you can no longer view it.",
+      "FORBIDDEN": "You do not have permission to do this.",
+      "CONFLICT": "The record changed — reload and try again.",
+      "other": "Could not send. Try again later."
+    },
+    "unbind": "Unbind record",
+    "comboItem": "{qty} × {name} — {price}"
   }
 }

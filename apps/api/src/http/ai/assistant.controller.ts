@@ -5,7 +5,7 @@ import { Body, Controller, Get, HttpCode, Inject, Param, Post, Query, Req, Res }
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Redis } from 'ioredis';
 import { z } from 'zod';
-import { AssistantService, LOG_DAYS, LOG_KINDS, LOG_STATUSES, REDIS, RequestContext } from '@appchat/core';
+import { AssistantService, LOG_DAYS, LOG_KINDS, LOG_STATUSES, REDIS, RequestContext, parseRecordIntent } from '@appchat/core';
 import { AI_TIERS, AppError, type PermissionKey } from '@appchat/shared';
 import { parseBody } from '../identity/http-util';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
@@ -25,6 +25,8 @@ const turnBody = z.object({
   inputs: z.array(z.object({ artifact_id: z.string().uuid(), revision: z.number().int().min(1) })).max(5).optional(),
   /** Khoá idempotent của lượt (TIP-023c) — gửi lại cùng khoá → cùng run. */
   request_id: z.string().min(8).max(80).regex(/^[A-Za-z0-9_-]+$/).optional(),
+  /** TIP-023g: lối vào theo bản ghi — chỉ là tham chiếu (server đọc lại theo quyền hiện hành); kiểm chặt ở core (`parseRecordIntent`). */
+  record_intent: z.unknown().optional(),
 });
 /** Soạn / viết lại tin Hộp thư (REQ-C05c) — cùng endpoint, rẽ theo `purpose` sang cổng chỉ-đề-xuất (không meta-tools). */
 const draftBody = z.object({
@@ -81,6 +83,7 @@ export class AssistantController {
       ...(b.attachments ? { attachments: b.attachments } : {}),
       ...(b.inputs?.length ? { inputs: b.inputs } : {}),
       ...(b.request_id ? { requestId: b.request_id } : {}),
+      ...(b.record_intent !== undefined ? { recordIntent: parseRecordIntent(b.record_intent) } : {}),
     };
     if (!String(req.headers.accept ?? '').includes('text/event-stream')) return { data: await this.svc.turn(c, q) };
     const t = await this.svc.claim(c, q);
@@ -88,6 +91,19 @@ export class AssistantController {
     res.setHeader('x-assistant-run', t.run_id);
     await pipeRunStream(this.svc, this.redis, req, res, c, t.run_id);
     return undefined;
+  }
+
+  /** TIP-023g §3: đề xuất chỉ đọc theo sản phẩm (combo / chiến dịch) — không ghi nghiệp vụ; áp dụng là thẻ xác nhận riêng. */
+  @Post('assistant/record-proposals')
+  @HttpCode(200)
+  async propose(@Req() req: IncomingMessage, @Body() body: unknown) {
+    return { data: await this.svc.propose(await this.caller(req, 'assistant.use'), body) };
+  }
+
+  @Get('assistant/record-proposals/:requestId')
+  async proposal(@Req() req: IncomingMessage, @Param('requestId') requestId: string) {
+    if (!z.string().uuid().safeParse(requestId).success) throw new AppError('NOT_FOUND', 404, { request_id: 'not_found' });
+    return { data: await this.svc.proposal(await this.caller(req, 'assistant.use'), requestId) };
   }
 
   @Post('assistant/confirm')

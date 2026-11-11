@@ -131,7 +131,6 @@
     "aiTitle": "AI dự báo thanh toán",
     "aiActs": "Gợi ý hành động",
     "aiDo": "Thực hiện",
-    "aiDoing": "{act} · {code}",
     "aiNone": "Chưa có dự báo cho đề nghị này.",
     "files": "Tệp đính kèm",
     "open": "Mở",
