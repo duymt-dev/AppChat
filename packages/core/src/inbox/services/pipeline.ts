@@ -26,6 +26,7 @@ import { previewOf } from './view';
 import { saveMessageRefs } from '../../channels/operations/operation-store';
 import { suppressed } from './inbound-sync-policy';
 import { requestAvatar } from '../../channels/operations/avatar-store';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export type InboundOrigin = 'live' | 'history';
 
@@ -66,7 +67,7 @@ export class InboundPipeline {
 
   /** Một transaction: tin + hội thoại + outbox event (người gọi `markDirty` sau commit nếu `events` không rỗng). */
   async handle(db: TenantDb, ws: string, m: NormalizedInbound, now: Date): Promise<InboundResult> {
-    return db.$transaction(async (tx) => {
+    return inEventTransaction(db, ws, async (tx) => {
       const r = await this.run(tx, ws, m, now, 'live');
       if (r.events.length) await writeOutbox(tx, ws, r.events, now);
       return r;

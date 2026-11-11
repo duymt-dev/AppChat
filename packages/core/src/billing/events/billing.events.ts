@@ -8,6 +8,7 @@ import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import type { BillingEventSink, SubscriptionsService } from '../services/subscriptions.service';
 import type { WalletListener } from '../services/wallet.service';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export class OutboxBillingSink implements BillingEventSink {
   constructor(
@@ -19,7 +20,7 @@ export class OutboxBillingSink implements BillingEventSink {
   async emit(workspaceId: string, events: { topic: string; payload: Record<string, unknown> }[]): Promise<void> {
     if (!events.length) return;
     const db = await this.resolver.get(TenantContexts.system(workspaceId, 'billing'));
-    await db.$transaction((tx) => writeOutbox(tx, workspaceId, events, this.now()));
+    await inEventTransaction(db, workspaceId, (tx) => writeOutbox(tx, workspaceId, events, this.now()));
     await markDirty(this.kv, workspaceId);
   }
 }

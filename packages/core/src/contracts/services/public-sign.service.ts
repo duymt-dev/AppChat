@@ -18,6 +18,7 @@ import { signedContractPdf, type SignParty } from './contract-sign-pdf';
 import { OTP_TTL_MS, maskTarget, newOtp, otpHash, readSignToken, sameOtp, sha256Hex } from './sign-link';
 import { logSignEvent, moveContract } from './contract-write';
 import { SIGNATURE_PNG } from '../actions/contract-approval.handlers';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export interface Client {
   ip: string | null;
@@ -126,7 +127,7 @@ export class PublicSignService {
     const { locale } = await this.d.place(ws);
     const text = interpolate(serverMessages(locale).sales.contract.otpMessage, { code: c.code, otp: code });
     let out: Outgoing | null = null;
-    await db.$transaction(async (tx) => {
+    await inEventTransaction(db, ws, async (tx) => {
       await tx.contractSigner.update({ where: { id: s.id }, data: { otpHash: otpHash(s.id, code), otpExpiresAt: new Date(now.getTime() + OTP_TTL_MS) } });
       await logSignEvent(tx, { contractId: c.id, signerId: s.id, type: 'otp_sent', actorName: 'system', ip: client.ip, userAgent: client.userAgent, meta: { channel: s.otpChannel }, at: now });
       const sent = await postToCustomer(this.systemCtx(ws), tx, this.d.members, { conv, created: false, text, now, sender: SENDER });
@@ -145,7 +146,7 @@ export class PublicSignService {
     const { c, s } = await this.live(db, t);
     const now = this.now();
     const why = reason?.trim().slice(0, 500) || serverMessages((await this.d.place(ws)).locale).sales.contract.declineDefault;
-    await db.$transaction(async (tx) => {
+    await inEventTransaction(db, ws, async (tx) => {
       await moveContract(tx, c, assertTransition(CONTRACT_FLOW, c.status, 'contract.decline'), { declinedReason: why, decidedAt: now }, now);
       await tx.contractSignToken.update({ where: { id: t.id }, data: { usedAt: now } });
       await logSignEvent(tx, { contractId: c.id, signerId: s.id, type: 'declined', actorName: s.name, ip: client.ip, userAgent: client.userAgent, meta: { reason: why }, at: now });
@@ -209,7 +210,7 @@ export class PublicSignService {
     const stored = await storeContractPdf(db, this.d, ws, c, finalPdf, null, p.locale, true);
     const sigFile = await files.upload(db, ws, { name: `${c.code}-chu-ky-ben-b.png`, mime: 'image/png', body: Buffer.from(png.slice(png.indexOf(',') + 1), 'base64'), purpose: 'document', uploadedBy: null });
     let out: Outgoing | null = null;
-    await db.$transaction(async (tx) => {
+    await inEventTransaction(db, ws, async (tx) => {
       // OTP dùng một lần + chống ký trùng hai tab: đổi trạng thái có điều kiện.
       const used = await tx.contractSigner.updateMany({ where: { id: s.id, otpHash: s.otpHash }, data: { otpHash: null, otpExpiresAt: null, signedAt: now, ip: client.ip, userAgent: client.userAgent, signatureImageFileId: sigFile.id } });
       if (!used.count) throw invalid();

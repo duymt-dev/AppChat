@@ -9,6 +9,7 @@ import type { ActionHandler, ActionLogRow } from '../actions/handler';
 import { uuidv7 } from '../ids';
 import { writeOutbox } from '../outbox/outbox';
 import { actorKeyOf } from './operation-store';
+import { inEventTransaction } from '../outbox/transaction';
 
 export async function undoPlatformAction(
   platform: PlatformDb,
@@ -53,7 +54,7 @@ export async function undoPlatformAction(
     throw e;
   }
   // (3) chốt tenant + event.
-  const n = await db.$transaction(async (tx) => {
+  const n = await inEventTransaction(db, ctx.workspaceId, async (tx) => {
     await tx.actionLog.updateMany({
       where: { id: log.id, status: 'undoing' },
       data: { status: 'undone', undoneAt: now, undoneBy: ctx.actor.type === 'user' ? ctx.actor.id : null },

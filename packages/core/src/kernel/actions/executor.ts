@@ -8,6 +8,7 @@ import type { Clock } from '../clock';
 import { uuidv7 } from '../ids';
 import { RequestContext } from '../request-context';
 import { markDirty, writeOutbox } from '../outbox/outbox';
+import { enroll } from '../outbox/transaction';
 import { isSecurityAction } from '../audit/audit-projection';
 import { securityEvents } from '../audit/audit.service';
 import type { KeyValueStore } from '../redis';
@@ -203,7 +204,7 @@ export class ActionExecutor {
       return r;
     }
     const approved = (tx: TenantTx) => (ctx.approvalId ? this.d.approvals!.consume(tx, ctx, actionId, input) : Promise.resolve());
-    const out = await db.$transaction(async (tx) => {
+    const runFinal = async (tx: TenantTx) => {
       await approved(tx);
       const r = await handler.execute(ctx, input, tx, undefined, prepared);
       const undoUntil = r.noUndo ? undefined : undoWindow;
@@ -239,11 +240,22 @@ export class ActionExecutor {
         },
       });
       const sec = securityEvents(actionId, logId, ctx.actor, ctx.onBehalfOfUserId, ctx.source);
-      const events = await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec, ...activityEvent(ctx, def, logId)], now, traceId);
+      await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec, ...activityEvent(ctx, def, logId)], now, traceId);
       // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.
       const queued = r.accepted ? acceptedResponse(logId, r.accepted) : null;
       if (key) await tx.idempotencyKey.create({ data: { key, route, requestHash: reqHash, response: json(queued ?? data), statusCode: queued ? 202 : 200, createdAt: now } });
-      return { data, queued, events, afterCommit: r.afterCommit };
+      return { data, queued, afterCommit: r.afterCommit };
+    };
+    // TIP-003b: collector gắn transaction cuối — writeOutbox (handler + executor) chỉ gom; flush DUY NHẤT sau idempotency, trước commit.
+    const out = await db.$transaction(async (tx) => {
+      const ev = enroll(tx, ctx.workspaceId);
+      try {
+        const o = await runFinal(tx);
+        return { ...o, events: await ev.finish() };
+      } catch (err) {
+        ev.abort();
+        throw err;
+      }
     });
     if (out.events) await markDirty(this.d.kv, ctx.workspaceId);
     // Đã commit: lỗi ở đây không đổi kết quả (việc tự idempotent + có scheduler quét lại — HandlerOutcome.afterCommit).

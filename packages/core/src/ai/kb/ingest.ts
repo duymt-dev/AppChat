@@ -12,6 +12,7 @@ import { writeOutbox } from '../../kernel/outbox/outbox';
 import { FetchLimitError, safeFetch, UrlRefusedError } from '../../kernel/http/safe-fetch';
 import { ParseError, parseDocument } from './parse';
 import { embedChunks } from './ingest-usage';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const KB_INGEST_QUEUE = 'kb-ingest';
 /** Tải URL tối đa (byte) + thời gian chờ. */
@@ -78,7 +79,7 @@ export async function ingestSource(db: Db, ws: string, sourceId: string, d: Inge
   const s = (await db.kbSource.findUnique({ where: { id: sourceId } }))!;
 
   const fail = async (error: string): Promise<IngestOutcome> => {
-    await db.$transaction(async (tx) => {
+    await inEventTransaction(db, ws, async (tx) => {
       await tx.kbSource.update({ where: { id: sourceId }, data: { status: 'failed', error: error.slice(0, 300), refreshedAt: d.now() } });
       await writeOutbox(tx, ws, [{ topic: 'kb.source_failed', payload: { source_id: sourceId, error: error.slice(0, 300), created_by: s.createdBy } }], d.now());
     });
@@ -101,7 +102,7 @@ export async function ingestSource(db: Db, ws: string, sourceId: string, d: Inge
     await d.meter?.assertBalance(ws);
     const e = await embedChunks(db, ws, { id: sourceId, seq: s.ingestSeq, name: s.name }, chunks.map((c) => c.content), { embedder: d.embedder, meter: d.meter, now: d.now });
     const model = `${e.provider}:${e.model}`;
-    await db.$transaction(async (tx) => {
+    await inEventTransaction(db, ws, async (tx) => {
       await tx.kbChunk.deleteMany({ where: { sourceId } });
       for (let i = 0; i < chunks.length; i++) {
         const c = chunks[i]!;

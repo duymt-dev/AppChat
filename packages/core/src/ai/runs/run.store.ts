@@ -11,6 +11,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty } from '../../kernel/outbox/outbox';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { appendRunEvent, type RunEventInput } from './run-events';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | '$transaction'>;
 export type RunRow = NonNullable<Awaited<ReturnType<TenantDb['aiRun']['findUnique']>>>;
@@ -83,7 +84,8 @@ export class RunStore {
       if (e) await appendRunEvent(tx as unknown as TenantTx, ws, e, now);
       return r;
     };
-    const out = typeof this.db.$transaction === 'function' ? await this.db.$transaction((tx) => run(tx as unknown as Db)) : await run(this.db);
+    // TIP-003b: transaction có collector — run.step / run.done flush cuối cùng commit với trạng thái run.
+    const out = typeof this.db.$transaction === 'function' ? await inEventTransaction(this.db as unknown as TenantDb, ws, (tx) => run(tx as unknown as Db)) : await run(this.db);
     if (this.events.kv) await markDirty(this.events.kv as KeyValueStore, ws).catch(() => undefined);
     return out;
   }

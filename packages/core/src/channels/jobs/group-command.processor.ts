@@ -11,6 +11,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { assertGeneration } from '../operations/session-generation';
 import { OPERATION_TIMEOUT_MS } from '../operations/types';
 import { encryptSecret } from '../../kernel/crypto';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export interface GroupCommandJob {
   ws: string;
@@ -37,7 +38,7 @@ const msgOf = (err: unknown) => (err instanceof Error ? err.message : 'group_com
 
 async function finish(d: GroupCommandDeps, db: TenantDb, ws: string, cmd: Cmd, o: Outcome) {
   const now = d.now();
-  await db.$transaction(async (tx) => {
+  await inEventTransaction(db, ws, async (tx) => {
     const n = await tx.groupCommand.updateMany({ where: { id: cmd.id, status: { in: ['queued', 'dispatch_reserved'] } }, data: { status: o.status, error: o.error ?? null, result: (o.result ?? (o.members ? { members: o.members } : {})) as object, finishedAt: now } });
     if (!n.count) return;
     if (o.snapshot) await tx.conversationGroupState.upsert({ where: { conversationId: cmd.conversationId }, create: { conversationId: cmd.conversationId, ...o.snapshot, updatedAt: now }, update: o.snapshot });

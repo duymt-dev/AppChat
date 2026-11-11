@@ -198,6 +198,13 @@ export async function startApi(opts: { logSink?: NodeJS.WritableStream; realRate
   const { dbName } = await prov.provision(ws);
   // Như job tenant.provision: chạy seed mặc định (vai trò hệ thống…) trước khi active.
   await tenantSeedDb(env.TENANT_DATABASE_URL!)(dbName, (db) => runTenantSeeds(db, { workspaceId: ws, now: clock.now() }));
+  // TIP-003b: `EVENT_PROTOCOL_TEST_V2=1` chạy bộ integration với workspace ở pha v2 — mọi chủ transaction ghi outbox phải đi qua collector
+  // (chưa đăng ký → EVENT_TRANSACTION_REQUIRED làm test đỏ), event v2 có schema + seq. Registry rỗng (không consumer v2 nào chạy).
+  if (process.env.EVENT_PROTOCOL_TEST_V2 === '1')
+    await tenantSeedDb(env.TENANT_DATABASE_URL!)(dbName, async (db) => {
+      await db.$executeRaw`INSERT INTO event_registry_version (version, digest, contracts) VALUES (1, 'test-v2', '{}'::jsonb) ON CONFLICT DO NOTHING`;
+      await db.$executeRaw`UPDATE event_protocol_state SET phase = 'v2', registry_version = 1, epoch = 1 WHERE id = 1`;
+    });
   await platform.workspace.create({ data: { id: ws, name: 'WS test', slug: `ws-test-${ws.slice(-12)}`, ownerUserId: user, dbName, dbStatus: 'active' } });
   await platform.membership.create({ data: { workspaceId: ws, userId: user, roleKey: 'owner', joinedAt: clock.now() } });
 

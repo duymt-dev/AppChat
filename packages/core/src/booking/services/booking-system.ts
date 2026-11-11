@@ -12,6 +12,7 @@ import type { Outgoing } from '../../inbox/public';
 import { businessData } from '../../documents/public';
 import { postToCustomer } from '../../sales/public';
 import { eventOf } from './appointment-write';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 const BATCH = 200;
 const SENDER = { type: 'system' as const, id: null, name: null };
@@ -21,7 +22,7 @@ export async function expireHolds(db: TenantDb, ws: string, now: Date, timeZone:
   const due = await db.appointment.findMany({ where: { status: 'pending', deletedAt: null, holdExpiresAt: { lte: now } }, select: { id: true }, take: BATCH });
   let n = 0;
   for (const { id } of due) {
-    const moved = await db.$transaction(async (tx) => {
+    const moved = await inEventTransaction(db, ws, async (tx) => {
       // TIP-033b §2.1: cùng chuỗi khoá với xác nhận (khách → gói → nhân sự → lịch) — một bên thắng, không deadlock.
       if (!(await lockAppointmentChain(tx, id))) return false;
       const a = await tx.appointment.findUnique({ where: { id } });
@@ -66,7 +67,7 @@ export async function remindAppointments(
   let n = 0;
   for (const { id } of rows) {
     try {
-      const out = await db.$transaction(async (tx) => {
+      const out = await inEventTransaction(db, ws, async (tx) => {
         await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${id}::uuid FOR UPDATE`;
         const a = await tx.appointment.findUnique({ where: { id } });
         if (!a || a.deletedAt || (a.status !== 'pending' && a.status !== 'confirmed')) return null;

@@ -12,6 +12,7 @@ import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { connectionCtx } from '../services/connections.service';
 import { adapterOf } from '../services/adapter-selection';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const INTEGRATIONS_QUEUE = 'integrations';
 export const CALL_ATTEMPTS = 5;
@@ -81,7 +82,7 @@ export async function runIntegrationCall(d: CallDeps, j: IntegrationCallJob, att
     return 'succeeded';
   } catch (e) {
     const msg = (e instanceof Error ? e.message : String(e)).slice(0, 500);
-    await db.$transaction(async (tx) => {
+    await inEventTransaction(db, j.workspace_id, async (tx) => {
       await tx.integrationCallLog.update({ where: { id: log.id }, data: { status: final ? 'failed' : 'running', latencyMs: Date.now() - started, error: msg } });
       if (!final) return;
       const conn = await tx.integrationConnection.findUnique({ where: { id: j.connection_id }, select: { connectorKey: true, status: true } });

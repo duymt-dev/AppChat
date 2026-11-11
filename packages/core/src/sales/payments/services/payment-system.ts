@@ -12,6 +12,7 @@ import type { QuoteDeps } from '../../quotes/services/quote-deps';
 import { invoiceText, postInvoice, type InvoiceChannel } from './invoice-send';
 import { grantPackages } from './packages';
 import { localDay, statusAfter } from './payment-write';
+import { inEventTransaction } from '../../../kernel/outbox/transaction';
 
 const BATCH = 200;
 const SYSTEM = { type: 'system', id: null };
@@ -22,7 +23,7 @@ export async function markOverdue(db: TenantDb, ws: string, now: Date, timeZone:
   const due = await db.invoice.findMany({ where: { status: { in: ['sent', 'partial'] }, dueDate: { lt: new Date(`${today}T00:00:00Z`) } }, select: { id: true }, take: BATCH });
   let n = 0;
   for (const { id } of due) {
-    const moved = await db.$transaction(async (tx) => {
+    const moved = await inEventTransaction(db, ws, async (tx) => {
       await tx.$queryRaw`SELECT 1 FROM invoice WHERE id = ${id}::uuid FOR UPDATE`;
       const i = await tx.invoice.findUnique({ where: { id } });
       if (!i || (i.status !== 'sent' && i.status !== 'partial')) return false;
@@ -50,7 +51,7 @@ export async function remindDue(db: TenantDb, ws: string, now: Date, timeZone: s
   let n = 0;
   for (const { id } of rows) {
     try {
-      const out = await db.$transaction(async (tx) => {
+      const out = await inEventTransaction(db, ws, async (tx) => {
         await tx.$queryRaw`SELECT 1 FROM invoice WHERE id = ${id}::uuid FOR UPDATE`;
         const i = await tx.invoice.findUnique({ where: { id } });
         if (!i || !i.conversationId || !['sent', 'partial', 'overdue'].includes(i.status)) return null;
@@ -79,7 +80,7 @@ export async function remindDue(db: TenantDb, ws: string, now: Date, timeZone: s
 
 /** Consumer `order.confirmed`: đơn đã thu đủ trước khi xác nhận → sinh liệu trình. */
 export async function packagesOnConfirm(db: TenantDb, ws: string, orderId: string, now: Date): Promise<void> {
-  await db.$transaction(async (tx) => {
+  await inEventTransaction(db, ws, async (tx) => {
     await tx.$queryRaw`SELECT 1 FROM "order" WHERE id = ${orderId}::uuid FOR UPDATE`;
     const o = await tx.order.findUnique({ where: { id: orderId } });
     if (!o) return;

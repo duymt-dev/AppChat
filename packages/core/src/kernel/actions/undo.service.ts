@@ -4,6 +4,7 @@ import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat
 import { undoPlatformAction } from '../consistency/undo-operation';
 import type { Clock } from '../clock';
 import { markDirty } from '../outbox/outbox';
+import { withEventTransaction } from '../outbox/transaction';
 import type { KeyValueStore } from '../redis';
 import type { ActionContext } from './action-context';
 import type { ActionHandlerRegistry } from './handler-registry';
@@ -35,7 +36,8 @@ export class UndoService {
       if (r.events && this.kv) await markDirty(this.kv, ctx.workspaceId);
       return { undone: true };
     }
-    await db.$transaction(async (tx) => {
+    // TIP-003b: event của handler undo chỉ gom — flush cuối SAU CAS action_log; CAS thua → rollback, không event mồ côi.
+    const { events } = await withEventTransaction(db, ctx.workspaceId, async (tx) => {
       const log = await tx.actionLog.findUnique({ where: { id: actionLogId } });
       if (!log) throw new AppError('NOT_FOUND', 404);
       if (log.status === 'undone') throw new AppError('CONFLICT', 409, { status: 'undone' });
@@ -52,8 +54,7 @@ export class UndoService {
       });
       if (n.count !== 1) throw new AppError('CONFLICT', 409, { status: 'undone' });
     });
-    // Handler undo có thể ghi outbox (không trả danh sách event) → luôn đánh dấu; relay drain workspace rỗng là no-op.
-    if (this.kv) await markDirty(this.kv, ctx.workspaceId);
+    if (events && this.kv) await markDirty(this.kv, ctx.workspaceId);
     return { undone: true };
   }
 }

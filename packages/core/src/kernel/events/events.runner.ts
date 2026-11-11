@@ -10,6 +10,7 @@ import type { AppLogger } from '../logger/logger';
 import { REDIS } from '../redis';
 import { TENANT_RESOLVER } from '../tenant/tenant.providers';
 import { dispatchEvent } from './dispatcher';
+import { dispatchV2Job } from './protocol/v2-job';
 
 export const EVENTS_QUEUE = 'events';
 
@@ -19,6 +20,8 @@ interface EventJob {
   payload: Record<string, unknown>;
   workspaceId: string;
   traceId: string | null;
+  /** 2 = đánh thức chỉ id (TIP-003b) — dispatcher v2 nạp hàng có thẩm quyền, kiểm sẵn sàng + head. */
+  protocolVersion?: 2;
 }
 
 export class EventsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -33,7 +36,7 @@ export class EventsRunner implements OnApplicationBootstrap, OnApplicationShutdo
   onApplicationBootstrap(): void {
     if (!this.redis || !this.resolver) return;
     const resolver = this.resolver;
-    this.worker = new Worker(EVENTS_QUEUE, async (job: Job<EventJob>) => dispatchEvent(resolver, job.data, this.log), {
+    this.worker = new Worker(EVENTS_QUEUE, async (job: Job<EventJob>) => (job.data.protocolVersion === 2 ? dispatchV2Job(resolver, job.data, this.log) : dispatchEvent(resolver, job.data, this.log)), {
       connection: this.redis.duplicate(),
       concurrency: 8,
     });

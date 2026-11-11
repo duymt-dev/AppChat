@@ -10,6 +10,7 @@ import { uuidv7 } from '../../../kernel/ids';
 import { writeOutbox } from '../../../kernel/outbox/outbox';
 import { writeTimeline } from '../../../crm/public';
 import type { Actor } from '../../orders/services/order-write';
+import { inEventTransaction } from '../../../kernel/outbox/transaction';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
 type OrderLike = { id: string; code: string; contactId: string; status: string; payStatus: string; total: bigint; paidTotal: bigint; depositRequired: boolean };
@@ -74,7 +75,7 @@ export async function expireDuePackages(db: TenantDb, ws: string, now: Date): Pr
   const due = await db.customerPackage.findMany({ where: { status: 'active', expiresAt: { lt: now } }, select: { id: true }, take: BATCH });
   let n = 0;
   for (const { id } of due) {
-    const done = await db.$transaction(async (tx) => {
+    const done = await inEventTransaction(db, ws, async (tx) => {
       const r = await tx.customerPackage.updateMany({ where: { id, status: 'active', expiresAt: { lt: now } }, data: { status: 'expired', updatedAt: now } });
       if (r.count !== 1) return false;
       const p = (await tx.customerPackage.findUnique({ where: { id } }))!;

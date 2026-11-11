@@ -16,6 +16,7 @@ import { applyOperationResult, markInterrupted, type OperationOutcome } from '..
 import { OPERATION_TIMEOUT_MS, type OperationJob } from '../operations/types';
 import { assertGeneration } from '../operations/session-generation';
 import type { AvatarJob, ContactSyncJob, FriendJob, HistoryJob, LookupJob } from '../operations/types';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export const operationQueueName = (accountId: string) => `chop-${accountId}`;
 
@@ -164,7 +165,7 @@ export class ProviderOperators {
 
   private async finish(db: TenantDb, ws: string, id: string, o: OperationOutcome | 'interrupted'): Promise<void> {
     const now = this.d.now();
-    const wrote = await db.$transaction(async (tx) => {
+    const wrote = await inEventTransaction(db, ws, async (tx) => {
       const events = o === 'interrupted' ? await markInterrupted(tx, id, now) : await applyOperationResult(tx, id, o, now);
       await writeOutbox(tx, ws, events, now);
       return events.length > 0;

@@ -14,6 +14,7 @@ import { rooms } from '../../notify/realtime/envelope';
 import type { RealtimeEmitter } from '../../notify/realtime/emitter';
 import { ChannelAccounts } from '../services/accounts.service';
 import { CHANNEL_LOGIN_QUEUE, type ChannelControl, type LoginJob } from '../services/control';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 /** Quá thời gian này chưa quét xong → bỏ (zca-js tự hết hạn QR sau 100 giây). */
 export const LOGIN_TIMEOUT_MS = 150_000;
@@ -66,7 +67,7 @@ export async function runLogin(d: LoginDeps, j: LoginJob): Promise<'connected' |
   try {
     const res = await adapter.beginLogin(row.id, onEvent, ac.signal);
     const now = d.now();
-    const out = await db.$transaction(async (tx) => {
+    const out = await inEventTransaction(db, j.ws, async (tx) => {
       const cur = await tx.channelAccount.findUnique({ where: { id: row.id } });
       // Người dùng đã ngắt / bấm lại trong lúc chờ quét → bỏ kết quả này.
       if (!cur || cur.status !== 'connecting') return null;

@@ -7,6 +7,7 @@ import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import { RunStore } from '../runs/run.store';
 import { buildHandoffSummary, nextSummaryVersion, summaryChanged } from './handoff-summary';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantDb['conversation']['findUnique']>>>;
 
@@ -25,7 +26,7 @@ export async function convEventBase(db: TenantDb, c: Conv) {
 
 export async function setState(d: TurnDeps, db: TenantDb, ws: string, c: Conv, data: Parameters<TenantDb['conversation']['update']>[0]['data'], change: string) {
   const { base } = await convEventBase(db, c);
-  await db.$transaction(async (tx) => {
+  await inEventTransaction(db, ws, async (tx) => {
     await tx.conversation.update({ where: { id: c.id }, data });
     await writeOutbox(tx, ws, [{ topic: 'conversation.updated', payload: { ...base, change } }], d.now());
   });
@@ -55,7 +56,7 @@ export async function handoff(d: TurnDeps, db: TenantDb, ws: string, c: Conv, h:
   const { base, title } = await convEventBase(db, c);
   const now = d.now();
   const summary = await buildHandoffSummary(db, { conversationId: c.id, runId: h.runId, reason: h.reason, intent: h.intent ?? null, modelNote: h.note ?? null, now }, nextSummaryVersion(c.handoffSummary));
-  await db.$transaction(async (tx) => {
+  await inEventTransaction(db, ws, async (tx) => {
     const cur = await tx.conversation.findUnique({ where: { id: c.id }, select: { handoffSummary: true, aiDraft: true } });
     const write = summaryChanged(cur?.handoffSummary ?? null, summary);
     await tx.conversation.update({

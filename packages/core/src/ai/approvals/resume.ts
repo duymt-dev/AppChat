@@ -21,6 +21,7 @@ import { connectedKeys, runToolIds } from '../agents/agent-tools';
 import { agentSystem, agentToolSpecs } from '../agents/agent.runtime';
 import { blankConfig, merge, type AgentConfig } from '../agents/agent.store';
 import { approvalAccess, approvalDomainOf } from './domain-authorization';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 export interface ResumeDeps {
   tenants: TenantDbResolver;
@@ -116,7 +117,7 @@ export async function resumeApproval(d: ResumeDeps, ws: string, approvalId: stri
   const now = d.now();
   if (kind === 'expire') {
     if (a.status !== 'pending' || a.expiresAt > now) return 'skipped';
-    const events = await db.$transaction(async (tx) => {
+    const events = await inEventTransaction(db, ws, async (tx) => {
       const r = await tx.approvalRequest.updateMany({ where: { id: a!.id, status: 'pending' }, data: { status: 'expired', decidedAt: now } });
       if (r.count !== 1) return null;
       return writeOutbox(tx, ws, [{ topic: 'approval.decided', payload: { approval_id: a!.id, run_id: a!.runId, status: 'expired' } }], now);

@@ -7,6 +7,7 @@ import type { TenantDb } from '@appchat/db';
 import { dayEndAfter, daysLeft } from '@appchat/shared';
 import { uuidv7 } from '../../../kernel/ids';
 import { writeOutbox } from '../../../kernel/outbox/outbox';
+import { inEventTransaction } from '../../../kernel/outbox/transaction';
 
 export const PACKAGE_REMIND_DAYS = 7;
 const BATCH = 200;
@@ -16,7 +17,7 @@ export type PackageMilestone = 'remaining_1' | 'expiry_t7';
 
 /** Ghi biên nhận + thông báo một mốc cho một gói (transaction riêng). false = đã nhắc / gói đổi giữa chừng. */
 async function remindOne(db: TenantDb, ws: string, packageId: string, milestone: PackageMilestone, now: Date, timeZone: string): Promise<boolean> {
-  return db.$transaction(async (tx) => {
+  return inEventTransaction(db, ws, async (tx) => {
     await tx.$queryRaw`SELECT 1 FROM customer_package WHERE id = ${packageId}::uuid FOR UPDATE`;
     const p = await tx.customerPackage.findUnique({ where: { id: packageId } });
     if (!p || p.status !== 'active') return false;

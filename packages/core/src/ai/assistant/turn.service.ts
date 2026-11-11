@@ -37,6 +37,7 @@ import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
 import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 /** Outbox: lượt đã claim, chờ ROLE=ai chạy (genui/turn-request.consumer). */
 export const TURN_REQUESTED = 'assistant.turn_requested';
@@ -177,7 +178,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   const attachments = await resolveAttachments(db, q.userId, (q.attachments ?? []).map((a) => a.id), now);
   const tier = await tierOf(d, db, q.ws, q.tier);
   try {
-    const sessionId = await db.$transaction(async (tx) => {
+    const sessionId = await inEventTransaction(db, q.ws, async (tx) => {
       const session = await openSession(tx, q.userId, q.mode, q.text, q.sessionId, now);
       await tx.assistantRequest.create({ data: { id: uuidv7(now.getTime()), userId: q.userId, requestId: q.requestId, sessionId: session.id, runId, inputHash: hash, createdAt: now, updatedAt: now } });
       await bindInputs(tx as never, inputs.rows, session.id, now);

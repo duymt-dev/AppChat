@@ -14,6 +14,7 @@ import { uuidv7 } from '../../kernel/ids';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
 import { approvalPermissionOf } from './approval-permission';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -37,7 +38,7 @@ export class DbApprovalGateway implements ApprovalGateway {
     const agentId = ctx.actor.type === 'agent' && UUID.test(ctx.actor.id) ? ctx.actor.id : null;
     const handler = this.d.handlers.get(def.id);
     let expiresAt = now;
-    const events = await db.$transaction(async (tx) => {
+    const events = await inEventTransaction(db, ctx.workspaceId, async (tx) => {
       // Preview của handler domain (nếu có) — lỗi preview không chặn việc xin duyệt.
       const preview = handler?.preview ? await handler.preview(ctx, input, tx).catch(() => null) : null;
       const agent = agentId ? await tx.aiAgent.findUnique({ where: { id: agentId }, select: { name: true } }) : null;

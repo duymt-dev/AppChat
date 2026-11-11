@@ -8,6 +8,7 @@ import type { UsageWallet } from '../../billing/services/usage-receipt';
 import { uuidv7 } from '../../kernel/ids';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { appendRunEvent } from './run-events';
+import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 type Db = Pick<TenantDb, '$transaction' | 'aiUsageSettlement' | 'aiUsageReceipt'>;
 
@@ -97,7 +98,8 @@ export async function settleReceipt(d: SettleDeps, receiptId: string, meta: { so
       throw err;
     }
   }
-  return d.db.$transaction(async (tx) => {
+  // TIP-003b: biên nhận settle + bước llm + run.step cùng một transaction có collector (flush cuối trước commit).
+  return inEventTransaction(d.db, d.workspaceId, async (tx) => {
     const n = await tx.aiUsageSettlement.updateMany({ where: { groupId: it.groupId, ordinal: it.ordinal, status: 'intent' }, data: { status: 'settled', applied, ledgerId, settledAt: d.now() } });
     if (n.count !== 1) return { credits: applied, groupCharged: 0, denied: false };
     const [g] = await tx.$queryRaw<{ charged: number; step_id: string | null; raw: string | null }[]>`UPDATE ai_usage_group SET charged = charged + ${applied} WHERE id = ${it.groupId} RETURNING charged, step_id, raw_cost::text AS raw`;

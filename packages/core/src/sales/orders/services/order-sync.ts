@@ -13,6 +13,7 @@ import { adapterOf, connectionCtx } from '../../../integrations/public';
 import { importExternal } from './order-import';
 import { checkExternalOrder } from './external-order-payload';
 import { pendingBlocked } from './blocked-imports';
+import { inEventTransaction } from '../../../kernel/outbox/transaction';
 
 const OVERLAP_MS = 10 * 60_000;
 
@@ -49,7 +50,7 @@ export async function importBatch(db: TenantDb, ws: string, conn: ConnRow, adapt
       continue;
     }
     try {
-      const r = await db.$transaction(async (tx) => {
+      const r = await inEventTransaction(db, ws, async (tx) => {
         const out = await importExternal(tx, { id: conn.id, createdBy: conn.createdBy }, chk.order, adapter.mapStatus(chk.order), at, { hash: chk.hash, updatedAt: chk.updatedAt, sourceEventId });
         if (out.events.length) await writeOutbox(tx, ws, out.events, at);
         return out;
