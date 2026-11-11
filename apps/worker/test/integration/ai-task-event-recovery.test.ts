@@ -1,6 +1,6 @@
-// TIP-012b P4 §3.5 (AC8, DC-385) trên Postgres 16 thật: sự kiện → tác vụ AI bền. Phát lại cùng sự kiện / hai worker đua cùng sự kiện
-// → ĐÚNG MỘT run + một biên nhận; tác vụ đang có lượt sống → skipped_busy; tạm dừng → không nhận; mất job sau commit (Redis lỗi lúc đẩy)
-// → quét khôi phục đẩy lại ĐÚNG run_id đó, đẩy xong không đẩy lần hai; job chỉ mang id sự kiện + topic. Quyền nguồn hiện tại:
+// TIP-012b P4 §3.5 (AC8, DC-385) → TIP-006b §2, §5 trên Postgres 16 thật: sự kiện → tác vụ AI qua fanout niêm phong + occurrence + ý định
+// đẩy. Phát lại cùng sự kiện / hai worker đua → ĐÚNG MỘT run + một occurrence; đang có lượt sống → busy; tạm dừng → không nhận; mất job
+// sau commit (Redis lỗi lúc đẩy) → quét khôi phục đẩy lại ĐÚNG run_id đó, đẩy xong không đẩy lần hai; job chỉ mang id sự kiện + topic. Quyền nguồn hiện tại:
 // `payment.confirmed` trỏ đề nghị thanh toán người tạo không đọc được → không chạy.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -59,19 +59,20 @@ afterAll(async () => {
 });
 
 describe('sự kiện → tác vụ AI (biên nhận bền)', () => {
-  it('phát lại + hai worker đua cùng sự kiện → đúng một run, một biên nhận; job chỉ mang id sự kiện', async () => {
+  it('phát lại + hai worker đua cùng sự kiện → đúng một run, một occurrence; job chỉ mang id sự kiện', async () => {
     const task = await eventTask('order.completed');
     const e = await outbox('order.completed', { order_id: uuidv7(), occurred_at: new Date().toISOString() });
     const q = fakeQueue();
     const d = await db();
     const [a, b] = await Promise.all([dispatchTaskEvent(d, q, ws, e, now), dispatchTaskEvent(await db(), q, ws, e, now)]);
     expect(a.queued + b.queued).toBe(1);
-    expect(a.duplicate + b.duplicate).toBe(1);
+    // Người thua thấy mục đã có kết cục (duplicate) hoặc trang đã hết (fanout niêm phong) — bất biến là đúng một run.
+    expect(a.duplicate + b.duplicate).toBeLessThanOrEqual(1);
     await dispatchTaskEvent(d, q, ws, e, now);
     expect(await d.aiRun.count({ where: { taskId: task } })).toBe(1);
-    expect(await d.aiTaskEventReceipt.count({ where: { taskId: task } })).toBe(1);
+    expect(await d.taskOccurrence.count({ where: { taskId: task } })).toBe(1);
     expect(q.jobs).toEqual([{ ws, task_id: task, run_id: expect.any(String), event: { topic: 'order.completed', source_event_id: e.id } }]);
-    expect((await d.aiTaskEventReceipt.findFirstOrThrow({ where: { taskId: task } })).dispatchedAt).not.toBeNull();
+    expect((await d.taskDispatchIntent.findFirstOrThrow({ where: { taskId: task } })).phase).toBe('dispatched');
   });
 
   it('đang có lượt sống → skipped_busy (không chồng lượt); tạm dừng → không nhận', async () => {
@@ -93,7 +94,7 @@ describe('sự kiện → tác vụ AI (biên nhận bền)', () => {
     const d = await db();
     const r = await dispatchTaskEvent(d, fakeQueue(), ws, await outbox('quote.viewed', { occurred_at: new Date(Date.now() - 3_600_000).toISOString() }), now);
     expect(r.queued).toBe(0);
-    expect(await d.aiTaskEventReceipt.count({ where: { taskId: task } })).toBe(0);
+    expect(await d.taskOccurrence.count({ where: { taskId: task } })).toBe(0);
   });
 
   it('mất job sau commit → quét khôi phục đẩy lại ĐÚNG run đó; đẩy xong không đẩy lần hai; run đã kết thúc thì chỉ đánh dấu', async () => {
@@ -103,16 +104,16 @@ describe('sự kiện → tác vụ AI (biên nhận bền)', () => {
     q.fail = true;
     const e = await outbox('payment.confirmed', { payment_id: uuidv7() });
     await expect(dispatchTaskEvent(d, q, ws, e, now)).rejects.toThrow(/redis down/);
-    const rcpt = await d.aiTaskEventReceipt.findFirstOrThrow({ where: { taskId: task } });
-    expect([rcpt.outcome, rcpt.dispatchedAt]).toEqual(['queued', null]);
-    // Phát lại sự kiện (consumer retry) không tạo run thứ hai; chưa quá hạn chờ → quét chưa đẩy.
+    const occ = await d.taskOccurrence.findFirstOrThrow({ where: { taskId: task } });
+    expect([occ.phase, (await d.taskDispatchIntent.findUniqueOrThrow({ where: { runId: occ.runId! } })).phase]).toEqual(['handed_off', 'pending']);
+    // Phát lại sự kiện (consumer retry) không tạo run thứ hai; chưa tới hạn back-off → quét chưa đẩy.
     q.fail = false;
     await dispatchTaskEvent(d, q, ws, e, now);
     expect(await d.aiRun.count({ where: { taskId: task } })).toBe(1);
     expect(await redispatchPending(d, q, ws, now)).toBe(0);
     const later = () => new Date(Date.now() + 60_000);
     expect(await redispatchPending(d, q, ws, later)).toBe(1);
-    expect(q.jobs).toEqual([expect.objectContaining({ task_id: task, run_id: rcpt.runId, event: { topic: 'payment.confirmed', source_event_id: e.id } })]);
+    expect(q.jobs).toEqual([expect.objectContaining({ task_id: task, run_id: occ.runId, event: { topic: 'payment.confirmed', source_event_id: e.id } })]);
     expect(await redispatchPending(d, q, ws, later)).toBe(0);
     // Run đã huỷ trước khi quét → đánh dấu, không đẩy.
     const e2 = await outbox('order.created');
@@ -122,7 +123,8 @@ describe('sự kiện → tác vụ AI (biên nhận bền)', () => {
     q.fail = false;
     await d.aiRun.updateMany({ where: { taskId: t2 }, data: { status: 'cancelled' } });
     expect(await redispatchPending(d, q, ws, later)).toBe(0);
-    expect((await d.aiTaskEventReceipt.findFirstOrThrow({ where: { taskId: t2 } })).dispatchedAt).not.toBeNull();
+    const run2 = (await d.taskOccurrence.findFirstOrThrow({ where: { taskId: t2 } })).runId!;
+    expect((await d.taskDispatchIntent.findUniqueOrThrow({ where: { runId: run2 } })).phase).toBe('terminal');
   });
 
   it('quyền nguồn hiện tại: đề nghị thanh toán người tạo không đọc được → không chạy; không gắn bản ghi → chạy', async () => {

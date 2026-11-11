@@ -32,6 +32,8 @@ export interface ProjectionContract {
   topics: readonly string[];
   /** Chỉ ghi DB tenant trong `tx` (không mạng / provider). */
   apply(e: DispatchedEvent, tx: TenantTx): Promise<ConsumerOutcome>;
+  /** TIP-006b: tối ưu sau commit (đẩy ý định vừa ghi — publish / đánh thức). Lỗi bị nuốt: ý định bền, quét khôi phục làm nốt. */
+  after?(e: DispatchedEvent): Promise<void>;
 }
 
 /** Cổng action trung tính (§4.4): do dispatcher tin cậy sinh — không tuần tự hoá từ HTTP / tool. 003c nối ActionExecutor. */
@@ -65,6 +67,8 @@ export interface HandoffContract {
   topics: readonly string[];
   /** Ghi thao tác hạ nguồn bền trong `tx` (cùng biên nhận) — trả tham chiếu đã nhận. */
   accept(e: DispatchedEvent, tx: TenantTx): Promise<ConsumerOutcome>;
+  /** TIP-006b: tối ưu sau commit (như ProjectionContract.after). */
+  after?(e: DispatchedEvent): Promise<void>;
 }
 
 export type EventContract = ProjectionContract | ActionContract | HandoffContract;

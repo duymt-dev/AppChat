@@ -36,6 +36,7 @@ export { startEventProtocol, persistRegistryVersion, type StartEventsOptions } f
 export { recoverDispatch } from './events/protocol/dispatch-recovery';
 export { dispatchV2Job, EventProtocolNotReadyError } from './events/protocol/v2-job';
 export { fenceWorkspace, unfenceWorkspace, evaluateLegacy, activateV2, type CutoverResult, type LegacyLedger } from './events/protocol/cutover';
+export * from './events/fanout';
 export { eraseOutboxEvent } from './privacy/cleanup';
 export { kernelInventory } from './privacy/inventory';
 export * from './outbox/outbox.jobs.module';

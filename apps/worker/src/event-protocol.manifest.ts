@@ -4,11 +4,14 @@
 // TIP chủ module cho phần còn lại). `sales.quote-owner`: 015d đã bỏ mọi ghi — chỉ còn nhận + log event cũ (không đổi chủ); v2 sẽ là
 // projection `no_effect`, không bao giờ khôi phục hành vi ghi.
 import type { EventProtocolManifest, ManifestConsumer } from '@appchat/core';
+import { AI_TASK_EVENTS } from '@appchat/shared';
 
 const jobs = ['jobs', 'all'] as const;
 const pending = (name: string, owner: string): ManifestConsumer => ({ name, status: 'requires_adapter', owner, roles: jobs });
 /** TIP-003c: adapter action-mode v2 đã đăng ký (kernel/actions/system/event-adapter) — v1 giữ tới cutover. */
 const action = (name: string, topics: readonly string[]): ManifestConsumer => ({ name, status: 'active', mode: 'action', contractVersion: 1, topics, owner: '003c', roles: jobs });
+/** TIP-006b: giao bền (projection ý định / handoff fanout) — `from_rules` = topic theo luật domain đăng ký. */
+const delivery = (name: string, mode: 'projection' | 'handoff', topics: ManifestConsumer['topics']): ManifestConsumer => ({ name, status: 'active', mode, contractVersion: 1, topics, owner: '006b', roles: jobs });
 
 export const EVENT_PROTOCOL_MANIFEST: EventProtocolManifest = {
   version: 1,
@@ -24,11 +27,11 @@ export const EVENT_PROTOCOL_MANIFEST: EventProtocolManifest = {
     action('crm.lead-routing', ['lead.routing_requested']),
     action('loyalty.orders', ['order.completed', 'order.cancelled']),
     action('loyalty.payments', ['payment.refunded']),
-    pending('notify', '006b'),
-    pending('realtime', '006b'),
-    pending('catalog-sync', '006b'),
+    delivery('notify', 'projection', 'from_rules'),
+    delivery('realtime', 'projection', 'from_rules'),
+    delivery('catalog-sync', 'handoff', ['product.changed']),
     pending('catalog.product-import', '006b'),
-    pending('ai-tasks', '006b'),
+    delivery('ai-tasks', 'handoff', AI_TASK_EVENTS),
     pending('kernel.data-jobs', '006b'),
     pending('lifecycle.activity', '006b'),
     pending('ai.credit-handoff', '006b'),

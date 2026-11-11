@@ -36,7 +36,7 @@ describe('worker ROLE=jobs — sẵn sàng giao thức sự kiện v2', () => {
     const owners = new Set(r.blockers.map((b) => b.split(':')[1]));
     expect([...owners].sort()).toEqual(['003c', '006b']);
     // TIP-003c: consumer có adapter action-mode v2 không còn là blocker.
-    for (const n of ['sales.bank-ingest', 'support', 'loyalty.orders', 'loyalty.payments', 'crm.lead-routing', 'sales.quote-owner']) expect(r.blockers.some((b) => b.startsWith(`${n}:`))).toBe(false);
+    for (const n of ['sales.bank-ingest', 'support', 'loyalty.orders', 'loyalty.payments', 'crm.lead-routing', 'sales.quote-owner', 'sales.payment-packages', 'notify', 'realtime', 'catalog-sync', 'ai-tasks']) expect(r.blockers.some((b) => b.startsWith(`${n}:`))).toBe(false);
   });
 
   it('manifest phủ ĐÚNG tập consumer v1 đã đăng ký ở ROLE=jobs (không thiếu)', () => {

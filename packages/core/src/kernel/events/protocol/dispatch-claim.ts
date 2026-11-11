@@ -57,6 +57,7 @@ export async function dispatchV2(d: DispatchV2Deps, eventId: string): Promise<Di
     if (r.kind === 'failed') return retryOrBlock(d, head, e.id, r.code);
     if (r.kind === 'done') {
       if ('events' in r && typeof r.events === 'number') events += r.events;
+      if (c.mode !== 'action' && c.after) await c.after(e).catch(() => undefined);
       if (r.outcome.kind === 'blocked_unknown') return block(d, head, e.id, r.outcome.reason);
       if (r.outcome.kind === 'handed_off' && r.outcome.completionRequired) return wait(d, head, e.id);
     }

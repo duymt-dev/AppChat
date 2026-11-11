@@ -10,7 +10,8 @@ import { registerEventConsumer, unregisterEventConsumer } from '../../kernel/eve
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
 import { CatalogModule } from '../catalog.module';
-import { catalogSyncConsumer } from '../events/catalog-sync';
+import { catalogSyncConsumer, catalogSyncContract } from '../events/catalog-handoff';
+import { installContract } from '../../notify/delivery/admission';
 import { ImportDeps } from '../import/status';
 
 class CatalogJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
@@ -27,13 +28,10 @@ class CatalogJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     const { redis, platform } = this;
     if (!redis || !platform) return;
     const queue = (this.queue = new KbIngestQueue(redis));
-    registerEventConsumer(
-      catalogSyncConsumer({
-        push: (ws, sources) => queue.push(ws, sources),
-        localeOf: async (ws) => (await platform.workspace.findUnique({ where: { id: ws }, select: { locale: true } }))?.locale ?? 'vi',
-        now: () => this.clock.now(),
-      }),
-    );
+    const base = { localeOf: async (ws: string) => (await platform.workspace.findUnique({ where: { id: ws }, select: { locale: true } }))?.locale ?? 'vi', now: () => this.clock.now() };
+    registerEventConsumer(catalogSyncConsumer({ ...base, push: (ws, sources) => queue.push(ws, sources) }));
+    // TIP-006b: v2 handoff — nguồn + ý định nạp cùng biên nhận; đẩy job do quét khôi phục ROLE=ai.
+    installContract(catalogSyncContract(base));
     registerEventConsumer({
       name: 'catalog.product-import',
       topics: ['product.import_requested'],
