@@ -131,7 +131,7 @@ export class AiSdkEngine implements AgentEngine {
         const outcome = await runTool(specs.get(call.toolName), call, stepIdx, specs);
         yield { type: 'tool_result', stepIdx, call, outcome, latencyMs: Date.now() - t0 };
         if (outcome.kind === 'needs_confirmation' || outcome.kind === 'needs_approval' || outcome.kind === 'waiting_child') {
-          const canonical = outcome.kind === 'needs_confirmation' && outcome.canonicalInput !== undefined ? { canonicalInput: outcome.canonicalInput } : {};
+          const canonical = outcome.kind === 'needs_confirmation' ? { ...(outcome.canonicalInput !== undefined ? { canonicalInput: outcome.canonicalInput } : {}), ...(outcome.binding !== undefined ? { binding: outcome.binding } : {}) } : {};
           return yield { type: 'paused', outcome, state: { messages: [...messages], results, pendingToolCall: call, skipped: r.calls.slice(i + 1), stepIdx: step, ...canonical } };
         }
         results.push(resultPart(call, outcome));

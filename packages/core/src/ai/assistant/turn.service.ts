@@ -35,6 +35,7 @@ import { ExecutionLease, execStateOf } from './genui/execution-lease';
 import { ASSISTANT_ARMED_KEY, failTurn } from './genui/recovery';
 import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
+import { bindingOf } from './plans/driver';
 import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
@@ -325,7 +326,9 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
       // Chạy đúng input chuẩn hoá đã gắn token lúc xem trước (mã đã đổi → id); không tra lại mã → tránh đổi đích giữa hai bước.
       const stepIdx = state.stepIdx - 1;
       const idem = DEFS.get(call.action_id)?.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(run.id, stepIdx, state.pendingToolCall.toolCallId) };
-      const ctx = assistantActionCtx(t, stepIdx, { confirmToken: q.token, ...idem });
+      // TIP-023d §1.4: ràng buộc bước kế hoạch server đã ghi cùng lời gọi đang chờ (không lấy từ model / request).
+      const planBinding = bindingOf(state.binding);
+      const ctx = assistantActionCtx(t, stepIdx, { confirmToken: q.token, ...idem, ...(planBinding ? { planBinding } : {}) });
       const out = await d.executor.execute(ctx, call.action_id, canonical);
       if (out.status === 200) {
         logId = out.data.action_log_id;

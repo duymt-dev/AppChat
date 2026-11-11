@@ -16,6 +16,7 @@ import { bindToken, keepHidden, replacePending, takePending } from './pending-ac
 import { acceptedOutcome } from './read-dispatch';
 import { replaceCard } from './sessions';
 import type { AssistantTurnCtx } from './types';
+import { bindingOf } from './plans/driver';
 
 const DEFS = new Map(registry.map((a) => [a.id, a]));
 
@@ -46,7 +47,9 @@ export async function editPreview(d: EditDeps, db: TenantDb, q: EditRequest): Pr
     if (Object.keys(notAi).length) throw new AppError('VALIDATION_FAILED', 422, notAi);
     const stepIdx = p.state.stepIdx - 1;
     const idem = def.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(p.run.id, stepIdx, p.state.pendingToolCall.toolCallId) };
-    const out = await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input);
+    // Sửa thẻ của bước kế hoạch: xem trước lại vẫn theo đúng binding cũ (bước + thế hệ) — không đổi bước bằng cách sửa input.
+    const planBinding = bindingOf(p.state.binding);
+    const out = await d.executor.execute(assistantActionCtx(t, stepIdx, { ...idem, ...(planBinding ? { planBinding } : {}) }), def.id, input);
     // Xem trước lại bắt buộc ra 202 preview: 200 (action đọc) / chờ duyệt không phải đường Sửa của thẻ xác nhận.
     const o = out.status === 202 ? acceptedOutcome(out.data, input) : null;
     if (!o || o.kind !== 'needs_confirmation') throw new AppError('CONFLICT', 409, { confirm_token: 'not_previewable' });

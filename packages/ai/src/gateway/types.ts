@@ -30,7 +30,8 @@ export interface InputResolver {
 export type ToolOutcome =
   | { kind: 'ok'; output: unknown }
   /** `canonicalInput`: input đã chuẩn hoá (mã → id) mà token gắn — xác nhận phải chạy đúng input này (TIP-023b R1.6). */
-  | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string; canonicalInput?: unknown }
+  /** `binding`: ràng buộc bước kế hoạch do server cấp (TIP-023d §1.4) — engine chỉ chép nguyên vào trạng thái dừng, không đọc. */
+  | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string; canonicalInput?: unknown; binding?: unknown }
   | { kind: 'needs_approval'; approvalId: string }
   /** Run con đang chờ (duyệt / thao tác / usage — TIP-019b §4.3): run cha dừng chờ, không coi là xong, chạy tiếp khi con kết thúc. */
   | { kind: 'waiting_child'; runId: string }
@@ -95,6 +96,8 @@ export interface PausedState {
   stepIdx: number;
   /** Input chuẩn hoá của lời gọi đang chờ xác nhận — lưu cùng run, không phụ thuộc RAM (chạy tiếp ở process khác). */
   canonicalInput?: unknown;
+  /** Ràng buộc bước kế hoạch của lời gọi đang chờ (TIP-023d §1.4) — server ghi, xác nhận đọc lại; model không đặt được. */
+  binding?: unknown;
 }
 
 export interface UsageInfo {
