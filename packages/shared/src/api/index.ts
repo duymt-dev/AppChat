@@ -59,3 +59,4 @@ export * from './insights';
 export * from './dashboard';
 export * from './list-exports';
 export * from './privacy';
+export * from './assistant-plans';

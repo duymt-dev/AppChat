@@ -33,6 +33,10 @@ const BY_ID: Record<string, string> = {
   'admin.invoice.confirm_transfer': '010',
   'assistant.resume': '023',
   'contact.bulk_update': '045',
+  'assistant.plan_propose': '023d',
+  'assistant.plan_get': '023d',
+  'assistant.plan_reusable': '023d',
+  'assistant.agent_choices': '023d',
 };
 
 const BY_PREFIX: Record<string, string> = {

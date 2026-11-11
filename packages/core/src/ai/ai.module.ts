@@ -45,6 +45,7 @@ import { TurnQueue, TurnRequestInstaller } from './assistant/genui/turn-request.
 import { AssistantResumeHandler } from './assistant/genui/resume.handler';
 import { TASK_EXPORTS, TASK_PROVIDERS } from './tasks/tasks.providers';
 import { TaskPlace } from './tasks/task-place';
+import { ASSISTANT_PLAN_PROVIDERS } from './assistant/plans/providers';
 import { CLOCK, type Clock } from '../kernel/clock';
 
 export { AI_ENV } from './ai.env';
@@ -163,6 +164,7 @@ class ProviderSeed implements OnModuleInit {
     TurnRequestInstaller,
     RunGuardInstaller,
     ...TASK_PROVIDERS,
+    ...ASSISTANT_PLAN_PROVIDERS,
   ],
   exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
 })

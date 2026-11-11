@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 152 | 6 | 2 | 13 | 14 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 152 | 9 | 2 | 13 | 11 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 6 | 0 | 2 | 10 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 165 | 10 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 397 | 35 | 1 | 4 | 19 | 3 | 0 | 0 |
 | E. standards/* | 209 | 41 | 0 | 7 | 31 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 58 | 0 | 28 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 76 | 6 | 1 | 14 | 26 | 2 | 0 | 0 |
-| **Tổng** | **1192** | **104** | **32** | **49** | **112** | **35** | **69** | **0** |
+| **Tổng** | **1192** | **107** | **32** | **49** | **109** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -190,9 +190,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E03a | Đọc chạy ngay; ghi hiện thẻ Xác nhận / Huỷ | 01-REQUIREMENTS-MATRIX.md:105 | 023 | ĐẠT | ai/assistant/card.ts; test assistant.test.ts "ghi → thẻ confirm" |
 | REQ-E03b | Thẻ có diff + nút Sửa | 01-REQUIREMENTS-MATRIX.md:105 | 023b | ĐẠT | ActionPreviewCard.tsx (changes trước → sau, Sửa) + EditActionPreviewModal.tsx; POST /assistant/preview-edit (edit-preview.ts); test assistant-preview-edit.test.ts, e2e http assistant-vertical (PD-008, DC-312) |
 | REQ-E03c | Hàng loạt bắt buộc xác nhận số lượng | 01-REQUIREMENTS-MATRIX.md:105 | 003 | ĐẠT | policy.ts:24; test actions-unit.test.ts "bulk luôn preview" |
-| REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | 023d | CHƯA | Không có code |
-| REQ-E04a | Phân rã kế hoạch, giao agent, tổng hợp | 01-REQUIREMENTS-MATRIX.md:106 | 023 | ĐẠT | meta-tools.ts:124; delegate.ts; test assistant.test.ts "plan", "delegate" |
-| REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | 023d | MỘT PHẦN | Dừng qua run.cancel; FE không render plan (features/assistant/types.ts:45); không sửa kế hoạch |
+| REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | 023d | MỘT PHẦN | assistant.plan_reusable (read, top-N cấu trúc cũ) đã có handler + test; chưa gắn vào luồng gợi ý UI/Trợ lý (PR #171) |
+| REQ-E04a | Phân rã kế hoạch, giao agent, tổng hợp | 01-REQUIREMENTS-MATRIX.md:106 | 023d | ĐẠT | meta-tools.ts:126 proposePlan (alias → assistant.plan_propose canonical qua Executor, §1.4); delegate.ts; test assistant.test.ts "plan: alias gọi canonical..." (PR #171) |
+| REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | 023d | MỘT PHẦN | Dừng qua run.cancel; plan_propose/plan_get backend (revision/phase/progress thật) + update_step đổi thành chỉ đọc tiến độ thật qua planOfRoot (§1.5, không còn ghi theo lời model — PR #171) nhưng FE không render plan (features/assistant/types.ts:45); chưa sửa kế hoạch (plan_update ở pha sau) |
 | REQ-E05a | Điều hướng, mở bản ghi, điền form, áp lọc qua command bus | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | apps/web/src/shared/assistant/ui-command-bus.ts; features/*/ui-commands.ts; test ui-command-bus.test.ts, ui-commands.test.tsx |
 | REQ-E05b | Làm nổi bật phần tử | 01-REQUIREMENTS-MATRIX.md:107 | 023c | ĐẠT | UiCommandBus highlight (apps/web/src/shared/assistant/ui-command-bus.ts:17) + DataTable highlightKey; test ui-command-bus.test.ts, e2e screen-assistant.spec.ts tô sáng dòng |
 | REQ-E05c | Thẻ deep-link tới kết quả | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | card.ts; e2e http/assistant.spec.ts |
@@ -206,7 +206,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E10a | Danh sách phiên, tìm, mở lại | 01-REQUIREMENTS-MATRIX.md:112 | 023c | ĐẠT | GET /assistant/sessions keyset (last_message_at, id) + tìm trigram; FE SessionBrowser.tsx; test assistant-sessions.test.ts, e2e screen-assistant.spec.ts lịch sử trò chuyện |
 | REQ-E10b | Nhớ ngữ cảnh dài trong phiên | 01-REQUIREMENTS-MATRIX.md:112 | 023 | ĐẠT | ai/assistant/sessions.ts:10,63; test assistant.test.ts |
 | REQ-E11a | Chat / Cowork | 01-REQUIREMENTS-MATRIX.md:113 | 023 | ĐẠT | meta-tools.ts:53; test assistant.test.ts "ghi ở Chat → FORBIDDEN" |
-| REQ-E11b | Chọn agent + cấp độ AI | 01-REQUIREMENTS-MATRIX.md:113 | 023d | MỘT PHẦN | Mức AI ĐẠT; chọn agent chỉ lưu ui.agent (ComposerPopovers.tsx:92), sendTurn không gửi |
+| REQ-E11b | Chọn agent + cấp độ AI | 01-REQUIREMENTS-MATRIX.md:113 | 023d | MỘT PHẦN | Mức AI ĐẠT; chọn agent có đọc danh sách ổn định qua assistant.agent_choices/GET agent-choices (PR #171) nhưng picker/Composer chỉ lưu tên (ComposerPopovers.tsx:92), sendTurn chưa gửi selected_agent_id |
 | REQ-E12a | Đính kèm tệp / ảnh / email vào lệnh | 01-REQUIREMENTS-MATRIX.md:114 | 023f | GIẢ | Mục file không upload; server chỉ nhận tên (assistant-prompt.ts:35) |
 | REQ-E12b | Nhập lệnh bằng giọng nói | 01-REQUIREMENTS-MATRIX.md:114 | 023f | GIẢ | Nút mic không onClick (features/assistant/components/Composer.tsx:76) |
 | REQ-E13a | Coworks ngay / lịch / sự kiện | 01-REQUIREMENTS-MATRIX.md:115 | 035 | ĐẠT | ai/tasks/task.handlers.ts:35,186; test ai-tasks.test.ts:143,199,228 |
@@ -215,10 +215,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E14a | Khung "Trợ lý AI đang điều phối" + Dừng / Duyệt & gửi | 01-REQUIREMENTS-MATRIX.md:116 | 023 | ĐẠT | RunsOrchestrationBar.tsx:35,108; test ai-runtime.test.ts AC5 |
 | REQ-E14b | Tab Công cụ & Quyền chỉ hiển thị + link Builder | 01-REQUIREMENTS-MATRIX.md:116 | 035 | ĐẠT | TaskDrawer.tsx:132-144; test ai-tasks.test.ts:347 |
 | REQ-E15 | Generative UI mức 2 | 01-REQUIREMENTS-MATRIX.md:117 | 023c | ĐẠT | packages/shared/src/genui/* + meta-tool render + renderer web 15 khối; test schema.test.ts, genui*.test.ts (api), blocks/*.test.tsx, e2e genui.spec.ts (mock + http); ai:live genui-screen 9/10 an toàn 0 |
-| PLAN-RECEIPT-PROGRESS | Plan progress from durable primary-effect receipts, not model status | DC267; TIP-023d §2 | 023d | CHƯA | Current meta-tools update_step accepts model status; planned single logical claim/reducer only |
+| PLAN-RECEIPT-PROGRESS | Plan progress from durable primary-effect receipts, not model status | DC267; TIP-023d §2 | 023d | MỘT PHẦN | Schema AssistantPlanPrimaryClaim/Attempt + stepProgress() theo state DB thật; update_step model KHÔNG còn tự set status, chỉ đọc lại (meta-tools.ts stepProgress, §1.5 — PR #171); execution-binding ghi claim khi chạy step chưa nối (pha sau) |
 | PLAN-EDIT-CHECKPOINT | Human edit pause drains admitted effects, checkpoints tool batches, resumes same budget | DC267; TIP-023d §3 | 023d | CHƯA | Existing engine confirmation snapshot is not edit checkpoint; no runtime implementation |
 | PLAN-REUSE-PRIVACY | Reuse safe plan structure with fresh authority/inputs, no old customer or execution context | DC267; TIP-023d §4 | 023d | CHƯA | No reusable-plan service; source lineage/015c gates planned |
-| ASSISTANT-SELECTED-AGENT | Stable selected agent ID/version/mode through child tools, confirmation and restart | DC267; TIP-023d §5 | 023d | CHƯA | Current card/picker stores name; request omits selection; child binding seam planned |
+| ASSISTANT-SELECTED-AGENT | Stable selected agent ID/version/mode through child tools, confirmation and restart | DC267; TIP-023d §5 | 023d | MỘT PHẦN | assistant.agent_choices (read, keyset, chỉ active+published) + GET /v1/assistant/agent-choices — PR #171; Composer/picker còn lưu tên (ComposerPopovers.tsx:92), chưa gửi selected_agent_id ổn định qua request/resume/child binding |
 | INPUT-MODEL-CONTENT | Actual bounded file/image/email content with truthful source locators reaches compatible model | DC269; TIP023f §2–3 | 023f | CHƯA | prompt.ts35 only names; existing PDF parser loses pages and CSV renumbers; new source adapters planned |
 | INPUT-CURRENT-HYDRATION | Every initial/history/resume/selected-child provider call hydrates current-authorized private source references | DC269; TIP023f §3 | 023f | CHƯA | Current history text-only, model route lacks required vision filter; no content hydration proof |
 | INPUT-DRAFT-RECOVERY | Upload/parse/send replay preserves draft and privacy-fenced artifact state; capture/dictation never autosend | DC269; TIP023f §1/4 | 023f | CHƯA | Existing controls inert; artifact-backed recovery/native sandbox/browser lifecycle planned |

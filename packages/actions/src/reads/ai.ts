@@ -46,6 +46,19 @@ export const aiTaskSearch = defineAction({
   invalidates: [],
 });
 
+export const assistantAgentChoices = defineAction({
+  id: 'assistant.agent_choices',
+  module: 'ai',
+  title: 'actions.assistant.agent_choices.title',
+  description: 'Page active/published AI agents a user may select as Cowork specialist (id, name, role, model tier) — safe display metadata only, no draft prompt/persona/tier. Example: {"limit":30}',
+  input: z.object({ cursor: z.string().max(200).optional(), limit: z.number().int().min(1).max(100).optional() }),
+  output: z.object({ data: z.array(z.object({ id: z.string(), name: z.string(), role: z.string(), role_label: z.string(), model_tier: z.string() })), next_cursor: z.string().nullable() }),
+  permission: 'assistant.use',
+  risk: 'read',
+  agentGrantable: false,
+  invalidates: [],
+});
+
 export const runSearch = defineAction({
   id: 'run.search',
   module: 'ai',

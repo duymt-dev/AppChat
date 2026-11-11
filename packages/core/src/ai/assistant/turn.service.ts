@@ -87,7 +87,7 @@ function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string)
 export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow, ws: string, authz: AuthzContext | null): Promise<Omit<RunSpec, 'messages'>> {
   const input = run.input as unknown as AssistantRunInput;
   if (!authz || !run.initiatedByUserId) return { system: '', tools: [], maxSteps: MAX_STEPS.assistant, source: 'assistant' };
-  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role };
+  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
   return specFor(d, db, t, await assistantSystem(db, input, authz));
 }
 
@@ -221,7 +221,7 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
       await fail('FORBIDDEN');
       return null;
     }
-    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role };
+    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
     const spec = specFor(d, db, t, await assistantSystem(db, input, authz));
     const skeletons = new SkeletonFeed(live);
     const r = await d.runner.start(ws, store, run, {
@@ -291,7 +291,7 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const store = new RunStore(db, d.now);
   const input = run.input as unknown as AssistantRunInput;
   const call = state.pendingToolCall.input as { action_id: string; input?: unknown };
-  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role };
+  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
 
   let outcome: ToolOutcome;
   let logId: string | undefined;

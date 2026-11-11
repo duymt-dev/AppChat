@@ -25,6 +25,7 @@ import { CursorSigner, EventStore } from './genui/event-store';
 import { resolveRefs } from './genui/refs';
 import { sessionMessages } from './sessions';
 import { listSessionsPage } from './session-list';
+import { agentChoicesPage } from './plans/agent-choices';
 import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type PreparedTurn, type ConfirmRequest, type TurnRequest } from './turn.service';
 import { waitDone } from './genui/turn-wait';
 import { draftReply, type DraftRequest } from './genui/inbox-draft';
@@ -151,6 +152,11 @@ export class AssistantService {
   /** Trình duyệt phiên (REQ-E10a): keyset theo người gọi; `cursor` / `limit` tuỳ chọn. */
   async sessions(c: Caller, q: string, page: { cursor?: string; limit?: number } = {}) {
     return listSessionsPage(await this.db(c), c.userId, { q, ...page });
+  }
+
+  /** Trang AI Agent có thể chọn làm chuyên viên Cowork (TIP-023d §5.2) — cùng service với action `assistant.agent_choices`. */
+  async agentChoices(c: Caller, page: { cursor?: string; limit?: number } = {}) {
+    return agentChoicesPage(await this.db(c), page);
   }
 
   async messages(c: Caller, id: string) {

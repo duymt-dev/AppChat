@@ -114,6 +114,13 @@ Thứ tự module trong rail (prototype L8999): dashboard · assistant · inbox 
 
 Windows 10 · Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x64-16`) + pgvector 0.8.1 · Memurai (Redis-compatible) · LibreOffice 26.8 · Git Bash / PowerShell. Không Docker.
 
+**Mỗi workspace có DB Postgres riêng** (không RLS, không cột `workspace_id` trong bảng tenant) — thêm bảng/cột/index mới trong `packages/db/prisma/tenant/*.prisma` **luôn phải chạy CẢ HAI lệnh sau, theo đúng thứ tự, ngay sau khi viết migration** (không chỉ một):
+1. `pnpm --filter @appchat/db run db:generate` — sinh lại Prisma Client.
+2. `pnpm --filter @appchat/db run db:migrate-tenants` — áp migration cho **mọi workspace đang tồn tại** (demo/dev/test cũ trên máy).
+3. `pnpm --filter @appchat/db run db:setup` — cập nhật **template DB** (`appchat_tenant_template`) mà mọi workspace MỚI sẽ clone ra. **Quên bước này** → integration test tạo workspace mới (qua `startApi()`) sẽ dùng schema CŨ, lỗi `relation does not exist` hoặc EXPLAIN không thấy index mới mãi tới lúc viết test mới lộ ra.
+
+Kiểm nhanh nếu nghi ngờ: `psql ... -d appchat_tenant_template -c "SELECT name FROM _appchat_migrations ORDER BY name DESC LIMIT 3;"` phải thấy migration vừa tạo.
+
 ## 8. Goal hiện tại
 
 **`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **84 TIP chưa DONE** (023b → … → 046) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.

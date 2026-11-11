@@ -1476,6 +1476,22 @@
   "assistant": {
     "resume": {
       "title": "Resume assistant turn"
+    },
+    "plan_propose": {
+      "title": "Propose Cowork plan",
+      "desc": "Create a new multi-step plan for the current session — proposal only, nothing executed yet."
+    },
+    "plan_get": {
+      "title": "View Cowork plan progress",
+      "desc": "Read the real status of a plan (which steps are done, waiting, failed) — not the model's claim."
+    },
+    "plan_reusable": {
+      "title": "Reusable plan suggestions",
+      "desc": "List your own prior plan structures you can reuse — action/step names only, no old values or results."
+    },
+    "agent_choices": {
+      "title": "List AI agents to choose as specialist",
+      "desc": "Page active/published AI agents selectable as a Cowork specialist — name/role/model tier only, no draft prompt/persona."
     }
   },
   "sales_settings": {
