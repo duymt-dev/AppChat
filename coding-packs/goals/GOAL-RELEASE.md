@@ -114,7 +114,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 30 | [012c](../tips/TIP-012c-tenant-mail.md) | W8 | DONE | `tip/012c-tenant-mail` | P1–P6 xem PR | #148–#153 |
 | 31 | [033b](../tips/TIP-033b-booking-operations.md) | W8 | DONE (P5 / 5) | `tip/033b-booking-operations` | #154, #155, #156, #157, #158 | |
 | 32 | [019c](../tips/TIP-019c-ai-utilities.md) | W8 | **DONE** (pha 4/4 — P1 4 kỹ năng DC-419; P2 fence `utility_operation` DC-420; P3 UI UtilityMenu/Form/Result/Host DC-421; P4 ai:live `ai-utilities` 8/8, an toàn 0 — DV-093 áp dụng) | `tip/019c-ai-utilities-p3` · `tip/019c-ai-utilities-p4` | #159, #160, #161, #164 | |
-| 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | chờ | `tip/015c-contact-privacy` | | |
+| 33 | [015c](../tips/TIP-015c-contact-privacy.md) | W8 | **DONE** (P1–P4 đã merge dev trước đó — #162…168; P5 041 restore gate: kernel/privacy/restore-gate.ts đối chiếu journal nền tảng đã acknowledged với DB tenant vừa khôi phục, gọi trong runRestore() trước khi active, fail closed 503 thiếu revision/khoá) | `tip/015c-contact-privacy` … `-p4` (merged) · `tip/015c-p5-restore-gate` | xem PR | |
 | 34 | [023d](../tips/TIP-023d-assistant-plans.md) | W8 | chờ | `tip/023d-assistant-plans` | | |
 | 35 | [023e](../tips/TIP-023e-action-discovery.md) | W8 | chờ | `tip/023e-action-discovery` | | |
 | 36 | [023f](../tips/TIP-023f-assistant-input.md) | W8 | chờ | `tip/023f-assistant-input` | | |
