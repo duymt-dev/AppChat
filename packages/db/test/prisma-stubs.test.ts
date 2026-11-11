@@ -28,6 +28,11 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   privacy: '015c',
   'assistant-plans': '023d',
   'action-discovery': '023e',
+  'assistant-input': '023f',
+  'event-protocol': '003b',
+  'system-action': '003c',
+  'event-delivery': '006b',
+  'contract-signing': '030c',
   },
 };
 
@@ -46,6 +51,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(58);
+    expect(n).toBe(63);
   });
 });
