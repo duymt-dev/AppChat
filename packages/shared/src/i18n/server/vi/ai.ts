@@ -29,6 +29,8 @@ export const ai = {
     no_target: 'Không có agent nhận chuyển phù hợp — cần người xử lý',
     out_of_hours: 'Ngoài giờ hoạt động của AI — chờ nhân viên',
     missing_ticket_grant: 'Khách khiếu nại nhưng agent chưa được cấp quyền tạo ticket — cần người tạo',
+    citation_invalid: 'AI trích dẫn tài liệu không hợp lệ — cần người kiểm lại',
+    citation_missing: 'AI trả lời từ tài liệu nhưng không nêu nguồn — cần người kiểm lại',
   },
   approval: {
     title: '{action}',

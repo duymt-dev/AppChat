@@ -14,6 +14,7 @@ import { makeRevalidate } from '../skills/utility-revalidate';
 import { utilityValidatorOf } from '../skills/utility-validators';
 import { recoverProposals } from '../assistant/record-intent/publication';
 import { recoverDrafts } from '../agents/drafting/publication';
+import { recoverCitations } from '../citations/recovery';
 
 export const AI_USAGE_RECOVERY = 'ai.usage';
 
@@ -88,10 +89,28 @@ export class AiUtilityRecoveryInstaller implements OnApplicationBootstrap {
       }
       return out;
     });
+    // TIP-020d: binding trích dẫn câu trả lời mở quá lease — kiểm lại cục bộ ứng viên đã lưu (không gọi provider), không gửi khách.
+    registerRecoveryAdapter(AI_CITATION_RECOVERY, async (now) => {
+      const at = (now ?? (() => this.clock.now()))();
+      const out = { validated: 0, invalidated: 0, failed: 0 };
+      for (const w of await platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true } })) {
+        try {
+          const r = await recoverCitations(await tenants.get(TenantContexts.system(w.id, 'ai.citation-recovery')), at);
+          out.validated += r.validated;
+          out.invalidated += r.invalidated;
+          out.failed += r.failed;
+        } catch (err) {
+          this.log.warn({ err, ws: w.id }, 'khôi phục trích dẫn câu trả lời lỗi ở workspace');
+        }
+      }
+      return out;
+    });
   }
 }
 
 export const AI_DRAFT_RECOVERY = 'ai.agent_draft';
+/** TIP-020d: binding trích dẫn câu trả lời kênh (validated_citations). */
+export const AI_CITATION_RECOVERY = 'ai.answer_citations';
 /** TIP-023g: binding đề xuất theo bản ghi (validated_record) — cùng luật: sinh dở → USAGE_UNKNOWN, chữ kiểm dở quá 24 giờ → vô hiệu. */
 export const AI_RECORD_PROPOSAL_RECOVERY = 'ai.record_proposal';
 /** Binding đã có chữ model nhưng không ai gửi lại cùng request_id trong 24 giờ → vô hiệu + xoá chữ thô (TIP-021b §3.6). */

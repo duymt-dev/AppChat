@@ -6,7 +6,7 @@ import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { AiSdkEngine, mockLanguageModel, staticModelSource, type MockScript, type ToolOutcome, type ToolSpec } from '@appchat/ai';
-import { AiRunner, CreditMeter, DbPriceBook, RunStore, WalletService, createLogger, uuidv7 } from '@appchat/core';
+import { AiRunner, assistantKnowledge, CreditMeter, DbPriceBook, RunStore, WalletService, createLogger, uuidv7 } from '@appchat/core';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { aiSettingsSchema, runsListSchema } from '@appchat/shared';
 import { call, env, startApi, type Harness } from './setup';
@@ -100,7 +100,7 @@ describe('AiRunner + credit', () => {
 
   it('AC4 tool cần duyệt → waiting_approval + state; runner KHÁC chạy tiếp; resume lần 2 → null', async () => {
     const s = await store();
-    const run = await s.create({ kind: 'agent_reply', tier: 'standard', input: {}, title: 'gửi báo giá' });
+    const run = await s.create({ kind: 'agent_reply', tier: 'standard', input: {}, title: 'gửi báo giá', knowledge: assistantKnowledge(h.user) });
     const pending: ToolOutcome = { kind: 'needs_approval', approvalId: uuidv7() };
     const first = await runnerFor([{ tool: 'quote__send', input: { id: 'Q1' } }]).start(h.ws, s, run, spec([tool('quote__send', async () => pending)]));
     expect(first.status).toBe('waiting_approval');
@@ -120,7 +120,7 @@ describe('AiRunner + credit', () => {
   it('AC4 run.cancel huỷ cả cây (run con) + runner đang chạy dừng ở bước kế; run đã kết thúc giữ nguyên', async () => {
     const s = await store();
     const root = await s.create({ kind: 'assistant', tier: 'standard', input: {}, title: 'gốc' });
-    const child = await s.create({ kind: 'delegate', tier: 'standard', input: {}, title: 'con', parentRunId: root.id });
+    const child = await s.create({ kind: 'delegate', tier: 'standard', input: {}, title: 'con', parentRunId: root.id, knowledge: assistantKnowledge(h.user) });
     let cancelled: { status: number; body: any } | null = null; // eslint-disable-line @typescript-eslint/no-explicit-any
     // Bước 1 gọi tool; trong lúc tool chạy, người dùng bấm huỷ → bước 2 không gọi model.
     const model = [{ tool: 'contact__search', input: {} }, { text: 'không được gọi' }] as MockScript;

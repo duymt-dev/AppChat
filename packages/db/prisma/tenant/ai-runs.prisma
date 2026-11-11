@@ -91,6 +91,12 @@ model AiRun {
   knowledge          Json?
   /// TIP-020c: nguồn đã đưa vào run `[{ s: source_id, g: ingest_seq }]` (≤ 64) — kiểm lại trước lời gọi model kế / công bố / gửi.
   knowledgeRefs      Json?       @map("knowledge_refs")
+  /// TIP-020d: bí danh tài liệu server cấp cho run `[{ a: "S1", s, c, g, d }]` (≤ 40) — model chỉ thấy bí danh, không tên / đường dẫn nguồn.
+  citationRegistry   Json?       @map("citation_registry")
+  /// TIP-020d: pha công bố trích dẫn (awaiting_generation / validating / validated / invalidated / failed / none) — null = không áp dụng.
+  citationPhase      String?     @map("citation_phase")
+  /// TIP-020d: binding câu trả lời — ứng viên riêng tới khi kiểm xong; rồi trích dẫn chuẩn hoá + thế hệ + băm chữ + bước trả lời.
+  answerCitations    Json?       @map("answer_citations")
   startedAt          DateTime    @default(now()) @map("started_at") @db.Timestamptz(6)
   finishedAt         DateTime?   @map("finished_at") @db.Timestamptz(6)
 

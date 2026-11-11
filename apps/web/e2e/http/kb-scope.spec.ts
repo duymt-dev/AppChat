@@ -61,7 +61,8 @@ test.describe('phạm vi tri thức — nháp AI (http)', () => {
     await w.getByTestId('wg-pre-start').click();
     await w.getByTestId('wg-input').fill('Spa mở cửa mấy giờ?');
     await w.getByTestId('wg-input').press('Enter');
-    await expect(w.getByTestId('wg-msg-out').last()).toContainText('Spa mở cửa mấy giờ?', { timeout: 30_000 });
+    // TIP-020d: model giả trả lời bằng đoạn S1 trong phạm vi kèm trích dẫn (trước đó: lặp lại câu hỏi).
+    await expect(w.getByTestId('wg-msg-out').last()).toContainText('Spa mở cửa từ 8 giờ đến 20 giờ', { timeout: 30_000 });
 
     const convs = await get<{ id: string }[]>(page, '/conversations?limit=5');
     const convId = (Array.isArray(convs) ? convs : (convs as unknown as { items: { id: string }[] }).items)[0]!.id;

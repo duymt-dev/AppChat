@@ -10,6 +10,7 @@ export * from './settings';
 export * from './teams';
 export * from './lead-routing';
 export * from './ownership-transfer';
+export * from './ai-citations';
 export * from './audit';
 export * from './crm';
 export * from './contact-activities';

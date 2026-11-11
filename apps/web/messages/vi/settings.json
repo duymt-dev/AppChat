@@ -1474,6 +1474,7 @@
       "system": "Hệ thống",
       "ai": "Trợ lý AI"
     },
+    "openRun": "Mở chi tiết lần chạy: {action}",
     "aiActor": {
       "copilot": "Trợ lý AI — Co-pilot",
       "ops": "Agent Vận hành",

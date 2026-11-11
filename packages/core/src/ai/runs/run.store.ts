@@ -39,6 +39,8 @@ export interface NewRun {
   maxCredits?: number | null;
   /** TIP-020c: binding tri thức tin cậy (server dựng) — lưu cùng lúc tạo run, trước mọi tool. */
   knowledge?: KnowledgeContext | null;
+  /** TIP-020d: chế độ công bố `validated_citations` (server đặt — run trả lời kênh): câu trả lời chỉ công bố sau khi kiểm trích dẫn. */
+  publicationMode?: 'validated_citations';
 }
 
 export interface StepRecord {
@@ -133,6 +135,7 @@ export class RunStore {
         dryRun: r.dryRun ?? false,
         maxCredits: r.maxCredits ?? null,
         ...(r.knowledge ? { knowledge: r.knowledge as object } : {}),
+        ...(r.publicationMode === 'validated_citations' ? { citationPhase: 'awaiting_generation' } : {}),
         status: 'queued',
         startedAt: now,
       },

@@ -17,6 +17,7 @@ import { useAssistantUiCommands } from '../ui-commands';
 import { useOpenThread } from '../hooks/useOpenThread';
 import { SessionBrowser } from '../components/SessionBrowser';
 import { HistoryButton } from '../components/HistoryButton';
+import { RunDetailRouteHost } from '../components/RunDetailRouteHost';
 
 export function AssistantScreen() {
   useAssistantUiCommands();
@@ -60,6 +61,7 @@ export function AssistantScreen() {
         )}
       </PageStates>
       <ComposerPopovers />
+      {allowed ? <RunDetailRouteHost /> : null}
       <SessionBrowser
         open={history}
         current={ui.sessionId}

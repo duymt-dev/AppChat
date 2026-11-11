@@ -32,6 +32,7 @@ import { isSuperseded } from './send-fence';
 import { handoff, reasonText, setState, type ReasonKey } from './turn-handoff';
 import { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './turn-lease';
 import { agentKnowledge } from '../kb/scope/context';
+import { gateAnswer } from '../citations/answer-gate';
 import { writeAiDraft } from '../kb/scope/draft-binding';
 
 /** Tối đa 3 lần `transfer_to_agent` mỗi lượt khách (agent-gateway §5). */
@@ -108,6 +109,7 @@ async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Publ
     parentRunId: extra.parentRunId ?? null,
     maxCredits: TURN_BUDGET,
     knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { channel: true }),
+    publicationMode: 'validated_citations',
   });
   const embed = d.embedder ? queryEmbedder({ db: store.metered(), embedder: d.embedder, meter: d.meter ?? null, now: d.now }, { ws, runId: created.id, rootRunId: created.rootRunId, source: 'inbox' }) : null;
   let ctx: ReplyContext;
@@ -145,7 +147,9 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   // không gửi kèm lý do khi chưa có nháp của người.
   if (turn && !(await stillOwns(db, turn, d.now()))) {
     const out = r.status === 'completed' ? parseAgentReply(r.text) : null;
-    const draft = out?.reply ? unmaskPii(out.reply, ctx.pii) : null;
+    // TIP-020d: nháp giữ lại cũng qua cổng trích dẫn (trích dẫn hỏng → không giữ nháp).
+    const g = out ? await gateAnswer(db, run.id, r.text, out, out.reply ? unmaskPii(out.reply, ctx.pii) : null, ctx.pii, d.now()) : null;
+    const draft = g?.kind === 'pass' ? g.reply : g?.kind === 'handoff' ? g.draft : null;
     if (draft) await writeAiDraft(db, c.id, draft, run.id);
     await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
     return 'superseded';
@@ -191,13 +195,17 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
 
   const out = parseAgentReply(r.text);
   const intent = out.ok && out.intent ? normalizeIntent(out.intent) : null;
-  const reply = out.reply ? unmaskPii(out.reply, ctx.pii) : null;
-  const rule = coord?.kind === 'handoff' ? 'needs_human' : decideHandoff({ out, threshold: ctx.cfg.threshold, lastCustomerFolded: ctx.lastCustomer, previousCustomerFolded: ctx.previousCustomer, banned: ctx.banned, replyFolded: foldText(reply ?? '') });
+  // TIP-020d: chốt trích dẫn trước khi dùng chữ — hỏng / thiếu nguồn → chuyển người, không tự gửi như có căn cứ.
+  const gate = await gateAnswer(db, run.id, r.text, out, out.reply ? unmaskPii(out.reply, ctx.pii) : null, ctx.pii, d.now());
+  if (gate.kind === 'superseded') return 'superseded';
+  const reply = gate.kind === 'pass' ? gate.reply : gate.draft;
+  const cited = gate.kind === 'handoff' ? gate.reason : null;
+  const rule = coord?.kind === 'handoff' ? 'needs_human' : (cited ?? decideHandoff({ out, threshold: ctx.cfg.threshold, lastCustomerFolded: ctx.lastCustomer, previousCustomerFolded: ctx.previousCustomer, banned: ctx.banned, replyFolded: foldText(reply ?? '') }));
   await db.aiRun.update({ where: { id: run.id }, data: { confidence: out.confidence } });
   if (intent && turn) await recordIntent(db, c.id, intent, { source_message_id: source?.sourceMessageId ?? null, run_id: run.id, fence: turn.fence });
 
   if (copilot) {
-    if (!reply) return 'skipped';
+    if (!reply || cited === 'citation_invalid') return 'skipped';
     await setState(d, db, ws, c, { aiSuggestion: { text: reply, confidence: Math.round(out.confidence * 100), run_id: run.id } }, 'ai_suggestion');
     return 'suggested';
   }

@@ -314,5 +314,11 @@
     },
     "unbind": "Unbind record",
     "comboItem": "{qty} × {name} — {price}"
+  },
+  "citations": {
+    "title": "Answer sources",
+    "originalDraft": "Sources of the original AI draft",
+    "unavailable": "Sources no longer available — content changed or you can no longer view it",
+    "restricted": "Document (no permission to view its name)"
   }
 }

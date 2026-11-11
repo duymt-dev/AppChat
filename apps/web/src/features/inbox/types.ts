@@ -1,3 +1,4 @@
+import type { AiCitations } from '@/shared/ai-citations/types';
 import type { ActivitySummaryDto, AgentIntent, ContactInsightsDto, CustomValues, HandoffSummaryDto } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
 
@@ -55,6 +56,8 @@ export interface Conversation {
   ai_draft?: string;
   /** TIP-020c: tham chiếu nháp AI (mờ, server kiểm) — gửi kèm `message.send.ai_draft_ref`. */
   ai_draft_ref?: AiDraftRef;
+  /** TIP-020d: nguồn đã kiểm của nháp AI (chỉ ở chi tiết hội thoại). */
+  ai_draft_citations?: AiCitations;
   /** TIP-022b: ý định lượt gần nhất (bộ đóng) + có tóm tắt bàn giao (đọc riêng, chiếu theo quyền). */
   intent?: AgentIntent;
   has_handoff_summary?: boolean;
@@ -114,7 +117,7 @@ export interface MessageAttachment {
 export interface ThreadData {
   data: Message[];
   next_cursor: string | null;
-  suggestion: { text: string; confidence: number; ref?: AiDraftRef } | null;
+  suggestion: { text: string; confidence: number; ref?: AiDraftRef; citations?: AiCitations } | null;
 }
 
 /** TIP-020c: nháp / gợi ý AI đang dùng trong ô soạn — chỉ để server kiểm nguồn còn hợp lệ, không cấp quyền. */

@@ -3,6 +3,8 @@
 // người ra lệnh); chat thử Builder → phạm vi nháp dưới quyền người thử. Phạm vi rỗng / không có binding → không căn cứ, KHÔNG gọi embed.
 // TIP-019b §3.2: embedding câu hỏi chạy ở `prepare` (NGOÀI transaction), có đo — trong một run thì trừ vào run đó (gốc tin cậy từ
 // ActionContext), gọi trực tiếp thì một run gốc riêng; truy vấn kho theo restriction nhận lại chạy ngắn trong transaction của `execute`.
+// TIP-020d: run ở chế độ trích dẫn (trả lời kênh) → đoạn được cấp bí danh `S1…` trong sổ của run, model chỉ nhận bí danh + nội dung
+// (không tên / đường dẫn nguồn); trích dẫn câu trả lời kiểm theo sổ này.
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { EmbedResult, Embedder } from '@appchat/ai';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
@@ -17,10 +19,12 @@ import { emptyResult, minScoreOf, searchKb, type KbSearchResult } from './search
 import { queryRunFor } from './query-run';
 import { recordRefs } from './scope/provenance';
 import { resolveFor } from './scope/resolve';
+import { registerPassages } from '../citations/binding';
+import { aliasedHits } from '../citations/prompt';
 
 export const KB_EMBEDDER = Symbol('KB_EMBEDDER');
 
-type Out = Pick<KbSearchResult, 'grounded' | 'chunks' | 'citations'>;
+type Out = Pick<KbSearchResult, 'grounded' | 'chunks' | 'citations'> | { grounded: boolean; passages: ReturnType<typeof aliasedHits> };
 /** Kết quả `prepare`: bị chặn (lý do an toàn) hoặc vector đã đo (null = nhánh từ khoá). */
 type Prepared = { denied: string } | { e: EmbedResult | null };
 
@@ -57,6 +61,11 @@ export class KbSearchHandler implements Handler<ActionInput<typeof kbSearch>, Ou
     if (!r.admission.ok) return { result: pick(emptyResult(await minScoreOf(tx))) };
     const out = await searchKb(tx, null, { query: input.query, restriction: r.admission.r, ...(input.limit ? { limit: input.limit } : {}), queryEmbedding: pre.e });
     if (r.bindingRunId && ctx.runId) await recordRefs(tx, ctx.runId, out.refs.map((x) => ({ ...x, b: r.bindingRunId! })));
+    const cited = ctx.runId ? await tx.aiRun.findUnique({ where: { id: ctx.runId }, select: { citationPhase: true } }) : null;
+    if (cited?.citationPhase && r.bindingRunId) {
+      const aliases = await registerPassages(tx, ctx.runId!, r.bindingRunId, out.chunks.map((h) => ({ source_id: h.source_id, chunk_id: h.chunk_id, generation: h.generation ?? 0, content: h.content })));
+      return { result: { grounded: out.grounded, passages: aliasedHits(out.chunks, aliases) } };
+    }
     return { result: pick(out) };
   }
 

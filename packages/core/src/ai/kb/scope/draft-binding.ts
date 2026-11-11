@@ -69,5 +69,9 @@ export const suggestionRefOf = (v: unknown): DraftRef | null => {
 
 /** Đặt chỗ gửi: tin phụ thuộc nguồn (outbox mang run) — nguồn hết hiệu lực trước khi gọi kênh → không gửi. */
 export async function dispatchKnowledgeOk(tx: TenantTx, knowledgeRunId: string | null): Promise<boolean> {
-  return !knowledgeRunId || (await knowledgeCurrent(tx as unknown as Db, knowledgeRunId));
+  if (!knowledgeRunId) return true;
+  // TIP-020d: run trả lời có chế độ trích dẫn chỉ gửi được khi câu trả lời đã kiểm xong (không gửi ứng viên đang chờ / không hợp lệ).
+  const r = await tx.aiRun.findUnique({ where: { id: knowledgeRunId }, select: { citationPhase: true } });
+  if (r?.citationPhase && r.citationPhase !== 'validated') return false;
+  return knowledgeCurrent(tx as unknown as Db, knowledgeRunId);
 }
