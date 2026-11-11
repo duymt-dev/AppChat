@@ -733,6 +733,34 @@
     },
     "system_transition": {
       "title": "Contract system transition"
+    },
+    "public_open": {
+      "title": "Open signing link (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_otp": {
+      "title": "Contract signing OTP (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_decline": {
+      "title": "Customer declines (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_sign": {
+      "title": "Customer signs contract (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "sign_attempt_prepare": {
+      "title": "Verify signing attempt",
+      "desc": "Internal — signing pipeline"
+    },
+    "sign_attempt_stage": {
+      "title": "Stage signed copy",
+      "desc": "Internal — signing pipeline"
+    },
+    "request_sign_otp": {
+      "title": "Send approve & sign code",
+      "desc": "Email yourself a one-time code to approve & sign this contract"
     }
   },
   "order": {

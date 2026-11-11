@@ -15,7 +15,7 @@ const DEV_OTP = '246810';
 
 /** Endpoint công khai — mặc định hợp đồng; trang ký phụ lục truyền bộ của phụ lục (TIP-030b F3, cùng giao diện ký). */
 interface SignApi<V> {
-  otp(token: string): Promise<{ channel: string; sent_to: string }>;
+  otp(token: string): Promise<{ channel: string; sent_to: string; delivery_status?: string }>;
   sign(token: string, body: { otp: string; signature_png: string; consent: true }): Promise<V>;
   decline(token: string, reason?: string): Promise<V>;
 }

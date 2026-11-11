@@ -232,6 +232,8 @@
     "otpLabel": "Mã OTP gửi tới email chủ sở hữu",
     "sendOtp": "Gửi mã",
     "otpSent": "Đã gửi mã OTP tới {email}",
+    "otpQueued": "Đang gửi mã OTP tới {email} — chưa xác nhận đã tới hộp thư",
+    "otpUnknown": "Chưa rõ thư đã tới {email} hay chưa — nếu không thấy, bấm Gửi mã để nhận mã mới",
     "sigLabel": "Chữ ký tay",
     "clear": "Ký lại",
     "sigHint": "Ký bằng chuột hoặc ngón tay trong khung",

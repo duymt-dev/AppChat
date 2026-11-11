@@ -733,6 +733,34 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái hợp đồng (hệ thống)"
+    },
+    "public_open": {
+      "title": "Mở link ký (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "public_otp": {
+      "title": "OTP ký hợp đồng (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "public_decline": {
+      "title": "Khách từ chối ký (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "public_sign": {
+      "title": "Khách ký hợp đồng (trang công khai)",
+      "desc": "Nội bộ — trang ký công khai"
+    },
+    "sign_attempt_prepare": {
+      "title": "Kiểm lần ký",
+      "desc": "Nội bộ — quy trình ký"
+    },
+    "sign_attempt_stage": {
+      "title": "Đóng băng bản ký",
+      "desc": "Nội bộ — quy trình ký"
+    },
+    "request_sign_otp": {
+      "title": "Gửi mã duyệt & ký",
+      "desc": "Gửi mã OTP tới email của chính bạn để duyệt & ký hợp đồng"
     }
   },
   "order": {

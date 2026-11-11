@@ -68,6 +68,22 @@ export const signParamPost = (path: string): MockPost | undefined => {
   const [, token, op] = m as unknown as [string, string, string];
   return (db, body) => {
     const c = byToken(db, token);
+    // Như server (TIP-030c): mọi POST mang request_id UUID; cùng request_id + cùng thao tác → kết quả cũ (không ghi lần hai).
+    const rid = typeof body.request_id === 'string' && UUID.test(body.request_id) ? body.request_id : null;
+    if (!rid && op !== 'sign') throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'request_id' });
+    const key = `${token}|${op}|${rid}`;
+    if (rid && seen.has(key)) return seen.get(key);
+    const out = apply(db, c, op, body);
+    if (rid) seen.set(key, out);
+    return out;
+  };
+};
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const seen = new Map<string, unknown>();
+
+function apply(_db: MockDb, c: Contract, op: string, body: Record<string, unknown>) {
+  {
     if (op === 'open') {
       const expired = !c.sign_link_expires_at || new Date(c.sign_link_expires_at) < new Date(MOCK_NOW);
       if (c.status === 'pending_signature' && expired) throw invalid(c.code);
@@ -102,5 +118,5 @@ export const signParamPost = (path: string): MockPost | undefined => {
     c.signed_sha256 = mockSha256(`${c.code}|${c.value}|${c.contact_name}|${MOCK_NOW}`);
     logEvent(c, 'signed', c.contact_name, { ip: PUBLIC_IP, doc_sha256: c.signed_sha256 });
     return view(c);
-  };
-};
+  }
+}

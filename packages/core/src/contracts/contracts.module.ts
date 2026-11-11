@@ -39,6 +39,15 @@ import { APPENDIX_PUBLIC_ACTIONS, verifyAppendixPublic } from './appendix/system
 import { ContractSystemTransitionHandler } from './system/handlers';
 import { verifyContractTrigger } from './system/sources';
 import { AppendixReadService } from './appendix/read.service';
+import { ContractPublicDeclineHandler, ContractPublicOpenHandler, ContractPublicOtpHandler } from './signing/public.handlers';
+import { ContractRequestSignOtpHandler } from './signing/owner-otp.handler';
+import { ContractSignAttemptPrepareHandler, ContractSignAttemptStageHandler } from './signing/attempt.handlers';
+import { ContractPublicSignHandler } from './signing/finalize';
+import { SIGNING_RECIPIENTS, signingRecipients } from './signing/recipients';
+import { PUBLIC_SIGN_ACTIONS, verifyParentPublic } from './signing/module';
+import { AuthzModule } from '../authz/authz.module';
+import { AuthzResolver } from '../authz/services/authz-resolver';
+import { ActionExecutor } from '../kernel/actions/executor';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ChannelSendQueue) => ({ token, optional: true });
 
@@ -52,10 +61,13 @@ const HANDLERS = [
   ContractPrepareDraftHandler, ContractDraftFromContentHandler, ContractResolveSuggestionHandler,
   // Phụ lục ký riêng (TIP-030b F3) — appendix/.
   ...APPENDIX_HANDLERS,
+  // Ký hợp đồng cha qua action chuẩn (TIP-030c).
+  ContractPublicOpenHandler, ContractPublicOtpHandler, ContractPublicDeclineHandler, ContractRequestSignOtpHandler,
+  ContractSignAttemptPrepareHandler, ContractSignAttemptStageHandler, ContractPublicSignHandler,
 ];
 
 @Module({
-  imports: [CrmModule, DocumentsModule, ChannelsModule, SalesModule, IdentityModule, AiModule],
+  imports: [CrmModule, DocumentsModule, ChannelsModule, SalesModule, IdentityModule, AiModule, AuthzModule],
   providers: [
     ...HANDLERS,
     // Action riêng chuyển trạng thái hệ thống (TIP-003c).
@@ -89,12 +101,17 @@ const HANDLERS = [
     },
     {
       provide: PublicSignService,
-      inject: [ContractDeps, opt(ChannelSendQueue), CLOCK],
-      useFactory: (d: ContractDeps, q: ChannelSendQueue | null | undefined, c: Clock) => (d.tenants && d.platform ? new PublicSignService(d, q ?? null, () => c.now()) : null),
+      inject: [ContractDeps, opt(ChannelSendQueue), CLOCK, { token: ActionExecutor, optional: true }],
+      useFactory: (d: ContractDeps, q: ChannelSendQueue | null | undefined, c: Clock, x: ActionExecutor | undefined) => (d.tenants && d.platform ? new PublicSignService(d, q ?? null, () => c.now(), x ?? null) : null),
+    },
+    {
+      provide: SIGNING_RECIPIENTS,
+      inject: [opt(PLATFORM_DB), { token: AuthzResolver, optional: true }],
+      useFactory: (p: PlatformDb | undefined, a: AuthzResolver | null | undefined) => (p && a ? signingRecipients(p, a) : null),
     },
     ...APPENDIX_SERVICES,
   ],
-  exports: [ContractsReadService, PublicSignService, ContractDeps, AppendixReadService, AppendixPublicService],
+  exports: [ContractsReadService, PublicSignService, ContractDeps, AppendixReadService, AppendixPublicService, SIGNING_RECIPIENTS],
 })
 export class ContractsModule implements OnModuleInit {
   /** TIP-003c: verifier nguồn (token phụ lục đã lưu) cho `contract.appendix_public_*`. */
@@ -102,5 +119,7 @@ export class ContractsModule implements OnModuleInit {
     // 030b: token + Idempotency-Key theo nội dung là khoá chống lặp; xin OTP lại là yêu cầu mới (domain).
     for (const id of APPENDIX_PUBLIC_ACTIONS) registerSystemVerifier(id, verifyAppendixPublic, { receipt: 'domain' });
     registerSystemVerifier('contract.system_transition', verifyContractTrigger);
+    // TIP-030c: token hợp đồng cha đã lưu; biên nhận trigger theo request (milestone) — sống lâu hơn TTL idempotency.
+    for (const id of PUBLIC_SIGN_ACTIONS) registerSystemVerifier(id, verifyParentPublic);
   }
 }

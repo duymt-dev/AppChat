@@ -111,7 +111,7 @@ export const contractsPosts: (path: string) => MockPost | undefined = (path) => 
     if (db.role !== 'owner') throw new ApiRequestError(403, { code: 'FORBIDDEN', message: 'contract.sign' });
     step(c, 'contract.approve_and_sign');
     ownerOtp.add(c.id);
-    return { sent_to: 'ow•••@annhien.vn' };
+    return { sent_to: 'ow•••@annhien.vn', delivery_status: 'accepted' };
   };
 };
 

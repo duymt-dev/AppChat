@@ -4,6 +4,11 @@ export const REDACT_KEYS = [
   'email',
   'password',
   'otp',
+  // TIP-030c: vật liệu ký — ảnh chữ ký, mã đã mã hoá, token link ký.
+  'signature_png',
+  'encrypted_secret',
+  'verification_digest',
+  'sign_token',
   'token',
   'access_token',
   'refresh_token',

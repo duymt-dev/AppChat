@@ -1,5 +1,5 @@
 // "Duyệt & ký" (Owner — OTP email + ký tay, COMMERCE §9 C1 bước 1) và "Gửi ký" (link một lần 7 ngày qua Zalo đang chat / email, bước 2).
-// "Gửi mã": POST /contracts/:id/sign-otp → email người ký (server che địa chỉ); mock hiện mã thử nghiệm.
+// "Gửi mã": POST /contracts/:id/sign-otp (facade action `contract.request_sign_otp`) → email người ký, trả trạng thái giao; mock hiện mã thử nghiệm.
 'use client';
 import { useState } from 'react';
 import { App } from 'antd';
@@ -39,9 +39,13 @@ function ApproveSign({ id }: { id: string }) {
   const close = () => set({ signFor: null });
   const sendOtp = async () => {
     try {
-      const r = await transport.post<{ sent_to: string }>(`/contracts/${id}/sign-otp`, {});
+      // Facade của action `contract.request_sign_otp` (TIP-030c) — trạng thái giao thật: queued / unknown không phải "đã tới hộp thư".
+      const r = await transport.post<{ sent_to: string; delivery_status?: string }>(`/contracts/${id}/sign-otp`, {});
       setSent(true);
-      void message.success(t('otpSent', { email: r.sent_to }));
+      const st = r.delivery_status ?? 'accepted';
+      if (st === 'accepted') void message.success(t('otpSent', { email: r.sent_to }));
+      else if (st === 'suppressed') void message.error(t('otpFail'));
+      else void message.info(t(st === 'unknown' ? 'otpUnknown' : 'otpQueued', { email: r.sent_to }));
     } catch {
       void message.error(t('otpFail'));
     }

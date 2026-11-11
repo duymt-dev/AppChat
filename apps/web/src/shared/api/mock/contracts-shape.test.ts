@@ -47,14 +47,21 @@ describe('mock hợp đồng — shape FE ↔ BE', () => {
     expect(await code(() => run('contract.extend_sign_link', { contract_id: 'ctr_1180' }))).toBe('INVALID_TRANSITION');
   });
 
-  it('trang ký công khai: open → shape; sai OTP → 422 còn lượt; ký → signed + sha; link giả → SIGN_LINK_INVALID', async () => {
-    expect(issues(signViewSchema.safeParse(await mockTransport.post('/public/sign/tk_1181_demo/open', {})))).toEqual([]);
-    await mockTransport.post('/public/sign/tk_1181_demo/otp', {});
-    expect(await code(() => mockTransport.post('/public/sign/tk_1181_demo/sign', { otp: '000001', signature_png: PNG, consent: true }))).toBe('OTP_INVALID');
-    const v = signViewSchema.parse(await mockTransport.post('/public/sign/tk_1181_demo/sign', { otp: MOCK_SIGN_OTP, signature_png: PNG, consent: true }));
+  it('trang ký công khai: GET chỉ đọc; POST cần request_id (cùng id → kết quả cũ); sai OTP → 422 còn lượt; ký → signed + sha; link giả → SIGN_LINK_INVALID', async () => {
+    const rid = () => crypto.randomUUID();
+    expect(issues(signViewSchema.safeParse(await mockTransport.get('/public/sign/tk_1181_demo')))).toEqual([]);
+    expect(await code(() => mockTransport.post('/public/sign/tk_1181_demo/open', {}))).toBe('VALIDATION_FAILED');
+    const open = rid();
+    expect(issues(signViewSchema.safeParse(await mockTransport.post('/public/sign/tk_1181_demo/open', { request_id: open })))).toEqual([]);
+    await mockTransport.post('/public/sign/tk_1181_demo/open', { request_id: open });
+    const opened = (await mockTransport.get<{ certificate: unknown[] }>('/contracts/ctr_1181')) as unknown as { events: { type: string }[] };
+    expect(opened.events.filter((e) => e.type === 'opened').length).toBeGreaterThanOrEqual(1);
+    await mockTransport.post('/public/sign/tk_1181_demo/otp', { request_id: rid() });
+    expect(await code(() => mockTransport.post('/public/sign/tk_1181_demo/sign', { otp: '000001', signature_png: PNG, consent: true, request_id: rid() }))).toBe('OTP_INVALID');
+    const v = signViewSchema.parse(await mockTransport.post('/public/sign/tk_1181_demo/sign', { otp: MOCK_SIGN_OTP, signature_png: PNG, consent: true, request_id: rid() }));
     expect(v).toMatchObject({ status: 'signed' });
     expect(v.sha256).toMatch(/^[0-9a-f]{64}$/);
-    expect(await code(() => mockTransport.post('/public/sign/nope/open', {}))).toBe('SIGN_LINK_INVALID');
+    expect(await code(() => mockTransport.post('/public/sign/nope/open', { request_id: rid() }))).toBe('SIGN_LINK_INVALID');
   });
 
   it('scope: sales chỉ thấy hợp đồng mình làm', async () => {
