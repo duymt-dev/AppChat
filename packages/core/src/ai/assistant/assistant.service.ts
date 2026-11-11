@@ -35,6 +35,9 @@ import { getArtifact, readParts } from './input/read';
 const ATTACHMENT_ONLY = { vi: 'Tệp đính kèm nói gì?', en: 'What does the attached file say?' } as const;
 import { listSessionsPage } from './session-list';
 import { agentChoicesPage } from './plans/agent-choices';
+import { planOfSession } from './plans/repo';
+import { planToDto } from './plans/progress';
+import { ownSession } from './sessions';
 import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type PreparedTurn, type ConfirmRequest, type TurnRequest } from './turn.service';
 import { waitDone } from './genui/turn-wait';
 import { draftReply, type DraftRequest } from './genui/inbox-draft';
@@ -191,6 +194,14 @@ export class AssistantService {
   /** Trang AI Agent có thể chọn làm chuyên viên Cowork (TIP-023d §5.2) — cùng service với action `assistant.agent_choices`. */
   async agentChoices(c: Caller, page: { cursor?: string; limit?: number } = {}) {
     return agentChoicesPage(await this.db(c), page);
+  }
+
+  /** `GET /assistant/sessions/:id/plan` (TIP-023d §6.1): kế hoạch mới nhất của phiên — cùng chiếu tiến độ thật với `assistant.plan_get`. */
+  async sessionPlan(c: Caller, sessionId: string) {
+    const db = await this.db(c);
+    await ownSession(db, c.userId, sessionId);
+    const found = await planOfSession(db, c.userId, sessionId);
+    return found ? planToDto(found.plan, found.steps) : null;
   }
 
   /** `GET /assistant/input/:id` (+ `/parts`) — cùng service đọc có guard với action `assistant.attachment_get` / `_read` (TIP-023f §5.3). */

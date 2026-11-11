@@ -50,8 +50,9 @@ test.describe('assistant', () => {
     await page.getByRole('radio', { name: 'Cowork' }).click();
     await expect(page.getByTestId('asst-agent-cards')).not.toContainText(/Sonnet|Haiku|Opus/);
     await page.getByTestId('asst-agent').click();
-    await page.getByRole('menuitemradio', { name: 'Booking Agent (AI)' }).click();
-    await expect(page.getByTestId('asst-agent')).toContainText('Booking Agent (AI)');
+    // Picker đọc agent_choices (agent đang chạy + đã xuất bản, theo UUID — TIP-023d §5.2), không phải thẻ màn chào.
+    await page.getByRole('menuitemradio', { name: /^Sales Agent \(AI\)/ }).click();
+    await expect(page.getByTestId('asst-agent')).toContainText('Sales Agent (AI)');
   });
 
   test('đính kèm (TIP-023c 8c → 023f): chọn tệp → chip sẵn sàng (đã đọc nội dung); tệp lạ bị từ chối; bỏ tệp; gửi kèm → chip mất', async ({ page }) => {

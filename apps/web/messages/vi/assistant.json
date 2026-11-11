@@ -549,5 +549,52 @@
       "network": "Dịch vụ nhận giọng của trình duyệt không kết nối được",
       "failed": "Không nhận được giọng nói"
     }
+  },
+  "plan": {
+    "title": "Kế hoạch",
+    "revision": "Bản {n}",
+    "progress": "Đã xong {done}/{total} bước",
+    "phase": {
+      "draft": "Bản nháp",
+      "active": "Đang chạy",
+      "pause_requested": "Đang dừng để sửa…",
+      "paused": "Đã dừng",
+      "editing": "Đang sửa",
+      "resuming": "Đang tiếp tục",
+      "completed": "Hoàn tất",
+      "cancelled": "Đã dừng hẳn",
+      "failed": "Lỗi"
+    },
+    "state": {
+      "pending": "Chờ làm",
+      "running": "Đang làm",
+      "waiting_confirmation": "Chờ anh/chị xác nhận",
+      "waiting_approval": "Chờ duyệt",
+      "waiting_external": "Chờ hệ thống ngoài",
+      "succeeded": "Đã xong",
+      "failed": "Lỗi",
+      "cancelled": "Đã huỷ",
+      "skipped": "Bỏ qua",
+      "unknown": "Chưa rõ kết quả"
+    },
+    "requestEdit": "Sửa kế hoạch",
+    "edit": "Sửa các bước",
+    "resume": "Tiếp tục",
+    "stop": "Dừng",
+    "save": "Lưu",
+    "close": "Đóng",
+    "draining": "Đang chờ các việc đã bắt đầu hoàn tất trước khi dừng…",
+    "noRollback": "Việc đã làm giữ nguyên — sửa kế hoạch không hoàn tác việc đã gửi đi.",
+    "lockedNote": "Chỉ sửa được bước chưa chạy; bước đã chạy hoặc đang chờ được giữ nguyên.",
+    "stepTitle": "Tên bước",
+    "up": "Lên trên",
+    "down": "Xuống dưới",
+    "remove": "Bỏ bước",
+    "reuseLead": "Dùng lại cách làm trước:",
+    "reuseItem": "{title} · {n} bước",
+    "loading": "Đang tải…",
+    "agentsError": "Không tải được danh sách agent",
+    "agentsEmpty": "Chưa có agent nào đang chạy",
+    "more": "Xem thêm"
   }
 }

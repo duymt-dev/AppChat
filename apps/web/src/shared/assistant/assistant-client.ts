@@ -30,6 +30,8 @@ export interface TurnRequest {
   recordIntent?: RecordIntentInput;
   /** TIP-023d §5.1: agent Cowork đã chọn (UUID, không tên) — server ghim bản đã xuất bản; vắng = Trợ lý thường. */
   selectedAgentId?: string;
+  /** TIP-023d §4.3: bản nháp kế hoạch tái dùng gắn vào lượt này (server kiểm chủ / phiên / revision, một lần). */
+  planDraft?: { plan_id: string; revision: number };
 }
 
 export const newRequestId = () => `req-${crypto.randomUUID()}`;

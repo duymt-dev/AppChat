@@ -151,6 +151,13 @@ export class AssistantController {
     return { data: await this.svc.messages(await this.caller(req, 'assistant.use'), id), next_cursor: null };
   }
 
+  /** Thẻ kế hoạch của phiên (TIP-023d §6.1) — chưa có kế hoạch → `{ data: null }`; phiên người khác → 404. */
+  @Get('assistant/sessions/:id/plan')
+  async sessionPlan(@Req() req: IncomingMessage, @Param('id') id: string) {
+    if (!z.string().uuid().safeParse(id).success) throw new AppError('NOT_FOUND', 404, { session_id: 'not_found' });
+    return { data: await this.svc.sessionPlan(await this.caller(req, 'assistant.use'), id) };
+  }
+
   @Get('assistant/input/:id')
   async input(@Req() req: IncomingMessage, @Param('id') id: string) {
     return { data: await this.svc.input(await this.caller(req, 'assistant.use'), uuid(id)) };

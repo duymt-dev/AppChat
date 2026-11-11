@@ -10,6 +10,8 @@ interface AssistantUi {
   tier: Tier;
   /** Agent Cowork đã chọn — danh tính là `id` (UUID); `name` chỉ để hiển thị (TIP-023d §5.1, trùng tên vẫn phân biệt). */
   agent: { id: string; name: string } | null;
+  /** Bản nháp kế hoạch tái dùng (plan_reuse) chờ gắn vào lượt Cowork kế tiếp — gửi một lần rồi bỏ (TIP-023d §4.3). */
+  planDraft: { plan_id: string; revision: number } | null;
   draft: string;
   messages: ChatMessage[];
   typing: boolean;
@@ -37,6 +39,7 @@ export const useAssistantUi = create<AssistantUi>((set) => ({
   mode: 'chat',
   tier: 'advanced',
   agent: null,
+  planDraft: null,
   draft: '',
   messages: [],
   typing: false,
@@ -56,5 +59,5 @@ export const useAssistantUi = create<AssistantUi>((set) => ({
   push: (m) => set((s) => ({ messages: [...s.messages, m] })),
   patchMsg: (id, p) => set((s) => ({ messages: s.messages.map((m) => (m.id === id ? { ...m, ...p } : m)) })),
   // Đổi phiên / workspace: bỏ chọn agent cũ (không mang lựa chọn sang phiên khác — §6.3).
-  reset: () => set({ messages: [], draft: '', sessionId: undefined, typing: false, lastRunId: null, agent: null }),
+  reset: () => set({ messages: [], draft: '', sessionId: undefined, typing: false, lastRunId: null, agent: null, planDraft: null }),
 }));

@@ -549,5 +549,52 @@
       "network": "The browser speech service is unreachable",
       "failed": "Voice input failed"
     }
+  },
+  "plan": {
+    "title": "Plan",
+    "revision": "Rev {n}",
+    "progress": "{done}/{total} steps done",
+    "phase": {
+      "draft": "Draft",
+      "active": "Running",
+      "pause_requested": "Pausing to edit…",
+      "paused": "Paused",
+      "editing": "Editing",
+      "resuming": "Resuming",
+      "completed": "Completed",
+      "cancelled": "Stopped",
+      "failed": "Failed"
+    },
+    "state": {
+      "pending": "To do",
+      "running": "Running",
+      "waiting_confirmation": "Waiting for your confirmation",
+      "waiting_approval": "Waiting for approval",
+      "waiting_external": "Waiting for external system",
+      "succeeded": "Done",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "skipped": "Skipped",
+      "unknown": "Result unknown"
+    },
+    "requestEdit": "Edit plan",
+    "edit": "Edit steps",
+    "resume": "Resume",
+    "stop": "Stop",
+    "save": "Save",
+    "close": "Close",
+    "draining": "Waiting for work already started to finish before pausing…",
+    "noRollback": "Work already done stays — editing the plan does not undo anything already sent.",
+    "lockedNote": "Only steps that have not started can be edited; started or waiting steps are kept.",
+    "stepTitle": "Step name",
+    "up": "Move up",
+    "down": "Move down",
+    "remove": "Remove step",
+    "reuseLead": "Reuse a previous approach:",
+    "reuseItem": "{title} · {n} steps",
+    "loading": "Loading…",
+    "agentsError": "Could not load agents",
+    "agentsEmpty": "No running agents yet",
+    "more": "Show more"
   }
 }
