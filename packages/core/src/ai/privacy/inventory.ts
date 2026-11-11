@@ -1,6 +1,7 @@
 // Kiểm kê AI cho "Quên khách" (TIP-015c §2.3 hàng 5): AI Run/Step/Assistant message gắn qua conversation_id → join conversation.contact_id.
 // Chỉ hội thoại TRỰC TIẾP của khách tính exclusive (nhóm → shared, nhất quán với inbox/privacy/inventory.ts).
 // TIP-021b: binding soạn agent theo dòng dõi run (run soạn → gốc → hội thoại của khách) — mô tả có thể chứa dữ liệu khách.
+// TIP-023g: đề xuất theo bản ghi chỉ có ở sản phẩm (không dữ liệu khách) — không vào kiểm kê khách; việc theo khách đi qua lượt Trợ lý thường.
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { idsSql, toInventory, type InvRow } from '../../kernel/privacy/sql';
 

@@ -5,6 +5,7 @@ import { prompt } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import { serverMessages, type AuthzContext } from '@appchat/shared';
 import type { AssistantMode } from './catalog';
+import { RECORD_ENTITY_DEFS } from './record-intent/registry';
 
 export interface AssistantContext {
   route?: string;
@@ -30,10 +31,17 @@ export interface AssistantRunInput {
 
 const AGENTS_IN_PROMPT = 12;
 
+/** Bản ghi có action đọc chuẩn (TIP-023g) → chỉ tên action + khoá id để model đọc theo quyền người gọi (ai:live: model trả lời "chưa tra
+ *  được" thay vì đọc). Không kèm dữ liệu bản ghi. */
+function recordReadHint(entity: string, id: string): string {
+  const def = (RECORD_ENTITY_DEFS as Record<string, { getter: string | null; idKey: string } | undefined>)[entity];
+  return def?.getter ? ` (đọc bằng ${def.getter} {"${def.idKey}":"${id.slice(0, 80)}"})` : '';
+}
+
 export function contextLine(c: AssistantContext | undefined, attachments: AssistantRunInput['attachments'], fallback: string): string {
   const lines: string[] = [];
   if (c?.route) lines.push(`- route: ${c.route.slice(0, 200)}`);
-  if (c?.entity && c.id) lines.push(`- ${c.entity.slice(0, 40)}: ${c.id.slice(0, 80)}`);
+  if (c?.entity && c.id) lines.push(`- ${c.entity.slice(0, 40)}: ${c.id.slice(0, 80)}${recordReadHint(c.entity, c.id)}`);
   if (c?.selection?.length) lines.push(`- selection: ${c.selection.slice(0, 20).join(', ')}`);
   // `file_id` để model truyền vào action đọc / nhập tệp (transfer.plan, contract.inspect_file…) — id đã qua guard, không URL / nội dung.
   // Tên tệp là dữ liệu người dùng (TIP-023f §2.6): bỏ ký tự điều khiển / ngoặc vuông để không giả được cú pháp ngữ cảnh.

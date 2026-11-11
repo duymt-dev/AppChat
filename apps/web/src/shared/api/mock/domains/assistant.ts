@@ -10,6 +10,7 @@ import { createTasksState, type MockTask } from './ai-tasks';
 import { genUiReply } from './assistant-genui';
 import { recordTurn } from './assistant-sessions';
 import { bindTurnInputs } from './assistant-input';
+import { assertRecordIntent, recordAssistantPosts } from './record-assistant';
 
 export type AssistantFixture = typeof fixture;
 export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title' | 'object'> & {
@@ -211,10 +212,13 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
     const files = hasInputs ? bindTurnInputs(body.inputs, session) : null;
     // Mock không gọi model: tệp đã chuẩn bị → trả đoạn trích tất định (hợp đồng), không phải chứng minh hiểu nội dung.
+    // TIP-023g: lối vào theo bản ghi — kiểm cặp / bản ghi như server (422 / 404), mock không gọi model.
+    if (body.record_intent !== undefined) assertRecordIntent(db, body.record_intent);
     const events = files ? [{ type: 'delta' as const, text: `[mock] Đã nhận ${files.names.map((f) => f.name).join(', ')}${files.excerpt ? `: ${files.excerpt}` : ''}` }] : scriptReply(db, text, (body.context as { route?: string } | undefined)?.route);
     recordTurn(session, String(body.mode ?? 'chat'), text, events as never, files?.names);
     return { session_id: session, run_id: null, events };
   },
+  ...recordAssistantPosts,
   // POST /v1/assistant/preview-edit — Sửa thẻ: chỉ xem trước lại, token cũ mất hiệu lực (REQ-E03b)
   '/assistant/preview-edit': (db, body) => {
     const p = db.assistant.pending.find((x) => x.token === body.confirm_token);

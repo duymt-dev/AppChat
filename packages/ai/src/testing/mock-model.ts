@@ -6,6 +6,7 @@ import type { ModelCandidate, ModelSource } from '../gateway/types';
 import { mockKbSuggestion } from './mock-kb-suggestion';
 import { mockUtility } from './mock-utility';
 import { mockAgentDraft } from './mock-agent-draft';
+import { mockRecordProposal } from './mock-record-proposal';
 
 export type MockTurn =
   | { text: string; tokensIn?: number; tokensOut?: number }
@@ -230,6 +231,9 @@ export const echoScript: MockScript = (ctx) => {
   // Soạn cấu hình agent (TIP-021b): JSON đúng khuôn, tool chỉ trong ứng viên đã lọc quyền.
   const draft = mockAgentDraft(system, lastUser);
   if (draft) return { text: draft };
+  // Đề xuất theo bản ghi (TIP-023g): combo / chiến dịch đúng khuôn, id chỉ trong ứng viên.
+  const proposal = mockRecordProposal(system, lastUser);
+  if (proposal) return { text: proposal };
   // Skill dịch (TIP-025 `ai.translate`, TIP-025b `ai.translate_draft`): tiền tố ngôn ngữ đích + nguyên văn.
   const xl = /^# TRANSLATE[\s\S]*Target: (vi|en|zh|ko|ja)/.exec(system);
   if (xl) return { text: `[${xl[1]!.toUpperCase()}] ${lastUser}` };

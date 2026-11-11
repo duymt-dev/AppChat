@@ -7,6 +7,7 @@ import { useTranslations } from 'next-intl';
 import { EntityDrawer, Icon, color, gradient } from '@appchat/ui';
 import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
 import { useDrawerAsk } from '@/shared/assistant/useDrawerAsk';
+import { RecordDrawerSection, useRecordBound } from '@/shared/assistant/record-intent/RecordDrawerSection';
 import { useQuoteAiStyles } from '../styles/ai.styles';
 import { useQuotesUi } from '../quotes-store';
 import type { QuotesMeta } from '../types';
@@ -24,6 +25,7 @@ export function QuoteAiDrawer({ meta }: { meta: QuotesMeta }) {
   const ui = useQuotesUi();
   const [result, setResult] = useState('');
   const { asst, draft, setDraft, send, ask } = useDrawerAsk('quotes');
+  const bound = useRecordBound('quotes');
   const run = (k: string) => {
     if (k === 'draft') return ui.set({ aiOpen: false, draftOpen: true });
     setResult(meta.ai_runs[k] ?? '');
@@ -43,58 +45,72 @@ export function QuoteAiDrawer({ meta }: { meta: QuotesMeta }) {
       // `.p360` của prototype (L5538) bị ép 340px ở ≤ 1440 (L71).
       width={340}
       footer={
-        <div className={styles.foot}>
-          <div className={styles.box}>
-            <input
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && send()}
-              placeholder={t('ph')}
-              aria-label={t('ph')}
-            />
-            <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
-              <Icon name="ic-send" size={14} color={color.white} />
-            </button>
+        bound ? undefined : (
+          <div className={styles.foot}>
+            <div className={styles.box}>
+              <input
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && send()}
+                placeholder={t('ph')}
+                aria-label={t('ph')}
+              />
+              <button type="button" className={styles.send} onClick={send} aria-label={t('send')}>
+                <Icon name="ic-send" size={14} color={color.white} />
+              </button>
+            </div>
           </div>
-        </div>
+        )
       }
     >
-      <div className={styles.intro}>
-        <span className={styles.bot}>
-          <Icon name="ic-spark" size={14} color={color.white} />
-        </span>
-        <div className={styles.bubble}>{t.rich('intro', { b: (c) => <b>{c}</b> })}</div>
-      </div>
-      <div className={styles.group}>{t('group')}</div>
-      <div className={styles.list}>
-        {RUNS.map(([k, tone]) => (
-          <button
-            key={k}
-            type="button"
-            className={styles.run}
-            onClick={() => run(k)}
-            disabled={asst.typing}
-            data-testid={`q-ai-${k}`}
-          >
-            <span className={styles.runIc} style={{ background: `${tone}18` }}>
-              <Icon name="ic-spark" size={15} color={tone} />
+      <RecordDrawerSection module="quotes" testId="q-rai" />
+      {bound ? null : (
+        <>
+          <div className={styles.intro}>
+            <span className={styles.bot}>
+              <Icon name="ic-spark" size={14} color={color.white} />
             </span>
-            <div>
-              <div className={styles.runL}>{t(`runs.${k}` as never)}</div>
-              <div className={styles.runD}>{t(`runs.${k}D` as never)}</div>
+            <div className={styles.bubble}>{t.rich('intro', { b: (c) => <b>{c}</b> })}</div>
+          </div>
+          <div className={styles.group}>{t('group')}</div>
+          <div className={styles.list}>
+            {RUNS.map(([k, tone]) => (
+              <button
+                key={k}
+                type="button"
+                className={styles.run}
+                onClick={() => run(k)}
+                disabled={asst.typing}
+                data-testid={`q-ai-${k}`}
+              >
+                <span className={styles.runIc} style={{ background: `${tone}18` }}>
+                  <Icon name="ic-spark" size={15} color={tone} />
+                </span>
+                <div>
+                  <div className={styles.runL}>{t(`runs.${k}` as never)}</div>
+                  <div className={styles.runD}>{t(`runs.${k}D` as never)}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+          {result ? (
+            <div className={styles.result} data-testid="q-ai-result">
+              <div className={styles.resultH}>{t('result')}</div>
+              {result}
             </div>
-          </button>
-        ))}
-      </div>
-      {result ? (
-        <div className={styles.result} data-testid="q-ai-result">
-          <div className={styles.resultH}>{t('result')}</div>
-          {result}
-        </div>
-      ) : null}
-      <div className={styles.thread}>
-        <ScreenAssistantThread msgs={asst.msgs} typing={asst.typing} onDecide={(m, d) => void asst.decide(m, d)} onUi={asst.runUi} onOpenFull={asst.openFull} testId="q-ai-msgs" />
-      </div>
+          ) : null}
+          <div className={styles.thread}>
+            <ScreenAssistantThread
+              msgs={asst.msgs}
+              typing={asst.typing}
+              onDecide={(m, d) => void asst.decide(m, d)}
+              onUi={asst.runUi}
+              onOpenFull={asst.openFull}
+              testId="q-ai-msgs"
+            />
+          </div>
+        </>
+      )}
     </EntityDrawer>
   );
 }

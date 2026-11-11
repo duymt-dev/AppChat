@@ -8,6 +8,7 @@ import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
+import { EmbeddedRecordAssistant } from '@/shared/assistant/record-intent/RecordDrawerSection';
 import { useInvoiceTabStyles } from '../styles/tabs.styles';
 import { useInvoicePayStyles } from '../styles/pay.styles';
 import { useInvoicesUi } from '../invoices-store';
@@ -103,7 +104,12 @@ export function OverviewTab({ i }: { i: Invoice }) {
         >
           {i.status === 'draft' ? t('detail.send') : t('detail.remind')}
         </button>
-        <ChannelSelect value={channel} onChange={setChannel} disabled={!open || !canManage} testId="iv-send-channel" />
+        <ChannelSelect
+          value={channel}
+          onChange={setChannel}
+          disabled={!open || !canManage}
+          testId="iv-send-channel"
+        />
       </div>
       <PaymentList i={i} />
       <VietQrCard i={i} />
@@ -151,9 +157,17 @@ export function CrmTab({ i, meta }: { i: Invoice; meta: InvoicesMeta }) {
 
 export function AiTab({ i }: { i: Invoice }) {
   const t = useTranslations('invoices.detail');
-  const { message } = App.useApp();
   const { styles } = useInvoiceTabStyles();
-  const { styles: pay } = useInvoicePayStyles();
+  // Việc gợi ý (`ai.acts`) là CHỮ hiển thị — chọn thì trích vào ô việc để người dùng sửa rồi tự Gửi; không bao giờ chạy thẳng (TIP-023g §1.5).
+  const choices = [
+    { intent: 'inspect' as const, labelKey: 'intent.inspect', task: '' },
+    ...i.ai.acts.map((a) => ({
+      intent: 'invoice_task' as const,
+      labelKey: 'intent.invoice_task',
+      label: a,
+      task: a,
+    })),
+  ];
   return (
     <>
       <div className={styles.card}>
@@ -163,22 +177,15 @@ export function AiTab({ i }: { i: Invoice }) {
           <div>{i.ai.text || t('aiNone')}</div>
         </div>
       </div>
-      {i.ai.acts.length ? (
-        <div className={styles.card}>
-          <div className={styles.h}>{t('aiActs')}</div>
-          {i.ai.acts.map((a) => (
-            <button
-              key={a}
-              type="button"
-              className={pay.docRow}
-              onClick={() => void message.info(t('aiDoing', { act: a, code: i.code }))}
-            >
-              <span>{a}</span>
-              <span>{t('aiDo')}</span>
-            </button>
-          ))}
-        </div>
-      ) : null}
+      <div className={styles.card}>
+        <div className={styles.h}>{t('aiActs')}</div>
+        <EmbeddedRecordAssistant
+          module="invoices"
+          scopeOf={{ module: 'invoices', entity: 'invoice', id: i.id, label: i.code }}
+          choices={choices}
+          testId="inv-rai"
+        />
+      </div>
     </>
   );
 }

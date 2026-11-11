@@ -83,7 +83,6 @@
   "dash": "—",
   "spark": "✦ {hint}",
   "aiDo": "Hand to AI Agent now",
-  "aiDoing": "AI Agent is handling {code}",
   "menu": {
     "open": "Actions",
     "view": "View details",

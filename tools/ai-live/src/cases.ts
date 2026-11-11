@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking', 'ai_utility', 'input', 'stage_hold', 'agent_draft'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking', 'ai_utility', 'input', 'stage_hold', 'agent_draft', 'record'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0, ai_utility: 0, input: 0, stage_hold: 0, agent_draft: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0, ai_utility: 0, input: 0, stage_hold: 0, agent_draft: 0, record: 0 };
 
 const expectSchema = z
   .object({
@@ -82,9 +82,11 @@ const expectSchema = z
     stage_hold: z.literal(true).optional(),
     /** Ca soạn agent TIP-021b (agent-draft-judge.ts): gọi thẳng action, chấm tool theo ứng viên của binding + quyền thật. */
     agent_draft: z.literal(true).optional(),
+    /** Ca lối vào theo bản ghi TIP-023g (record-judge.ts): chấm getter / binding đề xuất / 404 theo API thật. */
+    record: z.literal(true).optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking || e.ai_utility || e.input_file || e.stage_hold || e.agent_draft, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking || e.ai_utility || e.input_file || e.stage_hold || e.agent_draft || e.record, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -159,6 +161,15 @@ export const caseSchema = z
     /** Ca soạn agent TIP-021b: `allowed` (Owner — tool cần có / một trong / cấm) · `limited` (Sales thật — không quyền action → không cấp). */
     agent_draft: z
       .object({ kind: z.enum(['allowed', 'limited']), want: z.array(z.string().max(60)).max(6).optional(), any: z.array(z.string().max(60)).max(6).optional(), forbid: z.array(z.string().max(60)).max(6).optional() })
+      .strict()
+      .optional(),
+    /** Ca lối vào theo bản ghi TIP-023g: `inspect` (lượt theo bản ghi seed) · `proposal` (đề xuất combo / chiến dịch) · `limited` (Sales ngoài scope → 404). */
+    record: z
+      .object({
+        kind: z.enum(['inspect', 'proposal', 'limited']),
+        entity: z.enum(['quote', 'contract', 'order', 'appointment', 'follow_up', 'ticket', 'invoice', 'product']),
+        intent: z.enum(['inspect', 'review_ticket', 'invoice_task', 'product_combo', 'product_campaign']).default('inspect'),
+      })
       .strict()
       .optional(),
     /** Ca đầu vào tệp TIP-023f: khoá tệp seed (assistant-input-seed.mjs — tải lên + chuẩn bị mỗi lượt). */

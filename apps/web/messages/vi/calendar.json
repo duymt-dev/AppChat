@@ -81,8 +81,7 @@
       "overdue": "Quá hạn"
     },
     "aiDo": "Giao AI Agent xử lý ngay",
-    "aiPeek": "Xem gợi ý AI",
-    "aiDoing": "AI Agent đang xử lý {name}"
+    "aiPeek": "Xem gợi ý AI"
   },
   "dow": ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
   "month": "Tháng {m} · {y}",

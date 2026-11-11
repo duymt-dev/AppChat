@@ -79,3 +79,14 @@ export async function visibleFollowUps(tx: Tx, authz: AuthzContext, limit: numbe
   ]);
   return { rows, total: Number(count[0]?.n ?? 0n) };
 }
+
+/** Một việc follow theo id cho lối vào Trợ lý theo bản ghi (TIP-023g §5.2): còn mở + khách sống + scope crm của người xem — ngoài scope /
+ *  đã xong / bị thay → null (404 đồng nhất, không lộ tồn tại). Không đọc hồ sơ 360 của khách. */
+export async function visibleFollowUp(tx: Tx, authz: AuthzContext, id: string): Promise<FollowUpRow | null> {
+  const rows = await tx.$queryRaw<FollowUpRow[]>`
+    SELECT f.id, f.contact_id, f.due_at, f.version, c.name, c.stage::text AS stage, c.owner_user_id, NULL::text AS last_channel
+    FROM follow_up f JOIN contact c ON c.id = f.contact_id
+    WHERE f.id = ${id}::uuid AND f.status = 'pending' AND ${LIVE} AND ${crmScopeSql(authz)}
+    LIMIT 1`;
+  return rows[0] ?? null;
+}

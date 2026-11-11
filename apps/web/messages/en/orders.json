@@ -96,7 +96,6 @@
   "more": "{name} +{n}",
   "spark": "✦ {hint}",
   "aiDo": "Hand to AI Agent now",
-  "aiDoing": "AI Agent is handling {code}",
   "aiPeek": "View AI hint",
   "menu": {
     "open": "Actions",

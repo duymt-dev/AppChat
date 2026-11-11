@@ -6,7 +6,7 @@ import { useCallback, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { create } from 'zustand';
-import type { ConfirmEventDto, GenUiPart, TurnEventDto, UiCommand } from '@appchat/shared';
+import { ApiRequestError, type ConfirmEventDto, type GenUiPart, type RecordIntentInput, type TurnEventDto, type UiCommand } from '@appchat/shared';
 import { postConfirm, type AssistantMode } from './assistant-client';
 import { streamTurn } from './turn-stream';
 import { currentScreen, toTurnContext } from './screen-context';
@@ -23,7 +23,11 @@ export interface ScreenMsg {
   ui?: GenUiPart;
   /** Lượt lỗi (mạng / máy chủ) — hiện câu lỗi chung, không giả câu trả lời. */
   error?: boolean;
+  /** Mã lỗi server (NOT_FOUND / FORBIDDEN / CONFLICT…) — lối vào theo bản ghi nói đúng lý do (không thấy / không quyền / đã đổi). */
+  errorCode?: string;
 }
+
+const errCode = (e: unknown): string | undefined => (e instanceof ApiRequestError ? e.error.code : undefined);
 
 interface Thread {
   sessionId?: string;
@@ -94,19 +98,21 @@ export function useScreenAssistant(module: string, mode: AssistantMode = 'cowork
   );
 
   const send = useCallback(
-    async (raw: string) => {
+    async (raw: string, o: { recordIntent?: RecordIntentInput; requestId?: string } = {}) => {
       const text = raw.trim();
       if (!text) return;
       const t = useScreenThreads.getState().threads[module] ?? EMPTY;
       patch(module, (cur) => ({ msgs: [...cur.msgs, { id: mid(), role: 'user', text }], typing: true }));
       try {
-        // Qua SSE (đóng DV-006): xong lượt mới hiện tin chuẩn — drawer gọn, không cần bong bóng gõ dần.
-        const turn = await streamTurn({ text, mode, sessionId: t.sessionId, context: toTurnContext(currentScreen(), 'drawer', pathname) });
+        // Qua SSE (đóng DV-006): xong lượt mới hiện tin chuẩn — drawer gọn, không cần bong bóng gõ dần. Lượt theo bản ghi (TIP-023g):
+        // bản ghi bấm thay ngữ cảnh màn chung (không để dòng chọn khác đè).
+        const context = o.recordIntent ? { route: pathname, surface: 'drawer' as const } : toTurnContext(currentScreen(), 'drawer', pathname);
+        const turn = await streamTurn({ text, mode, sessionId: t.sessionId, context, ...(o.recordIntent ? { recordIntent: o.recordIntent, requestId: o.requestId ?? o.recordIntent.request_id } : {}) });
         const { msgs, commands } = messagesOf(turn.events);
         patch(module, (cur) => ({ sessionId: turn.session_id, msgs: [...cur.msgs, ...msgs] }));
         commands.forEach(runUi);
-      } catch {
-        patch(module, (cur) => ({ msgs: [...cur.msgs, { id: mid(), role: 'ai', text: '', error: true }] }));
+      } catch (e) {
+        patch(module, (cur) => ({ msgs: [...cur.msgs, { id: mid(), role: 'ai', text: '', error: true, ...(errCode(e) ? { errorCode: errCode(e) } : {}) }] }));
       } finally {
         patch(module, { typing: false });
       }

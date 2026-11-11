@@ -1,12 +1,12 @@
 // Chế độ "Danh sách" — prototype bkGroups L3915–3943 / L11123: nhóm theo ngày, dòng lịch hẹn + dòng FOLLOW-UP (sọc tím) xen theo giờ.
 'use client';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useCalViewStyles } from '../styles/views.styles';
 import { useCalendarUi } from '../calendar-store';
+import { useRecordScopes } from '@/shared/assistant/record-intent/store';
 import { PAY_TONE, STATUS_TONE } from '../status';
 import { hmOf, minOf } from '../dates';
 import type { Appointment, CalendarMeta, FollowUp } from '../types';
@@ -14,10 +14,20 @@ import type { Appointment, CalendarMeta, FollowUp } from '../types';
 /** Ô avatar của AI Agent (prototype ownerAv L11152). */
 const AI_AV = 'AI';
 
-function AiCell({ hint, name }: { hint: string; name: string }) {
+function AiCell({
+  hint,
+  name,
+  entity,
+  id,
+}: {
+  hint: string;
+  name: string;
+  entity: 'appointment' | 'follow_up';
+  id: string;
+}) {
   const t = useTranslations('calendar.list');
-  const { message } = App.useApp();
   const { styles } = useCalViewStyles();
+  const set = useCalendarUi((s) => s.set);
   return (
     <div className={styles.ai} onClick={(e) => e.stopPropagation()}>
       <span className={styles.aiT} title={hint}>{`✦ ${hint}`}</span>
@@ -26,7 +36,10 @@ function AiCell({ hint, name }: { hint: string; name: string }) {
         className={styles.aiPeek}
         title={t('aiPeek')}
         aria-label={t('aiPeek')}
-        onClick={() => void message.info(t('aiDoing', { name }))}
+        onClick={() => {
+          useRecordScopes.getState().open({ module: 'calendar', entity, id, label: name });
+          set({ aiOpen: true });
+        }}
       >
         <Icon name="ic-spark" size={12} color={color.violet} />
       </button>
@@ -73,7 +86,7 @@ function ApptRow({ a, meta }: { a: Appointment; meta: CalendarMeta }) {
           {t(`status.${a.status}`)}
         </span>
       </div>
-      <AiCell hint={t('list.hint', { name: st.name })} name={a.contact_name} />
+      <AiCell hint={t('list.hint', { name: st.name })} name={a.contact_name} entity="appointment" id={a.id} />
       <div>
         <span className={styles.pay} style={{ color: PAY_TONE[pay] }}>
           {t(`pay.${pay}` as never)}
@@ -113,11 +126,19 @@ function FollowRow({ f }: { f: FollowUp }) {
         <div className={styles.chV}>{t(`source.${f.channel}` as never)}</div>
       </div>
       <div>
-        <span className={styles.due} style={{ color: f.due === 'overdue' ? color.dangerStrong : color.amberDeep }}>
+        <span
+          className={styles.due}
+          style={{ color: f.due === 'overdue' ? color.dangerStrong : color.amberDeep }}
+        >
           {t(`list.due.${f.due}`)}
         </span>
       </div>
-      <AiCell hint={ai ? t('list.hintAi') : t('list.hintFu', { name: owner })} name={f.contact_name} />
+      <AiCell
+        hint={ai ? t('list.hintAi') : t('list.hintFu', { name: owner })}
+        name={f.contact_name}
+        entity="follow_up"
+        id={f.id}
+      />
       <div>
         <button
           type="button"
@@ -138,14 +159,10 @@ export function ListView({ rows, meta, day }: { rows: Appointment[]; meta: Calen
   const { styles } = useCalViewStyles();
   // Follow-up chỉ thuộc "hôm nay" của workspace; xen theo giờ (prototype đặt giữa danh sách lịch).
   const fus = day === meta.today ? meta.follow_ups : [];
-  const items = [
-    ...rows.map((a) => ({ at: a.start_at, a })),
-    ...fus.map((f) => ({ at: f.at, f })),
-  ].sort((x, y) => x.at.localeCompare(y.at));
-  const label =
-    day === meta.today
-      ? t('list.today', { date: fmt.dateLong(day) })
-      : fmt.dateLong(day);
+  const items = [...rows.map((a) => ({ at: a.start_at, a })), ...fus.map((f) => ({ at: f.at, f }))].sort(
+    (x, y) => x.at.localeCompare(y.at),
+  );
+  const label = day === meta.today ? t('list.today', { date: fmt.dateLong(day) }) : fmt.dateLong(day);
   return (
     <div className={styles.group} data-testid="cal-list">
       <div className={styles.groupH}>

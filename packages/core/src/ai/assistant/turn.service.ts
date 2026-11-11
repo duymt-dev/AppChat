@@ -5,7 +5,7 @@
 import { registry } from '@appchat/actions';
 import type { ToolOutcome } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
+import { AI_TIERS, AppError, serverMessages, tierAllowed, type AiTierKey, type AssistantTurnDto, type AuthzContext, type RecordIntentInput, type TurnEventDto, type UiCommandDto } from '@appchat/shared';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
 import { uuidv7 } from '../../kernel/ids';
 import type { GenUiIntents } from '../../kernel/actions/genui-intent';
@@ -18,7 +18,7 @@ import { confirmCard } from './card';
 import type { AssistantMode } from './catalog';
 import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, type AssistantTurnCtx } from './meta-tools';
 import { readBack } from './action-readback';
-import { resolveContext } from './genui/context';
+import { resolveContext, resolveRecordTurnContext } from './genui/context';
 import { resolveAttachments } from './genui/attachments';
 import { bindInputs, checkInputs, inputRefParts, type InputHandle } from './input/bind';
 import { inputResolver } from './input/hydrate';
@@ -79,6 +79,8 @@ export interface TurnRequest {
   inputs?: InputHandle[];
   /** Khoá idempotent của lượt (TIP-023c): cùng khoá + cùng input → cùng run; khác input → 409. */
   requestId?: string;
+  /** TIP-023g: lối vào theo bản ghi — bản ghi bấm thay ngữ cảnh màn (đọc lại theo quyền hiện hành; không đọc được → 404 / 403). */
+  recordIntent?: RecordIntentInput;
 }
 
 /** Mức AI của lượt: chọn của người dùng (hoặc mặc định ở Cài đặt › Mô hình AI), hạ về mức cao nhất gói cho phép. */
@@ -158,7 +160,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   const now = d.now();
   // Tệp đã chuẩn bị: kiểm TRƯỚC (chủ / ready / revision / chưa buộc phiên khác); hash gồm id:revision:digest đã sắp → đổi danh sách = 409.
   const inputs = await checkInputs(db, q.userId, q.inputs ?? [], q.sessionId);
-  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}) });
+  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, ...(q.recordIntent ? { record: q.recordIntent } : {}), attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}) });
   const ledger = new RequestStore(db, d.now);
   const replay = async (): Promise<PreparedTurn | null> => {
     const prev = await db.assistantRequest.findUnique({ where: { userId_requestId: { userId: q.userId, requestId: q.requestId } } });
@@ -173,7 +175,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   const runId = uuidv7(now.getTime());
   const t: AssistantTurnCtx = { ws: q.ws, runId, userId: q.userId, authz: q.authz, mode: q.mode, locale: q.locale, role: q.role };
   // Ngữ cảnh màn là gợi ý: chỉ bản ghi người gọi đọc được (quyền hiện hành) mới vào prompt / ai_run.input.
-  const context = await resolveContext(d.executor, t, q.context);
+  const context = q.recordIntent ? await resolveRecordTurnContext({ db, executor: d.executor }, t, q.recordIntent, q.context?.route) : await resolveContext(d.executor, t, q.context);
   // Tệp đính kèm: guard server trước model (tenant / người tải / purpose / hạn / mime / size) — tên client gửi không được tin.
   const attachments = await resolveAttachments(db, q.userId, (q.attachments ?? []).map((a) => a.id), now);
   const tier = await tierOf(d, db, q.ws, q.tier);

@@ -1,7 +1,6 @@
 // Cột DataTable Đơn hàng — prototype L5521 (grid 30 110 1.3fr 1.4fr .9fr .9fr 1fr .9fr 120 44) + thẻ mobile / kanban.
 // 2 trục (COMMERCE §4): cột Thanh toán = pay_status, cột Trạng thái = tiến độ đơn. Đơn sàn có badge nguồn (D31).
 'use client';
-import { App } from 'antd';
 import { useTranslations } from 'next-intl';
 import { ActionMenu, Icon, color, type TableColumnsType } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
@@ -9,6 +8,7 @@ import { useCan } from '@/shared/authz/useCan';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useOrderCellStyles } from './styles/cells.styles';
 import { useOrdersUi } from './orders-store';
+import { useRecordScopes } from '@/shared/assistant/record-intent/store';
 import { PAY_TONE, STATUS_TONE, avColor, avInitial } from './status';
 import type { Order } from './types';
 import { useCustomColumns } from '@/shared/custom-fields';
@@ -71,7 +71,6 @@ export function Avatar({ name, small, className }: { name: string; small?: boole
 
 function AiCell({ o }: { o: Order }) {
   const t = useTranslations('orders');
-  const { message } = App.useApp();
   const { styles } = useOrderCellStyles();
   const set = useOrdersUi((s) => s.set);
   return (
@@ -85,7 +84,10 @@ function AiCell({ o }: { o: Order }) {
           className={styles.aiDo}
           title={t('aiDo')}
           aria-label={t('aiDo')}
-          onClick={() => void message.info(t('aiDoing', { code: o.code }))}
+          onClick={() => {
+            useRecordScopes.getState().open({ module: 'orders', entity: 'order', id: o.id, label: o.code });
+            set({ aiOpen: true });
+          }}
         >
           <Icon name="ic-bolt" size={12} color={color.white} strokeWidth={2} />
         </button>
