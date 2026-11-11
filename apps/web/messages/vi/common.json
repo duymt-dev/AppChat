@@ -314,5 +314,11 @@
     },
     "unbind": "Bỏ gắn bản ghi",
     "comboItem": "{qty} × {name} — {price}"
+  },
+  "citations": {
+    "title": "Nguồn của câu trả lời",
+    "originalDraft": "Nguồn của bản nháp AI gốc",
+    "unavailable": "Nguồn không còn khả dụng — nội dung đã thay đổi hoặc bạn không còn quyền xem",
+    "restricted": "Tài liệu (không đủ quyền xem tên)"
   }
 }

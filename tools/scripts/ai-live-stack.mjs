@@ -40,6 +40,8 @@ const env = {
   TENANT_MAIL_TRANSPORT: 'fake',
   FILES_DIR: filesDir,
   TENANT_POOL_MAX: '2',
+  // Máy dev dùng chung Postgres (100 slot) với nhiều workspace test cũ — giới hạn số client tenant mở cùng lúc của stack.
+  TENANT_CLIENT_CACHE: process.env.AI_LIVE_TENANT_CACHE ?? '12',
   TENANT_CLIENT_IDLE_MS: '20000',
   REDIS_URL: (base.REDIS_URL ?? 'redis://127.0.0.1:6379/0').replace(/\/\d+$/, '') + `/${DB}`,
 };

@@ -1,7 +1,8 @@
 // Mock Audit log + AI Audit log (TIP-045b A2) cùng hợp đồng API (packages/shared/src/api/audit.ts): không tham số → mảng; `page=1` /
 // `cursor` / lọc → trang `{ data, next_cursor }` created_at DESC. Dữ liệu = dòng prototype (fixture settings.json) chuyển sang DTO —
 // `action` giữ chữ prototype (nhãn hiển thị), `action_id` = action tương ứng để lọc; giờ là giờ VN của ngày mẫu.
-import { AUDIT_PAGE_SIZE, type AiAuditRowDto, type AuditRowDto } from '@appchat/shared';
+import { AUDIT_PAGE_SIZE, type AuditRowDto } from '@appchat/shared';
+import { aiAuditRows } from './audit-ai-rows';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockRoute } from '../routes';
 
@@ -27,19 +28,7 @@ const audit: (AuditRowDto & { security: boolean })[] = fixture.audit.map((a, i) 
   security: SECURITY.has(AUDIT_IDS[i] ?? ''),
 }));
 
-const ai: AiAuditRowDto[] = fixture.ai_audit.map((l, i) => ({
-  id: id('cc', i),
-  time: at(l.time),
-  actor: l.actor,
-  agent_name: null,
-  action: l.action,
-  context: l.context,
-  tier: 'standard',
-  credits: 0,
-  tokens: 0,
-  status: l.status as AiAuditRowDto['status'],
-  trace_id: null,
-}));
+
 
 type P = Record<string, unknown>;
 const str = (v: unknown) => (typeof v === 'string' && v ? v : undefined);
@@ -70,6 +59,6 @@ export const auditRoutes: Record<string, MockRoute> = {
   },
   '/settings/ai-audit': (_db, p) => {
     const actor = str(p.actor);
-    return page(ai, p, (r) => !actor || r.actor === actor);
+    return page(aiAuditRows, p, (r) => !actor || r.actor === actor);
   },
 };

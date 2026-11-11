@@ -147,16 +147,20 @@ describe('một lượt agent (AC3)', () => {
     const id = await conversation(ag, ['Spa mở cửa mấy giờ vậy?'], { contactId: k.body.data.result.contact_id });
     const before = (await h.app.get(WalletService, { strict: false }).balance(h.ws)).total;
     seen.length = 0;
-    expect(await replyTurn(deps([say({ reply: 'Dạ spa mở cửa 8h–20h mỗi ngày ạ.', confidence: 0.92 })]), h.ws, id)).toBe('sent');
+    // TIP-020d: có tài liệu trong ngữ cảnh → câu trả lời phải trích dẫn bí danh nguồn (S1) mới được tự gửi.
+    expect(await replyTurn(deps([say({ reply: 'Dạ spa mở cửa 8h–20h mỗi ngày ạ.', confidence: 0.92, citations: [{ ref: 'S1', quote: 'mở cửa 8h–20h mỗi ngày' }] })]), h.ws, id)).toBe('sent');
     const out = await outgoing(id);
     expect(out).toHaveLength(1);
     expect(out[0]).toMatchObject({ senderType: 'agent', senderId: ag, body: 'Dạ spa mở cửa 8h–20h mỗi ngày ạ.' });
-    expect(seen[0]!.system).toMatch(/Spa Hương Sen mở cửa từ 8 giờ đến 20 giờ/);
+    expect(seen[0]!.system).toMatch(/# TÀI LIỆU\n\[S1\]\n[\s\S]*?Spa Hương Sen mở cửa từ 8 giờ đến 20 giờ/);
+    expect(seen[0]!.system).not.toMatch(/Giờ mở cửa\]/);
     expect(seen[0]!.system).toMatch(/Ghi nhớ: Thích làm HIFU buổi tối/);
     expect(seen[0]!.system).toMatch(/"needs_human"/);
     const run = await db.aiRun.findFirstOrThrow({ where: { conversationId: id, kind: 'agent_reply' } });
     expect(run).toMatchObject({ status: 'completed', agentId: ag, agentVersion: 1 });
     expect(run.confidence).toBeCloseTo(0.92);
+    expect(run.citationPhase).toBe('validated');
+    expect(run.answerCitations).toMatchObject({ state: 'validated', citations: [{ claim_start: 7 }] });
     expect((await h.app.get(WalletService, { strict: false }).balance(h.ws)).total).toBeLessThan(before);
     // Đã trả lời → lượt sau không chạy (tin cuối là của agent).
     expect(await replyTurn(deps([say({ reply: 'x', confidence: 1 })]), h.ws, id)).toBe('skipped');

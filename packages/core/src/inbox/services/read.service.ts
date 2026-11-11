@@ -11,6 +11,7 @@ import { threadAround, threadPage, threadSearchPage, type ThreadCtx } from './th
 import { avatarKey, avatarLinks } from '../../channels/operations/avatar-read';
 import type { FileLinks } from '../../kernel/files/file-links';
 import { staleAiContent, suggestionCurrent, suggestionRefOf } from '../../ai/kb/scope/draft-binding';
+import { citationsOf } from '../../ai/citations/projection';
 
 export interface Viewer {
   workspaceId: string;
@@ -63,7 +64,10 @@ export class InboxReadService {
     const p = await this.place(v);
     return this.tx(v, async (tx) => {
       const c = await visibleConversation(tx, v.authz, id);
-      return (await this.rows(tx, [c.id], p, v.workspaceId))[0]!;
+      const dto = (await this.rows(tx, [c.id], p, v.workspaceId))[0]!;
+      // TIP-020d: nguồn của nháp AI (chỉ ở chi tiết một hội thoại, không ở danh sách) — đúng run / thế hệ của nháp đang chiếu.
+      const cites = dto.ai_draft_ref ? await citationsOf(tx as never, dto.ai_draft_ref.id, v.authz) : null;
+      return cites ? { ...dto, ai_draft_citations: cites } : dto;
     });
   }
 
@@ -96,7 +100,8 @@ export class InboxReadService {
       // TIP-020c: gợi ý phụ thuộc nguồn tri thức không còn hợp lệ → không chiếu (ẩn cả gợi ý, không chỉ trích dẫn).
       const s = (await suggestionCurrent(tx, c.aiSuggestion)) ? suggestionOf(c.aiSuggestion) : null;
       const ref = suggestionRefOf(c.aiSuggestion);
-      return { ...r, suggestion: s && ref ? { ...s, ref } : s };
+      const cites = s && ref ? await citationsOf(tx as never, ref.id, v.authz) : null;
+      return { ...r, suggestion: s && ref ? { ...s, ref, ...(cites ? { citations: cites } : {}) } : s };
     });
   }
 

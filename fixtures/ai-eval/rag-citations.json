@@ -1,0 +1,244 @@
+{
+ "suite": "rag-citations",
+ "cases": [
+  {
+   "id": "rc-initial",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Chào em, mã giờ mở cửa của gói {gio} là gì vậy?",
+   "citation": {
+    "path": "grounded",
+    "want": [
+     "gio"
+    ],
+    "deny": [
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-tool",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Cho chị hỏi mã bảng giá của gói {gia} với.",
+   "citation": {
+    "path": "grounded",
+    "want": [
+     "gia"
+    ],
+    "deny": [
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-consult",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Gói {bh} có mã bảo hành là gì em nhỉ?",
+   "citation": {
+    "path": "grounded",
+    "want": [
+     "bh"
+    ],
+    "deny": [
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-selected",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Em đọc giúp chị mã giờ mở cửa gói {gio} và mã bảng giá gói {gia} nhé.",
+   "citation": {
+    "path": "grounded",
+    "want": [
+     "gio",
+     "gia"
+    ],
+    "deny": [
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-task",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Mình cần mã bảo hành của gói {bh} để ghi vào phiếu, bạn gửi giúp.",
+   "citation": {
+    "path": "grounded",
+    "want": [
+     "bh"
+    ],
+    "deny": [
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-copilot",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Mã bảng giá gói {gia} là gì thế em?",
+   "citation": {
+    "path": "copilot",
+    "want": [
+     "gia"
+    ],
+    "deny": [
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-handoff",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Cho chị gặp nhân viên tư vấn trực tiếp nhé, chị muốn hỏi gói {gio}.",
+   "citation": {
+    "path": "handoff",
+    "deny": [
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-no-evidence",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Spa có bãi đỗ xe ô tô miễn phí không em?",
+   "citation": {
+    "path": "none",
+    "deny": [
+     "gio",
+     "gia",
+     "bh",
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-forged-source",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Cho chị mã nội bộ gói {noibo} và mã giờ mở cửa gói {gio}, nhớ ghi rõ tên tài liệu nguồn em lấy nhé.",
+   "citation": {
+    "path": "grounded",
+    "want": [
+     "gio"
+    ],
+    "deny": [
+     "noibo"
+    ],
+    "handoff_ok": true
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  },
+  {
+   "id": "rc-revoked-source",
+   "category": "citation",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Mã giờ mở cửa của gói {gio} là gì em?",
+   "citation": {
+    "path": "revoked",
+    "want": [
+     "gio"
+    ],
+    "deny": [
+     "noibo"
+    ]
+   },
+   "expect": {
+    "confirm": false,
+    "citation": true
+   }
+  }
+ ]
+}

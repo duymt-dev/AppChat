@@ -81,11 +81,15 @@ export const kbSearch = defineAction({
   description:
     'Search the business knowledge base (policies, service descriptions, FAQs) and get the best matching passages with sources. Never use it for prices, stock, promotions or free slots — use the read tools for those. If grounded is false, say you do not have the information. Example: {"query":"chính sách đổi trả"}',
   input: z.object({ query: z.string().trim().min(1).max(500), limit: z.number().int().min(1).max(10).optional() }),
-  output: z.object({
-    grounded: z.boolean(),
-    chunks: z.array(z.object({ chunk_id: z.string(), source_id: z.string(), source_name: z.string(), content: z.string(), path: z.array(z.string()), score: z.number() })),
-    citations: z.array(z.object({ source_id: z.string(), chunk_id: z.string() })),
-  }),
+  // TIP-020d: trong run trả lời có trích dẫn, model nhận `passages` theo bí danh nguồn (`S1`…) — không tên / đường dẫn tài liệu.
+  output: z.union([
+    z.object({
+      grounded: z.boolean(),
+      chunks: z.array(z.object({ chunk_id: z.string(), source_id: z.string(), source_name: z.string(), content: z.string(), path: z.array(z.string()), score: z.number() })),
+      citations: z.array(z.object({ source_id: z.string(), chunk_id: z.string() })),
+    }),
+    z.object({ grounded: z.boolean(), passages: z.array(z.object({ ref: z.string(), content: z.string(), score: z.number() })) }),
+  ]),
   permission: 'assistant.use',
   risk: 'read',
   agentGrantable: true,

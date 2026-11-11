@@ -10,7 +10,11 @@ import type { TenantDb } from '@appchat/db';
 import { UTILITY_ACTIONS, type AuthzContext, type RunChildDto, type RunDetailDto, type RunLifecycle, type RunStepDto } from '@appchat/shared';
 import { TenantSql as Prisma } from '@appchat/db';
 import { readableRun } from './run-status';
+import { parseAgentReply } from '@appchat/ai';
 import { knowledgeCurrent } from '../kb/scope/provenance';
+import { citationsOf } from '../citations/projection';
+import { bindingOf } from '../citations/publication';
+import { replyDigest, textRevision } from '../citations/text-revision';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAgent' | 'aiRootBudget' | 'aiUsageReceipt' | '$queryRaw'>;
 const UTILITY_TITLES: ReadonlySet<string> = new Set(UTILITY_ACTIONS);
@@ -62,9 +66,27 @@ export async function runDetail(db: Db, authz: AuthzContext, runId: string): Pro
     children,
     steps,
     // TIP-020c: kết quả dựa trên nguồn tri thức đã hết hiệu lực → không chiếu chữ (ẩn cả kết quả, không chỉ trích dẫn).
-    result_text: !isUtility && r.status === 'completed' && typeof out.text === 'string' && (await knowledgeCurrent(db as never, r.id)) ? out.text.slice(0, 2000) : null,
+    result_text: await resultText(db, r, isUtility, out.text),
+    // TIP-020d: nguồn của câu trả lời theo quyền xem hiện tại; ứng viên chưa kiểm không bao giờ ra đây.
+    citations: r.citationPhase ? await citationsOf(db as never, r.id, authz) : null,
+    answer_step_idx: r.citationPhase === 'validated' ? (bindingOf(r.answerCitations)?.answer_step_idx ?? null) : null,
     event_seq: root?.eventSeq ?? 0,
   };
+}
+
+/**
+ * Chữ kết quả an toàn: run kỹ năng tiện ích / được bảo vệ → không; tri thức hết hiệu lực (TIP-020c) → không. Run trả lời có chế độ trích
+ * dẫn (TIP-020d) → CHỈ chữ đã kiểm và công bố (`validated`), chưa kiểm / không hợp lệ → không (output thô là khối JSON của model).
+ */
+async function resultText(db: Db, r: { id: string; status: string; citationPhase: string | null; answerCitations: unknown; input: unknown }, isUtility: boolean, text: unknown): Promise<string | null> {
+  if (isUtility || r.status !== 'completed' || typeof text !== 'string' || !(await knowledgeCurrent(db as never, r.id))) return null;
+  if (!r.citationPhase) return text.slice(0, 2000);
+  const b = r.citationPhase === 'validated' ? bindingOf(r.answerCitations) : null;
+  if (!b) return null;
+  const out = parseAgentReply(text);
+  const pii = ((r.input ?? {}) as { pii?: Record<string, string> }).pii ?? {};
+  const rev = textRevision(out.raw_reply ?? out.reply ?? '', pii);
+  return replyDigest(rev.text) === b.reply_digest ? rev.text.slice(0, 2000) : null;
 }
 
 const limitOf = (n?: number) => Math.min(PAGE_MAX, Math.max(1, n ?? PAGE_DEFAULT));

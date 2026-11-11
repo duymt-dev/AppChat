@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking', 'ai_utility', 'input', 'stage_hold', 'agent_draft', 'record', 'kb_scope'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking', 'ai_utility', 'input', 'stage_hold', 'agent_draft', 'record', 'kb_scope', 'citation'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0, ai_utility: 0, input: 0, stage_hold: 0, agent_draft: 0, record: 0, kb_scope: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0, ai_utility: 0, input: 0, stage_hold: 0, agent_draft: 0, record: 0, kb_scope: 0, citation: 0 };
 
 const expectSchema = z
   .object({
@@ -86,9 +86,11 @@ const expectSchema = z
     record: z.literal(true).optional(),
     /** Ca phạm vi tri thức TIP-020c (kb-scope-judge.ts): chấm theo mã canary của nguồn seed (có / không có trong câu trả lời). */
     kb_scope: z.literal(true).optional(),
+    /** Ca trích dẫn câu trả lời TIP-020d (citation-judge.ts): chấm binding trích dẫn của run + câu gửi khách đọc lại từ API. */
+    citation: z.literal(true).optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking || e.ai_utility || e.input_file || e.stage_hold || e.agent_draft || e.record || e.kb_scope, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking || e.ai_utility || e.input_file || e.stage_hold || e.agent_draft || e.record || e.kb_scope || e.citation, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -185,6 +187,17 @@ export const caseSchema = z
         deny: z.array(z.enum(['fa', 'fb', 'tag', 'int', 'pub', 'out'])).max(6).optional(),
         none: z.boolean().optional(),
         revoke: z.enum(['fa', 'fb', 'tag', 'int', 'pub', 'out']).optional(),
+      })
+      .strict()
+      .optional(),
+    /** Ca trích dẫn TIP-020d: đường chạy (lượt agent kênh thật) + mã nguồn phải có (`want`) / không được có (`deny`). */
+    citation: z
+      .object({
+        path: z.enum(['grounded', 'none', 'copilot', 'handoff', 'revoked']),
+        want: z.array(z.enum(['gio', 'gia', 'bh', 'noibo'])).max(4).optional(),
+        deny: z.array(z.enum(['gio', 'gia', 'bh', 'noibo'])).max(4).optional(),
+        /** Câu hỏi có phần ngoài tài liệu: chuyển người kèm nháp có nguồn đã kiểm cũng đạt (không gửi khách). */
+        handoff_ok: z.boolean().optional(),
       })
       .strict()
       .optional(),

@@ -204,6 +204,13 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
     const ks = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'kb-effective-scope-seed.mjs')).href)) as { seedKbScope(c: unknown, base: unknown, o: unknown): Promise<unknown> };
     seed = await ks.seedKbScope(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password });
   }
+  // Suite trích dẫn câu trả lời (TIP-020d AC8): nguồn canary (mã + tên tệp) + agent fixture trực widget + khách widget mới mỗi ca.
+  if (suite.cases.some((x) => x.citation)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const { io } = await import('socket.io-client');
+    const rc = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'rag-citations-seed.mjs')).href)) as { seedCitations(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    seed = await rc.seedCitations(c, seed, { api, io });
+  }
   // Suite gộp khách (TIP-015e AC8): Sales thật (bản phụ khác người phụ trách) + bộ theo khoá lượt và loại ca.
   if (suite.cases.some((x) => x.merge)) {
     const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';

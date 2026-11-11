@@ -258,6 +258,12 @@ export const echoScript: MockScript = (ctx) => {
   const human = /nhân viên|gặp người|staff|human/i.test(lastUser);
   // TIP-022b: khiếu nại → ý định `complaint` + chuyển người (consumer tạo ticket nếu agent có grant).
   if (/khiếu nại|complain/i.test(lastUser)) return { text: JSON.stringify({ reply: null, confidence: 0.5, intent: 'complaint', sentiment: 'negative', needs_human: 'Khách khiếu nại' }) };
+  // TIP-020d: có tài liệu `[S1]` trong ngữ cảnh → trả lời bằng câu đầu của đoạn S1 kèm trích dẫn (quote nguyên văn) — luồng có căn cứ.
+  const doc = human ? null : /\n\[(S\d+)\]\n((?:#[^\n]*\n+)*)([^\n#][^\n]*)/.exec(system);
+  if (doc) {
+    const fact = doc[3]!.trim().slice(0, 200);
+    return { text: JSON.stringify({ reply: `Dạ, ${fact}`, confidence: 0.9, intent: 'question', sentiment: 'neutral', needs_human: null, citations: [{ ref: doc[1], quote: fact }] }) };
+  }
   return { text: JSON.stringify({ reply: human ? null : `Dạ, ${echo.charAt(0).toLowerCase()}${echo.slice(1)}`, confidence: human ? 0.4 : 0.9, intent: /giá|mua|báo giá/i.test(lastUser) ? 'buy' : 'faq', sentiment: 'neutral', needs_human: human ? 'Khách muốn gặp nhân viên' : null }) };
 };
 

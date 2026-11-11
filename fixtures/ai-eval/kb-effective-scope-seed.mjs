@@ -14,7 +14,7 @@ import { seedChannelSales } from './channel-seed.mjs';
 
 const ROOT = join(import.meta.dirname, '..', '..');
 
-function tenantUrl(ws) {
+export function tenantUrl(ws) {
   const env = existsSync(join(ROOT, '.env')) ? readFileSync(join(ROOT, '.env'), 'utf8') : '';
   const base = process.env.TENANT_DATABASE_URL ?? /^TENANT_DATABASE_URL=(.*)$/m.exec(env)?.[1]?.trim();
   if (!base) throw new Error('thiếu TENANT_DATABASE_URL');
@@ -25,7 +25,7 @@ function tenantUrl(ws) {
 
 /** Một đoạn đã nạp cho nguồn: chờ lần nạp hiện hành xong (không còn pending / processing — ca nạp lại: job thất bại vì chưa có route
  *  embedding), rồi chèn đoạn + đặt `ready` / chưa học tự động (giữ nguyên thế hệ `ingest_seq` — thế hệ mới sau nạp lại). */
-async function chunkOf(ws, sourceId, text) {
+export async function chunkOf(ws, sourceId, text) {
   const { Client } = createRequire(join(ROOT, 'packages', 'db', 'package.json'))('pg');
   const db = new Client({ connectionString: tenantUrl(ws) });
   await db.connect();

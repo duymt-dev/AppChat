@@ -8,7 +8,7 @@ import { isRemote, requestReact, requestRecall } from './channel-operations';
 import { SEED_INTENT, handoffSummaryRoute, hasHandoffSummary } from './inbox-handoff';
 import { withActivities360 } from './customers';
 import { coAssigneeHandlers, withCoAssignees } from './inbox-co-assignees';
-import { checkDraftRef, suggestionWithRef, withDraftRef } from './inbox-draft-ref';
+import { checkDraftRef, suggestionWithRef, withDraftCitations, withDraftRef } from './inbox-draft-ref';
 
 export type InboxFixture = typeof fixture;
 type Conv = InboxFixture['conversations'][number];
@@ -178,7 +178,7 @@ export const inboxParamRoute = (path: string): MockRoute | null => {
   if (sub) return (db) => ({ data: db.inbox.messages[id] ?? [], next_cursor: null, suggestion: suggestionWithRef(db, id, (fixture.suggestions as Record<string, unknown>)[id]) });
   return (db) => {
     const c = db.inbox.conversations.find((x) => x.id === id);
-    return c ? withDraftRef(db, withCoAssignees(db, c)) : null;
+    return c ? withDraftCitations(withDraftRef(db, withCoAssignees(db, c))) : null;
   };
 };
 

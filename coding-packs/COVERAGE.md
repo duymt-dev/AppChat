@@ -16,10 +16,10 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 6 | 0 | 2 | 10 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 166 | 9 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 404 | 32 | 1 | 4 | 15 | 3 | 0 | 0 |
-| E. standards/* | 224 | 32 | 0 | 7 | 25 | 2 | 43 | 0 |
+| E. standards/* | 226 | 31 | 0 | 7 | 24 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 68 | 0 | 18 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 25 | 2 | 0 | 0 |
-| **Tổng** | **1231** | **95** | **20** | **49** | **94** | **35** | **69** | **0** |
+| **Tổng** | **1233** | **94** | **20** | **49** | **93** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1193,8 +1193,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ai-rag-6a | Hybrid: top-20 vector (HNSW + iterative_scan) + top-20 từ khoá → RRF k=60 → top-6 | standards/ai/rag.md:25 | 020 | ĐẠT | packages/ai/src/kb/rrf.ts:2; core/src/ai/kb/search.ts:90; test kb.test.ts:141 |
 | STD-ai-rag-6b | Có `model_route` purpose=rerank thì rerank | standards/ai/rag.md:27 | 020e | CHƯA | Chỉ có kiểu `ModelPurpose 'rerank'` (gateway/types.ts:25), không gọi rerank; TIP-020e SPEC2–3/AC1–7 (chuyển từ 046) |
 | STD-ai-rag-7 | Ngưỡng `min_score` theo workspace: không căn cứ thì không bịa | standards/ai/rag.md:29 | 020, 022 | ĐẠT | kb/search.ts:73-79; test kb.test.ts:141 |
-| STD-ai-rag-8a | Câu trả lời dựa RAG ghi `citations[{source_id, chunk_id}]` | standards/ai/rag.md:30 | 020d | MỘT PHẦN | kb/search.ts:122 and kb-search.handler.ts:27 return retrieved refs, not answer citations; runner.ts:112,140 lacks answer linkage; reply/output.ts:6–12 has no citation schema |
-| STD-ai-rag-8b | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | standards/ai/rag.md:32 | 020d | CHƯA | grep `citations` trong apps/web/src = 0 |
+| STD-ai-rag-8a | Câu trả lời dựa RAG ghi `citations[{source_id, chunk_id}]` | standards/ai/rag.md:30 | 020d | ĐẠT | core/src/ai/citations/{binding,validation,publication,recovery,answer-gate}.ts: sổ bí danh `ai_run.citation_registry` (model chỉ thấy S1… + nội dung, không tên tệp); câu trả lời JSON `citations` ≤ 12 kiểm theo sổ + vị trí điểm mã qua bản chữ (LF / trim / PII) + nguồn hiện hành cùng thế hệ; binding `ai_run.answer_citations {state, citations[{source_id, chunk_id, source_generation, claim_start, claim_end}], reply_digest, answer_step_idx}` + ghi lên bước trả lời; pha `citation_phase` CAS lease, gửi chỉ khi validated, khôi phục `ai.answer_citations` cục bộ. Test core unit (binding / publication / privacy) + API integration rag-citations (7, EXPLAIN 100k run) + worker rag-citations-composition + ai:live rag-citations |
+| STD-ai-rag-8b | UI hiện nguồn trích dẫn ở nhật ký AI và bản nháp | standards/ai/rag.md:32 | 020d | ĐẠT | web shared/ai-citations/CitationList.tsx (validated / original_draft / unavailable, nhãn theo quyền xem hiện tại): thẻ gợi ý + nháp bàn giao (AiDraftCard footer), ô soạn "nguồn của bản nháp AI gốc", RunDetailDrawer; nhật ký AI bấm dòng → `/assistant?run_id=` (RunDetailRouteHost). Server chiếu `GET /runs/:id citations`, `ai_draft_citations`, `suggestion.citations`. Test CitationList unit + E2E rag-citations mock + http + parity inbox / assistant / audit |
 | STD-ai-rag-9 | Học từ hội thoại: `kb_suggestion` chờ duyệt `kb.manage`, che PII | standards/ai/rag.md:33 | 043 | ĐẠT | kb_suggestion (che PII hai lớp, sensitiveLeft, fingerprint), duyệt kb.manage tạo nguồn conversation; packages/ai/src/kb/suggestion-redaction.ts, core/ai/kb/suggestions/*; DC-353 (TIP-043) |
 | STD-ai-rag-10a | Embedding 1536 chiều, provider theo `model_route` purpose=embed; truy vấn chỉ so cùng `embed_model` | standards/ai/rag.md:37 | 020 | CHỜ-TK | migration 020_ai_kb:57 vector(1536); search.ts:94; Q-002 |
 | STD-ai-rag-10b | Đổi model embed → job re-embed toàn kho | standards/ai/rag.md:38 | 020e | CHƯA | Chỉ comment search.ts:84; TIP-020e SPEC2–3/AC1–7 (chuyển từ 046) |

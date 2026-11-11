@@ -13,10 +13,12 @@ export interface AiDraftCardProps {
   /** Lý do chuyển người — có thì thẻ ở dạng handoff. */
   reason?: string;
   actions: ReactNode;
+  /** TIP-020d: khối "Nguồn" dưới nội dung (chỉ khi câu trả lời có trích dẫn đã kiểm). */
+  footer?: ReactNode;
   testId: string;
 }
 
-export function AiDraftCard({ title, badge, body, reason, actions, testId }: AiDraftCardProps) {
+export function AiDraftCard({ title, badge, body, reason, actions, footer, testId }: AiDraftCardProps) {
   const { styles, cx } = useComposerStyles();
   const handoff = reason !== undefined;
   return (
@@ -31,7 +33,10 @@ export function AiDraftCard({ title, badge, body, reason, actions, testId }: AiD
         <span className={cx(styles.conf, handoff && styles.confHandoff)}>{badge}</span>
       </div>
       <div className={styles.suggestBody}>
-        <div className={styles.suggestText}>{body}</div>
+        <div className={styles.suggestText}>
+          {body}
+          {footer}
+        </div>
         <div className={styles.actions}>{actions}</div>
       </div>
     </div>

@@ -9,6 +9,7 @@ import { useFmt } from '@/shared/i18n/useFmt';
 import { useRunDetail } from '../hooks/useRunDetail';
 import { RunStatusBadge, useStopReasonLabel } from './RunStatusBadge';
 import { RunStepList } from './RunStepList';
+import { CitationList } from '@/shared/ai-citations/CitationList';
 
 const useStyles = createStyles(({ css }) => ({
   body: css`
@@ -123,8 +124,11 @@ export function RunDetailDrawer({ runId, onOpen, onClose }: { runId: string | nu
                 <div className={styles.result} data-testid="run-result">
                   {d.result_text}
                 </div>
+                <CitationList citations={d.citations} text={d.result_text} testId="run-citations" />
               </div>
-            ) : null}
+            ) : (
+              <CitationList citations={d.citations} testId="run-citations" />
+            )}
             <div>
               <div className={styles.h}>{t('detail.steps', { n: d.steps })}</div>
               <RunStepList steps={steps} onMore={moreSteps} />

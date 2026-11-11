@@ -32,6 +32,8 @@ export interface KbHit {
   content: string;
   path: string[];
   score: number;
+  /** Thế hệ nạp của nguồn lúc truy hồi (TIP-020d — sổ bí danh trích dẫn). */
+  generation?: number;
 }
 
 export interface KbSearchResult {
@@ -124,7 +126,7 @@ export async function searchKb(db: Db, embedder: Embedder | null, i: KbSearchInp
   const byId = new Map(rows.map((r) => [r.id, r]));
   const chunks = fused.flatMap(({ id, score }) => {
     const r = byId.get(id);
-    return r ? [{ chunk_id: r.id, source_id: r.source_id, source_name: r.source_name, content: r.content, path: r.meta?.path ?? [], score }] : [];
+    return r ? [{ chunk_id: r.id, source_id: r.source_id, source_name: r.source_name, content: r.content, path: r.meta?.path ?? [], score, generation: Number(r.seq) }] : [];
   });
   if (!chunks.length) return emptyResult(min, top);
   const refs = [...new Map(rows.map((r) => [r.source_id, { s: r.source_id, g: Number(r.seq) }])).values()];

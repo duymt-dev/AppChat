@@ -19,6 +19,7 @@ import { stageCase } from './stage-judge';
 import { agentDraftCase } from './agent-draft-judge';
 import { recordCase } from './record-judge';
 import { kbScopeCase } from './kb-scope-judge';
+import { citationCase } from './citation-judge';
 import { mergeCase } from './merge-judge';
 import { tenantMailCase } from './tenant-mail-judge';
 import { bookingCase } from './booking-judge';
@@ -112,6 +113,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.agent_draft) return agentDraftCase(api, c, attempt, o);
   if (c.record) return recordCase(api, c, attempt, o);
   if (c.kb_scope) return kbScopeCase(api, c, attempt, o);
+  if (c.citation) return citationCase(api, c, attempt, o);
   if (c.merge) return mergeCase(api, c, attempt, o);
   if (c.tenant_mail) return tenantMailCase(api, c, attempt, o);
   if (c.booking) return bookingCase(api, c, attempt, o);

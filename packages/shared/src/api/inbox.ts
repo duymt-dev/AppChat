@@ -3,6 +3,7 @@
 // /inbox/accounts, /inbox/channels, /inbox/connect-channels, /groups/:id, /canned-replies, /tags, /settings/tags, /settings/replies.
 // Mock transport (apps/web) và API thật parse cùng các schema này.
 import { z } from 'zod';
+import { aiCitationsSchema } from './ai-citations';
 import { AGENT_INTENTS_CLOSED } from './agent-channel-behavior';
 
 export const INBOX_FOLDERS = ['all', 'mine', 'unread', 'mention', 'team', 'ai_running', 'ai_pending_approval', 'needs_human', 'archived', 'closed', 'vip', 'complaint'] as const;
@@ -52,6 +53,8 @@ export const conversationSchema = z.object({
   ai_draft: z.string().optional(),
   /** TIP-020c: tham chiếu nháp AI (gửi kèm `message.send.ai_draft_ref`) — chỉ khi nháp do run sinh. */
   ai_draft_ref: z.object({ id: z.string(), generation: z.number().int() }).optional(),
+  /** TIP-020d: nguồn đã kiểm của nháp AI (chỉ ở chi tiết hội thoại). */
+  ai_draft_citations: aiCitationsSchema.optional(),
   /** TIP-022b: ý định lượt gần nhất (bộ đóng) — chỉ tham khảo. */
   intent: z.enum(AGENT_INTENTS_CLOSED).optional(),
   /** TIP-022b: có tóm tắt bàn giao (đọc qua `GET /v1/conversations/:id/handoff-summary`, chiếu theo quyền). */
@@ -114,7 +117,7 @@ export const threadSchema = z.object({
   data: z.array(messageSchema),
   next_cursor: z.string().nullable(),
   /** Gợi ý copilot — AI (TIP-022); tới lúc đó null. */
-  suggestion: z.object({ text: z.string(), confidence: z.number(), ref: z.object({ id: z.string(), generation: z.number().int() }).optional() }).nullable(),
+  suggestion: z.object({ text: z.string(), confidence: z.number(), ref: z.object({ id: z.string(), generation: z.number().int() }).optional(), citations: aiCitationsSchema.optional() }).nullable(),
 });
 
 export const messageSearchSchema = z.array(

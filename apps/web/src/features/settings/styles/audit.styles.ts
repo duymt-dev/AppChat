@@ -93,6 +93,17 @@ export const useAuditStyles = createStyles(({ css, responsive }) => ({
       display: none;
     }
   `,
+  /** TIP-020d: dòng AI audit mở chi tiết run ở Trợ lý AI. */
+  rowLink: css`
+    cursor: pointer;
+    &:hover {
+      background: ${color.rowHover};
+    }
+    &:focus-visible {
+      outline: 2px solid ${color.brand};
+      outline-offset: -2px;
+    }
+  `,
   tr: css`
     display: grid;
     gap: 12px;
