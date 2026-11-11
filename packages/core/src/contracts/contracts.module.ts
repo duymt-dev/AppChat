@@ -41,6 +41,8 @@ import { verifyContractTrigger } from './system/sources';
 import { AppendixReadService } from './appendix/read.service';
 import { ContractPublicDeclineHandler, ContractPublicOpenHandler, ContractPublicOtpHandler } from './signing/public.handlers';
 import { ContractRequestSignOtpHandler } from './signing/owner-otp.handler';
+import { ContractSignAttemptPrepareHandler, ContractSignAttemptStageHandler } from './signing/attempt.handlers';
+import { ContractPublicSignHandler } from './signing/finalize';
 import { SIGNING_RECIPIENTS, signingRecipients } from './signing/recipients';
 import { PUBLIC_SIGN_ACTIONS, verifyParentPublic } from './signing/module';
 import { AuthzModule } from '../authz/authz.module';
@@ -61,6 +63,7 @@ const HANDLERS = [
   ...APPENDIX_HANDLERS,
   // Ký hợp đồng cha qua action chuẩn (TIP-030c).
   ContractPublicOpenHandler, ContractPublicOtpHandler, ContractPublicDeclineHandler, ContractRequestSignOtpHandler,
+  ContractSignAttemptPrepareHandler, ContractSignAttemptStageHandler, ContractPublicSignHandler,
 ];
 
 @Module({
