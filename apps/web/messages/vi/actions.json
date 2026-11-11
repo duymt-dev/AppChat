@@ -1496,6 +1496,22 @@
     "discovery_prepare": {
       "title": "Chuẩn bị tìm kiếm thao tác theo ngữ nghĩa",
       "desc": "Dựng chỉ mục tìm thao tác theo ngữ nghĩa cho workspace — việc chạy nền, chỉ cần khi tìm từ khoá chưa đủ; không ảnh hưởng dữ liệu khách hàng."
+    },
+    "attachment_prepare": {
+      "title": "Chuẩn bị tệp đính kèm cho Trợ lý",
+      "desc": "Gắn tệp vừa tải lên vào bản nháp và trích nội dung có giới hạn để Trợ lý đọc — không phân tích, không nhập dữ liệu."
+    },
+    "attachment_remove": {
+      "title": "Gỡ tệp đính kèm khỏi bản nháp",
+      "desc": "Bỏ tệp chưa gửi khỏi bản nháp — không xoá tệp gốc hay lịch sử đã gửi."
+    },
+    "attachment_get": {
+      "title": "Xem trạng thái tệp đính kèm",
+      "desc": "Trạng thái chuẩn bị của tệp trong ngữ cảnh Trợ lý hiện hành."
+    },
+    "attachment_read": {
+      "title": "Đọc nội dung tệp đính kèm",
+      "desc": "Đọc tiếp từng đoạn nội dung tệp của lượt, kèm vị trí trang / dòng để trích dẫn."
     }
   },
   "sales_settings": {

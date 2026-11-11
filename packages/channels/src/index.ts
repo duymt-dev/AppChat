@@ -17,3 +17,4 @@ export { ImapMailboxTransport } from './email/imap-transport';
 export { FakeMailboxTransport, fakeMailboxTransport, FAKE_MAIL_PASSWORD, FAKE_MAIL_HOST } from './email/fake-transport';
 export { MailAuthError, MailConnectError, type MailCredentials, type MailboxTransport, type ParsedMail, type OutgoingMail } from './email/transport';
 export { normalizeMail, threadRoot, stripQuoted, htmlToText, msgId } from './email/normalize';
+export { parseUploadedEml, mimeShape, EmlParseError, EML_MAX_DEPTH, EML_MAX_PARTS, type UploadedMail } from './email/parse-upload';

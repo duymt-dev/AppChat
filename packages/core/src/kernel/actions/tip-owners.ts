@@ -38,6 +38,10 @@ const BY_ID: Record<string, string> = {
   'assistant.plan_reusable': '023d',
   'assistant.agent_choices': '023d',
   'assistant.discovery_prepare': '023e',
+  'assistant.attachment_prepare': '023f',
+  'assistant.attachment_remove': '023f',
+  'assistant.attachment_get': '023f',
+  'assistant.attachment_read': '023f',
 };
 
 const BY_PREFIX: Record<string, string> = {

@@ -38,6 +38,7 @@ export * from './inbox-assignees';
 export * from './conversation-groups';
 export * from './channel-operations';
 export * from './webchat';
+export * from './assistant-input';
 export * from './ai';
 export * from './ai-runs';
 export * from './agent-channel-behavior';
