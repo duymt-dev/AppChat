@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 157 | 10 | 0 | 13 | 7 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 158 | 10 | 0 | 13 | 6 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 6 | 0 | 2 | 10 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 166 | 9 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 404 | 32 | 1 | 4 | 15 | 3 | 0 | 0 |
 | E. standards/* | 226 | 31 | 0 | 7 | 24 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 68 | 0 | 18 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 25 | 2 | 0 | 0 |
-| **Tổng** | **1233** | **94** | **20** | **49** | **93** | **35** | **69** | **0** |
+| **Tổng** | **1234** | **94** | **20** | **49** | **92** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -192,7 +192,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E03c | Hàng loạt bắt buộc xác nhận số lượng | 01-REQUIREMENTS-MATRIX.md:105 | 003 | ĐẠT | policy.ts:24; test actions-unit.test.ts "bulk luôn preview" |
 | REQ-E03d | Đề xuất tái dùng luồng trước | 01-REQUIREMENTS-MATRIX.md:105 | 023d | MỘT PHẦN | assistant.plan_reusable (read, top-N cấu trúc cũ) đã có handler + test; chưa gắn vào luồng gợi ý UI/Trợ lý (PR #171) |
 | REQ-E04a | Phân rã kế hoạch, giao agent, tổng hợp | 01-REQUIREMENTS-MATRIX.md:106 | 023d | ĐẠT | meta-tools.ts:126 proposePlan (alias → assistant.plan_propose canonical qua Executor, §1.4); delegate.ts; test assistant.test.ts "plan: alias gọi canonical..." (PR #171) |
-| REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | 023d | MỘT PHẦN | Dừng qua run.cancel; plan_propose/plan_get backend (revision/phase/progress thật) + update_step đổi thành chỉ đọc tiến độ thật qua planOfRoot (§1.5, không còn ghi theo lời model — PR #171) nhưng FE không render plan (features/assistant/types.ts:45); chưa sửa kế hoạch (plan_update ở pha sau) |
+| REQ-E04b | Hiện kế hoạch + tiến độ; dừng / sửa kế hoạch | 01-REQUIREMENTS-MATRIX.md:106 | 023d | MỘT PHẦN | Dừng qua run.cancel; dừng-để-sửa / sửa bước chưa chạy / tiếp tục cùng run ở backend (pha 5 — plan_request_edit / plan_update / plan_resume); plan_propose/plan_get backend (revision/phase/progress thật) + update_step đổi thành chỉ đọc tiến độ thật qua planOfRoot (§1.5, không còn ghi theo lời model — PR #171) nhưng FE không render plan (features/assistant/types.ts:45); chưa sửa kế hoạch (plan_update ở pha sau) |
 | REQ-E05a | Điều hướng, mở bản ghi, điền form, áp lọc qua command bus | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | apps/web/src/shared/assistant/ui-command-bus.ts; features/*/ui-commands.ts; test ui-command-bus.test.ts, ui-commands.test.tsx |
 | REQ-E05b | Làm nổi bật phần tử | 01-REQUIREMENTS-MATRIX.md:107 | 023c | ĐẠT | UiCommandBus highlight (apps/web/src/shared/assistant/ui-command-bus.ts:17) + DataTable highlightKey; test ui-command-bus.test.ts, e2e screen-assistant.spec.ts tô sáng dòng |
 | REQ-E05c | Thẻ deep-link tới kết quả | 01-REQUIREMENTS-MATRIX.md:107 | 023 | ĐẠT | card.ts; e2e http/assistant.spec.ts |
@@ -216,7 +216,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-E14b | Tab Công cụ & Quyền chỉ hiển thị + link Builder | 01-REQUIREMENTS-MATRIX.md:116 | 035 | ĐẠT | TaskDrawer.tsx:132-144; test ai-tasks.test.ts:347 |
 | REQ-E15 | Generative UI mức 2 | 01-REQUIREMENTS-MATRIX.md:117 | 023c | ĐẠT | packages/shared/src/genui/* + meta-tool render + renderer web 15 khối; test schema.test.ts, genui*.test.ts (api), blocks/*.test.tsx, e2e genui.spec.ts (mock + http); ai:live genui-screen 9/10 an toàn 0 |
 | PLAN-RECEIPT-PROGRESS | Plan progress from durable primary-effect receipts, not model status | DC267; TIP-023d §2 | 023d | MỘT PHẦN | Schema AssistantPlanPrimaryClaim/Attempt + stepProgress() theo state DB thật; update_step model KHÔNG còn tự set status, chỉ đọc lại (meta-tools.ts stepProgress, §1.5 — PR #171); pha 4: port kernel `execution-binding.ts` (executor claim trước handler, settle sau action_log, cùng transaction) + `plans/bindings.ts` (claim (plan, bước, thế hệ) một lần, cùng digest → biên nhận cũ, khác → 409, epoch đổi → 409; việc nền = waiting_external) + `plans/driver.ts` (bước hiện hành; ghi ngoài kế hoạch → PLAN_UNDECLARED) — integration assistant-plans 3/3; còn bước giao việc / phân tích + chạy tiếp tự động (§2.5) ở pha sau |
-| PLAN-EDIT-CHECKPOINT | Human edit pause drains admitted effects, checkpoints tool batches, resumes same budget | DC267; TIP-023d §3 | 023d | CHƯA | Existing engine confirmation snapshot is not edit checkpoint; no runtime implementation |
+| PLAN-EDIT-CHECKPOINT | Human edit pause drains admitted effects, checkpoints tool batches, resumes same budget | DC267; TIP-023d §3 | 023d | ĐẠT | pha 5: `plan_request_edit` (epoch + 1, gọi lại cùng epoch, xả claim admitted/accepted trước khi `paused` — plans/pause.ts); cổng `RunHooks.planGate` trước mỗi lời gọi model + mỗi tool (packages/ai gateway/plan-checkpoint.ts: kết quả đã chạy giữ, phần còn lại `PLAN_SUPERSEDED` một lần, transcript hợp lệ); run gốc `waiting_operation` lý do `plan_edit` + dòng `assistant_plan_checkpoint`; `plan_update` chỉ bước chưa bắt đầu (thế hệ thực thi + 1, bước đã chạy → 409); `plan_resume` → outbox `assistant.plan_resumed` → job `assistant-turn` tên `plan` → `continuePlanTurn` (cùng run / ngân sách / bộ đếm bước, claim CAS). Test: ai plan-checkpoint 3/3, integration assistant-plan-pause 2/2 + ma trận 7 action 023d. UI ở pha 6 |
 | PLAN-REUSE-PRIVACY | Reuse safe plan structure with fresh authority/inputs, no old customer or execution context | DC267; TIP-023d §4 | 023d | CHƯA | No reusable-plan service; source lineage/015c gates planned |
 | ASSISTANT-SELECTED-AGENT | Stable selected agent ID/version/mode through child tools, confirmation and restart | DC267; TIP-023d §5 | 023d | MỘT PHẦN | assistant.agent_choices (read, keyset, chỉ active+published) + GET /v1/assistant/agent-choices — PR #171; Composer/picker còn lưu tên (ComposerPopovers.tsx:92), chưa gửi selected_agent_id ổn định qua request/resume/child binding |
 | INPUT-MODEL-CONTENT | Actual bounded file/image/email content with truthful source locators reaches compatible model | DC269; TIP023f §2–3 | 023f | ĐẠT | TIP-023f: document-parts (PDF theo trang thật), table-parts (CSV bản ghi + dòng vật lý, XLSX sheet/dòng), images, .eml; hydrate.ts cửa sổ 32k + 4 ảnh, nhãn vị trí, dữ liệu không tin cậy; vision chỉ route params.vision (ModelRoutesPanel "Đọc ảnh"); test assistant-input-turn.test.ts, platform-config.test.ts route vision, ai:live 8/8 |
