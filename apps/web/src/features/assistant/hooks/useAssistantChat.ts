@@ -103,6 +103,8 @@ export function useAssistantChat() {
       if (status === 'approval') await qc.invalidateQueries({ queryKey: ['approvals'] });
       show((res.events ?? []).filter((e) => e.type !== 'ui_command'));
       if (res.status === 'done') await qc.invalidateQueries({ queryKey: ['action-logs'] });
+      // Thẻ kế hoạch / bước kế hoạch vừa xác nhận → thẻ kế hoạch đọc lại tiến độ thật (TIP-023d §6.1).
+      if (useAssistantUi.getState().mode === 'cowork') await qc.invalidateQueries({ queryKey: ['assistant', 'plan'] });
       return res;
     },
     [qc, ui, show],

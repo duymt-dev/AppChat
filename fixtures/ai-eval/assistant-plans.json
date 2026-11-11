@@ -104,7 +104,7 @@
    },
    "locale": "vi",
    "mode": "cowork",
-   "input": "Giao agent đã chọn gửi báo giá $QUOTE cho khách Nguyễn Thị Hoa qua kênh hiện có, rồi báo lại cho tôi kết quả.",
+   "input": "Giao agent đã chọn gửi báo giá $QUOTE qua Zalo cá nhân cho khách của báo giá đó (gửi thẳng theo mã báo giá, không cần tìm lại khách), rồi báo lại cho tôi kết quả.",
    "plan": {
     "kind": "approval",
     "agent": "sales"

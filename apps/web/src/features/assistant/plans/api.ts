@@ -7,7 +7,11 @@ import type { AgentChoice, Plan, ReuseCandidate } from './types';
 export const sessionPlanQuery = (sessionId: string | undefined) =>
   queryOptions({
     queryKey: ['assistant', 'plan', sessionId ?? ''],
-    queryFn: () => transport.get<{ data: Plan | null }>(`/assistant/sessions/${encodeURIComponent(sessionId!)}/plan`).then((r) => r.data),
+    // http transport đã bóc `{ data }`; mock trả nguyên phong bì — nhận cả hai (null = phiên chưa có kế hoạch).
+    queryFn: () =>
+      transport
+        .get<Plan | { data: Plan | null } | null>(`/assistant/sessions/${encodeURIComponent(sessionId!)}/plan`)
+        .then((r) => (r && 'data' in r ? r.data : (r ?? null))),
     enabled: !!sessionId,
   });
 

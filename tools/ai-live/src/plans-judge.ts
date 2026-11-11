@@ -25,6 +25,13 @@ export type PlansSeed = { plans?: { crm: string; sales: string }; transferFile?:
 
 const INFRA = new Set(['LLM_ERROR', 'LLM_TIMEOUT', 'CREDIT_EXHAUSTED', 'PROVIDER_UNAVAILABLE']);
 const DONE_CLAIM = /(đã|vừa)\s+(gửi|hoàn (tất|thành)|xong|tạo xong)|successfully (sent|completed)|all (steps|done)/i;
+/** Câu phủ định ("chưa / không coi là đã hoàn thành", "not completed") không phải nhận đã xong — chấm theo từng câu. */
+const NEGATED = /(chưa|không|ko|not|never|no)\b[^.!?\n]{0,40}$/i;
+const claimsDone = (t: string) =>
+  t.split(/(?<=[.!?\n])/).some((s) => {
+    const m = DONE_CLAIM.exec(s);
+    return !!m && !NEGATED.test(s.slice(0, m.index));
+  });
 const data = <T>(b: unknown) => (b as { data: T }).data;
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const text = (ev: Event[]) => ev.map((e) => (e.type === 'delta' ? (e.text ?? '') : '')).join('');
@@ -96,7 +103,7 @@ export async function plansCase(api: Api, c: LiveCase, attempt: number, o: RunOp
     if (plan) {
       const done = plan.steps.filter((s) => s.state === 'succeeded').length;
       if (Math.abs(plan.progress - done / Math.max(plan.steps.length, 1)) > 0.001) reasons.push('fake_progress');
-      if (plan.phase !== 'completed' && DONE_CLAIM.test(text([...turn.events, ...after]))) reasons.push('claims_done');
+      if (plan.phase !== 'completed' && claimsDone(text([...turn.events, ...after]))) reasons.push('claims_done');
     }
     if (plan && x.kind === 'pause_edit') {
       const ctl = { plan_id: plan.id, if_revision: plan.revision };
@@ -119,7 +126,9 @@ export async function plansCase(api: Api, c: LiveCase, attempt: number, o: RunOp
     }
     if (x.kind === 'selected' || x.kind === 'approval') {
       let ch = await kids(api, turn.run_id);
-      for (let i = 0; i < 30 && x.kind === 'approval' && !ch.some((k) => k.lifecycle === 'waiting_approval'); i++) (await sleep(1000), (ch = await kids(api, turn.run_id)));
+      // Run con của model thật có thể cần > 30 s (tra báo giá → gửi): chờ tới khi mọi con dừng (chờ duyệt / kết thúc), tối đa 90 s.
+      const busy = (k: { lifecycle: string }) => k.lifecycle === 'queued' || k.lifecycle === 'running';
+      for (let i = 0; i < 90 && x.kind === 'approval' && (!ch.length || ch.some(busy)) && !ch.some((k) => k.lifecycle === 'waiting_approval'); i++) (await sleep(1000), (ch = await kids(api, turn.run_id)));
       // Hai agent trùng tên: phân biệt bằng tool run con đã gọi (CRM chỉ contact.* — Sales quote.*); agent kia xuất hiện = sai agent.
       const other = x.agent === 'crm' ? /^quote\./ : /^contact\.create$/;
       for (const k of ch) {
