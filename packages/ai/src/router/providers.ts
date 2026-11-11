@@ -26,6 +26,9 @@ export interface ProviderConfig {
   apiKey: string;
   headers?: Record<string, string> | null;
   capabilities: ProviderCapabilities;
+  /** Thế hệ cấu hình opaque (TIP-023e §1.2, `core/ai/router/config-revision.ts`) — đổi khi key/header/URL/capabilities/status đổi,
+   *  kể cả xoay khoá cùng độ dài. Vắng (test / mock cũ) → router dùng khoá cache cũ (độ dài key) làm phương án lùi. */
+  configRevision?: string;
 }
 
 interface Factory {

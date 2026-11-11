@@ -2,6 +2,7 @@
 export { AI_ENV, AGENT_ENGINE } from './ai.module';
 export { readAiEnv, type AiEnv } from './ai.env';
 export { ProviderStore } from './router/provider.store';
+export { providerRevision, routeRevision, type ProviderFingerprint, type RouteFingerprint } from './router/config-revision';
 export { RunStore, type NewRun } from './runs/run.store';
 export { AiRunner, MAX_STEPS, DEFAULT_RUN_BUDGET, type RunSpec, type RunResult } from './runs/runner';
 export { admitAttempt, releaseAttempt, ensureRootBudget, assertRootOpen } from './runs/root-budget';
@@ -9,6 +10,14 @@ export { openAttempt, recordOutcome, rawCost, groupId as usageGroupId } from './
 export { settleReceipt } from './runs/usage-settlement';
 export { recoverUsage, USAGE_RECOVERY_GRACE_MS } from './runs/usage-recovery';
 export { trustedParent, existingChild, reuseChild, type TrustedParent } from './runs/run-lineage';
+// TIP-023e: discovery theo ngữ nghĩa — async service (find_actions thật); keyword `findActions` (catalog) chỉ là nhánh fallback có tên.
+export { runFindActions, type DiscoveryRuntime } from './assistant/discovery/find-tool';
+export { discoverActions, type DiscoveryResult, type DiscoveryMeta } from './assistant/discovery/service';
+export { buildCorpus } from './assistant/discovery/corpus';
+export { claimGeneration, findGeneration } from './assistant/discovery/generation';
+export { buildGeneration } from './assistant/discovery/build.processor';
+export { DiscoveryCache, discoveryCacheOf } from './assistant/discovery/cache';
+export { redactSensitiveQueryInput } from '../authz/fields/history-provenance';
 export { meteredEmbed, queryEmbedder, claimEmbedStep, isMeteringStop, type EmbedMeter, type QueryEmbed } from './runs/metered-embedding';
 export { embedChunks } from './kb/ingest-usage';
 export { expiryDelivery, EXPIRY_ONCE } from './approvals/expiry-delivery';
@@ -54,7 +63,7 @@ export { listApprovals, isApprovalTab, type ApprovalTab } from './approvals/appr
 export { approvalPermissionOf } from './approvals/approval-permission';
 export { DbApprovalGateway } from './approvals/approval.gateway';
 export { ResumeQueue, AI_RESUME_QUEUE, type ResumeJob } from './approvals/resume.queue';
-export { continueParents, resumeApproval, registerResumeSpec, registerResumeFinish, type ResumeDeps } from './approvals/resume';
+export { continueParents, resumeApproval, registerResumeSpec, registerResumeFinish, resumeSpecOf, type ResumeDeps } from './approvals/resume';
 export { childOutcome } from './runs/child-continuation';
 export { governanceDto, readGovernance, defaultGovernance } from './governance/governance';
 export { AgentReplyQueue, AGENT_REPLY_QUEUE, REPLY_DEBOUNCE_MS, type ReplyJob } from './reply/reply.queue';

@@ -1492,6 +1492,10 @@
     "agent_choices": {
       "title": "List AI agents to choose as specialist",
       "desc": "Page active/published AI agents selectable as a Cowork specialist — name/role/model tier only, no draft prompt/persona."
+    },
+    "discovery_prepare": {
+      "title": "Prepare semantic action search",
+      "desc": "Build the semantic action-search index for this workspace — a background job, only needed when keyword search falls short; no effect on customer data."
     }
   },
   "sales_settings": {

@@ -1,0 +1,53 @@
+// tenant/action-discovery.prisma — sở hữu: TIP-023e (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Kho vector mô tả action (Blueprint §5.2, TIP-023e §1): CHỈ metadata an toàn (id action, mô tả, module/risk, nhãn vi/en, hash khuôn
+// input) — không bản ghi nghiệp vụ, không prompt riêng của agent, không ví dụ của khách hàng, không giá trị input lúc chạy. Một
+// "generation" = một cặp (corpus_hash, embedding_space) đã dựng; chỉ generation `ready` (đã đủ mọi document) mới được dùng để tìm —
+// không tìm nửa vời, không thay vector rỗng. `embedding` không có FK xuyên domain (Blueprint §2.1); không workspace_id / RLS.
+
+enum ActionDiscoveryPhase {
+  building
+  ready
+  failed
+  unknown
+
+  @@map("action_discovery_phase")
+}
+
+/// Một lần dựng kho (TIP-023e §1.3): khoá bởi (corpus_hash, embedding_space) — đổi registry / nhãn / thuật toán xếp hạng / provider
+/// embedding đều ra corpus_hash hoặc embedding_space khác, không ghi đè generation cũ. `buildOperationId`/`ownerRootRunId` buộc việc
+/// dựng vào đúng operation 019b đã xác nhận qua `assistant.discovery_prepare` (§1.4) — không có tiến trình nền dựng không ai yêu cầu.
+model ActionDiscoveryGeneration {
+  id              String               @id @db.Uuid
+  corpusHash      String               @map("corpus_hash")
+  embeddingSpace  String               @map("embedding_space")
+  phase           ActionDiscoveryPhase @default(building)
+  buildOperationId String              @map("build_operation_id")
+  ownerRootRunId  String               @map("owner_root_run_id") @db.Uuid
+  expectedCount   Int                  @map("expected_count")
+  completedCount  Int                  @default(0) @map("completed_count")
+  failedReason    String?              @map("failed_reason")
+  createdAt       DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  documents ActionDiscoveryDocument[]
+
+  @@unique([corpusHash, embeddingSpace], map: "action_discovery_generation_key")
+  @@index([phase, updatedAt, id], map: "action_discovery_generation_phase_idx")
+  @@map("action_discovery_generation")
+}
+
+/// Một action trong một generation (TIP-023e §1.1, §1.3) — `documentHash` = hash nội dung đã chuẩn hoá (để kiểm lại không đổi ngầm
+/// giữa các lần build); `embedding` chỉ hợp lệ khi generation đã `ready`. Không payload nghiệp vụ, không quyền — quyền lọc lúc truy vấn
+/// (discovery/authority.ts), đây chỉ là kho mô tả tĩnh theo registry.
+model ActionDiscoveryDocument {
+  id           String @id @db.Uuid
+  generationId String @map("generation_id") @db.Uuid
+  actionId     String @map("action_id")
+  documentHash String @map("document_hash")
+  embedding    Unsupported("vector(1536)")?
+
+  generation ActionDiscoveryGeneration @relation(fields: [generationId], references: [id], onDelete: Cascade)
+
+  @@unique([generationId, actionId], map: "action_discovery_document_key")
+  @@map("action_discovery_document")
+}

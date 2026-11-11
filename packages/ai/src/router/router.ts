@@ -9,6 +9,8 @@ export interface RouteRow {
   priority: number;
   providerKey: string;
   model: string;
+  /** Thế hệ cấu hình opaque của route (TIP-023e §1.2) — vắng ở test cũ, router lùi về khoá theo priority/model. */
+  configRevision?: string;
 }
 
 /** Nguồn cấu hình (core đọc DB nền tảng, cache 60 giây). */
@@ -34,13 +36,18 @@ export class LlmRouter implements ModelSource {
       if (!p) continue;
       if (purpose === 'chat' && needs.tools && p.capabilities.tools === false) continue;
       if (purpose === 'embed' && !p.capabilities.embeddings) continue;
-      const k = `${p.key}\u0000${r.model}\u0000${purpose}\u0000${p.apiKey.length}`;
+      // Khoá cache theo thế hệ cấu hình opaque (TIP-023e §1.2) — xoay khoá cùng độ dài / đổi route params vẫn dựng lại handle;
+      // vắng cả hai (test/mock cũ) mới lùi về độ dài key (phương án cũ, kém chặt nhưng không vỡ test hiện có).
+      const k = `${p.key}\u0000${r.model}\u0000${purpose}\u0000${p.configRevision ?? ''}\u0000${r.configRevision ?? p.apiKey.length}`;
       let handle = this.built.get(k);
       if (!handle) {
         handle = this.build(p, r.model, purpose);
         this.built.set(k, handle);
       }
-      out.push({ provider: p.key, model: r.model, handle });
+      // Thế hệ cấu hình đưa ra ngoài cho người gọi ghim không gian embedding (TIP-023e §1.6) — opaque, chỉ ghép khi có ít nhất
+      // một nửa (provider hoặc route); vắng cả hai (test/mock cũ) → undefined, người gọi tự quyết không ghim được.
+      const configRevision = p.configRevision || r.configRevision ? `${p.configRevision ?? ''}:${r.configRevision ?? ''}` : undefined;
+      out.push({ provider: p.key, model: r.model, handle, ...(configRevision ? { configRevision } : {}) });
     }
     return out;
   }

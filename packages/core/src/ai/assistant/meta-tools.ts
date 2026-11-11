@@ -17,6 +17,7 @@ import type { ActionContext } from '../../kernel/actions/action-context';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
 import { secretValuesPresent, stripSecrets } from '../../kernel/actions/secret-fields';
 import { allowedFor, briefSchema, exampleInput, findActions, modeAllows } from './catalog';
+import { ACTION_MODULES, runFindActions, type DiscoveryRuntime } from './discovery/find-tool';
 import { resolveCodes } from './code-refs';
 import { pinVersion } from './version-pin';
 import { aiCustomErrors, withCustomSchema } from './custom-schema';
@@ -65,6 +66,8 @@ interface PlanStepIn {
 export interface MetaDeps extends DelegateDeps {
   db: TenantDb;
   executor: ToolExecutor;
+  /** TIP-023e: route embed + ví — vắng thì find_actions luôn keyword fallback (no_model_route). */
+  discovery?: DiscoveryRuntime | null;
 }
 
 /** Ngữ cảnh action của Trợ lý: quyền = quyền người dùng (§3.3b), run / bước để log nối về run. */
@@ -138,7 +141,7 @@ async function proposePlan(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepI
 /** `update_step` (§1.5): KHÔNG còn ghi trạng thái theo lời model — chỉ đọc tiến độ thật của plan đang gắn run hiện hành
  *  (receipt đã admitted, không phải lời model tự nhận "done"). Chưa propose plan nào ở lượt này → báo rõ, không giả 404 im lặng. */
 async function stepProgress(d: MetaDeps, t: AssistantTurnCtx): Promise<ToolOutcome> {
-  const found = await planOfRoot(d.db, t.userId, t.runId);
+  const found = await planOfRoot(d.db, t.userId, t.runId, t.sessionId);
   if (!found) return err('NOT_FOUND', 'Chưa có kế hoạch nào gắn với lượt này — gọi plan để tạo trước');
   return ok({
     plan_id: found.plan.id,
@@ -152,13 +155,13 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
     {
       name: ASSISTANT_TOOLS.find,
       description: 'Search the AppChat actions the user may run (by keywords, Vietnamese or English; optional module). Returns id, risk, description and input fields.',
-      inputSchema: { type: 'object', properties: { query: { type: 'string' }, module: { type: 'string' } }, required: ['query'] },
+      inputSchema: { type: 'object', properties: { query: { type: 'string' }, module: { type: 'string', enum: ACTION_MODULES } }, required: ['query'] },
       origin: 'meta',
       execute: async (input) => {
         const i = (input ?? {}) as { query?: unknown; module?: unknown };
-        const found = findActions(t.authz, t.mode, String(i.query ?? '').slice(0, 200), typeof i.module === 'string' ? i.module : undefined, undefined, implementedBy(d.executor));
+        const r = await runFindActions(d, t, { query: String(i.query ?? ''), ...(typeof i.module === 'string' ? { module: i.module } : {}) }, implementedBy(d.executor));
         // Ô `custom` → trường tuỳ biến hiện hành của workspace mà người dùng được ghi (SPEC A.5).
-        return ok({ actions: await Promise.all(found.map(async (a) => ({ ...a, input: await withCustomSchema(d.db, a, a.input, roleOf(t)) }))) });
+        return ok({ actions: await Promise.all(r.actions.map(async (a) => ({ ...a, input: await withCustomSchema(d.db, a, a.input, roleOf(t)) }))), discovery: r.discovery });
       },
     },
     {

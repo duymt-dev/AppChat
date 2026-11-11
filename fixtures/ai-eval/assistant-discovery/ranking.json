@@ -1,0 +1,436 @@
+{
+ "version": 1,
+ "groups": {
+  "contact_create": [
+   "contact.create"
+  ],
+  "contact_find": [
+   "contact.search",
+   "contact.get_360",
+   "contact.get"
+  ],
+  "contact_tag": [
+   "contact.tag"
+  ],
+  "contact_note": [
+   "contact.add_note"
+  ],
+  "contact_merge": [
+   "contact.merge",
+   "contact.duplicate_candidates"
+  ],
+  "quote_create": [
+   "quote.create",
+   "quote.draft_from_content"
+  ],
+  "quote_send": [
+   "quote.send"
+  ],
+  "quote_approve": [
+   "quote.approve",
+   "quote.submit_for_approval"
+  ],
+  "order_create": [
+   "order.create",
+   "order.create_from_quote"
+  ],
+  "order_cancel": [
+   "order.cancel"
+  ],
+  "order_ship": [
+   "order.update_shipping"
+  ],
+  "appt_create": [
+   "appointment.create",
+   "appointment.find_slots"
+  ],
+  "appt_resched": [
+   "appointment.reschedule"
+  ],
+  "appt_cancel": [
+   "appointment.cancel"
+  ],
+  "ticket_create": [
+   "ticket.create"
+  ],
+  "ticket_close": [
+   "ticket.close"
+  ],
+  "ticket_assign": [
+   "ticket.assign"
+  ],
+  "invoice_pay": [
+   "invoice.record_payment",
+   "invoice.send_payment_qr"
+  ],
+  "invoice_create": [
+   "invoice.create"
+  ],
+  "product_find": [
+   "product.search",
+   "product.get"
+  ],
+  "product_create": [
+   "product.create"
+  ],
+  "campaign_create": [
+   "campaign.create",
+   "campaign.draft_content"
+  ],
+  "contract_sign": [
+   "contract.approve_and_sign",
+   "contract.send_for_signature"
+  ],
+  "kb_search": [
+   "kb.search"
+  ],
+  "loyalty_points": [
+   "loyalty.adjust_points"
+  ]
+ },
+ "cases": [
+  {
+   "id": "ad-01",
+   "query": "tạo khách hàng mới",
+   "locale": "vi",
+   "group": "contact_create",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-02",
+   "query": "tao khach hang moi",
+   "locale": "vi",
+   "group": "contact_create",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-03",
+   "query": "add a new customer",
+   "locale": "en",
+   "group": "contact_create",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-04",
+   "query": "tìm khách hàng theo số điện thoại",
+   "locale": "vi",
+   "group": "contact_find",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-05",
+   "query": "find customer by phone",
+   "locale": "en",
+   "group": "contact_find",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-06",
+   "query": "gắn thẻ cho khách",
+   "locale": "vi",
+   "group": "contact_tag",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-07",
+   "query": "tag a customer",
+   "locale": "en",
+   "group": "contact_tag",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-08",
+   "query": "ghi chú vào hồ sơ khách",
+   "locale": "vi",
+   "group": "contact_note",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-09",
+   "query": "add a note to the contact",
+   "locale": "en",
+   "group": "contact_note",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-10",
+   "query": "gộp khách trùng",
+   "locale": "vi",
+   "group": "contact_merge",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-11",
+   "query": "merge duplicate customers",
+   "locale": "en",
+   "group": "contact_merge",
+   "vertical": "crm"
+  },
+  {
+   "id": "ad-12",
+   "query": "tạo báo giá",
+   "locale": "vi",
+   "group": "quote_create",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-13",
+   "query": "tao bao gia",
+   "locale": "vi",
+   "group": "quote_create",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-14",
+   "query": "create a quote",
+   "locale": "en",
+   "group": "quote_create",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-15",
+   "query": "gửi báo giá cho khách",
+   "locale": "vi",
+   "group": "quote_send",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-16",
+   "query": "send the quote to the customer",
+   "locale": "en",
+   "group": "quote_send",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-17",
+   "query": "duyệt báo giá",
+   "locale": "vi",
+   "group": "quote_approve",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-18",
+   "query": "approve a quote",
+   "locale": "en",
+   "group": "quote_approve",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-19",
+   "query": "tạo đơn hàng",
+   "locale": "vi",
+   "group": "order_create",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-20",
+   "query": "create an order",
+   "locale": "en",
+   "group": "order_create",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-21",
+   "query": "huỷ đơn hàng",
+   "locale": "vi",
+   "group": "order_cancel",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-22",
+   "query": "cancel the order",
+   "locale": "en",
+   "group": "order_cancel",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-23",
+   "query": "cập nhật thông tin giao hàng",
+   "locale": "vi",
+   "group": "order_ship",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-24",
+   "query": "update shipping details",
+   "locale": "en",
+   "group": "order_ship",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-25",
+   "query": "đặt lịch hẹn",
+   "locale": "vi",
+   "group": "appt_create",
+   "vertical": "booking"
+  },
+  {
+   "id": "ad-26",
+   "query": "dat lich hen",
+   "locale": "vi",
+   "group": "appt_create",
+   "vertical": "booking"
+  },
+  {
+   "id": "ad-27",
+   "query": "book an appointment",
+   "locale": "en",
+   "group": "appt_create",
+   "vertical": "booking"
+  },
+  {
+   "id": "ad-28",
+   "query": "dời lịch hẹn",
+   "locale": "vi",
+   "group": "appt_resched",
+   "vertical": "booking"
+  },
+  {
+   "id": "ad-29",
+   "query": "reschedule the appointment",
+   "locale": "en",
+   "group": "appt_resched",
+   "vertical": "booking"
+  },
+  {
+   "id": "ad-30",
+   "query": "huỷ lịch hẹn",
+   "locale": "vi",
+   "group": "appt_cancel",
+   "vertical": "booking"
+  },
+  {
+   "id": "ad-31",
+   "query": "cancel appointment",
+   "locale": "en",
+   "group": "appt_cancel",
+   "vertical": "booking"
+  },
+  {
+   "id": "ad-32",
+   "query": "tạo phiếu hỗ trợ",
+   "locale": "vi",
+   "group": "ticket_create",
+   "vertical": "support"
+  },
+  {
+   "id": "ad-33",
+   "query": "open a support ticket",
+   "locale": "en",
+   "group": "ticket_create",
+   "vertical": "support"
+  },
+  {
+   "id": "ad-34",
+   "query": "đóng ticket",
+   "locale": "vi",
+   "group": "ticket_close",
+   "vertical": "support"
+  },
+  {
+   "id": "ad-35",
+   "query": "close the ticket",
+   "locale": "en",
+   "group": "ticket_close",
+   "vertical": "support"
+  },
+  {
+   "id": "ad-36",
+   "query": "giao ticket cho nhân viên",
+   "locale": "vi",
+   "group": "ticket_assign",
+   "vertical": "support"
+  },
+  {
+   "id": "ad-37",
+   "query": "ghi nhận thanh toán",
+   "locale": "vi",
+   "group": "invoice_pay",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-38",
+   "query": "record a payment",
+   "locale": "en",
+   "group": "invoice_pay",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-39",
+   "query": "tạo đề nghị thanh toán",
+   "locale": "vi",
+   "group": "invoice_create",
+   "vertical": "sales"
+  },
+  {
+   "id": "ad-40",
+   "query": "tìm sản phẩm",
+   "locale": "vi",
+   "group": "product_find",
+   "vertical": "catalog"
+  },
+  {
+   "id": "ad-41",
+   "query": "search products",
+   "locale": "en",
+   "group": "product_find",
+   "vertical": "catalog"
+  },
+  {
+   "id": "ad-42",
+   "query": "thêm sản phẩm mới",
+   "locale": "vi",
+   "group": "product_create",
+   "vertical": "catalog"
+  },
+  {
+   "id": "ad-43",
+   "query": "tạo chiến dịch marketing",
+   "locale": "vi",
+   "group": "campaign_create",
+   "vertical": "marketing"
+  },
+  {
+   "id": "ad-44",
+   "query": "create a campaign",
+   "locale": "en",
+   "group": "campaign_create",
+   "vertical": "marketing"
+  },
+  {
+   "id": "ad-45",
+   "query": "ký hợp đồng",
+   "locale": "vi",
+   "group": "contract_sign",
+   "vertical": "contracts"
+  },
+  {
+   "id": "ad-46",
+   "query": "send contract for signature",
+   "locale": "en",
+   "group": "contract_sign",
+   "vertical": "contracts"
+  },
+  {
+   "id": "ad-47",
+   "query": "tra cứu kho tri thức",
+   "locale": "vi",
+   "group": "kb_search",
+   "vertical": "kb"
+  },
+  {
+   "id": "ad-48",
+   "query": "search the knowledge base",
+   "locale": "en",
+   "group": "kb_search",
+   "vertical": "kb"
+  },
+  {
+   "id": "ad-49",
+   "query": "cộng điểm thân thiết",
+   "locale": "vi",
+   "group": "loyalty_points",
+   "vertical": "loyalty"
+  }
+ ]
+}
