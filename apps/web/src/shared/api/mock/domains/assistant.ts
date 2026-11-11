@@ -9,6 +9,7 @@ import type { MockDb } from '../store';
 import { createTasksState, type MockTask } from './ai-tasks';
 import { genUiReply } from './assistant-genui';
 import { recordTurn } from './assistant-sessions';
+import { bindTurnInputs } from './assistant-input';
 
 export type AssistantFixture = typeof fixture;
 export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title' | 'object'> & {
@@ -203,11 +204,15 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
   // POST /v1/assistant/messages — mock: không stream, trả cả danh sách event của lượt
   '/assistant/messages': (db, body) => {
     if (body.purpose === 'inbox_compose' || body.purpose === 'inbox_rewrite') return inboxDraft(db, body);
-    const text = String(body.text ?? '').trim();
+    const hasInputs = Array.isArray(body.inputs) && body.inputs.length > 0;
+    // Chỉ gửi tệp (TIP-023f §4.1): như server — câu hỏi trung tính, không bịa việc.
+    const text = String(body.text ?? '').trim() || (hasInputs ? 'Tệp đính kèm nói gì?' : '');
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
     const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
-    const events = scriptReply(db, text, (body.context as { route?: string } | undefined)?.route);
-    recordTurn(session, String(body.mode ?? 'chat'), text, events as never);
+    const files = hasInputs ? bindTurnInputs(body.inputs, session) : null;
+    // Mock không gọi model: tệp đã chuẩn bị → trả đoạn trích tất định (hợp đồng), không phải chứng minh hiểu nội dung.
+    const events = files ? [{ type: 'delta' as const, text: `[mock] Đã nhận ${files.names.map((f) => f.name).join(', ')}${files.excerpt ? `: ${files.excerpt}` : ''}` }] : scriptReply(db, text, (body.context as { route?: string } | undefined)?.route);
+    recordTurn(session, String(body.mode ?? 'chat'), text, events as never, files?.names);
     return { session_id: session, run_id: null, events };
   },
   // POST /v1/assistant/preview-edit — Sửa thẻ: chỉ xem trước lại, token cũ mất hiệu lực (REQ-E03b)

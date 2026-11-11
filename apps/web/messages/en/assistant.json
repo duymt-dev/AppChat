@@ -394,7 +394,29 @@
     "uploading": "Uploading…",
     "retry": "Retry",
     "cancel": "Cancel upload",
-    "remove": "Remove {name}"
+    "remove": "Remove {name}",
+    "preparing": "Reading content…",
+    "reason": {
+      "upload": "Upload failed",
+      "prepare": "Could not prepare",
+      "unsupported_type": "Unsupported file type",
+      "too_large": "File too large",
+      "needs_split": "File too long — split it",
+      "encrypted": "Password-protected file",
+      "scanned_no_text": "Scanned PDF without text",
+      "corrupt": "Corrupt file",
+      "archive_bounds": "File structure exceeds limits",
+      "image_bounds": "Image exceeds size limits",
+      "timeout": "Reading timed out",
+      "parser_isolation_unavailable": "File reader temporarily unavailable",
+      "source_unavailable": "Source file no longer accessible"
+    },
+    "rejected": {
+      "mime": "This file type is not accepted",
+      "too_large": "Each file is limited to 25 MB",
+      "too_many": "Up to 5 files per message",
+      "total": "Total size is limited to 50 MB"
+    }
   },
   "utility": {
     "menuTitle": "AI skills",
@@ -495,6 +517,37 @@
       "service_need": "Service need",
       "timing": "Timing",
       "engagement": "Engagement"
+    }
+  },
+  "capture": {
+    "busy": "Choose a tab, window or screen to capture…",
+    "unsupported": "This browser cannot capture the screen — pick an image instead",
+    "denied": "Screen capture permission was denied",
+    "failed": "Screen capture failed",
+    "alt": "Screenshot awaiting attachment",
+    "warn": "Check the image has no sensitive information before attaching.",
+    "accept": "Attach",
+    "fallback": "Pick image",
+    "cancel": "Discard screenshot"
+  },
+  "dictation": {
+    "notice": "Your browser may send audio to its own speech service. AppChat does not store audio. You review the text before inserting and send it yourself.",
+    "start": "Start speaking",
+    "listening": "Listening… (up to 60 seconds)",
+    "stop": "Stop",
+    "review": "Review and edit before inserting",
+    "changed": "The draft changed while listening — choose how to merge",
+    "editLabel": "Recognised text",
+    "insert": "Insert",
+    "append": "Append",
+    "replace": "Replace draft",
+    "cancel": "Discard dictation",
+    "error": {
+      "unsupported": "This browser does not support voice input — please type",
+      "denied": "Microphone permission denied — please type",
+      "no_speech": "No speech detected",
+      "network": "The browser speech service is unreachable",
+      "failed": "Voice input failed"
     }
   }
 }

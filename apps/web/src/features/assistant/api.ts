@@ -40,5 +40,20 @@ export const confirmTurn = (token: string, decision: 'confirm' | 'cancel') =>
 export const editPreview = (token: string, input: Record<string, unknown>) => transport.post<{ card: ConfirmEvent }>('/assistant/preview-edit', { confirm_token: token, input });
 
 /** Tin của một phiên (cũ → mới) — "Mở trong Trợ lý" từ drawer nạp lại cùng phiên, không gọi model (TIP-023c G2). */
-export const sessionMessages = (id: string) =>
-  transport.get<{ data: (Omit<ChatMessage, 'target'> & { run_id: string | null })[] }>(`/assistant/sessions/${encodeURIComponent(id)}/messages`);
+type StoredMessage = Omit<ChatMessage, 'target' | 'files'> & { run_id: string | null; attachment?: { artifact_id: string; name: string; kind: string | null } };
+
+export const sessionMessages = (id: string) => transport.get<{ data: StoredMessage[] }>(`/assistant/sessions/${encodeURIComponent(id)}/messages`);
+
+/** Tin đã lưu → bong bóng: phần tệp (TIP-023f — chỉ tên / loại) gộp vào tin người dùng ngay trước nó, không thành bong bóng rỗng. */
+export function threadOf(rows: readonly StoredMessage[]): ChatMessage[] {
+  const out: ChatMessage[] = [];
+  for (const m of rows) {
+    const last = out.at(-1);
+    if (m.attachment && m.role === 'user' && last?.role === 'user' && !m.text) {
+      last.files = [...(last.files ?? []), { name: m.attachment.name, kind: m.attachment.kind ?? 'file' }];
+      continue;
+    }
+    out.push({ id: m.id, role: m.role, text: m.text, card: m.card, status: m.status, ui: m.ui, ...(m.attachment ? { files: [{ name: m.attachment.name, kind: m.attachment.kind ?? 'file' }] } : {}) });
+  }
+  return out;
+}

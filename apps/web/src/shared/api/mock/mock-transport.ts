@@ -44,6 +44,8 @@ import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui'
 import { runDetailParamRoute } from './domains/run-detail';
 import { aiUtilityParamRoute } from './domains/ai-utilities';
 import { assistantSessionParamRoute } from './domains/assistant-sessions';
+import { assistantInputRoute } from './domains/assistant-input';
+import { keepUpload } from './assistant-input-store';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
 import { assistantPosts, markUndone, recordActionLog } from './domains/assistant';
 import { mockPosts, taxLookup } from './auth-routes';
@@ -111,6 +113,7 @@ export const mockTransport: Transport = {
       runDetailParamRoute(path) ??
       aiUtilityParamRoute(path) ??
       assistantSessionParamRoute(path) ??
+      assistantInputRoute(path) ??
       signParamRoute(path) ??
       agentToolsParamRoute(path) ??
       agentStatsParamRoute(path) ??
@@ -218,7 +221,9 @@ export const mockTransport: Transport = {
   async upload(file, purpose, signal) {
     // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp. Huỷ trước khi xong → AbortError như fetch.
     if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
-    const id = nextId('file');
+    // Đầu vào Trợ lý (TIP-023f): id dạng uuid như server (action prepare kiểm uuid) + kho tạm có giới hạn giữ chữ của tệp đọc được.
+    const id = purpose === 'attachment' ? crypto.randomUUID() : nextId('file');
+    if (purpose === 'attachment') keepUpload(id, { name: file.name, size: file.size, mime: file.type, text: /\.(txt|md|csv|html?|eml)$/i.test(file.name) ? await file.text() : null });
     // Tên theo id để guard giả của hợp đồng từ tệp (TIP-030b) kiểm loại / tên.
     mockUploads.set(id, { name: file.name, size: file.size });
     // Nhập sản phẩm (TIP-032b): mock đọc chữ CSV để tách dòng như server.

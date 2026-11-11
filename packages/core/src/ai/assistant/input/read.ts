@@ -1,8 +1,10 @@
 // Đọc phần đã trích (TIP-023f §2.2, §5.3) — chủ sở hữu, đúng revision, artifact `ready`; tối đa 8 đoạn / lần, con trỏ = vị trí tiếp
 // theo (tất định), `has_more` trung thực. Phần ảnh trả tham chiếu `image:<artifact>:<position>`, không URL lưu trữ / bytes.
 import type { TenantTx } from '../../../kernel/actions/action-context';
-import { AppError, type InputLocator, type InputReadDto } from '@appchat/shared';
-import { ownArtifact } from './artifact-store';
+import { AppError, type InputArtifactDto, type InputLocator, type InputReadDto } from '@appchat/shared';
+import { checkFile } from '../../../kernel/files/file-access';
+import { ATTACHMENT_RULE } from '../genui/attachments';
+import { ownArtifact, toDto } from './artifact-store';
 
 export async function readParts(tx: Pick<TenantTx, 'assistantInputArtifact' | 'assistantInputPart'>, userId: string, i: { artifact_id: string; revision: number; cursor?: string; limit?: number }): Promise<InputReadDto> {
   const a = await ownArtifact(tx, userId, i.artifact_id);
@@ -20,4 +22,11 @@ export async function readParts(tx: Pick<TenantTx, 'assistantInputArtifact' | 'a
     has_more: more,
     next_cursor: more ? String(rows[limit]!.position) : null,
   };
+}
+
+/** Trạng thái artifact + nguồn còn đọc được (guard kernel hiện hành) — dùng chung action `attachment_get` và `GET /assistant/input/:id`. */
+export async function getArtifact(tx: Pick<TenantTx, 'assistantInputArtifact' | 'assistantInputPart' | 'file'>, userId: string, id: string, now: Date): Promise<InputArtifactDto> {
+  const a = await ownArtifact(tx, userId, id);
+  const src = await checkFile(tx, userId, a.fileId, { ...ATTACHMENT_RULE, mimes: undefined, maxAgeMs: Number.MAX_SAFE_INTEGER }, now);
+  return toDto(a, !('denied' in src));
 }

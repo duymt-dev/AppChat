@@ -12,7 +12,8 @@ import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
 import { pipeRunStream } from './run-stream';
 
 const turnBody = z.object({
-  text: z.string().trim().min(1).max(4000),
+  /** Có thể rỗng khi chỉ gửi tệp (TIP-023f §4.1 — người dùng bấm Gửi tường minh); server điền câu hỏi mặc định theo ngôn ngữ. */
+  text: z.string().trim().max(4000).default(''),
   mode: z.enum(['chat', 'cowork']).default('chat'),
   session_id: z.string().uuid().optional(),
   tier: z.enum(AI_TIERS).optional(),
@@ -35,6 +36,13 @@ const draftBody = z.object({
 });
 const editBody = z.object({ confirm_token: z.string().min(1).max(200), input: z.record(z.string(), z.unknown()) });
 const confirmBody = z.object({ confirm_token: z.string().min(1).max(200), decision: z.enum(['confirm', 'cancel']), run_id: z.string().optional() });
+
+const partsQuery = z.object({ revision: z.coerce.number().int().min(1), cursor: z.string().max(64).optional(), limit: z.coerce.number().int().min(1).max(8).optional() });
+/** Id không phải uuid → 404 như không có (không lộ, không lỗi DB). */
+const uuid = (id: string) => {
+  if (!z.string().uuid().safeParse(id).success) throw new AppError('NOT_FOUND', 404, { artifact_id: 'not_found' });
+  return id;
+};
 
 const pick = <T extends string>(v: string | undefined, all: readonly T[]): T | undefined => (v && v !== 'all' && (all as readonly string[]).includes(v) ? (v as T) : undefined);
 
@@ -63,6 +71,7 @@ export class AssistantController {
       return { data: await this.svc.draft(c, { purpose: d.purpose, conversationId: d.conversation_id, baseVersion: d.base_version, draft: d.draft, ...(d.instruction ? { instruction: d.instruction } : {}) }) };
     }
     const b = parseBody(turnBody, body);
+    if (!b.text && !b.inputs?.length) throw new AppError('VALIDATION_FAILED', 422, { text: 'required' });
     const q = {
       text: b.text,
       mode: b.mode,
@@ -118,6 +127,17 @@ export class AssistantController {
   @Get('assistant/sessions/:id/messages')
   async messages(@Req() req: IncomingMessage, @Param('id') id: string) {
     return { data: await this.svc.messages(await this.caller(req, 'assistant.use'), id), next_cursor: null };
+  }
+
+  @Get('assistant/input/:id')
+  async input(@Req() req: IncomingMessage, @Param('id') id: string) {
+    return { data: await this.svc.input(await this.caller(req, 'assistant.use'), uuid(id)) };
+  }
+
+  @Get('assistant/input/:id/parts')
+  async inputParts(@Req() req: IncomingMessage, @Param('id') id: string, @Query() q: unknown) {
+    const p = parseBody(partsQuery, q);
+    return { data: await this.svc.inputParts(await this.caller(req, 'assistant.use'), { artifact_id: uuid(id), ...p }) };
   }
 
   @Get('assistant/runs/:id/trace')

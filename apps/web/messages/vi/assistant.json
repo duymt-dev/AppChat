@@ -394,7 +394,29 @@
     "uploading": "Đang tải…",
     "retry": "Thử lại",
     "cancel": "Huỷ tải lên",
-    "remove": "Bỏ tệp {name}"
+    "remove": "Bỏ tệp {name}",
+    "preparing": "Đang đọc nội dung…",
+    "reason": {
+      "upload": "Tải lên lỗi",
+      "prepare": "Không chuẩn bị được",
+      "unsupported_type": "Loại tệp không đọc được",
+      "too_large": "Tệp quá lớn",
+      "needs_split": "Tệp quá dài — hãy tách nhỏ",
+      "encrypted": "Tệp có mật khẩu",
+      "scanned_no_text": "PDF ảnh quét, không có chữ",
+      "corrupt": "Tệp hỏng",
+      "archive_bounds": "Cấu trúc tệp vượt giới hạn",
+      "image_bounds": "Ảnh vượt kích thước cho phép",
+      "timeout": "Đọc quá lâu",
+      "parser_isolation_unavailable": "Bộ đọc tệp tạm không sẵn sàng",
+      "source_unavailable": "Tệp gốc không còn truy cập được"
+    },
+    "rejected": {
+      "mime": "Không nhận loại tệp này",
+      "too_large": "Mỗi tệp tối đa 25 MB",
+      "too_many": "Tối đa 5 tệp mỗi lượt",
+      "total": "Tổng dung lượng tối đa 50 MB"
+    }
   },
   "utility": {
     "menuTitle": "Kỹ năng AI",
@@ -495,6 +517,37 @@
       "service_need": "Nhu cầu dịch vụ",
       "timing": "Thời điểm",
       "engagement": "Mức tương tác"
+    }
+  },
+  "capture": {
+    "busy": "Chọn tab, cửa sổ hoặc màn hình để chụp…",
+    "unsupported": "Trình duyệt không hỗ trợ chụp màn hình — hãy chọn ảnh có sẵn",
+    "denied": "Đã từ chối quyền chụp màn hình",
+    "failed": "Không chụp được màn hình",
+    "alt": "Ảnh chụp màn hình chờ đính kèm",
+    "warn": "Kiểm tra ảnh không có thông tin nhạy cảm trước khi đính kèm.",
+    "accept": "Đính kèm",
+    "fallback": "Chọn ảnh",
+    "cancel": "Bỏ ảnh chụp"
+  },
+  "dictation": {
+    "notice": "Trình duyệt có thể gửi âm thanh tới dịch vụ nhận giọng nói của chính nó. AppChat không lưu âm thanh. Bạn xem lại chữ trước khi chèn và tự bấm Gửi.",
+    "start": "Bắt đầu nói",
+    "listening": "Đang nghe… (tối đa 60 giây)",
+    "stop": "Dừng",
+    "review": "Xem lại và sửa trước khi chèn",
+    "changed": "Ô soạn đã thay đổi trong lúc nghe — chọn cách ghép",
+    "editLabel": "Chữ đã nhận",
+    "insert": "Chèn",
+    "append": "Thêm vào cuối",
+    "replace": "Thay ô soạn",
+    "cancel": "Bỏ đọc chính tả",
+    "error": {
+      "unsupported": "Trình duyệt không hỗ trợ nhập bằng giọng nói — hãy gõ phím",
+      "denied": "Đã từ chối quyền micro — hãy gõ phím",
+      "no_speech": "Không nghe thấy giọng nói",
+      "network": "Dịch vụ nhận giọng của trình duyệt không kết nối được",
+      "failed": "Không nhận được giọng nói"
     }
   }
 }

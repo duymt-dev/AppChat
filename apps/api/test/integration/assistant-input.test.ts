@@ -109,6 +109,22 @@ describe('đầu vào Trợ lý trên DB thật', () => {
     expect(sixth.status).toBe(422);
   });
 
+  it('GET /assistant/input/:id (+ /parts): cùng dịch vụ đọc có guard với action; người khác / id lạ → 404; lượt rỗng không tệp → 422', async () => {
+    const id = (await act('assistant.attachment_prepare', { file_id: await upload('ghi.txt', 'GET-CANARY dòng một', 'text/plain'), draft_nonce: uuidv7() })).body.data!.result!.artifact_id as string;
+    const queued = await (await call(h, `/assistant/input/${id}`)).json();
+    expect(queued.data).toMatchObject({ artifact_id: id, phase: 'queued', source_available: true });
+    expect(await prepare(id)).toBe('ready');
+    expect((await (await call(h, `/assistant/input/${id}`)).json()).data).toMatchObject({ phase: 'ready', kind: 'text', part_count: 1 });
+    const parts = await (await call(h, `/assistant/input/${id}/parts?revision=1&limit=1`)).json();
+    expect(parts.data).toMatchObject({ has_more: false, parts: [{ locator: { kind: 'paragraph', paragraph: 1 } }] });
+    expect(JSON.stringify(parts)).toContain('GET-CANARY');
+    expect((await call(h, `/assistant/input/${id}/parts?revision=7`)).status).toBe(409);
+    const other = await h.member('sales');
+    expect((await call(h, `/assistant/input/${id}`, undefined, bearer(other.token))).status).toBe(404);
+    expect((await call(h, '/assistant/input/khong-phai-uuid')).status).toBe(404);
+    expect((await call(h, '/assistant/messages', { text: '   ' })).status).toBe(422);
+  });
+
   it('EXPLAIN: tệp của nháp dùng index draft, việc chờ dùng index work', async () => {
     const db = await tenant();
     await db.$executeRawUnsafe('SET enable_seqscan = off');

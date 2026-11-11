@@ -159,6 +159,10 @@ export const useComposerStyles = createStyles(({ css, responsive }) => ({
     flex-shrink: 0;
     border: none;
     padding: 0;
+    &:disabled {
+      opacity: 0.5;
+      cursor: default;
+    }
     ${responsive.md} {
       width: ${layout.touch}px;
       height: ${layout.touch}px;
