@@ -92,3 +92,12 @@ describe('guardUpload', () => {
     expect(normalizeName('   ')).toBe('file');
   });
 });
+
+describe('attachment: HTML / .eml cho Trợ lý (TIP-023f)', () => {
+  it('markup chỉ nhận với đuôi html / htm / eml; SVG vẫn 415', () => {
+    expect(guardUpload({ name: 'trang.html', mime: 'text/html', body: Buffer.from('<html><p>x</p></html>'), purpose: 'attachment' })).toMatchObject({ kind: 'markup', mime: 'text/html' });
+    expect(guardUpload({ name: 'thu.eml', mime: 'message/rfc822', body: Buffer.from('Subject: a\r\n\r\nxin chào'), purpose: 'attachment' })).toMatchObject({ mime: 'message/rfc822' });
+    expect(err({ name: 'logo.svg', mime: 'image/svg+xml', body: Buffer.from('<svg/>'), purpose: 'attachment' })).toBe('415:type_not_allowed');
+    expect(err({ name: 'a.txt', mime: 'text/plain', body: Buffer.from('<html><script>x</script></html>'), purpose: 'attachment' })).toBe('415:type_not_allowed');
+  });
+});
