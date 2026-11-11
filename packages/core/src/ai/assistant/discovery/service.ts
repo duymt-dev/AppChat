@@ -3,11 +3,11 @@
 // kết quả ĐÃ LỌC QUYỀN HIỆN HÀNH (authority.ts) — vector/keyword chỉ là ứng viên, không bao giờ là quyền. Thiếu route embed / chưa
 // có generation `ready` cho corpus+space hiện hành → honest keyword fallback (không gọi vector, không giả lập điểm ngữ nghĩa).
 import { registry } from '@appchat/actions';
-import type { AuthzContext } from '@appchat/shared';
+import { foldText, type AuthzContext } from '@appchat/shared';
 import { briefSchema, findActions, type AssistantMode, type FoundAction, type Implemented } from '../catalog';
 import { buildCorpus } from './corpus';
 import { findGeneration } from './generation';
-import { filterAuthorized } from './authority';
+import { filterAuthorized, type Admit } from './authority';
 import { rankAndAuthorize } from './ranking';
 import { vectorTopK } from './vector-query';
 import { embeddingSpaceKey, type EmbeddingSpace } from './types';
@@ -33,6 +33,7 @@ export interface DiscoveryResult {
 export type QueryVector = (query: string) => Promise<number[] | null>;
 
 const VECTOR_TOP = 20;
+const BY_ID = new Map(registry.map((a) => [a.id, a]));
 const KEYWORD_TOP = 20;
 
 /** Action_id hợp lệ format `module.verb` tồn tại trong registry — câu hỏi gõ đúng id (§2.3 "an exact permitted action ID ranks first"). */
@@ -57,6 +58,8 @@ export interface DiscoveryQueryInput {
   module?: string;
   limit: number;
   implemented: Implemented;
+  /** TIP-021b: lọc mục đích thêm (vd. chỉ action cấp được cho agent) — áp TRƯỚC rank / limit ở cả nhánh từ khoá lẫn vector. */
+  admit?: Admit;
 }
 
 export interface DiscoveryDeps {
@@ -72,11 +75,34 @@ export interface DiscoveryDeps {
   cache?: { store: DiscoveryCache; ws: string; rootRunId: string; userId: string } | null;
 }
 
+/**
+ * Từ khoá cho câu hỏi dài (TIP-021b): mỗi từ (không dấu, ≥ 2 ký tự) khớp văn bản corpus 023e (id + mô tả + nhãn vi/en) cộng trọng số
+ * IDF; chỉ action còn được phép (quyền + chế độ + handler + mục đích); điểm giảm dần, hoà theo id. Không mở rộng câu hỏi bằng model.
+ */
+function purposeKeywordIds(i: DiscoveryQueryInput): string[] {
+  const words = [...new Set(foldText(i.query).split(/[^a-z0-9_]+/).filter((w) => w.length > 1))];
+  if (!words.length) return [];
+  const docs = buildCorpus(i.implemented).docs.map((d) => ({ id: d.actionId, text: foldText(d.text) }));
+  const df = new Map(words.map((w) => [w, docs.filter((d) => d.text.includes(w)).length]));
+  const allowed = new Set(filterAuthorized(docs.map((d) => d.id), i.authz, i.mode, i.implemented, i.module, i.admit).map((a) => a.id));
+  return docs
+    .filter((d) => allowed.has(d.id))
+    .map((d) => ({ id: d.id, score: words.reduce((t, w) => (d.text.includes(w) ? t + Math.log((docs.length + 1) / (df.get(w)! + 0.5)) : t), 0) }))
+    .filter((x) => x.score > 0)
+    .sort((x, y) => y.score - x.score || x.id.localeCompare(y.id))
+    .slice(0, KEYWORD_TOP)
+    .map((x) => x.id);
+}
+
 /** Tìm action theo ngữ nghĩa + từ khoá, luôn trả kết quả đã lọc quyền hiện hành. Không có generation `ready` khớp corpus+space
  *  hiện hành (chưa build / đang build / build lỗi) → honest keyword fallback, discovery.strategy = 'keyword' hoặc 'none'. */
 export async function discoverActions(d: DiscoveryDeps, i: DiscoveryQueryInput): Promise<DiscoveryResult> {
-  const keywordIds = findActions(i.authz, i.mode, i.query, i.module, KEYWORD_TOP, i.implemented).map((a) => a.id);
-  const exactId = exactIdOf(i.query);
+  // Có bộ lọc mục đích (soạn agent — câu hỏi là cả đoạn mô tả): xếp hạng từ khoá IDF trên văn bản corpus, lọc quyền + mục đích TRƯỚC
+  // khi cắt top. Không có: `findActions` cũ (câu ngắn của model).
+  const keywordIds = i.admit ? purposeKeywordIds(i) : findActions(i.authz, i.mode, i.query, i.module, KEYWORD_TOP, i.implemented).map((a) => a.id);
+  // exactId chỉ khi qua bộ lọc mục đích (không đưa action bị loại lên đầu); vector chỉ trong allowedIds (đã lọc `admit` bên dưới).
+  const exact = exactIdOf(i.query);
+  const exactId = exact && (!i.admit || i.admit(BY_ID.get(exact)!)) ? exact : undefined;
 
   const fallback = (reason: FallbackReason): DiscoveryResult => {
     const ranked = rankAndAuthorize({ vectorIds: [], keywordIds, exactId, authz: i.authz, mode: i.mode, implemented: i.implemented, module: i.module, limit: i.limit });
@@ -93,7 +119,7 @@ export async function discoverActions(d: DiscoveryDeps, i: DiscoveryQueryInput):
 
   // Ứng viên vector CHỈ trong tập đã lọc quyền hiện hành (§2.2-§2.3 "Fetch generation+authorized IDs before rank/limit") — không
   // top-K toàn cục rồi lọc sau (lọc sau sẽ làm đói kết quả khi top-K toàn cục trùng nhiều action người dùng không được gọi).
-  const allowedIds = filterAuthorized(registry.map((a) => a.id), i.authz, i.mode, i.implemented, i.module).map((a) => a.id);
+  const allowedIds = filterAuthorized(registry.map((a) => a.id), i.authz, i.mode, i.implemented, i.module, i.admit).map((a) => a.id);
   const scope = d.cache ? { ws: d.cache.ws, rootRunId: d.cache.rootRunId, userId: d.cache.userId, corpusHash: corpus.corpusHash, spaceKey: embeddingSpaceKey(d.space), module: i.module, allowedIds, query: i.query } : null;
   const cached = scope ? await d.cache!.store.get(scope) : null;
   let vectorIds = cached;

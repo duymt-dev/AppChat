@@ -9,6 +9,7 @@ import { AiSdkEmbedder, AiSdkEngine, LlmRouter, mockEmbedSource, mockModelSource
 import type { PlatformDb } from '@appchat/db';
 import { CreditMeter } from '../billing/public';
 import { BillingModule } from '../billing/billing.module';
+import { AuthzModule } from '../authz/authz.module';
 import { WorkspaceAccess } from '../platform/public';
 import { ENC_KEY } from '../kernel/crypto';
 import { ENV_SOURCE, LOGGER } from '../kernel/kernel.module';
@@ -39,6 +40,7 @@ import { AiRunner } from './runs/runner';
 import { AiSettingsUpdateHandler } from './settings/ai-settings.handlers';
 import { AgentCreateAndPublishHandler, AgentCreateHandler, AgentDeleteHandler, AgentPauseHandler, AgentPublishHandler, AgentRollbackHandler, AgentUpdateHandler } from './agents/agent.handlers';
 import { AgentDraftHandler, AgentOptimizePromptHandler, AgentTestHandler } from './agents/agent-llm.handlers';
+import { AGENT_DRAFTING_PROVIDERS } from './agents/drafting/providers';
 import { seedAgentTemplates } from './agents/templates.seed';
 import { ApprovalApproveHandler, ApprovalEditAndApproveHandler, ApprovalRejectHandler } from './approvals/approval.handlers';
 import { AiTranslateHandler } from './skills/translate.handler';
@@ -92,7 +94,7 @@ class ProviderSeed implements OnModuleInit {
 }
 
 @Module({
-  imports: [BillingModule],
+  imports: [BillingModule, AuthzModule],
   providers: [
     { provide: AI_ENV, inject: [opt(ENV_SOURCE)], useFactory: (src?: Record<string, string | undefined>) => readAiEnv(src ?? {}) },
     {
@@ -174,6 +176,7 @@ class ProviderSeed implements OnModuleInit {
     AgentDeleteHandler,
     AgentTestHandler,
     AgentDraftHandler,
+    ...AGENT_DRAFTING_PROVIDERS,
     AgentOptimizePromptHandler,
     ApprovalApproveHandler,
     ApprovalRejectHandler,

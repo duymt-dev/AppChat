@@ -21,7 +21,7 @@ export { redactSensitiveQueryInput } from '../authz/fields/history-provenance';
 export { meteredEmbed, queryEmbedder, claimEmbedStep, isMeteringStop, type EmbedMeter, type QueryEmbed } from './runs/metered-embedding';
 export { embedChunks } from './kb/ingest-usage';
 export { expiryDelivery, EXPIRY_ONCE } from './approvals/expiry-delivery';
-export { AI_USAGE_RECOVERY, AI_UTILITY_RECOVERY, AiUtilityRecoveryInstaller } from './runs/runtime.providers';
+export { AI_DRAFT_RECOVERY, AI_USAGE_RECOVERY, AI_UTILITY_RECOVERY, AiUtilityRecoveryInstaller } from './runs/runtime.providers';
 export { recoverUtilities, UTILITY_RECOVERY_GRACE_MS, type Revalidate, type RevalidateOutcome, type UtilityRecoveryReport } from './skills/utility-recovery';
 export { makeRevalidate, type ValidatorOf } from './skills/utility-revalidate';
 export { utilityValidatorOf } from './skills/utility-validators';
@@ -46,6 +46,11 @@ export { agentAuthz } from './agents/agent-authz';
 export { connectedKeys, groupTools, runToolIds, badgeOf } from './agents/agent-tools';
 export { agentSystem, agentToolSpecs, dryRunTools, runOnce, withinHours } from './agents/agent.runtime';
 export { draftFromText, parseDraft, optimizeLocal } from './agents/agent-draft';
+// TIP-021b: đường ống soạn agent (discovery trước sinh, binding công bố) — ROLE=ai / test ghép thật dùng cùng service.
+export { AgentDraftingService } from './agents/drafting/providers';
+export { chunkDescription, discoverDraftTools, grantableForAgent, CANDIDATE_MAX, CHUNK_MAX } from './agents/drafting/discovery';
+export { draftResponseSchema, DRAFT_MARK } from './agents/drafting/generation';
+export { recoverDrafts } from './agents/drafting/publication';
 export { seedAgentTemplates, templateDefaults, upgradeAgentTemplates } from './agents/templates.seed';
 // TIP-022b: hành vi agent trực kênh.
 export { channelBindingPreview } from './agents/channel-binding-preview';

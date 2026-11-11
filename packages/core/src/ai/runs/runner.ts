@@ -2,7 +2,7 @@
 // (DB nền tảng, idempotent `runId:stepIdx`) rồi mới ghi `ai_run_step(llm)` + `credits_used` ở DB tenant; bước tool ghi
 // `ai_run_step(tool)`. Tool cần người → `waiting_approval` + `state` (không giữ RAM); `resume` nạp state ở bất kỳ process nào.
 // Huỷ: `run.cancel` đổi trạng thái cả cây + phát lệnh huỷ (pub/sub) → runner đang chạy run đó dừng ở bước kế tiếp.
-import { resumeMessages, type AgentEngine, type InputResolver, type PausedState, type RunEvent, type RunMessage, type ToolOutcome, type ToolSpec } from '@appchat/ai';
+import { resumeMessages, type AgentEngine, type InputResolver, type ResponseSchema, type PausedState, type RunEvent, type RunMessage, type ToolOutcome, type ToolSpec } from '@appchat/ai';
 import { recordLlmError, recordLlmUsage } from '../../kernel/metrics/ai';
 import { AppError, utcToWall } from '@appchat/shared';
 import type { CreditMeter } from '../../billing/public';
@@ -27,6 +27,11 @@ export interface RunSpec {
   onEvent?: (e: RunEvent) => void;
   /** TIP-023f §3.1: dựng tham chiếu tệp trước mỗi lời gọi thật (quyền / nguồn hiện hành) — dùng cho lượt đầu, chạy tiếp, xác nhận. */
   inputs?: InputResolver | null;
+  /** TIP-021b §2.2: sinh theo schema do server sở hữu (không tool). */
+  responseSchema?: ResponseSchema;
+  /** TIP-021b §2.3 (mẫu 019c): chữ model là kết quả RIÊNG — không ghi `output` công khai của run; người gọi lưu vào binding và công bố sau
+   *  khi kiểm theo quyền hiện hành. Run vẫn kết thúc `completed` (usage / trạng thái thật), đọc run chung không thấy chữ. */
+  protectedOutput?: boolean;
 }
 
 export interface RunResult {
@@ -124,6 +129,7 @@ export class AiRunner {
           budget: { maxCredits: run.maxCredits ?? DEFAULT_RUN_BUDGET, spent: metered ? run.subtreeCredits : run.creditsUsed },
           startStep,
           ...(spec.inputs ? { inputs: spec.inputs } : {}),
+          ...(spec.responseSchema ? { responseSchema: spec.responseSchema } : {}),
           hooks: metered
             ? {
                 beforeStep: async () => {
@@ -193,7 +199,7 @@ export class AiRunner {
           }
           // Chỉ dừng tự nhiên (model trả lời xong) là thành công; max_steps / loop_guard / budget là dừng an toàn (DC-380).
           if (e.reason !== 'stop') return safetyStop(store, run.id, e.text, creditsUsed, e.reason);
-          await store.finish(run.id, 'completed', { output: { text: e.text, stop: e.reason } });
+          await store.finish(run.id, 'completed', { output: spec.protectedOutput ? { protected: true, stop: e.reason } : { text: e.text, stop: e.reason } });
           return { status: 'completed', text: e.text, creditsUsed, stopReason: e.reason };
         }
       }

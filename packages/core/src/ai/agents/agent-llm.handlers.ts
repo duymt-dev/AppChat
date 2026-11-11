@@ -1,6 +1,6 @@
 // Action `agent.*` chạy model (risk read — không ghi nghiệp vụ; credit trừ như mọi run): chat thử (D29 — bản nháp + `dry_run`, action
-// không phải read chỉ xem trước), soạn cấu hình từ mô tả (§5.3b), tối ưu prompt. Gọi model trong `prepare` — NGOÀI transaction của
-// executor (lượt LLM dài không giữ connection). Model trả không đúng định dạng (model giả / lỗi) → bản tất định, vẫn dùng được.
+// không phải read chỉ xem trước), soạn cấu hình từ mô tả (§5.3b — đường ống TIP-021b ở `drafting/`), tối ưu prompt. Gọi model trong
+// `prepare` — NGOÀI transaction của executor (lượt LLM dài không giữ connection).
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError } from '@appchat/shared';
@@ -15,7 +15,9 @@ import { connectedKeys, runToolIds } from './agent-tools';
 import { trustedParent } from '../runs/run-lineage';
 import { agentSystem, agentToolSpecs, dryRunTools, runOnce } from './agent.runtime';
 import { blankConfig, configOf, liveAgent, merge, type AgentConfig } from './agent.store';
-import { draftFromText, optimizeLocal, parseDraft, DRAFT_SYSTEM, OPTIMIZE_SYSTEM } from './agent-draft';
+import { optimizeLocal, OPTIMIZE_SYSTEM } from './agent-draft';
+import { AgentDraftingService } from './drafting/providers';
+import type { DraftOutput } from './drafting/result';
 import { draftPreview, optimizePreview, testPreview } from './previews/agent-llm.handlers.preview';
 
 const need = <T>(v: T | null, what: string): T => {
@@ -79,27 +81,15 @@ export class AgentTestHandler extends LlmHandler implements Handler<ActionInput<
 
 @Injectable()
 @ActionHandler('agent.draft_from_description')
-export class AgentDraftHandler extends LlmHandler implements Handler<ActionInput<typeof agentDraftFromDescription>, { draft: AgentConfig }> {
-  constructor(@Inject(AiRunner) runner: AiRunner | null, @Optional() @Inject(TENANT_RESOLVER) tenants: TenantDbResolver | null, @Inject(CLOCK) clock: Clock) {
-    super(runner, tenants, clock);
+export class AgentDraftHandler implements Handler<ActionInput<typeof agentDraftFromDescription>, DraftOutput> {
+  constructor(@Optional() @Inject(AgentDraftingService) private readonly drafting: AgentDraftingService | null) {}
+
+  async prepare(ctx: ActionContext, input: ActionInput<typeof agentDraftFromDescription>): Promise<DraftOutput> {
+    return need(this.drafting, 'AgentDraftingService').draft(ctx, input);
   }
 
-  async prepare(ctx: ActionContext, input: ActionInput<typeof agentDraftFromDescription>): Promise<AgentConfig> {
-    const runner = need(this.runner, 'AI runtime');
-    const db = await this.db(ctx, 'agent.draft');
-    const r = await runOnce(db, runner, () => this.clock.now(), ctx.workspaceId, {
-      run: { kind: 'assistant', title: 'agent.draft_from_description', tier: 'standard', initiatedByUserId: userOf(ctx) },
-      parent: await trustedParent(db, ctx, 'agent.draft_from_description'),
-      system: DRAFT_SYSTEM,
-      prompt: input.description,
-      source: 'assistant',
-    });
-    // Tool gợi ý chỉ giữ cái người ra lệnh có quyền (§5.3b) — lọc ở parseDraft theo authz.
-    return parseDraft(r.status === 'completed' ? r.text : '', ctx.authz) ?? draftFromText(input.description, ctx.authz);
-  }
-
-  async execute(_ctx: ActionContext, _input: unknown, _tx: unknown, _ptx: unknown, prepared?: unknown): Promise<HandlerOutcome<{ draft: AgentConfig }>> {
-    return { result: { draft: prepared as AgentConfig } };
+  async execute(_ctx: ActionContext, _input: unknown, _tx: unknown, _ptx: unknown, prepared?: unknown): Promise<HandlerOutcome<DraftOutput>> {
+    return { result: prepared as DraftOutput };
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof agentDraftFromDescription>): Promise<ActionPreview> {

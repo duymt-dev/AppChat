@@ -99,3 +99,19 @@ export interface TemplateFilter {
   industry: string;
   name: string;
 }
+
+/** TIP-021b: siêu dữ liệu bản soạn — nói thật model hay mẫu tất định, chiến lược tìm action, cảnh báo (mã, không tên action bị loại). */
+export interface DraftGenerationInfo {
+  schema_version: number;
+  operation_id: string;
+  mode: 'model' | 'deterministic';
+  discovery_strategy: 'hybrid' | 'keyword' | 'none';
+  fallback_reason?: 'no_model_route' | 'structured_unsupported' | 'malformed_output';
+  warnings: ('no_candidate_tools' | 'tools_revoked' | 'keyword_discovery')[];
+  candidate_version: string;
+}
+
+export interface AgentDraftResult {
+  draft: AgentConfig;
+  generation_info: DraftGenerationInfo;
+}

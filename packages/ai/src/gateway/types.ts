@@ -63,7 +63,18 @@ export interface ModelCandidate {
 }
 
 export interface ModelSource {
-  candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean; vision?: boolean }): Promise<ModelCandidate[]>;
+  /** `structured` (TIP-021b): chỉ route có provider khai `json_schema` (vắng = không lọc — test / mock). */
+  candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean; vision?: boolean; structured?: boolean }): Promise<ModelCandidate[]>;
+}
+
+/**
+ * TIP-021b §2.2: chế độ sinh theo schema do SERVER sở hữu (không bao giờ lấy từ input người dùng / model). Engine chạy một lời gọi không
+ * tool qua adapter `structured.ts`; kết quả đã kiểm schema trả qua `finish.text` (JSON chuẩn). Không phát delta chữ thô.
+ */
+export interface ResponseSchema {
+  name: string;
+  version: number;
+  schema: JsonSchema;
 }
 
 export interface ToolCallRef {
@@ -128,6 +139,8 @@ export interface RunRequest {
   hooks?: RunHooks;
   /** TIP-023f §3.1: dựng tham chiếu tệp (`appchat-input`) ngay trước mỗi lời gọi thật — vắng → tham chiếu thành chữ "không khả dụng". */
   inputs?: InputResolver | null;
+  /** TIP-021b: có → chế độ structured (tools phải rỗng — trộn bị từ chối trước khi gọi provider). */
+  responseSchema?: ResponseSchema;
 }
 
 export type StopReason = 'stop' | 'max_steps' | 'loop_guard' | 'budget' | 'cancelled';

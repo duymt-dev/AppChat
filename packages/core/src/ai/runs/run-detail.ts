@@ -4,6 +4,8 @@
 // Run thuộc kỹ năng tiện ích (TIP-019c §3.7) — nhận theo `title` (4 action id dành riêng, 019c §3.1 — không nơi khác đặt run title bằng
 // đúng các chuỗi này, kể cả run sửa lại dưới cùng operation): `result_text` LUÔN null dù run đã `completed` — đề xuất công khai chỉ qua
 // `GET /ai-utilities/:runId/result` sau khi kiểm xong (phase validated), không rò qua đọc run chung.
+// TIP-021b: run có kết quả RIÊNG (`output.protected` — soạn agent, binding `agent_draft_publication` theo run_id, không theo tiêu đề) cũng
+// không bao giờ trả `result_text`; đề xuất chỉ đọc qua action soạn (binding đã công bố + chiếu quyền hiện hành).
 import type { TenantDb } from '@appchat/db';
 import { UTILITY_ACTIONS, type AuthzContext, type RunChildDto, type RunDetailDto, type RunLifecycle, type RunStepDto } from '@appchat/shared';
 import { TenantSql as Prisma } from '@appchat/db';
@@ -36,8 +38,8 @@ export async function runDetail(db: Db, authz: AuthzContext, runId: string): Pro
     isRoot ? db.aiUsageReceipt.count({ where: { rootRunId: r.id, status: { in: ['dispatched', 'unknown'] } } }) : Promise.resolve(0),
   ]);
   const names = await agentNames(db, [r.agentId]);
-  const out = (r.output ?? {}) as { text?: string };
-  const isUtility = UTILITY_TITLES.has(r.title);
+  const out = (r.output ?? {}) as { text?: string; protected?: boolean };
+  const isUtility = UTILITY_TITLES.has(r.title) || out.protected === true;
   return {
     id: r.id,
     root_run_id: r.rootRunId,
