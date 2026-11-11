@@ -107,8 +107,9 @@ export const appointmentOrderSuggestions = defineAction({
     'List finished appointments (not part of a package, no order yet) that can become an order, with the CURRENT service price / tax / total — read only, never creates anything. Pass exactly one of appointment_id or conversation_id. To create the order call order.create_from_appointment (needs confirmation). Example: {"conversation_id":"0190f000-0000-7000-8000-000000000031"}',
   input: z
     .object({
-      appointment_id: z.string().uuid().optional(),
-      conversation_id: z.string().uuid().optional(),
+      // id như các action booking khác — server kiểm UUID (sai / lạ → 404 đồng nhất, không lộ tồn tại).
+      appointment_id: z.string().min(1).max(64).optional(),
+      conversation_id: z.string().min(1).max(64).optional(),
       limit: z.number().int().min(1).max(20).optional(),
       cursor: z.string().min(1).max(256).optional(),
     })

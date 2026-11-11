@@ -7,7 +7,7 @@ import type { MockDb } from '../store';
 import { ME } from './customers';
 import { insertOrder } from './orders-actions';
 import { bookingConfigHandlers } from './booking-config';
-import { assertFree, day, deny, find, hm, isPast, iso, svcOf, type Appointment, type ApptStatus } from './calendar';
+import { assertFree, day, deny, find, hm, isPast, iso, orderSuggestions, svcOf, type Appointment, type ApptStatus } from './calendar';
 
 const step = (a: Appointment, action: string): ApptStatus => {
   try {
@@ -148,17 +148,24 @@ export const calendarHandlers: Record<string, MockHandler> = {
     },
     undo: (db, i: { appointment_id: string }) => back(db, i.appointment_id, 'confirmed'),
   },
+  'appointment.order_suggestions': { execute: (db, i: { appointment_id?: string; conversation_id?: string }) => orderSuggestions(db, i) },
+  // TIP-033c: xem trước bắt buộc (mock-transport MOCK_MANDATORY_PREVIEW) — preview nêu dịch vụ × giá hiện tại; đã có đơn → reused.
   'order.create_from_appointment': {
+    preview: (db, i: { appointment_id: string }) => {
+      const a = find(db, i.appointment_id);
+      const s = svcOf(a.service_id);
+      return { summary: `${a.contact_name} · ${s.name} · ${s.price}₫` };
+    },
     execute: (db, i: { appointment_id: string }) => {
       const a = find(db, i.appointment_id);
       const prior = a.order_id ? db.orders.orders.find((o) => o.id === a.order_id) : undefined;
-      if (prior) return { order_id: prior.id, code: prior.code };
+      if (prior) return { order_id: prior.id, code: prior.code, reused: true };
       if (a.status !== 'done') deny('INVALID_TRANSITION', a.status);
       if (a.package_id) deny('INVALID_STATE', 'package');
       const s = svcOf(a.service_id);
       const o = insertOrder(db, { contact_id: a.contact_id, items: [{ name: s.name, qty: 1, unit_price: s.price, tax_rate: 0 }], note: a.code }, { source: 'appointment', contact_name: a.contact_name, phone: a.phone });
       a.order_id = o.id;
-      return { order_id: o.id, code: o.code };
+      return { order_id: o.id, code: o.code, reused: false };
     },
   },
   ...bookingConfigHandlers,

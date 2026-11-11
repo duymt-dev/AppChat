@@ -14,6 +14,8 @@ import type { Appointment, CalendarMeta } from '../types';
 import { CustomFieldList } from '@/shared/custom-fields';
 import { AppointmentHeader } from './AppointmentHeader';
 import { AppointmentFooter } from './AppointmentFooter';
+import { AppointmentOrderCards } from '@/shared/appointment-order/AppointmentOrderCard';
+import { useOrdersUi } from '@/features/orders';
 
 const SP = ' ';
 /** Lý do kiểm toán khi hoàn tác tạo lịch (TIP-033b — server giữ bản ghi, chuyển cancelled). */
@@ -29,7 +31,7 @@ export function AppointmentDrawer({ meta }: { meta: CalendarMeta }) {
   const a = useQuery({ ...apptQuery(ui.detail ?? ''), enabled: !!ui.detail }).data;
   const sv = a ? meta.services.find((s) => s.id === a.service_id) : undefined;
   const st = a ? meta.staff.find((s) => s.id === a.staff_id) : undefined;
-  const close = () => ui.set({ detail: null, suggestFor: null });
+  const close = () => ui.set({ detail: null });
   const confirmAt = a?.reminders.find((r) => r.kind === 'confirm')?.at;
   return (
     <EntityDrawer
@@ -43,21 +45,12 @@ export function AppointmentDrawer({ meta }: { meta: CalendarMeta }) {
     >
       {a && sv && st ? (
         <div className={styles.body}>
-          {ui.suggestFor === a.id ? (
-            <div className={styles.suggest} data-testid="cal-suggest">
-              <b>{t('detail.suggest')}</b>
-              {t('detail.suggestHint')}
-              <div>
-                <button
-                  type="button"
-                  className={styles.sugBtn}
-                  onClick={() => router.push(`/orders?from_appointment=${a.id}`)}
-                  data-testid="cal-suggest-order"
-                >
-                  {t('detail.suggestBtn')}
-                </button>
-              </div>
-            </div>
+          {/* TIP-033c: thẻ gợi ý đọc phép chiếu hiện hành (tải lại vẫn còn) — không dựa vào kết quả "hoàn thành" vừa bấm. */}
+          {a.status === 'done' && !a.package_id ? (
+            <AppointmentOrderCards
+              source={{ appointmentId: a.id }}
+              onOpenOrder={(id) => (useOrdersUi.getState().set({ detail: id, tab: 'overview' }), router.push('/orders'))}
+            />
           ) : null}
           <div className={styles.sec}>{t('detail.customer')}</div>
           <div className={styles.cust}>
