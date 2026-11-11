@@ -37,6 +37,7 @@ import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
 import { bindingOf } from './plans/driver';
 import { planGateOf, recordCheckpoint } from './plans/checkpoint';
+import { bindDraft, type PlanDraftRef } from './plans/draft-binding';
 import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
@@ -84,6 +85,8 @@ export interface TurnRequest {
   requestId?: string;
   /** TIP-023g: lối vào theo bản ghi — bản ghi bấm thay ngữ cảnh màn (đọc lại theo quyền hiện hành; không đọc được → 404 / 403). */
   recordIntent?: RecordIntentInput;
+  /** TIP-023d §4.3: bản nháp kế hoạch (plan_reuse) gắn vào lượt này — một lần, cùng transaction claim. */
+  planDraft?: PlanDraftRef;
 }
 
 /** Mức AI của lượt: chọn của người dùng (hoặc mặc định ở Cài đặt › Mô hình AI), hạ về mức cao nhất gói cho phép. */
@@ -171,7 +174,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   const now = d.now();
   // Tệp đã chuẩn bị: kiểm TRƯỚC (chủ / ready / revision / chưa buộc phiên khác); hash gồm id:revision:digest đã sắp → đổi danh sách = 409.
   const inputs = await checkInputs(db, q.userId, q.inputs ?? [], q.sessionId);
-  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, ...(q.recordIntent ? { record: q.recordIntent } : {}), attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}) });
+  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, ...(q.recordIntent ? { record: q.recordIntent } : {}), attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}), ...(q.planDraft ? { plan_draft: q.planDraft } : {}) });
   const ledger = new RequestStore(db, d.now);
   const replay = async (): Promise<PreparedTurn | null> => {
     const prev = await db.assistantRequest.findUnique({ where: { userId_requestId: { userId: q.userId, requestId: q.requestId } } });
@@ -195,6 +198,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
       const session = await openSession(tx, q.userId, q.mode, q.text, q.sessionId, now);
       await tx.assistantRequest.create({ data: { id: uuidv7(now.getTime()), userId: q.userId, requestId: q.requestId, sessionId: session.id, runId, inputHash: hash, createdAt: now, updatedAt: now } });
       await bindInputs(tx as never, inputs.rows, session.id, now);
+      if (q.planDraft) await bindDraft(tx as never, { ownerUserId: q.userId, sessionId: session.id, runId, draft: q.planDraft, now });
       await appendMessage(tx, session.id, 'user', [{ type: 'text', text: q.text }, ...inputRefParts(inputs.rows)], null, now);
       const input: AssistantRunInput = {
         text: q.text,

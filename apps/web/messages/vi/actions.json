@@ -1555,6 +1555,10 @@
       "title": "Tiếp tục kế hoạch",
       "desc": "Chạy tiếp kế hoạch đã sửa từ điểm dừng, cùng ngân sách và quyền hiện hành."
     },
+    "plan_reuse": {
+      "title": "Dùng lại kế hoạch",
+      "desc": "Tạo bản nháp kế hoạch mới từ cấu trúc cũ của chính bạn — chỉ loại bước, không mang dữ liệu, giá trị hay kết quả cũ."
+    },
     "plan_reusable": {
       "title": "Gợi ý kế hoạch tái dùng",
       "desc": "Danh sách cấu trúc kế hoạch cũ của chính bạn có thể dùng lại — chỉ tên action/bước, không giá trị/kết quả cũ."

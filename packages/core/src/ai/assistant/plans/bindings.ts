@@ -13,6 +13,7 @@ import type { ExecutionAdmission, ExecutionBindingPort } from '../../../kernel/a
 import { acceptedResponse } from '../../../kernel/actions/job-accepted';
 import { uuidv7 } from '../../../kernel/ids';
 import { writeOutbox } from '../../../kernel/outbox/outbox';
+import { recordReusable } from './reuse';
 
 type PlanLock = { phase: string; plan_epoch: number; revision: number };
 type ClaimRow = { action_or_delegate_target: string; input_digest: string; phase: string; receipt_ref: string | null; job_id: string | null; status_url: string | null };
@@ -68,6 +69,8 @@ export async function admitPlanStep(tx: TenantTx, ctx: ActionContext, actionId: 
       const cur = plan.phase as AssistantPlanPhase;
       const phase = left ? cur : (nextState(ASSISTANT_PLAN_FLOW, cur, 'plan.step:complete') ?? cur);
       await t.assistantPlan.update({ where: { id: b.planId }, data: { phase, updatedAt: now } });
+      // §4.2: kế hoạch vừa xong thật → cấu trúc an toàn thành ứng viên tái dùng của chủ.
+      if (phase === 'completed') await recordReusable(t, b.planId, now);
       await writeOutbox(t, ctx.workspaceId, [{ topic: PLAN_PROGRESSED, payload: { plan_id: b.planId, revision: plan.revision, phase } }], now);
     },
   };

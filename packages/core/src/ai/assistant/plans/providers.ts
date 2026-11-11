@@ -5,6 +5,7 @@ import { AssistantAgentChoicesHandler } from './agent-choices';
 import { planExecutionBinding } from './bindings';
 import { AssistantPlanRequestEditHandler, AssistantPlanResumeHandler, AssistantPlanUpdateHandler } from './control.handlers';
 import { AssistantPlanProposeHandler } from './handlers';
+import { AssistantPlanReuseHandler } from './reuse.handler';
 import { AssistantPlanGetHandler, AssistantPlanReusableHandler } from './read';
 
 /** Gắn port ràng buộc bước kế hoạch vào executor lúc boot (TIP-023d §2.3, mirror ApprovalsInstaller) — mọi tiến trình nạp AiModule. */
@@ -16,4 +17,4 @@ export class PlanBindingInstaller implements OnModuleInit {
   }
 }
 
-export const ASSISTANT_PLAN_PROVIDERS = [AssistantPlanProposeHandler, AssistantPlanGetHandler, AssistantPlanReusableHandler, AssistantAgentChoicesHandler, AssistantPlanRequestEditHandler, AssistantPlanUpdateHandler, AssistantPlanResumeHandler, PlanBindingInstaller] as const;
+export const ASSISTANT_PLAN_PROVIDERS = [AssistantPlanProposeHandler, AssistantPlanGetHandler, AssistantPlanReusableHandler, AssistantAgentChoicesHandler, AssistantPlanRequestEditHandler, AssistantPlanUpdateHandler, AssistantPlanResumeHandler, AssistantPlanReuseHandler, PlanBindingInstaller] as const;

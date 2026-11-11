@@ -77,7 +77,7 @@ export const isAgentGrantable = (d: Pick<ActionDef, 'exposure' | 'agentGrantable
  */
 const PRIVACY_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation']);
 /** Điều khiển kế hoạch Cowork (TIP-023d §1.6): mọi lệnh ghi cần khoá ổn định — gửi lại trả đúng biên nhận, không thêm đợt dừng / root. */
-const PLAN_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['assistant.plan_request_edit', 'assistant.plan_update', 'assistant.plan_resume']);
+const PLAN_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['assistant.plan_request_edit', 'assistant.plan_update', 'assistant.plan_resume', 'assistant.plan_reuse']);
 
 /** Idempotency-Key bắt buộc: risk send / money và lệnh tạo (response-envelope §7) — executor kiểm, FE `useAction` tự gửi. */
 export function requiresIdempotencyKey(actionId: string, risk: Risk): boolean {

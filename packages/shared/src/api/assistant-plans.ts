@@ -53,7 +53,7 @@ export const planProposeOutput = z.object({ plan_id: z.string(), revision: z.num
 export const planGetInput = z.object({ plan_id: z.string() });
 
 /** `assistant.plan_reusable` (§4.1) — top-N gợi ý tái dùng của chính owner, không semantic/embedding (so khớp tất định theo action/kind). */
-export const planReusableInput = z.object({ limit: z.number().int().min(1).max(20).optional() });
+export const planReusableInput = z.object({ limit: z.number().int().min(1).max(20).optional(), actions: z.array(z.string().max(80)).max(12).optional(), text: z.string().max(500).optional() });
 export const planReusableCandidateDto = z.object({ id: z.string(), source_plan_id: z.string(), source_revision: z.number().int(), generic_title: z.string(), step_count: z.number().int() });
 export const planReusableOutput = z.object({ candidates: z.array(planReusableCandidateDto) });
 export type PlanReusableCandidateDto = z.infer<typeof planReusableCandidateDto>;

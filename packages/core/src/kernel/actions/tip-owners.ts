@@ -40,6 +40,7 @@ const BY_ID: Record<string, string> = {
   'assistant.plan_request_edit': '023d',
   'assistant.plan_update': '023d',
   'assistant.plan_resume': '023d',
+  'assistant.plan_reuse': '023d',
   'assistant.discovery_prepare': '023e',
   'assistant.attachment_prepare': '023f',
   'assistant.attachment_remove': '023f',

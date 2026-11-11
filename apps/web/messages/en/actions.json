@@ -1555,6 +1555,10 @@
       "title": "Resume plan",
       "desc": "Continue the edited plan from where it paused, with the same budget and current permissions."
     },
+    "plan_reuse": {
+      "title": "Reuse plan",
+      "desc": "Create a new draft plan from one of your own earlier structures — step types only, no old data, values or results."
+    },
     "plan_reusable": {
       "title": "Reusable plan suggestions",
       "desc": "List your own prior plan structures you can reuse — action/step names only, no old values or results."

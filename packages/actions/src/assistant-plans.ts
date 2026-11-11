@@ -2,7 +2,7 @@
 // (model không tự propose/edit/resume thay người — plan là điều phối của CHÍNH người dùng qua Trợ lý, không phải việc giao cho agent).
 // Pha 1: propose (tạo plan draft mới, chốt ngay ở revision 1) + get (đọc projected status) + reusable (gợi ý tái dùng, top N, chỉ cấu
 // trúc chung — không giá trị/receipt). Pha 5 (§3): request_edit / update / resume — điều khiển của NGƯỜI (model không gọi được: ẩn khỏi
-// Trợ lý, agentGrantable=false), mọi lệnh kèm if_revision + Idempotency-Key. plan_reuse (ghi) ở pha sau (§4).
+// Trợ lý, agentGrantable=false), mọi lệnh kèm if_revision + Idempotency-Key. Pha 6 (§4): plan_reuse — bản nháp mới từ cấu trúc an toàn.
 import { z } from 'zod';
 import { defineAction } from './define';
 import { PLAN_INSTRUCTIONS_MAX, PLAN_MAX_DEPENDS, PLAN_MAX_STEPS, PLAN_TITLE_MAX } from '@appchat/shared';
@@ -60,8 +60,8 @@ export const assistantPlanReusable = defineAction({
   id: 'assistant.plan_reusable',
   module: 'ai',
   title: 'actions.assistant.plan_reusable.title',
-  description: 'List up to N safe-to-reuse plan structures from the current user own prior plans — generic registry labels only, no record ids/values/results. Example: {"limit":3}',
-  input: z.object({ limit: z.number().int().min(1).max(20).optional() }),
+  description: 'List up to N safe-to-reuse plan structures from the current user own prior plans — generic registry labels only, no record ids/values/results. Optional actions / text rank by overlap (deterministic); no match → empty. Example: {"limit":3,"actions":["quote.create"]}',
+  input: z.object({ limit: z.number().int().min(1).max(20).optional(), actions: z.array(z.string().max(80)).max(12).optional(), text: z.string().max(500).optional() }),
   output: z.object({ candidates: z.array(z.object({ id: z.string(), source_plan_id: z.string(), source_revision: z.number().int(), generic_title: z.string(), step_count: z.number().int() })) }),
   permission: 'assistant.use',
   risk: 'read',
@@ -117,6 +117,19 @@ export const assistantPlanResume = defineAction({
   description: 'Resume a paused Cowork plan from its checkpoint with the same run budget and step counters; current permissions are re-checked on every later action. Example: {"plan_id":"0190f000-0000-7000-8000-000000000011","if_revision":2}',
   input: z.object(planControl),
   output: planControlOut,
+  permission: 'assistant.use',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: [],
+});
+
+export const assistantPlanReuse = defineAction({
+  id: 'assistant.plan_reuse',
+  module: 'ai',
+  title: 'actions.assistant.plan_reuse.title',
+  description: 'Start a NEW draft plan from one of your own reusable plan structures (generic step types only — no old records, values, results or status). Nothing runs; send a new Cowork turn to start it. Example: {"candidate_id":"0190f000-0000-7000-8000-000000000013","session_id":"0190f000-0000-7000-8000-000000000010"}',
+  input: z.object({ candidate_id: uuid, session_id: uuid, locale: z.enum(['vi', 'en']).optional() }),
+  output: z.object({ plan_id: z.string(), revision: z.number().int(), phase: z.string(), source_plan_id: z.string() }),
   permission: 'assistant.use',
   risk: 'write',
   agentGrantable: false,
