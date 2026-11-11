@@ -14,12 +14,12 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 156 | 10 | 0 | 13 | 8 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 6 | 0 | 2 | 10 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 165 | 10 | 0 | 9 | 10 | 11 | 21 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 166 | 9 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 400 | 35 | 1 | 4 | 16 | 3 | 0 | 0 |
 | E. standards/* | 222 | 34 | 0 | 7 | 25 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 61 | 0 | 25 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 25 | 2 | 0 | 0 |
-| **Tổng** | **1216** | **101** | **27** | **49** | **96** | **35** | **69** | **0** |
+| **Tổng** | **1217** | **100** | **27** | **49** | **96** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -504,7 +504,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8-4 | BG từ chối / hết hạn, không còn BG mở → Đang tư vấn | plans/COMMERCE-DECISIONS.md:167 | 029 | ĐẠT | quote-system.ts:44 closeLost · test quotes.test.ts "từ chối → lùi giai đoạn về Đang tư vấn" |
 | COM-8-5 | `order.completed` → Đã mua | plans/COMMERCE-DECISIONS.md:168 | 031 | ĐẠT | order-flow.handlers.ts:43 · test orders.test.ts "khách Đã mua" |
 | COM-8-6 | Đã mua không bao giờ bị hạ | plans/COMMERCE-DECISIONS.md:170 | 015 | ĐẠT | crm/services/stage-rules.ts:25 · test orders.test.ts "hoàn tác giữ Đã mua" |
-| COM-8-7 | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | plans/COMMERCE-DECISIONS.md:171 | 015g | MỘT PHẦN | stage-rules.ts:26 checks24h but31 CAS omits manual timestamp/version;015g atomic family/version/hold, guarded undo and real producer boundary/ABA tests; planning not runtime |
+| COM-8-7 | Kéo tay thắng; quy tắc tự động không ghi đè trong 24 giờ | plans/COMMERCE-DECISIONS.md:171 | 015g | ĐẠT | crm/stage/rules.ts: producer khoá họ khách chuẩn trước chứng từ (lockStageFamily*, ràng buộc theo transaction), đọc + UPDATE có điều kiện id + version + stage + còn sống + mốc giữ so timestamptz trong SQL (đúng 24h hết giữ, µs, đồng hồ lùi giữ); không làm mới mốc; contact.set_stage no-op thật (crm/stage/manual.handler.ts); hoàn tác theo version sau-ghi + vân tay µs + lifecycle_revision + quyền / Quên khách (crm/stage/undo.ts); báo giá mở theo họ khách (open-family-quote.ts). Test crm-stage-hold (6), crm-stage-producers (8 — gửi / từ chối / hết hạn báo giá, gửi / ký hợp đồng, hoàn tất đơn, họ sau gộp, EXPLAIN 100k), crm-stage-undo (5), E2E http crm-stage-hold, ai:live crm-stage-hold |
 | COM-8-8 | Không có pipeline Deal riêng; giai đoạn trên Khách hàng | plans/COMMERCE-DECISIONS.md:172 | 015 | QUY-TẮC | Không có bảng deal; contact360.ts:43 `deal` rỗng |
 | COM-8b-1 | Vai trò trên khách owner / collaborator / watcher | plans/COMMERCE-DECISIONS.md:176 | 015 | ĐẠT | crm/services/access.ts · test crm-contacts.test.ts AC3 |
 | COM-8b-2 | Scope `own` gồm khách mình là collaborator **/ watcher**; báo giá, HĐ, đơn, lịch hẹn đi theo | plans/COMMERCE-DECISIONS.md:177 | 042c | ĐẠT | watcher đọc báo giá / HĐ / đơn / đề nghị / lịch hẹn của đúng khách, gỡ → request kế tiếp không thấy (integration + E2E http record-scope); coding-packs/reports/TIP-042c-completion.md |
