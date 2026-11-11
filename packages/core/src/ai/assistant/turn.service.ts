@@ -20,6 +20,9 @@ import { ASSISTANT_TOOLS, assistantActionCtx, assistantIdemKey, assistantTools, 
 import { readBack } from './action-readback';
 import { resolveContext } from './genui/context';
 import { resolveAttachments } from './genui/attachments';
+import { bindInputs, checkInputs, inputRefParts, type InputHandle } from './input/bind';
+import { inputResolver } from './input/hydrate';
+import type { Storage } from '../../kernel/files/storage';
 import { EventStore } from './genui/event-store';
 import { presentUi, uiPartsOf } from './genui/history';
 import { RequestStore, requestHash } from './genui/request-store';
@@ -54,6 +57,8 @@ export interface AssistantDeps {
   pub?: Publisher | null;
   /** TIP-023e: route embed + ví cho find_actions theo ngữ nghĩa — dùng chung lượt đầu và chạy tiếp. */
   discovery?: DiscoveryRuntime | null;
+  /** TIP-023f §3.1: kho tệp để nạp ảnh đính kèm khi gửi model — vắng → ảnh không khả dụng (chữ vẫn nạp). */
+  storage?: Storage | null;
 }
 
 export interface TurnRequest {
@@ -69,6 +74,8 @@ export interface TurnRequest {
   context?: AssistantContext;
   tier?: AiTierKey;
   attachments?: { id: string; name: string }[];
+  /** TIP-023f: tệp đã chuẩn bị (artifact id + revision) — nội dung đi vào model, không chỉ tên. */
+  inputs?: InputHandle[];
   /** Khoá idempotent của lượt (TIP-023c): cùng khoá + cùng input → cùng run; khác input → 409. */
   requestId?: string;
 }
@@ -81,10 +88,11 @@ async function tierOf(d: Pick<AssistantDeps, 'planKey'>, db: TenantDb, ws: strin
   return 'standard';
 }
 
-type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery'>;
+type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery' | 'storage'>;
 
 function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
-  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant' };
+  const inputs = t.sessionId ? inputResolver(db, d.storage ?? null, { userId: t.userId, sessionId: t.sessionId, now: d.now }) : null;
+  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs };
 }
 
 /** Dựng lại system + tool của run `assistant` từ `ai_run.input` với quyền HIỆN TẠI của người ra lệnh (job `ai-resume`). */
@@ -147,7 +155,9 @@ export type PreparedTurn = { kind: 'replay' | 'queued'; session_id: string; run_
  */
 export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'planKey'>, db: TenantDb, q: TurnRequest & { requestId: string }): Promise<PreparedTurn> {
   const now = d.now();
-  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null });
+  // Tệp đã chuẩn bị: kiểm TRƯỚC (chủ / ready / revision / chưa buộc phiên khác); hash gồm id:revision:digest đã sắp → đổi danh sách = 409.
+  const inputs = await checkInputs(db, q.userId, q.inputs ?? [], q.sessionId);
+  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}) });
   const ledger = new RequestStore(db, d.now);
   const replay = async (): Promise<PreparedTurn | null> => {
     const prev = await db.assistantRequest.findUnique({ where: { userId_requestId: { userId: q.userId, requestId: q.requestId } } });
@@ -170,7 +180,8 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
     const sessionId = await db.$transaction(async (tx) => {
       const session = await openSession(tx, q.userId, q.mode, q.text, q.sessionId, now);
       await tx.assistantRequest.create({ data: { id: uuidv7(now.getTime()), userId: q.userId, requestId: q.requestId, sessionId: session.id, runId, inputHash: hash, createdAt: now, updatedAt: now } });
-      await appendMessage(tx, session.id, 'user', [{ type: 'text', text: q.text }], null, now);
+      await bindInputs(tx as never, inputs.rows, session.id, now);
+      await appendMessage(tx, session.id, 'user', [{ type: 'text', text: q.text }, ...inputRefParts(inputs.rows)], null, now);
       const input: AssistantRunInput = {
         text: q.text,
         mode: q.mode,
@@ -194,7 +205,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   }
 }
 
-export type RunDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'kv' | 'now' | 'intents' | 'pub' | 'discovery'>;
+export type RunDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'kv' | 'now' | 'intents' | 'pub' | 'discovery' | 'storage'>;
 
 /**
  * Bước 2 của lượt (worker ROLE=ai; trong tiến trình khi không có hàng đợi): nhận lease có fence → chạy run `queued` với quyền HIỆN HÀNH

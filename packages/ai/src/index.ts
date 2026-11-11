@@ -5,6 +5,7 @@ export { AiSdkEngine, EngineError, LOOP_LIMIT } from './gateway/engine';
 export { classifyAttemptError } from './gateway/attempts';
 export { OUTPUT_TOKENS_DEFAULT, OUTPUT_TOKENS_MAX, REQUEST_MAX_BYTES, outputTokens, requestBytes } from './gateway/limits';
 export { callKey, resumeMessages, toJson } from './gateway/messages';
+export { hydrateMessages, inputRefsOf, isInputRef, stripMedia, type HydratedPart, type InputRefPart, type InputResolver } from './gateway/input-parts';
 export { LlmRouter, isFallbackError, type RouteRow, type RouterConfigSource } from './router/router';
 export { buildModel, type ProviderCapabilities, type ProviderConfig, type ProviderKind } from './router/providers';
 export { mergeCapabilities, probeError, probeProvider, type ProbeCapability, type ProbeCheck, type ProbeError, type ProbeRequest } from './router/probe';

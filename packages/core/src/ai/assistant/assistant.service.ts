@@ -5,6 +5,7 @@ import type { PlatformDb, TenantDb, TenantDbResolver } from '@appchat/db';
 import { TenantContexts } from '@appchat/db';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import { CreditMeter, QuotaService } from '../../billing/public';
+import { STORAGE, type Storage } from '../../kernel/files/storage';
 import type { ModelSource } from '@appchat/ai';
 import { DISCOVERY_MODEL_SOURCE } from './discovery/prepare.handler';
 import { discoveryCacheOf } from './discovery/cache';
@@ -53,6 +54,7 @@ export class AssistantService {
     @Optional() @Inject(AI_ENV) private readonly env: Pick<AiEnv, 'ASSISTANT_DISPATCH'> | null = null,
     @Optional() @Inject(DISCOVERY_MODEL_SOURCE) private readonly discoveryModels: ModelSource | null = null,
     @Optional() @Inject(CreditMeter) private readonly meter: CreditMeter | null = null,
+    @Optional() @Inject(STORAGE) private readonly storage: Storage | null = null,
   ) {}
 
   /** Redis của kernel (ioredis) có `publish` — dùng phát sự kiện lượt; KeyValueStore tối thiểu không có thì bỏ phát (chỉ ghi sổ). */
@@ -76,7 +78,7 @@ export class AssistantService {
   private deps(): AssistantDeps {
     if (!this.executor || !this.runner || !this.kv) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' }, 'AI runtime chưa cấu hình');
     const quota = this.quota;
-    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, pub: this.publisher(), now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free'), discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(this.kv, this.intents?.derive('discovery-cache')) } };
+    return { executor: this.executor, runner: this.runner, kv: this.kv, intents: this.intents, pub: this.publisher(), now: () => this.clock.now(), planKey: async (ws) => (quota ? (await quota.limits(ws)).planKey : 'free'), discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(this.kv, this.intents?.derive('discovery-cache')) }, storage: this.storage };
   }
 
   /** Tên, locale, vai trò của người gọi (system prompt + ngôn ngữ trả lời). */

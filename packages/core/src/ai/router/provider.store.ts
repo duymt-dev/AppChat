@@ -70,7 +70,7 @@ export class ProviderStore implements RouterConfigSource {
       const snap: Snapshot = {
         at: this.now(),
         gen,
-        routes: routes.map((r) => ({ tier: r.tier, purpose: r.purpose, priority: r.priority, providerKey: r.providerKey, model: r.model, configRevision: routeRevision(this.key, { id: r.id, model: r.model, params: r.params, priority: r.priority }) })),
+        routes: routes.map((r) => ({ tier: r.tier, purpose: r.purpose, priority: r.priority, providerKey: r.providerKey, model: r.model, vision: (r.params as { vision?: unknown } | null)?.vision === true, configRevision: routeRevision(this.key, { id: r.id, model: r.model, params: r.params, priority: r.priority }) })),
         providers: map,
         prices: new Map(prices.map((x) => [`${x.providerKey}:${x.model}`, { per1kIn: Number(x.creditsPer1kIn), per1kOut: Number(x.creditsPer1kOut), tier: x.tier }])),
       };

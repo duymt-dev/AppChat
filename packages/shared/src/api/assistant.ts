@@ -75,6 +75,8 @@ export const assistantMessageSchema = z.object({
   status: z.enum(['pending', 'done', 'cancelled', 'approval']).optional(),
   /** Phần giao diện GenUI đã lưu — mở lại phiên dựng lại từ dữ liệu bước (không gọi model, TIP-023c). */
   ui: genUiPartSchema.optional(),
+  /** Tệp đính kèm của tin user (TIP-023f §3.4) — chỉ id / tên / loại; nội dung đọc qua attachment_read theo quyền hiện hành. */
+  attachment: z.object({ artifact_id: z.string(), name: z.string(), kind: z.string().nullable() }).optional(),
   run_id: z.string().nullable(),
 });
 

@@ -25,5 +25,6 @@
   "INVALID_TRANSITION": "This status change is not allowed from the current status",
   "UNDO_EXPIRED": "The undo window has passed",
   "UNDO_NOT_SUPPORTED": "This action cannot be undone",
-  "NOT_IMPLEMENTED": "This feature is not available yet"
+  "NOT_IMPLEMENTED": "This feature is not available yet",
+  "ATTACHMENT_NOT_PREPARED": "The attachment is not ready yet — wait until it is prepared, then send again"
 }
