@@ -15,3 +15,5 @@ export { expireAppendixLinks } from './appendix/expiry';
 export { otpMac, otpMatches } from './signing/otp';
 export { deliverOwnerOtp, recoverOwnerOtp, OWNER_OTP, SIGN_MAIL_MAX_ATTEMPTS } from './signing/delivery';
 export { requestRef } from './signing/module';
+export { recoverSigning, type SigningSweep } from './signing/recovery';
+export { claimRender, RENDER_LEASE_MS } from './signing/attempts';
