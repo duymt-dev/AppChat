@@ -30,6 +30,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'action-discovery': '023e',
   'assistant-input': '023f',
   'event-protocol': '003b',
+  'system-action': '003c',
   },
 };
 
@@ -48,6 +49,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(60);
+    expect(n).toBe(61);
   });
 });
