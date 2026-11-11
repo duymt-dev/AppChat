@@ -2,7 +2,7 @@
 // `…` thay id, mảng thiếu phần tử) làm model gọi sai rồi tự sửa hoặc bỏ cuộc — ai:live 015b / 036 / 043 bắt lỗi kiểu này ở lượt đầu (DC-359).
 // Kiểm ở unit: mọi JSON sau "Example" phải parse và qua `input`; action mới phải có ví dụ (danh sách cũ chỉ được rút ngắn).
 import { describe, expect, it } from 'vitest';
-import { registry } from './index';
+import { isInternalAction, registry } from './index';
 
 /** Object JSON (lồng tới 3 mức) đứng sau "Example" — gồm cả các phương án "… or {…}" nối tiếp. */
 export function examplesOf(description: string): string[] {
@@ -45,7 +45,8 @@ describe('ví dụ trong description của action', () => {
 
   it('action mới có ví dụ; danh sách chưa có ví dụ chỉ rút ngắn', () => {
     const ids = new Set(registry.map((a) => a.id));
-    const missing = registry.filter((a) => !examplesOf(a.description).length && !NO_EXAMPLE_YET.has(a.id)).map((a) => a.id);
+    // Action riêng (TIP-003c) không bao giờ đến model (không catalog / tool) — không cần ví dụ.
+    const missing = registry.filter((a) => !isInternalAction(a) && !examplesOf(a.description).length && !NO_EXAMPLE_YET.has(a.id)).map((a) => a.id);
     expect(missing).toEqual([]);
     // Action đã có ví dụ / đã bỏ → xoá khỏi danh sách.
     const stale = [...NO_EXAMPLE_YET].filter((id) => !ids.has(id) || examplesOf(registry.find((a) => a.id === id)!.description).length);

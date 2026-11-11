@@ -6,7 +6,7 @@
 // → review_resolve(proven_unrelated) → erasing tiếp → completed_with_exceptions).
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { ActionExecutor, privacyCleanupCtx, uuidv7 } from '@appchat/core';
+import { ActionExecutor, privacyCleanupTrigger, runSystemAction, uuidv7 } from '@appchat/core';
 import { call as http } from './setup';
 import { matrix, type Matrix } from './helpers/action-matrix';
 
@@ -31,7 +31,9 @@ const versionOf = async (id: string) => {
 async function driveToStable(executor: ActionExecutor, operationId: string, maxSteps = 20): Promise<string> {
   let phase = '';
   for (let i = 0; i < maxSteps; i++) {
-    const r = await executor.execute<{ phase: string; advanced: boolean }>(privacyCleanupCtx(m.h.ws), 'privacy.cleanup_step', { operation_id: operationId });
+    const db = await m.db();
+    const { leaseEpoch } = await db.privacyOperation.findUniqueOrThrow({ where: { id: operationId }, select: { leaseEpoch: true } });
+    const r = await runSystemAction<{ phase: string; advanced: boolean }>(executor, { get: () => m.db() }, privacyCleanupTrigger(m.h.ws, operationId, leaseEpoch));
     const data = (r.data as { result: { phase: string; advanced: boolean } }).result;
     phase = data.phase;
     if (!data.advanced) break;
@@ -151,5 +153,9 @@ describe('privacy.cleanup_step — system-only guard trong luồng thật', () =
     const executor = m.h.app.get(ActionExecutor, { strict: false }) as ActionExecutor;
     const wrongCtx = { workspaceId: m.h.ws, source: 'system' as const, actor: { type: 'system' as const, id: 'someone-else' }, authz: { isOwner: true } as never };
     await expect(executor.execute(wrongCtx, 'privacy.cleanup_step', { operation_id: operationId })).rejects.toMatchObject({ code: 'FORBIDDEN' });
+    // TIP-003c: đúng actor nhưng ctx không niêm phong capability → cổng chung chặn; trigger epoch cũ → verifier 409.
+    const sameActor = { ...wrongCtx, actor: { type: 'system' as const, id: 'privacy-cleanup' } };
+    await expect(executor.execute(sameActor, 'privacy.cleanup_step', { operation_id: operationId })).rejects.toMatchObject({ code: 'FORBIDDEN', fields: { capability: 'missing' } });
+    await expect(runSystemAction(executor, { get: () => m.db() }, privacyCleanupTrigger(m.h.ws, operationId, 999))).rejects.toMatchObject({ code: 'CONFLICT' });
   });
 });

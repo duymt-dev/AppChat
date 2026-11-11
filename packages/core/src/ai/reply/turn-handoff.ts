@@ -1,12 +1,17 @@
 // Ghi trạng thái lượt agent (tách từ reply.service — TIP-022b): đổi trạng thái AI kèm outbox `conversation.updated`, và chuyển người NGUYÊN
-// TỬ — `ai_state=handoff` + lý do ngắn + nháp + tóm tắt có cấu trúc (phiên bản theo lý do) + outbox `ai.handoff` + receipt lượt `finalized`
-// trong cùng transaction. Thông báo chỉ mang lý do an toàn + link (không tóm tắt / PII).
-import { TenantSql, type TenantDb } from '@appchat/db';
+// TỬ qua action riêng `inbox.system_agent_transition` (TIP-003c) — `ai_state=handoff` + lý do ngắn + nháp + tóm tắt có cấu trúc (phiên
+// bản theo lý do) + outbox `ai.handoff` + receipt lượt `finalized` trong cùng transaction. Thông báo chỉ mang lý do an toàn + link (không tóm tắt / PII).
+import type { TenantDb, TenantDbResolver } from '@appchat/db';
+import type { SystemOutput } from '@appchat/actions';
+import type { ActionExecutor } from '../../kernel/actions/executor';
+import { runSystemAction } from '../../kernel/actions/system';
+import { handoffTrigger, withHandoff } from './system/sources';
+import type { StagedWithSummary } from './system/handoff-effect';
 import { interpolate, serverMessages, type AgentIntent } from '@appchat/shared';
 import type { KeyValueStore } from '../../kernel/redis';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import { RunStore } from '../runs/run.store';
-import { buildHandoffSummary, nextSummaryVersion, summaryChanged } from './handoff-summary';
+import { buildHandoffSummary, nextSummaryVersion } from './handoff-summary';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantDb['conversation']['findUnique']>>>;
@@ -14,6 +19,12 @@ type Conv = NonNullable<Awaited<ReturnType<TenantDb['conversation']['findUnique'
 export interface TurnDeps {
   kv: KeyValueStore;
   now: () => Date;
+}
+
+/** Chuyển người ghi qua action riêng (TIP-003c) — cần Executor + resolver. */
+export interface HandoffDeps extends TurnDeps {
+  executor: Pick<ActionExecutor, 'execute'>;
+  tenants: Pick<TenantDbResolver, 'get'>;
 }
 
 export async function convEventBase(db: TenantDb, c: Conv) {
@@ -51,28 +62,17 @@ export interface HandoffInput {
   source?: { conversationId: string; sourceMessageId: string } | null;
 }
 
-/** Chuyển sang người: không gửi, lưu nháp + tóm tắt, `ai_state=handoff`, event `ai.handoff` (thông báo `ai_escalate`). */
-export async function handoff(d: TurnDeps, db: TenantDb, ws: string, c: Conv, h: HandoffInput) {
+/** Chuyển sang người: không gửi, lưu nháp + tóm tắt, `ai_state=handoff`, event `ai.handoff` (thông báo `ai_escalate`). TIP-003c: ghi qua
+ *  action riêng `inbox.system_agent_transition` theo ai_epoch hiện tại; tóm tắt dựng NGOÀI transaction. Trả true khi đã chuyển. */
+export async function handoff(d: HandoffDeps, db: TenantDb, ws: string, c: Conv, h: HandoffInput & { onlyAutoActive?: boolean; eventRef?: string }): Promise<boolean> {
   const { base, title } = await convEventBase(db, c);
-  const now = d.now();
-  const summary = await buildHandoffSummary(db, { conversationId: c.id, runId: h.runId, reason: h.reason, intent: h.intent ?? null, modelNote: h.note ?? null, now }, nextSummaryVersion(c.handoffSummary));
-  await inEventTransaction(db, ws, async (tx) => {
-    const cur = await tx.conversation.findUnique({ where: { id: c.id }, select: { handoffSummary: true, aiDraft: true } });
-    const write = summaryChanged(cur?.handoffSummary ?? null, summary);
-    await tx.conversation.update({
-      where: { id: c.id },
-      data: {
-        aiState: 'handoff',
-        handoffReason: h.text.slice(0, 300),
-        // Người đã có nháp (tiếp quản giữa chừng) → giữ nháp người.
-        ...(cur?.aiDraft ? {} : { aiDraft: h.draft?.slice(0, 4000) ?? null }),
-        aiSuggestion: TenantSql.DbNull,
-        ...(write ? { handoffSummary: { ...summary } } : {}),
-      },
-    });
-    if (h.source) await tx.aiTurnReceipt.updateMany({ where: { conversationId: h.source.conversationId, sourceMessageId: h.source.sourceMessageId }, data: { answerPhase: 'finalized', ...(h.runId ? { runId: h.runId } : {}), updatedAt: now } });
-    await writeOutbox(tx, ws, [{ topic: 'ai.handoff', payload: { ...base, run_id: h.runId, agent_id: h.agent?.id ?? null, agent: h.agent?.name ?? '', reason: h.reason.slice(0, 40), title } }], now);
-  });
-  await markDirty(d.kv, ws);
+  const summary = await buildHandoffSummary(db, { conversationId: c.id, runId: h.runId, reason: h.reason, intent: h.intent ?? null, modelNote: h.note ?? null, now: d.now() }, nextSummaryVersion(c.handoffSummary));
+  const cur = await db.conversation.findUnique({ where: { id: c.id }, select: { aiEpoch: true } });
+  if (!cur) return false;
+  const t = handoffTrigger(ws, { id: c.id, aiEpoch: cur.aiEpoch }, h.runId, h.eventRef);
+  const staged: StagedWithSummary = { ...h, summary, base, title };
+  const r = await withHandoff(t, staged, () => runSystemAction<SystemOutput>(d.executor, d.tenants, t));
+  const applied = (r.data as { result: SystemOutput }).result.disposition === 'applied';
   if (h.runId) await new RunStore(db, d.now).finish(h.runId, 'handoff', { error: h.reason });
+  return applied;
 }

@@ -6,7 +6,7 @@
 import { TenantContexts, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { quarterStart, utcToWall, wallToUtc } from '@appchat/shared';
 import type { ActionExecutor } from '../../kernel/actions/executor';
-import { loyaltySystemCtx } from '../events/order-consumer';
+import { runLoyalty } from '../events/order-consumer';
 
 export const LOYALTY_SCHEDULER_QUEUE = 'loyalty-scheduler';
 export const LOYALTY_SWEEP_JOB = 'loyalty.sweep';
@@ -45,7 +45,7 @@ export async function expireDue(db: TenantDb, ws: string, d: Pick<LoyaltySweepDe
   const bucket = now.toISOString().slice(0, 13);
   for (const id of await dueContacts(db, now)) {
     try {
-      const r = await d.executor.execute<{ status: string }>(loyaltySystemCtx(ws, `expire:${id}:${bucket}`), 'loyalty.expire', { contact_id: id });
+      const r = await runLoyalty<{ status: string }>(d.executor, ws, 'schedule', `expire:${id}:${bucket}`, 'loyalty.expire', id, { contact_id: id });
       if ((r.data as { result?: { status?: string } }).result?.status === 'posted') n++;
     } catch (err) {
       onError?.(err);
@@ -71,7 +71,7 @@ export async function reviewTiers(db: TenantDb, ws: string, timeZone: string, d:
       ORDER BY c.id LIMIT ${BATCH}`;
     for (const r of rows) {
       try {
-        const out = await d.executor.execute(loyaltySystemCtx(ws, `tier:${r.id}:${w.quarter}`), 'loyalty.review_tier', { contact_id: r.id, quarter: w.quarter, window_from: w.from.toISOString(), window_to: w.to.toISOString() });
+        const out = await runLoyalty(d.executor, ws, 'schedule', `tier:${r.id}:${w.quarter}`, 'loyalty.review_tier', r.id, { contact_id: r.id, quarter: w.quarter, window_from: w.from.toISOString(), window_to: w.to.toISOString() });
         if ((out.data as { result?: { changed?: boolean } }).result?.changed) changed++;
       } catch (err) {
         onError?.(err);

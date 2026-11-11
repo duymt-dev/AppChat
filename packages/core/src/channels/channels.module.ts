@@ -2,7 +2,7 @@
 // điều khiển worker (lease / login / lệnh), hàng đợi gửi theo tài khoản; widget website (TIP-017: action, phiên khách web `/widget`).
 // Registry có adapter dựng theo env (Zalo thật / giả; webchat qua redis-emitter). Thiếu DB / Redis → service null (action trả 501).
 // Luật thông báo / realtime nạp khi import module này.
-import { Module, type OnApplicationShutdown } from '@nestjs/common';
+import { Module, type OnApplicationShutdown, type OnModuleInit } from '@nestjs/common';
 import { Queue } from '../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { ImapMailboxTransport, ZcaTransport, buildChannelRegistry, fakeMailboxTransport, fakeZaloTransport, type ChannelRegistry, type FileFetcher, type WidgetPublisher } from '@appchat/channels';
@@ -19,6 +19,9 @@ import './events/channels.rules';
 import { ChannelReconnectHandler, ChannelZaloStartLoginHandler } from './actions/channel-connect.handlers';
 import { ChannelDisconnectHandler, ChannelPauseHandler, ChannelResumeHandler, ChannelSyncHistoryHandler, ChannelTestHandler, ChannelUpdateSettingsHandler } from './actions/channel-manage.handlers';
 import { readChannelsEnv } from './channels.env';
+import { registerSystemVerifier } from '../kernel/actions/system';
+import { ChannelSystemTransitionHandler } from './system/handlers';
+import { verifyChannelTrigger } from './system/sources';
 import { CHANNEL_REGISTRY, WIDGET_URLS } from './tokens';
 import { ChannelAccounts } from './services/accounts.service';
 import { CHANNEL_INBOUND_QUEUE, CHANNEL_LOGIN_QUEUE, ChannelControl } from './services/control';
@@ -116,6 +119,7 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     WebchatUpdateWidgetHandler,
     ChannelEmailConnectHandler,
     ChannelGroupResultHandler,
+    ChannelSystemTransitionHandler,
     {
       // Hàng đợi tạo nhóm theo tài khoản + consumer outbox `channel.group_requested` (chạy ở tiến trình có queue `events`).
       provide: GroupRequestQueue,
@@ -179,4 +183,9 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
   ],
   exports: [CHANNEL_REGISTRY, WIDGET_URLS, ChannelAccounts, ChannelControl, ChannelsReadService, ChannelSendQueue, VisitorService, GroupRead, ChannelOperationRead, OperationQueue],
 })
-export class ChannelsModule {}
+export class ChannelsModule implements OnModuleInit {
+  /** TIP-003c: verifier nguồn của action riêng `channel.system_transition`. */
+  onModuleInit(): void {
+    registerSystemVerifier('channel.system_transition', verifyChannelTrigger);
+  }
+}

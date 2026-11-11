@@ -1,6 +1,6 @@
 // Domain `contracts` (TIP-030): hợp đồng + ký điện tử native (OTP + ký tay — COMMERCE §9 C1). Handler 13 action `contract.*`, đọc cho
 // /v1/contracts*, trang ký công khai /v1/public/sign/:token, PDF (DocRenderer — TIP-028). Thiếu DB / khoá → service null / 501.
-import { Module } from '@nestjs/common';
+import { Module, type OnModuleInit } from '@nestjs/common';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import type { MailProvider } from '@appchat/integrations';
 import type { Redis } from 'ioredis';
@@ -34,6 +34,10 @@ import { ContractsReadService } from './services/contracts-read.service';
 import { PublicSignService } from './services/public-sign.service';
 import { APPENDIX_HANDLERS, APPENDIX_SERVICES } from './appendix/appendix.module';
 import { AppendixPublicService } from './appendix/public.service';
+import { registerSystemVerifier } from '../kernel/actions/system';
+import { APPENDIX_PUBLIC_ACTIONS, verifyAppendixPublic } from './appendix/system-verifier';
+import { ContractSystemTransitionHandler } from './system/handlers';
+import { verifyContractTrigger } from './system/sources';
 import { AppendixReadService } from './appendix/read.service';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ChannelSendQueue) => ({ token, optional: true });
@@ -54,6 +58,8 @@ const HANDLERS = [
   imports: [CrmModule, DocumentsModule, ChannelsModule, SalesModule, IdentityModule, AiModule],
   providers: [
     ...HANDLERS,
+    // Action riêng chuyển trạng thái hệ thống (TIP-003c).
+    ContractSystemTransitionHandler,
     {
       provide: ContractDeps,
       inject: [opt(TENANT_RESOLVER), opt(PLATFORM_DB), opt(DocRenderer), opt(FilesService), opt(ENV_SOURCE), opt(ENC_KEY), CrmMembers, opt(MAIL_PROVIDER), opt(RATE_LIMITER), opt(REDIS), opt(ISOLATED_CONVERTER)],
@@ -90,4 +96,11 @@ const HANDLERS = [
   ],
   exports: [ContractsReadService, PublicSignService, ContractDeps, AppendixReadService, AppendixPublicService],
 })
-export class ContractsModule {}
+export class ContractsModule implements OnModuleInit {
+  /** TIP-003c: verifier nguồn (token phụ lục đã lưu) cho `contract.appendix_public_*`. */
+  onModuleInit(): void {
+    // 030b: token + Idempotency-Key theo nội dung là khoá chống lặp; xin OTP lại là yêu cầu mới (domain).
+    for (const id of APPENDIX_PUBLIC_ACTIONS) registerSystemVerifier(id, verifyAppendixPublic, { receipt: 'domain' });
+    registerSystemVerifier('contract.system_transition', verifyContractTrigger);
+  }
+}

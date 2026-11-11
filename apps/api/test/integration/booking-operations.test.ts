@@ -6,7 +6,7 @@ import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { appointmentRowSchema } from '@appchat/shared';
-import { expireHolds, uuidv7 } from '@appchat/core';
+import { ActionExecutor, expireHolds, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -31,7 +31,6 @@ const ok = (r: { status: number; body: unknown }) => {
 const err = (r: { status: number; body: any }) => `${r.status} ${r.body?.error?.code} ${JSON.stringify(r.body?.error?.fields ?? {})}`; // eslint-disable-line @typescript-eslint/no-explicit-any
 const undo = (logId: string) => call(h, `/action-logs/${logId}/undo`, {}).then(json);
 const appt = async (id: string) => appointmentRowSchema.parse((await call(h, `/calendar/${id}`).then(json)).body.data);
-const TZ = 'Asia/Ho_Chi_Minh';
 // Đồng hồ harness: 2026-10-30 08:00Z = 15:00 thứ Sáu (VN). Lịch đặt thứ Hai 02/11 (giữ chỗ 2 giờ → hết trước giờ hẹn rất lâu).
 const DAY = '2026-11-02';
 const DAYS = [0, 1, 2, 3, 4, 5, 6].map((d) => ({ weekday: d, open: d !== 6, start: '08:00', end: '19:00' }));
@@ -43,7 +42,7 @@ async function book(start: string, staff = ids.s1) {
 }
 async function expire(id: string) {
   h.clock.advance(2 * 3_600_000 + 60_000);
-  await expireHolds(await tenant(), h.ws, h.clock.now(), TZ);
+  await expireHolds(await tenant(), h.ws, h.clock.now(), { executor: h.app.get(ActionExecutor, { strict: false }), tenants: resolver });
   expect((await appt(id)).status).toBe('expired');
 }
 
@@ -118,7 +117,7 @@ describe('xác nhận lại lịch hết giữ chỗ', () => {
   it('xác nhận đồng thời với quét hết giữ chỗ → một kết cục, không deadlock', async () => {
     const id = await book('16:00', ids.s2);
     h.clock.advance(2 * 3_600_000 + 60_000);
-    const [c, n] = await Promise.all([act('appointment.confirm', { appointment_id: id }), expireHolds(await tenant(), h.ws, h.clock.now(), TZ)]);
+    const [c, n] = await Promise.all([act('appointment.confirm', { appointment_id: id }), expireHolds(await tenant(), h.ws, h.clock.now(), { executor: h.app.get(ActionExecutor, { strict: false }), tenants: resolver })]);
     // Quét thắng trước → lịch expired rồi xác nhận lại; xác nhận thắng trước → quét bỏ qua. Cả hai đều kết thúc confirmed.
     expect(c.status, JSON.stringify(c.body)).toBe(200);
     expect(n).toBeGreaterThanOrEqual(0);

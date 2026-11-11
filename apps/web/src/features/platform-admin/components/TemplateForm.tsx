@@ -3,13 +3,13 @@
 'use client';
 import { Form, Input, InputNumber, Modal, Select, Switch } from 'antd';
 import { useTranslations } from 'next-intl';
-import { registry } from '@appchat/actions';
+import { registry, isAgentGrantable } from '@appchat/actions';
 import { useAction } from '@/shared/actions/useAction';
 import type { AdminTemplate } from '../types';
 
 const ROLES = ['sales', 'cs', 'booking', 'marketing', 'accounting', 'ops'] as const;
 const TIERS = ['standard', 'advanced', 'max'] as const;
-const GRANTABLE = registry.filter((a) => a.agentGrantable).map((a) => a.id);
+const GRANTABLE = registry.filter(isAgentGrantable).map((a) => a.id);
 const HEX = /^#[0-9A-Fa-f]{6}$/;
 
 export function TemplateForm({ tpl, onClose }: { tpl: AdminTemplate | null; onClose: () => void }) {

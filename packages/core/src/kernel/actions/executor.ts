@@ -1,6 +1,6 @@
 // ActionExecutor — cổng ghi duy nhất (action-registry §5). Thứ tự không đổi:
 // registry → zod → permission → policy → idempotency → transaction (handler + action_log + outbox) → kết quả.
-import type { ActionAccepted, ActionDef, ActionResult } from '@appchat/actions';
+import { isInternalAction, type ActionAccepted, type ActionDef, type ActionResult } from '@appchat/actions';
 import { AppError } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import type { ZodError } from 'zod';
@@ -27,6 +27,8 @@ import { executePlatformAction, previewPlatformAction, type PlatformExecuteOutco
 import type { PlatformContext } from './platform-context';
 import { executeLifecycleAction, LIFECYCLE_ACTIONS, type LifecycleContext } from './workspace-lifecycle-context';
 import { activityEvent } from './activity-event';
+import { admitInternal } from './system/capability';
+import { systemAdmission } from './system/executor-hook';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
 
@@ -129,6 +131,8 @@ export class ActionExecutor {
     if (def.permission === 'platform_admin') throw new AppError('FORBIDDEN', 403, { permission: 'platform_admin' });
     // Action vòng đời chỉ chạy bằng ngữ cảnh vòng đời (UI, membership nền tảng) — Trợ lý / agent / đường tenant thường đều 403.
     if (LIFECYCLE_ACTIONS.has(actionId)) throw new AppError('FORBIDDEN', 403, { scope: 'lifecycle' });
+    // Action riêng (TIP-003c §1.2): chỉ ctx đã niêm phong capability đúng action + workspace + digest input THÔ — trước zod / quyền / policy / preview / prepare / idempotency.
+    if (isInternalAction(def)) admitInternal(ctx, actionId, rawInput ?? {});
 
     // 2. zod
     const parsed = def.input.safeParse(rawInput ?? {});
@@ -205,6 +209,9 @@ export class ActionExecutor {
     }
     const approved = (tx: TenantTx) => (ctx.approvalId ? this.d.approvals!.consume(tx, ctx, actionId, input) : Promise.resolve());
     const runFinal = async (tx: TenantTx) => {
+      // Action riêng (TIP-003c §1.3, §3.3): kiểm lại capability ngay trước hiệu ứng + nhận biên nhận trigger trong CÙNG transaction.
+      const sys = isInternalAction(def) ? await systemAdmission(tx, ctx, actionId, rawInput ?? {}, now) : undefined;
+      if (sys?.replay) return { data: sys.replay, queued: null, afterCommit: undefined };
       await approved(tx);
       const r = await handler.execute(ctx, input, tx, undefined, prepared);
       const undoUntil = r.noUndo ? undefined : undoWindow;
@@ -239,6 +246,7 @@ export class ActionExecutor {
           createdAt: now,
         },
       });
+      if (sys) await sys.settle(tx, output, logId);
       const sec = securityEvents(actionId, logId, ctx.actor, ctx.onBehalfOfUserId, ctx.source);
       await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec, ...activityEvent(ctx, def, logId)], now, traceId);
       // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.

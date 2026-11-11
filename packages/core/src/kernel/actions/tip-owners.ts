@@ -42,6 +42,7 @@ const BY_ID: Record<string, string> = {
   'assistant.attachment_remove': '023f',
   'assistant.attachment_get': '023f',
   'assistant.attachment_read': '023f',
+  'inbox.system_agent_transition': '003c',
 };
 
 const BY_PREFIX: Record<string, string> = {

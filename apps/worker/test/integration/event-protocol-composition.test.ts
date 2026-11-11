@@ -35,11 +35,13 @@ describe('worker ROLE=jobs — sẵn sàng giao thức sự kiện v2', () => {
     expect(r.mismatched).toEqual([]);
     const owners = new Set(r.blockers.map((b) => b.split(':')[1]));
     expect([...owners].sort()).toEqual(['003c', '006b']);
+    // TIP-003c: consumer có adapter action-mode v2 không còn là blocker.
+    for (const n of ['sales.bank-ingest', 'support', 'loyalty.orders', 'loyalty.payments', 'crm.lead-routing', 'sales.quote-owner']) expect(r.blockers.some((b) => b.startsWith(`${n}:`))).toBe(false);
   });
 
   it('manifest phủ ĐÚNG tập consumer v1 đã đăng ký ở ROLE=jobs (không thiếu)', () => {
     const registered = eventConsumers().map((c) => c.name).sort();
-    const listed = EVENT_PROTOCOL_MANIFEST.consumers.filter((c) => c.status === 'requires_adapter').map((c) => c.name).sort();
+    const listed = EVENT_PROTOCOL_MANIFEST.consumers.map((c) => c.name).sort();
     expect(registered.filter((n) => !listed.includes(n))).toEqual([]);
   });
 });

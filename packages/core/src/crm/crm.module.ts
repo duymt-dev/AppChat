@@ -1,6 +1,8 @@
 // Domain `crm` (TIP-015): khách hàng, phụ trách + đồng phụ trách + xin chia sẻ (D32), gộp trùng, liên kết khách theo kênh (C06),
 // trường tuỳ biến (D56), bố cục Hồ sơ 360° (F12), xuất / nhập. Seed mặc định đăng ký khi nạp `seeds.ts`. Thiếu DB → service null.
 import { Inject, Module, Optional, type OnModuleInit } from '@nestjs/common';
+import { domainVerifier, registerSystemVerifier } from '../kernel/actions/system';
+import { LEAD_ROUTING_ACTOR } from './routing/routing-apply.handler';
 import { registerApprovalDomain } from '../ai/approvals/domain-authorization';
 import { transferApprovalHook, transferBulkApprovalHook } from './ownership/approval-projection';
 import { ContactTransferOwnerBulkHandler } from './ownership/bulk-transfer.handler';
@@ -81,5 +83,7 @@ export class CrmModule implements OnModuleInit {
       registerApprovalDomain('contact.transfer_owner', transferApprovalHook(this.members));
       registerApprovalDomain('contact.transfer_owner_bulk', transferBulkApprovalHook(this.members));
     }
+    // TIP-003c: action riêng tiền nhiệm 042b — unique quyết định theo event là chống lặp (biên nhận domain).
+    registerSystemVerifier('lead_routing.apply', domainVerifier(LEAD_ROUTING_ACTOR, ['event']), { receipt: 'domain', db: false });
   }
 }

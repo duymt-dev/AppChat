@@ -89,7 +89,8 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   async onApplicationBootstrap(): Promise<void> {
     const { redis, tenants, files } = this;
     if (!redis || !tenants || !files) return;
-    this.kb = startKbIngestWorker(redis, tenants, { files, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
+    // TIP-003c: công bố kết quả nạp qua action riêng — không có executor thì không chạy worker nạp (không có đường ghi thứ hai).
+    if (this.executor) this.kb = startKbIngestWorker(redis, tenants, { files, executor: this.executor, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
     // TIP-023c: dọn sổ sự kiện stream Trợ lý quá 24h (chỉ workspace đã đánh dấu).
     this.events = await startAssistantEventsPrune(redis, tenants, () => this.clock.now(), this.log);
     // TIP-023e §1.4: dựng vector kho mô tả action (generation đã được assistant.discovery_prepare xác nhận) — cần executor để
@@ -112,7 +113,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
           });
         }
         // TIP-022b: duyệt hết hạn ở lượt agent → chuyển người kèm tóm tắt + receipt lượt xong.
-        registerResumeExpired('agent_reply', (db, run, x, ws) => handoffAfterApproval({ kv: x.kv, now: x.now }, db, ws, run, 'approval_expired'));
+        registerResumeExpired('agent_reply', (db, run, x, ws) => handoffAfterApproval({ kv: x.kv, now: x.now, executor: x.executor, tenants: x.tenants }, db, ws, run, 'approval_expired'));
         // TIP-023: run Trợ lý dừng vì delegate / tool cần duyệt → chạy tiếp với quyền hiện tại của người ra lệnh.
         registerResumeSpec('assistant', async (db, run, x, ws) =>
           assistantResumeSpec({ executor: x.executor, runner: x.runner ?? reply.runner, now: x.now, discovery: { models: this.discoveryModels, meter: this.meter, cache: discoveryCacheOf(redis, this.intents?.derive('discovery-cache')) }, storage: this.storage }, db, run, ws, run.initiatedByUserId ? await x.commander(ws, run.initiatedByUserId) : null),

@@ -11,10 +11,8 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { ChannelsModule } from '../../channels/channels.module';
-import { ChannelSendQueue } from '../../channels/public';
 import { CrmModule } from '../../crm/crm.module';
-import { CrmMembers } from '../../crm/public';
-import { enqueueOutgoing, type Outgoing } from '../../inbox/public';
+import { ActionExecutor } from '../../kernel/actions/executor';
 import { BookingModule } from '../booking.module';
 import { expireHolds, remindAppointments } from '../services/booking-system';
 
@@ -23,11 +21,11 @@ export const BOOKING_SWEEP_JOB = 'booking.sweep';
 const EVERY_MS = 5 * 60_000;
 
 export interface BookingSweepDeps {
-  platform: PlatformDb;
+  platform: Pick<PlatformDb, 'workspace'>;
   tenants: TenantDbResolver;
-  members: CrmMembers;
+  /** TIP-003c: chuyển trạng thái qua action riêng `appointment.system_transition` (nhắc tự đẩy hàng gửi sau commit). */
+  executor: Pick<ActionExecutor, 'execute'>;
   now: () => Date;
-  enqueue: (ws: string, o: Outgoing) => Promise<void>;
   onError?: (ws: string, err: unknown) => void;
 }
 
@@ -38,8 +36,9 @@ export async function sweepBooking(d: BookingSweepDeps) {
     try {
       const db = await d.tenants.get(TenantContexts.system(w.id, BOOKING_SWEEP_JOB));
       const now = d.now();
-      total.expired += await expireHolds(db, w.id, now, w.timezone);
-      total.reminded += await remindAppointments(db, w.id, now, { platform: d.platform, members: d.members, enqueue: (o) => d.enqueue(w.id, o) });
+      const sys = { executor: d.executor, tenants: d.tenants, onError: (_id: string, err: unknown) => d.onError?.(w.id, err) };
+      total.expired += await expireHolds(db, w.id, now, sys);
+      total.reminded += await remindAppointments(db, w.id, now, sys);
     } catch (err) {
       d.onError?.(w.id, err);
     }
@@ -57,18 +56,16 @@ class BookingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     @Optional() @Inject(TENANT_RESOLVER) private readonly tenants: TenantDbResolver | undefined,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
-    @Inject(CrmMembers) private readonly members: CrmMembers,
-    @Optional() @Inject(ChannelSendQueue) private readonly send: ChannelSendQueue | null,
+    @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
-    if (!this.redis || !this.platform || !this.tenants) return;
+    if (!this.redis || !this.platform || !this.tenants || !this.executor) return;
     const deps: BookingSweepDeps = {
       platform: this.platform,
       tenants: this.tenants,
-      members: this.members,
+      executor: this.executor,
       now: () => this.clock.now(),
-      enqueue: (ws, o) => enqueueOutgoing(this.send, ws, o),
       onError: (ws, err) => this.log.warn({ err, ws, job: BOOKING_SWEEP_JOB }, 'quét lịch hẹn lỗi ở workspace'),
     };
     this.queue = new Queue(BOOKING_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });

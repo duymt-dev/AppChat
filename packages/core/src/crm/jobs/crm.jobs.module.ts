@@ -25,7 +25,9 @@ import { registerContactExportKind } from './contact-export.processor';
 import { registerTimelineExportKind } from './contact-timeline-export.processor';
 import './contact-bulk.processor';
 import { registerTransferBulkKind } from '../ownership/bulk-transfer.handler';
-import { LEAD_ROUTING_CONSUMER, leadRoutingConsumer } from '../routing/routing-consumer';
+import { LEAD_ROUTING_CONSUMER, leadRoutingConsumer, leadRoutingTrigger } from '../routing/routing-consumer';
+import { LEAD_ROUTING_TOPIC } from '../routing/routing-apply.handler';
+import { registerSystemAdapter } from '../../kernel/actions/system';
 
 export const CRM_SCHEDULER_QUEUE = 'crm-scheduler';
 export const MEMORY_RECEIPT_PURGE_JOB = 'crm.memory-receipt-purge';
@@ -79,7 +81,11 @@ class CrmJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
 
   async onApplicationBootstrap(): Promise<void> {
     if (!this.redis || !this.platform || !this.tenants) return;
-    if (this.executor) registerEventConsumer(leadRoutingConsumer(this.executor));
+    if (this.executor) {
+      registerEventConsumer(leadRoutingConsumer(this.executor));
+      // TIP-003c: adapter action-mode v2 (cùng trigger / biên nhận domain; v1 giữ tới cutover).
+      registerSystemAdapter({ name: LEAD_ROUTING_CONSUMER, topics: [LEAD_ROUTING_TOPIC], actionId: 'lead_routing.apply', triggers: (e) => [leadRoutingTrigger(e)] }, { executor: this.executor, tenants: null });
+    }
     const deps = { platform: this.platform, tenants: this.tenants, now: () => this.clock.now(), onError: (ws: string, err: unknown) => this.log.warn({ err, ws, job: MEMORY_RECEIPT_PURGE_JOB }, 'quét biên nhận gộp lỗi ở workspace') };
     this.queue = new Queue(CRM_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(MEMORY_RECEIPT_PURGE_JOB, { every: EVERY_MS }, { name: MEMORY_RECEIPT_PURGE_JOB });

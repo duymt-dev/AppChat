@@ -6,7 +6,7 @@
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { registry } from '@appchat/actions';
+import { isInternalAction, registry } from '@appchat/actions';
 import type { JsonSchema } from '@appchat/ai';
 import { CODE_REF_ENTITIES } from '../src/ai/assistant/code-refs';
 import { SYSTEM_ONLY } from '../src/ai/assistant/catalog';
@@ -29,7 +29,8 @@ function handlers(): Map<string, { preview: boolean }> {
 
 const H = handlers();
 // Callback system-only (worker) không đi qua Trợ lý / UI; action quản trị nền tảng chỉ chạy từ màn /admin (DC-368) — ngoài phạm vi phủ.
-const DEFS = registry.filter((a) => H.has(a.id) && !SYSTEM_ONLY.has(a.id) && a.permission !== 'platform_admin');
+// Action riêng (TIP-003c) không bao giờ tới Trợ lý — ngoài phạm vi phủ.
+const DEFS = registry.filter((a) => H.has(a.id) && !SYSTEM_ONLY.has(a.id) && !isInternalAction(a) && a.permission !== 'platform_admin');
 const IMPLEMENTED = new Set(DEFS.map((a) => a.id));
 
 /** Đường dẫn mọi ô `*_id` / `id` trong input (lồng object / array / anyOf). */

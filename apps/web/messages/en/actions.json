@@ -428,6 +428,9 @@
     },
     "edit_and_approve": {
       "title": "Edit & approve action"
+    },
+    "system_expire": {
+      "title": "Expire approval request (system)"
     }
   },
   "ai": {
@@ -600,6 +603,9 @@
     "get": {
       "title": "View quote",
       "desc": "Read one quote: lines, totals, validity."
+    },
+    "system_transition": {
+      "title": "Quote system transition"
     }
   },
   "contract": {
@@ -724,6 +730,9 @@
     "appendix_public_decline": {
       "title": "Customer declines appendix (public page)",
       "desc": "Internal — public signing page"
+    },
+    "system_transition": {
+      "title": "Contract system transition"
     }
   },
   "order": {
@@ -783,6 +792,9 @@
     "send_confirmation": {
       "title": "Send order confirmation",
       "desc": "Send the order confirmation PDF (items, total, paid / left) to the customer conversation."
+    },
+    "system_import": {
+      "title": "Import verified marketplace order revision (system)"
     }
   },
   "invoice": {
@@ -813,6 +825,9 @@
     "get": {
       "title": "View payment request",
       "desc": "Read one payment request: amount, paid, due date."
+    },
+    "system_transition": {
+      "title": "Payment request system transition"
     }
   },
   "booking": {
@@ -886,6 +901,9 @@
     "update": {
       "title": "Edit appointment",
       "desc": "Edit time, service, staff, note, reminder or custom fields of an open appointment."
+    },
+    "system_transition": {
+      "title": "Appointment system transition"
     }
   },
   "ticket": {
@@ -930,6 +948,9 @@
     "get": {
       "title": "View ticket",
       "desc": "Read one ticket: status, priority, SLA due times, assignee."
+    },
+    "system_transition": {
+      "title": "Ticket system transition"
     }
   },
   "segment": {
@@ -1167,18 +1188,18 @@
       "title": "Sync channel account address book"
     },
     "friend": {
-        "accept": {
-          "title": "Accept Zalo friend request"
-        },
-        "reject": {
-          "title": "Reject Zalo friend request"
-        },
-        "send": {
-          "title": "Send Zalo friend request"
-        },
-        "undo": {
-          "title": "Withdraw Zalo friend request"
-        }
+      "accept": {
+        "title": "Accept Zalo friend request"
+      },
+      "reject": {
+        "title": "Reject Zalo friend request"
+      },
+      "send": {
+        "title": "Send Zalo friend request"
+      },
+      "undo": {
+        "title": "Withdraw Zalo friend request"
+      }
     },
     "lookup_user": {
       "title": "Find a Zalo user by phone"
@@ -1198,6 +1219,9 @@
     },
     "status": {
       "title": "Check channel connection status"
+    },
+    "system_transition": {
+      "title": "Channel account transition (system)"
     }
   },
   "webchat": {
@@ -1303,6 +1327,9 @@
     "source_search": {
       "title": "Find knowledge sources",
       "desc": "Look up knowledge-base sources by name or tag."
+    },
+    "system_publish": {
+      "title": "Publish knowledge source ingest result (system)"
     }
   },
   "governance": {
@@ -1449,6 +1476,9 @@
     "search": {
       "title": "Find customer packages",
       "desc": "Look up packages: sessions used, expiry, status."
+    },
+    "system_transition": {
+      "title": "Package system transition"
     }
   },
   "payment_account": {
@@ -1575,6 +1605,11 @@
     "review_resolve": {
       "title": "Resolve one quarantined item (forget customer)",
       "desc": "Decide one shared / unidentified data item in a \"forget customer\" operation: unrelated, this customer only, shared (strip this subject, keep others), or retained as issued evidence."
+    }
+  },
+  "inbox": {
+    "system_agent_transition": {
+      "title": "Conversation agent transition (system)"
     }
   }
 }

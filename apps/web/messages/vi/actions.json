@@ -428,6 +428,9 @@
     },
     "edit_and_approve": {
       "title": "Sửa & duyệt hành động"
+    },
+    "system_expire": {
+      "title": "Hết hạn yêu cầu duyệt (hệ thống)"
     }
   },
   "ai": {
@@ -600,6 +603,9 @@
     "get": {
       "title": "Xem báo giá",
       "desc": "Đọc chi tiết một báo giá: dòng hàng, tổng tiền, hiệu lực."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái báo giá (hệ thống)"
     }
   },
   "contract": {
@@ -724,6 +730,9 @@
     "appendix_public_decline": {
       "title": "Khách từ chối phụ lục (trang công khai)",
       "desc": "Nội bộ — trang ký công khai"
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái hợp đồng (hệ thống)"
     }
   },
   "order": {
@@ -783,6 +792,9 @@
     "send_confirmation": {
       "title": "Gửi xác nhận đơn cho khách",
       "desc": "Gửi PDF xác nhận đơn (dòng hàng, tổng, đã thu / còn lại) vào hội thoại của khách."
+    },
+    "system_import": {
+      "title": "Nhập bản đơn sàn đã kiểm (hệ thống)"
     }
   },
   "invoice": {
@@ -813,6 +825,9 @@
     "get": {
       "title": "Xem đề nghị thanh toán",
       "desc": "Đọc một đề nghị thanh toán: số tiền, đã thu, hạn."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái đề nghị thanh toán (hệ thống)"
     }
   },
   "booking": {
@@ -886,6 +901,9 @@
     "update": {
       "title": "Sửa lịch hẹn",
       "desc": "Sửa giờ, dịch vụ, nhân sự, ghi chú, nhắc hẹn hoặc trường tuỳ biến của lịch hẹn còn mở."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái lịch hẹn (hệ thống)"
     }
   },
   "ticket": {
@@ -930,6 +948,9 @@
     "get": {
       "title": "Xem ticket",
       "desc": "Đọc một ticket: trạng thái, ưu tiên, hạn SLA, người phụ trách."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái ticket (hệ thống)"
     }
   },
   "segment": {
@@ -1167,18 +1188,18 @@
       "title": "Đồng bộ danh bạ tài khoản kênh"
     },
     "friend": {
-        "accept": {
-          "title": "Nhận lời mời kết bạn Zalo"
-        },
-        "reject": {
-          "title": "Từ chối lời mời kết bạn Zalo"
-        },
-        "send": {
-          "title": "Gửi lời mời kết bạn Zalo"
-        },
-        "undo": {
-          "title": "Thu hồi lời mời kết bạn Zalo"
-        }
+      "accept": {
+        "title": "Nhận lời mời kết bạn Zalo"
+      },
+      "reject": {
+        "title": "Từ chối lời mời kết bạn Zalo"
+      },
+      "send": {
+        "title": "Gửi lời mời kết bạn Zalo"
+      },
+      "undo": {
+        "title": "Thu hồi lời mời kết bạn Zalo"
+      }
     },
     "lookup_user": {
       "title": "Tìm người trên Zalo theo SĐT"
@@ -1198,6 +1219,9 @@
     },
     "status": {
       "title": "Xem trạng thái kết nối kênh"
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái tài khoản kênh (hệ thống)"
     }
   },
   "webchat": {
@@ -1303,6 +1327,9 @@
     "source_search": {
       "title": "Tìm tài liệu kho tri thức",
       "desc": "Tra nguồn trong kho tri thức theo tên hoặc thẻ."
+    },
+    "system_publish": {
+      "title": "Công bố kết quả nạp nguồn tri thức (hệ thống)"
     }
   },
   "governance": {
@@ -1449,6 +1476,9 @@
     "search": {
       "title": "Tìm liệu trình của khách",
       "desc": "Tra liệu trình: số buổi đã dùng, hạn, trạng thái."
+    },
+    "system_transition": {
+      "title": "Chuyển trạng thái liệu trình (hệ thống)"
     }
   },
   "payment_account": {
@@ -1575,6 +1605,11 @@
     "review_resolve": {
       "title": "Xét một mục chờ duyệt (Quên khách)",
       "desc": "Quyết định một mục dữ liệu chung / chưa rõ chủ thể trong lượt Quên khách: không liên quan, chỉ của khách này, xoá phần của khách giữ phần khác, hoặc giữ vì là chứng từ đã phát hành."
+    }
+  },
+  "inbox": {
+    "system_agent_transition": {
+      "title": "Chuyển agent / chuyển người hội thoại (hệ thống)"
     }
   }
 }

@@ -262,6 +262,10 @@ describe('duyệt (approval)', () => {
     expect(await resumeApproval(deps(), h.ws, apId, 'expire')).toBe('done');
     expect((await db.approvalRequest.findUniqueOrThrow({ where: { id: apId } })).status).toBe('expired');
     expect((await store.get(run.id))!.status).toBe('handoff');
+    // TIP-003c: hết hạn qua action riêng — job chạy lại → skipped, một biên nhận đã kết thúc, không phát `approval.decided` lần hai.
+    expect(await resumeApproval(deps(), h.ws, apId, 'expire')).toBe('skipped');
+    const rc = await db.$queryRaw<{ phase: string }[]>`SELECT phase::text AS phase FROM system_action_receipt WHERE action_id = 'approval.system_expire' AND target_id = ${apId}`;
+    expect(rc).toEqual([{ phase: 'applied' }]);
   });
 
   it('AC4 worker ROLE=ai: approve qua API → job ai-resume (queue thật) tự chạy action đã duyệt + ghi kết quả tool', async () => {

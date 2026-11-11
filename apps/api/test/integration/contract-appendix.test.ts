@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { appendicesSchema, appendixSignViewSchema } from '@appchat/shared';
-import { WalletService, sweepContracts, uuidv7 } from '@appchat/core';
+import { ActionExecutor, WalletService, sweepContracts, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -170,7 +170,7 @@ describe('vòng đời + ký riêng', () => {
     const tb = await db.appendixSignToken.findFirstOrThrow({ where: { appendixId: B.appendix_id, usedAt: null } });
     expect(tb.appendixId).not.toBe(C.appendix_id);
     h.clock.advance(9 * 86_400_000);
-    await sweepContracts({ platform: h.platform, tenants: resolver, now: () => h.clock.now() });
+    await sweepContracts({ platform: h.platform, tenants: resolver, executor: h.app.get(ActionExecutor, { strict: false }), now: () => h.clock.now() });
     expect((await db.contractAppendix.findUniqueOrThrow({ where: { id: C.appendix_id } })).status).toBe('declined');
     expect((await pub(`${B.token}/otp`, {})).status).toBe(410);
   }, 180_000);
