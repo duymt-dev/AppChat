@@ -184,12 +184,15 @@ export class ActionExecutor {
       }
     }
 
-    if (decision === 'preview' && !(await this.d.confirm.consume(ctx, actionId, input, ctx.confirmToken))) {
-      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input.
-      const preview = handler.preview ? await db.$transaction((tx) => handler.preview!(ctx, input, tx)) : { summary: '', risk: def.risk };
-      const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime());
+    const bound = decision === 'preview' ? await this.d.confirm.take(ctx, actionId, input, ctx.confirmToken) : null;
+    if (decision === 'preview' && !bound) {
+      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input. Dữ kiện nguồn (bindPreview)
+      // đọc cùng transaction với preview, ràng vào token phía server (TIP-033c §3.1).
+      const [preview, facts] = await db.$transaction(async (tx) => [handler.preview ? await handler.preview(ctx, input, tx) : { summary: '', risk: def.risk }, await handler.bindPreview?.(ctx, input, tx)] as const);
+      const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime(), facts);
       return { status: 202, data: { status: 'preview_required', preview, confirm_token: token, expires_at: expiresAt.toISOString() } };
     }
+    if (bound && Object.keys(bound).length) ctx.previewFacts = bound;
 
     if (!key && requiresIdempotencyKey(actionId, def.risk)) throw new AppError('VALIDATION_FAILED', 422, { idempotency_key: 'required' });
 

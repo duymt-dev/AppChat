@@ -932,6 +932,10 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái lịch hẹn (hệ thống)"
+    },
+    "order_suggestions": {
+      "title": "Xem gợi ý tạo đơn từ lịch hẹn",
+      "desc": "Liệt kê buổi dịch vụ đã hoàn thành ngoài liệu trình, chưa có đơn, kèm giá hiện tại."
     }
   },
   "ticket": {

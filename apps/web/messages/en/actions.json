@@ -932,6 +932,10 @@
     },
     "system_transition": {
       "title": "Appointment system transition"
+    },
+    "order_suggestions": {
+      "title": "View order suggestions from appointments",
+      "desc": "List finished non-package appointments without an order, with the current price."
     }
   },
   "ticket": {
