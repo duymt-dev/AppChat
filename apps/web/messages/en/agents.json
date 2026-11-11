@@ -226,6 +226,22 @@
       "custom": "Custom"
     },
     "pct": "{n}%",
-    "done": "Created & published {name} (v1) — the agent is running."
+    "done": "Created & published {name} (v1) — the agent is running.",
+    "drafting": "Drafting a config from your description…",
+    "draftFailed": "Couldn't draft yet — your description is kept. Retry or build it manually.",
+    "retry": "Retry",
+    "manual": "Build manually",
+    "regenerate": "Regenerate",
+    "noTools": "No actions — the agent only replies and hands off to staff",
+    "fallback": {
+      "no_model_route": "No AI model configured — this is a template draft, not AI-generated. Please review and confirm:",
+      "structured_unsupported": "The current model can't draft in the required format — this is a template draft, not AI-generated:",
+      "malformed_output": "The AI returned an invalid format — this is a template draft (the AI call was charged):"
+    },
+    "warn": {
+      "no_candidate_tools": "No suitable actions you are allowed to grant were found.",
+      "tools_revoked": "Some actions were dropped because permissions just changed.",
+      "keyword_discovery": "Actions were found by keyword (semantic search index not ready)."
+    }
   }
 }

@@ -30,13 +30,15 @@ export class LlmRouter implements ModelSource {
     private readonly build: typeof buildModel = buildModel,
   ) {}
 
-  async candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean; vision?: boolean }): Promise<ModelCandidate[]> {
+  async candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean; vision?: boolean; structured?: boolean }): Promise<ModelCandidate[]> {
     const routes = [...(await this.config.routes(tier, purpose))].sort((a, b) => a.priority - b.priority);
     const out: ModelCandidate[] = [];
     for (const r of routes) {
       const p = await this.config.provider(r.providerKey);
       if (!p) continue;
       if (purpose === 'chat' && needs.tools && p.capabilities.tools === false) continue;
+      // Sinh theo schema (TIP-021b): chỉ provider đã khai / probe `json_schema` — vắng = chưa kiểm → không chọn (fail closed).
+      if (purpose === 'chat' && needs.structured && !p.capabilities.json_schema) continue;
       if (purpose === 'embed' && !p.capabilities.embeddings) continue;
       // Ảnh trong tin: chỉ route khai vision cho đúng model (provider vision=true chưa đủ — cùng provider có model chỉ đọc chữ).
       if (needs.vision && (!r.vision || p.capabilities.vision === false)) continue;

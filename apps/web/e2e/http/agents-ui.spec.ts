@@ -46,6 +46,9 @@ test.describe('AI Agents · Chờ duyệt · Nhật ký (http)', () => {
     await page.getByTestId('ag-ai-input').fill('Agent đặt lịch cho spa qua website');
     await page.getByTestId('ag-ai-send').click();
     await expect(page.getByTestId('ag-ai-draft')).toBeVisible({ timeout: 20_000 });
+    // TIP-021b: AI_ENGINE=mock trả đúng khuôn qua chế độ schema → mode model (nói thật nguồn); hai đường xác nhận giữ nguyên.
+    await expect(page.getByTestId('ag-ai-mode')).toHaveAttribute('data-mode', /^(model|deterministic)$/);
+    await expect(page.getByTestId('ag-ai-builder')).toBeVisible();
     await page.getByTestId('ag-ai-publish').click();
     await expect(page.getByTestId('ag-ai-done')).toBeVisible();
     await page.getByTestId('ag-ai-drawer').getByRole('button', { name: 'Đóng' }).click();

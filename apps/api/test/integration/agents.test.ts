@@ -163,10 +163,13 @@ describe('model (giả)', () => {
     expect((await h.app.get(WalletService, { strict: false }).balance(h.ws)).total).toBeLessThan(before);
   });
 
-  it('AC3 draft_from_description → cấu hình hợp lệ (tool ⊆ quyền); optimize_prompt thêm khối định dạng một lần', async () => {
-    const d = (await act('agent.draft_from_description', { description: 'Agent CSKH cho spa, đặt lịch qua Zalo' })).body.data.result.draft;
-    expect(d).toMatchObject({ role: 'booking', channels: ['zalo_personal'] });
-    expect(d.tools.length).toBeGreaterThan(0);
+  it('AC3 draft_from_description (request_id bắt buộc) → cấu hình hợp lệ, generation_info nói thật; optimize_prompt thêm khối định dạng một lần', async () => {
+    const res = (await act('agent.draft_from_description', { description: 'Agent CSKH cho spa, đặt lịch qua Zalo', request_id: uuidv7() })).body.data.result;
+    // TIP-021b: model giả (AI_ENGINE=mock) không khai json_schema → mẫu tất định CÓ lý do, không gắn mode model.
+    expect(res.generation_info).toMatchObject({ schema_version: 1, mode: expect.stringMatching(/^(model|deterministic)$/) });
+    if (res.generation_info.mode === 'deterministic') expect(res.generation_info.fallback_reason).toBeDefined();
+    expect(res.draft).toMatchObject({ channels: ['zalo_personal'] });
+    expect((await act('agent.draft_from_description', { description: 'Agent CSKH cho spa' })).status).toBe(422);
     const p1 = (await act('agent.optimize_prompt', { prompt: 'Bạn là trợ lý' })).body.data.result.prompt;
     expect(p1).toContain('# ĐỊNH DẠNG TRẢ LỜI');
     expect((await act('agent.optimize_prompt', { prompt: p1 })).body.data.result.prompt).toBe(p1);

@@ -5,12 +5,14 @@
 // (liveStep — TIP-023c, đóng DV-006), không đợi bước xong; đã phát chữ thì không fallback sang provider khác (không trộn hai câu).
 // TIP-019b: mỗi ứng viên = một lời gọi thật có hook `beforeAttempt` / `afterAttempt` (biên nhận + quyết toán ở core); SDK không tự gửi
 // lại (`maxRetries: 0`); lỗi không rõ đã chạy chưa → không chuyển ứng viên; hết ngân sách sau usage → không chạy tool nào của bước đó.
+// TIP-021b: `responseSchema` → một bước không tool qua structured.ts (không phát delta chữ thô); usage ghi trước, rồi mới kiểm schema.
 import { jsonSchema, streamText, tool, type ModelMessage, type ToolSet } from 'ai';
 import { classifyAttemptError, type AttemptOutcome } from './attempts';
 import { outputTokens, requestBytes, REQUEST_MAX_BYTES } from './limits';
 import { liveStep } from './delta-stream';
 import { callKey, countCalls, resultPart, toJson } from './messages';
 import { hydrateMessages, stripMedia } from './input-parts';
+import { assertStructuredRequest, parseStructured, StructuredError, structuredOutput } from './structured';
 import type { AgentEngine, ModelCandidate, ModelSource, RunEvent, RunMessage, RunRequest, StopReason, ToolCallRef, ToolOutcome, ToolSpec } from './types';
 
 export const LOOP_LIMIT = 3;
@@ -54,6 +56,11 @@ export class AiSdkEngine implements AgentEngine {
     let step = req.startStep ?? 0;
     let text = '';
     const done = (reason: StopReason): RunEvent => ({ type: 'finish', reason, text, messages, steps: step });
+    try {
+      assertStructuredRequest(req);
+    } catch (err) {
+      return yield { type: 'error', code: (err as StructuredError).code, message: (err as Error).message, stepIdx: step };
+    }
 
     while (true) {
       if (signal.aborted) return yield done('cancelled');
@@ -93,6 +100,15 @@ export class AiSdkEngine implements AgentEngine {
       yield { type: 'usage', usage, credits };
       const stepIdx = step;
       step++;
+      if (req.responseSchema) {
+        // Usage đã ghi (kể cả khi khuôn sai) — kiểm schema của engine; sai → lỗi rõ, không sửa ngầm, không gọi lần hai.
+        try {
+          text = parseStructured(req.responseSchema, r.text);
+        } catch (err) {
+          return yield { type: 'error', code: err instanceof StructuredError ? err.code : 'STRUCTURED_MALFORMED', message: (err as Error).message, stepIdx };
+        }
+        return yield done('stop');
+      }
       if (!r.calls.length) return yield done('stop');
       // Rào mềm (DC-251): usage thật đã ghi; hết ngân sách → bỏ mọi tool model vừa yêu cầu, không mở lời gọi kế.
       if (spent >= req.budget.maxCredits) return yield done('budget');
@@ -128,8 +144,12 @@ export class AiSdkEngine implements AgentEngine {
   private async step(req: RunRequest, stepIdx: number, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<StepResult> {
     // TIP-023f §3.1-3.2: tham chiếu tệp dựng lại MỖI lần gửi (quyền / nguồn hiện hành), bản sao — tin lưu không chứa bytes.
     const hydrated = await hydrateMessages(messages, req.inputs);
-    const candidates = await this.models.candidates(req.tier, 'chat', { tools: req.tools.length > 0, vision: hydrated.vision });
+    const structured = !!req.responseSchema;
+    const candidates = await this.models.candidates(req.tier, 'chat', { tools: req.tools.length > 0, vision: hydrated.vision, ...(structured ? { structured } : {}) });
     if (!candidates.length) {
+      // Có route chat nhưng không route nào khai sinh theo schema → mã riêng (core chọn mẫu tất định có lý do, không gắn mode model).
+      if (structured && (await this.models.candidates(req.tier, 'chat', { tools: false })).length)
+        throw new EngineError('STRUCTURED_UNSUPPORTED', `Chưa có model sinh theo schema cho mức ${req.tier}`);
       if (hydrated.vision) throw new EngineError('VISION_UNAVAILABLE', `Chưa có model đọc được ảnh cho mức ${req.tier} — không gửi thiếu ảnh`);
       throw new EngineError('NO_MODEL_ROUTE', `Chưa có model cho mức ${req.tier}`);
     }
@@ -148,7 +168,7 @@ export class AiSdkEngine implements AgentEngine {
         const r = await this.once(c, req, hydrated.messages, tools, signal, (d) => {
           emitted++;
           onDelta(d);
-        });
+        }, () => emitted++);
         return { ...r, candidateIdx: i };
       } catch (err) {
         last = err;
@@ -162,13 +182,14 @@ export class AiSdkEngine implements AgentEngine {
     throw last;
   }
 
-  private async once(c: ModelCandidate, req: RunRequest, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void): Promise<Omit<StepResult, 'candidateIdx'>> {
+  private async once(c: ModelCandidate, req: RunRequest, messages: RunMessage[], tools: ToolSet, signal: AbortSignal, onDelta: (d: Live) => void, onSilent: () => void): Promise<Omit<StepResult, 'candidateIdx'>> {
     const t0 = Date.now();
     const s = streamText({
       model: c.handle as never,
       system: req.system,
       messages: messages as unknown as ModelMessage[],
       ...(Object.keys(tools).length ? { tools } : {}),
+      ...(req.responseSchema ? { output: structuredOutput(req.responseSchema) } : {}),
       abortSignal: signal,
       // Mỗi lần gửi phải đi qua biên nhận (TIP-019b) — SDK không tự gửi lại ngầm.
       maxRetries: 0,
@@ -183,7 +204,9 @@ export class AiSdkEngine implements AgentEngine {
     for await (const p of s.fullStream) {
       if (p.type === 'text-delta') {
         text += p.text;
-        onDelta(p.text);
+        // JSON từng mảnh của chế độ schema không bao giờ là đề xuất — không phát; vẫn đếm để không fallback sau khi đã có chữ.
+        if (req.responseSchema) onSilent();
+        else onDelta(p.text);
       } else if (p.type === 'tool-input-start') inputs.set(p.id, p.toolName);
       else if (p.type === 'tool-input-delta') {
         const name = inputs.get(p.id);

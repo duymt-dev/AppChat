@@ -108,6 +108,8 @@ export * from './crm';
 export * from './contact-lifecycle';
 export * from './contact-merge';
 export * from './ai';
+export { agentConfig, agentTier } from './agent-config';
+export { draftGenerationInfo, DRAFT_FALLBACK_REASONS, DRAFT_SCHEMA_VERSION, DRAFT_WARNINGS } from './agent-drafting';
 export * from './ai-utilities';
 export * from './catalog';
 export * from './catalog-operations';

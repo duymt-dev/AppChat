@@ -1,0 +1,50 @@
+// tenant/agent-drafting.prisma — sở hữu: TIP-021b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Binding kiểm / công bố bản soạn cấu hình agent (TIP-021b §3.6): một dòng / lần soạn (người + action + request_id) — chặn gọi model lần
+// hai cho cùng lần soạn; chữ thô của model RIÊNG (`protected_result`) tới khi kiểm theo quyền hiện hành xong mới có `published_result`.
+// KHÔNG phải sổ thực thi / tính tiền thứ hai: run + biên nhận + quyết toán vẫn là `ai_run` / `ai_usage_receipt` (019b).
+// Index khôi phục ở migration `20261111080000_agent_drafting_publication`.
+
+enum AgentDraftPhase {
+  awaiting_generation
+  awaiting_validation
+  published
+  rejected
+  invalidated
+
+  @@map("agent_draft_phase")
+}
+
+model AgentDraftPublication {
+  id                   String          @id @db.Uuid
+  /// Run sinh (019b, `ai_run.id`) — cấp TRƯỚC khi gọi model; null khi soạn tất định không có run (không model / không runtime).
+  runId                String?         @unique(map: "agent_draft_publication_run_key") @map("run_id") @db.Uuid
+  /// Người / agent + người ra lệnh đứng sau lần soạn (actor_scope của 019c) — không bao giờ là workspace id.
+  actorId              String          @map("actor_id")
+  /// sha256(action_id + request_id) — khoá lần soạn trong tenant.
+  requestKeyHash       String          @map("request_key_hash")
+  /// sha256 mô tả đã chuẩn hoá — cùng khoá mà mô tả khác → 409.
+  inputDigest          String          @map("input_digest")
+  schemaVersion        Int             @map("schema_version")
+  /// Vân tay tập ứng viên (id + băm schema + phiên bản corpus) lúc sinh — đổi khi kiểm → 409 stale.
+  candidateFingerprint String          @map("candidate_fingerprint")
+  /// Ứng viên đã lọc quyền lúc sinh (id + băm schema + cờ connector) — trạng thái riêng của lần soạn, không phải cache dùng chung.
+  candidates           Json
+  /// Siêu dữ liệu discovery (chiến lược / lý do fallback / phiên bản corpus) — không câu hỏi, không mô tả.
+  discovery            Json
+  sourceEpoch          Int             @default(0) @map("source_epoch")
+  phase                AgentDraftPhase @default(awaiting_generation)
+  /// Thế hệ kiểm (fence CAS): tăng mỗi lần ghi chữ thô; công bố chỉ áp đúng thế hệ đã đọc.
+  validationGeneration Int             @default(0) @map("validation_generation")
+  leaseUntil           DateTime        @map("lease_until") @db.Timestamptz(6)
+  /// Chữ thô (JSON) model trả — riêng, chỉ đọc lúc kiểm lại; xoá khi kết thúc bị từ chối / vô hiệu.
+  protectedResult      String?         @map("protected_result")
+  /// Đề xuất đã kiểm + generation_info — chỉ có khi phase = published; người đọc vẫn chiếu lại theo quyền hiện hành.
+  publishedResult      Json?           @map("published_result")
+  /// Mã an toàn khi từ chối / vô hiệu (CREDIT_EXHAUSTED / USAGE_UNKNOWN / cancelled / stale / …) — không thông điệp provider.
+  safeReason           String?         @map("safe_reason")
+  createdAt            DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([actorId, requestKeyHash], map: "agent_draft_publication_request_key")
+  @@map("agent_draft_publication")
+}

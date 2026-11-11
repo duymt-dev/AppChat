@@ -226,6 +226,22 @@
       "custom": "Tuỳ chỉnh"
     },
     "pct": "{n}%",
-    "done": "Đã tạo & xuất bản {name} (v1) — agent đang chạy."
+    "done": "Đã tạo & xuất bản {name} (v1) — agent đang chạy.",
+    "drafting": "Đang soạn cấu hình theo mô tả…",
+    "draftFailed": "Chưa soạn được — mô tả vẫn giữ nguyên. Thử lại hoặc tự tạo trong builder.",
+    "retry": "Thử lại",
+    "manual": "Tự tạo trong builder",
+    "regenerate": "Soạn lại",
+    "noTools": "Không có hành động nào — agent chỉ trả lời và chuyển nhân viên",
+    "fallback": {
+      "no_model_route": "Chưa cấu hình mô hình AI — đây là bản theo mẫu, chưa dùng AI. Anh xem lại rồi xác nhận nhé:",
+      "structured_unsupported": "Mô hình hiện tại chưa hỗ trợ soạn theo khuôn — đây là bản theo mẫu, chưa dùng AI:",
+      "malformed_output": "AI trả về sai khuôn — đây là bản theo mẫu (đã tính lượt gọi AI):"
+    },
+    "warn": {
+      "no_candidate_tools": "Không tìm thấy hành động nào phù hợp mà anh có quyền cấp.",
+      "tools_revoked": "Một số hành động đã bị bỏ vì quyền vừa thay đổi.",
+      "keyword_discovery": "Hành động được tìm theo từ khoá (kho tìm kiếm ngữ nghĩa chưa sẵn sàng)."
+    }
   }
 }

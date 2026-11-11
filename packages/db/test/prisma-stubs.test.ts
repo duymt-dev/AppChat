@@ -33,6 +33,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'system-action': '003c',
   'event-delivery': '006b',
   'contract-signing': '030c',
+  'agent-drafting': '021b',
   },
 };
 
@@ -51,6 +52,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(63);
+    expect(n).toBe(64);
   });
 });

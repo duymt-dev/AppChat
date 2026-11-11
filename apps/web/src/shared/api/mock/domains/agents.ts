@@ -128,11 +128,23 @@ const publish = (db: MockDb, a: Agent, note: string, rollback = false) => {
 export const testReply = (text: string) =>
   fixture.test_replies.find((r) => new RegExp(r.re).test(text.toLowerCase()))?.text ?? fixture.test_fallback;
 
+/** Lần soạn theo request_id (TIP-021b) — trong phiên mock. */
+const drafts = new Map<string, { description: string; out: unknown }>();
+
 export const agentsHandlers: Record<string, MockHandler> = {
+  // TIP-021b: cùng request_id → cùng kết quả (không soạn lại); cùng request_id + mô tả khác → 409. Mock không có model: nói thật là mẫu.
   'agent.draft_from_description': {
-    execute: (_db, i: { description: string }) => {
+    execute: (_db, i: { description: string; request_id: string }) => {
+      const prior = drafts.get(i.request_id);
+      if (prior && prior.description !== i.description.trim()) throw new ApiRequestError(409, { code: 'CONFLICT', message: 'request_id', fields: { request_id: 'description_changed' } });
+      if (prior) return prior.out;
       const d = fixture.ai_draft;
-      return { draft: { ...d, prompt: fixture.prompt_templates[d.prompt_template]!.text, persona: i.description } };
+      const out = {
+        draft: { ...d, prompt: fixture.prompt_templates[d.prompt_template]!.text, persona: i.description },
+        generation_info: { schema_version: 1, operation_id: `op-${i.request_id.slice(0, 8)}`, mode: 'deterministic', discovery_strategy: 'keyword', fallback_reason: 'no_model_route', warnings: ['keyword_discovery'], candidate_version: 'mock' },
+      };
+      drafts.set(i.request_id, { description: i.description.trim(), out });
+      return out;
     },
   },
   'agent.create': {

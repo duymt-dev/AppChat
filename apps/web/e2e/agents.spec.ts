@@ -56,6 +56,9 @@ test.describe('agents', () => {
     await page.getByTestId('ag-ai-send').click();
     await expect(page.getByTestId('ag-ai-draft')).toContainText('CSKH Spa');
     await expect(page.getByTestId('ag-ai-draft')).toContainText('Nâng cao');
+    // TIP-021b: mock không có model → thẻ nói thật "bản theo mẫu", không gắn nhãn AI; cảnh báo tìm theo từ khoá.
+    await expect(page.getByTestId('ag-ai-mode')).toHaveAttribute('data-mode', 'deterministic');
+    await expect(page.getByTestId('ag-ai-warnings')).toBeVisible();
     await page.getByTestId('ag-ai-publish').click();
     await expect(page.getByTestId('ag-ai-done')).toContainText('CSKH Spa');
     await expect(page.getByTestId('ag-card')).toHaveCount(7);

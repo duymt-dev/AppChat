@@ -7,6 +7,8 @@ import { REDACT_CENSOR } from '@appchat/shared';
 
 /** Tool/action mang câu hỏi tự do của người dùng trong input — đăng ký tường minh ở đây, không tự suy luận theo tên/mô tả. */
 export const SENSITIVE_QUERY_TOOLS: ReadonlySet<string> = new Set(['find_actions']);
+/** TIP-021b: action gọi qua `call_action` mang văn bản tự do của người dùng (mô tả agent có thể chứa dữ liệu khách) → che ô đó trong bước. */
+export const SENSITIVE_ACTION_FIELDS: ReadonlyMap<string, readonly string[]> = new Map([['agent.draft_from_description', ['description']]]);
 
 const get = (o: unknown, k: string): unknown =>
   o && typeof o === 'object' && !Array.isArray(o) && Object.prototype.hasOwnProperty.call(o, k) ? (o as Record<string, unknown>)[k] : undefined;
@@ -16,7 +18,18 @@ const get = (o: unknown, k: string): unknown =>
  * — tên module cố định trong registry, không phải nội dung khách). Action không trong danh sách → giữ nguyên (không đụng tool khác).
  */
 export function redactSensitiveQueryInput(actionId: string | null, input: unknown): unknown {
+  if (actionId === 'call_action') return redactCallAction(input);
   if (!actionId || !SENSITIVE_QUERY_TOOLS.has(actionId) || !input || typeof input !== 'object' || Array.isArray(input)) return input;
   const module = get(input, 'module');
   return { query: REDACT_CENSOR, ...(typeof module === 'string' ? { module } : {}) };
+}
+
+function redactCallAction(input: unknown): unknown {
+  const id = get(input, 'action_id');
+  const fields = typeof id === 'string' ? SENSITIVE_ACTION_FIELDS.get(id) : undefined;
+  const inner = get(input, 'input');
+  if (!fields || !inner || typeof inner !== 'object' || Array.isArray(inner)) return input;
+  const masked = { ...(inner as Record<string, unknown>) };
+  for (const f of fields) if (Object.prototype.hasOwnProperty.call(masked, f)) masked[f] = REDACT_CENSOR;
+  return { ...(input as Record<string, unknown>), input: masked };
 }
