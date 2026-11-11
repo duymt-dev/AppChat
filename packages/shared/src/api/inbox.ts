@@ -50,6 +50,8 @@ export const conversationSchema = z.object({
   ai_mode: z.enum(AI_MODES),
   handoff_reason: z.string().optional(),
   ai_draft: z.string().optional(),
+  /** TIP-020c: tham chiếu nháp AI (gửi kèm `message.send.ai_draft_ref`) — chỉ khi nháp do run sinh. */
+  ai_draft_ref: z.object({ id: z.string(), generation: z.number().int() }).optional(),
   /** TIP-022b: ý định lượt gần nhất (bộ đóng) — chỉ tham khảo. */
   intent: z.enum(AGENT_INTENTS_CLOSED).optional(),
   /** TIP-022b: có tóm tắt bàn giao (đọc qua `GET /v1/conversations/:id/handoff-summary`, chiếu theo quyền). */
@@ -112,7 +114,7 @@ export const threadSchema = z.object({
   data: z.array(messageSchema),
   next_cursor: z.string().nullable(),
   /** Gợi ý copilot — AI (TIP-022); tới lúc đó null. */
-  suggestion: z.object({ text: z.string(), confidence: z.number() }).nullable(),
+  suggestion: z.object({ text: z.string(), confidence: z.number(), ref: z.object({ id: z.string(), generation: z.number().int() }).optional() }).nullable(),
 });
 
 export const messageSearchSchema = z.array(

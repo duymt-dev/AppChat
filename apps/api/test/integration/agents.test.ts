@@ -7,7 +7,7 @@ import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Test, type TestingModule } from '@nestjs/testing';
 import pg from 'pg';
-import { AiJobsModule, AiRunner, ActionExecutor, CLOCK, REDIS, KernelModule, LOGGER, RunStore, WalletService, createLogger, resumeApproval, uuidv7, type ActionContext, type ResumeDeps } from '@appchat/core';
+import { AiJobsModule, AiRunner, ActionExecutor, assistantKnowledge, CLOCK, REDIS, KernelModule, LOGGER, RunStore, WalletService, createLogger, resumeApproval, uuidv7, type ActionContext, type ResumeDeps } from '@appchat/core';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
 import { agentSchema, agentTemplateSchema, agentToolsSchema, agentVersionSchema, approvalRowSchema, authzForRole, governanceSchema } from '@appchat/shared';
 import { z } from 'zod';
@@ -232,7 +232,7 @@ describe('duyệt (approval)', () => {
     const runner = ai.get(AiRunner, { strict: false });
     for (const decision of ['approval.approve', 'approval.reject'] as const) {
       const tpl = await newTemplate();
-      const run = await store.create({ kind: 'task', tier: 'standard', input: {}, title: `duyệt ${decision}` });
+      const run = await store.create({ kind: 'task', tier: 'standard', input: {}, title: `duyệt ${decision}`, knowledge: assistantKnowledge(h.user) });
       const out = await executor().execute(taskCtx(run.id), 'campaign.delete', { campaign_id: tpl });
       const apId = (out.data as { approval_id: string }).approval_id;
       const call0 = { toolCallId: 'c1', toolName: 'campaign__delete', input: { campaign_id: tpl } };

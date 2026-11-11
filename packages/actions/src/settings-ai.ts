@@ -70,7 +70,8 @@ export const kbUpdateSource = defineAction({
   risk: 'write',
   agentGrantable: false,
   undo: { windowSec: 86_400 },
-  invalidates: ['kb'],
+  // TIP-020c: đổi / xoá / nạp lại nguồn làm nháp / gợi ý AI phụ thuộc nguồn hết hiệu lực — Hộp thư đọc lại.
+  invalidates: ['kb', 'inbox'],
 });
 
 export const kbSearch = defineAction({
@@ -103,7 +104,8 @@ export const kbRemoveSource = defineAction({
   risk: 'delete',
   agentGrantable: false,
   undo: { windowSec: 2_592_000 },
-  invalidates: ['kb'],
+  // TIP-020c: đổi / xoá / nạp lại nguồn làm nháp / gợi ý AI phụ thuộc nguồn hết hiệu lực — Hộp thư đọc lại.
+  invalidates: ['kb', 'inbox'],
 });
 
 export const kbRefreshSource = defineAction({
@@ -116,7 +118,8 @@ export const kbRefreshSource = defineAction({
   permission: 'kb.manage',
   risk: 'write',
   agentGrantable: false,
-  invalidates: ['kb'],
+  // TIP-020c: đổi / xoá / nạp lại nguồn làm nháp / gợi ý AI phụ thuộc nguồn hết hiệu lực — Hộp thư đọc lại.
+  invalidates: ['kb', 'inbox'],
 });
 
 export const governanceUpdate = defineAction({

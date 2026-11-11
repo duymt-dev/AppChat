@@ -12,6 +12,8 @@ import { markDirty } from '../../kernel/outbox/outbox';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { appendRunEvent, type RunEventInput } from './run-events';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
+import { resumeGate } from '../kb/scope/recovery';
+import type { KnowledgeContext } from '../kb/scope/types';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | '$transaction'>;
 export type RunRow = NonNullable<Awaited<ReturnType<TenantDb['aiRun']['findUnique']>>>;
@@ -35,6 +37,8 @@ export interface NewRun {
   taskId?: string | null;
   dryRun?: boolean;
   maxCredits?: number | null;
+  /** TIP-020c: binding tri thức tin cậy (server dựng) — lưu cùng lúc tạo run, trước mọi tool. */
+  knowledge?: KnowledgeContext | null;
 }
 
 export interface StepRecord {
@@ -95,6 +99,11 @@ export class RunStore {
     return 'aiRootBudget' in (this.db as object) ? (this.db as unknown as MeteredDb) : null;
   }
 
+  /** TIP-020c: cổng tri thức trước mỗi lời gọi model — null = được chạy; mã dừng khi thiếu binding / nguồn đã dùng hết hiệu lực. */
+  async knowledgeGate(runId: string): Promise<string | null> {
+    return 'aiAgent' in (this.db as object) ? resumeGate(this.db as unknown as Parameters<typeof resumeGate>[0], runId) : null;
+  }
+
   /** Lý do dừng (TIP-019b §4.4) — ghi riêng, không đổi trạng thái. */
   async stopReason(runId: string, reason: string): Promise<void> {
     await this.db.aiRun.updateMany({ where: { id: runId }, data: { stopReason: reason.slice(0, 40) } });
@@ -123,6 +132,7 @@ export class RunStore {
         taskId: r.taskId ?? null,
         dryRun: r.dryRun ?? false,
         maxCredits: r.maxCredits ?? null,
+        ...(r.knowledge ? { knowledge: r.knowledge as object } : {}),
         status: 'queued',
         startedAt: now,
       },

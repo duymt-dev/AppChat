@@ -3,6 +3,7 @@
 // / gửi email khi `ai_mode = auto` → `copilot` trong CÙNG transaction với tin đi, tăng `ai_epoch` (lượt agent đang chạy thấy lệch →
 // không gửi). Ghi chú nội bộ không gửi, không đổi chế độ. Agent / hệ thống gửi không mạo danh người (không đổi chế độ).
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
+import { draftFields } from '../../ai/kb/scope/draft-binding';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 
@@ -32,8 +33,8 @@ export async function takeOverForHuman(tx: TenantTx, ctx: Pick<ActionContext, 'a
   if (!isHumanOperator(ctx)) return { conv: c, switched: false, agentInFlight: false };
   const cur = (await lockConversation(tx, c.id)) ?? c;
   // Tin agent (có fence) của hội thoại chưa xong — index message (conversation_id, created_at) + outbox message_id unique.
-  const agentOut = await tx.$queryRaw<{ id: string; status: string; message_id: string; payload: unknown }[]>`
-    SELECT o.id, o.status::text AS status, o.message_id, o.payload FROM outbox_message o JOIN message m ON m.id = o.message_id
+  const agentOut = await tx.$queryRaw<{ id: string; status: string; message_id: string; payload: unknown; knowledge_run_id: string | null }[]>`
+    SELECT o.id, o.status::text AS status, o.message_id, o.payload, o.knowledge_run_id FROM outbox_message o JOIN message m ON m.id = o.message_id
     WHERE m.conversation_id = ${cur.id}::uuid AND o.turn_fence IS NOT NULL AND o.status IN ('pending', 'dispatch_reserved', 'sending')`;
   const pending = agentOut.filter((o) => o.status === 'pending');
   const inFlight = agentOut.some((o) => o.status !== 'pending');
@@ -52,7 +53,7 @@ export async function takeOverForHuman(tx: TenantTx, ctx: Pick<ActionContext, 'a
       ...(switched ? { aiMode: 'copilot' } : {}),
       ...(cur.aiState === 'running' ? { aiState: 'idle' } : {}),
       // Bản nháp agent chưa gửi giữ lại cho người (không ghi đè nháp người đã có).
-      ...(draft && !cur.aiDraft ? { aiDraft: draft.slice(0, 4000) } : {}),
+      ...(draft && !cur.aiDraft ? draftFields(draft, pending.find((o) => o.knowledge_run_id)?.knowledge_run_id ?? null) : {}),
     },
   });
   return { conv, switched, agentInFlight: inFlight };

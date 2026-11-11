@@ -110,6 +110,10 @@
     "groupUnsupported": "Kênh này chưa hỗ trợ tạo nhóm"
   },
   "chat": {
+    "aiDraftRef": {
+      "stale": "Nháp AI đã cũ — nội dung tham khảo không còn dùng được. Hãy soạn lại hoặc gửi như tin tự viết.",
+      "revoked": "Tài liệu mà nháp AI dựa vào đã thay đổi hoặc bị thu hồi — nháp không được gửi. Hãy soạn lại."
+    },
     "back": "Quay lại danh sách",
     "search": "Tìm trong hội thoại",
     "toggle360": "Thu gọn hồ sơ",

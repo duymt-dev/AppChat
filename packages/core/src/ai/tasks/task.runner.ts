@@ -22,6 +22,7 @@ import type { Place } from './task-place';
 import { collectTargets, type Target } from './task-targets';
 import type { TaskRow } from './task.store';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
+import { agentKnowledge } from '../kb/scope/context';
 
 export interface TaskRunDeps {
   executor: ToolExecutor;
@@ -144,7 +145,7 @@ export async function runTask(d: TaskRunDeps, db: TenantDb, ws: string, job: { t
     narrow: (x) => narrowScope(x, t.dataScope),
     db,
   });
-  await db.aiRun.update({ where: { id: run.id }, data: { agentVersion: a.version, input: { goal: prompt.slice(0, 4000), ...(event ? { event: event.topic } : {}) } } });
+  await db.aiRun.update({ where: { id: run.id }, data: { agentVersion: a.version, input: { goal: prompt.slice(0, 4000), ...(event ? { event: event.topic } : {}) }, knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { commanderId: t.createdByUserId }) as object } });
   let r: RunResult;
   try {
     r = await d.runner.start(ws, store, run, { system: `${agentSystem(a.cfg)}\n\n${system}`, messages: [{ role: 'user', content: prompt }], tools, maxSteps: MAX_STEPS.agent, source: 'task' });

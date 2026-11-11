@@ -136,13 +136,14 @@ describe('schema + kết nối', () => {
 
 describe('một lượt agent (AC3)', () => {
   it('đủ tin cậy → gửi qua message.send (tin agent, run completed, trừ credit); ngữ cảnh có kho tri thức + bộ nhớ khách', async () => {
-    const kb = await act('kb.add_source', { name: 'Giờ mở cửa', text: '# Giờ mở cửa\n\nSpa Hương Sen mở cửa từ 8 giờ đến 20 giờ mỗi ngày, kể cả chủ nhật.', visibility: 'public' });
+    const kb = await act('kb.add_source', { name: 'Giờ mở cửa', text: '# Giờ mở cửa\n\nSpa Hương Sen mở cửa từ 8 giờ đến 20 giờ mỗi ngày, kể cả chủ nhật.', visibility: 'public', tags: ['FAQ'] });
     expect(kb.status, JSON.stringify(kb.body)).toBe(200);
     await ai_ingest();
     const db = await tenant();
     const k = await act('contact.create', { full_name: 'Chị Lan', phone: '0909000111' }, idem());
     await db.contactMemory.create({ data: { id: uuidv7(), contactId: k.body.data.result.contact_id, fact: 'Thích làm HIFU buổi tối', factNorm: normFact('Thích làm HIFU buổi tối') } });
-    const ag = await agent('CSKH');
+    // TIP-020c: agent chỉ dùng tài liệu trong phạm vi Builder (thẻ FAQ) — phạm vi rỗng = không tài liệu.
+    const ag = await agent('CSKH', { kb_scope: { folder_ids: [], tags: ['FAQ'] } });
     const id = await conversation(ag, ['Spa mở cửa mấy giờ vậy?'], { contactId: k.body.data.result.contact_id });
     const before = (await h.app.get(WalletService, { strict: false }).balance(h.ws)).total;
     seen.length = 0;
@@ -219,7 +220,7 @@ describe('một lượt agent (AC3)', () => {
     expect(await replyTurn(deps(script), h.ws, id)).toBe('suggested');
     expect(await outgoing(id)).toHaveLength(0);
     const t = threadSchema.parse((await get(`/conversations/${id}/messages`)).body);
-    expect(t.suggestion).toEqual({ text: 'Dạ cuối tuần còn 2 khung 9h và 15h ạ.', confidence: 81 });
+    expect(t.suggestion).toMatchObject({ text: 'Dạ cuối tuần còn 2 khung 9h và 15h ạ.', confidence: 81, ref: { generation: 0 } });
     const db = await tenant();
     expect(await db.conversationTag.count({ where: { conversationId: id } })).toBe(0);
     expect((await db.aiRun.findFirstOrThrow({ where: { conversationId: id } })).kind).toBe('suggestion');

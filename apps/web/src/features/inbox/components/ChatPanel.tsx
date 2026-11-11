@@ -7,6 +7,7 @@ import { useAction } from '@/shared/actions/useAction';
 import { useChatStyles } from '../styles/chat.styles';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useThreadWindow } from '../hooks/useThreadWindow';
+import { useAiDraftBinding } from '../hooks/useAiDraftBinding';
 import { ChatHeader } from './ChatHeader';
 import { Composer } from './Composer';
 import { ThreadViewport } from './ThreadViewport';
@@ -35,7 +36,7 @@ export function ChatPanel({
   const send = useAction('message.send');
   const handoff = useAction('conversation.handoff');
   const draft = useInboxUi((s) => s.draft);
-  const setDraft = (v: string) => useInboxUi.getState().set({ draft: v });
+  const bind = useAiDraftBinding();
   const [hideSuggest, setHideSuggest] = useState(false);
   const suggestion = w.suggestion;
   const plain = (s: string) => s.replace(/<\/?b>/g, '');
@@ -66,7 +67,7 @@ export function ChatPanel({
                     {t('handoff.take')}
                   </button>
                   {conv.ai_draft ? (
-                    <button type="button" className={cs.ghost} onClick={() => setDraft(conv.ai_draft ?? '')}>
+                    <button type="button" className={cs.ghost} onClick={() => bind.use(conv.ai_draft ?? '', conv.ai_draft_ref)} data-testid="handoff-use-draft">
                       {t('handoff.useDraft')}
                     </button>
                   ) : null}
@@ -88,8 +89,8 @@ export function ChatPanel({
                   className={cs.primary}
                   onClick={async () => {
                     const r = await send.run(
-                      { conversation_id: conv.id, text: plain(suggestion.text) },
-                      { silent: true },
+                      bind.withRef({ conversation_id: conv.id, text: plain(suggestion.text) }, suggestion.ref ?? null),
+                      { silent: true, onError: (e) => (bind.onError(e) ? (setHideSuggest(true), true) : false) },
                     );
                     if (r) setHideSuggest(true);
                   }}
@@ -100,7 +101,7 @@ export function ChatPanel({
                 <button
                   type="button"
                   className={cs.ghost}
-                  onClick={() => (setDraft(plain(suggestion.text)), setHideSuggest(true))}
+                  onClick={() => (bind.use(plain(suggestion.text), suggestion.ref), setHideSuggest(true))}
                 >
                   {t('suggest.edit')}
                 </button>
@@ -112,7 +113,7 @@ export function ChatPanel({
           />
         ) : null}
       </ThreadViewport>
-      <Composer conv={conv} channel={channel} draft={draft} onDraft={setDraft} />
+      <Composer conv={conv} channel={channel} draft={draft} onDraft={bind.edit} />
     </div>
   );
 }

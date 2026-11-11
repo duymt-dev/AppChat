@@ -23,7 +23,8 @@ import { AssistantDraftBar } from './AssistantDraftBar';
 import { ComposerPopovers } from './ComposerPopovers';
 import { InboxUtilityHost } from './InboxUtilityHost';
 import { FileChips, MentionPicker, mentionNeedle } from './ComposerExtras';
-import type { ChannelMeta, Conversation } from '../types';
+import type { ChannelMeta, Conversation } from '../types';import { useAiDraftBinding } from '../hooks/useAiDraftBinding';
+
 
 /** 3 icon trang trí còn lại sau khi bỏ 6 icon công cụ (REQ-C13) — không có onClick, giữ đúng số lượng của prototype. */
 const DECOR: IconName[] = ['ic-smile', 'ic-clip', 'ic-image'];
@@ -42,6 +43,7 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
   const ui = useInboxUi();
   const canReply = useCan('inbox.reply');
   const send = useAction('message.send');
+  const bind = useAiDraftBinding();
   const note = useAction('note.add');
   const aiMode = useAction('conversation.set_ai_mode');
   const me = useMe();
@@ -70,11 +72,12 @@ export function Composer({ conv, channel, draft, onDraft }: ComposerProps) {
     const ids = [...mentions.current].filter(([, name]) => text.includes(`@${name}`)).map(([id]) => id);
     const res = isNote
       ? await note.run({ conversation_id: conv.id, text, ...(ids.length ? { mentions: ids } : {}) }, { silent: true })
-      : await send.run({ conversation_id: conv.id, text, ...(ui.replyTo ? { reply_to_id: ui.replyTo.id } : {}), ...(withFiles ? { attachments: files.ids } : {}) }, { silent: true });
+      : await send.run(bind.withRef({ conversation_id: conv.id, text, ...(ui.replyTo ? { reply_to_id: ui.replyTo.id } : {}), ...(withFiles ? { attachments: files.ids } : {}) }), { silent: true, onError: bind.onError });
     setBusy(false);
     if (res) {
       xl.cancel();
       onDraft('');
+      bind.clear();
       ui.set({ replyTo: null });
       files.clear();
       mentions.current.clear();

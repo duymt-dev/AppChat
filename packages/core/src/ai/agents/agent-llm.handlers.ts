@@ -19,6 +19,7 @@ import { optimizeLocal, OPTIMIZE_SYSTEM } from './agent-draft';
 import { AgentDraftingService } from './drafting/providers';
 import type { DraftOutput } from './drafting/result';
 import { draftPreview, optimizePreview, testPreview } from './previews/agent-llm.handlers.preview';
+import { builderKnowledge } from '../kb/scope/context';
 
 const need = <T>(v: T | null, what: string): T => {
   if (!v) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '019' }, `${what} chưa cấu hình`);
@@ -59,7 +60,7 @@ export class AgentTestHandler extends LlmHandler implements Handler<ActionInput<
     const agent = { id: saved?.id ?? ctx.authz.userId, toolIds: cfg.tools };
     const connected = await connectedKeys(db);
     const r = await runOnce(db, runner, () => this.clock.now(), ctx.workspaceId, {
-      run: { kind: 'agent_reply', title: cfg.name || 'agent.test', tier: cfg.model_tier, agentId: saved?.id ?? null, agentVersion: saved?.publishedVersion ?? null, initiatedByUserId: userOf(ctx), dryRun: true },
+      run: { kind: 'agent_reply', title: cfg.name || 'agent.test', tier: cfg.model_tier, agentId: saved?.id ?? null, agentVersion: saved?.publishedVersion ?? null, initiatedByUserId: userOf(ctx), dryRun: true, knowledge: builderKnowledge(cfg, userOf(ctx) ?? ctx.authz.userId, { channel: !!input.channel, agentId: saved?.id ?? null }) },
       parent: await trustedParent(db, ctx, 'agent.test'),
       system: input.channel ? `${agentSystem(cfg)}\n\n# MÔ PHỎNG KÊNH\nKhách đang nhắn qua kênh: ${input.channel}. Trả lời đúng phong cách kênh này.` : agentSystem(cfg),
       prompt: input.text,

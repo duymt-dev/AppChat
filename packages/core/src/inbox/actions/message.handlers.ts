@@ -22,6 +22,7 @@ import { bindGreeting, greetingPurpose } from '../services/greeting-purpose';
 import { assertTurnWritable } from '../../ai/reply/send-fence';
 import { me, updatedEvent } from './kit';
 import * as pv from './previews/message.handlers.preview';
+import { verifyDraftRef } from '../../ai/kb/scope/draft-binding';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 const SEND_KINDS = new Set(['text', 'image', 'file', 'sticker', 'audio', 'card']);
@@ -66,6 +67,8 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
     if (turn) await assertTurnWritable(tx, c.id, turn);
     // TIP-022b: lời chào chỉ khi lượt agent + ràng run / tin nguồn đã lưu; ghi id tin lên receipt cùng transaction.
     const purpose = turn ? await greetingPurpose(tx, ctx, c.id) : undefined;
+    // TIP-020c: nội dung phụ thuộc nguồn tri thức — tin agent theo run đang gửi, tin người theo nháp / gợi ý AI đã kiểm.
+    const knowledgeRunId = turn && ctx.runId ? ctx.runId : await verifyDraftRef(tx, c, input.ai_draft_ref);
     // Tệp đính kèm (TIP-025): kiểm kênh hỗ trợ trước khi đổi tệp thành link ký.
     const ids = input.attachments ?? [];
     if (ids.length) sendKindOf(this.registry, c.channelType, [{ mime: 'application/octet-stream' }]);
@@ -78,6 +81,7 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
       sender: await senderOf(ctx, this.members, tx),
       replyToId: input.reply_to_id ?? null,
       turn,
+      knowledgeRunId,
       ...(purpose ? { purpose: 'greeting' as const } : {}),
       now: this.clock.now(),
     });
