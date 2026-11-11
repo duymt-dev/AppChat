@@ -11,7 +11,7 @@ import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { ChannelSendQueue } from '../../../channels/public';
-import { CrmMembers, actorUserId, applyStageRule, writeTimeline } from '../../../crm/public';
+import { CrmMembers, actorUserId, applyStageRule, lockStageFamilyOf, writeTimeline } from '../../../crm/public';
 import { enqueueOutgoing } from '../../../inbox/public';
 import { lockQuote, visibleQuote } from '../quote-access';
 import { freezeQuotePdf, renderQuotePdf } from '../services/quote-doc';
@@ -81,6 +81,7 @@ export class QuoteSendHandler implements Handler<SendIn, { quote_id: string; val
 
   async execute(ctx: ActionContext, input: SendIn, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<{ quote_id: string; valid_until: string }>> {
     const p = prepared as Prepared;
+    await lockStageFamilyOf(tx, 'quote', input.quote_id);
     const q = await lockQuote(tx, ctx.authz, input.quote_id);
     const to = assertTransition(QUOTE_FLOW, q.status, 'quote.send');
     if (q.status === 'draft' && (await reasonsOf(tx, q, ctx)).length) throw new AppError('QUOTE_NEEDS_APPROVAL', 409, { quote_id: 'over_threshold' });

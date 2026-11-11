@@ -4,7 +4,7 @@
 import { QUOTE_FLOW, dayEndAfter, daysLeft, nextState } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { OutboxEventInput } from '../../kernel/outbox/outbox';
-import { writeTimeline } from '../../crm/public';
+import { lockStageFamilyOf, writeTimeline } from '../../crm/public';
 import { closeLost } from '../quotes/actions/quote-decide.handlers';
 import type { SystemOutput } from '@appchat/actions';
 
@@ -35,6 +35,7 @@ export async function recordView(tx: TenantTx, id: string, now: Date): Promise<E
 
 /** Quá valid_until HIỆN TẠI → expired (đã chốt / gia hạn giữa lúc quét và lúc xử lý → no_effect). */
 export async function expireQuote(tx: TenantTx, id: string, now: Date): Promise<Effect> {
+  await lockStageFamilyOf(tx, 'quote', id);
   const q = await lock(tx, id);
   if (!q || q.deletedAt || !q.validUntil || q.validUntil >= now) return none(id, 'not_due');
   const to = nextState(QUOTE_FLOW, q.status, 'quote.expire');

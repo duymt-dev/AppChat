@@ -11,7 +11,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { signedFileUrl } from '../../kernel/files/signed-url';
 import { ChannelSendQueue } from '../../channels/public';
-import { CrmMembers, applyStageRule, writeTimeline } from '../../crm/public';
+import { CrmMembers, applyStageRule, lockStageFamilyOf, writeTimeline } from '../../crm/public';
 import { enqueueOutgoing, type Outgoing } from '../../inbox/public';
 import { postToCustomer } from '../../sales/public';
 import { ContractDeps } from '../services/contract-deps';
@@ -36,6 +36,8 @@ export class ContractPublicSignHandler implements Handler<ActionInput<typeof con
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contractPublicSign>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const cap = requireSigning(ctx, 'contract.public_sign', input.contract_id);
+    // TIP-015g: họ khách chuẩn trước lần thử / hợp đồng (thứ tự khoá toàn cục); đồng hồ đọc sau khoá.
+    await lockStageFamilyOf(tx, 'contract', cap.contractId);
     const now = this.clock.now();
     await tx.$queryRaw`SELECT 1 FROM contract_signing_attempt WHERE id = ${input.attempt_id}::uuid FOR UPDATE`;
     const a = await tx.contractSigningAttempt.findUnique({ where: { id: input.attempt_id } });
