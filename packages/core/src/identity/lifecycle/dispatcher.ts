@@ -11,6 +11,7 @@ import type { Redis } from 'ioredis';
 import { TenantProvisioner, type DbEnv, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { ENC_KEY } from '../../kernel/crypto';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
@@ -47,6 +48,7 @@ export class TenantQueueDispatcher implements OnApplicationBootstrap, OnApplicat
     @Optional() @Inject(LIFECYCLE_INFRA) private readonly infra: LifecycleInfra | null,
     @Optional() @Inject(LIFECYCLE_QUEUE) private readonly wake: LifecycleWake | null,
     @Optional() @Inject(STORAGE) private readonly files: Storage | null,
+    @Optional() @Inject(ENC_KEY) private readonly encKey: Buffer | null,
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
   ) {}
@@ -68,6 +70,7 @@ export class TenantQueueDispatcher implements OnApplicationBootstrap, OnApplicat
         kv: redis,
         now: () => this.clock.now(),
         seedDb,
+        encKey: this.encKey,
         settleMs: 2_500,
         invalidate: (ws) => this.resolver!.invalidate(ws),
         stopChannels: async (ws) => {

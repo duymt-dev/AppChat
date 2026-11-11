@@ -1,10 +1,14 @@
 // Chạy một lệnh `restore` (TIP-041 §3): manifest mới nhất (chưa purge) của workspace → khoá cluster → DB tạm đúng thế hệ → pg_restore từ
 // luồng giải mã → tenant-migrate lên version hiện tại → đổi tên sang DB tenant → seed thiếu (idempotent) → kiểm (bảng, version, role app
-// đọc được) → registry `active` (CAS generation) + outbox `workspace.ready`. Không provision template rồi đè; không đụng bản lưu trữ gốc;
-// không đổi ví / trial / gói (chỉ DB tenant). Lỗi: DB tạm của đúng thế hệ bị dọn, workspace giữ `restoring` để thử lại có kiểm soát.
+// đọc được) → **041 restore gate (TIP-015c §2.5.6, pha 5)**: đối chiếu journal nền tảng đã acknowledged với privacy_operation vừa khôi
+// phục — thiếu một revision → 503, workspace KHÔNG chuyển active (chặn bản lưu trữ cũ hơn một lượt "Quên khách" mở lại dữ liệu đã quên)
+// → registry `active` (CAS generation) + outbox `workspace.ready`. Không provision template rồi đè; không đụng bản lưu trữ gốc; không đổi
+// ví / trial / gói (chỉ DB tenant). Lỗi: DB tạm của đúng thế hệ bị dọn, workspace giữ `restoring` để thử lại có kiểm soát (gồm cả 503 của
+// restore gate — thử lại không mở nửa vời, không có đường "bỏ qua gate rồi active sau").
 import type { PlatformDb, TenantDb } from '@appchat/db';
-import { OperationLock, TenantContexts, assertTenantDbName, pgConnFromUrl, restoreDatabase, tenantDbName, verifyRestored, type TenantDbResolver } from '@appchat/db';
+import { OperationLock, TenantContexts, assertTenantDbName, pgConnFromUrl, pgQuery, restoreDatabase, tenantDbName, verifyRestored, withDatabase, type TenantDbResolver } from '@appchat/db';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
+import { assertRestoreCurrent } from '../../kernel/privacy/restore-gate';
 import type { KeyValueStore } from '../../kernel/redis';
 import { runTenantSeeds } from '../../kernel/tenant-seeds';
 import type { LifecycleJobs } from './jobs';
@@ -19,6 +23,8 @@ export interface RestoreRunDeps {
   kv: KeyValueStore;
   now: () => Date;
   seedDb: (dbName: string, fn: (db: TenantDb) => Promise<unknown>) => Promise<void>;
+  /** APP_ENC_KEY (DI ở dispatcher) — giải mã capsule journal cho restore gate. Thiếu mà workspace CÓ revision journal → 503 fail closed. */
+  encKey?: Buffer | null;
 }
 
 export class NoArchiveError extends Error {
@@ -60,6 +66,10 @@ export async function runRestore(d: RestoreRunDeps, job: LifecycleJobRow, owner:
     let s = Date.now();
     await d.seedDb(dbName, (db) => runTenantSeeds(db, { workspaceId: job.workspaceId, now: d.now() }));
     await verifyRestored(d.infra.tenantAppUrl, dbName, ws.dbHost, m, r.schemaVersion);
+    // 041 restore gate (TIP-015c §2.5.6): DB vừa khôi phục có thể là bản lưu trữ cũ hơn một lượt "Quên khách" đã acknowledged sau đó —
+    // đọc trực tiếp qua pgQuery (resolver chưa mở được, workspace còn `restoring`), KHÔNG qua resolver/cache.
+    const tenantAppUrl = withDatabase(d.infra.tenantAppUrl, assertTenantDbName(dbName), ws.dbHost);
+    await assertRestoreCurrent(d.platform, d.encKey ?? null, (sql, params) => pgQuery(tenantAppUrl, sql, params), job.workspaceId);
     const metrics = { queue_ms: queueMs, ...r.metrics, checks_ms: Date.now() - s, run_ms: Date.now() - started };
 
     await d.jobs.step(job, owner, 'activate', { metrics });
