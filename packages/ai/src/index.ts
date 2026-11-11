@@ -6,6 +6,7 @@ export { classifyAttemptError } from './gateway/attempts';
 export { StructuredError, assertStructuredRequest, parseStructured, schemaError } from './gateway/structured';
 export { OUTPUT_TOKENS_DEFAULT, OUTPUT_TOKENS_MAX, REQUEST_MAX_BYTES, outputTokens, requestBytes } from './gateway/limits';
 export { callKey, resumeMessages, toJson } from './gateway/messages';
+export { SUPERSEDED, checkpointBatch, resumeFromCheckpoint, type PlanCheckpoint } from './gateway/plan-checkpoint';
 export { hydrateMessages, inputRefsOf, isInputRef, stripMedia, type HydratedPart, type InputRefPart, type InputResolver } from './gateway/input-parts';
 export { LlmRouter, isFallbackError, type RouteRow, type RouterConfigSource } from './router/router';
 export { buildModel, type ProviderCapabilities, type ProviderConfig, type ProviderKind } from './router/providers';

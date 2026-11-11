@@ -1543,6 +1543,18 @@
       "title": "View Cowork plan progress",
       "desc": "Read the real status of a plan (which steps are done, waiting, failed) — not the model's claim."
     },
+    "plan_request_edit": {
+      "title": "Pause plan to edit",
+      "desc": "Stop new work on the plan, let running work finish, then mark it paused."
+    },
+    "plan_update": {
+      "title": "Edit plan",
+      "desc": "Update, add, remove or reorder steps that have not started; started steps stay as they are."
+    },
+    "plan_resume": {
+      "title": "Resume plan",
+      "desc": "Continue the edited plan from where it paused, with the same budget and current permissions."
+    },
     "plan_reusable": {
       "title": "Reusable plan suggestions",
       "desc": "List your own prior plan structures you can reuse — action/step names only, no old values or results."

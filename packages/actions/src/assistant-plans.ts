@@ -1,7 +1,8 @@
 // Kế hoạch Cowork phiên bản hoá (TIP-023d §1.3): assistant.use + sở hữu phiên/run hiện hành, không cấp quyền mới, không agentGrantable
 // (model không tự propose/edit/resume thay người — plan là điều phối của CHÍNH người dùng qua Trợ lý, không phải việc giao cho agent).
 // Pha 1: propose (tạo plan draft mới, chốt ngay ở revision 1) + get (đọc projected status) + reusable (gợi ý tái dùng, top N, chỉ cấu
-// trúc chung — không giá trị/receipt). plan_update/plan_resume/plan_request_edit/plan_reuse (ghi) thêm ở pha sau (§3, §4).
+// trúc chung — không giá trị/receipt). Pha 5 (§3): request_edit / update / resume — điều khiển của NGƯỜI (model không gọi được: ẩn khỏi
+// Trợ lý, agentGrantable=false), mọi lệnh kèm if_revision + Idempotency-Key. plan_reuse (ghi) ở pha sau (§4).
 import { z } from 'zod';
 import { defineAction } from './define';
 import { PLAN_INSTRUCTIONS_MAX, PLAN_MAX_DEPENDS, PLAN_MAX_STEPS, PLAN_TITLE_MAX } from '@appchat/shared';
@@ -64,6 +65,60 @@ export const assistantPlanReusable = defineAction({
   output: z.object({ candidates: z.array(z.object({ id: z.string(), source_plan_id: z.string(), source_revision: z.number().int(), generic_title: z.string(), step_count: z.number().int() })) }),
   permission: 'assistant.use',
   risk: 'read',
+  agentGrantable: false,
+  invalidates: [],
+});
+
+const planControl = { plan_id: uuid, if_revision: z.number().int().min(1) };
+const planControlOut = z.object({ plan_id: z.string(), revision: z.number().int(), plan_epoch: z.number().int(), phase: z.string() });
+
+export const assistantPlanRequestEdit = defineAction({
+  id: 'assistant.plan_request_edit',
+  module: 'ai',
+  title: 'actions.assistant.plan_request_edit.title',
+  description: 'Pause a running Cowork plan to edit it: stops new admissions (plan_epoch + 1), lets already admitted effects settle, then the plan becomes paused. Asking again returns the same epoch. Example: {"plan_id":"0190f000-0000-7000-8000-000000000011","if_revision":1}',
+  input: z.object(planControl),
+  output: planControlOut,
+  permission: 'assistant.use',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: [],
+});
+
+const stepPatch = z.object({
+  title: z.string().min(1).max(PLAN_TITLE_MAX).optional(),
+  instructions: z.string().max(PLAN_INSTRUCTIONS_MAX).optional(),
+  action_or_agent_id: z.string().optional(),
+});
+const planUpdateOp = z.discriminatedUnion('op', [
+  z.object({ op: z.literal('update'), step_id: uuid, patch: stepPatch }),
+  z.object({ op: z.literal('remove'), step_id: uuid }),
+  z.object({ op: z.literal('add'), after_step_id: uuid.nullable(), step: planStepInput.omit({ depends_on: true }).extend({ depends_on: z.array(uuid).max(PLAN_MAX_DEPENDS).optional() }) }),
+  z.object({ op: z.literal('move'), step_id: uuid, after_step_id: uuid.nullable() }),
+]);
+
+export const assistantPlanUpdate = defineAction({
+  id: 'assistant.plan_update',
+  module: 'ai',
+  title: 'actions.assistant.plan_update.title',
+  description: 'Edit a paused Cowork plan: update / add / remove / reorder steps that have not started. Steps already admitted or finished cannot change. Saves a new revision; the plan stays paused until resumed. Example: {"plan_id":"0190f000-0000-7000-8000-000000000011","if_revision":1,"ops":[{"op":"remove","step_id":"0190f000-0000-7000-8000-000000000012"}]}',
+  input: z.object({ ...planControl, ops: z.array(planUpdateOp).min(1).max(PLAN_MAX_STEPS * 2) }),
+  output: planControlOut,
+  permission: 'assistant.use',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: [],
+});
+
+export const assistantPlanResume = defineAction({
+  id: 'assistant.plan_resume',
+  module: 'ai',
+  title: 'actions.assistant.plan_resume.title',
+  description: 'Resume a paused Cowork plan from its checkpoint with the same run budget and step counters; current permissions are re-checked on every later action. Example: {"plan_id":"0190f000-0000-7000-8000-000000000011","if_revision":2}',
+  input: z.object(planControl),
+  output: planControlOut,
+  permission: 'assistant.use',
+  risk: 'write',
   agentGrantable: false,
   invalidates: [],
 });

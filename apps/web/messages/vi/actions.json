@@ -1543,6 +1543,18 @@
       "title": "Xem tiến độ kế hoạch Cowork",
       "desc": "Đọc trạng thái thật của một kế hoạch (bước nào đã xong, đang chờ, lỗi) — không phải lời model."
     },
+    "plan_request_edit": {
+      "title": "Dừng kế hoạch để sửa",
+      "desc": "Dừng nhận việc mới của kế hoạch, đợi việc đang chạy xong rồi chuyển sang đã dừng."
+    },
+    "plan_update": {
+      "title": "Sửa kế hoạch",
+      "desc": "Sửa, thêm, bỏ, dời các bước chưa bắt đầu; bước đã chạy giữ nguyên."
+    },
+    "plan_resume": {
+      "title": "Tiếp tục kế hoạch",
+      "desc": "Chạy tiếp kế hoạch đã sửa từ điểm dừng, cùng ngân sách và quyền hiện hành."
+    },
     "plan_reusable": {
       "title": "Gợi ý kế hoạch tái dùng",
       "desc": "Danh sách cấu trúc kế hoạch cũ của chính bạn có thể dùng lại — chỉ tên action/bước, không giá trị/kết quả cũ."

@@ -36,6 +36,7 @@ import { ASSISTANT_ARMED_KEY, failTurn } from './genui/recovery';
 import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
 import { bindingOf } from './plans/driver';
+import { planGateOf, recordCheckpoint } from './plans/checkpoint';
 import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
@@ -95,9 +96,11 @@ async function tierOf(d: Pick<AssistantDeps, 'planKey'>, db: TenantDb, ws: strin
 
 type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery' | 'storage'>;
 
-function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
+export function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
   const inputs = t.sessionId ? inputResolver(db, d.storage ?? null, { userId: t.userId, sessionId: t.sessionId, now: d.now }) : null;
-  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs };
+  // TIP-023d §3.2: cổng sửa kế hoạch của run gốc (Cowork) — người bấm "Sửa kế hoạch" thì lượt dừng ở checkpoint trước lời gọi kế.
+  const planGate = t.mode === 'cowork' ? planGateOf(db, t.runId) : undefined;
+  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs, ...(planGate ? { planGate } : {}) };
 }
 
 /** Dựng lại system + tool của run `assistant` từ `ai_run.input` với quyền HIỆN TẠI của người ra lệnh (job `ai-resume`). */
@@ -109,7 +112,7 @@ export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow
 }
 
 /** Sự kiện của một đoạn chạy: ui_command (bước tool `ui` từ `fromIdx`), cây GenUI, chữ, thẻ xác nhận / lỗi. Lưu thành tin của Trợ lý. */
-async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | 'now'>, db: TenantDb, run: RunRow, r: RunResult, fromIdx: number, locale: string, sessionId: string, viewer: { ws: string; authz: AuthzContext }): Promise<TurnEventDto[]> {
+export async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | 'now'>, db: TenantDb, run: RunRow, r: RunResult, fromIdx: number, locale: string, sessionId: string, viewer: { ws: string; authz: AuthzContext }): Promise<TurnEventDto[]> {
   const m = serverMessages(locale).ai.assistant;
   const events: TurnEventDto[] = [];
   const parts: Part[] = [];
@@ -141,6 +144,12 @@ async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | '
       events.push(card);
       parts.push({ type: 'card', card, status: 'pending' });
     }
+  } else if (r.status === 'waiting_operation' && r.plan) {
+    // TIP-023d §3.3: dừng để sửa kế hoạch — checkpoint + thử xả; chữ hệ thống báo đang chờ người sửa (không phải lỗi).
+    await recordCheckpoint(db as never, run.id, r.plan, d.now());
+    const note = serverMessages(locale).ai.assistant.planPaused;
+    events.push({ type: 'delta', text: note });
+    parts.push({ type: 'text', text: note });
   } else if (r.status === 'failed' || r.status === 'cancelled') {
     const code = r.error?.code ?? r.status.toUpperCase();
     // Mã lỗi chỉ ở `code` của sự kiện + log / ai_run.error; câu hiện cho người dùng không kèm mã (DC-133).
@@ -254,7 +263,8 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
     const events = await eventsOf(d, db, run, r, 0, input.locale, input.session_id, { ws, authz });
     await finishStream(live, events, r, input.session_id);
     // Chờ run con: `waiting_for` có kiểu (lý do + run con) để khôi phục / giao diện biết đang chờ gì (DC-380).
-    await lease.finish(execStateOf(r.status), r.paused?.outcome.kind === 'waiting_child' ? { reason: 'waiting_child', child_run_id: r.paused.outcome.runId } : undefined);
+    const waitingFor = r.paused?.outcome.kind === 'waiting_child' ? { reason: 'waiting_child', child_run_id: r.paused.outcome.runId } : r.plan ? { reason: 'plan_edit', plan_epoch: r.plan.epoch } : undefined;
+    await lease.finish(execStateOf(r.status), waitingFor);
     return { session_id: input.session_id, run_id: run.id, events };
   } catch (e) {
     await live.close().catch(() => undefined);
@@ -290,10 +300,11 @@ const armEvents = async (d: Pick<AssistantDeps, 'kv'>, ws: string) => {
 };
 
 /** Phát phần còn lại của lượt lên luồng (delta đã phát trực tiếp) + `done`. */
-async function finishStream(live: RunStream, events: TurnEventDto[], r: RunResult, sessionId: string): Promise<void> {
+export async function finishStream(live: RunStream, events: TurnEventDto[], r: RunResult, sessionId: string): Promise<void> {
   for (const e of events) if (e.type !== 'delta') await live.emit(e);
   // Chờ run con (TIP-019b §4.3) = `waiting_external` của luồng 023c — không thêm trạng thái SSE thứ hai.
-  const status = r.status === 'waiting_child' ? 'waiting_external' : r.status;
+  // Chờ sửa kế hoạch (TIP-023d §3.3, `waiting_operation` lý do plan_edit) cũng là chờ ngoài theo nghĩa luồng — người bấm Tiếp tục.
+  const status = r.status === 'waiting_child' || r.status === 'waiting_operation' ? 'waiting_external' : r.status;
   await live.emit({ type: 'done', status, session_id: sessionId });
   await live.close();
 }

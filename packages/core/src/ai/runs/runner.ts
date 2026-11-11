@@ -2,7 +2,7 @@
 // (DB nền tảng, idempotent `runId:stepIdx`) rồi mới ghi `ai_run_step(llm)` + `credits_used` ở DB tenant; bước tool ghi
 // `ai_run_step(tool)`. Tool cần người → `waiting_approval` + `state` (không giữ RAM); `resume` nạp state ở bất kỳ process nào.
 // Huỷ: `run.cancel` đổi trạng thái cả cây + phát lệnh huỷ (pub/sub) → runner đang chạy run đó dừng ở bước kế tiếp.
-import { resumeMessages, type AgentEngine, type InputResolver, type ResponseSchema, type PausedState, type RunEvent, type RunMessage, type ToolOutcome, type ToolSpec } from '@appchat/ai';
+import { resumeMessages, type AgentEngine, type PlanCheckpoint, type InputResolver, type ResponseSchema, type PausedState, type RunEvent, type RunMessage, type ToolOutcome, type ToolSpec } from '@appchat/ai';
 import { recordLlmError, recordLlmUsage } from '../../kernel/metrics/ai';
 import { AppError, utcToWall } from '@appchat/shared';
 import type { CreditMeter } from '../../billing/public';
@@ -28,6 +28,8 @@ export interface RunSpec {
   onEvent?: (e: RunEvent) => void;
   /** TIP-023f §3.1: dựng tham chiếu tệp trước mỗi lời gọi thật (quyền / nguồn hiện hành) — dùng cho lượt đầu, chạy tiếp, xác nhận. */
   inputs?: InputResolver | null;
+  /** TIP-023d §3.2: cổng sửa kế hoạch (engine hỏi trước mỗi lời gọi model / tool). */
+  planGate?: () => Promise<{ paused: number } | null>;
   /** TIP-021b §2.2: sinh theo schema do server sở hữu (không tool). */
   responseSchema?: ResponseSchema;
   /** TIP-021b §2.3 (mẫu 019c): chữ model là kết quả RIÊNG — không ghi `output` công khai của run; người gọi lưu vào binding và công bố sau
@@ -37,12 +39,14 @@ export interface RunSpec {
 
 export interface RunResult {
   /** `waiting_child` (TIP-019b §4.3): run con đang chờ — run này dừng, chạy tiếp khi con kết thúc; không phải xong. */
-  status: 'completed' | 'failed' | 'cancelled' | 'waiting_approval' | 'waiting_child';
+  /** `waiting_operation` (TIP-023d §3.3): dừng để sửa kế hoạch — `plan` mang checkpoint; chạy tiếp chỉ qua plan_resume. */
+  status: 'completed' | 'failed' | 'cancelled' | 'waiting_approval' | 'waiting_child' | 'waiting_operation';
   text: string;
   creditsUsed: number;
   stopReason?: string;
   error?: { code: string; message: string };
   paused?: Extract<RunEvent, { type: 'paused' }>;
+  plan?: PlanCheckpoint;
 }
 
 const WEEKDAY_VI = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ nhật'];
@@ -106,6 +110,18 @@ export class AiRunner {
     return this.loop(ws, store, run, { ...spec, messages: [] }, resumeMessages(state, outcome), state.stepIdx);
   }
 
+  /**
+   * TIP-023d §3.6: chạy tiếp run `waiting_operation` (lý do `plan_edit`) từ checkpoint — cùng bộ đếm bước / ngân sách / root, tin kế hoạch
+   * mới nối cuối. Claim CAS: đã chạy tiếp / huỷ → null. Không phát lại tool của batch cũ.
+   */
+  async continuePlan(ws: string, base: RunStore, runId: string, messages: RunMessage[], startStep: number, spec: Omit<RunSpec, 'messages'>): Promise<RunResult | null> {
+    const store = base.observed(ws, this.d.kv);
+    const run = await store.get(runId);
+    if (!run || run.status !== 'waiting_operation') return null;
+    if (!(await store.claim(run.id, ['waiting_operation']))) return null;
+    return this.loop(ws, store, run, { ...spec, messages: [] }, messages, startStep);
+  }
+
   private async loop(ws: string, store: RunStore, run: RunRow, spec: RunSpec, messages: RunMessage[], startStep: number): Promise<RunResult> {
     const ac = new AbortController();
     this.live.set(run.id, ac);
@@ -146,6 +162,7 @@ export class AiRunner {
                   await gateKnowledge(store, run.id);
                 },
                 ...metered,
+                ...(spec.planGate ? { planGate: spec.planGate } : {}),
               }
             : {
                 beforeStep: async () => {
@@ -164,6 +181,7 @@ export class AiRunner {
                   recordLlmUsage({ provider: u.provider, model: u.model, purpose: spec.source ?? run.kind, tokensIn: u.tokensIn, tokensOut: u.tokensOut, latencyMs: u.latencyMs, credits: charged.credits });
                   return { credits: charged.credits };
                 },
+                ...(spec.planGate ? { planGate: spec.planGate } : {}),
               },
         },
         ac.signal,
@@ -186,6 +204,10 @@ export class AiRunner {
           }
           await store.pause(run.id, e.state, e.outcome.kind === 'needs_approval' ? e.outcome.approvalId : undefined);
           return { status: 'waiting_approval', text, creditsUsed, paused: e };
+        } else if (e.type === 'plan_paused') {
+          // TIP-023d §3.3: run gốc giữ KHÔNG kết thúc — `waiting_operation` lý do `plan_edit`; checkpoint đủ chạy tiếp (không phát lại batch).
+          await store.wait(run.id, 'waiting_operation', { wait_reason: 'plan_edit', plan_checkpoint: e.checkpoint });
+          return { status: 'waiting_operation', text, creditsUsed, plan: e.checkpoint };
         } else if (e.type === 'error' && (e.code === 'CANCELLED' || e.code === 'BUDGET')) {
           // TIP-019b: cổng gốc từ chối lời gọi / tool kế tiếp — dừng sạch như engine tự dừng (bảng trạng thái thật ở pha 2).
           const reason = e.code === 'CANCELLED' ? 'cancelled' : 'budget';

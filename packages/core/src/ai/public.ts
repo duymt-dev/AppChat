@@ -97,6 +97,7 @@ export { parseRecordIntent, RECORD_ENTITY_DEFS } from './assistant/record-intent
 export { resolveRecord, type RecordRef as RecordIntentRef } from './assistant/record-intent/context';
 export { proposeForRecord, readProposal, recoverProposals } from './assistant/record-intent/recovery';
 export { PROPOSAL_MARK, proposalSchema } from './assistant/record-intent/proposal';
+export { continuePlanTurn } from './assistant/plans/continue';
 export { assistantTurn, assistantConfirm, assistantResumeSpec, prepareTurn, runTurn, replayTurn, TURN_REQUESTED, type AssistantDeps, type TurnRequest, type ConfirmRequest, type PreparedTurn } from './assistant/turn.service';
 export { findActions, briefSchema, allowedFor as assistantAllows, modeAllows, SYSTEM_ONLY, FIND_LIMIT, type AssistantMode, type FoundAction } from './assistant/catalog';
 export { confirmCard, lookOf } from './assistant/card';

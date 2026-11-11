@@ -3,6 +3,7 @@ import { Inject, Optional, type OnModuleInit } from '@nestjs/common';
 import { ActionExecutor } from '../../../kernel/actions/executor';
 import { AssistantAgentChoicesHandler } from './agent-choices';
 import { planExecutionBinding } from './bindings';
+import { AssistantPlanRequestEditHandler, AssistantPlanResumeHandler, AssistantPlanUpdateHandler } from './control.handlers';
 import { AssistantPlanProposeHandler } from './handlers';
 import { AssistantPlanGetHandler, AssistantPlanReusableHandler } from './read';
 
@@ -15,4 +16,4 @@ export class PlanBindingInstaller implements OnModuleInit {
   }
 }
 
-export const ASSISTANT_PLAN_PROVIDERS = [AssistantPlanProposeHandler, AssistantPlanGetHandler, AssistantPlanReusableHandler, AssistantAgentChoicesHandler, PlanBindingInstaller] as const;
+export const ASSISTANT_PLAN_PROVIDERS = [AssistantPlanProposeHandler, AssistantPlanGetHandler, AssistantPlanReusableHandler, AssistantAgentChoicesHandler, AssistantPlanRequestEditHandler, AssistantPlanUpdateHandler, AssistantPlanResumeHandler, PlanBindingInstaller] as const;

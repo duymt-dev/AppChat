@@ -123,6 +123,11 @@ export interface RunHooks {
   afterAttempt?(a: AttemptInfo, outcome: AttemptOutcome): Promise<{ credits: number }>;
   /** TIP-019b: trước MỖI tool (kể cả meta) — kiểm lại ví / ngân sách gốc / huỷ. Ném → bỏ tool chưa chạy, run dừng. */
   beforeTool?(stepIdx: number, toolName: string): Promise<void>;
+  /**
+   * TIP-023d §3.2: cổng sửa kế hoạch — hỏi trước mỗi lời gọi model và trước mỗi tool. `{ paused: epoch }` → engine dừng ở checkpoint
+   * (`plan_paused`): kết quả đã có giữ nguyên, lời gọi còn lại thành `superseded`. Vắng / null → chạy tiếp.
+   */
+  planGate?(): Promise<{ paused: number } | null>;
 }
 
 export interface RunRequest {
@@ -148,6 +153,18 @@ export interface RunRequest {
 
 export type StopReason = 'stop' | 'max_steps' | 'loop_guard' | 'budget' | 'cancelled';
 
+/** Checkpoint dừng-để-sửa kế hoạch (TIP-023d §3.2) — plan-checkpoint.ts dựng. */
+export interface PlanCheckpoint {
+  /** Tin tới hết batch (tin assistant có tool-call + tin tool đủ kết quả) — đủ để chạy tiếp ở process khác. */
+  messages: RunMessage[];
+  /** Bước model kế tiếp (bộ đếm giữ nguyên qua dừng). */
+  stepIdx: number;
+  /** Lời gọi bị thay bởi revision mới (chưa chạy) — chỉ id/tên, không input. */
+  superseded: { toolCallId: string; toolName: string }[];
+  /** Epoch kế hoạch lúc dừng (chạy tiếp chỉ khi đúng epoch này đã được resume). */
+  epoch: number;
+}
+
 export type RunEvent =
   | { type: 'delta'; stepIdx: number; text: string }
   /** Input tool đang đến dần (chưa kiểm, chưa chạy) — chỉ để dựng khung xương GenUI; không bao giờ là lệnh. */
@@ -156,6 +173,8 @@ export type RunEvent =
   | { type: 'tool_result'; stepIdx: number; call: ToolCallRef; outcome: ToolOutcome; latencyMs: number }
   | { type: 'usage'; usage: UsageInfo; credits: number }
   | { type: 'paused'; state: PausedState; outcome: Extract<ToolOutcome, { kind: 'needs_confirmation' | 'needs_approval' | 'waiting_child' }> }
+  /** TIP-023d §3.2: dừng để sửa kế hoạch — checkpoint đủ chạy tiếp, không phát lại tool đã chạy. */
+  | { type: 'plan_paused'; checkpoint: PlanCheckpoint }
   | { type: 'finish'; reason: StopReason; text: string; messages: RunMessage[]; steps: number }
   | { type: 'error'; code: string; message: string; stepIdx: number };
 
