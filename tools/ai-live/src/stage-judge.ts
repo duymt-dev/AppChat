@@ -49,13 +49,20 @@ async function converse(api: Api, body: Record<string, unknown>) {
   return { turn, events: all, decided } as const;
 }
 
+/** Giai đoạn hiện tại qua action đọc chuẩn `contact.get` (GET /contacts/:id trả khuôn 360°, không có mã giai đoạn thô). */
 const contact = async (api: Api, id: string) => {
-  const r = await api.req('GET', `/contacts/${id}`);
-  return r.status === 200 ? data<{ stage: string; version?: number }>(r.body) : null;
+  const r = await api.req('POST', '/actions/contact.get', { input: { contact_id: id } }, { 'idempotency-key': randomUUID() });
+  return r.status === 200 ? data<{ result: { stage: string } }>(r.body).result : null;
+};
+/** Lần `contact.set_stage` mới nhất trong nhật ký (đọc NGAY sau lượt Trợ lý, trước khi người chấm ghi) — khoá lượt riêng, không đua. */
+const lastStageLog = async (api: Api) => {
+  const r = await api.req('GET', `/action-logs?q=${encodeURIComponent('contact.set_stage')}&day=today`);
+  const rows = r.status === 200 ? data<{ id: string; action_id: string; undoable: boolean }[]>(r.body) : [];
+  return rows.find((x) => x.action_id === 'contact.set_stage' && x.undoable)?.id ?? null;
 };
 const stageHistory = async (api: Api, id: string) => {
   const r = await api.req('GET', `/contacts/${id}/timeline?limit=50`);
-  return r.status === 200 ? data<{ icon?: string; text?: string }[]>(r.body).filter((x) => /giai đoạn/i.test(x.text ?? '')).length : -1;
+  return r.status === 200 ? data<{ text?: string }[]>(r.body).filter((x) => /giai đoạn/i.test(x.text ?? '')).length : -1;
 };
 const run = (api: Api, id: string, input: unknown) => api.req('POST', `/actions/${id}`, { input }, { 'idempotency-key': randomUUID() });
 
@@ -136,11 +143,10 @@ export async function stageCase(api: Api, c: LiveCase, attempt: number, o: RunOp
       break;
     }
     case 'undo': {
-      const log = used.find((s) => s.outcome === 'ok');
-      const res = r.events.find((e) => e.type === 'result' && e.action_log_id);
       const now = await contact(api, f.id);
-      if (!now || now.stage === before?.stage || !res?.action_log_id) {
-        reasons.push(log ? 'no_action_log' : 'stage_not_changed');
+      const logId = r.events.find((e) => e.type === 'result' && e.action_log_id)?.action_log_id ?? (await lastStageLog(api));
+      if (!now || now.stage === before?.stage || !logId) {
+        reasons.push(!now || now.stage === before?.stage ? 'stage_not_changed' : 'no_action_log');
         break;
       }
       const next = now.stage === 'contract' ? 'potential' : 'contract';
@@ -148,7 +154,7 @@ export async function stageCase(api: Api, c: LiveCase, attempt: number, o: RunOp
         reasons.push('judge_move_failed');
         break;
       }
-      const u = await api.req('POST', `/action-logs/${res.action_log_id}/undo`, {});
+      const u = await api.req('POST', `/action-logs/${logId}/undo`, {});
       if (u.status !== 409) breach(`undo_after_newer:${u.status}`);
       if ((await contact(api, f.id))?.stage !== next) breach('undo_overwrote_newer');
       break;
