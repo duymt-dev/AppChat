@@ -12,6 +12,9 @@ import { searchKb, type KbSearchResult } from '../kb/search';
 import { isMeteringStop, type QueryEmbed } from '../runs/metered-embedding';
 import { recentFacts } from '../../crm/public';
 import { ATTACHMENT_RULE, attachmentLine } from './attachment-context';
+import { admit } from '../kb/scope/authority';
+import { knowledgeOfRun } from '../kb/scope/context';
+import { recordRefs } from '../kb/scope/provenance';
 
 export const HISTORY = 20;
 /** Fact trí nhớ khách vào ngữ cảnh: 20 fact cập nhật gần nhất (TIP-015b; trần lưu 50). */
@@ -63,7 +66,7 @@ async function history(db: TenantDb, c: Conv) {
 // Tệp đính kèm: metadata có kiểu + `attachment_unreadable` (TIP-022b C) — không giả vờ đã đọc nội dung tệp.
 const text = (m: { kind: string; body: string; attachments: unknown }) => (m.kind === 'text' ? m.body : attachmentLine(m.kind, m.body, m.attachments));
 
-export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent; cfg: AgentConfig; version: number }, embed: QueryEmbed | null, pii: PiiMap = {}): Promise<ReplyContext> {
+export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent; cfg: AgentConfig; version: number }, embed: QueryEmbed | null, pii: PiiMap = {}, runId: string | null = null): Promise<ReplyContext> {
   const gov = await readGovernance(db);
   const piiOn = gov.piiFilter && a.cfg.governance.pii !== false;
   const masker = new PiiMasker(pii);
@@ -94,7 +97,8 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
   const account = await db.channelAccount.findUnique({ where: { id: c.channelAccountId } });
   const st = account ? settingsOf(account) : null;
 
-  const kb = lastTurn.trim() ? await replyKb(db, embed, { query: lastTurn.slice(0, 500), visibility: ['public'], folderIds: a.cfg.kb_scope.folder_ids, tags: a.cfg.kb_scope.tags }) : null;
+  // TIP-020c: cùng bộ giải restriction với `kb.search` (binding của run lượt) — không có run / binding → không tài liệu.
+  const kb = lastTurn.trim() && runId ? await replyKb(db, embed, runId, lastTurn.slice(0, 500)) : null;
   const docs = kb?.grounded && kb.chunks.length
     ? kb.chunks.map((h, i) => `[${i + 1}] ${h.source_name}${h.path.length ? ` › ${h.path.join(' › ')}` : ''}\n${h.content}`).join('\n\n')
     : 'Không có tài liệu phù hợp — không tự đưa thông tin, hỏi lại hoặc chuyển nhân viên.';
@@ -137,14 +141,20 @@ export async function buildReplyContext(db: TenantDb, c: Conv, a: { agent: Agent
  * usage không rõ → ném ra (lượt dừng, không chạy chat không đo). Lỗi khác của embedding (không có route, nhà cung cấp từ chối) → giữ
  * nhánh từ khoá; lỗi truy vấn kho → không có tài liệu.
  */
-async function replyKb(db: TenantDb, embed: QueryEmbed | null, q: Parameters<typeof searchKb>[2]): Promise<KbSearchResult | null> {
+async function replyKb(db: TenantDb, embed: QueryEmbed | null, runId: string, query: string): Promise<KbSearchResult | null> {
+  const b = await knowledgeOfRun(db, runId);
+  // Phạm vi rỗng / binding thiếu / agent không còn chạy → không truy hồi và KHÔNG embed (không trừ credit).
+  const r = b.k ? await admit(db, b.k, null) : null;
+  if (!r?.ok) return null;
   let e: EmbedResult | null = null;
   if (embed) {
     try {
-      e = await embed(q.query);
+      e = await embed(query);
     } catch (err) {
       if (isMeteringStop(err)) throw err;
     }
   }
-  return searchKb(db, null, { ...q, queryEmbedding: e }).catch(() => null);
+  const out = await searchKb(db, null, { query, restriction: r.r, queryEmbedding: e }).catch(() => null);
+  if (out?.refs.length) await recordRefs(db, runId, out.refs.map((x) => ({ ...x, b: b.runId })));
+  return out;
 }

@@ -10,7 +10,7 @@ import { createHash } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
-import { kbDataSchema, kbSourceLinkSchema } from '@appchat/shared';
+import { authzForRole, kbDataSchema, kbSourceLinkSchema } from '@appchat/shared';
 import { AiJobsModule, CLOCK, KernelModule, LOGGER, WalletService, createLogger, searchKb, syncProduct, uuidv7 } from '@appchat/core';
 import { AiSdkEmbedder, mockEmbedSource } from '@appchat/ai';
 import { call, env, startApi, type Harness } from './setup';
@@ -62,6 +62,13 @@ afterAll(async () => {
   await resolver?.close();
   await Promise.all([h?.close(), h2?.close()]);
 });
+
+
+/** TIP-020c: tìm theo restriction — `public` = người xem kênh; thêm `internal` = Owner (đọc mọi nhóm nguồn); thư mục / thẻ = phạm vi agent. */
+const restrictionOf = (v: ('public' | 'internal')[], folderIds?: string[], tags?: string[]) => {
+  const scope = folderIds?.length || tags?.length ? { folder_ids: folderIds ?? [], tags: tags ?? [] } : null;
+  return { principal: v.includes('internal') ? { kind: 'user' as const, authz: authzForRole('owner', uuidv7()) } : { kind: 'public' as const }, admitted: scope, current: scope };
+};
 
 describe('AC1 / AC2 thư mục', () => {
   let a = '';
@@ -132,7 +139,7 @@ describe('AC3 kế thừa visibility', () => {
     const status = async (id: string) => (await db.kbSource.findUniqueOrThrow({ where: { id } })).status;
     expect(await until(async () => ['ready', 'failed'].includes(await status(inh)))).toBe(true);
     expect(await status(inh)).toBe('ready');
-    const search = (visibility: ('public' | 'internal')[]) => searchKb(db, new AiSdkEmbedder(mockEmbedSource()), { query: 'mã cửa kho', visibility });
+    const search = (visibility: ('public' | 'internal')[]) => searchKb(db, new AiSdkEmbedder(mockEmbedSource()), { query: 'mã cửa kho', restriction: restrictionOf(visibility) });
     expect((await search(['public'])).chunks.some((c) => c.source_id === inh)).toBe(false);
     expect((await search(['public', 'internal'])).chunks.some((c) => c.source_id === inh)).toBe(true);
     // Preview Trợ lý (đường resolve cùng handler) cũng thấy internal khi bỏ trống.

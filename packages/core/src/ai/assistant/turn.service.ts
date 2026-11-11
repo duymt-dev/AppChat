@@ -38,6 +38,7 @@ import { bindToken, takePending } from './pending-action';
 import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
+import { assistantKnowledge } from '../kb/scope/context';
 
 /** Outbox: lượt đã claim, chờ ROLE=ai chạy (genui/turn-request.consumer). */
 export const TURN_REQUESTED = 'assistant.turn_requested';
@@ -195,7 +196,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
         ...(context ? { context } : {}),
         ...(attachments.length ? { attachments } : {}),
       };
-      await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET });
+      await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET, knowledge: assistantKnowledge(q.userId) });
       await writeOutbox(tx, q.ws, [{ topic: TURN_REQUESTED, payload: { run_id: runId, user_id: q.userId } }], now);
       return session.id;
     });

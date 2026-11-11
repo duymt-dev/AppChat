@@ -53,6 +53,8 @@ export interface Conversation {
   ai_mode: 'off' | 'copilot' | 'auto';
   handoff_reason?: string;
   ai_draft?: string;
+  /** TIP-020c: tham chiếu nháp AI (mờ, server kiểm) — gửi kèm `message.send.ai_draft_ref`. */
+  ai_draft_ref?: AiDraftRef;
   /** TIP-022b: ý định lượt gần nhất (bộ đóng) + có tóm tắt bàn giao (đọc riêng, chiếu theo quyền). */
   intent?: AgentIntent;
   has_handoff_summary?: boolean;
@@ -112,7 +114,13 @@ export interface MessageAttachment {
 export interface ThreadData {
   data: Message[];
   next_cursor: string | null;
-  suggestion: { text: string; confidence: number } | null;
+  suggestion: { text: string; confidence: number; ref?: AiDraftRef } | null;
+}
+
+/** TIP-020c: nháp / gợi ý AI đang dùng trong ô soạn — chỉ để server kiểm nguồn còn hợp lệ, không cấp quyền. */
+export interface AiDraftRef {
+  id: string;
+  generation: number;
 }
 
 export type FolderRow = [key: string, icon: IconName | '@', count: number];

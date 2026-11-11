@@ -35,6 +35,14 @@ export { KB_EMBEDDER, KbSearchHandler, kbVisibility } from './kb/kb-search.handl
 export { KbIngestQueue } from './kb/kb.queue';
 export { KB_INGEST_QUEUE, ingestSource, type IngestDeps, type IngestOutcome, type KbIngestJob } from './kb/ingest';
 export { searchKb, minScoreOf, KB_CONTEXT, KB_TOP_K, DEFAULT_MIN_SCORE, type KbHit, type KbSearchInput, type KbSearchResult } from './kb/search';
+export { admit, internalRights, publishedScope, type Restriction, type Principal } from './kb/scope/authority';
+export { agentKnowledge, assistantKnowledge, builderKnowledge, knowledgeOfRun, normalizeScope, parseKnowledge } from './kb/scope/context';
+export { knowledgeCurrent, recordRefs, staleRuns } from './kb/scope/provenance';
+export { KNOWLEDGE_STOP, resumeGate } from './kb/scope/recovery';
+export { memberSql, sourceSql } from './kb/scope/query';
+export { resolveFor } from './kb/scope/resolve';
+export { draftRefOf, verifyDraftRef, writeAiDraft } from './kb/scope/draft-binding';
+export type { KbScope, KnowledgeContext, KnowledgeRef } from './kb/scope/types';
 export { readKb, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
 export { sourceDownload, safeName as kbSafeName, type KbDownload } from './kb/source-download';
 export { ParseError, csvBlocks, htmlBlocks, kindOf, markdownBlocks, parseDocument } from './kb/parse';

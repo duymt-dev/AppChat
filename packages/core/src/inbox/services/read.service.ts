@@ -10,6 +10,7 @@ import { toConversation, type ConvExtras, type Place } from './view';
 import { threadAround, threadPage, threadSearchPage, type ThreadCtx } from './thread-window';
 import { avatarKey, avatarLinks } from '../../channels/operations/avatar-read';
 import type { FileLinks } from '../../kernel/files/file-links';
+import { staleAiContent, suggestionCurrent, suggestionRefOf } from '../../ai/kb/scope/draft-binding';
 
 export interface Viewer {
   workspaceId: string;
@@ -92,7 +93,10 @@ export class InboxReadService {
     return this.tx(v, async (tx) => {
       const c = await visibleConversation(tx, v.authz, id);
       const r = await threadPage(this.ctx(tx, c, v, p), THREAD_PAGE, cursor, after);
-      return { ...r, suggestion: suggestionOf(c.aiSuggestion) };
+      // TIP-020c: gợi ý phụ thuộc nguồn tri thức không còn hợp lệ → không chiếu (ẩn cả gợi ý, không chỉ trích dẫn).
+      const s = (await suggestionCurrent(tx, c.aiSuggestion)) ? suggestionOf(c.aiSuggestion) : null;
+      const ref = suggestionRefOf(c.aiSuggestion);
+      return { ...r, suggestion: s && ref ? { ...s, ref } : s };
     });
   }
 
@@ -166,6 +170,7 @@ export class InboxReadService {
       members: new Map(members.map((m) => [m.conversationId, m._count._all])),
       avatars: await this.convAvatars(tx, convs, contacts, ws),
       coAssignees,
+      staleDrafts: (await staleAiContent(tx, convs)).drafts,
     };
     return convs.map((c) => toConversation(c, x, p));
   }

@@ -7,6 +7,7 @@ import type { TenantTx } from '../../../kernel/actions/action-context';
 import type { OutboxEventInput } from '../../../kernel/outbox/outbox';
 import { summaryChanged } from '../handoff-summary';
 import type { StagedHandoff } from './sources';
+import { draftFields } from '../../kb/scope/draft-binding';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantDb['conversation']['findUnique']>>>;
 export type StagedWithSummary = StagedHandoff & { summary: HandoffSummaryDto; base: Record<string, unknown>; title: string };
@@ -20,7 +21,7 @@ export async function handoffEffect(tx: TenantTx, _ws: string, c: Conv, h: Stage
       aiState: 'handoff',
       handoffReason: h.text.slice(0, 300),
       // Người đã có nháp (tiếp quản giữa chừng) → giữ nháp người.
-      ...(c.aiDraft ? {} : { aiDraft: h.draft?.slice(0, 4000) ?? null }),
+      ...(c.aiDraft ? {} : h.draft ? draftFields(h.draft, h.runId) : { aiDraft: null, aiDraftRunId: null }),
       aiSuggestion: TenantSql.DbNull,
       ...(write ? { handoffSummary: { ...s.summary } } : {}),
     },

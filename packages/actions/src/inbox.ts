@@ -168,7 +168,14 @@ export const messageSend = defineAction({
   description:
     'Send a reply to the customer in a conversation through its channel; optional `attachments` = file_id from POST /files (channel must support files). Example: {"conversation_id":"c_lan","text":"Dạ em chào chị"}',
   input: z
-    .object({ conversation_id: convId, text: z.string().max(4000).default(''), reply_to_id: z.string().optional(), attachments: z.array(z.string().min(1)).max(10).optional() })
+    .object({
+      conversation_id: convId,
+      text: z.string().max(4000).default(''),
+      reply_to_id: z.string().optional(),
+      attachments: z.array(z.string().min(1)).max(10).optional(),
+      // TIP-020c: tham chiếu mờ tới nháp / gợi ý AI đang dùng (server kiểm khớp hội thoại + nguồn còn hợp lệ) — không cấp quyền.
+      ai_draft_ref: z.object({ id: z.string().uuid(), generation: z.number().int().min(0) }).strict().optional(),
+    })
     .refine((v) => v.text.trim().length > 0 || (v.attachments?.length ?? 0) > 0, { message: 'text_or_attachments', path: ['text'] }),
   output: z.object({ message_id: z.string(), agent_in_flight: z.boolean().optional() }),
   permission: 'inbox.reply',

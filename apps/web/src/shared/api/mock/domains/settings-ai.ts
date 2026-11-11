@@ -6,6 +6,10 @@ import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { assertEditable, inheritVisibility } from './kb-folders';
+import { revokeAiDrafts } from './inbox-draft-ref';
+import inboxSeed from '../../../../../../../fixtures/prototype-parity/inbox.json';
+
+const suggestionsSeed = inboxSeed.suggestions as Record<string, unknown>;
 
 type Ai = typeof fixture.ai;
 type Kb = typeof fixture.kb;
@@ -122,6 +126,8 @@ export const settingsAiHandlers: Record<string, MockHandler> = {
     execute: (db, i: { source_id: string }) => {
       const targets = i.source_id === 'all' ? db.settingsAi.kb.docs.filter((d) => d.type !== 'folder') : [doc(db, i.source_id)];
       for (const d of targets) d.learned = true;
+      // TIP-020c: nạp lại nguồn → nháp / gợi ý AI đang hiện phụ thuộc nguồn hết hiệu lực (mock: mọi hội thoại có nháp / gợi ý).
+      revokeAiDrafts(db, [...db.inbox.conversations.filter((c) => c.ai_draft).map((c) => c.id), ...Object.keys(suggestionsSeed)]);
       return { queued: targets.length };
     },
   },

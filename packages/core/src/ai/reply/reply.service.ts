@@ -31,6 +31,8 @@ import { assignTrigger, transferTrigger } from './system/sources';
 import { isSuperseded } from './send-fence';
 import { handoff, reasonText, setState, type ReasonKey } from './turn-handoff';
 import { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './turn-lease';
+import { agentKnowledge } from '../kb/scope/context';
+import { writeAiDraft } from '../kb/scope/draft-binding';
 
 /** Tối đa 3 lần `transfer_to_agent` mỗi lượt khách (agent-gateway §5). */
 export const MAX_TRANSFERS = 3;
@@ -105,17 +107,18 @@ async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Publ
     conversationId: c.id,
     parentRunId: extra.parentRunId ?? null,
     maxCredits: TURN_BUDGET,
+    knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { channel: true }),
   });
   const embed = d.embedder ? queryEmbedder({ db: store.metered(), embedder: d.embedder, meter: d.meter ?? null, now: d.now }, { ws, runId: created.id, rootRunId: created.rootRunId, source: 'inbox' }) : null;
   let ctx: ReplyContext;
   try {
-    ctx = await buildReplyContext(db, c, a, embed);
+    ctx = await buildReplyContext(db, c, a, embed, {}, created.id);
   } catch (err) {
     if (!isMeteringStop(err)) throw err;
     const code = String((err as { code?: string }).code);
     await store.stopReason(created.id, code === 'CREDIT_EXHAUSTED' ? 'credit_exhausted' : code === 'USAGE_UNKNOWN' ? 'usage_unknown' : code === 'CANCELLED' ? 'cancelled' : 'budget');
     await store.finish(created.id, 'failed', { error: code });
-    return { r: { status: 'failed' as const, text: '', creditsUsed: 0, error: { code: code === 'CREDIT_EXHAUSTED' ? code : 'BUDGET', message: (err as Error).message } }, run: created, ctx: await buildReplyContext(db, c, a, null) };
+    return { r: { status: 'failed' as const, text: '', creditsUsed: 0, error: { code: code === 'CREDIT_EXHAUSTED' ? code : 'BUDGET', message: (err as Error).message } }, run: created, ctx: await buildReplyContext(db, c, a, null, {}, null) };
   }
   const run = await db.aiRun.update({ where: { id: created.id }, data: { input: { ...(created.input as object), pii: ctx.pii }, ...(extra.visited?.length ? { transferCount: extra.visited.length, visitedAgents: extra.visited } : {}) } });
   const tools = await replyTools({ db, executor: d.executor, runner: d.runner, now: d.now }, { ws, runId: run.id, conversationId: c.id, agent: { id: a.agent.id, toolIds: a.cfg.tools }, cfg: a.cfg, pii: ctx.pii, dryRun: copilot });
@@ -143,7 +146,7 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   if (turn && !(await stillOwns(db, turn, d.now()))) {
     const out = r.status === 'completed' ? parseAgentReply(r.text) : null;
     const draft = out?.reply ? unmaskPii(out.reply, ctx.pii) : null;
-    if (draft) await db.conversation.updateMany({ where: { id: c.id, aiDraft: null }, data: { aiDraft: draft.slice(0, 4000) } });
+    if (draft) await writeAiDraft(db, c.id, draft, run.id);
     await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
     return 'superseded';
   }
@@ -211,7 +214,7 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   } catch (err) {
     // Người tiếp quản giữa lúc soạn (epoch / fence lệch dưới khoá): không chuyển người, giữ nháp nếu người chưa có nháp.
     if (isSuperseded(err)) {
-      await db.conversation.updateMany({ where: { id: c.id, aiDraft: null }, data: { aiDraft: reply!.slice(0, 4000) } });
+      await writeAiDraft(db, c.id, reply!, run.id);
       await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
       return 'superseded';
     }
@@ -302,7 +305,7 @@ export async function finishResumedTurn(d: ReplyDeps, db: TenantDb, ws: string, 
       await handoff(d, db, ws, c, { agent: a.agent, runId: run.id, reason: 'out_of_hours', text: reasonText('out_of_hours'), draft: out.reply ? unmaskPii(out.reply, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {}) : null, source });
       return 'handoff';
     }
-    const ctx = await buildReplyContext(db, c, a, null, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {});
+    const ctx = await buildReplyContext(db, c, a, null, ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {}, run.id);
     // Chạy tiếp không đặt lại lịch sử chuyển (TIP-019b §4.1): A → B → (duyệt) → A vẫn là vòng lặp.
     return await decide(d, db, ws, c, run, r, ctx, run.visitedAgents ?? [], turn, source);
   } finally {
@@ -326,7 +329,7 @@ export async function resumeReplySpec(d: Pick<ReplyDeps, 'executor' | 'runner' |
   const c = run.conversationId ? await db.conversation.findUnique({ where: { id: run.conversationId } }) : null;
   if (!a || !c) return { system: '', tools: [], maxSteps: MAX_STEPS.agent, source: 'inbox' };
   const pii = ((run.input ?? {}) as { pii?: Record<string, string> }).pii ?? {};
-  const ctx = await buildReplyContext(db, c, a, null, pii);
+  const ctx = await buildReplyContext(db, c, a, null, pii, run.id);
   const tools = await replyTools({ db, executor: d.executor, runner: d.runner, now: d.now }, { ws, runId: run.id, conversationId: c.id, agent: { id: a.agent.id, toolIds: a.cfg.tools }, cfg: a.cfg, pii, dryRun: run.kind === 'suggestion' });
   return { system: ctx.system, tools, maxSteps: MAX_STEPS.agent, source: 'inbox' };
 }

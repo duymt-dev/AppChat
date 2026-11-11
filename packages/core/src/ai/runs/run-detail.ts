@@ -10,6 +10,7 @@ import type { TenantDb } from '@appchat/db';
 import { UTILITY_ACTIONS, type AuthzContext, type RunChildDto, type RunDetailDto, type RunLifecycle, type RunStepDto } from '@appchat/shared';
 import { TenantSql as Prisma } from '@appchat/db';
 import { readableRun } from './run-status';
+import { knowledgeCurrent } from '../kb/scope/provenance';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep' | 'aiAgent' | 'aiRootBudget' | 'aiUsageReceipt' | '$queryRaw'>;
 const UTILITY_TITLES: ReadonlySet<string> = new Set(UTILITY_ACTIONS);
@@ -60,7 +61,8 @@ export async function runDetail(db: Db, authz: AuthzContext, runId: string): Pro
     approval_id: r.status === 'waiting_approval' ? ((r.state as { approval_id?: string } | null)?.approval_id ?? null) : null,
     children,
     steps,
-    result_text: !isUtility && r.status === 'completed' && typeof out.text === 'string' ? out.text.slice(0, 2000) : null,
+    // TIP-020c: kết quả dựa trên nguồn tri thức đã hết hiệu lực → không chiếu chữ (ẩn cả kết quả, không chỉ trích dẫn).
+    result_text: !isUtility && r.status === 'completed' && typeof out.text === 'string' && (await knowledgeCurrent(db as never, r.id)) ? out.text.slice(0, 2000) : null,
     event_seq: root?.eventSeq ?? 0,
   };
 }

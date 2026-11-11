@@ -9,7 +9,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { Test, type TestingModule } from '@nestjs/testing';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
-import { kbSuggestionListSchema, kbSuggestionSchema } from '@appchat/shared';
+import { authzForRole, kbSuggestionListSchema, kbSuggestionSchema } from '@appchat/shared';
 import { ActionExecutor, AiJobsModule, CLOCK, KB_SUGGEST_ACTOR, KernelModule, LOGGER, WalletService, createLogger, searchKb, uuidv7 } from '@appchat/core';
 import { AiSdkEmbedder, mockEmbedSource } from '@appchat/ai';
 import { call, env, startApi, type Harness } from './setup';
@@ -83,6 +83,13 @@ afterAll(async () => {
   await Promise.all([h?.close(), h2?.close()]);
 });
 
+
+/** TIP-020c: tìm theo restriction — `public` = người xem kênh; thêm `internal` = Owner (đọc mọi nhóm nguồn); thư mục / thẻ = phạm vi agent. */
+const restrictionOf = (v: ('public' | 'internal')[], folderIds?: string[], tags?: string[]) => {
+  const scope = folderIds?.length || tags?.length ? { folder_ids: folderIds ?? [], tags: tags ?? [] } : null;
+  return { principal: v.includes('internal') ? { kind: 'user' as const, authz: authzForRole('owner', uuidv7()) } : { kind: 'public' as const }, admitted: scope, current: scope };
+};
+
 describe('AC1 / AC3 propose', () => {
   it('HTTP / Trợ lý không gọi được (system-only); lặp 10 lần → một pending mỗi fingerprint, đã che PII, event chỉ id, không nguồn', async () => {
     const { conv, q, a } = await closedConversation();
@@ -134,9 +141,9 @@ describe('AC4 / AC5 / AC6 duyệt', () => {
     expect(src.body).toContain('tối đa 2 lần');
     expect(await db.kbSuggestion.findUniqueOrThrow({ where: { id: s.id } })).toMatchObject({ status: 'approved', edited: true, version: 2, kbSourceId: src.id });
     expect(await until(async () => (await db.kbSource.findUniqueOrThrow({ where: { id: src.id } })).status === 'ready')).toBe(true);
-    const hit = await searchKb(db, new AiSdkEmbedder(mockEmbedSource()), { query: 'đổi lịch trước 24 giờ', visibility: ['public', 'internal'] });
+    const hit = await searchKb(db, new AiSdkEmbedder(mockEmbedSource()), { query: 'đổi lịch trước 24 giờ', restriction: restrictionOf(['public', 'internal']) });
     expect(hit.chunks.some((c) => c.source_id === src.id)).toBe(true);
-    expect((await searchKb(db, new AiSdkEmbedder(mockEmbedSource()), { query: 'đổi lịch trước 24 giờ', visibility: ['public'] })).chunks.some((c) => c.source_id === src.id)).toBe(false);
+    expect((await searchKb(db, new AiSdkEmbedder(mockEmbedSource()), { query: 'đổi lịch trước 24 giờ', restriction: restrictionOf(['public']) })).chunks.some((c) => c.source_id === src.id)).toBe(false);
     // Đã duyệt → CONFLICT, không nguồn thứ hai.
     expect((await act('kb.suggestion.approve', { suggestion_id: s.id, if_version: 2 })).status).toBe(409);
     expect(await db.kbSource.count({ where: { origin: 'conversation' } })).toBe(1);

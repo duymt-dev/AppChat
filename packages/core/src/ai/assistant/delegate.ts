@@ -13,6 +13,7 @@ import { MAX_DEPTH } from '../reply/reply-tools';
 import { DEFAULT_RUN_BUDGET, MAX_STEPS, type AiRunner } from '../runs/runner';
 import { RunStore } from '../runs/run.store';
 import type { AssistantTurnCtx } from './types';
+import { agentKnowledge } from '../kb/scope/context';
 
 export interface DelegateDeps {
   db: TenantDb;
@@ -60,6 +61,8 @@ export async function runDelegate(d: DelegateDeps, t: AssistantTurnCtx, input: {
     agentId: a.agent.id,
     agentVersion: a.version,
     maxCredits: left,
+    // TIP-020c: phạm vi agent đích ∧ quyền người ra lệnh hiện hành — không thừa hưởng phạm vi rộng của Trợ lý.
+    knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { commanderId: t.userId, parentRunId: t.runId }),
   });
   const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, { workspaceId: t.ws, agent: { id: a.agent.id, toolIds: a.cfg.tools }, commander: t.authz, runId: row.id, source: 'agent', db: d.db });
   const system = `${agentSystem(a.cfg)}\n\nTrợ lý AI của doanh nghiệp giao việc cho bạn thay mặt người dùng. Làm đúng việc được giao, trả lời bằng bản tóm tắt ngắn kết quả.`;

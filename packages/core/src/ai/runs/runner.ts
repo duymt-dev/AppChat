@@ -15,6 +15,7 @@ import { ensureRootBudget } from './root-budget';
 
 export { DEFAULT_RUN_BUDGET, MAX_STEPS } from './budget-defaults';
 import { DEFAULT_RUN_BUDGET } from './budget-defaults';
+import { knowledgeStop } from '../kb/scope/recovery';
 
 export interface RunSpec {
   system: string;
@@ -50,6 +51,12 @@ const WEEKDAY_VI = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ S
 export function nowLine(at: Date, timeZone: string): string {
   const w = utcToWall(at, timeZone);
   return `# THỜI GIAN HIỆN TẠI\n${WEEKDAY_VI[w.weekday] ?? ''}, ${w.date} ${w.hm} (${timeZone}, ${w.iso.slice(-6)}). Ngày dùng định dạng YYYY-MM-DD khi gọi công cụ.`;
+}
+
+/** TIP-020c: run thiếu binding / nguồn đã dùng hết hiệu lực → dừng trước lời gọi model (không gọi provider, không trừ credit). */
+async function gateKnowledge(store: RunStore, runId: string): Promise<void> {
+  const stop = await store.knowledgeGate(runId);
+  if (stop) throw knowledgeStop(stop);
 }
 
 export interface RunnerDeps {
@@ -136,6 +143,7 @@ export class AiRunner {
                   const cur = await store.get(run.id);
                   if (cur?.status === 'cancelled') ac.abort();
                   await this.d.assertOpen?.(ws);
+                  await gateKnowledge(store, run.id);
                 },
                 ...metered,
               }
@@ -144,6 +152,7 @@ export class AiRunner {
                   const cur = await store.get(run.id);
                   if (cur?.status === 'cancelled') ac.abort();
                   await this.d.assertOpen?.(ws);
+                  await gateKnowledge(store, run.id);
                   await meter?.assertBalance(ws);
                 },
                 onUsage: async (u) => {
@@ -188,7 +197,7 @@ export class AiRunner {
           return safetyStop(store, run.id, text, creditsUsed, reason);
         } else if (e.type === 'error') {
           recordLlmError(undefined, undefined, spec.source ?? run.kind);
-          await store.stopReason(run.id, e.code === 'CREDIT_EXHAUSTED' ? 'credit_exhausted' : e.code === 'USAGE_UNKNOWN' ? 'usage_unknown' : 'provider_error');
+          await store.stopReason(run.id, e.code === 'CREDIT_EXHAUSTED' ? 'credit_exhausted' : e.code === 'USAGE_UNKNOWN' ? 'usage_unknown' : e.code === 'SCOPE_UNAVAILABLE' ? 'scope_unavailable' : e.code === 'KNOWLEDGE_REVOKED' ? 'knowledge_revoked' : 'provider_error');
           await store.finish(run.id, 'failed', { error: `${e.code}: ${e.message}` });
           return { status: 'failed', text, creditsUsed, error: { code: e.code, message: e.message } };
         } else if (e.type === 'finish') {

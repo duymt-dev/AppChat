@@ -10,7 +10,7 @@ import PizZip from 'pizzip';
 import { AiJobsModule, CLOCK, KernelModule, LOGGER, WalletService, createLogger, searchKb, uuidv7 } from '@appchat/core';
 import { AiSdkEmbedder, mockEmbedSource } from '@appchat/ai';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
-import { kbDataSchema } from '@appchat/shared';
+import { authzForRole, kbDataSchema } from '@appchat/shared';
 import { call, env, startApi, type Harness } from './setup';
 import { until } from './worker.harness';
 
@@ -44,8 +44,13 @@ const act = (id: string, input: unknown, headers: Record<string, string> = {}) =
 const get = (path: string, who?: { token: string }) => call(h, path, undefined, who ? as(who) : {}).then(json);
 const tenant = () => resolver.get(TenantContexts.system(h.ws, 't'));
 const wallet = () => h.app.get(WalletService, { strict: false });
+/** TIP-020c: tìm theo restriction — `public` = người xem kênh; thêm `internal` = Owner (đọc mọi nhóm nguồn); thư mục / thẻ = phạm vi agent. */
+const restrictionOf = (v: ('public' | 'internal')[], folderIds?: string[], tags?: string[]) => {
+  const scope = folderIds?.length || tags?.length ? { folder_ids: folderIds ?? [], tags: tags ?? [] } : null;
+  return { principal: v.includes('internal') ? { kind: 'user' as const, authz: authzForRole('owner', uuidv7()) } : { kind: 'public' as const }, admitted: scope, current: scope };
+};
 const search = async (query: string, o: { visibility?: ('public' | 'internal')[]; folderIds?: string[]; tags?: string[] } = {}) =>
-  searchKb(await tenant(), new AiSdkEmbedder(mockEmbedSource()), { query, visibility: o.visibility ?? ['public'], ...o });
+  searchKb(await tenant(), new AiSdkEmbedder(mockEmbedSource()), { query, restriction: restrictionOf(o.visibility ?? ['public'], o.folderIds, o.tags) });
 
 async function upload(name: string, body: string | Buffer, mime = 'text/markdown', who?: { token: string }) {
   const form = new FormData();
@@ -84,7 +89,7 @@ describe('schema', () => {
       await c.query('SET enable_seqscan = off');
       const q = (sql: string) => c.query(`EXPLAIN ${sql}`).then((r) => r.rows.map((x) => x['QUERY PLAN']).join('\n'));
       expect(await q(`SELECT id FROM kb_chunk WHERE 'doi tra' <% content_norm LIMIT 20`)).toMatch(/kb_chunk_content_norm_trgm_idx/);
-      expect(await q(`SELECT id FROM kb_source WHERE folder_id = '${uuidv7()}'::uuid AND status = 'ready' AND deleted_at IS NULL`)).toMatch(/kb_source_folder_status_idx/);
+      expect(await q(`SELECT id FROM kb_source WHERE folder_id = '${uuidv7()}'::uuid AND status = 'ready' AND deleted_at IS NULL`)).toMatch(/kb_source_folder_status_idx|kb_source_scope_ready_idx/);
       expect(await q(`SELECT id FROM kb_chunk ORDER BY embedding <=> ('[' || array_to_string(array_fill(0.1::real, ARRAY[1536]), ',') || ']')::vector LIMIT 20`)).toMatch(/kb_chunk_embedding_hnsw_idx/);
     } finally {
       await c.end();

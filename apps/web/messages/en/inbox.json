@@ -110,6 +110,10 @@
     "groupUnsupported": "This channel cannot create groups yet"
   },
   "chat": {
+    "aiDraftRef": {
+      "stale": "This AI draft is outdated — its reference content can no longer be used. Rewrite it or send it as your own message.",
+      "revoked": "The documents this AI draft relied on changed or were revoked — the draft was not sent. Please rewrite it."
+    },
     "back": "Back to list",
     "search": "Search in conversation",
     "toggle360": "Collapse profile",

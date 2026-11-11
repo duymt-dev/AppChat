@@ -8,6 +8,7 @@ import { uuidv7 } from '../../kernel/ids';
 import type { AssistantMode } from './catalog';
 import type { StoredUiPart } from './genui/history';
 import { listSessionsPage } from './session-list';
+import { staleRuns } from '../kb/scope/provenance';
 
 export const HISTORY_LIMIT = 30;
 const SESSIONS_LIMIT = 50;
@@ -73,14 +74,20 @@ export async function replaceCard(db: Db, runId: string, token: string, card: Co
   }
 }
 
+/** Run của tin Trợ lý mà nguồn tri thức đã hết hiệu lực (TIP-020c §3.4). DB không có bảng run (test đơn vị) → không có. */
+const staleOf = (db: Db, rows: { role: string; runId: string | null }[]) =>
+  'aiRun' in (db as object) ? staleRuns(db as never, rows.filter((r) => r.role === 'assistant').map((r) => r.runId)) : Promise.resolve(new Set<string>());
+
 const recent = (db: Db, sessionId: string, take: number) =>
   db.assistantMessage.findMany({ where: { sessionId }, orderBy: { createdAt: 'desc' }, take }).then((r) => r.reverse());
 
 /** Lịch sử cho model: chữ của từng tin; thẻ → một dòng tóm tắt (đã xác nhận / huỷ / chờ). */
 export async function historyMessages(db: Db, sessionId: string): Promise<RunMessage[]> {
   const out: RunMessage[] = [];
-  for (const r of await recent(db, sessionId, HISTORY_LIMIT)) {
-    const parts = partsOf(r.content);
+  const rows = await recent(db, sessionId, HISTORY_LIMIT);
+  const stale = await staleOf(db, rows);
+  for (const r of rows) {
+    const parts = stale.has(r.runId ?? '') ? [] : partsOf(r.content);
     const text = parts
       .map((p) => (p.type === 'text' ? p.text : p.type === 'card' ? `[${p.card.action_id}: ${p.card.title} — ${p.status}]` : p.type === 'ui' ? '[ui]' : ''))
       .filter(Boolean)
@@ -112,7 +119,14 @@ export type UiPresenter = (p: StoredUiPart) => Promise<NonNullable<AssistantMess
 export async function sessionMessages(db: Db, userId: string, id: string, limit = 100, ui?: UiPresenter): Promise<AssistantMessageDto[]> {
   await ownSession(db, userId, id);
   const out: AssistantMessageDto[] = [];
-  for (const r of await recent(db, id, Math.min(limit, 200))) {
+  const rows = await recent(db, id, Math.min(limit, 200));
+  const stale = await staleOf(db, rows);
+  for (const r of rows) {
+    // TIP-020c: trả lời dựa trên nguồn tri thức đã hết hiệu lực → một dòng thay thế an toàn, không phát lại chữ.
+    if (r.role === 'assistant' && stale.has(r.runId ?? '')) {
+      out.push({ id: `${r.id}:0`, role: 'ai', text: '', unavailable: 'knowledge_revoked', run_id: r.runId });
+      continue;
+    }
     const parts = partsOf(r.content);
     const plain = dto(r);
     let k = 0;
