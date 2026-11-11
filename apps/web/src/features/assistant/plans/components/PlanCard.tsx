@@ -52,6 +52,11 @@ export function PlanCard({ sessionId }: { sessionId: string | undefined }) {
                 {t('requestEdit')}
               </Button>
             ) : null}
+            {plan.awaiting_continue ? (
+              <Button type="primary" loading={p.busy} data-testid="plan-continue" onClick={() => p.resume(plan)}>
+                {t('continue')}
+              </Button>
+            ) : null}
             {paused ? (
               <>
                 <Button data-testid="plan-edit" onClick={() => setEditing(true)}>

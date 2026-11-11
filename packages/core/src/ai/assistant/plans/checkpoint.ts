@@ -20,6 +20,19 @@ export function planGateOf(db: Db, rootRunId: string): () => Promise<{ paused: n
 
 const HELD = new Set(['pause_requested', 'paused', 'editing', 'resuming']);
 
+/** Lý do chờ được chạy tiếp bằng plan_resume: người bấm Sửa (`plan_edit`) hoặc lượt dừng khi còn bước (`plan_next` — §2.5). */
+export const PLAN_WAITS: ReadonlySet<string> = new Set(['plan_edit', 'plan_next']);
+
+/** §2.5: lượt kết thúc tự nhiên mà kế hoạch `active` gắn run còn bước chưa xong thật (kể cả chờ biên nhận việc nền) → giữ run. */
+export function planHoldOf(db: Pick<TenantDb, 'assistantPlan' | 'assistantPlanStep'>, rootRunId: string): () => Promise<{ epoch: number } | null> {
+  return async () => {
+    const p = await db.assistantPlan.findUnique({ where: { rootRunId }, select: { id: true, planEpoch: true, phase: true } });
+    if (!p || p.phase !== 'active') return null;
+    const open = await db.assistantPlanStep.count({ where: { planId: p.id, state: { notIn: ['succeeded', 'skipped'] } } });
+    return open ? { epoch: p.planEpoch } : null;
+  };
+}
+
 /** Sau khi runner checkpoint: ghi dòng checkpoint (root, epoch) một lần + thử xả → paused. */
 export async function recordCheckpoint(tx: TenantTx, rootRunId: string, cp: PlanCheckpoint, now: Date): Promise<void> {
   const plan = await tx.assistantPlan.findUnique({ where: { rootRunId }, select: { id: true } });

@@ -47,6 +47,7 @@ export const assistantPlanGet = defineAction({
     source_plan_id: z.string().nullable(),
     steps: z.array(z.object({ id: z.string(), position: z.number().int(), kind: z.string(), title: z.string(), instructions: z.string(), action_or_agent_id: z.string().nullable(), depends_on: z.array(z.string()), state: z.string() })),
     progress: z.number(),
+    awaiting_continue: z.boolean().optional(),
     created_at: z.string(),
     updated_at: z.string(),
   }),

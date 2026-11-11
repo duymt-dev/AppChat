@@ -71,7 +71,7 @@ export class AssistantPlanResumeHandler implements Handler<ActionInput<typeof as
       result: { plan_id: i.plan_id, revision: r.revision, plan_epoch: r.epoch, phase: 'active' },
       events: [
         { topic: PLAN_PROGRESSED, payload: { plan_id: i.plan_id, revision: r.revision, phase: 'active' } },
-        ...(r.rootRunId ? [{ topic: PLAN_RESUMED, payload: { plan_id: i.plan_id, root_run_id: r.rootRunId, plan_epoch: r.epoch } }] : []),
+        ...(r.rootRunId ? [{ topic: PLAN_RESUMED, payload: { plan_id: i.plan_id, root_run_id: r.rootRunId, plan_epoch: r.epoch, ...(r.step !== null ? { plan_step: r.step } : {}) } }] : []),
       ],
       noUndo: true,
     };

@@ -36,7 +36,7 @@ const ATTACHMENT_ONLY = { vi: 'Tệp đính kèm nói gì?', en: 'What does the 
 import { listSessionsPage } from './session-list';
 import { agentChoicesPage } from './plans/agent-choices';
 import { planOfSession } from './plans/repo';
-import { planToDto } from './plans/progress';
+import { awaitingContinue, planToDto } from './plans/progress';
 import { ownSession } from './sessions';
 import { assistantConfirm, assistantTurn, prepareTurn, replayTurn, type AssistantDeps, type PreparedTurn, type ConfirmRequest, type TurnRequest } from './turn.service';
 import { waitDone } from './genui/turn-wait';
@@ -201,7 +201,7 @@ export class AssistantService {
     const db = await this.db(c);
     await ownSession(db, c.userId, sessionId);
     const found = await planOfSession(db, c.userId, sessionId);
-    return found ? planToDto(found.plan, found.steps) : null;
+    return found ? planToDto(found.plan, found.steps, await awaitingContinue(db, found.plan)) : null;
   }
 
   /** `GET /assistant/input/:id` (+ `/parts`) — cùng service đọc có guard với action `assistant.attachment_get` / `_read` (TIP-023f §5.3). */

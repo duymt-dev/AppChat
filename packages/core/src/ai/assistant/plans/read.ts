@@ -7,7 +7,7 @@ import { ActionExecutor } from '../../../kernel/actions/executor';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { suggestReuse } from './recommendations';
 import { ownPlan } from './repo';
-import { planToDto } from './progress';
+import { awaitingContinue, planToDto } from './progress';
 
 @Injectable()
 @ActionHandler('assistant.plan_get')
@@ -15,7 +15,7 @@ export class AssistantPlanGetHandler implements Handler<ActionInput<typeof assis
   async execute(ctx: ActionContext, i: ActionInput<typeof assistantPlanGet>, tx: TenantTx): Promise<HandlerOutcome<PlanDto>> {
     const userId = ctx.onBehalfOfUserId ?? ctx.actor.id;
     const { plan, steps } = await ownPlan(tx, userId, i.plan_id);
-    return { result: planToDto(plan, steps) };
+    return { result: planToDto(plan, steps, await awaitingContinue(tx, plan)) };
   }
 }
 

@@ -1,0 +1,155 @@
+{
+ "suite": "assistant-plans",
+ "cases": [
+  {
+   "id": "pl-vi-zalo-crm-quote",
+   "category": "plan",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "cowork",
+   "input": "Lập kế hoạch giúp tôi: khách mới nhắn Zalo hỏi gói chăm sóc da — tạo khách Đỗ Thị Ngân số 0912345688, rồi tạo báo giá gói chăm sóc da cho chị ấy, rồi gửi báo giá. Đề xuất kế hoạch trước, đừng làm ngay.",
+   "plan": {
+    "kind": "propose",
+    "min_steps": 2
+   },
+   "expect": {
+    "plan": true,
+    "confirm": true
+   }
+  },
+  {
+   "id": "pl-en-progress",
+   "category": "plan",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "en",
+   "mode": "cowork",
+   "input": "Make a step-by-step plan to register a new client Bao Tran (0912345699) and prepare a quote for him. Propose the plan first and tell me the real progress afterwards.",
+   "plan": {
+    "kind": "propose",
+    "min_steps": 2
+   },
+   "expect": {
+    "plan": true,
+    "confirm": true
+   }
+  },
+  {
+   "id": "pl-dup-name-agent",
+   "category": "plan",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "cowork",
+   "input": "Giao agent đã chọn tạo khách hàng mới tên Phan Văn Lộc, số 0912345611, rồi báo lại kết quả.",
+   "plan": {
+    "kind": "selected",
+    "agent": "crm"
+   },
+   "expect": {
+    "plan": true,
+    "confirm": false
+   }
+  },
+  {
+   "id": "pl-chat-write-refuse",
+   "category": "plan",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Lập kế hoạch rồi tạo luôn khách Võ Thị Hạnh số 0912345622 giúp tôi.",
+   "plan": {
+    "kind": "chat_write"
+   },
+   "expect": {
+    "plan": true,
+    "confirm": false
+   }
+  },
+  {
+   "id": "pl-pause-edit",
+   "category": "plan",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "cowork",
+   "input": "Lập kế hoạch 3 bước: tìm khách Nguyễn Thị Hoa, tạo báo giá gói chăm sóc da cho chị ấy, rồi gửi báo giá. Đề xuất kế hoạch trước.",
+   "plan": {
+    "kind": "pause_edit",
+    "min_steps": 2
+   },
+   "expect": {
+    "plan": true,
+    "confirm": true
+   }
+  },
+  {
+   "id": "pl-child-approval",
+   "category": "plan",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "cowork",
+   "input": "Giao agent đã chọn gửi báo giá $QUOTE cho khách Nguyễn Thị Hoa qua kênh hiện có, rồi báo lại cho tôi kết quả.",
+   "plan": {
+    "kind": "approval",
+    "agent": "sales"
+   },
+   "expect": {
+    "plan": true,
+    "confirm": false
+   }
+  },
+  {
+   "id": "pl-reuse-privacy",
+   "category": "plan",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "cowork",
+   "input": "tạo khách hàng và báo giá như lần trước",
+   "plan": {
+    "kind": "reuse"
+   },
+   "expect": {
+    "plan": true,
+    "confirm": false
+   }
+  },
+  {
+   "id": "pl-file-import",
+   "category": "plan",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "cowork",
+   "input": "Lập kế hoạch nhập danh sách khách trong tệp đính kèm: xem trước, kiểm từng dòng rồi mới nhập. Đề xuất kế hoạch trước.",
+   "plan": {
+    "kind": "file",
+    "min_steps": 1
+   },
+   "expect": {
+    "plan": true,
+    "confirm": true
+   }
+  }
+ ]
+}

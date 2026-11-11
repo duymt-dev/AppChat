@@ -1,5 +1,5 @@
 // Chọn agent Cowork (TIP-023d §5.1, §6.3) — danh sách phân trang từ agent_choices (chỉ agent đang chạy + đã xuất bản, theo UUID; trùng tên
-// vẫn phân biệt bằng vai trò ở tooltip / mô tả trợ năng — một dòng như prototype L1199). "Không chọn" = Trợ lý tự điều phối. Mức AI là mức
+// vẫn phân biệt bằng vai trò ở tooltip — một dòng như prototype L1199). "Không chọn" = Trợ lý tự điều phối. Mức AI là mức
 // cấu hình của agent (nhãn, không tên model — D29).
 'use client';
 import { useTranslations } from 'next-intl';
@@ -27,7 +27,6 @@ export function SelectedAgentPicker() {
           type="button"
           role="menuitemradio"
           aria-checked={a.selected?.id === c.id}
-          aria-description={`${c.role_label || c.role} · ${t(`tier.${c.model_tier}`)}`}
           title={`${c.role_label || c.role} · ${t(`tier.${c.model_tier}`)}`}
           className={styles.popRow}
           data-testid="asst-agent-choice"

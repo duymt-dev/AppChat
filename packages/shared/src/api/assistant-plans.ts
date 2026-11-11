@@ -28,6 +28,8 @@ export const planDto = z.object({
   steps: z.array(planStepDto),
   /** Tiến độ THẬT = succeeded / total bước required (§2.4) — không phải model tự ước lượng. */
   progress: z.number().min(0).max(1),
+  /** §2.5: lượt trước dừng khi còn bước (run gốc chờ `plan_next`) — "Tiếp tục" (plan_resume) chạy bước kế, không đổi pha. */
+  awaiting_continue: z.boolean().optional(),
   created_at: z.string(),
   updated_at: z.string(),
 });

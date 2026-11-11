@@ -24,7 +24,7 @@ export function startAssistantTurnWorker(redis: Redis, d: TurnWorkerDeps, log: A
       if (!run?.initiatedByUserId) return;
       const authz = await d.commander(job.data.ws, run.initiatedByUserId);
       // TIP-023d §3.6: job `plan` = chạy tiếp từ checkpoint sau plan_resume (claim CAS — lặp không gọi model lần hai).
-      if (job.name === 'plan') await continuePlanTurn(d, db, job.data.ws, job.data.run_id, authz);
+      if (job.name === 'plan') await continuePlanTurn(d, db, job.data.ws, job.data.run_id, authz, job.data.plan_epoch === undefined ? undefined : { epoch: job.data.plan_epoch, ...(job.data.plan_step === undefined ? {} : { step: job.data.plan_step }) });
       else await runTurn(d, db, job.data.ws, job.data.run_id, authz);
     },
     { connection: redis.duplicate(), concurrency: 8 },

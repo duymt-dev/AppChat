@@ -12,14 +12,17 @@ import { eventsOf, finishStream, specFor, type RunDeps } from '../turn.service';
 import type { AssistantTurnCtx } from '../types';
 import { planBrief } from './resume';
 import { selectedCtx } from './selected-agent';
+import { PLAN_WAITS } from './checkpoint';
 import { RunStream } from '../genui/stream';
 import { EventStore } from '../genui/event-store';
 
-export async function continuePlanTurn(d: RunDeps, db: TenantDb, ws: string, rootRunId: string, authz: AuthzContext | null): Promise<'done' | 'skipped'> {
+/** `at` = checkpoint đã được resume (job mang theo): run đã chạy tiếp rồi lại chờ ở checkpoint khác → bỏ qua (đúng một lần mỗi lần chờ). */
+export async function continuePlanTurn(d: RunDeps, db: TenantDb, ws: string, rootRunId: string, authz: AuthzContext | null, at?: { epoch: number; step?: number }): Promise<'done' | 'skipped'> {
   const store = new RunStore(db, d.now);
   const run = await store.get(rootRunId);
   const state = run?.state as { wait_reason?: string; plan_checkpoint?: PlanCheckpoint } | null;
-  if (!run || run.kind !== 'assistant' || !run.initiatedByUserId || run.status !== 'waiting_operation' || state?.wait_reason !== 'plan_edit' || !state.plan_checkpoint) return 'skipped';
+  if (!run || run.kind !== 'assistant' || !run.initiatedByUserId || run.status !== 'waiting_operation' || !PLAN_WAITS.has(state?.wait_reason ?? '') || !state?.plan_checkpoint) return 'skipped';
+  if (at && (state.plan_checkpoint.epoch !== at.epoch || (at.step !== undefined && state.plan_checkpoint.stepIdx !== at.step))) return 'skipped';
   const plan = await db.assistantPlan.findUnique({ where: { rootRunId }, select: { id: true, phase: true } });
   if (!plan || plan.phase !== 'active' || !authz) return 'skipped';
   const input = run.input as unknown as AssistantRunInput;

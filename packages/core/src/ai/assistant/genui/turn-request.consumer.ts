@@ -15,6 +15,8 @@ export interface TurnJob {
   run_id: string;
   /** TIP-023d §3.6: job `plan` — chạy tiếp từ checkpoint sau plan_resume (epoch đã resume, chống chạy lặp). */
   plan_epoch?: number;
+  /** Bước của checkpoint đã resume — cùng epoch có thể chờ nhiều lần (`plan_next`, §2.5), mỗi lần một job. */
+  plan_step?: number;
 }
 
 /** Outbox: plan_resume đã commit → chạy tiếp lượt gốc từ checkpoint ở ROLE=ai. */
@@ -33,8 +35,8 @@ export class TurnQueue {
   }
 
   /** Chạy tiếp kế hoạch (một job mỗi run + epoch — đẩy lặp không chạy lại). */
-  async pushPlan(ws: string, runId: string, epoch: number): Promise<void> {
-    await this.q.add('plan', { ws, run_id: runId, plan_epoch: epoch }, { jobId: `plan-${runId}-${epoch}`, attempts: 3, backoff: { type: 'exponential', delay: 2_000 }, removeOnComplete: 1000, removeOnFail: 1000 });
+  async pushPlan(ws: string, runId: string, epoch: number, step?: number): Promise<void> {
+    await this.q.add('plan', { ws, run_id: runId, plan_epoch: epoch, ...(step === undefined ? {} : { plan_step: step }) }, { jobId: `plan-${runId}-${epoch}${step === undefined ? '' : `-${step}`}`, attempts: 3, backoff: { type: 'exponential', delay: 2_000 }, removeOnComplete: 1000, removeOnFail: 1000 });
   }
 
   onApplicationShutdown(): Promise<void> {
@@ -49,7 +51,7 @@ export function turnRequestConsumer(queue: Pick<TurnQueue, 'push' | 'pushPlan'>)
     async handle(e) {
       const runId = e.payload.run_id ?? e.payload.root_run_id;
       if (typeof runId !== 'string') return;
-      if (e.topic === PLAN_RESUMED) await queue.pushPlan(e.workspaceId, runId, Number(e.payload.plan_epoch));
+      if (e.topic === PLAN_RESUMED) await queue.pushPlan(e.workspaceId, runId, Number(e.payload.plan_epoch), typeof e.payload.plan_step === 'number' ? e.payload.plan_step : undefined);
       else await queue.push(e.workspaceId, runId);
     },
   };

@@ -580,6 +580,7 @@
     "requestEdit": "Edit plan",
     "edit": "Edit steps",
     "resume": "Resume",
+    "continue": "Run next step",
     "stop": "Stop",
     "save": "Save",
     "close": "Close",

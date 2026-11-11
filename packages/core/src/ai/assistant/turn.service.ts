@@ -36,7 +36,7 @@ import { ASSISTANT_ARMED_KEY, failTurn } from './genui/recovery';
 import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
 import { bindingOf } from './plans/driver';
-import { planGateOf, recordCheckpoint } from './plans/checkpoint';
+import { planGateOf, planHoldOf, recordCheckpoint } from './plans/checkpoint';
 import { bindDraft, type PlanDraftRef } from './plans/draft-binding';
 import { pinSelected, selectedCtx } from './plans/selected-agent';
 import type { DiscoveryRuntime } from './discovery/find-tool';
@@ -105,8 +105,8 @@ type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery' 
 export function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
   const inputs = t.sessionId ? inputResolver(db, d.storage ?? null, { userId: t.userId, sessionId: t.sessionId, now: d.now }) : null;
   // TIP-023d §3.2: cổng sửa kế hoạch của run gốc (Cowork) — người bấm "Sửa kế hoạch" thì lượt dừng ở checkpoint trước lời gọi kế.
-  const planGate = t.mode === 'cowork' ? planGateOf(db, t.runId) : undefined;
-  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs, ...(planGate ? { planGate } : {}) };
+  const plan = t.mode === 'cowork' ? { planGate: planGateOf(db, t.runId), planHold: planHoldOf(db, t.runId) } : {};
+  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs, ...plan };
 }
 
 /** Dựng lại system + tool của run `assistant` từ `ai_run.input` với quyền HIỆN TẠI của người ra lệnh (job `ai-resume`). */
@@ -150,6 +150,8 @@ export async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | '
       events.push(card);
       parts.push({ type: 'card', card, status: 'pending' });
     }
+  } else if (r.status === 'waiting_operation' && r.plan && r.planWait === 'plan_next') {
+    // TIP-023d §2.5: kế hoạch còn bước — run giữ chờ (không "xong"); chữ model đã nói bước kế / điều cần người dùng.
   } else if (r.status === 'waiting_operation' && r.plan) {
     // TIP-023d §3.3: dừng để sửa kế hoạch — checkpoint + thử xả; chữ hệ thống báo đang chờ người sửa (không phải lỗi).
     await recordCheckpoint(db as never, run.id, r.plan, d.now());
@@ -272,7 +274,7 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
     const events = await eventsOf(d, db, run, r, 0, input.locale, input.session_id, { ws, authz });
     await finishStream(live, events, r, input.session_id);
     // Chờ run con: `waiting_for` có kiểu (lý do + run con) để khôi phục / giao diện biết đang chờ gì (DC-380).
-    const waitingFor = r.paused?.outcome.kind === 'waiting_child' ? { reason: 'waiting_child', child_run_id: r.paused.outcome.runId } : r.plan ? { reason: 'plan_edit', plan_epoch: r.plan.epoch } : undefined;
+    const waitingFor = r.paused?.outcome.kind === 'waiting_child' ? { reason: 'waiting_child', child_run_id: r.paused.outcome.runId } : r.plan ? { reason: r.planWait ?? 'plan_edit', plan_epoch: r.plan.epoch } : undefined;
     await lease.finish(execStateOf(r.status), waitingFor);
     return { session_id: input.session_id, run_id: run.id, events };
   } catch (e) {

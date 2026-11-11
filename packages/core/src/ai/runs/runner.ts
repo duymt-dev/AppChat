@@ -30,6 +30,8 @@ export interface RunSpec {
   inputs?: InputResolver | null;
   /** TIP-023d §3.2: cổng sửa kế hoạch (engine hỏi trước mỗi lời gọi model / tool). */
   planGate?: () => Promise<{ paused: number } | null>;
+  /** TIP-023d §2.5: model trả lời xong mà kế hoạch gắn run còn bước chưa xong → run gốc KHÔNG `completed`; giữ checkpoint chờ bước kế. */
+  planHold?: () => Promise<{ epoch: number } | null>;
   /** TIP-021b §2.2: sinh theo schema do server sở hữu (không tool). */
   responseSchema?: ResponseSchema;
   /** TIP-021b §2.3 (mẫu 019c): chữ model là kết quả RIÊNG — không ghi `output` công khai của run; người gọi lưu vào binding và công bố sau
@@ -47,7 +49,11 @@ export interface RunResult {
   error?: { code: string; message: string };
   paused?: Extract<RunEvent, { type: 'paused' }>;
   plan?: PlanCheckpoint;
+  /** Lý do chờ của `plan`: `plan_edit` (người bấm Sửa) / `plan_next` (kế hoạch còn bước — §2.5). */
+  planWait?: PlanWait;
 }
+
+export type PlanWait = 'plan_edit' | 'plan_next';
 
 const WEEKDAY_VI = ['Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ nhật'];
 
@@ -207,7 +213,7 @@ export class AiRunner {
         } else if (e.type === 'plan_paused') {
           // TIP-023d §3.3: run gốc giữ KHÔNG kết thúc — `waiting_operation` lý do `plan_edit`; checkpoint đủ chạy tiếp (không phát lại batch).
           await store.wait(run.id, 'waiting_operation', { wait_reason: 'plan_edit', plan_checkpoint: e.checkpoint });
-          return { status: 'waiting_operation', text, creditsUsed, plan: e.checkpoint };
+          return { status: 'waiting_operation', text, creditsUsed, plan: e.checkpoint, planWait: 'plan_edit' };
         } else if (e.type === 'error' && (e.code === 'CANCELLED' || e.code === 'BUDGET')) {
           // TIP-019b: cổng gốc từ chối lời gọi / tool kế tiếp — dừng sạch như engine tự dừng (bảng trạng thái thật ở pha 2).
           const reason = e.code === 'CANCELLED' ? 'cancelled' : 'budget';
@@ -230,6 +236,13 @@ export class AiRunner {
           }
           // Chỉ dừng tự nhiên (model trả lời xong) là thành công; max_steps / loop_guard / budget là dừng an toàn (DC-380).
           if (e.reason !== 'stop') return safetyStop(store, run.id, e.text, creditsUsed, e.reason);
+          // TIP-023d §2.5: còn bước chưa xong thật → chờ (`plan_next`) với checkpoint đủ chạy tiếp cùng bộ đếm bước, không báo thành công.
+          const hold = await spec.planHold?.();
+          if (hold) {
+            const cp: PlanCheckpoint = { messages: e.messages, stepIdx: e.steps, superseded: [], epoch: hold.epoch };
+            await store.wait(run.id, 'waiting_operation', { wait_reason: 'plan_next', plan_checkpoint: cp });
+            return { status: 'waiting_operation', text: e.text, creditsUsed, plan: cp, planWait: 'plan_next' };
+          }
           await store.finish(run.id, 'completed', { output: spec.protectedOutput ? { protected: true, stop: e.reason } : { text: e.text, stop: e.reason } });
           return { status: 'completed', text: e.text, creditsUsed, stopReason: e.reason };
         }

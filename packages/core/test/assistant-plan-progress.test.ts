@@ -1,9 +1,11 @@
 // TIP-023d pha 4 (unit): chọn bước hiện hành (một bước một lúc, phụ thuộc phải succeeded / skipped, bước lỗi chặn dependent), quyết định
 // cho lời gọi ghi (đúng action → bound; khác action → PLAN_UNDECLARED; plan dừng → PLAN_PAUSED; không plan / đã xong → free), đọc binding
-// từ trạng thái dừng (khuôn lạ → bỏ), và hook executor (claim trước handler, replay không chạy handler, settle sau action_log).
+// từ trạng thái dừng (khuôn lạ → bỏ), hook executor (claim trước handler, replay không chạy handler, settle sau action_log), và giữ run
+// gốc khi lượt xong mà kế hoạch còn bước (§2.5).
 import { describe, expect, it } from 'vitest';
 import { bindingOf, currentStep, decideStep } from '../src/ai/assistant/plans/driver';
 import type { PlanStepRow } from '../src/ai/assistant/plans/repo';
+import { planHoldOf } from '../src/ai/assistant/plans/checkpoint';
 
 const step = (position: number, state: string, o: Partial<PlanStepRow> = {}): PlanStepRow =>
   ({ planId: 'p', id: `s${position}`, position, kind: 'action', title: `B${position}`, instructions: '', actionOrAgentId: 'contact.create', dependsOn: [], state, executionGeneration: 1, createdAt: new Date(0), updatedAt: new Date(0), ...o }) as PlanStepRow;
@@ -54,5 +56,19 @@ describe('bindingOf', () => {
     expect(bindingOf({ planId: 'p', stepId: 's', generation: 1, epoch: 0, extra: 1 })).toEqual({ planId: 'p', stepId: 's', generation: 1, epoch: 0 });
     expect(bindingOf({ planId: 'p', stepId: 's', generation: '1', epoch: 0 })).toBeUndefined();
     expect(bindingOf(null)).toBeUndefined();
+  });
+});
+
+describe('planHoldOf (§2.5)', () => {
+  const hold = (plan: Record<string, unknown> | null, open: number) =>
+    planHoldOf({ assistantPlan: { findUnique: async () => plan }, assistantPlanStep: { count: async () => open } } as never, 'r');
+  it('kế hoạch active còn bước chưa xong thật → giữ run (epoch hiện hành)', async () => {
+    expect(await hold(PLAN, 2)()).toEqual({ epoch: 3 });
+  });
+  it('hết bước / không plan / plan không active → không giữ (lượt kết thúc như thường)', async () => {
+    expect(await hold(PLAN, 0)()).toBeNull();
+    expect(await hold(null, 1)()).toBeNull();
+    expect(await hold({ ...PLAN, phase: 'completed' }, 1)()).toBeNull();
+    expect(await hold({ ...PLAN, phase: 'paused' }, 1)()).toBeNull();
   });
 });

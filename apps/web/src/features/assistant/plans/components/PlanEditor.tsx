@@ -37,7 +37,7 @@ export function PlanEditor({ plan, busy, onSave, onClose }: { plan: Plan; busy: 
   };
 
   return (
-    <div data-testid="plan-editor">
+    <div data-testid="plan-editor" onKeyDown={(e) => e.key === 'Escape' && onClose()}>
       <ul className={styles.steps}>
         {order.filter((id) => !removed.has(id)).map((id, i, arr) => {
           const s = byId.get(id)!;
@@ -45,7 +45,8 @@ export function PlanEditor({ plan, busy, onSave, onClose }: { plan: Plan; busy: 
           return open ? (
             <li key={id} className={styles.step} data-testid="plan-edit-step">
               <span className={styles.pos}>{i + 1}</span>
-              <input className={styles.input} aria-label={t('stepTitle')} value={titles[id] ?? s.title} maxLength={200} onChange={(e) => setTitles((x) => ({ ...x, [id]: e.target.value }))} />
+              {/* IP-7.2: focus ô đầu tiên sửa được khi mở; Esc đóng (không lưu). */}
+              <input autoFocus={id === order.find((x) => !removed.has(x) && editable(x))} className={styles.input} aria-label={t('stepTitle')} value={titles[id] ?? s.title} maxLength={200} onChange={(e) => setTitles((x) => ({ ...x, [id]: e.target.value }))} />
               <button type="button" className={styles.iconBtn} aria-label={t('up')} disabled={i === 0 || !editable(arr[i - 1]!)} onClick={() => move(order.indexOf(id), -1)}>
                 <Icon name="ic-up" size={14} />
               </button>
