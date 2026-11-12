@@ -4,6 +4,7 @@
 import { expect, test } from '@playwright/test';
 import { isMobile } from '../support/mobile';
 import { onboarded, spoofIp } from './support';
+import { confirmPreview } from '../support/confirm';
 
 test.describe('báo giá (http)', () => {
   test.beforeEach(({ page }) => spoofIp(page));
@@ -62,6 +63,7 @@ test.describe('báo giá (http)', () => {
 
     // Email: mở chuỗi thư mới, PDF đóng băng (LibreOffice) — chờ lâu hơn bình thường.
     await drawer.getByRole('button', { name: 'Gửi Email' }).first().click();
+    await confirmPreview(page);
     await expect(drawer).toContainText('Đã gửi', { timeout: 60_000 });
 
     // Tải PDF (bản đóng băng).

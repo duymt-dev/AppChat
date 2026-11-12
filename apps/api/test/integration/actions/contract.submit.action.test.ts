@@ -4,6 +4,7 @@ import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
 
+const ART398 = ['parties', 'subject', 'quantity', 'price_payment', 'term_place', 'rights', 'breach', 'dispute', 'effective'].map((code) => ({ code, ok: true }));
 let m: Matrix;
 let c: { contract_id: string; code: string };
 let lan: string;
@@ -27,7 +28,7 @@ describe('contract.submit', () => {
 
   it('preview Trợ lý → xác nhận', async () => {
     const { preview, done } = await m.confirm({ contract_id: C() });
-    expect(preview).toEqual({ summary: `${c.code} · Liệu trình HIFU · Chị Lan HĐ · 18.000.000₫`, risk: 'write', changes: [{ entity: 'contract', id: C(), before: { status: 'draft', notify: null }, after: { status: 'pending_approval', notify: 'contract.sign' } }] });
+    expect(preview).toEqual({ summary: `${c.code} · Liệu trình HIFU · Chị Lan HĐ · 18.000.000₫`, risk: 'write', changes: [{ entity: 'contract', id: C(), before: { status: 'draft', notify: null }, after: { status: 'pending_approval', notify: 'contract.sign' } }], checklist: ART398 });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
     expect((await row()).status).toBe('pending_approval');
   });

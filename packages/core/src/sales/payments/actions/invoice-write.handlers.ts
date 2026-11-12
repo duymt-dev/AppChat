@@ -21,6 +21,7 @@ import { lockInvoice, visibleInvoice } from '../invoice-access';
 import { prepareInvoiceDelivery, type InvoiceDelivery } from '../services/invoice-delivery';
 import { invoiceText, postInvoice } from '../services/invoice-send';
 import { localDay } from '../services/payment-write';
+import { defaultTemplateOf } from '../services/invoice-doc';
 import { createPreview, sendPreview, voidPreview } from '../previews/invoice-write.handlers.preview';
 import { soleTeamOf } from '../../../authz/data-access';
 import { lockContactRow } from '../../../kernel/ownership/root-lock';
@@ -71,6 +72,8 @@ export class InvoiceCreateHandler implements Handler<ActionInput<typeof invoiceC
     const id = uuidv7(now.getTime());
     const code = await nextCode(tx, 'invoice');
     const actor = actorOf(ctx);
+    // Mẫu đã dùng (templates.md §2, TIP-028b): chụp mẫu mặc định lúc tạo — PDF gửi sau render đúng mẫu này dù mặc định đổi.
+    const tpl = await defaultTemplateOf(tx, 'payment_request');
     const row = await tx.invoice.create({
       data: {
         id,
@@ -85,6 +88,8 @@ export class InvoiceCreateHandler implements Handler<ActionInput<typeof invoiceC
         amount,
         dueDate: new Date(`${due}T00:00:00Z`),
         note: input.note ?? '',
+        templateId: tpl?.templateId ?? null,
+        templateVersion: tpl?.templateVersion ?? null,
         createdByType: actor.type,
         createdById: actor.id,
         createdAt: now,
@@ -167,7 +172,7 @@ export class InvoiceSendHandler implements Handler<SendIn, St> {
   }
 
   async preview(ctx: ActionContext, input: SendIn, tx: TenantTx) {
-    return sendPreview(ctx, tx, input);
+    return sendPreview(ctx, tx, input, this.d.doc(), this.clock.now());
   }
 }
 

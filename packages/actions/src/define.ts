@@ -65,6 +65,12 @@ export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: 
   return d;
 };
 
+/**
+ * Gửi / duyệt chứng từ có bảng kiểm pháp lý trong preview (TIP-028b, templates.md §6, DC-444): UI XIN xem trước (`x-action-preview: 1`)
+ * để người dùng thấy bảng kiểm trước khi gửi — nguồn vốn chạy thẳng đổi thành xem trước; quyết định khác (duyệt / cấm) giữ nguyên.
+ */
+export const REQUESTABLE_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['quote.send', 'contract.submit', 'contract.approve_and_sign', 'contract.send_for_signature', 'invoice.send_payment_qr']);
+
 /** Action hệ thống riêng (TIP-003c) — loại khỏi mọi bề mặt công khai. */
 export const isInternalAction = (d: Pick<ActionDef, 'exposure'>): boolean => d.exposure === 'internal';
 /** Cấp được cho agent: `agentGrantable` VÀ không internal (phòng thủ kép — registry đã chặn tổ hợp này lúc define). */
@@ -95,12 +101,23 @@ export interface ActionResult<O = unknown> {
   ui_target?: UiCommand;
 }
 
+/**
+ * Mục bảng kiểm pháp lý của chứng từ trong preview gửi / duyệt (templates.md §6, TIP-028b) — cảnh báo, không chặn (COMMERCE, DC-444).
+ * `hint`: `template` = mẫu thiếu mục · `empty:<biến>` = mẫu có biến nhưng dữ liệu trống (vd. MST bên bán chưa khai).
+ */
+export interface ChecklistItem {
+  code: string;
+  ok: boolean;
+  hint?: string;
+}
+
 export interface ActionPreview {
   summary: string;
   risk: Risk;
   count?: number;
   changes?: { entity: string; id?: string; before?: Record<string, unknown>; after?: Record<string, unknown> }[];
   warnings?: string[];
+  checklist?: ChecklistItem[];
 }
 
 /** 202 của POST /v1/actions/:id (Blueprint §4.3). `job_accepted` (TIP-032b): yêu cầu đã ghi + xếp việc nền — CHƯA hoàn tất; tiến độ

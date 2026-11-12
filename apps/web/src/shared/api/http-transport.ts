@@ -108,6 +108,7 @@ export const httpTransport: Transport = {
         'x-action-source': 'ui',
         ...(opts?.idempotencyKey ? { 'idempotency-key': opts.idempotencyKey } : {}),
         ...(opts?.genuiIntent ? { 'x-genui-intent': opts.genuiIntent } : {}),
+        ...(opts?.preview ? { 'x-action-preview': '1' } : {}),
       },
       body: JSON.stringify({ input, confirm_token: opts?.confirmToken, ...(opts?.secretVault ? { secret_vault: opts.secretVault } : {}) }),
     });

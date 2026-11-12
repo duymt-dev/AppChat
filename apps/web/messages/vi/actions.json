@@ -532,7 +532,8 @@
       "title": "Đặt ảnh chính sản phẩm"
     },
     "media_list": {
-      "title": "Xem ảnh / tài liệu sản phẩm"
+      "title": "Xem ảnh / tài liệu sản phẩm",
+      "desc": "Xem danh sách ảnh và tài liệu của một sản phẩm (ảnh chính, thứ tự) — chỉ đọc"
     }
   },
   "category": {
@@ -1697,6 +1698,64 @@
   "inbox": {
     "system_agent_transition": {
       "title": "Chuyển agent / chuyển người hội thoại (hệ thống)"
+    }
+  },
+  "checklist": {
+    "title": "Bảng kiểm pháp lý",
+    "missing": "{n} mục cần xem lại",
+    "allOk": "Đủ các mục",
+    "note": "Chỉ là cảnh báo — các bên được tự thoả thuận, bạn vẫn gửi được.",
+    "hint": {
+      "template": "Mẫu chứng từ chưa có mục này",
+      "empty": "Mẫu có mục này nhưng {field} đang trống"
+    },
+    "item": {
+      "parties": "Thông tin hai bên",
+      "subject": "Đối tượng của hợp đồng",
+      "quantity": "Số lượng, chất lượng",
+      "price_payment": "Giá, phương thức thanh toán",
+      "term_place": "Thời hạn, địa điểm, phương thức thực hiện",
+      "rights": "Quyền và nghĩa vụ các bên",
+      "breach": "Trách nhiệm do vi phạm",
+      "dispute": "Phương thức giải quyết tranh chấp",
+      "effective": "Ngày hiệu lực",
+      "seller_tax": "Thông tin bên bán + MST",
+      "date": "Ngày lập",
+      "validity": "Thời hạn hiệu lực báo giá",
+      "vat_note": "Giá đã gồm / chưa gồm VAT",
+      "not_vat": "Dòng \"không thay thế hoá đơn GTGT\" (tự chèn)"
+    },
+    "field": {
+      "business_legal_name": "Tên pháp lý DN",
+      "business_tax_code": "MST DN",
+      "business_address": "Địa chỉ DN",
+      "business_representative": "Người đại diện DN",
+      "business_logo": "Logo",
+      "business_bank_account": "Tài khoản nhận tiền",
+      "customer_name": "Tên khách hàng",
+      "customer_tax_code": "MST khách hàng",
+      "customer_address": "Địa chỉ khách hàng",
+      "customer_phone": "SĐT khách hàng",
+      "customer_email": "Email khách hàng",
+      "customer_representative": "Đại diện khách hàng",
+      "doc_code": "Số chứng từ",
+      "doc_date": "Ngày lập",
+      "doc_valid_until": "Hiệu lực đến",
+      "doc_owner": "Người phụ trách",
+      "items": "Bảng hàng hoá / dịch vụ",
+      "totals_subtotal": "Tạm tính",
+      "totals_discount": "Chiết khấu",
+      "totals_vat": "Thuế GTGT",
+      "totals_total": "Tổng cộng",
+      "totals_total_words": "Số tiền bằng chữ",
+      "contract_kind": "Loại hợp đồng",
+      "contract_value": "Giá trị hợp đồng",
+      "contract_start": "Ngày bắt đầu",
+      "contract_end": "Ngày kết thúc",
+      "payment_vietqr": "Mã VietQR",
+      "payment_transfer_note": "Nội dung chuyển khoản",
+      "signatures_seller": "Chữ ký bên bán",
+      "signatures_buyer": "Chữ ký bên mua"
     }
   }
 }

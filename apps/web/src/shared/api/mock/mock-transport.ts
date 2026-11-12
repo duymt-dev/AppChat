@@ -1,5 +1,5 @@
 // Mock transport: đúng envelope Blueprint §4.1 + mock ActionExecutor áp policy nguồn `ui` (Blueprint §3.3).
-import { getAction } from '@appchat/actions';
+import { REQUESTABLE_PREVIEW_ACTIONS, getAction } from '@appchat/actions';
 import { ApiRequestError, can, ROLE_DEFS, type PermissionKey, type StreamFrame } from '@appchat/shared';
 import type { Transport } from '../transport';
 import { mockHandlers } from './handlers';
@@ -170,7 +170,8 @@ export const mockTransport: Transport = {
 
     const { plain, secrets } = splitSecrets(def, parsed.data);
     const inputHash = JSON.stringify(plain);
-    if ((def.bulk || genUiNeedsPreview(def, opts?.genuiIntent)) && !(opts?.confirmToken && confirmTokens.get(opts.confirmToken) === inputHash)) {
+    const asked = !!opts?.preview && REQUESTABLE_PREVIEW_ACTIONS.has(id);
+    if ((def.bulk || asked || genUiNeedsPreview(def, opts?.genuiIntent)) && !(opts?.confirmToken && confirmTokens.get(opts.confirmToken) === inputHash)) {
       const token = nextId('ct');
       confirmTokens.set(token, inputHash);
       const p = handler.preview?.(mockDb(), parsed.data as never) ?? { summary: id };

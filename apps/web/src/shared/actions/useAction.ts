@@ -10,7 +10,7 @@ import { useCallback, useState } from 'react';
 import { App } from 'antd';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { getAction, requiresIdempotencyKey, type ActionAccepted, type ActionResult } from '@appchat/actions';
+import { REQUESTABLE_PREVIEW_ACTIONS, getAction, requiresIdempotencyKey, type ActionAccepted, type ActionResult } from '@appchat/actions';
 import { ApiRequestError } from '@appchat/shared';
 import { transport } from '../api/client';
 import { matchesInvalidation } from '../api/query-keys';
@@ -62,7 +62,8 @@ export function useAction<O = unknown>(id: string) {
       setPending(true);
       setAccepted(null);
       try {
-        let res = await transport.action<O>(id, input, idem);
+        // TIP-028b: gửi / duyệt chứng từ → xin xem trước để ConfirmActionHost hiện bảng kiểm pháp lý (cảnh báo, không chặn).
+        let res = await transport.action<O>(id, input, { ...idem, ...(REQUESTABLE_PREVIEW_ACTIONS.has(id) ? { preview: true } : {}) });
         if (res.status === 202 && res.data.status === 'preview_required') {
           const ok = await ask(id, res.data.preview);
           if (!ok) return null;

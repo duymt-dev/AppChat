@@ -70,7 +70,12 @@ export function actionOperation(a: ActionDef): { path: string; op: Schema } {
       'x-permission': a.permission,
       'x-agent-grantable': a.agentGrantable,
       ...(a.bulk ? { 'x-bulk': true } : {}),
-      parameters: [IDEMPOTENCY(idem), { name: 'x-action-source', in: 'header', required: false, schema: { type: 'string', enum: ['ui', 'assistant', 'api'] } }],
+      parameters: [
+        IDEMPOTENCY(idem),
+        { name: 'x-action-source', in: 'header', required: false, schema: { type: 'string', enum: ['ui', 'assistant', 'api'] } },
+        // TIP-028b: xin xem trước (bảng kiểm chứng từ) — chỉ có tác dụng với action gửi / duyệt chứng từ.
+        { name: 'x-action-preview', in: 'header', required: false, schema: { type: 'string', enum: ['1'] } },
+      ],
       requestBody: { required: true, content: { 'application/json': { schema: body } } },
       responses: {
         '200': { description: 'Đã thực hiện', content: { 'application/json': { schema: { type: 'object', required: ['data'], properties: { data: result } } } } },

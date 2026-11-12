@@ -44,6 +44,7 @@ import { settingsBillingHandlers } from './domains/settings-billing';
 import { platformAdminHandlers } from './domains/platform-admin';
 import { docTemplatesHandlers } from './domains/doc-templates';
 import { withCustomValues } from './domains/custom-values';
+import { withDocChecklist } from './domains/doc-checklist';
 import { dataJobsHandlers } from './domains/data-jobs';
 import { listExportsHandlers } from './domains/list-exports';
 import { dataTransferHandlers } from './domains/data-transfer';
@@ -54,10 +55,10 @@ import { productMediaHandlers } from './domains/product-media';
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
   undo?(db: MockDb, input: never): void;
-  preview?(db: MockDb, input: never): { summary: string; count?: number };
+  preview?(db: MockDb, input: never): { summary: string; count?: number; checklist?: { code: string; ok: boolean; hint?: string }[] };
 }
 
-export const mockHandlers: Record<string, MockHandler> = withCustomValues({
+export const mockHandlers: Record<string, MockHandler> = withDocChecklist(withCustomValues({
   'business_profile.update': {
     execute: (
       db,
@@ -158,4 +159,4 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...productMediaHandlers,
   // Nhập dữ liệu dùng chung (TIP-038b): khách ghi qua đúng handler contact.import của mock.
   ...dataTransferHandlers((db: MockDb, rows) => customersHandlers['contact.import']!.execute(db, { rows } as never) as { created: number }),
-});
+}));
