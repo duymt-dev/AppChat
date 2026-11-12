@@ -70,6 +70,8 @@ export const insights = {
       cost: 'Cost (VND)',
       taxRate: 'Tax rate (%)',
       stock: 'Stock (snapshot)',
+      description: 'Description',
+      descriptionDoc: 'Description doc',
       order: 'Order',
       amount: 'Amount (VND)',
       dueDate: 'Due date',

@@ -9,6 +9,7 @@ import { assertQueryFields, fieldView } from '../../authz/public';
 import { listProductIds, productStats, type ProductFilter } from '../repos/products.repo';
 import { productActivity } from './activity';
 import { UUID } from './catalog-write';
+import { docOf } from '../description/view';
 import { PRODUCT_SELECT, attrsOf, categoryMap, connectedChannelTypes, partCounts, toRow, type ProductRecord, type ViewCtx } from './product-view';
 
 export interface Viewer {
@@ -74,7 +75,7 @@ export class CatalogReadService {
     if (!UUID.test(id)) throw new AppError('NOT_FOUND', 404, { product_id: 'not_found' });
     const pl = await this.place(v);
     return this.tx(v, async (tx) => {
-      const p = await tx.product.findFirst({ where: { id, deletedAt: null }, select: PRODUCT_SELECT });
+      const p = await tx.product.findFirst({ where: { id, deletedAt: null }, select: { ...PRODUCT_SELECT, descriptionDoc: true } });
       if (!p) throw new AppError('NOT_FOUND', 404, { product_id: 'not_found' });
       const [parts, variants] = await Promise.all([
         tx.productComponent.findMany({ where: { productId: id }, select: { childId: true, qty: true, child: { select: { name: true } } } }),
@@ -82,7 +83,7 @@ export class CatalogReadService {
         tx.productVariant.findMany({ where: { productId: id, status: 'active' }, orderBy: [{ sku: 'asc' }], select: { id: true, sku: true, name: true, stock: true, price: true, version: true } }),
       ]);
       const row = toRow(p as ProductRecord, await this.view(tx, v, pl.locale), parts.length);
-      return { ...row, components: parts.map((c) => ({ id: c.childId, name: c.child.name, qty: c.qty })), attr_defs: attrsOf(p.attrs), variants: variants.map((x) => ({ ...x, price: x.price === null ? null : String(x.price) })) };
+      return { ...row, ...docOf(p.descriptionDoc), components: parts.map((c) => ({ id: c.childId, name: c.child.name, qty: c.qty })), attr_defs: attrsOf(p.attrs), variants: variants.map((x) => ({ ...x, price: x.price === null ? null : String(x.price) })) };
     });
   }
 

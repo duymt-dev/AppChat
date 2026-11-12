@@ -2,6 +2,7 @@
 // /products/:id/activity, /categories. Mock transport (apps/web) và API thật parse cùng các schema này. Tiền là string VND, giá chưa VAT.
 import { z } from 'zod';
 import { hiddenFieldsSchema } from './field-visibility';
+import { descriptionDocSchema } from '../catalog/description';
 
 export const PRODUCT_TYPES = ['physical', 'service', 'combo', 'package', 'digital', 'rental'] as const;
 export type ProductTypeKey = (typeof PRODUCT_TYPES)[number];
@@ -25,6 +26,8 @@ export const productRowSchema = z.object({
   /** Kênh bán đang hiện sản phẩm (kênh đã kết nối ở Kênh). */
   channels: z.array(z.string()),
   description: z.string(),
+  /** TIP-027b — mô tả có định dạng, CHỈ ở chi tiết (danh sách không mang tài liệu lớn); vắng = chữ thuần cũ. */
+  description_doc: descriptionDocSchema.optional(),
   /** Nhãn thuộc tính "Tên: a/b" (bảng, thẻ kanban). */
   attrs: z.array(z.string()),
   stock: z.number().int().nullable(),

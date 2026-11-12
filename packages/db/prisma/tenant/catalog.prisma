@@ -67,6 +67,9 @@ model Product {
   /// Thuộc tính sinh biến thể `[{ name, values[] }]`.
   attrs             Json          @default("[]")
   description       String        @default("")
+  /// Mô tả có định dạng (TIP-027b §2): tài liệu đóng có phiên bản (packages/shared catalog/description). `description` là phép chiếu văn bản
+  /// thuần do server dẫn ra — ghi cùng nhau dưới CAS version. Null = sản phẩm cũ chỉ có chữ thuần (đọc như một đoạn, không viết lại).
+  descriptionDoc    Json?         @map("description_doc")
   status            ProductStatus @default(active)
   custom            Json          @default("{}")
   /// Số lượng đã bán (cache — đơn xác nhận cộng, huỷ trừ; TIP-031).

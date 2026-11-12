@@ -14,6 +14,7 @@ import { CrmMembers, actorUserId } from '../../crm/public';
 import { categoryByName, checkCustom, componentsByName, fieldRole, liveProduct, recordMovement, syncVariants, writeComponents } from '../services/catalog-write';
 import { assertWritableSystem } from '../../authz/public';
 import { columnsOf, restoreSnapshot, snapshot, type ProductSnapshot } from '../services/product-columns';
+import { normalizeDescription } from '../description/normalize';
 import { archivePreview, createPreview, updatePreview } from './previews/product.handlers.preview';
 
 type CreateIn = ActionInput<typeof productCreate>;
@@ -44,6 +45,7 @@ export class ProductCreateHandler implements Handler<CreateIn, { product_id: str
     await tx.product.create({
       data: {
         ...columnsOf(input),
+        ...normalizeDescription(input, null),
         id,
         code,
         name: input.name.trim(),
@@ -92,7 +94,7 @@ export class ProductUpdateHandler implements Handler<UpdateIn, { product_id: str
     const p = await liveProduct(tx, input.product_id);
     if (input.if_version !== undefined && input.if_version !== p.version) throw new AppError('STALE_VERSION', 409, { version: String(p.version) });
     const now = this.clock.now();
-    const { custom, category, components, attrs, name, price, unit, sku, type, ...rest } = input.patch;
+    const { custom, category, components, attrs, name, price, unit, sku, type, description, description_doc, ...rest } = input.patch;
     await checkCustom(tx, custom, fieldRole(ctx.authz, await this.members.roleOf(ctx.workspaceId, actorUserId(ctx))), 'update');
     assertWritableSystem('product', ctx.authz, input.patch);
     if (type && type !== p.type) throw new AppError('VALIDATION_FAILED', 422, { 'patch.type': 'immutable' });
@@ -101,6 +103,8 @@ export class ProductUpdateHandler implements Handler<UpdateIn, { product_id: str
     const before = await snapshot(tx, p);
     const data = {
       ...columnsOf(rest),
+      // Mô tả: chữ thuần + tài liệu ghi cùng UPDATE có CAS version bên dưới (TIP-027b §2.3).
+      ...normalizeDescription({ description, description_doc }, p),
       ...(name !== undefined ? { name: name.trim() } : {}),
       ...(price !== undefined ? { price: BigInt(price) } : {}),
       ...(unit !== undefined ? { unit: unit.trim() || p.unit } : {}),
@@ -117,7 +121,7 @@ export class ProductUpdateHandler implements Handler<UpdateIn, { product_id: str
     return {
       result: { product_id: p.id, version: p.version + 1 },
       before,
-      after: { id: p.id, price: price ?? String(p.price) },
+      after: { id: p.id, price: price ?? String(p.price), version: p.version + 1 },
       events: [changed(p.id, 'updated')],
     };
   }
@@ -125,6 +129,12 @@ export class ProductUpdateHandler implements Handler<UpdateIn, { product_id: str
   async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as ProductSnapshot;
     const now = this.clock.now();
+    // Hoàn tác cũ (TIP-027b §2.3): đã có sửa sau lần này (version khác bản lần này ghi) → 409, không xoá thay đổi mới hơn (mô tả / định dạng…).
+    const at = (log.after as { version?: number } | null)?.version;
+    if (at !== undefined) {
+      const cur = await tx.$queryRaw<{ version: number }[]>`SELECT version FROM product WHERE id = ${b.id}::uuid FOR UPDATE`;
+      if (cur[0]?.version !== at) throw new AppError('STALE_VERSION', 409, { undo: 'superseded' });
+    }
     await restoreSnapshot(tx, b, now);
     await writeOutbox(tx, ctx.workspaceId, [changed(b.id, 'updated')], now);
   }

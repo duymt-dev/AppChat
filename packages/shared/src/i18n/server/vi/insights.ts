@@ -66,6 +66,9 @@ export const insights = {
       cost: 'Giá vốn (VND)',
       taxRate: 'Thuế suất (%)',
       stock: 'Tồn kho (ảnh chụp)',
+      // Trùng alias cột nhập 038b (TIP-027b) — xuất rồi nhập lại giữ định dạng mô tả.
+      description: 'Mô tả',
+      descriptionDoc: 'Mô tả định dạng',
       order: 'Đơn hàng',
       amount: 'Số tiền (VND)',
       dueDate: 'Hạn thanh toán',

@@ -125,7 +125,7 @@ export function dataTransferHandlers<D>(importContacts: ImportContacts<D>) {
           columns: t.columns,
           total_rows: t.rows.length,
           sample: t.rows.slice(0, 20),
-          fields: spec.fields.map((f) => ({ key: f.key, type: f.type, required: !!f.required })),
+          fields: spec.fields.map((f) => ({ key: f.key, type: f.type, required: !!f.required, ...(f.hint ? { hint: f.hint } : {}), ...(f.warnings ? { warnings: [...f.warnings] } : {}) })),
           mapping: guessTransferMapping(target, t.columns),
           import_supported: spec.importReady,
         };

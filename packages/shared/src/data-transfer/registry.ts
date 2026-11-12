@@ -118,7 +118,8 @@ export const TRANSFER_REGISTRY: Record<TransferTarget, TransferEntitySpec> = {
   product: {
     entity: 'product',
     dataset: 'base',
-    schemaVersion: 1,
+    // 2 = TIP-027b: thêm cột `description_doc` + cảnh báo `formatting_reset` (kế hoạch lập trước đó phải lập lại — 409 stale).
+    schemaVersion: 2,
     importPermission: 'catalog.manage',
     exportAction: 'product.export',
     writeAction: 'product.import',
