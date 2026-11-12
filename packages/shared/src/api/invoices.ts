@@ -113,7 +113,6 @@ export const invoicesMetaSchema = z.object({
   payment_account: paymentAccountSchema.nullable(),
   /** Thẻ CRM của khách: số đề nghị, tỉ lệ đúng hạn, công nợ theo khách (TIP-015b — cùng công thức Hồ sơ 360°). */
   crm: z.object({ total: z.number().int(), on_time: z.string(), debt: z.string().optional(), overdue: z.string().optional() }),
-  files: z.array(z.object({ name: z.string(), ext: z.string(), by: z.string(), at: z.string(), size: z.string(), url: z.string().optional() })),
 });
 
 export const paymentSettingsSchema = z.object({

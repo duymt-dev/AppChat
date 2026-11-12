@@ -48,6 +48,7 @@ import { dataJobsHandlers } from './domains/data-jobs';
 import { listExportsHandlers } from './domains/list-exports';
 import { dataTransferHandlers } from './domains/data-transfer';
 import { channelFriendsHandlers } from './domains/channel-friends';
+import { recordFileHandlers } from './domains/record-files';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
@@ -152,6 +153,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...platformAdminHandlers,
   ...docTemplatesHandlers,
   ...channelFriendsHandlers,
+  ...recordFileHandlers,
   // Nhập dữ liệu dùng chung (TIP-038b): khách ghi qua đúng handler contact.import của mock.
   ...dataTransferHandlers((db: MockDb, rows) => customersHandlers['contact.import']!.execute(db, { rows } as never) as { created: number }),
 });

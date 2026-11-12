@@ -901,6 +901,25 @@ export const MANIFEST: ParityEntry[] = [
     appWait: '[data-order]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
   },
+  // TIP-032d: tab Tệp thật (danh sách theo bản ghi, Mở / Gỡ / + Tải tệp lên) — prototype L5967–5978. Tên / meta tệp khác dữ liệu mẫu
+  // prototype (seed theo fixture đơn), nút Gỡ thêm ở tệp người dùng gắn (PD-029).
+  {
+    id: 'orders:files',
+    route: '/orders',
+    protoStorage: orders,
+    proto: async (p) => {
+      await p.locator('span', { hasText: 'SP290411' }).first().click();
+      await protoOverrideVals(p, { odDetailOn: true });
+      await protoSetState(p, { od360Tab: 'files' });
+    },
+    app: async (p) => {
+      await p.locator('[data-order="ord_290411"]').first().click();
+      await p.getByTestId('od-drawer').getByRole('tab', { name: 'Tệp' }).click();
+      await p.getByTestId('rf-order-row').first().waitFor();
+    },
+    appWait: '[data-order]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
   {
     id: 'orders:create',
     route: '/orders',
@@ -958,6 +977,24 @@ export const MANIFEST: ParityEntry[] = [
       await protoOverrideVals(p, { ivDetailOn: true });
     },
     app: (p) => p.locator('[data-invoice="inv_2041"]').first().click(),
+    appWait: '[data-invoice]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  // TIP-032d: tab Tệp đề nghị — chứng từ đã sinh (chỉ Mở) + tệp người dùng gắn (Mở / Gỡ) — prototype L5685–5696 (PD-029).
+  {
+    id: 'invoices:files',
+    route: '/invoices',
+    protoStorage: invoices,
+    proto: async (p) => {
+      await p.locator('b', { hasText: 'HD-2039' }).first().click();
+      await protoOverrideVals(p, { ivDetailOn: true });
+      await protoSetState(p, { iv360Tab: 'files' });
+    },
+    app: async (p) => {
+      await p.locator('[data-invoice="inv_2039"]').first().click();
+      await p.getByTestId('iv-drawer').getByRole('tab', { name: 'Tệp' }).click();
+      await p.getByTestId('rf-invoice-row').first().waitFor();
+    },
     appWait: '[data-invoice]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
   },

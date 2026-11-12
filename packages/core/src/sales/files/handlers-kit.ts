@@ -77,11 +77,15 @@ export class AttachmentKit {
     return { result: { attachment_id: r.attachment_id, revision: r.revision }, noUndo: true, events: [{ topic, payload: { [this.port.idField]: parentId, attachment_id: r.attachment_id, revision: r.revision } }] };
   }
 
-  async list(ctx: ActionContext, tx: TenantTx, parentId: string, q: { limit?: number; cursor?: string }) {
+  /** `names` = tên thành viên theo id (CrmMembers) — một lượt cho cả trang; vắng → tên rỗng (không đoán). */
+  async list(ctx: ActionContext, tx: TenantTx, parentId: string, q: { limit?: number; cursor?: string }, names?: (ids: (string | null)[]) => Promise<Map<string, string>>) {
     await this.port.readable(tx, ctx.authz, parentId);
     const canWrite = await this.port.writable(tx, ctx.authz, parentId);
     const [page, revision, generated] = await Promise.all([listPage(tx, this.port.sql, parentId, q, canWrite), setRevision(tx, this.port.table.type, parentId), q.cursor || !this.port.generated ? [] : this.port.generated(tx, parentId)]);
-    return { result: { files: [...generated, ...page.rows], revision, can_attach: canWrite, next_cursor: page.next_cursor } };
+    const rows = [...generated, ...page.rows];
+    const who = names ? await names(rows.map((r) => r.created_by)) : new Map<string, string>();
+    const files = rows.map((r) => ({ ...r, created_by_name: (r.created_by && who.get(r.created_by)) || '' }));
+    return { result: { files, revision, can_attach: canWrite, next_cursor: page.next_cursor } };
   }
 
   async previewAttach(ctx: ActionContext, tx: TenantTx, parentId: string, i: AttachIn): Promise<ActionPreview> {

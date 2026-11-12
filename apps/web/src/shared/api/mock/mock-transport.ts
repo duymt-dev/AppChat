@@ -52,6 +52,7 @@ import { assistantPosts, markUndone, recordActionLog } from './domains/assistant
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
 import { docTemplatePreview as mockBlob } from './domains/doc-templates';
+import { recordFileBlob, stageRecordFile } from './domains/record-files';
 import { claimVault, genUiNeedsPreview, putVault, splitSecrets } from './genui-vault';
 
 const fail = (
@@ -220,9 +221,15 @@ export const mockTransport: Transport = {
     mutate((db) => markUndone(db, actionLogId), 'action.undo');
   },
 
-  async upload(file, purpose, signal) {
+  async upload(file, purpose, signal, fields) {
     // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp. Huỷ trước khi xong → AbortError như fetch.
     if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
+    // Tệp đính kèm đơn / đề nghị (TIP-032d): kiểm đích + quyền ghi trước khi nhận, tạo staging riêng.
+    if (purpose === 'record_attachment') {
+      const id = crypto.randomUUID();
+      stageRecordFile(mockDb(), id, file, fields);
+      return { file_id: id, name: file.name, size: file.size };
+    }
     // Đầu vào Trợ lý (TIP-023f): id dạng uuid như server (action prepare kiểm uuid) + kho tạm có giới hạn giữ chữ của tệp đọc được.
     const id = purpose === 'attachment' ? crypto.randomUUID() : nextId('file');
     if (purpose === 'attachment') keepUpload(id, { name: file.name, size: file.size, mime: file.type, text: /\.(txt|md|csv|html?|eml)$/i.test(file.name) ? await file.text() : null });
@@ -236,7 +243,7 @@ export const mockTransport: Transport = {
 
   async blob(path) {
     // Tải nguồn KB (TIP-020b): tệp → HTML có tên; URL / catalog → JSON mô tả như server.
-    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path);
+    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path) ?? recordFileBlob(path);
     if (kb) return kb;
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
     const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? billingInvoicePdf(mockDb(), path) ?? publicDocumentPdf(path);
