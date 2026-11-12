@@ -823,6 +823,18 @@
     },
     "system_import": {
       "title": "Nhập bản đơn sàn đã kiểm (hệ thống)"
+    },
+    "file_attach": {
+      "title": "Đính kèm tệp vào đơn hàng",
+      "desc": "Gắn tệp đã tải lên (PDF, DOCX, XLSX, ảnh, văn bản) vào đơn sau khi kiểm cấu trúc."
+    },
+    "file_detach": {
+      "title": "Gỡ tệp đính kèm khỏi đơn hàng",
+      "desc": "Gỡ liên kết tệp khỏi đơn; tệp gốc vẫn được giữ."
+    },
+    "files_list": {
+      "title": "Xem tệp đính kèm của đơn hàng",
+      "desc": "Liệt kê tệp đang đính kèm đơn (mới nhất trước)."
     }
   },
   "invoice": {
@@ -856,6 +868,18 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái đề nghị thanh toán (hệ thống)"
+    },
+    "file_attach": {
+      "title": "Đính kèm tệp vào đề nghị thanh toán",
+      "desc": "Gắn tệp đã tải lên (uỷ nhiệm chi, chứng từ…) vào đề nghị sau khi kiểm cấu trúc."
+    },
+    "file_detach": {
+      "title": "Gỡ tệp đính kèm khỏi đề nghị thanh toán",
+      "desc": "Gỡ liên kết tệp khỏi đề nghị; tệp gốc vẫn được giữ. Chứng từ đã sinh không gỡ được."
+    },
+    "files_list": {
+      "title": "Xem tệp của đề nghị thanh toán",
+      "desc": "Liệt kê chứng từ đã sinh và tệp đính kèm của đề nghị."
     }
   },
   "booking": {

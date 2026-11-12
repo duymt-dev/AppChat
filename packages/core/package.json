@@ -7,7 +7,8 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
-    "./input-extract": "./src/ai/assistant/input/extract.ts"
+    "./input-extract": "./src/ai/assistant/input/extract.ts",
+    "./attachment-validator": "./src/kernel/files/attachment-validator-entry.ts"
   },
   "scripts": {
     "lint": "eslint src test",

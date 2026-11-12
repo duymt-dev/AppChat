@@ -7,6 +7,7 @@ import { KB_SUGGESTION_EVENT_SCHEMAS } from './kb/suggestion-events';
 import { INSIGHTS_EVENT_SCHEMAS } from './insights/events';
 import { ACTION_DISCOVERY_EVENT_SCHEMAS } from './events/action-discovery';
 import { ASSISTANT_INPUT_EVENT_SCHEMAS } from './events/assistant-input';
+import { COMMERCE_FILE_EVENT_SCHEMAS } from './events/commerce-files';
 import { BASELINE_EVENT_SCHEMAS } from './events/protocol/baseline';
 import { PERMISSIONS } from './authz/permissions';
 import { NOTIFY_KIND_KEYS, type NotifyKind } from './notify/catalog';
@@ -305,6 +306,7 @@ export const EVENT_SCHEMAS = {
   ...KB_SUGGESTION_EVENT_SCHEMAS,
   ...INSIGHTS_EVENT_SCHEMAS,
   ...ACTION_DISCOVERY_EVENT_SCHEMAS,
+  ...COMMERCE_FILE_EVENT_SCHEMAS,
   ...ASSISTANT_INPUT_EVENT_SCHEMAS,
   /** Topic đang phát nhưng trước đây chưa khai (TIP-003b §1.3, DV-099). */
   ...BASELINE_EVENT_SCHEMAS,

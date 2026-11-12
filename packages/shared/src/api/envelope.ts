@@ -28,6 +28,8 @@ export const ERROR_CODES = [
   'UNDO_NOT_SUPPORTED',
   'HAS_DEPENDENCIES',
   'SLOT_TAKEN',
+  // TIP-032d §2.1: thiếu tiến trình kiểm cấu trúc cô lập — không kiểm trong tiến trình chính, tệp không được gắn.
+  'VALIDATION_ISOLATION_UNAVAILABLE',
   'NOT_IMPLEMENTED',
   'INTERNAL',
 ] as const;

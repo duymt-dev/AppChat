@@ -823,6 +823,18 @@
     },
     "system_import": {
       "title": "Import verified marketplace order revision (system)"
+    },
+    "file_attach": {
+      "title": "Attach a file to an order",
+      "desc": "Attach an uploaded file (PDF, DOCX, XLSX, image, text) to the order after a structural check."
+    },
+    "file_detach": {
+      "title": "Remove an attachment from an order",
+      "desc": "Unlink a file from the order; the original file is kept."
+    },
+    "files_list": {
+      "title": "View order attachments",
+      "desc": "List files attached to the order (newest first)."
     }
   },
   "invoice": {
@@ -856,6 +868,18 @@
     },
     "system_transition": {
       "title": "Payment request system transition"
+    },
+    "file_attach": {
+      "title": "Attach a file to a payment request",
+      "desc": "Attach an uploaded file (transfer slip, voucher…) to the payment request after a structural check."
+    },
+    "file_detach": {
+      "title": "Remove an attachment from a payment request",
+      "desc": "Unlink a file from the payment request; the original file is kept. Generated documents cannot be removed."
+    },
+    "files_list": {
+      "title": "View payment request files",
+      "desc": "List generated documents and attachments of the payment request."
     }
   },
   "booking": {
