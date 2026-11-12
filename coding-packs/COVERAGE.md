@@ -14,12 +14,12 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 5 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 6 | 0 | 2 | 10 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 166 | 9 | 0 | 9 | 10 | 11 | 21 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 167 | 8 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 404 | 32 | 1 | 4 | 15 | 3 | 0 | 0 |
 | E. standards/* | 226 | 31 | 0 | 7 | 24 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 68 | 0 | 18 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 25 | 2 | 0 | 0 |
-| **Tổng** | **1239** | **90** | **20** | **49** | **91** | **35** | **69** | **0** |
+| **Tổng** | **1240** | **89** | **20** | **49** | **91** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -445,7 +445,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4-1 | Đơn hai trục: `status` new→processing→completed / cancelled | plans/COMMERCE-DECISIONS.md:81 | 031 | ĐẠT | packages/shared/src/orders/order-state.ts:6-31 · test order-state.test.ts |
 | COM-4-2 | `pay_status` tổng hợp; "Chờ cọc" chỉ khi `deposit_required` | plans/COMMERCE-DECISIONS.md:82,91 | 031 | ĐẠT | order-state.ts:46-55 payStatusOf · test order-state.test.ts, orders.test.ts "cọc → Chờ cọc" |
 | COM-4-3 | Đơn tạo từ báo giá, từ HĐ đã ký (nhiều đơn), từ lịch hẹn (gợi ý), trực tiếp | plans/COMMERCE-DECISIONS.md:84-87 | 031, 033 | ĐẠT | order-create.handlers.ts:101,123,166; order-from-appointment.handler.ts:18 · test orders.test.ts "đã ký → nhiều đơn", booking.test.ts "gợi ý đơn → order.create_from_appointment (một lần)" |
-| COM-4-4 | Thẻ "Tạo đơn cho buổi này?" hiện ở lịch hẹn, **Inbox và Trợ lý** | plans/COMMERCE-DECISIONS.md:86 | 033c | MỘT PHẦN | Chỉ apps/web/src/features/calendar/components/AppointmentDrawer.tsx:43 (`suggest_order`); Inbox / Trợ lý không có (grep `suggest_order`) |
+| COM-4-4 | Thẻ "Tạo đơn cho buổi này?" hiện ở lịch hẹn, **Inbox và Trợ lý** | plans/COMMERCE-DECISIONS.md:86 | 033c | ĐẠT | Một thẻ dùng chung apps/web/src/shared/appointment-order/AppointmentOrderCard.tsx ở calendar AppointmentDrawer.tsx + inbox ChatPanel.tsx + GenUI shared/genui/blocks/AppointmentOrderBlock.tsx; đọc `appointment.order_suggestions` (packages/core/src/booking/order-suggestions/read.ts — phép chiếu hiện hành, index appointment_order_suggest_idx); tạo chỉ qua order.create_from_appointment xem trước bắt buộc ràng giá / version (DC-441) · test apps/api/test/integration/appointment-order-suggestions.test.ts 10/10, e2e appointment-order.mock.spec.ts + http/appointment-order.spec.ts, ai:live appointment-order |
 | COM-4-5 | Buổi trừ vào liệu trình thì không gợi ý tạo đơn | plans/COMMERCE-DECISIONS.md:86 | 033 | ĐẠT | order-from-appointment.handler.ts:35 · test booking.test.ts "liệu trình … trừ 1 buổi" |
 | COM-4-6 | new → processing = xác nhận đơn: trừ kho + sinh `customer_package` nếu đủ điều kiện | plans/COMMERCE-DECISIONS.md:88 | 031, 032 | ĐẠT | sales/orders/actions/order-flow.handlers.ts:62; payments/services/packages.ts:19 (consumer order.confirmed) · test orders.test.ts confirm, payments.test.ts |
 | COM-4-7 | Cọc theo số tiền **hoặc %** | plans/COMMERCE-DECISIONS.md:90 | 033d | MỘT PHẦN | Chỉ `deposit_amount` (packages/actions/src/orders.ts:24); không có cọc theo %; TIP-033d nhận (2026-11-02); Q-038 duyệt → DC-300 (2026-11-03) |
