@@ -41,7 +41,8 @@
     "profile": "Hồ sơ của tôi",
     "sales_policy": "Chính sách bán hàng",
     "routing": "Chia lead",
-    "booking": "Lịch hẹn"
+    "booking": "Lịch hẹn",
+    "ticket_categories": "Danh mục ticket"
   },
   "head": {
     "email_mkt": "Email Marketing",
@@ -70,7 +71,8 @@
     "profile": "Hồ sơ của tôi",
     "sales_policy": "Chính sách bán hàng",
     "routing": "Routing & assignment",
-    "booking": "Lịch hẹn"
+    "booking": "Lịch hẹn",
+    "ticket_categories": "Danh mục ticket"
   },
   "headSub": {
     "roles": "Định nghĩa nhóm quyền và gán cho thành viên",
@@ -2092,6 +2094,33 @@
       "invalid_day": "Thứ không hợp lệ",
       "duplicate_day": "Trùng thứ",
       "seven_days": "Cần đủ 7 ngày"
+    }
+  },
+  "ticketCategories": {
+    "hint": "Gợi ý danh mục khi tạo và lọc ticket. Nhãn đầu là mặc định cho ticket mới. Ticket vẫn nhận danh mục tự do; sửa ở đây không đổi danh mục của ticket cũ — nhãn đã bỏ vẫn có thể hiện ở nhóm \"Đã dùng trong ticket\".",
+    "label": "Danh mục {n}",
+    "default": "Mặc định",
+    "up": "Đưa lên",
+    "down": "Đưa xuống",
+    "remove": "Xoá danh mục",
+    "add": "+ Thêm danh mục",
+    "import": "Nhập từ tệp",
+    "export": "Xuất tệp",
+    "discard": "Bỏ thay đổi",
+    "save": "Lưu thay đổi",
+    "conflict": "Người khác vừa lưu bộ danh mục. Bản nháp của bạn vẫn giữ — lưu sẽ thay bản mới nhất, hoặc tải lại để bỏ nháp.",
+    "reload": "Tải lại bản mới",
+    "leave": "Bỏ các thay đổi danh mục chưa lưu?",
+    "diffAdded": "Thêm: {list}",
+    "diffRemoved": "Bỏ khỏi gợi ý: {list}",
+    "diffDefault": "Mặc định mới: {label}",
+    "diffOrder": "Đổi thứ tự",
+    "error": {
+      "empty": "Nhập tên danh mục",
+      "too_long": "Tối đa 60 ký tự",
+      "control": "Không dùng ký tự điều khiển / xuống dòng",
+      "duplicate": "Trùng với danh mục phía trên (không phân biệt hoa thường)",
+      "too_many": "Tối đa 100 danh mục"
     }
   },
   "salesPolicy": {

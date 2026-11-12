@@ -214,7 +214,8 @@
       "underline": "Underline",
       "ul": "Bulleted list",
       "ol": "Numbered list"
-    }
+    },
+    "categoryRequired": "Enter a category"
   },
   "channel": {
     "zalo_personal": "Zalo personal",
@@ -237,5 +238,11 @@
     }
   },
   "agent": "AI Agent",
-  "unit": "tickets"
+  "unit": "tickets",
+  "categoryInput": {
+    "suggested": "Suggested",
+    "used": "Used in tickets",
+    "more": "Load more used labels",
+    "free": "Use \"{q}\" as a new category"
+  }
 }

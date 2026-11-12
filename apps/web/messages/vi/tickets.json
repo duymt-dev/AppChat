@@ -214,7 +214,8 @@
       "underline": "Gạch chân",
       "ul": "Danh sách",
       "ol": "Danh sách số"
-    }
+    },
+    "categoryRequired": "Nhập danh mục"
   },
   "channel": {
     "zalo_personal": "Zalo cá nhân",
@@ -237,5 +238,11 @@
     }
   },
   "agent": "AI Agent",
-  "unit": "ticket"
+  "unit": "ticket",
+  "categoryInput": {
+    "suggested": "Gợi ý",
+    "used": "Đã dùng trong ticket",
+    "more": "Tải thêm nhãn đã dùng",
+    "free": "Dùng \"{q}\" làm danh mục mới"
+  }
 }

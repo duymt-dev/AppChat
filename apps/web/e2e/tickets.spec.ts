@@ -98,7 +98,7 @@ test.describe('tickets', () => {
     await f.getByTestId('tk-company').fill('Cty Hoà Bình');
     await f.getByTestId('tk-email').fill('ketoan@hoabinh.vn');
     await f.getByTestId('tk-channel').selectOption('email');
-    await f.getByTestId('tk-category').selectOption('Billing');
+    await f.getByTestId('tk-category').fill('Billing');
     await f.getByTestId('tk-priority').selectOption('medium');
     await f.getByTestId('tk-desc').fill('Cần hoá đơn cho gói 10 buổi');
     await f.getByTestId('tk-save').click();
