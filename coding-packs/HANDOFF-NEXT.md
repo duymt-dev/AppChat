@@ -4,7 +4,9 @@
 
 ## TIẾN ĐỘ GOAL-RELEASE — đang chạy (2026-11-03)
 
-**Mới nhất (2026-11-12, 033c pha 2 — thẻ Lịch hẹn + Hộp thư).** PR #194 (`tip/033c-p2-order-card`, xếp chồng #193). `shared/appointment-order` (thẻ + hook) ở drawer lịch (gỡ cờ `suggestFor`) và ChatPanel; xem trước bắt buộc → biên nhận / reused / đã đổi / không khả dụng; mock ap_1202 ↔ c_linh. E2E mock 22 xanh, unit 4/4, parity calendar / inbox ≤ 4.7%. PD-028, DV-109. Kế tiếp: pha 3 GenUI Trợ lý `appointment_order` + discovery + ROLE=ai.
+**Mới nhất (2026-11-12, 033c pha 3 — Trợ lý GenUI).** PR #195 (`tip/033c-p3-assistant`, xếp chồng #194). Khối GenUI đóng `appointment_order` (chỉ id), `render` kiểm qua bộ đọc gợi ý booking (quyền hiện hành), thẻ web dùng lại thẻ chung; ROLE=ai test thành phần. Integration 10/10, E2E mock 35 xanh. Đỏ có sẵn ngoài phạm vi: `genui-context.test.ts` ca marketing (đỏ cả trước pha). Kế tiếp: pha 4 — E2E http + ai:live `fixtures/ai-eval/appointment-order.json` (6 ca) + completion report.
+
+**Trước đó (2026-11-12, 033c pha 2 — thẻ Lịch hẹn + Hộp thư).** PR #194 (`tip/033c-p2-order-card`, xếp chồng #193). `shared/appointment-order` (thẻ + hook) ở drawer lịch (gỡ cờ `suggestFor`) và ChatPanel; xem trước bắt buộc → biên nhận / reused / đã đổi / không khả dụng; mock ap_1202 ↔ c_linh. E2E mock 22 xanh, unit 4/4, parity calendar / inbox ≤ 4.7%. PD-028, DV-109. Kế tiếp: pha 3 GenUI Trợ lý `appointment_order` + discovery + ROLE=ai.
 
 **Trước đó (2026-11-12, 033c pha 1 — backend gợi ý tạo đơn).** PR #193 (`tip/033c-appointment-order-suggestions`, xếp chồng #192). `appointment.order_suggestions` (theo lịch / hội thoại, phép chiếu hiện hành, con trỏ gắn người xem) + `order.create_from_appointment` xem trước bắt buộc ràng version lịch / giá / thuế / khách gốc (409 stale, `reused`) — DC-441. **Migration tenant `20261112010000_appointment_order_suggestions`** (đã áp dev + test + template). Test: integration 8/8 (EXPLAIN 100k) + booking / ma trận 15/15, core unit 24/24. Kế tiếp: pha 2 UI thẻ chung Lịch + Hộp thư.
 
