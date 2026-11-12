@@ -389,6 +389,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `sla_policy` | name, is_default (không xoá được), frt_human_min (10), ttr_human_min (240), business_hours_only, escalation jsonb, active |
 | `ticket` | code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, team_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count. Index: idx(status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
 | `ticket_comment` | ticket_id, author_type, author_id, body, internal bool |
+| `ticket_category_config` | key = 'ticket_categories' (một dòng), labels jsonb (1–100 nhãn có thứ tự, nhãn đầu = mặc định), version, updated_at, updated_by — TIP-034b: chỉ là bộ GỢI Ý; chưa có dòng = version 0 ảo 8 nhãn prototype; `ticket.category` vẫn chữ tự do, không FK. Index nhãn đã dùng: `ticket(category COLLATE "C")`, `(assignee_user_id, category COLLATE "C")`, `(created_by_type, created_by_id, category COLLATE "C") INCLUDE(id)` |
 
 **[T] tenant/marketing.prisma** — `segment(name, filter jsonb /* AST điều kiện */, is_dynamic, last_count)`; `campaign(code, name, kind(reactivation|upsell|conversion|aftercare|manual), channel(zalo|email), segment_id, content jsonb {text, variables, cta, attachments}, ab jsonb?, status(draft|pending_approval|approved|scheduled|running|paused|completed|rejected|cancelled), scheduled_at?, approved_by?, approved_at?, est_recipients, est_credits, stats jsonb, suggestion_id?)`; `campaign_recipient(campaign_id, contact_id, status(pending|skipped|sent|failed|replied|converted), skip_reason?, message_id?, sent_at?)` với unique(campaign_id, contact_id); `campaign_suggestion(kind, title, reason, segment_filter, est_count, best_time, channel, status(new|used|dismissed), generated_at)`.
 
@@ -469,6 +470,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `invoice.overdue` | | nhắc khách T+1 / T+7; công nợ |
 | `appointment.created` / `confirmed` / `completed` / `no_show` / `cancelled` | | reminders, timeline, ai tasks; `completed` → trừ buổi `customer_package` hoặc **gợi ý** tạo đơn (8b) |
 | `ticket.sla_warning` / `ticket.sla_breached` / `ticket.closed` | | notify, escalation, csat |
+| `ticket_categories.changed` | key, version (không nhãn) | realtime: `ticket_categories.config` (settings.manage) + `ticket_categories.suggestions` (ticket.view) — client đọc lại REST (TIP-034b) |
 | `campaign.approved` / `campaign.completed` | | sender job, campaign stats |
 | `ai.run.completed` / `approval.requested` / `approval.decided` | | WS push, notify, resume run |
 | `credits.low` / `credits.exhausted` / `credits.restored` | | notify; inbox chuyển hội thoại auto về người / mở lại |
@@ -756,6 +758,10 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `ticket.reopen` | write | | |
 | `ticket.bulk_update` | write, bulk | | 24h |
 | `sla.update_default` | config | | |
+| `ticket.category_suggestions` | read (ticket.view, kỹ năng AI — không tự cấp) | ✓ | |
+| `ticket_categories.get` | read (settings.manage) | | |
+| `ticket_categories.replace` | config (settings.manage, `if_version`, xem trước trước / sau; nhập tệp 038b `ticket_category_suggestions` = một lệnh này) | | 24h |
+| `ticket_categories.export` | write (settings.manage, data_job CSV / XLSX — chỉ bộ cấu hình) | | |
 
 **marketing** (`campaign.view` · `campaign.manage` · `campaign.approve`)
 
@@ -981,7 +987,7 @@ type UiCommand =
 | contracts | `GET /v1/contracts?status=&kind=&contact_id=&expiring_within=` · `GET /v1/contracts/:id` (+ phụ lục, người ký, sự kiện ký) · `GET /v1/contracts/:id/pdf` · `GET /v1/doc-templates?kind=` · **public:** `GET /v1/public/sign/:token` (PDF + thông tin hiển thị) · `POST /v1/public/sign/:token/otp` · `POST /v1/public/sign/:token/sign` { otp, signature_png, consent: true } · `POST /v1/public/sign/:token/decline` { reason? } — rate-limit theo token + IP, OTP 6 số, sai 5 lần thì khoá link |
 | sales | `GET /v1/quotes?status=&contact_id=` · `GET /v1/quotes/:id` (gồm các version) · `GET /v1/quotes/:id/pdf` · `GET /v1/orders?…` · `GET /v1/orders/:id` · `GET /v1/invoices?…` · `GET /v1/invoices/:id` · `GET /v1/invoices/:id/qr` |
 | booking | `GET /v1/appointments?from=&to=&staff_id=&status=` · `GET /v1/appointments/:id` · `GET /v1/staff` · `GET /v1/booking/slots?service_id=&date=&staff_id=` |
-| support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` |
+| support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` · `GET /v1/support/category-suggestions?cursor=` (ticket.view: bộ cấu hình + ≤ 50 nhãn đã dùng trong ticket người xem thấy, cursor mờ — TIP-034b) · `GET /v1/settings/ticket-categories` (settings.manage: chỉ bộ cấu hình) |
 | marketing | `GET /v1/segments` · `segment.preview` (action đọc) · `GET /v1/campaigns?status=&channel=&q=&page=&limit=` · `GET /v1/campaigns/meta` · `GET /v1/campaigns/:id` (+stats, 50 người nhận đầu) · `GET /v1/campaigns/:id/recipients?status=&page=&limit=` · `GET /v1/campaign-suggestions` · `GET /v1/campaign-analyses/:run_id` (trạng thái lượt phân tích của chính người xem) · công khai `GET /v1/public/campaign-unsubscribe/:token` + `POST …/confirm` (TIP-037) |
 | loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=&page=&limit=` · `GET /v1/loyalty/members/:contactId` · `GET /v1/loyalty/members/:contactId/ledger` · `GET /v1/loyalty/lookup?phone=` · `GET /v1/loyalty/overview` · `GET /v1/loyalty/members/:contactId/files` (+ `/:fileId` bytes) — bổ sung TIP-036, schema chung `packages/shared/src/api/loyalty.ts` |
 | ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/sources/:id/download` (TIP-020b — byte / văn bản, URL / catalog trả JSON mô tả; không tải lại website) · `GET /v1/kb/suggestions?status=&cursor=&limit=` (P1; TIP-043 — `{data, next_cursor, meta:{pending}}`) · `GET /v1/kb/suggestions/:id` · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
