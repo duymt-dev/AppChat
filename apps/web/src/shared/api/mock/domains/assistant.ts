@@ -8,6 +8,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { createTasksState, type MockTask } from './ai-tasks';
 import { genUiReply } from './assistant-genui';
+import { orderSuggestions } from './calendar';
 import { recordTurn } from './assistant-sessions';
 import { planForTurn } from './assistant-plans';
 import { bindTurnInputs } from './assistant-input';
@@ -181,6 +182,13 @@ export const scriptReply = (db: MockDb, text: string, route?: string) => {
   const low = text.toLowerCase();
   const ui = genUiReply(low, route);
   if (ui) return ui;
+  // TIP-033c: "tạo đơn cho buổi …" → khối `appointment_order` (chỉ id lịch; thẻ tự đọc giá hiện hành) cho lịch đầu tiên còn gợi ý.
+  if (/tạo đơn cho buổi|create an order for (the|this) session/.test(low)) {
+    const hit = db.calendar.appointments.filter((a) => !a.deleted).map((a) => orderSuggestions(db, { appointment_id: a.id }).data[0]).find(Boolean);
+    if (!hit) return [{ type: 'delta' as const, text: fixture.fallback }];
+    const tree = { version: 1 as const, root: { type: 'appointment_order' as const, appointment_id: hit.appointment_id } };
+    return [{ type: 'delta' as const, text: `Buổi ${hit.code} chưa có đơn:` }, { type: 'ui' as const, tree, run_id: `run_mock_ao_${++db.assistant.seq}`, refs: {}, intents: {} }];
+  }
   const intent = fixture.intents.find((i) => new RegExp(i.re).test(low));
   if (intent) {
     const token = `cf_${++db.assistant.seq}`;

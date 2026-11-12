@@ -1,12 +1,15 @@
 // TIP-033c (AC1–AC6): gợi ý tạo đơn từ lịch hẹn là phép chiếu HIỆN HÀNH từ dữ kiện bền — đọc lại sau tải lại; theo hội thoại chỉ lịch gắn
 // đúng hội thoại + họ khách; chưa xong / đã có đơn / dịch vụ ngừng bán → không thẻ (liệu trình → 409 ở booking.test); tạo đơn chỉ qua
 // order.create_from_appointment với xác nhận ràng giá / version (đổi giá sau xem trước → 409 stale, 0 ghi); hai xác nhận song song khác
-// khoá → một đơn; token đã dùng không tạo thêm đơn; hoàn thành lịch không tự tạo đơn.
+// khoá → một đơn; token đã dùng không tạo thêm đơn; hoàn thành lịch không tự tạo đơn. Trợ lý (§2.2): khối GenUI `appointment_order` chỉ
+// nhận lịch còn thẻ cho người dùng (đã có đơn → model sửa một lần), lưu cây không giá, mở lại phiên dựng lại không gọi model.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
 import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appchat/db';
-import { uuidv7 } from '@appchat/core';
+import { AiSdkEngine, mockLanguageModel, staticModelSource, type MockScript } from '@appchat/ai';
+import { ActionExecutor, AiRunner, CreditMeter, DbPriceBook, GenUiIntents, REDIS, WalletService, assistantTurn, createLogger, uuidv7, type AssistantDeps } from '@appchat/core';
+import { assistantMessageSchema, authzForRole, type GenUiPart } from '@appchat/shared';
 import { call, env, startApi, type Harness } from './setup';
 
 let h: Harness;
@@ -205,4 +208,56 @@ describe('index / EXPLAIN (AC8)', () => {
       await c.end();
     }
   }, 120_000);
+});
+
+describe('Trợ lý — khối GenUI appointment_order (§2.2)', () => {
+  const PROVIDER = `t-${uuidv7().slice(-12)}`;
+  let calls = 0;
+  function deps(script: MockScript): AssistantDeps {
+    const model = mockLanguageModel(script, { provider: PROVIDER, model: 'mock-chat' });
+    const spy = model.doStream.bind(model);
+    model.doStream = async (o) => (calls++, spy(o));
+    const runner = new AiRunner({ engine: new AiSdkEngine(staticModelSource([{ provider: PROVIDER, model: 'mock-chat', handle: model }])), meter: new CreditMeter(h.app.get(WalletService, { strict: false }), new DbPriceBook(h.platform)), log: createLogger({ level: 'silent' }) });
+    const kv = h.app.get(REDIS, { strict: false });
+    return { executor: h.app.get(ActionExecutor, { strict: false }), runner, kv, pub: kv, intents: h.app.get(GenUiIntents, { strict: false }), now: () => h.clock.now(), planKey: async () => 'business' };
+  }
+  const turn = async (script: MockScript, text: string) =>
+    assistantTurn(deps(script), await db(), { mode: 'cowork', ws: h.ws, userId: h.user, authz: authzForRole('owner', h.user), userName: 'Owner', locale: 'vi', role: 'owner', text, requestId: `req-${uuidv7()}` });
+  const render = (id: string) => ({ tool: 'render', input: { tree: { version: 1, root: { type: 'stack', children: [{ type: 'text', text: 'Buổi vừa xong' }, { type: 'appointment_order', appointment_id: id }] } } } });
+  const uiOf = (events: { type: string }[]) => events.find((e) => e.type === 'ui') as GenUiPart | undefined;
+
+  beforeAll(async () => {
+    await h.platform.modelPrice.create({ data: { providerKey: PROVIDER, model: 'mock-chat', tier: 'standard', creditsPer1kIn: 1, creditsPer1kOut: 3 } });
+    await h.app.get(WalletService, { strict: false }).topup(h.ws, 1000, { refType: 'test', refId: uuidv7() });
+  });
+  afterAll(() => h?.platform.modelPrice.deleteMany({ where: { providerKey: PROVIDER } }));
+
+  it('lịch còn thẻ → phần ui có khối, tin lưu cây không giá; mở lại phiên dựng lại không gọi model; không tự tạo đơn', async () => {
+    const t = await db();
+    const id = await appt({ conv: null });
+    const before = await t.order.count();
+    const r = await turn(({ call: n }) => (n === 0 ? { tool: 'call_action', input: { action_id: 'appointment.order_suggestions', input: { appointment_id: id } } } : n === 1 ? render(id) : { text: 'Bạn muốn tạo đơn cho buổi này không?' }), 'tạo đơn cho buổi vừa xong');
+    const ui = uiOf(r.events);
+    expect(JSON.stringify(ui?.tree)).toContain('"appointment_order"');
+    const msg = await t.assistantMessage.findFirstOrThrow({ where: { sessionId: r.session_id, role: 'assistant' }, orderBy: { createdAt: 'desc' } });
+    expect(JSON.stringify(msg.content)).not.toMatch(/300000|324000|350000/);
+    const n = calls;
+    const again = await call(h, `/assistant/sessions/${r.session_id}/messages`, undefined).then((x) => x.json() as Promise<{ data: unknown[] }>);
+    expect(again.data.map((m) => assistantMessageSchema.parse(m)).some((m) => JSON.stringify(m.ui?.tree ?? '').includes(id))).toBe(true);
+    expect(calls).toBe(n);
+    expect(await t.order.count()).toBe(before);
+  });
+
+  it('lịch đã có đơn → render bị từ chối, model sửa một lần (bỏ khối); thẻ không dựng từ chữ model', async () => {
+    const id = await appt({ conv: null });
+    expect((await confirm(id, await preview(id))).status).toBe(200);
+    let tries = 0;
+    const r = await turn(({ call: n }) => {
+      if (n <= 1 && tries++ === 0) return render(id);
+      if (n <= 2 && tries === 1) return (tries++, { tool: 'render', input: { tree: { version: 1, root: { type: 'text', text: 'Buổi này đã có đơn.' } } } });
+      return { text: 'Buổi này đã có đơn.' };
+    }, 'tạo đơn buổi đã có đơn');
+    const ui = uiOf(r.events);
+    expect(JSON.stringify(ui?.tree ?? {})).not.toContain('appointment_order');
+  });
 });

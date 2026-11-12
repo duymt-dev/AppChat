@@ -7,7 +7,7 @@ import { TenantSql as Prisma } from '@appchat/db';
 import { AppError, quoteTotals, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { bookingScopeSql, inBookingScope, UUID } from '../booking-access';
-import { visibleConversation } from '../../inbox/public';
+import { visibleConversation } from '../../inbox/services/access';
 import { familyIdsSql } from '../../crm/lifecycle/family-sql';
 import { canCreateOrder, canSeeSuggestion, ineligible, liveRoot, type ServiceRow, type SuggestionSource } from './authority';
 

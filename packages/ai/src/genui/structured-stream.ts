@@ -6,7 +6,7 @@ import { parsePartialJson } from 'ai';
 import { GENUI_LIMITS } from '@appchat/shared';
 
 /** Loại khối hiện được trong khung xương (danh sách đóng — standard §2). */
-const BLOCKS = new Set(['stack', 'row', 'section', 'text', 'stat', 'stat_group', 'table', 'list', 'progress', 'badge', 'chart', 'button', 'button_group', 'form', 'qr']);
+const BLOCKS = new Set(['stack', 'row', 'section', 'text', 'stat', 'stat_group', 'table', 'list', 'progress', 'badge', 'chart', 'button', 'button_group', 'form', 'qr', 'appointment_order']);
 const CONTAINERS = new Set(['stack', 'row', 'section']);
 
 export interface SkeletonNode {
