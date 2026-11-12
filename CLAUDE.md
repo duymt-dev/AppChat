@@ -93,7 +93,7 @@ messages/<locale>/<module>.json   vi (nguồn) + en
 
 ## 6. Prototype (chuẩn UI duy nhất)
 
-File: `coding-packs/docs/06-prototype/AppChat.dc.html` (**ver2.1**, 12.5k dòng; template + `class Component` logic). Bản prototype mới phải chạy `node tools/scripts/normalize-prototype.mjs` (về thang D41) trước khi commit (D44). Bản đồ dòng ver2.1 đầy đủ: `00-PROJECT-CONTEXT.md` → *SCAN DELTA — Prototype ver2.1*. Các file `.jsx` trong `jsx-reference/` chỉ để đọc logic, **không** dùng để so pixel.
+File: `coding-packs/docs/06-prototype/AppChat.dc.html` (**bản 2026-11-10**, 13.7k dòng; template + `class Component` logic; giải từ bản đóng gói `AppChat (standalone).html` — CHANGELOG 2026-11-12). Bản prototype mới phải chạy `node tools/scripts/normalize-prototype.mjs` (về thang D41) trước khi commit (D44). Bản đồ dòng ver2.1 (lịch sử): `00-PROJECT-CONTEXT.md` → *SCAN DELTA — Prototype ver2.1*; bảng dưới là dòng của bản 2026-11-10. Các file `.jsx` trong `jsx-reference/` chỉ để đọc logic, **không** dùng để so pixel.
 
 | Vùng | Dòng | Ghi chú |
 |------|------|---------|
@@ -102,13 +102,13 @@ File: `coding-packs/docs/06-prototype/AppChat.dc.html` (**ver2.1**, 12.5k dòng;
 | Auth: login / register / forgot / OTP | L471–647 | |
 | Modal / popover toàn cục | L653–966 | ＋ L653 · tuỳ chỉnh 360° L690 · việc đang chạy L736 · email L760 · kết nối kênh L777 · drawer kênh L870 |
 | Popup trial / khai báo DN | L967–1088 | |
-| Shell: NavRail (đáy rail: search, thông báo, Nâng cấp, trial badge, avatar) | L1089–1362 | **không có topbar** |
-| Màn: dashboard L1369 · assistant L1468 · inbox L1808 · agents L2581 · customers L2805 · marketing L3760 · calendar L4237 · loyalty L4778 · tickets L5203 · quotes L5323 · invoices L5599 · contracts L5709 · orders L5855 · products L5990 · settings L6120 | | workflow L3351, callcenter L4601, reports L5106 = **ẩn** |
-| Settings sections | L6141–7813 | in-scope theo Blueprint §7.2 settings registry (thêm Hồ sơ 360° L6397) |
-| State + dữ liệu mẫu | L8052+ | nguồn cho `fixtures/prototype-parity` |
-| `renderVals()` (logic hiển thị) | L8902+ | |
+| Shell: NavRail (đáy rail: search, thông báo, Nâng cấp, trial badge, avatar) | L1089–1364 | **không có topbar** |
+| Màn: dashboard L1370 · assistant L1469 · inbox L1809 · agents L2611 · customers L2915 · marketing L3910 · calendar L4393 · loyalty L4977 · tickets L5632 · quotes L5752 · invoices L6056 · contracts L6167 · orders L6313 · products L6448 · settings L6578 | | workflow L3494, callcenter L4775, reports L5305 = **ẩn**; finance L5473 · hẹn gọi lại L2835 · chi tiết cơ hội L2852 = mới, chưa vào phạm vi (Q-065) |
+| Settings sections | L6600–8340 | in-scope theo Blueprint §7.2 settings registry (Hồ sơ 360° L6857) |
+| State + dữ liệu mẫu | L8651+ | nguồn cho `fixtures/prototype-parity` |
+| `renderVals()` (logic hiển thị) | L9997+ | |
 
-Thứ tự module trong rail (prototype L8999): dashboard · assistant · inbox · customers · calendar · agents · (workflow) · marketing · (callcenter) · loyalty · (reports) · tickets · quotes · contracts · orders · products · settings.
+Thứ tự module (prototype L10098): dashboard · assistant · inbox · customers · (finance) · calendar · agents · (workflow) · marketing · (callcenter) · loyalty · (reports) · tickets · quotes · contracts · orders · products · settings.
 
 ## 7. Môi trường dev
 

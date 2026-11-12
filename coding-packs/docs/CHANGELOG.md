@@ -854,6 +854,25 @@ Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon
 
 ---
 
+## [2026-11-12] — Prototype mới (bản 2026-11-10) thay ver2.1
+
+**Nguồn:** `Team Work AppChat – AppChat.html` (bản đóng gói tự giải nén, lưu 2026-11-10). Bản gốc giữ nguyên ở `06-prototype/AppChat (standalone).html`; `AppChat.dc.html` là bản nguồn giải ra từ đó (support.js · font Google · `assets/appchat-symbol.png` dùng lại như cũ), đã chạy `normalize-prototype.mjs` (D44, 10.836 giá trị). Đo trên Playwright: bản giải ra khớp bản đóng gói ≤ 0,005% ở 14 màn.
+
+**Màn / khối mới trong prototype:**
+- **Tài chính** (`finance`, rail sau Khách hàng, badge 4) — doanh số & công nợ theo khách từ bán mới · gia hạn · marketing: 4 KPI (Doanh số · Đã thu · Còn nợ · Quá hạn), lọc đơn vị / hoạt động / mốc đếm ngày, chip trạng thái (Đã thu đủ · Đã cọc · Còn nợ · Quá hạn), bảng có số ngày còn lại / quá hạn và nhắc gần nhất.
+- **Báo cáo** có lại mục trên rail (chỉ icon, sau Quy trình).
+- **Cơ hội / Sales Pipeline** dùng chung mọi màn: thẻ trong Hồ sơ 360° (Hộp thư + Khách hàng) — giai đoạn, xác suất, dự báo, ngày dự kiến chốt, phụ trách, sản phẩm, báo giá liên quan, gợi ý AI bước tiếp theo, *Chuyển giai đoạn · Mở cơ hội*; drawer **Cơ hội 360°** (Mở lại · Đánh dấu Thua bắt buộc chọn lý do · Khách hàng 360° · cơ hội khác của khách · lịch sử).
+- **Công nợ · Tài chính** trong Hồ sơ 360° — số còn nợ, thanh đã thu / cọc, hạn, *Gửi email nhắc · Xem ở Tài chính ›*.
+- **Hẹn gọi lại** (modal dùng chung): thời điểm · người gọi · ghi chú.
+- **Khách hàng**: bảng thêm cột *Cơ hội đang mở*; *Gửi Zalo ZBS* (Coming soon) cạnh *Gửi email*.
+- **Cài đặt**: Tổng đài (lời chào & menu phím, nhóm nhận cuộc gọi, máy nhánh, ghi âm & giám sát), KPI theo cây tổ chức (mục tiêu quý · tổng cấp dưới · chia đều), Vai trò (*Sửa & phân quyền · Nhân bản · Xoá*).
+
+**Ảnh hưởng:**
+- Baseline parity dịch theo bản mới: phần lớn màn ~0,2% (rail thêm 2 mục), **Hộp thư ~6,6%** và **Khách hàng ~3,7%** (thẻ Cơ hội / Công nợ trong Hồ sơ 360°, cột mới) — các màn này cần đo lại `pnpm parity` trên app.
+- Màn ẩn theo V2 (Quy trình · Gọi điện · Báo cáo) và phạm vi module vẫn theo Blueprint §7 / D-quyết định hiện hành; prototype mới **không** ghi đè D42 (D43). Tài chính / Cơ hội là màn chưa có trong scope — cần chốt phạm vi trước khi đưa vào TIP.
+
+---
+
 ## [2026-10-27] — Cài đặt → Phòng ban: tạo · cấu hình · xoá · xem thành viên
 
 Trước đây 3 nút trên trang Phòng ban không có hành động. Nay:
