@@ -88,7 +88,7 @@ export function variantsOf(attrs: Row[]): string[] {
   return combos.slice(0, 24).map((c) => c.join(' · '));
 }
 
-/** Chuyển bản nháp sang input action product.create / product.update (tiền string VND, chỉ gửi ô có giá trị). */
+/** Chuyển bản nháp sang input action product.create / product.update (tiền string VND, chỉ gửi ô có giá trị). Mô tả đi riêng qua trình soạn (TIP-027b). */
 export function toInput(d: ProductDraft) {
   const attrs = d.attrs
     .filter((a) => a.name.trim() && a.value.trim())
@@ -111,7 +111,6 @@ export function toInput(d: ProductDraft) {
     category: d.category || undefined,
     price: d.price,
     status: d.status,
-    description: d.description.trim() || undefined,
     ...(d.type === 'physical'
       ? { sku: d.sku.trim() || undefined, stock: num(d.stock), cost }
       : {}),

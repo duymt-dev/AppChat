@@ -1,5 +1,5 @@
 // Kiểu dữ liệu Sản phẩm (Blueprint §2.2 catalog; COMMERCE §2). Tiền là string VND, giá chưa VAT.
-import type { CustomValues } from '@appchat/shared';
+import type { CustomValues, DescriptionDoc, ProductMediaDto } from '@appchat/shared';
 
 export type ProductType = 'physical' | 'service' | 'combo' | 'package' | 'digital' | 'rental';
 
@@ -18,6 +18,10 @@ export interface Product {
   status: 'active' | 'draft';
   channels: string[];
   description: string;
+  /** TIP-027b — mô tả có định dạng (vắng = sản phẩm cũ, chỉ chữ thuần). */
+  description_doc?: DescriptionDoc | null;
+  /** TIP-027b — ảnh / tài liệu của sản phẩm (GET /products/:id). */
+  media?: ProductMediaDto;
   attrs: string[];
   stock: number | null;
   sessions: number | null;
