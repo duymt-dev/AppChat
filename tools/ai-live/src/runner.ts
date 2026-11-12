@@ -25,6 +25,7 @@ import { tenantMailCase } from './tenant-mail-judge';
 import { bookingCase } from './booking-judge';
 import { appointmentOrderCase } from './appointment-order-judge';
 import { recordFilesCase } from './record-files-judge';
+import { productMediaCase } from './product-media-judge';
 import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
 import { utilityCase } from './utility-judge';
@@ -122,6 +123,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.booking) return bookingCase(api, c, attempt, o);
   if (c.appointment_order) return appointmentOrderCase(api, c, attempt, o);
   if (c.record_files) return recordFilesCase(api, c, attempt, o);
+  if (c.product_media) return productMediaCase(api, c, attempt, o);
   if (c.cedit) return ceditCase(api, c, attempt, o);
   if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.utility) return utilityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
