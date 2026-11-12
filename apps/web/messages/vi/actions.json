@@ -622,6 +622,10 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái báo giá (hệ thống)"
+    },
+    "retry_render": {
+      "title": "Thử tạo lại PDF báo giá",
+      "desc": "Tạo lại PDF đóng băng của báo giá đã gửi khi lần tạo trước bị lỗi; PDF xong sẽ tự gửi vào hội thoại của khách."
     }
   },
   "contract": {

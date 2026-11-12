@@ -41,6 +41,8 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   'contact.lifecycle': [['crm'], INBOX_LIST, ['inbox', 'conversation']],
   // cấu hình lịch hẹn đổi (TIP-033b — chỉ phạm vi + version) → Cài đặt Lịch hẹn + lịch / slot đọc lại
   'booking.config': [['settings', 'booking'], ['calendar']],
+  // PDF chứng từ phát hành render xong / lỗi (TIP-028b — chỉ loại + id + trạng thái) → danh sách + chi tiết báo giá đọc lại
+  'document.render': [['quotes']],
 };
 
 /** Khoá cần làm mới của một sự kiện (sự kiện hội thoại → theo `conversation_id`). */

@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 5 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 136 | 6 | 0 | 2 | 9 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 167 | 8 | 0 | 9 | 10 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 405 | 31 | 1 | 4 | 15 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 406 | 31 | 1 | 4 | 15 | 3 | 0 | 0 |
 | E. standards/* | 228 | 30 | 0 | 7 | 23 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 0 | 14 | 0 | 2 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 25 | 2 | 0 | 0 |
-| **Tổng** | **1248** | **87** | **16** | **49** | **89** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 78 | 5 | 1 | 14 | 25 | 2 | 0 | 0 |
+| **Tổng** | **1250** | **86** | **16** | **49** | **89** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -801,6 +801,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-quote.create | `quote.create` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:671 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/quote.create.action.test.ts |
 | ACT-quote.update | `quote.update` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:672 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/quote.update.action.test.ts |
 | ACT-quote.delete | `quote.delete` (delete) — handler qua ActionExecutor | 02-TASK-GRAPH.md:168 | 029 | ĐẠT | packages/core/src/sales/quotes/actions/quote-write.handlers.ts:126; test quotes.test.ts, quote-state.test.ts — không có trong Blueprint §3.4 (chưa bổ sung) |
+| ACT-quote.retry_render | `quote.retry_render` (write) — Thử lại render PDF báo giá đã gửi | coding-packs/tips/TIP-028b-document-integrity.md:38 | 028b | ĐẠT | packages/core/src/sales/quotes/actions/quote-render.handler.ts; ma trận apps/api/test/integration/actions/quote.retry_render.action.test.ts; doc-render-queue.test.ts — không có trong Blueprint §3.4 (DV-116) |
 | ACT-quote.submit_for_approval | `quote.submit_for_approval` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:673 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/quote.submit_for_approval.action.test.ts |
 | ACT-quote.approve | `quote.approve` (money) — handler qua ActionExecutor | plans/BLUEPRINT.md:674 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/quote.approve.action.test.ts |
 | ACT-quote.reject_internal | `quote.reject_internal` (money) — handler qua ActionExecutor | plans/BLUEPRINT.md:674 | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/quote.reject_internal.action.test.ts |
@@ -1647,7 +1648,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-026-2 | Kanban khách > 50 thẻ / cột có "Xem thêm" | reports/TIP-026-completion.md:32 | 026b | ĐẠT | TIP-026b P3 (DC-389): GET /contacts/board trả next_cursor mỗi cột + GET /contacts/board/:stage (cursor seek, 50 / tối đa 100); features/customers/hooks/useCustomerBoard.ts + components/CustomerBoard.tsx "Tải thêm (n)" (crm-board-page.test.ts 160 khách → 4 trang không trùng; useCustomerBoard.test.tsx) |
 | DEF-027-1 | Chặn sửa / xoá tay nguồn RAG `origin=catalog` | reports/TIP-027-completion.md:32 | 020b | ĐẠT | source-policy.ts assertEditable trong update / remove / undo (kb.handlers.ts) + preview; test kb-management.test.ts AC4 (CONFLICT, catalog-sync vẫn cập nhật một nguồn) |
 | DEF-027-2 | Lỗi `permission denied for table outbox_event` lần provision đầu — tìm nguyên nhân | reports/TIP-027-completion.md:26 | 045 | CHƯA | packages/db/src/provisioner.ts:38-46 cấp quyền sau clone, setup.ts:100-108 đặt default privilege; không đủ chứng minh DB cũ đúng grant. Report nói lỗi ở workspace dev cũ, không phải workspace test. Chưa tái hiện; cần regression clone/migrate bằng tenant_app, không chữa bằng superuser 045 SPEC1.5/AC2 production-bootstrap regression covers fresh clone + older migrated fixture domain/outbox write as tenant_app; historical denial root cause remains unproved until reproduced, not cured by superuser. |
-| DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | 028b | MỘT PHẦN | PDF đóng băng render trong `prepare` của API (DV-008/009); không có queue `doc-render` (documents/jobs/documents.jobs.module.ts:2 chỉ comment); TIP-028b nhận (2026-11-02); pha 1 (phiên bản mẫu / bảng kiểm / undo) xong 2026-11-12 — queue doc-render ở pha 2 |
+| DEF-028-1 | Queue `doc-render` (ROLE=jobs) cho PDF chứng từ phát hành | reports/TIP-028-completion.md:30 | 028b | ĐẠT | TIP-028b pha 2: queue `doc-render` ROLE=jobs (documents/jobs/doc-render.processor.ts — consumer `documents.render`, jobId render:thế hệ, 2 việc / tiến trình, vòng quét mỗi phút; documents.jobs.module.ts), bảng `document_render` (documents.prisma, migration 20261112060000_doc_render), runner (documents/render/runner.ts — tệp id tất định, thử lại 3 lần → `render_failed` + event mã sạch); `quote.send` ghi `pending_render` + outbox, job render + gửi tin (sales/quotes/services/quote-render.ts); `quote.retry_render`; FE RenderStatus "Đang tạo PDF" / Thử lại + WS `document.render` (DV-116). Test doc-render-queue.test.ts (AC1 / AC2 / thử lại / sweep + EXPLAIN), quote.retry_render.action.test.ts, E2E mock quotes + http quotes / documents |
 | DEF-028-2 | systemd LibreOffice (user riêng, không mạng) + `SOFFICE_PATH` + bộ font | reports/TIP-028-completion.md:31 | 045 | CHƯA | infra/ chưa có; TG 045 ghi "LibreOffice + font" |
 | DEF-029-1 | Gửi báo giá / HĐ / đề nghị / nhắc hẹn / CSAT qua Zalo / Email thật | reports/TIP-029:28; 030:29; 032:28; 033:29; 034:29; 035:30 | — | CHỜ-TK | Q-003 / Q-004 (adapter giả) |
 | DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | ĐẠT | Đã làm ở TIP-030b F3 — xem COM-9-17 / ACT-contract.create_appendix |

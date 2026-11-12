@@ -622,6 +622,10 @@
     },
     "system_transition": {
       "title": "Quote system transition"
+    },
+    "retry_render": {
+      "title": "Retry quote PDF",
+      "desc": "Re-render the frozen PDF of a sent quote after the previous attempt failed; once ready it is sent to the customer conversation."
     }
   },
   "contract": {

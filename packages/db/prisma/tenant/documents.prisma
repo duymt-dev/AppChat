@@ -42,3 +42,32 @@ model DocTemplate {
 
   @@map("doc_template")
 }
+
+/// TIP-028b §1: trạng thái render PDF chứng từ phát hành (queue `doc-render`, ROLE=jobs). Một dòng mỗi chứng từ; thử lại → `generation` + 1.
+enum DocRenderStatus {
+  pending_render
+  rendered
+  render_failed
+
+  @@map("doc_render_status")
+}
+
+model DocumentRender {
+  id         String          @id @db.Uuid
+  /// Loại chứng từ đăng ký render (`quote`…) — domain chủ đăng ký cách render + phát hành.
+  kind       String
+  documentId String          @map("document_id") @db.Uuid
+  generation Int             @default(1)
+  status     DocRenderStatus @default(pending_render)
+  attempts   Int             @default(0)
+  /// Mã lỗi đã làm sạch của lần cuối (không stack / PII).
+  error      String?
+  fileId     String?         @map("file_id") @db.Uuid
+  /// Tham số phát hành chụp lúc yêu cầu (kênh, định dạng, người gửi `{type, id}`) — không nội dung chứng từ.
+  request    Json            @default("{}")
+  createdAt  DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt  DateTime        @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([kind, documentId])
+  @@map("document_render")
+}

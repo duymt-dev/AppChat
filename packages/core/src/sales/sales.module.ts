@@ -29,11 +29,13 @@ import { QuoteApproveHandler, QuoteRejectInternalHandler, QuoteSubmitHandler } f
 import { QuoteAcceptHandler, QuoteRejectHandler, QuoteRevisionHandler } from './quotes/actions/quote-decide.handlers';
 import { QuoteDraftFromContentHandler } from './quotes/actions/quote-draft.handler';
 import { QuoteExtendHandler, QuoteSendHandler } from './quotes/actions/quote-send.handlers';
+import { QuoteRetryRenderHandler } from './quotes/actions/quote-render.handler';
 import { QuoteCommentHandler, QuoteCreateHandler, QuoteDeleteHandler, QuoteUpdateHandler } from './quotes/actions/quote-write.handlers';
 import { QuoteGetHandler, QuoteSearchHandler } from './quotes/actions/quote-read.handlers';
 import { OrderGetHandler, OrderSearchHandler } from './orders/actions/order-read.handlers';
 import { InvoiceGetHandler, InvoiceSearchHandler, PackageSearchHandler } from './payments/actions/invoice-read.handlers';
 import { QuoteDeps } from './quotes/services/quote-deps';
+import { registerQuoteRenderKind } from './quotes/services/quote-render';
 import { quoteEnvFor } from './quotes/services/quote-env';
 import { QuotesReadService } from './quotes/services/quotes-read.service';
 import { SalesSettingsModule } from './settings/settings.module';
@@ -66,7 +68,7 @@ const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
 const HANDLERS = [
   QuoteCreateHandler, QuoteUpdateHandler, QuoteDeleteHandler, QuoteCommentHandler,
   QuoteSubmitHandler, QuoteApproveHandler, QuoteRejectInternalHandler,
-  QuoteSendHandler, QuoteExtendHandler,
+  QuoteSendHandler, QuoteExtendHandler, QuoteRetryRenderHandler,
   QuoteAcceptHandler, QuoteRejectHandler, QuoteRevisionHandler,
   QuoteDraftFromContentHandler,
   OrderCreateHandler, OrderFromQuoteHandler, OrderFromContractHandler,
@@ -96,6 +98,8 @@ const HANDLERS = [
         return new QuoteDeps(r ?? null, p ?? null, d ?? null, f ?? null, quoteEnvFor(env, key, widgetUrlsFor(env).api), m);
       },
     },
+    // TIP-028b: kind `quote` của queue doc-render (render + phát hành ở job; Thử lại ở API dùng cùng registry).
+    { provide: 'QUOTE_RENDER_KIND', inject: [QuoteDeps], useFactory: (d: QuoteDeps) => (registerQuoteRenderKind(d), true) },
     {
       provide: OrdersReadService,
       inject: [QuoteDeps, CLOCK],
