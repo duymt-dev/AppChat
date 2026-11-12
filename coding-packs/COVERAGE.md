@@ -17,9 +17,9 @@
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 167 | 8 | 0 | 9 | 10 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 404 | 32 | 1 | 4 | 15 | 3 | 0 | 0 |
 | E. standards/* | 226 | 31 | 0 | 7 | 24 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 68 | 0 | 18 | 0 | 2 | 5 | 0 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 70 | 0 | 16 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 14 | 25 | 2 | 0 | 0 |
-| **Tổng** | **1240** | **89** | **20** | **49** | **91** | **35** | **69** | **0** |
+| **Tổng** | **1242** | **89** | **18** | **49** | **91** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1508,8 +1508,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-marketing-recipacts | Bảng người nhận: nút xem / thêm (⋯) | docs/06-prototype/AppChat.dc.html:3869 | 037 | ĐẠT | components/RecipientActions.tsx (xem khách / ActionMenu theo năng lực); E2E mock chi tiết |
 | PRO-contracts-upload | Tab Tệp hợp đồng: Tải tệp lên | docs/06-prototype/AppChat.dc.html:5695 | 030b | ĐẠT | apps/web/src/features/contracts/components/files/ContractFilesTab.tsx — tải tệp lên gắn nguồn ký (contract.attach_file, chỉ nháp); E2E mock contract-files (TIP-030b F1) |
 | PRO-contracts-openfile | Tab Tệp hợp đồng: Mở tệp (tải file thật qua /files/:id/raw) | docs/06-prototype/AppChat.dc.html:5692 | 030b | ĐẠT | ContractFilesTab.tsx mở / tải bytes thật qua GET /contracts/:id/files/:fid (fetch có xác thực); E2E http contract-files kiểm content-type application/pdf (TIP-030b F1) |
-| PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | 032d | GIẢ | apps/web/src/features/orders/components/DetailTabs.tsx:219,225 `message.info`; order-insights.ts:75 files luôn rỗng |
-| PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | 032d | GIẢ | apps/web/src/features/invoices/components/DetailTabs.tsx:206,212 `message.info` |
+| PRO-orders-files | Tab Tệp đơn hàng: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5839 | 032d | ĐẠT | apps/web/src/shared/commerce-files/RecordFilesPanel.tsx (OrderDrawer chỉ truyền loại + id) → `order.files_list` / `order.file_attach` (tải `record_attachment` kèm đích, kiểm cấu trúc cô lập) / `order.file_detach`; Mở tải qua `/v1/files/:id` theo quyền đơn hiện hành; e2e http apps/web/e2e/http/commerce-files.spec.ts (bytes khớp sha256); Trợ lý sao chép có đồng ý (packages/core/src/sales/files/artifact-copy.ts) |
+| PRO-invoices-files | Tab Tệp đề nghị thanh toán: Mở / Tải tệp lên | docs/06-prototype/AppChat.dc.html:5692 | 032d | ĐẠT | apps/web/src/shared/commerce-files/RecordFilesPanel.tsx (InvoiceDrawer) → `invoice.files_list` / `invoice.file_attach` / `invoice.file_detach`; chứng từ đã sinh (PDF đề nghị / phiếu thu) chỉ Mở, không gỡ (packages/core/src/sales/payments/files/read.ts); e2e http apps/web/e2e/http/commerce-files.spec.ts |
 | PRO-products-files | Tab Tệp sản phẩm: Mở tệp | docs/06-prototype/AppChat.dc.html:6080 | 027b | GIẢ | apps/web/src/features/products/components/DetailTabs.tsx:207 `message.info(n)`; catalog-read.service.ts:109 files [] |
 | PRO-quotes-rowai | Dòng báo giá: nút ⚡ "AI xử lý" giao việc thật | docs/06-prototype/AppChat.dc.html:5371 | 023g | ĐẠT | apps/web/src/features/quotes/columns.tsx AiCell ⚡ → useRecordScopes.open(quote) + drawer Trợ lý gắn bản ghi (RecordDrawerSection, record_intent đọc lại bằng quote.get theo quyền); test record-ai-entrypoints/privacy (API) + record-ai-composition (worker) + e2e/record-ai.mock.spec.ts + e2e/http/record-ai.spec.ts; ai:live record-ai-entrypoints 30/30 |
 | PRO-contracts-rowai | Dòng hợp đồng: nút ⚡ "AI xử lý" | docs/06-prototype/AppChat.dc.html:5753 | 023g | ĐẠT | apps/web/src/features/contracts/columns.tsx ⚡ → drawer Trợ lý gắn hợp đồng (contract.get); test record-ai-entrypoints/privacy (API) + record-ai-composition (worker) + e2e/record-ai.mock.spec.ts + e2e/http/record-ai.spec.ts; ai:live record-ai-entrypoints 30/30 |

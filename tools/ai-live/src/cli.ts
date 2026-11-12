@@ -256,6 +256,12 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
     const ao = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'appointment-order-seed.mjs')).href)) as { seedAppointmentOrder(c: unknown, base: unknown, o: unknown): Promise<unknown> };
     seed = await ao.seedAppointmentOrder(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password });
   }
+  // Suite tệp đính kèm đơn / đề nghị (TIP-032d AC2/AC3/AC5/AC8): Sales thật + bộ theo khoá lượt (khách, đơn, đề nghị, tệp Trợ lý đã chuẩn bị).
+  if (suite.cases.some((x) => x.record_files)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const rf = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'commerce-files-seed.mjs')).href)) as { seedCommerceFiles(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    seed = await rf.seedCommerceFiles(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password });
+  }
   // Suite kế hoạch Cowork (TIP-023d): hai agent trùng tên (CRM / Sales có quote.send → duyệt) để chấm chọn theo UUID.
   if (suite.cases.some((x) => x.plan)) {
     const pl = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'assistant-plans-seed.mjs')).href)) as { seedPlans(c: unknown, base: unknown): Promise<unknown> };
