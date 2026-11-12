@@ -12,6 +12,7 @@ import * as ai from './ai';
 import * as aiUtilities from './ai-utilities';
 import * as catalog from './catalog';
 import * as catalogOperations from './catalog-operations';
+import * as productMedia from './product-media';
 import * as contactMemory from './contact-memory';
 import * as quotes from './quotes';
 import * as systemSales from './system/sales';
@@ -115,6 +116,7 @@ export { draftGenerationInfo, DRAFT_FALLBACK_REASONS, DRAFT_SCHEMA_VERSION, DRAF
 export * from './ai-utilities';
 export * from './catalog';
 export * from './catalog-operations';
+export * from './product-media';
 export * from './contact-memory';
 export * from './quotes';
 export * from './system/sales';
@@ -209,6 +211,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(aiUtilities),
   ...Object.values(catalog),
   ...Object.values(catalogOperations),
+  ...Object.values(productMedia),
   ...Object.values(contactMemory),
   ...Object.values(quotes),
   ...Object.values(systemSales),

@@ -19,6 +19,7 @@ export * from './contact-lifecycle';
 export * from './contact-merge';
 export * from './contact-memory';
 export * from './catalog';
+export * from './product-media';
 export * from './field-visibility';
 export * from './data-jobs';
 export * from './data-transfer';

@@ -6,7 +6,6 @@ import { AppError } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 import { claimFile } from '../../kernel/files/file-claims';
-import { VALIDATOR_VERSION } from '../../kernel/files/attachment-validation';
 
 export type ParentType = 'order' | 'invoice';
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -50,20 +49,7 @@ export async function setRevision(tx: Pick<TenantTx, 'recordAttachmentState'>, t
   return (await tx.recordAttachmentState.findUnique({ where: { parentType_parentId: { parentType: type, parentId } } }))?.revision ?? 0;
 }
 
-/**
- * Staging gắn được cho đúng cha: do chính người gọi tải lên cho ĐÚNG cha này, đã kiểm cấu trúc hợp lệ với validator hiện hành và digest
- * khớp tệp. Sai bất kỳ điều kiện → 422 / 409 có lý do trường (không lộ tệp của người khác — tệp lạ = not_found).
- */
-export async function stagedFor(tx: TenantTx, a: { fileId: string; userId: string; type: ParentType; parentId: string }) {
-  const s = UUID.test(a.fileId) ? await tx.attachmentStaging.findUnique({ where: { fileId: a.fileId } }) : null;
-  if (!s || s.uploadedBy !== a.userId) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'not_found' });
-  if (s.parentType !== a.type || s.parentId !== a.parentId) throw new AppError('CONFLICT', 409, { file_id: 'other_target' });
-  if (s.status === 'unavailable') throw new AppError('VALIDATION_ISOLATION_UNAVAILABLE', 503, { file_id: 'validation_unavailable' });
-  if (s.status !== 'structurally_valid') throw new AppError('VALIDATION_FAILED', 422, { file_id: s.status === 'rejected' ? (s.reason ?? 'rejected') : 'not_validated' });
-  const f = await tx.file.findUnique({ where: { id: a.fileId }, select: { id: true, sha256: true, purpose: true } });
-  if (!f || f.purpose !== 'record_attachment' || f.sha256 !== s.digest || s.validatorVersion !== VALIDATOR_VERSION) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'not_validated' });
-  return s;
-}
+export { stagedFor } from '../../kernel/files/attachment-targets';
 
 /**
  * Gắn một tệp đã kiểm (staging) vào cha — người gọi ĐÃ khoá khách gốc + cha và kiểm quyền GHI. Liên kết sống sẵn cho đúng cha → biên nhận

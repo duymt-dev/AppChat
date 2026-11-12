@@ -10,6 +10,7 @@ import { listProductIds, productStats, type ProductFilter } from '../repos/produ
 import { productActivity } from './activity';
 import { UUID } from './catalog-write';
 import { docOf } from '../description/view';
+import { listMedia } from '../media/read';
 import { PRODUCT_SELECT, attrsOf, categoryMap, connectedChannelTypes, partCounts, toRow, type ProductRecord, type ViewCtx } from './product-view';
 
 export interface Viewer {
@@ -83,7 +84,8 @@ export class CatalogReadService {
         tx.productVariant.findMany({ where: { productId: id, status: 'active' }, orderBy: [{ sku: 'asc' }], select: { id: true, sku: true, name: true, stock: true, price: true, version: true } }),
       ]);
       const row = toRow(p as ProductRecord, await this.view(tx, v, pl.locale), parts.length);
-      return { ...row, ...docOf(p.descriptionDoc), components: parts.map((c) => ({ id: c.childId, name: c.child.name, qty: c.qty })), attr_defs: attrsOf(p.attrs), variants: variants.map((x) => ({ ...x, price: x.price === null ? null : String(x.price) })) };
+      const media = await listMedia(tx, v.authz, id);
+      return { ...row, ...docOf(p.descriptionDoc), media, components: parts.map((c) => ({ id: c.childId, name: c.child.name, qty: c.qty })), attr_defs: attrsOf(p.attrs), variants: variants.map((x) => ({ ...x, price: x.price === null ? null : String(x.price) })) };
     });
   }
 

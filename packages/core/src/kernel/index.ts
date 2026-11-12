@@ -61,5 +61,6 @@ export * from './files/signed-url';
 export * from './files/table';
 export { claimedFileAccess, isPrivateRecordFile, registerRecordFileSource, type RecordFileSource } from './files/file-claims';
 export { validateIsolated, validatorEntry, VALIDATOR_VERSION } from './files/attachment-validation';
+export { registerAttachmentTarget, attachmentTarget, type AttachmentTarget } from './files/attachment-targets';
 export * from './consistency';
 export * from './audit';

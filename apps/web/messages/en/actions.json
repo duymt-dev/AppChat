@@ -518,6 +518,21 @@
     },
     "import_retry": {
       "title": "Retry product import"
+    },
+    "media_attach": {
+      "title": "Attach product image / document"
+    },
+    "media_detach": {
+      "title": "Remove product image / document"
+    },
+    "media_reorder": {
+      "title": "Reorder product images / documents"
+    },
+    "media_set_primary": {
+      "title": "Set product primary image"
+    },
+    "media_list": {
+      "title": "View product images / documents"
     }
   },
   "category": {

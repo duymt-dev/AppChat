@@ -6,9 +6,9 @@ import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { MAX_UPLOAD_BYTES } from './storage';
-import type { ValidationReason } from './attachment-validator-entry';
+import type { ValidationProfile, ValidationReason } from './attachment-validator-entry';
 
-export { VALIDATOR_VERSION, RECORD_ATTACHMENT_KINDS } from './attachment-validator-entry';
+export { VALIDATOR_VERSION, RECORD_ATTACHMENT_KINDS, type ValidationProfile } from './attachment-validator-entry';
 
 export const VALIDATION_LIMITS = { timeoutMs: 30_000, rssBytes: 128 * 1024 * 1024, perWorker: 2 } as const;
 
@@ -26,7 +26,7 @@ const tick = setInterval(() => process.stderr.write('rss:' + process.memoryUsage
 const chunks = []; let size = 0; const max = Number(process.argv[2]);
 process.stdin.on('data', (c) => { size += c.length; if (size > max) { process.stdout.write(JSON.stringify({ error: 'too_large' }) + '\n'); process.exit(3); } chunks.push(c); });
 process.stdin.on('end', () => {
-  try { const r = require(process.argv[1]).validateAttachment(Buffer.concat(chunks), process.argv[3] || ''); process.stdout.write(JSON.stringify(r) + '\n'); }
+  try { const r = require(process.argv[1]).validateAttachment(Buffer.concat(chunks), process.argv[3] || '', process.argv[4] || 'record'); process.stdout.write(JSON.stringify(r) + '\n'); }
   catch (e) { process.stdout.write(JSON.stringify({ ok: false, reason: 'corrupt' }) + '\n'); }
   clearInterval(tick); process.exit(0);
 });
@@ -42,14 +42,14 @@ export function validatorEntry(env: NodeJS.ProcessEnv = process.env, main = proc
 let running = 0;
 
 /** Kiểm một tệp trong tiến trình con. `entry` null / không tồn tại → isolation_unavailable (không fallback trong tiến trình). */
-export async function validateIsolated(entry: string | null, body: Buffer, name: string, limits: Partial<Record<keyof typeof VALIDATION_LIMITS, number>> = {}): Promise<IsolatedValidation> {
+export async function validateIsolated(entry: string | null, body: Buffer, name: string, limits: Partial<Record<keyof typeof VALIDATION_LIMITS, number>> = {}, profile: ValidationProfile = 'record'): Promise<IsolatedValidation> {
   const lim = { ...VALIDATION_LIMITS, ...limits };
   if (!entry || !existsSync(entry)) return { ok: false, reason: 'isolation_unavailable' };
   if (running >= lim.perWorker) return { ok: false, reason: 'isolation_unavailable' };
   running++;
   try {
     return await new Promise<IsolatedValidation>((done) => {
-      const args = ['--permission', `--allow-fs-read=${dirname(entry)}`, '--max-old-space-size=96', '-e', CHILD, entry, String(MAX_UPLOAD_BYTES), name.slice(-40).replace(/[^\w.\-]/g, '_')];
+      const args = ['--permission', `--allow-fs-read=${dirname(entry)}`, '--max-old-space-size=96', '-e', CHILD, entry, String(MAX_UPLOAD_BYTES), name.slice(-40).replace(/[^\w.\-]/g, '_'), profile];
       const child = spawn(process.execPath, args, { env: { SystemRoot: process.env.SystemRoot ?? '', PATH: '' }, stdio: ['pipe', 'pipe', 'pipe'], windowsHide: true, detached: process.platform !== 'win32' });
       let out = '';
       let settled = false;

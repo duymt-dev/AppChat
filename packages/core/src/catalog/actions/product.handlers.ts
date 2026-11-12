@@ -15,6 +15,7 @@ import { categoryByName, checkCustom, componentsByName, fieldRole, liveProduct, 
 import { assertWritableSystem } from '../../authz/public';
 import { columnsOf, restoreSnapshot, snapshot, type ProductSnapshot } from '../services/product-columns';
 import { normalizeDescription } from '../description/normalize';
+import { assertMediaPristine } from '../media/pristine';
 import { archivePreview, createPreview, updatePreview } from './previews/product.handlers.preview';
 
 type CreateIn = ActionInput<typeof productCreate>;
@@ -72,6 +73,8 @@ export class ProductCreateHandler implements Handler<CreateIn, { product_id: str
     const id = (log.after as { id: string }).id;
     // Đã nằm trong combo khác (FK Restrict) → không xoá được → 409.
     if (await tx.productComponent.findFirst({ where: { childId: id }, select: { productId: true } })) throw new AppError('CONFLICT', 409, { product_id: 'in_use' });
+    // TIP-027b §2.3: cùng khoá sản phẩm với gắn media — chỉ xoá khi media chưa từng chạm (không ý định đang chép, không claim tệp).
+    await assertMediaPristine(tx, id);
     await tx.product.deleteMany({ where: { id } });
     const now = this.clock.now();
     await writeOutbox(tx, ctx.workspaceId, [{ topic: 'product.changed', payload: { product_id: id, change: 'deleted' } }], now);
