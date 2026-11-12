@@ -1,17 +1,21 @@
-// Bộ handler tệp đính kèm dùng chung cho đơn / đề nghị (TIP-032d §1.2–1.5): mỗi domain khai class mỏng truyền `RecordPort` (khoá + kiểm quyền
-// cha, bảng liên kết, đọc nhãn). Gắn: `prepare` kiểm cấu trúc staging NGOÀI transaction (sau xác nhận) → execute khoá khách gốc → cha (quyền
-// GHI) → bộ tệp → claim → liên kết. Nhánh `assistant_artifact_ref` cài ở pha 3 (sao chép có đồng ý) — tới lúc đó trả 422 rõ ràng, không giả.
+// Bộ handler tệp đính kèm dùng chung cho đơn / đề nghị (TIP-032d §1.2–1.5, §3.3): mỗi domain khai class mỏng truyền `RecordPort` (khoá +
+// kiểm quyền cha, bảng liên kết, đọc nhãn). Gắn: `prepare` NGOÀI transaction (sau xác nhận) — tệp tải cho đích: kiểm cấu trúc staging; artifact
+// Trợ lý: kiểm lại nguồn + đích rồi sao chép bytes gốc thành tệp mới riêng của đích (artifact-copy) và kiểm cấu trúc → execute khoá khách gốc
+// → cha (quyền GHI) → kiểm lại nguồn (artifact) → bộ tệp → claim → liên kết. Xem trước artifact ràng revision + digest nguồn vào xác nhận.
+import { randomUUID } from 'node:crypto';
 import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantDbResolver } from '@appchat/db';
 import { TenantContexts } from '@appchat/db';
 import type { ActionPreview } from '@appchat/actions';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import type { HandlerOutcome } from '../../kernel/actions/handler';
+import { assertBoundPreview } from '../../kernel/actions/preview-binding';
 import { preview } from '../../kernel/actions/preview-kit';
 import type { FilesService } from '../../kernel/files/files.service';
 import { actorUserId } from '../../crm/public';
 import { attachStaged, detachOne, listPage, setRevision, stagedFor, type AttachmentTable, type FileRowOut } from './association';
 import { validateStaged } from './validation';
+import { copyArtifact, liveFileByDigest, locateSource, sourceFact } from './artifact-copy';
 
 export interface RecordPort {
   table: AttachmentTable;
@@ -36,10 +40,9 @@ const requireUser = (ctx: ActionContext) => {
   return me;
 };
 
-function handleOf(s: Source): string {
-  if (s.kind === 'assistant_artifact_ref') throw new AppError('VALIDATION_FAILED', 422, { source: 'artifact_copy_unavailable' });
-  return s.file_id;
-}
+/** Kết quả prepare: id tệp gắn được cho đích (handle tải lên, hoặc bản sao mới của artifact) + digest nguồn lúc sao chép. */
+type Prepared = { fileId: string; digest?: string };
+const COPY_UNAVAILABLE = () => new AppError('VALIDATION_FAILED', 422, { source: 'artifact_copy_unavailable' });
 
 export class AttachmentKit {
   constructor(
@@ -49,17 +52,43 @@ export class AttachmentKit {
     private readonly now: () => Date,
   ) {}
 
-  /** Ngoài transaction, sau xác nhận: kiểm cấu trúc staging trong tiến trình cô lập (không model, không phí). */
-  async prepare(ctx: ActionContext, parentId: string, i: AttachIn): Promise<void> {
-    if (i.source.kind !== 'target_upload_handle' || !this.tenants || !this.files) return;
-    void parentId;
-    await validateStaged(await this.tenants.get(TenantContexts.system(ctx.workspaceId, 'record-attachment')), this.files, i.source.file_id, this.now);
+  /** Ngoài transaction, sau xác nhận: (artifact → sao chép riêng cho đích) rồi kiểm cấu trúc staging trong tiến trình cô lập (không model, không phí). */
+  async prepare(ctx: ActionContext, parentId: string, i: AttachIn): Promise<Prepared | undefined> {
+    if (!this.tenants || !this.files) {
+      if (i.source.kind === 'assistant_artifact_ref') throw COPY_UNAVAILABLE();
+      return undefined;
+    }
+    const db = await this.tenants.get(TenantContexts.system(ctx.workspaceId, 'record-attachment'));
+    if (i.source.kind === 'target_upload_handle') {
+      await validateStaged(db, this.files, i.source.file_id, this.now);
+      return { fileId: i.source.file_id };
+    }
+    const me = requireUser(ctx);
+    const source = i.source;
+    const checkTarget = async (tx: TenantTx) => {
+      await this.port.readable(tx, ctx.authz, parentId);
+      if (!(await this.port.writable(tx, ctx.authz, parentId))) throw new AppError('SCOPE_FORBIDDEN', 403, { parent: 'read_only' });
+    };
+    // Khoá thao tác: cùng lượt (idempotency / thẻ xác nhận) chạy lại → cùng bản sao; thiếu cả hai → bản sao mới (không dùng lại của lượt khác).
+    const operation = ctx.idempotencyKey ?? ctx.confirmToken ?? randomUUID();
+    const fileId = await copyArtifact(db, this.files, { ws: ctx.workspaceId, userId: me, ...(ctx.runId ? { runId: ctx.runId } : {}), operation, source, parentType: this.port.table.type, parentId, checkTarget, reuse: (tx, digest) => liveFileByDigest(tx, this.port.sql, parentId, digest) });
+    await validateStaged(db, this.files, fileId, this.now);
+    const f = await db.file.findUnique({ where: { id: fileId }, select: { sha256: true } });
+    return { fileId, digest: f?.sha256 ?? '' };
   }
 
-  async attach(ctx: ActionContext, tx: TenantTx, parentId: string, i: AttachIn): Promise<HandlerOutcome<unknown>> {
+  async attach(ctx: ActionContext, tx: TenantTx, parentId: string, i: AttachIn, prepared?: unknown): Promise<HandlerOutcome<unknown>> {
     const me = requireUser(ctx);
-    const fileId = handleOf(i.source);
+    const p = prepared as Prepared | undefined;
+    const fileId = i.source.kind === 'target_upload_handle' ? i.source.file_id : p?.fileId;
+    if (!fileId) throw COPY_UNAVAILABLE();
     await this.port.lockWritable(tx, ctx.authz, parentId);
+    if (i.source.kind === 'assistant_artifact_ref') {
+      // Nguồn bị thu hồi / đổi giữa prepare và gắn → không gắn bản sao (bản sao ở lại staging riêng tư, dọn như mồ côi).
+      const loc = await locateSource(tx, me, ctx.runId, i.source);
+      assertBoundPreview(ctx.previewFacts, sourceFact(i.source, loc.digest));
+      if (loc.digest !== p?.digest) throw new AppError('CONFLICT', 409, { source: 'changed' });
+    }
     await stagedFor(tx, { fileId, userId: me, type: this.port.table.type, parentId }).catch(async (e) => {
       // Gửi lại sau khi đã gắn (staging đã tiêu): liên kết sống của chính cha này → biên nhận cũ.
       if (await this.port.table.live(tx, parentId, fileId)) return null;
@@ -90,10 +119,24 @@ export class AttachmentKit {
 
   async previewAttach(ctx: ActionContext, tx: TenantTx, parentId: string, i: AttachIn): Promise<ActionPreview> {
     const { code } = await this.port.readable(tx, ctx.authz, parentId);
-    const fileId = handleOf(i.source);
-    const f = await tx.file.findUnique({ where: { id: fileId }, select: { name: true, size: true, uploadedBy: true } });
-    if (!f || f.uploadedBy !== actorUserId(ctx)) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'not_found' });
+    const me = actorUserId(ctx);
+    if (i.source.kind === 'assistant_artifact_ref') {
+      // Đồng ý sao chép: thẻ nêu đúng tệp nguồn + đích; bytes gốc chép sang tệp mới của đích sau xác nhận (artifact giữ nguyên).
+      if (!me) throw new AppError('FORBIDDEN', 403, { actor: 'user_required' });
+      const loc = await locateSource(tx, me, ctx.runId, i.source);
+      const f = await tx.file.findUnique({ where: { id: loc.fileId }, select: { size: true } });
+      return preview('write', `${code} · ${loc.name}`, { changes: [{ entity: `${this.port.table.type}_attachment`, after: { file: loc.name, bytes: Number(f?.size ?? 0), source: 'assistant_copy' } }] });
+    }
+    const f = await tx.file.findUnique({ where: { id: i.source.file_id }, select: { name: true, size: true, uploadedBy: true } });
+    if (!f || f.uploadedBy !== me) throw new AppError('VALIDATION_FAILED', 422, { file_id: 'not_found' });
     return preview('write', `${code} · ${f.name}`, { changes: [{ entity: `${this.port.table.type}_attachment`, after: { file: f.name, bytes: Number(f.size) } }] });
+  }
+
+  /** Ràng revision + digest nguồn artifact vào thẻ xác nhận (TIP-033c §3.1) — đổi nguồn sau xem trước → 409 xem trước lại. Handle: không cần. */
+  async bindAttach(ctx: ActionContext, tx: TenantTx, i: AttachIn): Promise<Record<string, string>> {
+    const me = actorUserId(ctx);
+    if (i.source.kind !== 'assistant_artifact_ref' || !me) return {};
+    return sourceFact(i.source, (await locateSource(tx, me, ctx.runId, i.source)).digest);
   }
 
   async previewDetach(ctx: ActionContext, tx: TenantTx, parentId: string, i: { attachment_id: string }): Promise<ActionPreview> {
