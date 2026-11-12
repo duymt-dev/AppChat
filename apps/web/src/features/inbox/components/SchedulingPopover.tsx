@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
-import { useCalendarUi } from '@/features/calendar';
+import { useCalendarUi } from '@/features/calendar/calendar-store';
 import { useComposerStyles } from '../styles/composer.styles';
 import { usePopStyles } from '../styles/popover.styles';
 import { useInboxSlots } from '../hooks/useInboxSlots';

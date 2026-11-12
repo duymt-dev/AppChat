@@ -16,13 +16,15 @@ import { TicketsHeader } from '../components/TicketsHeader';
 import { BulkBar } from '../components/BulkBar';
 import { TicketDrawer } from '../components/TicketDrawer';
 import { CloseTicketModal } from '../components/CloseTicketModal';
-import { TicketsAiDrawer } from '../components/TicketsAiDrawer';
 import { STATUSES, STATUS_TONE } from '../status';
 import type { Channel, Ticket, TicketsMeta, TicketStatus } from '../types';
 import { useTicketsUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
 import { useAssistantContext } from '../hooks/useAssistantContext';
 import { defaultCategory } from '../hooks/useCategorySuggestions';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const TicketsAiDrawer = lazyDrawer(() => import('../components/TicketsAiDrawer').then((m) => m.TicketsAiDrawer));
 
 const NO_NOW = '1970-01-01T00:00:00Z';
 
@@ -106,7 +108,9 @@ export function TicketsScreen() {
         )}
       </PageStates>
       {meta ? <TicketDrawer meta={meta} /> : null}
-      {meta ? <TicketsAiDrawer meta={meta} /> : null}
+      <Opened name="tickets-ai" when={ui.aiOpen && !!meta} onClose={() => ui.set({ aiOpen: false })}>
+        {meta ? <TicketsAiDrawer meta={meta} /> : null}
+      </Opened>
       <CloseTicketModal />
     </div>
   );

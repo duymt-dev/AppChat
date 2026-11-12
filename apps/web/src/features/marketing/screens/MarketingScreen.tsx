@@ -11,13 +11,15 @@ import { campaignsQuery, marketingMetaQuery } from '../api';
 import { CampaignCard, useCampaignColumns } from '../columns';
 import { MarketingHeader } from '../components/MarketingHeader';
 import { AnalyzeModal } from '../components/AnalyzeModal';
-import { CampaignWizard } from '../components/CampaignWizard';
 import { CampaignDetail } from '../components/CampaignDetail';
-import { MarketingAiDrawer } from '../components/MarketingAiDrawer';
 import type { Campaign } from '../types';
 import { useMarketingUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
 import { useAssistantContext } from '../hooks/useAssistantContext';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const CampaignWizard = lazyDrawer(() => import('../components/CampaignWizard').then((m) => m.CampaignWizard));
+const MarketingAiDrawer = lazyDrawer(() => import('../components/MarketingAiDrawer').then((m) => m.MarketingAiDrawer));
 
 export function MarketingScreen() {
   useMarketingUiCommands();
@@ -47,8 +49,12 @@ export function MarketingScreen() {
         />
       </PageStates>
       {meta ? <AnalyzeModal meta={meta} /> : null}
-      {meta ? <CampaignWizard meta={meta} /> : null}
-      {meta ? <MarketingAiDrawer meta={meta} /> : null}
+      <Opened name="campaign-wizard" when={ui.wizard && !!meta} keep={false} onClose={() => ui.set({ wizard: false })}>
+        {meta ? <CampaignWizard meta={meta} /> : null}
+      </Opened>
+      <Opened name="marketing-ai" when={ui.aiOpen && !!meta} onClose={() => ui.set({ aiOpen: false })}>
+        {meta ? <MarketingAiDrawer meta={meta} /> : null}
+      </Opened>
       <CampaignDetail />
     </div>
   );

@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it } from 'vitest';
 import { ticketRowSchema, ticketsMetaSchema, ticketsPageSchema } from '@appchat/shared';
 import { mockTransport } from './mock-transport';
 import { mockDb, setMockRole } from './store';
-import { createTicketsState, ticketsHandlers } from './domains/tickets';
+import { createTicketsState } from './domains/tickets';
+import { ticketsHandlers } from './domains/tickets-actions';
 
 const issues = (r: { success: boolean; error?: { issues: unknown[] } }) => (r.success ? [] : r.error!.issues);
 const run = (id: string, input: unknown) => ticketsHandlers[id]!.execute(mockDb(), input as never) as Record<string, unknown>;

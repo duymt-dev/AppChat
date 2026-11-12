@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 5 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 136 | 6 | 0 | 2 | 9 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 168 | 8 | 0 | 9 | 9 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 410 | 31 | 1 | 4 | 15 | 3 | 0 | 0 |
-| E. standards/* | 228 | 30 | 0 | 7 | 23 | 2 | 43 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 411 | 31 | 1 | 4 | 14 | 3 | 0 | 0 |
+| E. standards/* | 231 | 28 | 0 | 7 | 22 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 0 | 14 | 0 | 2 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 79 | 5 | 1 | 14 | 24 | 2 | 0 | 0 |
-| **Tổng** | **1256** | **86** | **16** | **49** | **87** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 81 | 5 | 1 | 14 | 22 | 2 | 0 | 0 |
+| **Tổng** | **1262** | **84** | **16** | **49** | **83** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1038,7 +1038,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-9-c | Rate limit chung actions | plans/BLUEPRINT.md:1348 | 045b | ĐẠT | apps/api/src/http/kernel/api-rate-limit.guard.ts (đọc 600 / action 120 theo user, công khai 30 theo IP, 429 + Retry-After); hardening-security.test.ts realRateLimits |
 | BP-9-d | Outbox retry 2^n tối đa 8 rồi dead-letter | plans/BLUEPRINT.md:1344 | 003 | ĐẠT | kernel/outbox/relay.ts:8,46-52; test relay-sequence.test.ts |
 | BP-9-e | /healthz, /readyz | plans/BLUEPRINT.md:1351 | 045 | MỘT PHẦN | chỉ GET /v1/health (health.controller.ts:9, test health.test.ts); readyz không có, TIP-002 hứa /health/ready chưa làm 045 SPEC2.5/AC3/6 explicitly implements /healthz→/v1/health and /readyz→real readiness; both tested with dependency failure, no runtime claim. |
-| BP-9-f | Web ErrorBoundary theo route | plans/BLUEPRINT.md:1345 | 001b | CHƯA | không file error.tsx / ErrorBoundary trong apps/web/src; TIP-001b nhận (2026-11-02) |
+| BP-9-f | Web ErrorBoundary theo route | plans/BLUEPRINT.md:1345 | 001b | ĐẠT | apps/web/src/app/{(app),(auth),(public)}/error.tsx + global-error.tsx → shared/states/RouteError.tsx (PageStates lỗi + Thử lại `retry()`, log tên lỗi qua shared/dev/client-log.ts); PanelBoundary.tsx cho panel / drawer lười; PanelBoundary.test.tsx 5 pass; e2e/error-boundary.spec.ts 4 pass (desktop + 390) |
 | BP-9-g | Metrics prom-client | plans/BLUEPRINT.md:1351 | 045b | ĐẠT | packages/core/src/kernel/metrics/* (prom-client, /metrics loopback / METRICS_TOKEN, worker METRICS_PORT); hardening-metrics.test.ts; core/test/hardening-metrics.test.ts |
 | BP-8-g | Tra cứu MST qua `TaxLookupProvider` VietQR + mock; lỗi thì nhập tay (D35) | plans/BLUEPRINT.md:1322 | 011 | ĐẠT | packages/integrations/src/connectors/vietqr/tax-lookup.ts; test apps/api/test/integration/workspaces.test.ts:202 |
 | BP-8-h | Excel import/export bằng `exceljs` | plans/BLUEPRINT.md:1328 | 026, 038b | MỘT PHẦN | packages/core/src/kernel/files/table.ts (đọc xlsx), test crm-ui.test.ts:182 (nhập khách); xuất Excel thật các module → 038 (4 list), 038b (6 domain) |
@@ -1362,7 +1362,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-i18n-1 | Không chuỗi hiển thị cứng trong JSX; lint i18next mức error | standards/i18n/i18n.md:7 | mọi TIP | QUY-TẮC | `pnpm lint` — apps/web/eslint.config.mjs `i18next/no-literal-string` 2 |
 | STD-i18n-2 | Key theo module `messages/<locale>/<module>.json`; en đủ key trước merge | standards/i18n/i18n.md:10 | mọi TIP | QUY-TẮC | `pnpm i18n:check` — chạy 2026-11-01: vi/en 4719 key 100%; CI ci.yml:35 |
 | STD-i18n-3 | Không nối chuỗi; ICU plural | standards/i18n/i18n.md:11 | mọi TIP | QUY-TẮC | Review (không có lint riêng) |
-| STD-i18n-4 | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | standards/i18n/i18n.md:12 | 001b | MỘT PHẦN | Vi phạm: features/settings/components/ChannelsSection.tsx:50, ManageChannelDrawer.tsx:130,169,191, WidgetSection.tsx:134, features/assistant/components/TaskDrawer.tsx:161 (loyalty / marketing → 036, 037); không lint; TIP-001b nhận (2026-11-02) |
+| STD-i18n-4 | Định dạng qua `fmt.*`; cấm toLocaleString rải rác | standards/i18n/i18n.md:12 | 001b | ĐẠT | TIP-001b: `toLocaleString` / `Intl.*Format` trong apps/web/src/features = 0 (settings Channels/ManageChannelDrawer/Widget/Tags, assistant TaskDrawer, loyalty `pts` → `fmt.number`, marketing CampaignDetail); thêm `fmt.dateTime` / `fmt.dateParts` (packages/shared/src/fmt, fmt.test.ts 3 pass); lint `no-restricted-syntax` ở src/features/** chặn tái phạm (eslint.config.mjs) |
 | STD-i18n-5 | Lỗi server trả code; client dịch `errors.<CODE>` | standards/i18n/i18n.md:13 | mọi TIP | ĐẠT | apps/web/messages/vi/errors.json; useAction.ts |
 | STD-i18n-7 | Locale: user → workspace → Accept-Language → vi; không vào URL; antd/dayjs đồng bộ | standards/i18n/i18n.md:15 | 006 | ĐẠT | packages/shared/src/i18n/locales.ts:39; apps/web/src/i18n/request.ts:1; test locales.test.ts:10 |
 | STD-i18n-8 | Email / PDF / thông báo render theo locale người nhận | standards/i18n/i18n.md:18 | 006, 028 | ĐẠT | packages/shared/src/i18n/server/{vi,en}; core/src/notify/mail.ts; test notify.test.ts |
@@ -1412,9 +1412,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-ui-fe-8 | Module khai `ui-commands.ts` (prefill / open / filter / highlight) | standards/ui/frontend-structure.md:53 | mọi TIP | ĐẠT | 14/17 features có ui-commands.ts (thiếu auth / dashboard / onboarding — không có form tạo nghiệp vụ); test shared/assistant/ui-command-bus.test.ts, agents/ui-commands.test.tsx |
 | STD-ui-fe-9 | 5 trạng thái qua PageStates | standards/ui/frontend-structure.md:54 | 001c | MỘT PHẦN | PageStates.tsx:17–21 chỉ sinh empty khi có predicate, không tự sinh no-permission; QuotesScreen.tsx:87 và ProductsScreen.tsx:98 gọi stateOf(list) không predicate. Dùng component ở42 file không chứng minh đủ trạng thái; cần UI supplemental và matrix tests.; TIP-001c nhận (2026-11-02) |
 | STD-ui-fe-10 | Chỉ token theme; cấm hard-code màu / px, CSS rời | standards/ui/frontend-structure.md:55 | mọi TIP | QUY-TẮC | `pnpm lint:tokens` (tools/scripts/lint-tokens.mjs) — chạy 2026-11-01: 630 file đúng thang |
-| STD-ui-fe-11 | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | standards/ui/frontend-structure.md:59 | 001b | MỘT PHẦN | Dùng helper token `responsive.md` (shell.styles.ts:16); còn 7 `@media` tay: features/agents/styles/agents.styles.ts:157, dashboard/components/AgentsSection.tsx:30,33, inbox (3); useBreakpoint = 0; TIP-001b nhận (2026-11-02) |
+| STD-ui-fe-11 | Responsive: breakpoint từ `Grid.useBreakpoint()`, không media query tay | standards/ui/frontend-structure.md:59 | 001b | ĐẠT | TIP-001b: `@media` tay trong apps/web/src/features = 0 — 8 chỗ → token `mq.*` (packages/ui/src/tokens-media.ts, giữ ngưỡng prototype) / `responsive.*`; lint `no-restricted-syntax` chặn `@media` trong template; giữ CSS thay `Grid.useBreakpoint()` để không lệch SSR (DC-446 f, DV-118) |
 | STD-ui-fe-13a | 9 bảng chính DataTable + Pager (D42); danh sách khác cursor infinite | standards/ui/frontend-structure.md:66 | mọi TIP | ĐẠT | e2e apps/web/e2e/list-scroll.spec.ts |
-| STD-ui-fe-13b | Drawer / modal nặng dùng `next/dynamic`; charts import theo màn | standards/ui/frontend-structure.md:67 | 001b | CHƯA | grep `next/dynamic` / `lazy(` trong apps/web/src = 0; TIP-001b nhận (2026-11-02) |
+| STD-ui-fe-13b | Drawer / modal nặng dùng `next/dynamic`; charts import theo màn | standards/ui/frontend-structure.md:67 | 001b | ĐẠT | TIP-001b: shared/dynamic/lazy-drawers.ts (`lazyDrawer` = next/dynamic ssr:false + skeleton, `Opened` chỉ mount khi mở lần đầu + PanelBoundary) cho CrmFormsHost ở layout (app) (10 form / drawer), drawer AI 8 màn, CampaignWizard, TaskDrawer, DocxWizard; chart GenUI `lazy()` (ChartBlock). `next build`: JS khởi đầu mỗi trang (app) −119…−329 KB gzip (dashboard 1038 → 717 KB), drawer ở chunk riêng (reports/TIP-001b-completion.md) |
 | STD-ui-fe-15 | Test: vitest + Testing Library cho logic, Playwright desktop + 390, parity | standards/ui/frontend-structure.md:73 | mọi TIP | QUY-TẮC | `pnpm --filter @appchat/web test`, `pnpm e2e <module>`, `pnpm parity <id>` |
 | STD-ui-ip-1.5 | Thiếu quyền → ẩn; sai trạng thái → vô hiệu + tooltip từ bảng chuyển trạng thái | standards/ui/interaction-patterns.md:16 | mọi TIP | ĐẠT | QuoteDrawer.tsx / OrderDrawer.tsx / ContractDrawer.tsx dùng flow; e2e roles.spec.ts |
 | STD-ui-ip-1.6 | "Sắp có": khoá + nhãn, không toast giả | standards/ui/interaction-patterns.md:17 | mọi TIP, 001c | MỘT PHẦN | Thẻ connector / kênh đúng; drawer AI theo màn còn giả (→ 023c), Xuất Excel giả (→ 038); TIP-001c nhận (2026-11-02) |
@@ -1586,7 +1586,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |---|---|---|---|---|---|
 | Q-027 | Chốt ca biên tiền/điểm: đảo điểm đã dùng, trả lô đã hết hạn, completed chưa đủ tiền | QUESTIONS.md:35 | 036 | ĐẠT | DC-297 a/b/c duyệt; test loyalty-events.test.ts (nợ chặn đổi, trả lô giữ hạn gốc, earn theo thực thu) |
-| DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | 001b | CHƯA | `.dependency-cruiser-known-violations.json` vẫn 99 mục (đếm 2026-11-01) — không giảm sau 25 TIP nối http; TIP-001b nhận (2026-11-02) |
+| DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | 001b | ĐẠT | TIP-001b: vòng runtime apps/web 23 → 0 (barrel import chéo → module lá `api/*-store/types/ui-commands`, mock bỏ re-export handler); `.dependency-cruiser-known-violations.json` = `[]`; `pnpm depcheck` exit 0 (4433 module); `no-circular-web` = error (loại cạnh type-only, DC-446), `web-no-own-barrel`; thử vòng giả → depcheck đỏ |
 | DEF-001-2 | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | reports/TIP-001-completion.md:65 | 014b | ĐẠT | standards/channels/omnichannel-adapter.md: `group` gồm `'commerce'`, `capabilities.reactions` + `operations` (TIP-014b) khớp packages/channels/src/types.ts |
 | DEF-002-1 | CI GitHub chạy integration test với Postgres + Redis (Q-008) | reports/TIP-002-completion.md:38 | 046 | CHƯA | .github/workflows/{ci,e2e,full,parity}.yml không có service postgres; TG row 046 "CI backend-it.yml" |
 | DEF-002-2 | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | reports/TIP-002-completion.md:51; TIP-003:49 | 006c | CHƯA | packages/db/src/tenant-resolver.ts:81 TTL 60s trong process, `invalidate` (L62) chỉ xoá cache cục bộ; TIP-006c nhận (2026-11-02) |
@@ -1694,7 +1694,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | ĐẠT | Ngưỡng ≥ 27/30 + 0 vi phạm an toàn đạt: 27/30, an toàn 0 (reports/ai-live-2026-11-03.md); 3 ca fail đã phân loại (model chọn đường khác / seed Q-044 / dấu "Huế") |
 | Q-024 | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket bằng exceljs theo bộ lọc | QUESTIONS.md:32 | 038 | ĐẠT | 4 nút gọi action thật (DC-365); không thêm module Báo cáo (D19) |
 | Q-025 | Chặn chéo: báo giá đã sinh đơn không sinh HĐ và ngược lại | QUESTIONS.md:33 | 032b | ĐẠT | Như COM-3-13 (lockConversion, QUOTE_ALREADY_CONVERTED cả hai chiều) |
-| DV-001 | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | DEVIATIONS.md:18 | 001b | CHƯA | Baseline vẫn 99 (xem DEF-001-1); TIP-001b nhận (2026-11-02) |
+| DV-001 | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | DEVIATIONS.md:18 | 001b | ĐẠT | DEVIATIONS DV-001 đã đóng bởi TIP-001b — baseline `[]`, luật vòng web = error (xem DEF-001-1, DC-446) |
 | DV-002 | Duyệt `platform/notify.prisma` + `event_consumption` + thư viện socket.io / nodemailer | DEVIATIONS.md:19 | 006 | ĐẠT | packages/db/prisma/platform/notify.prisma:7; tenant/kernel.prisma:137; test notify.test.ts |
 | DV-003 | Duyệt Storage / `POST /v1/files` ở kernel (s3 sau) | DEVIATIONS.md:20 | 020 | ĐẠT | apps/api/src/http/files/files.controller.ts:32; test documents.test.ts, inbox-ui.test.ts |
 | DV-004 | Duyệt `prepare` ngoài transaction + `/agents/meta` + `/settings/governance` | DEVIATIONS.md:21 | 021 | ĐẠT | kernel/actions/handler.ts:35; test agents.test.ts |

@@ -15,6 +15,7 @@ import type { Channel } from '../types';
 import { ChannelCard } from './ChannelCard';
 import { ConnectChannelModal } from './ConnectChannelModal';
 import { ManageChannelDrawer } from './ManageChannelDrawer';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const WIDGET = '/settings/web_widget';
 
@@ -23,6 +24,7 @@ const GROUPS = ['msg', 'web', 'shop'] as const;
 
 function ListRow({ c }: { c: Channel }) {
   const t = useTranslations('settings.channels');
+  const fmt = useFmt();
   const router = useRouter();
   const { styles, cx } = useChannelsStyles();
   const set = useSettingsUi((s) => s.set);
@@ -47,7 +49,7 @@ function ListRow({ c }: { c: Channel }) {
         <span className={styles.stDot} />
         {t(c.connected ? 'on' : 'off')}
       </span>
-      <span className={styles.num}>{c.convs.toLocaleString('vi-VN')}</span>
+      <span className={styles.num}>{fmt.number(c.convs)}</span>
       <span className={styles.frt}>{c.frt}</span>
       <span>
         {c.agent ? (

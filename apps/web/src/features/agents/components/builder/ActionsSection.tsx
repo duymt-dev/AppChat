@@ -4,7 +4,7 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { channelsQuery, connectorsQuery } from '@/features/settings';
+import { channelsQuery, connectorsQuery } from '@/features/settings/api';
 import { connectorStatus, connectorBadge, groupToolsByModule, AGENT_GRANTABLE, MODULE_ACTIONS, SKILL_ACTIONS } from '@/shared/ai/agent-tools';
 import { useBuilderStyles } from '../../styles/builder.styles';
 import { useSectionStyles } from '../../styles/sections.styles';

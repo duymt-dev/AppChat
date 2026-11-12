@@ -20,7 +20,7 @@ import { Rich } from './Rich';
 import { CitationList } from '@/shared/ai-citations/CitationList';
 import { ThreadSearchBar } from './ThreadSearchBar';
 import { AppointmentOrderCards } from '@/shared/appointment-order/AppointmentOrderCard';
-import { useOrdersUi } from '@/features/orders';
+import { useOrdersUi } from '@/features/orders/orders-store';
 import { useInboxUi } from '../inbox-store';
 import type { ChannelMeta, Conversation } from '../types';
 

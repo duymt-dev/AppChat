@@ -15,6 +15,7 @@ import type { Widget } from '../types';
 import { WidgetAiBox } from './WidgetAiBox';
 import { WidgetPreview } from './WidgetPreview';
 import { Switch } from './Switch';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const KPIS: [keyof Widget['kpis'] | 'rate' | 'run', IconName, string][] = [
   ['clicks', 'ic-globe', color.blue],
@@ -127,11 +128,12 @@ function Config({ w }: { w: Widget }) {
 
 export function WidgetSection() {
   const t = useTranslations('settings.widget');
+  const fmt = useFmt();
   const { styles } = useWidgetStyles();
   const q = useQuery(widgetQuery());
   const k = q.data?.kpis;
   const val = (key: (typeof KPIS)[number][0]) =>
-    !k ? '' : key === 'rate' ? `${Math.round((k.chats / k.clicks) * 100)}%` : key === 'run' ? `${k.running}/${k.total}` : k[key].toLocaleString('vi-VN');
+    !k ? '' : key === 'rate' ? `${Math.round((k.chats / k.clicks) * 100)}%` : key === 'run' ? `${k.running}/${k.total}` : fmt.number(k[key]);
   return (
     <PageStates state={stateOf(q)} onRetry={() => void q.refetch()}>
       {q.data ? (

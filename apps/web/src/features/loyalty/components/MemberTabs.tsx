@@ -6,12 +6,13 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
+import type { Fmt } from '@appchat/shared';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useDrawerStyles } from '../styles/drawer.styles';
 import { useLadderStyles } from '../styles/ladder.styles';
 import { useLoyaltyUi } from '../loyalty-store';
 import { loyaltyConfigQuery } from '../api';
-import { TIER_TONE, pts } from '../status';
+import { TIER_TONE } from '../status';
 import type { Member } from '../types';
 
 const KIND: Record<string, [IconName, string]> = {
@@ -24,7 +25,7 @@ const KIND: Record<string, [IconName, string]> = {
 };
 const CUSTOMERS = '/customers';
 const PLUS = '+';
-const signed = (n: number) => (n > 0 ? PLUS : '') + pts(n);
+const signed = (fmt: Fmt, n: number) => (n > 0 ? PLUS : '') + fmt.number(n);
 
 export function useLadder(m: Member) {
   const cfg = useQuery(loyaltyConfigQuery()).data;
@@ -57,7 +58,7 @@ export function OverviewTab({ m }: { m: Member }) {
             <div className={styles.upRow}>
               <span>{t.rich('dr.up', { t: t(`tier.${next.key}`), b: (c) => <b>{c}</b> })}</span>
               <span className={styles.grow} />
-              <span className={styles.need}>{t('dr.need', { n: pts(need) })}</span>
+              <span className={styles.need}>{t('dr.need', { n: fmt.number(need) })}</span>
             </div>
             <div className={styles.bar}>
               <div style={{ width: `${prog}%` }} />
@@ -73,12 +74,12 @@ export function OverviewTab({ m }: { m: Member }) {
         </div>
         <div className={styles.kv}>
           <span>{t('dr.used')}</span>
-          <b>{pts(m.used)}</b>
+          <b>{fmt.number(m.used)}</b>
         </div>
         {m.expiring ? (
           <div className={styles.kv}>
             <span>{t('dr.expiring')}</span>
-            <b>{pts(m.expiring)}</b>
+            <b>{fmt.number(m.expiring)}</b>
           </div>
         ) : null}
         <div className={styles.kv}>
@@ -103,6 +104,7 @@ export function OverviewTab({ m }: { m: Member }) {
 }
 
 export function LadderTab({ m }: { m: Member }) {
+  const fmt = useFmt();
   const t = useTranslations('loyalty');
   const { styles, cx } = useDrawerStyles();
   const l = useLadderStyles().styles;
@@ -124,7 +126,7 @@ export function LadderTab({ m }: { m: Member }) {
                 {t('dr.rate', { m: String(x.mult).replace('.', ',') })}
               </span>
             </div>
-            <div className={l.from}>{t('dr.from', { n: pts(x.min) })}</div>
+            <div className={l.from}>{t('dr.from', { n: fmt.number(x.min) })}</div>
             <div className={l.perk}>{t(`dr.perk.${x.key}`)}</div>
           </div>
         );
@@ -134,6 +136,7 @@ export function LadderTab({ m }: { m: Member }) {
 }
 
 export function HistoryTab({ m }: { m: Member }) {
+  const fmt = useFmt();
   const t = useTranslations('loyalty.dr');
   const { styles } = useDrawerStyles();
   if (!m.ledger.length) return <div className={styles.text}>{t('noHistory')}</div>;
@@ -151,7 +154,7 @@ export function HistoryTab({ m }: { m: Member }) {
               <div className={styles.histS}>{`${t(`kind.${h.kind}`)} · ${h.at}`}</div>
             </div>
             <span className={styles.histD} style={{ color: h.delta > 0 ? color.successStrong : color.dangerStrong }}>
-              {signed(h.delta)}
+              {signed(fmt, h.delta)}
             </span>
           </div>
         );
