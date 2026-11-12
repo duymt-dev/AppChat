@@ -1,6 +1,8 @@
 # TIP-023g — Record-scoped AI entry points across Commerce and operations
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/calendar.json`, `apps/web/messages/en/quotes.json`, `apps/web/messages/vi/calendar.json`, `apps/web/messages/vi/quotes.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023g before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/invoices.json`, `apps/web/messages/vi/invoices.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023g before032e.
 - **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023g before014c.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `apps/api/src/http/ai/assistant.controller.ts`; integrate 023g before003i.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 023g before046.

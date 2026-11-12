@@ -1,6 +1,7 @@
 # TIP-028b — Chứng từ: queue doc-render, template_version ở đề nghị thanh toán/phiếu thu, bảng kiểm trong preview gửi/duyệt, undo tạo mẫu
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`; integrate 028b before026c.
 - TIP-ID: TIP-028b; Project: AppChat V2; Module: documents; Priority: P0; Estimated: M. TIP bổ sung cho TIP-028 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 030b, 032b, 032d, 015c (doc lineage) đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-028b-files.md) — 13 paths (4 C). M path tương lai phải do TIP tạo trước tích hợp xong.

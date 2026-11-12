@@ -1,6 +1,8 @@
 # TIP-033d — Cọc đơn theo % và gợi ý bật cọc (DC-300, DC-301)
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/domains/orders-actions.ts`, `packages/actions/src/orders.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/db/prisma/tenant/sales-orders.prisma`; integrate 033d before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/db/prisma/tenant/sales-orders.prisma`; integrate 033d before032e.
 - TIP-ID: TIP-033d; Project: AppChat V2; Module: orders deposit; Priority: P0; Estimated: M. TIP bổ sung cho TIP-033 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 032c, 027b, 033b, 038b (adapter import/export đơn) đã tích hợp; Q-038/Q-039 đã duyệt (DC-300/301); trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-033d-files.md) — 15 paths (5 C). M path tương lai phải do TIP tạo trước tích hợp xong.

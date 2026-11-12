@@ -1,6 +1,8 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `packages/core/src/booking/actions/appointment-book.handlers.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-decide.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-write.handlers.ts`, `packages/db/prisma/tenant/booking.prisma`, `packages/db/prisma/tenant/sales-orders.prisma`, `packages/db/prisma/tenant/sales-quotes.prisma`; integrate 042c before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/payments/actions/invoice-write.handlers.ts`, `packages/db/prisma/tenant/sales-orders.prisma`; integrate 042c before032e.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 042c before003i.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/crm.prisma`; integrate 042c before003e.
 - **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`, `packages/db/prisma/tenant/crm.prisma`; integrate 042c before013c.

@@ -1,6 +1,7 @@
 # TIP-006b — Durable event delivery and AI task fanout
 
 ## HEADER
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006b before032e.
 - **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `packages/core/src/notify/jobs/notify.jobs.module.ts`, `packages/core/src/notify/services/notifier.ts`; integrate 006b before006d.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/kernel.prisma`; integrate 006b before003e.
 - **Parallel-safe with TIP-006c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/core/src/notify/realtime/emitter.ts`; integrate 006b before006c.

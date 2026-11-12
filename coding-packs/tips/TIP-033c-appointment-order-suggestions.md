@@ -1,6 +1,8 @@
 # TIP-033c — Appointment-to-order suggestions across Calendar, Inbox and Assistant
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/calendar.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/calendar.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/actions/src/index.ts`, `packages/core/src/booking/actions/appointment-flow.handlers.ts`, `packages/core/src/sales/orders/actions/order-from-appointment.handler.ts`, `packages/db/prisma/tenant/booking.prisma`, `packages/shared/src/api/calendar.ts`, `packages/shared/src/api/inbox.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/actions/src/index.ts`, `packages/core/src/sales/sales.module.ts`, `packages/shared/src/api/inbox.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 033c before032e.
 - **Parallel-safe with TIP-031b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 033c before031b.
 - **Parallel-safe with TIP-013c (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/inbox.module.ts`; integrate 033c before013c.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 033c before003i.
