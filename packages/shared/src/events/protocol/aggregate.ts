@@ -185,6 +185,8 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'ticket.updated': by('ticket', 'ticket_id'),
   'ticket.closed': by('ticket', 'ticket_id'),
   'ticket.reopened': by('ticket', 'ticket_id'),
+  // TIP-034b: từ điển gợi ý danh mục — một dòng mỗi workspace (khoá cố định).
+  'ticket_categories.changed': by('ticket_category_config', 'key'),
   'ticket.sla_warning': by('ticket', 'ticket_id'),
   'ticket.sla_breached': by('ticket', 'ticket_id'),
 };

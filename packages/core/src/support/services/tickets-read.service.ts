@@ -2,13 +2,14 @@
 // `ticket_recent_idx`, lọc trạng thái / ưu tiên / nhóm / danh mục / người phụ trách / SLA / tìm không dấu / trường tuỳ biến, sắp xếp mới
 // nhất hoặc ưu tiên), chi tiết (bình luận + lịch sử), meta (nhóm, danh mục, agent, thành viên, KPI 5 ô, gợi ý AI theo luật), cài đặt SLA.
 import { TenantContexts, TenantSql as Prisma, type TenantDbResolver } from '@appchat/db';
-import { SLA_DEFAULT, TICKET_CATEGORIES, interpolate, serverMessages, slaStateOf, utcToWall, type AuthzContext, type TicketRow } from '@appchat/shared';
+import { SLA_DEFAULT, interpolate, serverMessages, slaStateOf, utcToWall, type AuthzContext, type TicketRow } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { CrmMembers } from '../../crm/public';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { UUID, supportScopeSql, visibleTicket, type TicketRecord } from '../ticket-access';
 import { searchSql } from '../actions/sla-config.handlers';
 import { defaultPolicy, escalationOf, type SlaCalendar } from './sla-clock';
+import { categoryMeta } from '../categories/read';
 import type { SettingsReadService } from '../../identity/public';
 
 export interface TicketViewer {
@@ -169,7 +170,8 @@ export class TicketsReadService {
         FROM ticket t WHERE ${scope}`;
       const c = Object.fromEntries(Object.entries(counts!).map(([k, x]) => [k, Number(x)])) as Record<string, number>;
       const [used, agent, teams, members] = await Promise.all([
-        tx.ticket.findMany({ distinct: ['category'], select: { category: true }, take: 50 }),
+        // TIP-034b: bộ cấu hình + trang đầu nhãn đã dùng CHỈ trong ticket người xem thấy (trước đây distinct toàn bảng — lộ nhãn ngoài scope).
+        categoryMeta(tx, v.authz),
         // Agent nhận ticket khi bấm "Giao AI": agent đang chạy đầu tiên, chưa có thì agent đầu tiên của workspace.
         tx.aiAgent
           .findFirst({ where: { status: 'active', deletedAt: null }, orderBy: { createdAt: 'asc' }, select: { id: true, name: true } })
@@ -185,7 +187,7 @@ export class TicketsReadService {
       return {
         now: utcToWall(now, timeZone).iso,
         teams,
-        categories: [...new Set([...TICKET_CATEGORIES, ...used.map((x) => x.category)])],
+        ...used,
         agent: agent ? { id: agent.id, name: agent.name } : { id: '', name: '' },
         members,
         // Xu hướng so kỳ trước: chưa đủ lịch sử → để trống (FE ẩn mũi tên khi rỗng).

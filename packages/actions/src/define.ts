@@ -69,7 +69,7 @@ export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: 
  * Gửi / duyệt chứng từ có bảng kiểm pháp lý trong preview (TIP-028b, templates.md §6, DC-444): UI XIN xem trước (`x-action-preview: 1`)
  * để người dùng thấy bảng kiểm trước khi gửi — nguồn vốn chạy thẳng đổi thành xem trước; quyết định khác (duyệt / cấm) giữ nguyên.
  */
-export const REQUESTABLE_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['quote.send', 'contract.submit', 'contract.approve_and_sign', 'contract.send_for_signature', 'invoice.send_payment_qr']);
+export const REQUESTABLE_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['quote.send', 'contract.submit', 'contract.approve_and_sign', 'contract.send_for_signature', 'invoice.send_payment_qr', 'ticket_categories.replace']);
 
 /** Action hệ thống riêng (TIP-003c) — loại khỏi mọi bề mặt công khai. */
 export const isInternalAction = (d: Pick<ActionDef, 'exposure'>): boolean => d.exposure === 'internal';

@@ -72,7 +72,12 @@ const kpi = z.object({ total: z.number().int(), open: z.number().int(), waiting:
 export const ticketsMetaSchema = z.object({
   now: z.string(),
   teams: z.array(z.object({ id: z.string(), name: z.string() })),
+  /** Gợi ý danh mục = bộ cấu hình (TIP-034b) ∪ trang đầu nhãn đã dùng trong ticket người xem thấy (khử trùng, cấu hình trước). */
   categories: z.array(z.string()),
+  /** TIP-034b: bộ cấu hình riêng (version + mặc định) — client cũ bỏ qua. */
+  category_config: z.object({ version: z.number().int(), labels: z.array(z.string()), default: z.string() }).optional(),
+  /** Còn nhãn đã dùng ngoài trang đầu (đọc tiếp qua /support/category-suggestions). */
+  used_has_more: z.boolean().optional(),
   agent: z.object({ id: z.string(), name: z.string() }),
   members: z.array(z.object({ id: z.string(), name: z.string(), role: z.string() })),
   trend: z.record(z.enum(['total', 'open', 'waiting', 'breach', 'closed']), z.string()),
