@@ -5,6 +5,7 @@ import { activityAdapter } from './activities';
 import { classifyProducts, commitProducts } from './catalog';
 import { classifyDocs, docResolve, docUnits } from './commerce';
 import { classifyContacts, contactUnits, resolveContacts } from './contacts';
+import { classifyCategories, commitCategories } from './ticket-categories';
 import type { Adapter, Classifier } from './types';
 
 export type { Importer, RowCheck } from './types';
@@ -28,6 +29,8 @@ const ADAPTERS: Partial<Record<TransferTarget, Adapter>> = {
   contact_notes: activityAdapter('contact_notes'),
   contact_tasks: activityAdapter('contact_tasks'),
   contact_opportunities: activityAdapter('contact_opportunities'),
+  // TIP-034b §4 — từ điển gợi ý danh mục ticket: cả tệp là MỘT `ticket_categories.replace`.
+  ticket_category_suggestions: { classify: classifyCategories, batch: 1, whole: commitCategories },
 };
 
 export function adapterFor(entity: TransferTarget): Adapter {

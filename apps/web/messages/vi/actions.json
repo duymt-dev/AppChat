@@ -1027,6 +1027,10 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái ticket (hệ thống)"
+    },
+    "category_suggestions": {
+      "title": "Gợi ý danh mục ticket",
+      "desc": "Đọc danh mục gợi ý đã cấu hình và danh mục đã dùng trong ticket bạn xem được."
     }
   },
   "segment": {
@@ -1760,6 +1764,20 @@
       "payment_transfer_note": "Nội dung chuyển khoản",
       "signatures_seller": "Chữ ký bên bán",
       "signatures_buyer": "Chữ ký bên mua"
+    }
+  },
+  "ticket_categories": {
+    "get": {
+      "title": "Xem danh mục gợi ý ticket",
+      "desc": "Đọc bộ danh mục gợi ý của workspace (thứ tự, mặc định, phiên bản)."
+    },
+    "replace": {
+      "title": "Thay danh mục gợi ý ticket",
+      "desc": "Thay cả bộ danh mục gợi ý; ticket cũ giữ nguyên danh mục."
+    },
+    "export": {
+      "title": "Xuất danh mục gợi ý ticket",
+      "desc": "Xuất bộ danh mục gợi ý (vị trí + tên) ra tệp CSV / Excel."
     }
   }
 }

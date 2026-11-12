@@ -11,5 +11,6 @@ export const support = {
   },
   csat: 'Chào {name}, yêu cầu {code} của anh/chị đã được xử lý xong. Anh/chị chấm giúp em mức hài lòng từ 1 đến 5 (5 = rất hài lòng) bằng cách trả lời một số nhé. Cảm ơn anh/chị!',
   reason: { resolved: 'đã giải quyết', duplicate: 'trùng ticket', withdrawn: 'khách rút yêu cầu', out_of_scope: 'ngoài phạm vi' },
-  teamAi: 'AI tự xử',
+  teamAi: 'AI tự xử',  // TIP-034b: tệp xuất bộ gợi ý danh mục ticket (tiêu đề cột khớp alias nhập lại).
+  categories: { sheet: 'Danh mục ticket', file: 'danh-muc-ticket', position: 'Vị trí', label: 'Danh mục' },
 };

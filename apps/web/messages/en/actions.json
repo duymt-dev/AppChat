@@ -1027,6 +1027,10 @@
     },
     "system_transition": {
       "title": "Ticket system transition"
+    },
+    "category_suggestions": {
+      "title": "Ticket category suggestions",
+      "desc": "Read the configured category suggestions and categories used on tickets you can see."
     }
   },
   "segment": {
@@ -1760,6 +1764,20 @@
       "payment_transfer_note": "Transfer note",
       "signatures_seller": "Seller signature",
       "signatures_buyer": "Buyer signature"
+    }
+  },
+  "ticket_categories": {
+    "get": {
+      "title": "View ticket category suggestions",
+      "desc": "Read the workspace category suggestions (order, default, version)."
+    },
+    "replace": {
+      "title": "Replace ticket category suggestions",
+      "desc": "Replace the whole suggestion list; existing tickets keep their category."
+    },
+    "export": {
+      "title": "Export ticket category suggestions",
+      "desc": "Export the suggestion list (position + label) as a CSV / Excel file."
     }
   }
 }

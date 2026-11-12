@@ -1,5 +1,5 @@
-// Provider từ điển gợi ý danh mục (TIP-034b): handler 3 action + ký cursor (khoá dẫn xuất từ APP_ENC_KEY, mục đích riêng) + đọc cho
-// controller. Gắn vào SupportModule (API + ROLE=ai qua AiDomainHandlersModule + ROLE=jobs qua SupportJobsModule).
+// Provider từ điển gợi ý danh mục (TIP-034b): handler 4 action (đọc / thay / gợi ý / xuất tệp) + ký cursor (khoá dẫn xuất từ APP_ENC_KEY)
+// + đọc cho controller. Gắn vào SupportModule (API + ROLE=ai qua AiDomainHandlersModule + ROLE=jobs qua SupportJobsModule).
 import { createHmac } from 'node:crypto';
 import type { Provider } from '@nestjs/common';
 import type { TenantDbResolver } from '@appchat/db';
@@ -7,8 +7,9 @@ import { ENC_KEY } from '../../kernel/crypto';
 import { TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { TicketCategoriesGetHandler, TicketCategoriesReplaceHandler, TicketCategorySuggestionsHandler } from './handlers';
 import { CategoryCursors, TicketCategoriesRead } from './read';
+import { TicketCategoriesExportHandler } from './export';
 
-export const CATEGORY_HANDLERS = [TicketCategoriesGetHandler, TicketCategoriesReplaceHandler, TicketCategorySuggestionsHandler];
+export const CATEGORY_HANDLERS = [TicketCategoriesGetHandler, TicketCategoriesReplaceHandler, TicketCategorySuggestionsHandler, TicketCategoriesExportHandler];
 
 export const CATEGORY_PROVIDERS: Provider[] = [
   ...CATEGORY_HANDLERS,

@@ -11,5 +11,6 @@ export const support = {
   },
   csat: 'Hi {name}, your request {code} has been resolved. Please rate your satisfaction from 1 to 5 (5 = very satisfied) by replying with a number. Thank you!',
   reason: { resolved: 'resolved', duplicate: 'duplicate', withdrawn: 'withdrawn by customer', out_of_scope: 'out of scope' },
-  teamAi: 'AI self-serve',
+  teamAi: 'AI self-serve',  // TIP-034b: ticket category suggestion export (headers match the import aliases).
+  categories: { sheet: 'Ticket categories', file: 'ticket-categories', position: 'Position', label: 'Category' },
 };
