@@ -23,6 +23,7 @@ import { citationCase } from './citation-judge';
 import { mergeCase } from './merge-judge';
 import { tenantMailCase } from './tenant-mail-judge';
 import { bookingCase } from './booking-judge';
+import { appointmentOrderCase } from './appointment-order-judge';
 import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
 import { utilityCase } from './utility-judge';
@@ -118,6 +119,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.merge) return mergeCase(api, c, attempt, o);
   if (c.tenant_mail) return tenantMailCase(api, c, attempt, o);
   if (c.booking) return bookingCase(api, c, attempt, o);
+  if (c.appointment_order) return appointmentOrderCase(api, c, attempt, o);
   if (c.cedit) return ceditCase(api, c, attempt, o);
   if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.utility) return utilityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
