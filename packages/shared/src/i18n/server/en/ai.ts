@@ -53,6 +53,11 @@ export const ai: typeof vi = {
     missing_ticket_grant: 'Customer complained but the agent may not create tickets — needs a human to create one',
     citation_invalid: 'AI cited documents invalidly — needs a human review',
     citation_missing: 'AI answered from documents without citing sources — needs a human review',
+    sales_plan_invalid: 'AI declared product info in a wrong format — needs a human check',
+    sales_stock_changed: 'Stock / product differs from what the AI meant to say — needs a human to confirm',
+    sales_stock_unknown: 'Stock could not be checked — needs a human to confirm with the customer',
+    sales_claim_ungrounded: 'AI was about to assert stock / price / delivery / quote result without grounding — needs a human check',
+    sales_check_failed: 'The sales reply could not be checked — needs a human check',
   },
   approval: {
     title: '{action}',

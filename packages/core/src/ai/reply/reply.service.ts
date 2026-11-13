@@ -33,6 +33,7 @@ import { handoff, reasonText, setState, type ReasonKey } from './turn-handoff';
 import { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './turn-lease';
 import { agentKnowledge } from '../kb/scope/context';
 import { gateAnswer } from '../citations/answer-gate';
+import { gateSalesReply } from '../sales-behavior/orchestrator';
 import { writeAiDraft } from '../kb/scope/draft-binding';
 
 /** Tối đa 3 lần `transfer_to_agent` mỗi lượt khách (agent-gateway §5). */
@@ -198,8 +199,10 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   // TIP-020d: chốt trích dẫn trước khi dùng chữ — hỏng / thiếu nguồn → chuyển người, không tự gửi như có căn cứ.
   const gate = await gateAnswer(db, run.id, r.text, out, out.reply ? unmaskPii(out.reply, ctx.pii) : null, ctx.pii, d.now());
   if (gate.kind === 'superseded') return 'superseded';
-  const reply = gate.kind === 'pass' ? gate.reply : gate.draft;
-  const cited = gate.kind === 'handoff' ? gate.reason : null;
+  // TIP-022c §3.5–3.6: tồn / giá có căn cứ — kế hoạch bán hàng → câu server dựng; không kế hoạch mà có khẳng định thương mại → chặn tự gửi.
+  const sg = gate.kind === 'pass' ? await gateSalesReply({ db, runner: d.runner, now: d.now, ws, runId: run.id, conversationId: c.id, agent: { id: agent.id, toolIds: ctx.cfg.tools }, cfg: ctx.cfg, unmask: (s) => unmaskPii(s, ctx.pii) }, out, gate.reply) : null;
+  const reply = sg ? (sg.kind === 'pass' ? sg.reply : sg.draft) : gate.kind === 'pass' ? gate.reply : gate.draft;
+  const cited = gate.kind === 'handoff' ? gate.reason : sg?.kind === 'handoff' ? sg.reason : null;
   const rule = coord?.kind === 'handoff' ? 'needs_human' : (cited ?? decideHandoff({ out, threshold: ctx.cfg.threshold, lastCustomerFolded: ctx.lastCustomer, previousCustomerFolded: ctx.previousCustomer, banned: ctx.banned, replyFolded: foldText(reply ?? '') }));
   await db.aiRun.update({ where: { id: run.id }, data: { confidence: out.confidence } });
   if (intent && turn) await recordIntent(db, c.id, intent, { source_message_id: source?.sourceMessageId ?? null, run_id: run.id, fence: turn.fence });

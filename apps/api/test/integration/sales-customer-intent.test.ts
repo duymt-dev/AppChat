@@ -48,6 +48,8 @@ function deps(cls: MockTurn | ((c: MockCtx) => MockTurn), agent: (c: MockCtx) =>
   const calls: string[] = [];
   const model = mockLanguageModel((c) => {
     const isCls = c.system.includes('PHÂN LOẠI Ý ĐỊNH KHÁCH');
+    // TIP-022c §3.6: lượt kiểm khẳng định thương mại trước khi gửi (agent có công cụ báo giá) — chữ ở đây không khẳng định gì.
+    if (c.system.includes('KIỂM CÂU TRẢ LỜI BÁN HÀNG')) return (calls.push('check'), { text: '{"claims":[],"ambiguous":false}' });
     calls.push(isCls ? 'classify' : 'agent');
     return isCls ? (typeof cls === 'function' ? cls(c) : cls) : agent(c);
   }, { provider: PROVIDER, model: MODEL });

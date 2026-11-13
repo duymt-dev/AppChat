@@ -21,6 +21,8 @@ import { ProductImportCancelHandler, ProductImportHandler, ProductImportRetryHan
 import { ImportDeps, ImportStatusService } from './import/status';
 import { PRODUCT_MEDIA_HANDLERS } from './media/handlers';
 import { registerProductMediaSources } from './media/module';
+import { registerStockObserver } from '../kernel/actions/sales-publication';
+import { observeSalesStock } from './services/sales-stock-observation';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
@@ -54,5 +56,7 @@ const HANDLERS = [
 export class CatalogModule implements OnModuleInit {
   onModuleInit(): void {
     registerProductMediaSources();
+    // TIP-022c: quan sát tồn kho chỉ đọc cho câu trả lời bán hàng (cổng kernel trung lập — AI / gửi tin gọi, không import catalog).
+    registerStockObserver(observeSalesStock);
   }
 }

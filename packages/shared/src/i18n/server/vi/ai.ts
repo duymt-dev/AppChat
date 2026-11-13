@@ -51,6 +51,11 @@ export const ai = {
     missing_ticket_grant: 'Khách khiếu nại nhưng agent chưa được cấp quyền tạo ticket — cần người tạo',
     citation_invalid: 'AI trích dẫn tài liệu không hợp lệ — cần người kiểm lại',
     citation_missing: 'AI trả lời từ tài liệu nhưng không nêu nguồn — cần người kiểm lại',
+    sales_plan_invalid: 'AI khai thông tin sản phẩm sai khuôn — cần người kiểm lại',
+    sales_stock_changed: 'Tồn kho / sản phẩm khác điều AI định nói — cần người xác nhận',
+    sales_stock_unknown: 'Chưa kiểm được tồn kho — cần người xác nhận với khách',
+    sales_claim_ungrounded: 'AI định khẳng định tồn / giá / giao hàng / báo giá không có căn cứ — cần người kiểm lại',
+    sales_check_failed: 'Chưa kiểm được câu trả lời bán hàng — cần người kiểm lại',
   },
   approval: {
     title: '{action}',
