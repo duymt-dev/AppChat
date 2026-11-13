@@ -135,7 +135,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 51 | [001b](../tips/TIP-001b-web-architecture.md) | W8 | DONE | `tip/001b-web-architecture` | `ab277e75` | #212 |
 | 52 | [034c](../tips/TIP-034c-ticket-bulk.md) | W8 | DONE (ai:live chưa nghiệm thu — Q-066) | `tip/034c-ticket-bulk` · `tip/034c-p2-bulk-web` · `tip/034c-p3-bulk-evidence` | `d86d0fd2` (P1) · `d48dc026` (P2) · `b5a1184b` (P3) | #213 (P1) · #214 (P2) · #216 (P3) |
 | 53 | [022c](../tips/TIP-022c-sales-behavior.md) | W8 | DONE | `tip/022c-sales-behavior` · `tip/022c-p2-operator-provenance` · `tip/022c-p3-stock-grounding` · `tip/022c-p4-publication` · `tip/022c-p5-templates-live` | `e4ab67ce` (P1) · `21f6091f` (P2) · `f86984a8` (P3) · `1a02ff8b` (P4) · `0af4609f` (P5) | #217 (P1) · #218 (P2) · #219 (P3) · #220 (P4) · #221 (P5) |
-| 54 | [006c](../tips/TIP-006c-realtime-events.md) | W8 | chờ | `tip/006c-realtime-events` | | |
+| 54 | [006c](../tips/TIP-006c-realtime-events.md) | W8 | DONE | `tip/006c-realtime-events` | `8c43594c` | #222 |
 | 55 | [016b](../tips/TIP-016b-nav-badges.md) | W8 | chờ | `tip/016b-nav-badges` | | |
 | 56 | [034d](../tips/TIP-034d-ticket-stock-trends.md) | W8 | chờ | `tip/034d-ticket-stock-trends` | | |
 | 57 | [020e](../tips/TIP-020e-rag-model-lifecycle.md) | W8 | chờ | `tip/020e-rag-model-lifecycle` | | |

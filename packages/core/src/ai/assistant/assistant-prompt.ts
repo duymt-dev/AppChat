@@ -29,6 +29,8 @@ export interface AssistantRunInput {
   attachments?: { id: string; name: string; mime?: string; size?: number; handlers?: string[]; hints?: string[] }[];
   /** TIP-023d §5.1: agent đã chọn — id + bản đã xuất bản + mức AI hiệu lực, ghim lúc nhận lượt (server ghi; mọi đường chạy tiếp đọc lại). */
   selected_agent?: { id: string; version: number; tier: string };
+  /** TIP-006c: tab đã gửi lượt (định tuyến `ui.command` realtime) — không vào prompt, không phải quyền. */
+  tab_id?: string;
 }
 
 const AGENTS_IN_PROMPT = 12;

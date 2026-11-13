@@ -474,6 +474,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `campaign.approved` / `campaign.completed` | | sender job, campaign stats |
 | `ai.run.completed` / `approval.requested` / `approval.decided` | | WS push, notify, resume run |
 | `credits.low` / `credits.exhausted` / `credits.restored` | | notify; inbox chuyển hội thoại auto về người / mở lại |
+| `credits.changed` | balance_plan, balance_topup, ledger_id | realtime WS `credits.changed` (số dư chỉ cho `billing.manage`, người khác tín hiệu không số — TIP-006c, DC-449) |
+| `ui.command_issued` | run_id, user_id, tab_id, command | realtime WS `ui.command` tới phòng `tab:{user}:{tab}` của tab đã gửi lượt (TIP-006c, DC-449) |
 | `subscription.changed` / `trial.expired` | | quota, notify |
 | `notify.requested` | kind, to { user_ids?, permission? }, params, link?, exclude_user_id? | notify: ghi `notification` theo locale người nhận → WS `notification.new` → email theo tuỳ chọn (TIP-006) |
 | `member.role_changed` / `member.removed` | user_id | xoá cache AuthzContext; WS `authz.changed` → FE tải lại `me/authz`; gỡ gán hội thoại khi bị xoá |
@@ -1031,7 +1033,7 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 ### 4.6 Realtime (Socket.IO)
 
 - **Namespace `/ws`:**
-  - Auth bằng access JWT + workspace. Tự join room `ws:{id}` và `user:{id}`. Join `conv:{id}` khi mở hội thoại.
+  - Auth bằng access JWT + workspace. Tự join room `ws:{id}` và `user:{id}` (+ `tab:{user}:{tab}` khi handshake có `tab_id` — TIP-006c). Join `conv:{id}` khi mở hội thoại.
   - Server → client: `message.new`, `message.updated`, `conversation.updated`, `conversation.counts`, `typing`, `run.step`, `run.done`, `approval.requested`, `approval.decided`, `ui.command` (chỉ gửi user ra lệnh), `channel.status`, `channel.zalo.qr` ({ account_id, qr_png_base64, expires_at }), `notification.new`, `credits.changed`.
   - Client → server: `conv.join`, `conv.leave`, `typing`.
 - **Namespace `/widget`:**
@@ -1039,6 +1041,7 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
   - Client → server: `visitor.hello` ({ name?, phone?, email?, page_url }), `message.send` ({ text, attachments? }).
   - Server → client: `message.new`, `typing`, `agent.status`.
 - **Fan-out:** Redis adapter; worker phát qua `@socket.io/redis-emitter`.
+- **Cache registry workspace (TIP-006c):** `TenantDbResolver.invalidate` publish kênh Redis `tenant-registry:invalidate`; mọi api / worker subscribe → xoá cache cục bộ; mất Redis → TTL 60s + thế hệ trạng thái 2s.
 
 ### 4.7 Webhooks
 

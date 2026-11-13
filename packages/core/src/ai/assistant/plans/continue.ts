@@ -12,6 +12,7 @@ import { eventsOf, finishStream, specFor, type RunDeps } from '../turn.service';
 import type { AssistantTurnCtx } from '../types';
 import { planBrief } from './resume';
 import { selectedCtx } from './selected-agent';
+import { tabCtx } from '../ui-command';
 import { PLAN_WAITS } from './checkpoint';
 import { RunStream } from '../genui/stream';
 import { EventStore } from '../genui/event-store';
@@ -26,7 +27,7 @@ export async function continuePlanTurn(d: RunDeps, db: TenantDb, ws: string, roo
   const plan = await db.assistantPlan.findUnique({ where: { rootRunId }, select: { id: true, phase: true } });
   if (!plan || plan.phase !== 'active' || !authz) return 'skipped';
   const input = run.input as unknown as AssistantRunInput;
-  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
+  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input), ...tabCtx(input) };
   const steps = await db.assistantPlanStep.findMany({ where: { planId: plan.id }, orderBy: { position: 'asc' } });
   const cp = state.plan_checkpoint;
   const fromIdx = await store.nextIdx(run.id);

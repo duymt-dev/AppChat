@@ -23,6 +23,8 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'credits.low': ws,
   'credits.exhausted': ws,
   'credits.restored': ws,
+  // TIP-006c: số dư ví đổi — theo workspace (thứ tự đổi giữ nguyên trong stream ws).
+  'credits.changed': ws,
   'subscription.changed': ws,
   'trial.expired': ws,
   'billing.invoice_paid': by('billing_invoice', 'invoice_id'),
@@ -87,6 +89,8 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'run.cancelled': by('ai_run', 'run_id'),
   'run.step': by('ai_run', 'run_id'),
   'run.done': by('ai_run', 'run_id'),
+  // TIP-006c: lệnh UI của lượt Trợ lý — cùng stream run (thứ tự với run.step).
+  'ui.command_issued': by('ai_run', 'run_id'),
   'kb.source_ready': by('kb_source', 'source_id'),
   'kb.source_failed': by('kb_source', 'source_id'),
   'kb.suggestion_created': conv,

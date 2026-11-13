@@ -17,4 +17,6 @@ export interface AssistantTurnCtx {
   sessionId?: string;
   /** TIP-023d §5: agent người dùng chọn (id + bản đã ghim lúc nhận lượt) — server dựng lại từ ai_run.input, không từ model. */
   selected?: SelectedAgent;
+  /** TIP-006c: tab trình duyệt đã gửi lượt (`ai_run.input.tab_id`) — tool `ui` phát `ui.command` chỉ tới tab này. */
+  tabId?: string;
 }
