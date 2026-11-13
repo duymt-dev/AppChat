@@ -59,6 +59,8 @@ export interface Ticket {
   sla: { state: SlaState; left_min: number | null };
   /** Trường tuỳ biến (D56). */
   custom?: CustomValues;
+  /** TIP-034c: version hiện tại — chọn nhiều gửi kèm `if_versions`. */
+  version?: number;
 }
 
 export interface TicketsMeta {

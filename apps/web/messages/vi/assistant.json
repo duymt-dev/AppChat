@@ -295,8 +295,7 @@
     },
     "undo": "Hoàn tác",
     "dash": "—",
-    "empty": "Không có hành động nào thuộc loại này.",
-    "undone": "Đã hoàn tác: {title}"
+    "empty": "Không có hành động nào thuộc loại này."
   },
   "ap": {
     "title": "Chờ duyệt",

@@ -26,6 +26,8 @@ export type Ticket = Omit<Fixed, 'status' | 'assignee_user_id' | 'assignee_agent
   events: Event[];
   csat?: number | null;
   deleted?: boolean;
+  /** TIP-034c: như trigger DB — mỗi lần ghi +1 (fixture không có → 1). */
+  version?: number;
 };
 
 export interface TicketsState {
@@ -73,6 +75,7 @@ export const find = (db: MockDb, id: string) => {
 };
 const view = (t: Ticket) => ({
   ...t,
+  version: t.version ?? 1,
   csat: t.csat ?? null,
   sla: slaOf(t),
   assignee_name: t.assignee_agent_id ? fixture.agent.name : nameOf(t.assignee_user_id),
@@ -80,6 +83,7 @@ const view = (t: Ticket) => ({
 });
 export const touch = (t: Ticket, e: Omit<Event, 'at' | 'by'> & { by?: string }) => {
   t.updated_at = MOCK_NOW;
+  t.version = (t.version ?? 1) + 1;
   t.events.push({ by: actor(), ...e, at: MOCK_NOW });
 };
 

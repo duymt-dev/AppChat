@@ -59,6 +59,8 @@ export const ticketRowSchema = z.object({
   events: z.array(ticketEventSchema),
   sla: z.object({ state: z.enum(['breach', 'risk', 'ok']), left_min: z.number().int().nullable() }),
   custom: customValuesSchema.optional(),
+  /** TIP-034c: version hiện tại (trigger DB tăng mỗi UPDATE) — chọn nhiều gửi kèm `if_versions`; client cũ bỏ qua. */
+  version: z.number().int().optional(),
 });
 
 export const ticketsPageSchema = z.object({

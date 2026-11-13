@@ -114,6 +114,7 @@ export class TicketsReadService {
         csat: t.csat,
         created_at: iso(t.createdAt),
         updated_at: iso(t.updatedAt),
+        version: t.version,
         comments: comments.filter((c) => c.ticketId === t.id).map((c) => ({ id: c.id, author_type: c.authorType, author: c.authorName, body: c.body, internal: c.internal, at: iso(c.createdAt) })),
         events: events
           .filter((e) => e.ticketId === t.id)

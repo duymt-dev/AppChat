@@ -86,7 +86,38 @@
     "ai": "Hand to AI",
     "priority": "Change priority",
     "clear": "Clear selection",
-    "done": "Updated {n} tickets"
+    "done": "Updated {n} tickets",
+    "result": {
+      "title": "Bulk edit results",
+      "running": "Running in the background: {n}/{total} tickets left — you can leave, results update when done",
+      "summary": "{changed} tickets changed · {same} already set · {failed} not applied",
+      "duplicates": "Merged {n} duplicate ids",
+      "agentNotRun": "Assigning to an AI Agent is assignment only — the agent has not run / processed any ticket.",
+      "keptSelected": "Tickets that could not be applied stay selected so you can follow up.",
+      "undoRunning": "Undoing: {n} tickets left",
+      "undoSummary": "Undid {undone} tickets · {conflicts} conflicts kept · {failed} could not be undone",
+      "undo": "Undo",
+      "cancel": "Stop",
+      "retry": "Retry failed tickets",
+      "close": "Close",
+      "status": {
+        "cancelled": "Stopped",
+        "failed": "Failed",
+        "completed": "Done"
+      },
+      "code": {
+        "NOT_FOUND": "Not found or not visible to you",
+        "SCOPE_FORBIDDEN": "Outside your editable scope",
+        "INVALID_TRANSITION": "Ticket is closed",
+        "STALE_VERSION": "Changed after you selected it — reload and select again",
+        "VALIDATION_FAILED": "Recipient is no longer valid",
+        "FORBIDDEN": "Permission no longer granted",
+        "CONFLICT": "Changed after this operation — kept as is",
+        "UNDO_EXPIRED": "Undo window expired",
+        "NOT_APPLIED": "Not applied (operation stopped)",
+        "INTERNAL": "System error"
+      }
+    }
   },
   "detail": {
     "close": "Close",

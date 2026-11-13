@@ -43,6 +43,9 @@
   "jobAccepted": "Đã nhận: {title} — đang chạy nền, kết quả cập nhật khi xong",
   "operationPending": "Đang hoàn tất: {title} — hệ thống tự hoàn tất phần còn lại, không cần thao tác lại",
   "previewTitle": "Xác nhận thao tác",
+  "undone": "Đã hoàn tác: {title}",
+  "undoAccepted": "Đang hoàn tác: {title} — chạy nền, kết quả cập nhật khi xong",
+  "undoPartial": "Hoàn tác một phần: {title} — {undone} đã hoàn tác, {failed} giữ nguyên (đã bị sửa sau đó hoặc lỗi)",
   "business_profile": {
     "update": {
       "title": "Cập nhật thông tin doanh nghiệp"

@@ -19,6 +19,7 @@ import { withFieldPolicy } from './domains/field-policy';
 import { importTexts, productImportRoute } from './domains/product-import';
 import { dataTransferRoute } from './domains/data-transfer';
 import { dataJobBlob, dataJobsRoute } from './domains/data-jobs';
+import { bindBulkLog, bulkUndoActionOf } from './domains/tickets-bulk';
 import { channelOperationsRoute } from './domains/channel-operations';
 import { contactSyncRoute } from './domains/contact-sync';
 import { channelFriendsRoute } from './domains/channel-friends';
@@ -196,7 +197,8 @@ export const mockTransport: Transport = {
     const undoUntil = def.undo ? new Date(Date.now() + def.undo.windowSec * 1000).toISOString() : undefined;
     if (def.undo && handler.undo)
       undoLog.set(logId, () => mutate((db) => handler.undo!(db, parsed.data as never)));
-    if (def.risk !== 'read') recordActionLog(mockDb(), id, logId, def.risk, !!(def.undo && handler.undo));
+    if (def.risk !== 'read') recordActionLog(mockDb(), id, logId, def.risk, !!(def.undo && (handler.undo || bulkUndoActionOf(id))));
+    bindBulkLog(result, logId);
     // Việc nền (202 job_accepted — TIP-032b): handler mock trả `{ __accepted: { job_id, status_url } }` như server khi xếp việc.
     const queued = (result as { __accepted?: { job_id: string; status_url: string } } | null)?.__accepted;
     if (queued) return { status: 202, data: { status: 'job_accepted', job_id: queued.job_id, action_log_id: logId, status_url: queued.status_url } };
@@ -212,6 +214,9 @@ export const mockTransport: Transport = {
   },
 
   async undo(actionLogId) {
+    // Cha có action hoàn tác riêng (TIP-034c, như undo-action-registry server) → 409 UNDO_REQUIRES_ACTION, không ghi gì.
+    const mapped = bulkUndoActionOf(mockDb().assistant.logs.find((l) => l.id === actionLogId)?.action_id);
+    if (mapped) throw new ApiRequestError(409, { code: 'UNDO_REQUIRES_ACTION', message: mapped, fields: { undo_action: mapped, parent_action_log_id: actionLogId } });
     const fn = undoLog.get(actionLogId);
     // dòng nhật ký mẫu (fixture) không có handler undo trong phiên — chỉ đổi trạng thái
     const seeded = mockDb().assistant.logs.find(
