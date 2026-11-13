@@ -15,6 +15,7 @@ import { reserveDispatch } from '../../ai/reply/send-fence';
 import { ChannelsModule } from '../../channels/channels.module';
 import { AgentReplyQueue } from '../../ai/reply/reply.queue';
 import { InboxModule } from '../inbox.module';
+import { CatalogModule } from '../../catalog/catalog.module';
 import { InboundPipeline } from '../services/pipeline';
 import { OUTBOX_SWEEP_MS, sendResultSink, startInboundWorker, sweepOutbox, type InboxJobDeps } from './inbound.processor';
 
@@ -75,5 +76,6 @@ class InboxJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
 
 export const INBOX_RUNTIME = InboxJobsRunner;
 
-@Module({ imports: [InboxModule, ChannelsModule], providers: [InboxJobsRunner] })
+// TIP-022c: CatalogModule đăng ký bộ quan sát tồn (cổng kernel) — đặt chỗ gửi kiểm lại câu tồn / giá ngay trước kênh ở ROLE=channels.
+@Module({ imports: [InboxModule, ChannelsModule, CatalogModule], providers: [InboxJobsRunner] })
 export class InboxJobsModule {}

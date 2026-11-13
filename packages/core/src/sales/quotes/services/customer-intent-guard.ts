@@ -3,6 +3,8 @@
 // lúc nhận khớp dấu hiện tại (đọc SAU khoá báo giá), tin nguồn còn nguyên (chưa xoá / thu hồi, cùng digest) và lượt agent chưa đổi. Tiêu
 // thụ biên nhận trong CÙNG transaction với hiệu ứng (rollback → biên nhận vẫn prepared; không có hiệu ứng nào với biên nhận chưa tiêu).
 // Người dùng (ui / api) và Trợ lý (thẻ xác nhận của chính người dùng) giữ hành vi chuẩn. Sales không import AiModule, không gọi model.
+// Thứ tự khoá (P4, chung với người ghi nguồn `inbox/services/customer-source-fence.ts`): khách gốc → báo giá (lockQuote) → hội thoại → tin
+// nguồn (id tăng dần) → biên nhận — người xoá / thu hồi / xoá lịch sử khoá khách → hội thoại → tin → biên nhận, không bao giờ ngược.
 import { AppError } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import {
@@ -19,7 +21,7 @@ import { isPrivacyFenced } from '../../../kernel/privacy/guard';
 import type { QuoteRecord } from '../quote-access';
 
 type Receipt = {
-  id: string; run_id: string; conversation_id: string; source_ids: string[]; source_digest: string; turn_fence: number;
+  id: string; run_id: string; conversation_id: string; source_ids: string[]; source_digest: string; turn_fence: number; ai_epoch: number | null;
   quote_id: string; quote_fingerprint: string; intent: string; confidence_pct: number; state: string;
 };
 
@@ -46,8 +48,14 @@ export async function admitCustomerIntent(tx: TenantTx, ctx: ActionContext, acti
     return { consume: op.consume };
   }
   if (!h || h.actionId !== actionId || h.quoteId !== q.id || !ctx.runId || h.runId !== ctx.runId) throw deny('missing');
+  // Đọc không khoá để biết hội thoại / tập nguồn → khoá hội thoại, tin nguồn (id tăng dần), rồi biên nhận — đọc lại sau khoá.
+  const [pre] = await tx.$queryRaw<{ conversation_id: string; source_ids: string[] }[]>`
+    SELECT conversation_id, source_ids::text[] AS source_ids FROM ai_sales_intent WHERE id = ${h.receiptId}::uuid`;
+  if (!pre) throw deny('missing');
+  await tx.$queryRaw`SELECT id FROM conversation WHERE id = ${pre.conversation_id}::uuid FOR UPDATE`;
+  await tx.$queryRaw`SELECT id FROM message WHERE id = ANY(${[...pre.source_ids].sort()}::uuid[]) ORDER BY id FOR UPDATE`;
   const [r] = await tx.$queryRaw<Receipt[]>`
-    SELECT id, run_id, conversation_id, source_ids::text[] AS source_ids, source_digest, turn_fence, quote_id, quote_fingerprint, intent, confidence_pct, state
+    SELECT id, run_id, conversation_id, source_ids::text[] AS source_ids, source_digest, turn_fence, ai_epoch, quote_id, quote_fingerprint, intent, confidence_pct, state
       FROM ai_sales_intent WHERE id = ${h.receiptId}::uuid FOR UPDATE`;
   if (!r || r.run_id !== ctx.runId || r.quote_id !== q.id || r.intent !== CUSTOMER_INTENT_ACTIONS[actionId]) throw deny('missing');
   if (!(r.confidence_pct >= CUSTOMER_INTENT_MIN_PCT)) throw deny('low_confidence');
@@ -55,16 +63,16 @@ export async function admitCustomerIntent(tx: TenantTx, ctx: ActionContext, acti
   if (r.quote_fingerprint !== quoteFingerprint(q)) throw conflict('quote_changed');
   // Khách đang / đã bị "Quên" (015c) → biên nhận không còn dùng được, kể cả khi đã ghi trước đó.
   if (await isPrivacyFenced(tx, q.contactId)) throw conflict('privacy');
-  // Tin nguồn khoá theo id tăng dần (cùng thứ tự với người ghi xoá / thu hồi) rồi đọc lại — xoá / thu hồi / đổi nội dung bất kỳ tin nào → 409.
-  const ids = [...r.source_ids].sort();
-  await tx.$queryRaw`SELECT id FROM message WHERE id = ANY(${ids}::uuid[]) ORDER BY id FOR UPDATE`;
-  const rows = await tx.message.findMany({ where: { id: { in: ids } }, select: { id: true, conversationId: true, body: true, deletedAt: true, recalledAt: true } });
+  // Tin nguồn (đã khoá ở trên) đọc lại — xoá / thu hồi / đổi nội dung bất kỳ tin nào → 409. Tập nguồn bất biến (CHECK) — khoá đúng tập này.
+  const rows = await tx.message.findMany({ where: { id: { in: [...r.source_ids] } }, select: { id: true, conversationId: true, body: true, deletedAt: true, recalledAt: true, createdAt: true } });
   const byId = new Map(rows.map((m) => [m.id, m]));
   const live = r.source_ids.map((id) => byId.get(id));
   if (live.some((m) => !m || m.conversationId !== r.conversation_id || m.deletedAt || m.recalledAt)) throw conflict('source_changed');
   if (sourceDigest(live.map((m) => ({ id: m!.id, body: m!.body }))) !== r.source_digest) throw conflict('source_changed');
-  const conv = await tx.conversation.findUnique({ where: { id: r.conversation_id }, select: { aiTurnFence: true, aiMode: true } });
-  if (!conv || conv.aiMode !== 'auto' || conv.aiTurnFence !== r.turn_fence) throw conflict('turn_changed');
+  // Người tiếp quản / đổi chế độ / chuyển phụ trách / gộp khách tăng epoch — về lại auto sau đó cũng không dùng lại biên nhận cũ.
+  const conv = await tx.conversation.findUnique({ where: { id: r.conversation_id }, select: { aiTurnFence: true, aiMode: true, aiEpoch: true, clearedAt: true } });
+  if (conv?.clearedAt && live.some((m) => m!.createdAt <= conv.clearedAt!)) throw conflict('source_changed');
+  if (!conv || conv.aiMode !== 'auto' || conv.aiTurnFence !== r.turn_fence || r.ai_epoch === null || conv.aiEpoch !== r.ai_epoch) throw conflict('turn_changed');
   return {
     async consume(actionLogId: string, now: Date) {
       const n = await tx.aiSalesIntent.updateMany({ where: { id: r.id, state: 'prepared' }, data: { state: 'consumed', actionLogId, updatedAt: now } });

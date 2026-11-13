@@ -5,6 +5,9 @@
 // TIP-023d: kế hoạch Cowork gắn phiên Trợ lý của NGƯỜI DÙNG (không gắn hội thoại / khách) — không có khoá join tới khách. Ứng viên tái dùng
 // chỉ giữ cấu trúc chung (action id + nhãn registry), không chữ riêng / id bản ghi — không vào kiểm kê khách. Chữ riêng của bước (title /
 // instructions người tự gõ) là văn bản người dùng, như tin nhắn phiên Trợ lý — Q-065 (đề xuất: xử lý cùng lớp xoá phiên Trợ lý).
+// TIP-022c: biên nhận ý định khách `ai_sales_intent` theo khách gốc lúc nhận (index original_contact_id, id INCLUDE state) — luôn exclusive
+// (biên nhận của một khách, lấy từ hội thoại 1-1 của khách đó). Căn cứ công bố `ai_sales_publication` theo hội thoại của khách (index
+// conversation_id, id) — như ai_run: 1-1 exclusive, nhóm shared.
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { idsSql, toInventory, type InvRow } from '../../kernel/privacy/sql';
 
@@ -19,6 +22,13 @@ export async function aiInventory(tx: TenantTx, contactIds: readonly string[]) {
            CASE WHEN c.kind = 'direct' THEN 'exclusive' ELSE 'shared' END AS ownership
       FROM agent_draft_publication b JOIN ai_run r ON r.id = b.run_id JOIN ai_run root ON root.id = r.root_run_id
       JOIN conversation c ON c.id = root.conversation_id
+      WHERE c.contact_id = ANY(${ids})
+    UNION ALL
+    SELECT 'ai_sales_intent' AS kind, s.id AS record_id, 1 AS revision, 'exclusive' AS ownership
+      FROM ai_sales_intent s WHERE s.original_contact_id = ANY(${ids})
+    UNION ALL
+    SELECT 'ai_sales_publication' AS kind, p.id AS record_id, 1 AS revision, CASE WHEN c.kind = 'direct' THEN 'exclusive' ELSE 'shared' END AS ownership
+      FROM ai_sales_publication p JOIN conversation c ON c.id = p.conversation_id
       WHERE c.contact_id = ANY(${ids})`;
   return toInventory(rows);
 }

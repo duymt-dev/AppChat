@@ -150,7 +150,8 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
     const out = r.status === 'completed' ? parseAgentReply(r.text) : null;
     // TIP-020d: nháp giữ lại cũng qua cổng trích dẫn (trích dẫn hỏng → không giữ nháp).
     const g = out ? await gateAnswer(db, run.id, r.text, out, out.reply ? unmaskPii(out.reply, ctx.pii) : null, ctx.pii, d.now()) : null;
-    const draft = g?.kind === 'pass' ? g.reply : g?.kind === 'handoff' ? g.draft : null;
+    // TIP-022c: câu có kế hoạch bán hàng chưa qua cổng tồn — không giữ chữ thô của model (lời hứa tồn / giá chưa kiểm) làm nháp.
+    const draft = out?.sales_plan ? null : g?.kind === 'pass' ? g.reply : g?.kind === 'handoff' ? g.draft : null;
     if (draft) await writeAiDraft(db, c.id, draft, run.id);
     await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
     return 'superseded';

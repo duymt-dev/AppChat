@@ -112,7 +112,9 @@
   "chat": {
     "aiDraftRef": {
       "stale": "This AI draft is outdated — its reference content can no longer be used. Rewrite it or send it as your own message.",
-      "revoked": "The documents this AI draft relied on changed or were revoked — the draft was not sent. Please rewrite it."
+      "revoked": "The documents this AI draft relied on changed or were revoked — the draft was not sent. Please rewrite it.",
+      "stockChanged": "Stock / price in this AI draft changed since it was checked — the draft was not sent. Rewrite it or check stock again.",
+      "stockUnverified": "Stock / price in this AI draft couldn't be rechecked with your permissions — the draft was not sent. Please rewrite it."
     },
     "back": "Back to list",
     "search": "Search in conversation",

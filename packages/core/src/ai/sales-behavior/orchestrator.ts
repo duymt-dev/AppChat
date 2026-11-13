@@ -4,7 +4,8 @@
 //                            liệu / `unknown` → chuyển người, nháp là câu trung thực server dựng (không giữ lời hứa cũ của model);
 //   không kế hoạch          → lượt dùng công cụ sản phẩm / báo giá / bất kỳ câu nào có khẳng định thương mại phải qua lượt kiểm chỉ đọc
 //                            (response-check.ts, cùng ngân sách gốc); có khẳng định không căn cứ / không đọc được → chặn tự gửi.
-// Không giữ hàng, không đổi tồn, không ETA. Không phải giấy phép gửi: luật chuyển người / gửi của lượt vẫn áp như cũ.
+// Không giữ hàng, không đổi tồn, không ETA. Không phải giấy phép gửi: luật chuyển người / gửi của lượt vẫn áp như cũ. Câu server dựng (gửi /
+// nháp / gợi ý) ghi căn cứ `ai_sales_publication` theo run TRƯỚC khi rời lượt — ghi tin / đặt chỗ gửi quan sát lại (publication.ts, P4).
 import type { AgentReply } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
 import type { AuthzContext } from '@appchat/shared';
@@ -14,6 +15,7 @@ import { scheduleOf } from '../agents/schedule-config';
 import { groundStock } from './stock';
 import { renderSalesResponse } from './response';
 import { checkResponse, type CommercialClaim } from './response-check';
+import { recordPublication } from './publication';
 
 /** Action đọc / ghi thương mại — lượt có gọi một trong số này thì câu trả lời luôn qua bước kiểm. */
 const COMMERCE_TOOLS = /^(product|stock|quote|order|invoice|payment)\./;
@@ -54,10 +56,13 @@ export async function gateSalesReply(d: SalesGateDeps, out: AgentReply, reply: s
     // Quyền đọc HIỆN TẠI của agent trực kênh (grant đã xuất bản) — mất grant → `unknown`, không bao giờ "còn hàng".
     const authz: AuthzContext = agentAuthz(d.agent);
     const now = d.now();
-    const observed = await groundStock(d.db, authz, plan.items.map((i) => ({ productId: i.product_id, qty: i.qty })), now);
-    const alts = plan.alternatives.length ? await groundStock(d.db, authz, plan.alternatives.map((id) => ({ productId: id, qty: plan.items[0]!.qty })), now) : null;
+    const items = plan.items.map((i) => ({ productId: i.product_id, qty: i.qty }));
+    const alternatives = plan.alternatives.map((id) => ({ productId: id, qty: plan.items[0]!.qty }));
+    const observed = await groundStock(d.db, authz, items, now);
+    const alts = alternatives.length ? await groundStock(d.db, authz, alternatives, now) : null;
     const timeZone = scheduleOf(d.cfg.weekly_schedule)?.timezone ?? DEFAULT_TZ;
     const r = renderSalesResponse({ ...plan, narrative: d.unmask(plan.narrative) }, observed, alts, { locale, timeZone });
+    await recordPublication(d.db, { runId: d.runId, conversationId: d.conversationId, agentId: d.agent.id, items, alternatives, observed, alts, content: r.text }, now);
     if (r.kind === 'mismatch') return { kind: 'handoff', reason: 'sales_stock_changed', draft: r.text };
     if (r.kind === 'unknown') return { kind: 'handoff', reason: 'sales_stock_unknown', draft: r.text };
     // Phần dẫn của model vẫn có thể lén khẳng định — kiểm riêng phần dẫn (câu server dựng là có căn cứ).
