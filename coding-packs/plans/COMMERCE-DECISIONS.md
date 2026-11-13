@@ -295,7 +295,7 @@ signed ──huỷ (lý do, Owner)──▶ terminated (Đã chấm dứt)
   - Gói có Gọi điện: Cá nhân Max (1 máy) · Business (5) · Ultimate (không giới hạn) · Enterprise (tuỳ chỉnh). Miễn phí / Cá nhân / Cá nhân Pro / Team không có.
   - Mua thêm **"User tổng đài" 200.000đ / máy / tháng** (addon riêng, tự gia hạn cùng gói như addon người dùng / kênh — DC-056). Máy AI (900) không tính license.
   - Cước viễn thông shop trả thẳng nhà mạng (shop mang số); AppChat không bán phút / số ở bản này ("Phút gọi Voice", "Số hotline riêng" = Sắp có).
-  - Voice AI (Realtime, STT, TTS) trừ **credit** theo lượt `voice_turn`, giá ở `model_price`; hết credit theo D09 (AI dừng, chuyển người / lời nhắn; cuộc gọi đang có người không bị cắt).
+  - Voice AI trừ **credit** theo lượt `voice_turn`, giá ở `model_price`: mặc định tự dựng (STT / TTS chạy local — DC-907) nên **chỉ tính phần LLM**, STT / TTS = 0; chế độ Realtime (tuỳ chọn, có key) tính theo giá Realtime. Hết credit theo D09 (AI dừng, chuyển người / lời nhắn; cuộc gọi đang có người không bị cắt).
   - Phí "yêu cầu gọi" Zalo (~440–550đ có VAT): Zalo trừ ví OA của shop → AppChat không trừ; Zalo trừ App AppChat → trừ credit đúng giá Zalo. Luôn do người bấm, có xem trước kèm phí.
   - Cước gọi / credit voice **không** vào màn Tài chính (032e chỉ tiền thương mại của DN).
 

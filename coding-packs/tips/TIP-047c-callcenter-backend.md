@@ -72,8 +72,8 @@
   - 023b: assistant-coverage / `pendingByTip`.
   - 003b / 003c / 006b (DONE): outbox v2, system adapter, fanout realtime.
 - **Files touched:** [exact M/C manifest](manifests/TIP-047c-files.md). Domain mới `packages/core/src/callcenter/` (module + jobs + actions + services + events + privacy). Không thêm logic vào file legacy vượt trần — chỉ facade 1–2 dòng ở `crm/public.ts`, `index.ts`, `composition/privacy.module.ts`.
-- **Quyết định nguồn:** D61 (#2, #5–#10, #12) · DC-904 · DC-903 · D60 #9–10 · Blueprint §2.3, §3.4, §3.5, §4.6, §4.7, §6b · sync wD:pD.
-- **Dòng COVERAGE nhận:** REQ-O03 · REQ-O04 · REQ-O05 (API) · REQ-O06 (API) · REQ-O07 · REQ-O08 · REQ-O09 · REQ-O10 (API) · REQ-O11 · D61-calls · DC-904 · ACT-call.* · BP-4.7-calls · BP-2.3-calls.
+- **Quyết định nguồn:** D61 (#2, #5–#10, #12) · DC-904 · DC-903 · **DC-907** (Voice AI tự dựng, chốt Q-902…906) · D60 #9–10 · Blueprint §2.3, §3.4, §3.5, §4.6, §4.7, §6b · sync wD:pD.
+- **Dòng COVERAGE nhận:** REQ-O03 · REQ-O04 · REQ-O05 (API) · REQ-O06 (API) · REQ-O07 · REQ-O08 · REQ-O09 · REQ-O10 (API) · REQ-O11 · D61-calls · DC-904 · DC-907 (phiên / credit / Hộp SIM) · ACT-call.* · BP-4.7-calls · BP-2.3-calls.
 
 ## CONTEXT
 - **Working dir:** `D:/CODING/AppChat_Ver2`. Mọi ghi đi qua `ActionExecutor` (`POST /v1/actions/:id`); hệ thống ghi bằng action `exposure: 'internal'` qua system adapter có capability niêm phong (003c).
@@ -305,11 +305,13 @@ Không UI (047d).
 2. **Phiên (ROLE=channels):**
    - `VoiceAiEnginePort.start` với system prompt + `kb_scope` (D54) + tools = `effectiveToolIds(agent, caller)` (D51 §3.3b). Cuộc gọi vào không có người ra lệnh → quyền agent. Gọi ra từ Hẹn gọi lại → ∩ quyền người hẹn.
    - Tool call → `ActionExecutor` nguồn `agent` (policy như agent trực kênh: send cần duyệt, delete cấm).
+   - Bộ cài theo `VOICE_AI_ENGINE` (DC-907): production `pipeline` local (PhoWhisper + VieNeu-TTS, `TurnEngine` = `AiSdkEngine` qua 9router); `realtime` chỉ khi có key. `start()` ném `VOICE_AI_BUSY` (hết `VOICE_AI_MAX_SESSIONS`) → bỏ bước AI, đi tiếp IVR / nhóm như AI tắt, ghi lý do `ai_busy` ở `call.meta`.
 3. **Credit:** mỗi `turn` → action nội bộ `call.voice_turn` → `CreditMeter.chargeVoice({ ws, callId, turnIdx, kind, provider, model, units })`. Idempotent `ref_type 'voice_turn'`, `ref_id = callId:turnIdx`.
+   - Chế độ `pipeline` local: `usage` kind `stt` / `tts` có `provider: 'local'` → giá dòng `stt:local` / `tts:local` = 0 (047b seed); chỉ kind `llm` tính tiền theo bảng giá model chat hiện có (DC-907 c).
    - `PriceBook` đọc `model_price.unit` / `credits_per_unit` (047b).
-   - Thiếu giá → `MODEL_PRICE_MISSING` → handoff người, không chạy miễn phí.
+   - Thiếu giá (dòng không tồn tại hoặc `active = false`, trừ `*:local` giá 0) → `MODEL_PRICE_MISSING` → handoff người, không chạy miễn phí.
    - `credits.exhausted` → `handoff('credit_exhausted')`: chuyển người / lời nhắn, không cắt cuộc đang có người (D09).
-4. **Handoff:** tin cậy < ngưỡng agent, khách yêu cầu, tool bị cấm, lỗi → chuyển nhóm theo IVR, tràn theo luật. Cuộc ghi `agent_id` + `answered_by_user_id` khi người nhận.
+4. **Handoff:** tin cậy < ngưỡng agent (gồm STT `confidence` thấp hai lượt liền), khách yêu cầu, tool bị cấm, lỗi, `VOICE_AI_BUSY` → chuyển nhóm theo IVR, tràn theo luật. Cuộc ghi `agent_id` + `answered_by_user_id` khi người nhận.
 5. **Run AI:** mỗi phiên một `ai_run` kind `agent_reply` (`conversation_id` null, `meta.call_id`). Bước = lượt. Không tạo kind enum mới.
 6. **AI gọi ra:** chỉ từ Hẹn gọi lại `caller: agent` (§5.3). Không auto-dialer / gọi nhắc hàng loạt (Sắp có).
 
@@ -370,7 +372,7 @@ Không UI (047d).
 | 4 | Given số lạ gọi vào, when cuộc tạo, then khách nháp nguồn `call`, việc gọi lại chưa giao hiện ở tab Gọi nhỡ; người bấm Gọi lại nhận việc rồi gọi | integration `callcenter-missed.test.ts` |
 | 5 | Given sales scope own, when `call.list` / `call.get` / `call.kpis`, then chỉ thấy cuộc mình nghe / gọi, gọi nhỡ nhóm mình, khách mình phụ trách; không có `call.listen` → không transcript / không `recording_url` (403); owner thấy hết | integration `callcenter-scope.test.ts` |
 | 6 | Given ZCC khách ngoài cửa sổ 30 ngày, when `call.dial` qua ZCC, then 409 `zcc_consent_required` (không gọi); `call.zcc_request_consent` qua Trợ lý → preview có phí; `ZCC_BILLING=app` → trừ credit một lần (gửi lại cùng Idempotency-Key không trừ thêm), lỗi gửi → hoàn; agent gọi → bị cấm | integration `callcenter-zcc.test.ts` + executor / policy unit |
-| 7 | Given Voice AI mock kịch bản 3 lượt + tool `call.schedule_callback` + handoff, when cuộc vào AI nghe trước, then 3 dòng sổ `voice_turn` (gửi lại sự kiện lượt không trừ thêm), tool chạy qua Executor nguồn agent với quyền agent, handoff chuyển nhóm; hết credit giữa chừng → handoff `credit_exhausted`, cuộc không bị cắt | integration `callcenter-voice-ai.test.ts` |
+| 7 | Given Voice AI mock kịch bản 3 lượt + tool `call.schedule_callback` + handoff, when cuộc vào AI nghe trước, then 3 dòng sổ `voice_turn` (gửi lại sự kiện lượt không trừ thêm), lượt `stt` / `tts` provider `local` trừ 0 credit, lượt `llm` trừ theo giá model; tool chạy qua Executor nguồn agent với quyền agent, handoff chuyển nhóm; hết credit giữa chừng → handoff `credit_exhausted`, cuộc không bị cắt; `VOICE_AI_BUSY` → cuộc đi thẳng nhóm | integration `callcenter-voice-ai.test.ts` |
 | 8 | Given cuộc có ghi âm (mock recorder) + transcript, when `contact.forget` hoàn tất, then transcript / tóm tắt xoá, ghi âm `deleted_at` + tệp bị xoá ở lượt job kế; hết 12 tháng (đồng hồ giả) → job xoá ghi âm + transcript, giữ tóm tắt | integration `callcenter-privacy.test.ts` + `record-ai-privacy.test.ts` (mở rộng) |
 | 9 | Given máy nhánh 6 trên gói Business 5 + 0 addon, when `call_extension.create`, then 402 `call_extensions`; máy AI 900 không tính; gói Personal Pro → 402 `calls` | integration `callcenter-config.test.ts` |
 | 10 | Given Hẹn gọi lại `caller: agent` cho 1 khách, when đến giờ, then agent gọi qua hotline (mock SIP), không qua SIM; cuộc `completed` → việc `done`; Lịch hẹn `GET /calendar` có mục callback trong kỳ | integration `callcenter-callback.test.ts` |
@@ -383,7 +385,7 @@ Không UI (047d).
 - Integration (cổng riêng theo sync wD:pD: `E2E_PORT=3557` / `E2E_HTTP_PORT=3558`, không chạy `e2e:http` song song vì API cố định 4117, `--workers=1`, `TENANT_CLIENT_CACHE=10`, kiểm slot Postgres trước):
   `pnpm --filter @appchat/api test:integration -- test/integration/callcenter-webhooks.test.ts test/integration/callcenter-routing.test.ts test/integration/callcenter-missed.test.ts test/integration/callcenter-scope.test.ts test/integration/callcenter-zcc.test.ts test/integration/callcenter-voice-ai.test.ts test/integration/callcenter-privacy.test.ts test/integration/callcenter-config.test.ts test/integration/callcenter-callback.test.ts test/integration/realtime.test.ts test/integration/actions.test.ts`.
 - Unit: `pnpm --filter @appchat/core test -- test/callcenter-lifecycle.test.ts test/callcenter-router.test.ts test/callcenter-business-hours.test.ts test/assistant-coverage.test.ts` · `pnpm --filter @appchat/shared test -- test/event-protocol.test.ts`.
-- AI live: `pnpm ai:live --cases fixtures/ai-eval/callcenter.json` (Trợ lý: tra cuộc gọi, hẹn gọi lại, yêu cầu gọi Zalo → preview; 6 ca × 3 lượt, an toàn 100%). Voice AI thật cần key (Q-905); không có thì ghi "chưa nghiệm thu với provider thật".
+- AI live: `pnpm ai:live --cases fixtures/ai-eval/callcenter.json` (Trợ lý: tra cuộc gọi, hẹn gọi lại, yêu cầu gọi Zalo → preview; 6 ca × 3 lượt, an toàn 100%). Voice AI tự dựng (DC-907): chạy cuộc thật với `pipeline` local khi có máy thoại (Q-903) + số thử (Q-904); trước đó ghi "chưa nghiệm thu cuộc gọi thật" (STT / TTS đã đo ở TIP-047 AC9).
 - Gọi thật (ZCC / SIP / SIM): chưa có tài nguyên (Q-902 / 903 / 904 / 906) → ghi "chưa nghiệm thu với provider thật" từng kênh.
 
 ## CONSTRAINTS
@@ -426,8 +428,8 @@ Không UI (047d).
 - [x] 13 AC có Given/When/Then + bằng chứng; ô thiếu tài nguyên ghi trung thực.
 - **Gap đã khai:**
   - Byte ghi âm khi Quên khách xoá ở lượt job kế (port privacy không gọi Storage — chậm tối đa 24 giờ, ghi trong report và màn Quên khách).
-  - Giá voice / phí ZCC chờ Q-902 / Q-905.
-  - Kênh SIM gateway chỉ test bằng SIPp.
+  - Phí yêu cầu gọi ZCC chờ Zalo xác nhận (DC-907 e); Voice AI local không tính phí STT / TTS (DC-907 c).
+  - Kênh SIM gateway chỉ test bằng SIPp; FE hiện "Sắp có" tới khi có thiết bị (DC-907 h) — backend vẫn đủ để bật sau.
 
 ## ⚠️ BUILDER-CHECKLIST (agent PHẢI hoàn thành trước khi báo DONE)
 - [ ] Implement đúng `Files touched` (manifest), không thêm file ngoài scope; file mới 200–400 dòng, trần 600.

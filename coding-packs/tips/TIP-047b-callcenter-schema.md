@@ -61,7 +61,7 @@
   - 042 (vai trò tuỳ biến) dùng `SCOPE_MODULES`: thêm module scope `callcenter` phải chạy được với vai trò tuỳ biến đã lưu.
   - 039 / 040 (gói, addon, Quản trị nền tảng) đã DONE: mở rộng, không viết lại.
 - **Files touched:** [exact M/C manifest](manifests/TIP-047b-files.md). File prisma mới `tenant/callcenter.prisma` (chủ 047b). Sửa có chủ đích bốn file prisma của TIP khác: `crm-activities.prisma` (026b), `platform/ai-config.prisma` (019), `platform/billing.prisma` (009), `platform/routing.prisma` (002 — route cuộc gọi).
-- **Quyết định nguồn:** D61 (#3, #5, #6, #10) · DC-903 · COMMERCE §10 (Gọi điện) · Blueprint §2.2, §3.5.
+- **Quyết định nguồn:** D61 (#3, #5, #6, #10) · DC-903 · DC-907 c (giá STT / TTS local = 0) · COMMERCE §10 (Gọi điện) · Blueprint §2.2, §3.5.
 - **Dòng COVERAGE nhận:** REQ-O02 · REQ-O07 (dữ liệu) · REQ-O11 (cột hết hạn) · REQ-O12 (gói / addon) · D61-plans · D61-perms · DC-903 · COM-10-voice.
 
 ## CONTEXT
@@ -237,7 +237,7 @@ Dòng đầu `// tenant/callcenter.prisma — sở hữu: TIP-047b (02-TASK-GRAP
 - Migration platform `20261114100100_voice_pricing`:
   - Thêm `unit` (`tokens_1k · minute · chars_1k`) default `tokens_1k` vào `model_price`.
   - Thêm `credits_per_unit decimal(12,4) null` cho đơn vị không phải token.
-  - Seed dòng voice ở trạng thái `active = false` (Chủ nhà / admin bật khi có giá thật — Q-905): `voice_realtime:<model>` (minute), `stt:<model>` (minute), `tts:<model>` (chars_1k), `zcc:consent_request` (đơn vị lượt, giá theo Zalo — Q-902).
+  - Seed dòng voice (DC-907 c): `stt:local` (minute, `credits_per_unit = 0`, `active = true`) và `tts:local` (chars_1k, `0`, `active = true`) cho Voice AI tự dựng; `voice_realtime:<model>` (minute) `active = false` (chỉ bật khi dùng chế độ Realtime có key); `zcc:consent_request` (đơn vị lượt, giá theo Zalo — Q-902 / DC-907 e) `active = false`.
   - `PlatformConfigRevision` scope `ai` tăng cùng transaction (DC-370).
 - `PriceBook` / `CreditMeter` **chưa** tính voice ở 047b; 047c mở rộng. 047b chỉ đảm bảo `provider.store.ts` đọc được cột mới (Number), và `ModelPricesPanel.tsx` + `admin.model_price.upsert` nhận `unit` + `credits_per_unit`.
 - Credit ledger: `ref_type` mới `voice_turn` và `zcc_consent` không cần đổi schema (`credit_ledger` unique(workspace_id, ref_type, ref_id) đã idempotent). Ghi chú trong `usage-receipt.ts` để 047c dùng.
@@ -309,7 +309,7 @@ Dòng đầu `// tenant/callcenter.prisma — sở hữu: TIP-047b (02-TASK-GRAP
 - [x] Quyền khớp D61 #5 + Blueprint §3.5. Vai trò tuỳ biến cũ có đường nâng cấp rõ.
 - [x] Gói / addon khớp D61 #3 + COMMERCE §10. Không đổi giá / luật đã chốt khác.
 - **Gap đã khai:**
-  - Giá voice / phí yêu cầu gọi Zalo chưa có số thật (Q-902, Q-905) nên dòng giá tắt.
+  - Phí yêu cầu gọi Zalo chưa có số thật (DC-907 e) nên dòng tắt; STT / TTS local giá 0, Realtime tắt (DC-907 c).
 
 ## ⚠️ BUILDER-CHECKLIST (agent PHẢI hoàn thành trước khi báo DONE)
 - [ ] Implement đúng `Files touched` (manifest), không thêm file ngoài scope.

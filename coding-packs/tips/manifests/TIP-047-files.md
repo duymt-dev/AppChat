@@ -4,7 +4,7 @@ M = sửa, C = tạo mới. Không dùng wildcard thư mục; test liệt kê t�
 
 | Mode | Exact file | Responsibility |
 |---|---|---|
-| C | `packages/voice/package.json` | `@appchat/voice` (main `./src/index.ts`), dependency `livekit-server-sdk`, `@livekit/rtc-node`, `@appchat/shared`, `zod`; script lint / typecheck / test |
+| C | `packages/voice/package.json` | `@appchat/voice` (main `./src/index.ts`), dependency `livekit-server-sdk`, `@livekit/rtc-node`, `sherpa-onnx-node` (DV-902), `@appchat/shared`, `zod`; script lint / typecheck / test |
 | C | `packages/voice/tsconfig.json` | Extends base như `packages/integrations` |
 | C | `packages/voice/vitest.config.ts` | Vitest oxc như `packages/integrations` |
 | C | `packages/voice/eslint.config.mjs` | ESLint package như `packages/integrations` |
@@ -24,8 +24,14 @@ M = sửa, C = tạo mới. Không dùng wildcard thư mục; test liệt kê t�
 | C | `packages/voice/src/livekit/recorder.ts` | `TrackRecorder` bằng `@livekit/rtc-node`: subscribe audio, opus / ogg, 2 kênh, cắt 4 giờ |
 | C | `packages/voice/src/zcc/client.ts` | ZCC: gửi / kiểm yêu cầu quyền gọi (OA token v4), ánh xạ lỗi, `cost` |
 | C | `packages/voice/src/zcc/webhook.ts` | Kiểm chữ ký webhook ZCC |
-| C | `packages/voice/src/ai/realtime.engine.ts` | Bộ cài `realtime`: OpenAI Realtime / Gemini Live ↔ track LiveKit, barge-in, tool call |
-| C | `packages/voice/src/ai/pipeline.engine.ts` | Bộ cài `pipeline`: STT → `TurnEngine` → TTS |
+| C | `packages/voice/src/ai/realtime.engine.ts` | Bộ cài `realtime` (tuỳ chọn, có key): OpenAI Realtime / Gemini Live ↔ track LiveKit, barge-in, tool call |
+| C | `packages/voice/src/ai/pipeline.engine.ts` | Bộ cài `pipeline` (mặc định — DC-907): VAD → STT → `TurnEngine` → TTS, barge-in, chốt lượt, `latencyMs` |
+| C | `packages/voice/src/ai/vad.ts` | Silero VAD qua `sherpa-onnx-node`: phát hiện lời nói / ngừng nói, khung 30 ms |
+| C | `packages/voice/src/ai/stt-local.ts` | `SttPort` local: PhoWhisper qua `sherpa-onnx-node` (hoặc `whisper.cpp` server), đổi mẫu 8 / 48 → 16 kHz |
+| C | `packages/voice/src/ai/tts-vieneu.ts` | `TtsPort` local: gọi `voice-tts` `/v1/audio/speech` stream PCM, tách câu, đổi mẫu |
+| C | `packages/voice/src/ai/tts-piper.ts` | `TtsPort` dự phòng: Piper `vi_VN-vais1000` qua `sherpa-onnx-node` |
+| C | `packages/voice/src/ai/resample.ts` | Đổi mẫu PCM / μ-law / A-law (hàm thuần, có test) |
+| C | `packages/voice/src/ai/limiter.ts` | Semaphore `VOICE_AI_MAX_SESSIONS` → `VOICE_AI_BUSY` |
 | C | `packages/voice/src/ai/session.ts` | Vòng đời phiên dùng chung: `turn.idx`, giới hạn 30 phút / 200 lượt, handoff ≤ 3 giây |
 | C | `packages/voice/src/ai/factory.ts` | Chọn bộ cài theo `VOICE_AI_ENGINE` (mặc định mock) |
 | C | `packages/voice/src/mock/livekit.mock.ts` | `MockLiveKitRoom`, `MockSipDispatch`, `MockLiveKitWebhook` (id cố định) |
@@ -35,7 +41,10 @@ M = sửa, C = tạo mới. Không dùng wildcard thư mục; test liệt kê t�
 | C | `packages/voice/test/webhook.test.ts` | AC2 chữ ký LiveKit đúng / sai / sửa body |
 | C | `packages/voice/test/livekit-room.test.ts` | AC3 `roomName` + grants theo vai trò + TTL |
 | C | `packages/voice/test/zcc-client.test.ts` | AC4 yêu cầu / kiểm quyền gọi + ánh xạ lỗi, token không lọt |
-| C | `packages/voice/test/voice-ai.test.ts` | AC5 kịch bản mock: idx, usage, handoff, mất kết nối |
+| C | `packages/voice/test/voice-ai.test.ts` | AC5 kịch bản mock: idx, usage, handoff, mất kết nối · AC10 giới hạn phiên |
+| C | `packages/voice/test/resample.test.ts` | Đổi mẫu μ-law / A-law / 48 → 16 kHz đúng biên độ |
+| C | `packages/voice/test/pipeline.local.test.ts` | AC9 (chạy khi có model + `voice-tts`, ngược lại skip có lý do): WER, chunk đầu, barge-in, `latencyMs` p50 / p95 |
+| C | `packages/voice/test/fixtures/vi-utterances/README.md` | 20 câu thoại mẫu (nguồn có giấy phép dùng, kèm bản 8 kHz μ-law) + transcript chuẩn |
 | C | `packages/voice/test/livekit.live.test.ts` | AC6 với `livekit-server --dev` (bỏ qua có lý do khi không có server) |
 | C | `packages/voice/test/fixtures/livekit-webhook.json` | Body webhook mẫu + chữ ký |
 | C | `packages/voice/test/fixtures/voice-ai-script.json` | Kịch bản 3 lượt + tool + handoff |
@@ -50,11 +59,16 @@ M = sửa, C = tạo mới. Không dùng wildcard thư mục; test liệt kê t�
 | C | `infra/livekit/systemd/livekit-sip.service` | Như trên |
 | C | `infra/livekit/systemd/kamailio.service` | Như trên |
 | C | `infra/livekit/systemd/rtpengine.service` | Như trên |
+| C | `infra/livekit/systemd/voice-tts.service` | VieNeu-TTS trong venv, nghe `127.0.0.1:8090`, CPUQuota / MemoryMax |
+| C | `infra/livekit/voice-tts/requirements.txt` | `vieneu` + ONNX Runtime ghim phiên bản (DV-902) |
+| C | `infra/livekit/voice-tts/README.md` | Cài venv, chạy server OpenAI-compatible, chọn giọng có sẵn, không nhân bản giọng |
+| C | `infra/livekit/voice-models.json` | URL + sha256 + giấy phép: PhoWhisper, Silero VAD, VieNeu-TTS v3 Turbo, Piper vais1000 |
+| C | `infra/livekit/scripts/voice-models.sh` | Tải model theo `voice-models.json` (sha256 bắt buộc), mặc định `plan`, `--apply` mới tải |
 | C | `infra/livekit/scripts/voice-plan.sh` | In thay đổi (mặc định, không ghi) |
 | C | `infra/livekit/scripts/voice-apply.sh` | Cài theo `versions.json` (sha256), render config, enable — chỉ khi `--apply` + preflight |
 | C | `infra/livekit/scripts/dev-livekit.ps1` | Windows dev: `livekit-server --dev` key cố định |
-| C | `infra/livekit/tests/config.test.mjs` | AC7 biến config ↔ `.env.example`, giới hạn unit, plan không ghi, sha256 đủ |
-| M | `.env.example` | Khối "Voice (D61)" (giá trị trống, `VOICE_AI_ENGINE=mock`) |
+| C | `infra/livekit/tests/config.test.mjs` | AC7 biến config ↔ `.env.example`, giới hạn unit, plan không ghi, sha256 đủ, chặn giấy phép NC trong `voice-models.json` |
+| M | `.env.example` | Khối "Voice (D61)" (giá trị trống, `VOICE_AI_ENGINE=mock`; biến STT / TTS local, `VOICE_AI_MAX_SESSIONS` — DC-907) |
 | M | `.dependency-cruiser.cjs` | `voice` vào INTERNAL + luật adapter không import core + `web-no-backend` |
 | M | `packages/core/package.json` | Dependency `@appchat/voice: workspace:*` (047c dùng) |
 | M | `pnpm-lock.yaml` | Cập nhật theo `pnpm install` |

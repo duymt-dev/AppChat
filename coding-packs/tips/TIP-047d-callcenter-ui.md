@@ -80,7 +80,7 @@
   - Modal dùng chung `apps/web/src/shared/contact-activities/CallbackModal.tsx`.
   - Section Cài đặt `callcenter`.
   - Màn = orchestrator; component 150–250 dòng, trần 400.
-- **Quyết định nguồn:** D61 (#2–#10, #13) · DC-905 · PD-902 · D42 / D43 · D60 #9–10 · REQ-C13 · prototype-parity §6.
+- **Quyết định nguồn:** D61 (#2–#10, #13) · DC-905 · DC-907 h (Hộp SIM "Sắp có") · PD-902 · D42 / D43 · D60 #9–10 · REQ-C13 · prototype-parity §6.
 - **Dòng COVERAGE nhận:** REQ-O04 (UI) · REQ-O05 · REQ-O06 · REQ-O07 (UI) · REQ-O09 (UI) · REQ-O10 · REQ-O12 · D61-ui · DC-905 · PD-902 · PRO-callcenter-* · PRO-deal-callback.
 
 ## CONTEXT
@@ -283,7 +283,7 @@ Dựng toàn bộ giao diện Gọi điện theo prototype + SRS, chỉ qua acti
       - Hotline / SIP trunk: nhà mạng, peering / register, host, user, mật khẩu.
       - Zalo Cloud Connect: OA, mã luồng, hướng dẫn cấp quyền ở OA manager + trạng thái App được duyệt.
       - SĐT cá nhân chuyển tiếp: số, mã chuyển tiếp `**21*` / `**61*` / `**62*` / `**67*` hiển thị để copy, cước do SIM shop trả.
-      - Hộp SIM gateway: REGISTER TLS, trần 1 cuộc.
+      - Hộp SIM gateway: thẻ hiện "Sắp có", không chọn được (DC-907 h — chưa có thiết bị nghiệm thu; backend 047c đã hỗ trợ, bật bằng DC mới).
       - Nút "Kiểm tra kết nối" (`call_line.test`).
     - Ghi âm & giám sát: ghi âm 100% (lưu 12 tháng, chỉ Chủ sở hữu / Quản lý nghe), AI ghi chép & tóm tắt, giám sát trực tiếp. Tắt ghi âm hỏi xác nhận. Thông báo ghi âm không tắt riêng được khi đang ghi.
     - Kết nối nhà mạng: host / trạng thái / codec **PCMU / PCMA / Opus thật** (không G.729 — PD-902) / kênh đồng thời thật.

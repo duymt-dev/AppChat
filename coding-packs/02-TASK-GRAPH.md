@@ -244,7 +244,7 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | VPS + domain (Chủ nhà đang hoãn) | 045, 046 | Làm sau cùng |
 | App Zalo (AppID) có quyền gọi thoại + OA Doanh nghiệp đã xác thực (Q-902) | 047c / 047d (ZCC thật) | `ZccClient` mock + SIP giả lập |
 | Máy Linux IP tĩnh cho SIP edge + livekit-sip (Q-903) · số SIP / hotline thử (Q-904) | 047, 047c (gọi thật) | `livekit-server --dev` trên máy dev; SIPp giả lập trunk |
-| Key Voice AI: Realtime (OpenAI / Gemini) + STT / TTS tiếng Việt (Q-905) | 047c, 044 (voice live) | Bộ cài `mock` kịch bản cố định |
+| Voice AI tự dựng: PhoWhisper (STT) + VieNeu-TTS (TTS) local — DC-907 (Q-905 chốt); Realtime OpenAI / Gemini tuỳ chọn khi có key | 047, 047c, 044 (voice live) | Bộ cài `mock` kịch bản cố định; model tải bằng `voice-models.sh` |
 | Đăng ký app đối tác Shopee / TikTok Shop / Lazada | adapter thật P2 (ngoài 46 TIP) | Khung + `mock` trong 031 |
 
 ---

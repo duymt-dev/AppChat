@@ -14,12 +14,12 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 157 | 10 | 0 | 13 | 7 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 134 | 7 | 0 | 2 | 24 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 41 | 11 | 20 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 42 | 11 | 20 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 403 | 33 | 1 | 4 | 50 | 3 | 0 | 0 |
 | E. standards/* | 226 | 31 | 0 | 7 | 24 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 67 | 1 | 18 | 0 | 29 | 6 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 19 | 27 | 2 | 0 | 0 |
-| **Tổng** | **1227** | **100** | **20** | **54** | **202** | **36** | **68** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 17 | 30 | 2 | 0 | 0 |
+| **Tổng** | **1227** | **100** | **20** | **52** | **206** | **36** | **68** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -571,7 +571,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-10-voice-plan | Gói có Gọi điện: Cá nhân Max 1 máy · Business 5 · Ultimate không giới hạn · Enterprise tuỳ chỉnh; gói thấp hơn không có | plans/COMMERCE-DECISIONS.md:295 | 047b | CHƯA | TIP-047b §4 |
 | COM-10-voice-addon | Mua thêm "User tổng đài" 200.000đ / máy / tháng (khác "Thêm người dùng" 150.000đ) | plans/COMMERCE-DECISIONS.md:296 | 047b | CHƯA | TIP-047b §4 · TIP-047d §8 (thẻ ví) |
 | COM-10-voice-carrier | Shop trả cước nhà mạng; "Phút gọi Voice" / "Số hotline riêng" = Sắp có | plans/COMMERCE-DECISIONS.md:297 | 047d | CHƯA | TIP-047d §8 |
-| COM-10-voice-credit | Voice AI trừ credit theo lượt `voice_turn` (giá `model_price`); hết credit theo D09; yêu cầu gọi Zalo tính theo người trả | plans/COMMERCE-DECISIONS.md:298 | 047c | CHƯA | TIP-047c §7–8 |
+| COM-10-voice-credit | Voice AI trừ credit theo lượt `voice_turn` (local: chỉ phần LLM, STT / TTS = 0 — DC-907); hết credit theo D09; yêu cầu gọi Zalo tính theo người trả | plans/COMMERCE-DECISIONS.md:298 | 047c | CHƯA | TIP-047c §7–8 |
 | COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
 | D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
@@ -665,7 +665,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D61-no-retry | Không tự gọi lần hai; hiện nút một chạm hotline / SIM hoặc gửi yêu cầu gọi Zalo (D61 #9) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d §3 |
 | D61-recording | Ghi âm mặc định + thông báo; 12 tháng xoá file + transcript, giữ tóm tắt; `contact.forget` xoá ngay (D61 #10) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §6 |
 | D61-zcc-scope | ZCC chỉ thoại — không ZNS, không chat OA (D61 #11) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §4 (ZNS / chat OA vẫn NGOÀI theo D04) |
-| D61-voice-ai-engine | Voice AI qua port: Realtime hoặc STT → LLM → TTS, credit theo lượt (D61 #12) | 01-REQUIREMENTS-MATRIX.md:328 | 047 | CHƯA | TIP-047 §2 (port) · TIP-047c §7 (phiên) |
+| D61-voice-ai-engine | Voice AI qua port: mặc định tự dựng pipeline local (PhoWhisper + VieNeu-TTS), Realtime tuỳ chọn, credit theo lượt (D61 #12 sửa — DC-907) | 01-REQUIREMENTS-MATRIX.md:328 | 047 | CHƯA | TIP-047 §2–3 (port + bộ cài local, AC9–10 đo) · TIP-047c §7 (phiên) |
 | D61-ui | Giao diện Gọi điện theo prototype + phần không vẽ theo SRS; rail giữa Lịch hẹn và AI Agents; chat header không nút gọi (D61 #13) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d |
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | 006d | CHƯA | DC-381 (2026-11-08) đảo DC-029: kênh `mobile` gửi Web Push + PWA trong bản phát hành — TIP-006d nhận; app native / push widget vẫn P2 |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | ĐẠT | DC-366; packages/core/src/insights/jobs/digest.service.ts + digest.consumer.ts (ROLE=jobs `insights.digest`); test apps/api/test/integration/digest.test.ts; Brevo thật chưa nghiệm thu (Q-004) |
@@ -688,6 +688,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-904 | Luồng cuộc gọi, webhook LiveKit / ZCC, realtime, gọi nhỡ, ghi âm, Voice AI, consent ZCC | DECISIONS.md:485 | 047c | CHƯA | TIP-047c |
 | DC-905 | Giao diện Gọi điện, WebPhone, màn prototype không vẽ | DECISIONS.md:486 | 047d | CHƯA | TIP-047d |
 | DC-906 | Hạ tầng thoại native + SIP edge, cấu hình qua env, script mặc định `plan` | DECISIONS.md:487 | 047 | CHƯA | TIP-047 |
+| DC-907 | Chốt Q-902…906 + Voice AI tự dựng (STT PhoWhisper, TTS VieNeu-TTS local, giấy phép thương mại, giá STT / TTS = 0, giới hạn phiên, Hộp SIM "Sắp có") | DECISIONS.md:488 | 047, 047b, 047c, 047d | CHƯA | TIP-047 §3 · 047b §5 · 047c §7 · 047d §6 |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1780,12 +1781,13 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-003 | Spike `zca-js` với tài khoản Zalo phụ | QUESTIONS.md:11 | — | CHỜ-TK | Q-003 mở |
 | Q-004 | SePay + Brevo (domain SPF / DKIM / DMARC) thật | QUESTIONS.md:12 | — | CHỜ-TK | Q-004 mở |
 | Q-006 | VPS + domain để deploy / nghiệm thu 045, 046 | QUESTIONS.md:14 | 045 | CHỜ-TK | Q-006 mở |
-| Q-902 | App Zalo của AppChat cho Zalo Cloud Connect (quyền gọi thoại được duyệt, OA Doanh nghiệp xác thực, ai trả phí yêu cầu gọi) | QUESTIONS.md:79 | 047c | CHỜ-TK | Q-902 mở — ZCC dựng bằng mock + tài liệu Zalo |
-| Q-903 | Máy Linux IP public tĩnh cho SIP edge + `livekit-sip` | QUESTIONS.md:80 | 047 | CHỜ-TK | Q-903 mở — `infra/livekit` viết đủ, dev chạy `livekit-server --dev` |
-| Q-904 | Số SIP / hotline thử cho kênh hotline + số đích chuyển tiếp | QUESTIONS.md:81 | 047c | CHỜ-TK | Q-904 mở — trunk giả lập SIPp |
-| Q-905 | Key Voice AI (Realtime / STT / TTS tiếng Việt) | QUESTIONS.md:82 | 047c | CHỜ-TK | Q-905 mở — `VOICE_AI_ENGINE=mock` |
-| Q-906 | Hộp SIM 4G VoLTE gateway (tuỳ chọn) | QUESTIONS.md:83 | 047c | CHỜ-TK | Q-906 mở — REGISTER TLS bằng SIPp, không chặn |
+| Q-902 | App Zalo của AppChat cho Zalo Cloud Connect (quyền gọi thoại được duyệt, OA Doanh nghiệp xác thực, ai trả phí yêu cầu gọi) | QUESTIONS.md:79 | 047c | CHỜ-TK | Tạm theo đề xuất (DC-907 e): Chủ nhà đăng ký App + OA công ty, `ZCC_BILLING=oa`; chờ App được duyệt — ZCC dựng bằng mock |
+| Q-903 | Máy Linux IP public tĩnh cho SIP edge + `livekit-sip` | QUESTIONS.md:80 | 047 | CHỜ-TK | Tạm theo đề xuất (DC-907 f): chung VPS-APP khi có VPS (Q-006), tách bằng env; chờ VPS — `infra/livekit` viết đủ, dev chạy `livekit-server --dev` |
+| Q-904 | Số SIP / hotline thử cho kênh hotline + số đích chuyển tiếp | QUESTIONS.md:81 | 047c | CHỜ-TK | Tạm theo đề xuất (DC-907 g): thuê 1 số SIP REGISTER rẻ nhất; tới lúc đó trunk giả lập SIPp |
+| Q-905 | Voice AI: key nhà cung cấp hay tự dựng | QUESTIONS.md:82 | 047 | CHƯA | Chốt DC-907 a–d: tự dựng PhoWhisper + VieNeu-TTS local, không cần key; Realtime tuỳ chọn — thi công + đo ở TIP-047 AC9–10 |
+| Q-906 | Hộp SIM 4G VoLTE gateway (tuỳ chọn) | QUESTIONS.md:83 | 047d | CHƯA | Chốt DC-907 h: không mua, form Thêm số hiện "Sắp có"; backend giữ, test REGISTER TLS bằng SIPp |
 | DV-901 | Duyệt thư viện / phần mềm ngoài stack cho Gọi điện: livekit-server-sdk, @livekit/rtc-node, livekit-client, livekit-server / livekit-sip, Kamailio + rtpengine | DEVIATIONS.md:129 | 047, 047c, 047d | CHƯA | DV-901 duyệt (D61); thi công ở TIP-047 / 047c / 047d |
+| DV-902 | Duyệt runtime Voice AI tự dựng: sherpa-onnx-node, whisper.cpp (tuỳ chọn), dịch vụ Python `vieneu`; model PhoWhisper / VieNeu-TTS / Piper ghim sha256 | DEVIATIONS.md:130 | 047, 047c | CHƯA | DV-902 duyệt (DC-907); thi công ở TIP-047 |
 | PD-902 | Lệch prototype Gọi điện: dữ liệu thật, bỏ nút demo, codec thật, thiết bị khác Web phone Sắp có, màn không vẽ theo SRS | docs/06-prototype/DEVIATIONS.md:48 | 047d | CHƯA | TIP-047d (duyệt / từ chối lúc verify) |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |

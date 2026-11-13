@@ -139,7 +139,7 @@
 | COM-10-voice-plan | Gói có Gọi điện: Cá nhân Max 1 máy · Business 5 · Ultimate không giới hạn · Enterprise tuỳ chỉnh; gói thấp hơn không có | plans/COMMERCE-DECISIONS.md:295 | 047b | CHƯA | TIP-047b §4 |
 | COM-10-voice-addon | Mua thêm "User tổng đài" 200.000đ / máy / tháng (khác "Thêm người dùng" 150.000đ) | plans/COMMERCE-DECISIONS.md:296 | 047b | CHƯA | TIP-047b §4 · TIP-047d §8 (thẻ ví) |
 | COM-10-voice-carrier | Shop trả cước nhà mạng; "Phút gọi Voice" / "Số hotline riêng" = Sắp có | plans/COMMERCE-DECISIONS.md:297 | 047d | CHƯA | TIP-047d §8 |
-| COM-10-voice-credit | Voice AI trừ credit theo lượt `voice_turn` (giá `model_price`); hết credit theo D09; yêu cầu gọi Zalo tính theo người trả | plans/COMMERCE-DECISIONS.md:298 | 047c | CHƯA | TIP-047c §7–8 |
+| COM-10-voice-credit | Voice AI trừ credit theo lượt `voice_turn` (local: chỉ phần LLM, STT / TTS = 0 — DC-907); hết credit theo D09; yêu cầu gọi Zalo tính theo người trả | plans/COMMERCE-DECISIONS.md:298 | 047c | CHƯA | TIP-047c §7–8 |
 | COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
 | D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
@@ -233,7 +233,7 @@
 | D61-no-retry | Không tự gọi lần hai; hiện nút một chạm hotline / SIM hoặc gửi yêu cầu gọi Zalo (D61 #9) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d §3 |
 | D61-recording | Ghi âm mặc định + thông báo; 12 tháng xoá file + transcript, giữ tóm tắt; `contact.forget` xoá ngay (D61 #10) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §6 |
 | D61-zcc-scope | ZCC chỉ thoại — không ZNS, không chat OA (D61 #11) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §4 (ZNS / chat OA vẫn NGOÀI theo D04) |
-| D61-voice-ai-engine | Voice AI qua port: Realtime hoặc STT → LLM → TTS, credit theo lượt (D61 #12) | 01-REQUIREMENTS-MATRIX.md:328 | 047 | CHƯA | TIP-047 §2 (port) · TIP-047c §7 (phiên) |
+| D61-voice-ai-engine | Voice AI qua port: mặc định tự dựng pipeline local (PhoWhisper + VieNeu-TTS), Realtime tuỳ chọn, credit theo lượt (D61 #12 sửa — DC-907) | 01-REQUIREMENTS-MATRIX.md:328 | 047 | CHƯA | TIP-047 §2–3 (port + bộ cài local, AC9–10 đo) · TIP-047c §7 (phiên) |
 | D61-ui | Giao diện Gọi điện theo prototype + phần không vẽ theo SRS; rail giữa Lịch hẹn và AI Agents; chat header không nút gọi (D61 #13) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d |
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | 006d | CHƯA | DC-381 (2026-11-08) đảo DC-029: kênh `mobile` gửi Web Push + PWA trong bản phát hành — TIP-006d nhận; app native / push widget vẫn P2 |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | ĐẠT | DC-366; packages/core/src/insights/jobs/digest.service.ts + digest.consumer.ts (ROLE=jobs `insights.digest`); test apps/api/test/integration/digest.test.ts; Brevo thật chưa nghiệm thu (Q-004) |
@@ -263,3 +263,4 @@ Ghi chú:
 | DC-904 | Luồng cuộc gọi, webhook LiveKit / ZCC, realtime, gọi nhỡ, ghi âm, Voice AI, consent ZCC | DECISIONS.md:485 | 047c | CHƯA | TIP-047c |
 | DC-905 | Giao diện Gọi điện, WebPhone, màn prototype không vẽ | DECISIONS.md:486 | 047d | CHƯA | TIP-047d |
 | DC-906 | Hạ tầng thoại native + SIP edge, cấu hình qua env, script mặc định `plan` | DECISIONS.md:487 | 047 | CHƯA | TIP-047 |
+| DC-907 | Chốt Q-902…906 + Voice AI tự dựng (STT PhoWhisper, TTS VieNeu-TTS local, giấy phép thương mại, giá STT / TTS = 0, giới hạn phiên, Hộp SIM "Sắp có") | DECISIONS.md:488 | 047, 047b, 047c, 047d | CHƯA | TIP-047 §3 · 047b §5 · 047c §7 · 047d §6 |

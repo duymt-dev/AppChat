@@ -64,10 +64,10 @@ Làm tuần tự **90 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 | SePay (thu tiền gói) | 012b, 039 | adapter `mock` | Hoãn (Q-004) — production cấm `mock` |
 | Brevo + domain gửi mail | 004c, 012c | adapter `console` | Chưa có (Q-004) — production cấm `console` |
 | VPS + domain | 045, 046 | `infra/` viết đủ + `pnpm infra:check`, script mặc định `plan` | Hoãn; viết infra trước (Q-006, DC-304) |
-| Máy Linux IP tĩnh cho LiveKit + SIP edge | 047, 047c, 047d | `livekit-server --dev` trên máy dev, port voice `mock` | Chưa có (Q-903 — chung VPS Q-006 hay VPS thoại riêng); `infra/livekit/*` viết trước, script mặc định `plan` (DC-906) |
-| Zalo Cloud Connect (App AppChat được duyệt, OA Doanh nghiệp xác thực) | 047, 047c | `ZccClient` mock | Chưa có (Q-902) — tới nghiệm thu thì Chủ nhà đăng ký App + cấp quyền OA |
-| SIP trunk / hotline thử · hộp SIM gateway (tuỳ chọn) | 047c | trunk giả lập SIPp | Chưa có (Q-904; hộp SIM Q-906 không chặn) — shop mang số riêng, cước trả nhà mạng (D61 #4) |
-| Key Voice AI (Realtime / STT / TTS tiếng Việt) | 047, 047c, 044 | `VOICE_AI_ENGINE=mock` | Chưa có (Q-905) — giá voice ở `model_price` để `active = false` tới khi có |
+| Máy Linux IP tĩnh cho LiveKit + SIP edge + Voice AI | 047, 047c, 047d | `livekit-server --dev` trên máy dev, port voice `mock` | Chung VPS-APP khi mua VPS (Q-903 → DC-907 f), tách bằng env khi tải lớn; chờ VPS (Q-006); `infra/livekit/*` viết trước, script mặc định `plan` |
+| Zalo Cloud Connect (App AppChat được duyệt, OA Doanh nghiệp xác thực) | 047, 047c | `ZccClient` mock | Chủ nhà đăng ký App "AppChat" + xin quyền gọi thoại, OA thử của công ty, `ZCC_BILLING=oa` (Q-902 → DC-907 e); chờ App được duyệt |
+| SIP trunk / hotline thử | 047c | trunk giả lập SIPp | Thuê 1 số SIP REGISTER gói rẻ nhất (Q-904 → DC-907 g); hộp SIM không mua, form hiện "Sắp có" (Q-906 → DC-907 h) |
+| Voice AI | 047, 047c, 044 | `VOICE_AI_ENGINE=mock` | **Tự dựng** (Q-905 → DC-907 a–d): PhoWhisper + VieNeu-TTS chạy local, không cần key; Realtime tuỳ chọn khi có key. Còn đo độ trễ / số phiên ở TIP-047 |
 
 ## Checklist bán được (ngoài code — Chủ nhà)
 

@@ -1243,7 +1243,7 @@ export interface NormalizedInbound {
 ## 6b. VOICE (`packages/voice` + worker ROLE=channels / ai — D61, DC-904, DC-906)
 
 ```ts
-export interface VoiceAiEnginePort {               // hai bộ cài: realtime (S2S) | pipeline (STT → AgentGateway → TTS)
+export interface VoiceAiEnginePort {               // hai bộ cài: pipeline (mặc định, local: VAD → PhoWhisper → AgentGateway → VieNeu-TTS — DC-907) | realtime (tuỳ chọn, có key)
   start(session: VoiceSessionInit): Promise<VoiceSession>;   // agentId, kbScope, locale, tools (caller ∩ agent)
 }
 export interface LiveKitRoomPort { createRoom(name: string): Promise<void>; token(room: string, identity: string, grants: Grants): string; dialSip(req: SipDialRequest): Promise<SipLeg>; }
@@ -1254,7 +1254,7 @@ export interface ZccClient { requestConsent(oa: OaRef, to: ZaloUserOrPhone): Pro
 - **ZCC:** App AppChat (một AppID) cấp quyền gọi thoại; mỗi OA một luồng (`OA_id` + 3 số); gọi vào `From = UserID`, `To = OA_id + luồng`; gọi ra `From = OA_id`, `To = UserID | SĐT`; khách ngoài cửa sổ 30 ngày cần `zcc_consent` (D61 #8).
 - **Định tuyến vào:** IVR (`call_ivr`) → AI nghe máy trước (agent bật "Xử lý cuộc gọi") → phím → nhóm (`call_queue`, 4 cách đổ chuông) → tràn; ngoài giờ theo `business_hours`.
 - **Ghi âm:** thông báo ghi âm phát trước; worker subscribe track (`@livekit/rtc-node`) → opus `.ogg` → `FilesService` purpose `call_recording`; transcript + tóm tắt chạy ROLE=ai sau `call.ended`.
-- **Voice AI:** credit theo lượt `voice_turn` (`CreditMeter`, idempotent `callId:turnIdx`); chuyển người khi tin cậy thấp / khách yêu cầu / hết credit; AI gọi ra chỉ từ Hẹn gọi lại một khách (D61 #7).
+- **Voice AI (DC-907):** mặc định `pipeline` tự dựng — VAD Silero + STT PhoWhisper trong worker ROLE=channels (addon `sherpa-onnx-node` / whisper.cpp), TTS VieNeu-TTS ở dịch vụ `voice-tts` (Python, HTTP stream, cùng máy thoại); giới hạn `VOICE_AI_MAX_SESSIONS`, hết chỗ → chuyển người / lời nhắn. Credit theo lượt `voice_turn` (`CreditMeter`, idempotent `callId:turnIdx`) — local chỉ tính LLM; chuyển người khi tin cậy thấp / khách yêu cầu / hết credit; AI gọi ra chỉ từ Hẹn gọi lại một khách (D61 #7).
 - **Không:** gọi hàng loạt / tự động quay số, Softphone / IP Phone / Mobile app, giả Caller ID, `livekit-egress` Docker.
 
 ## 7. FRONTEND — COMPONENT TREE
@@ -1409,7 +1409,7 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 | PDF chứng từ | Mẫu `rich`: `@react-pdf/renderer` trong worker (font Plus Jakarta Sans nhúng). Mẫu `docx`: `docxtemplater` + **LibreOffice headless native** (`soffice --convert-to pdf`, queue `doc-render`, user riêng, không mạng) — D30 | Cài LibreOffice trên VPS-APP (infra) |
 | Thoại (D61) | LiveKit tự dựng (`livekit-server`, `livekit-sip`, systemd) + SIP edge Kamailio / rtpengine; SDK `livekit-server-sdk`, `@livekit/rtc-node`, `livekit-client` (DV-901) | TIP-047 |
 | Zalo Cloud Connect (D61) | SIP trunk `<AppID>.zcc.openapi.zaloapp.com` (IP tĩnh, PCMU / PCMA) + OA OpenAPI v4 (yêu cầu / kiểm quyền gọi) | Q-902 |
-| Voice AI (D61) | `VoiceAiEnginePort`: OpenAI Realtime / Gemini Live; STT / TTS tiếng Việt qua port (mock mặc định) | Q-905 |
+| Voice AI (D61) | `VoiceAiEnginePort`: mặc định tự dựng PhoWhisper (STT) + VieNeu-TTS (TTS) chạy local (DC-907, DV-902); OpenAI Realtime / Gemini Live tuỳ chọn; test dùng `mock` | DC-907 (Q-905 chốt) |
 | Excel import/export | `exceljs` | |
 | Parse tài liệu RAG | `pdf-parse`, `mammoth` (docx), `exceljs`/csv, fetch URL + readability | |
 
@@ -1486,7 +1486,7 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 - Monitoring tách VPS riêng để **app sập vẫn còn cảnh báo**. Giai đoạn đầu có thể gộp chung một VPS; khi đó Blackbox exporter phải đặt ở nơi khác (hoặc dùng uptime check ngoài).
 - Khi tải tăng: tách PostgreSQL sang VPS-DB riêng (streaming replica cho đọc), rồi tách `worker-ai`. Kiến trúc không đổi, chỉ đổi biến môi trường.
 - File upload: `Storage` interface — mặc định `local` trên đĩa VPS (`/srv/appchat/files`) + backup restic; đổi sang `s3` (S3-compatible bên ngoài) chỉ bằng env.
-- **Thoại (D61, DC-906):** `livekit-server` (WebRTC UDP + TURN/TLS 443 qua nginx stream hoặc cổng riêng), `livekit-sip`, Kamailio + rtpengine chạy native systemd trên VPS-APP (CPUQuota / MemoryMax, Redis DB riêng) hoặc một VPS thoại riêng chỉ bằng đổi env (`LIVEKIT_URL`); cần **IP public tĩnh** cho Zalo ZCC / nhà mạng; ufw mở 5060/udp-tcp, 5061/tls, dải RTP, cổng WebRTC của LiveKit (§11.5).
+- **Thoại (D61, DC-906, DC-907):** `voice-tts` (VieNeu-TTS, Python venv) + STT trong worker channels chạy cùng máy thoại, systemd CPUQuota / MemoryMax; `livekit-server` (WebRTC UDP + TURN/TLS 443 qua nginx stream hoặc cổng riêng), `livekit-sip`, Kamailio + rtpengine chạy native systemd trên VPS-APP (CPUQuota / MemoryMax, Redis DB riêng) hoặc một VPS thoại riêng chỉ bằng đổi env (`LIVEKIT_URL`); cần **IP public tĩnh** cho Zalo ZCC / nhà mạng; ufw mở 5060/udp-tcp, 5061/tls, dải RTP, cổng WebRTC của LiveKit (§11.5).
 - **LibreOffice headless** + bộ font (apt) trên VPS-APP cho queue `doc-render` (D30); chạy dưới user `appchat-render`, không mạng, thư mục tạm riêng mỗi job.
 
 ### 11.2 Thư mục `infra/` trong repo
