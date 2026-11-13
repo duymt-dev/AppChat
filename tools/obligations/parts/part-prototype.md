@@ -63,7 +63,7 @@
 | PRO-customers-deal-col | Bảng Khách hàng cột "Cơ hội đang mở" (giá trị · số cơ hội · giai đoạn) | docs/06-prototype/AppChat.dc.html:2987 | 026c | CHƯA | TIP-026c §5.2 |
 | PRO-quotes-deal-link | Form Báo giá "Thuộc cơ hội" + tạo cơ hội mới + 2 cờ (giá trị theo tổng, việc theo dõi 2 ngày) | docs/06-prototype/AppChat.dc.html:5993 | 026c | CHƯA | TIP-026c §5.2 (không bắt buộc — D60 #11) |
 | PRO-calendar-deal-link | Form Lịch hẹn "Thuộc cơ hội" + ghi chú demo hoàn thành → gợi ý | docs/06-prototype/AppChat.dc.html:4532 | 026c | CHƯA | TIP-026c §5.2 |
-| PRO-deal-callback | Modal "Hẹn gọi lại" (thời điểm · người gọi · ghi chú) | docs/06-prototype/AppChat.dc.html:2835 | — | NGOÀI | D60 #9 + D07 (làm cùng Gọi điện) |
+| PRO-deal-callback | Modal "Hẹn gọi lại" (thời điểm · người gọi · ghi chú) | docs/06-prototype/AppChat.dc.html:2835 | 047d | CHƯA | TIP-047d §5 (D60 #9 làm cùng Gọi điện — D61) |
 | PRO-deal-kanban | Màn Pipeline kanban / danh sách cơ hội (logic `dealVals()` có, template không vẽ) | docs/06-prototype/AppChat.dc.html:9242 | — | NGOÀI | D60 #8 (làm sau, một pipeline) |
 | PRO-finance-screen | Màn Tài chính: bảng dòng đơn + đề nghị lẻ (11 cột, D42), chọn nhiều, menu ⋯ | docs/06-prototype/AppChat.dc.html:5473 | 032e | CHƯA | TIP-032e §2, §4 |
 | PRO-finance-kpi | 4 KPI Doanh số · Đã thu · Còn nợ · Quá hạn (kỳ — D60 #7) | docs/06-prototype/AppChat.dc.html:5482 | 032e | CHƯA | TIP-032e §2.5 |
@@ -71,6 +71,16 @@
 | PRO-finance-remind | Nhắc thanh toán hàng loạt (email; ZBS Coming soon) + modal xem trước | docs/06-prototype/AppChat.dc.html:5600 | 032e | CHƯA | TIP-032e §3 (`invoice.bulk_remind`) |
 | PRO-finance-drawer | Drawer "Hồ sơ khách hàng 360° · Tài chính" (Tổng quan · Giao dịch · Nhắc nợ, gợi ý AI) | docs/06-prototype/AppChat.dc.html:5533 | 032e | CHƯA | TIP-032e §2.9 |
 | PRO-finance-badge | Rail "Tài chính" sau Khách hàng, badge số quá hạn | docs/06-prototype/AppChat.dc.html:1134 | 032e | CHƯA | TIP-032e §2.10, §4.1 |
+| PRO-callcenter-rail | Rail "Gọi điện" giữa Lịch hẹn và AI Agents; gỡ khỏi `OUT_LABELS` cùng commit | docs/06-prototype/AppChat.dc.html:1138 | 047d | CHƯA | TIP-047d §1 |
+| PRO-callcenter-screen | Màn Call Center: topbar (kỳ · Export · Gọi đi), 6 KPI, biểu đồ theo giờ, bảng máy nhánh, nhật ký 6 tab (D42) | docs/06-prototype/AppChat.dc.html:4775 | 047d | CHƯA | TIP-047d §2 (bỏ nút demo — PD-902) |
+| PRO-callcenter-dialer | Dialer: Caller ID, bàn phím, Gọi | docs/06-prototype/AppChat.dc.html:4844 | 047d | CHƯA | TIP-047d §4 |
+| PRO-callcenter-detail | Chi tiết cuộc gọi: player, tóm tắt AI, khối cơ hội + đề xuất AI, transcript + dịch, gán | docs/06-prototype/AppChat.dc.html:4873 | 047d | CHƯA | TIP-047d §3 |
+| PRO-callcenter-ai | Drawer "Trợ lý AI · Gọi điện" (4 gợi ý) | docs/06-prototype/AppChat.dc.html:4947 | 047d | CHƯA | TIP-047d §2.7 |
+| PRO-callcenter-settings | Cài đặt → Tổng đài: 4 tab, 7 khối, form máy nhánh / nhóm / phím / Caller ID | docs/06-prototype/AppChat.dc.html:8173 | 047d | CHƯA | TIP-047d §6 (codec thật, thiết bị Sắp có — PD-902) |
+| PRO-callcenter-integration-card | Thẻ "Tổng đài (Call Center)" ở Nền tảng kết nối + chip "Tổng đài / Call Center" ở Kết nối kênh | docs/06-prototype/AppChat.dc.html:12035 | 047d | CHƯA | TIP-047d §6 (gỡ 2 mask parity) |
+| PRO-callcenter-wallet | Ví: "User Tổng đài · thêm 1 máy nhánh 200.000₫/tháng"; so sánh gói nhóm Gọi điện | docs/06-prototype/AppChat.dc.html:11541 | 047d | CHƯA | TIP-047d §8 ("Phút gọi Voice" = Sắp có — D61 #4) |
+| PRO-callcenter-agent-toggle | Builder "Xử lý cuộc gọi — Nâng cấp" | docs/06-prototype/AppChat.dc.html:12873 | 047d | CHƯA | TIP-047d §8 (kênh `call`, D51) |
+| PRO-callcenter-finance-call | Nút "Gọi điện" ở drawer Tài chính + số điện thoại 360° | docs/06-prototype/AppChat.dc.html:5552 | 047d | CHƯA | TIP-047d §7 |
 | PRO-360-debt-card | Thẻ "⚠ Công nợ · Tài chính" Hồ sơ 360° (Gửi email nhắc · Xem ở Tài chính) | docs/06-prototype/AppChat.dc.html:2378 | 032e | CHƯA | TIP-032e §4.3 |
 | PRO-inbox-debt-chip | Chip Hộp thư "⚠ Nợ 8,5tr" | docs/06-prototype/AppChat.dc.html:2064 | 032e | CHƯA | TIP-032e §4.3 |
 | PRO-invoices-debt-btn | Nút "Công nợ" màn Đề nghị thanh toán → Tài chính lọc Quá hạn | docs/06-prototype/AppChat.dc.html:6063 | 032e | CHƯA | TIP-032e §4.3 |
@@ -114,5 +124,5 @@
 
 Ghi chú:
 - Trạng thái "GIẢ" cho route `missing` / handler null: FE chạy được chỉ ở chế độ mock (`NEXT_PUBLIC_API_MODE=mock`).
-- Màn có module FE đầy đủ cho mọi màn in-scope trong CLAUDE.md §6; màn ẩn (workflow, callcenter, reports) không có FE — đúng D07/D19.
+- Màn có module FE đầy đủ cho mọi màn in-scope trong CLAUDE.md §6; màn ẩn (workflow, reports) không có FE — đúng D07/D19. Gọi điện (callcenter) vào phạm vi từ 2026-11-13 (D61) → PRO-callcenter-* nhận TIP-047d.
 - Đã rà nốt 2026-11-02 bằng quét tự động `message.info|success|warning(` + nút không onClick trên agents/calendar/tickets/quotes/orders/invoices/settings/shell/dashboard/customers/products/contracts/assistant: mọi điều khiển giả tìm thấy đều đã có dòng PRO-* có TIP nhận (023c/023g/030b/031b/032d/027b/036/038/041/013b/016b/017b). `t.raw()` 12 chỗ chỉ đọc mảng nhãn i18n (thứ trong tuần, bước wizard, mẫu nhắc) — không dùng i18n làm dữ liệu nghiệp vụ, không vi phạm.

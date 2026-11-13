@@ -1,6 +1,9 @@
 # TIP-017b — Widget web: logo, nút hành động, nhiều widget, agent.status/typing, đủ danh sách agent
 
 ## HEADER
+- **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 017b before047b.
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/api/src/http/channels/widget.gateway.ts`, `packages/actions/src/settings-apps.ts`, `packages/core/src/channels/webchat/webchat.handlers.ts`, `packages/core/src/channels/webchat/widget.service.ts`; integrate 017b before047c.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/components/WidgetSection.tsx`, `apps/widget/src/main.ts`, `apps/widget/src/types.ts`, `apps/widget/src/ui.ts`; integrate 017b before047d.
 - **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 017b before006d.
 - TIP-ID: TIP-017b; Project: AppChat V2; Module: webchat widget; Priority: P1; Estimated: L. TIP bổ sung cho TIP-017 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 022b, 045b (file security), 014b đã tích hợp; trước 044/045/046.

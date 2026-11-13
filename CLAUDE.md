@@ -4,7 +4,7 @@
 
 ## 1. Dự án
 
-Nền tảng cho doanh nghiệp dịch vụ nhỏ theo mô hình **One-Person Company**: một người vận hành doanh nghiệp cùng đội AI Agents. **Trợ lý AI = orchestrator + copilot**: điều khiển được mọi thao tác trên UI với đúng quyền người ra lệnh và điều phối agent chuyên trách. Kênh: Zalo cá nhân, web widget, email. Sản phẩm thương mại hoàn chỉnh (không phải bản thử).
+Nền tảng cho doanh nghiệp dịch vụ nhỏ theo mô hình **One-Person Company**: một người vận hành doanh nghiệp cùng đội AI Agents. **Trợ lý AI = orchestrator + copilot**: điều khiển được mọi thao tác trên UI với đúng quyền người ra lệnh và điều phối agent chuyên trách. Kênh: Zalo cá nhân, web widget, email; Gọi điện (tổng đài LiveKit tự dựng + Zalo Cloud Connect + hotline / SĐT cá nhân — D61). Sản phẩm thương mại hoàn chỉnh (không phải bản thử).
 
 Stack: pnpm monorepo · Next.js App Router + Ant Design v6 + Ant Design X · NestJS (api + worker) · PostgreSQL 16 (DB nền tảng + **DB riêng mỗi workspace**) · Redis + BullMQ · Vercel AI SDK v7. **Không Docker.**
 
@@ -103,12 +103,12 @@ File: `coding-packs/docs/06-prototype/AppChat.dc.html` (**bản 2026-11-10**, 13
 | Modal / popover toàn cục | L653–966 | ＋ L653 · tuỳ chỉnh 360° L690 · việc đang chạy L736 · email L760 · kết nối kênh L777 · drawer kênh L870 |
 | Popup trial / khai báo DN | L967–1088 | |
 | Shell: NavRail (đáy rail: search, thông báo, Nâng cấp, trial badge, avatar) | L1089–1364 | **không có topbar** |
-| Màn: dashboard L1370 · assistant L1469 · inbox L1809 · agents L2611 · customers L2915 · marketing L3910 · calendar L4393 · loyalty L4977 · finance L5473 · tickets L5632 · quotes L5752 · invoices L6056 · contracts L6167 · orders L6313 · products L6448 · settings L6578 | | workflow L3494, callcenter L4775, reports L5305 = **ẩn**; hẹn gọi lại L2835 = ẩn (làm cùng Gọi điện, D60 #9); **finance L5473 (TIP-032e) · chi tiết cơ hội L2852 + thẻ cơ hội 360° L2386 (TIP-026c) — vào phạm vi D60** |
+| Màn: dashboard L1370 · assistant L1469 · inbox L1809 · agents L2611 · customers L2915 · marketing L3910 · calendar L4393 · callcenter L4775 · loyalty L4977 · finance L5473 · tickets L5632 · quotes L5752 · invoices L6056 · contracts L6167 · orders L6313 · products L6448 · settings L6578 | | workflow L3494, reports L5305 = **ẩn**; **finance L5473 (TIP-032e) · chi tiết cơ hội L2852 + thẻ cơ hội 360° L2386 (TIP-026c) — vào phạm vi D60**; **callcenter L4775 (dialer L4844, chi tiết L4873, Trợ lý L4947) · hẹn gọi lại L2835 · Cài đặt Tổng đài L8173 (TIP-047d) — vào phạm vi D61** |
 | Settings sections | L6600–8340 | in-scope theo Blueprint §7.2 settings registry (Hồ sơ 360° L6857) |
 | State + dữ liệu mẫu | L8651+ | nguồn cho `fixtures/prototype-parity` |
 | `renderVals()` (logic hiển thị) | L9997+ | |
 
-Thứ tự rail (prototype L1089–1364): dashboard · assistant · inbox · customers · finance · tickets · marketing · calendar · (callcenter) · agents · (workflow) · (reports); thứ tự module (prototype L10098): dashboard · assistant · inbox · customers · finance · calendar · agents · (workflow) · marketing · (callcenter) · loyalty · (reports) · tickets · quotes · contracts · orders · products · settings.
+Thứ tự rail (prototype L1089–1364): dashboard · assistant · inbox · customers · finance · tickets · marketing · calendar · callcenter · agents · (workflow) · (reports); thứ tự module (prototype L10098): dashboard · assistant · inbox · customers · finance · calendar · agents · (workflow) · marketing · callcenter · loyalty · (reports) · tickets · quotes · contracts · orders · products · settings.
 
 ## 7. Môi trường dev
 
@@ -123,9 +123,9 @@ Kiểm nhanh nếu nghi ngờ: `psql ... -d appchat_tenant_template -c "SELECT n
 
 ## 8. Goal hiện tại
 
-**`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **86 TIP chưa DONE** (023b → … → 046; thêm 026c Cơ hội + 032e Tài chính — D60) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.
+**`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **90 TIP chưa DONE** (023b → … → 046; thêm 026c Cơ hội + 032e Tài chính — D60; thêm 047 → 047b → 047c → 047d Gọi điện — D61, trước 044) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.
 
-- Câu A (viết đủ TIP) đã khép 2026-11-03: sổ phủ `coding-packs/COVERAGE.md` 0 lỗ hổng, mọi câu hỏi chính sách đã duyệt (DC-296…303). Câu hỏi còn mở chỉ là tài nguyên (Q-004 SePay/Brevo, Q-006 VPS; Q-002 embed OpenAI đã có credit 2026-11-05).
+- Câu A (viết đủ TIP) đã khép 2026-11-03: sổ phủ `coding-packs/COVERAGE.md` 0 lỗ hổng, mọi câu hỏi chính sách đã duyệt (DC-296…303). Câu hỏi còn mở chỉ là tài nguyên (Q-004 SePay/Brevo, Q-006 VPS; Q-002 embed OpenAI đã có credit 2026-11-05; Gọi điện: Q-902 App Zalo ZCC, Q-903 máy IP tĩnh cho LiveKit / SIP edge, Q-904 số SIP thử, Q-905 key Voice AI, Q-906 hộp SIM tuỳ chọn).
 - Mỗi TIP: rà "Rà trước khi làm" với code thật → nhánh `tip/XXX-<slug>` → đúng manifest `tips/manifests/TIP-XXX-files.md` → 3 cổng D59 → commit → `gh pr create --base dev` (`gh` đã đăng nhập) → cập nhật `tools/obligations/parts/*.md` + `merge.py` + bảng tiến độ.
 - Ba sổ: `coding-packs/QUESTIONS.md` (câu hỏi + đề xuất, không đứng chờ) · `DECISIONS.md` (DC-xxx) · `DEVIATIONS.md` (DV-xxx). Lệch prototype ở `docs/06-prototype/DEVIATIONS.md`.
 - LLM chat qua 9router (`LLM_SEED_*`, đã kiểm); embed qua OpenAI (`EMBED_SEED_*`, DC-305 — đã kiểm 2026-11-05, 1536 chiều). `infra/` viết trước khi có VPS (DC-304), script mặc định `plan`.

@@ -136,6 +136,10 @@
 | COM-10-5 | Bỏ tự nạp; nhắc khi dùng 80% và 95% | plans/COMMERCE-DECISIONS.md:247 | 009 | ĐẠT | wallet.service.ts:198-200 · test billing.test.ts AC6 |
 | COM-10-6 | Chỉ VietQR + chuyển khoản (VNPAY / MoMo / ZaloPay P2) | plans/COMMERCE-DECISIONS.md:248 | 010 | ĐẠT | test billing-payments.test.ts AC2 "QR VietQR (CRC đúng)" |
 | COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | ĐẠT | Chặn: wallet.service.ts assertBalance / charge (CREDIT_EXHAUSTED); popup: apps/web/src/shared/billing/BillingNoticeHost.tsx (realtime `billing.notice` + 402 từ useAction, nút Nạp chỉ khi billing.manage); test apps/api/test/integration/billing-alerts.test.ts + BillingNoticeHost.test.tsx |
+| COM-10-voice-plan | Gói có Gọi điện: Cá nhân Max 1 máy · Business 5 · Ultimate không giới hạn · Enterprise tuỳ chỉnh; gói thấp hơn không có | plans/COMMERCE-DECISIONS.md:295 | 047b | CHƯA | TIP-047b §4 |
+| COM-10-voice-addon | Mua thêm "User tổng đài" 200.000đ / máy / tháng (khác "Thêm người dùng" 150.000đ) | plans/COMMERCE-DECISIONS.md:296 | 047b | CHƯA | TIP-047b §4 · TIP-047d §8 (thẻ ví) |
+| COM-10-voice-carrier | Shop trả cước nhà mạng; "Phút gọi Voice" / "Số hotline riêng" = Sắp có | plans/COMMERCE-DECISIONS.md:297 | 047d | CHƯA | TIP-047d §8 |
+| COM-10-voice-credit | Voice AI trừ credit theo lượt `voice_turn` (giá `model_price`); hết credit theo D09; yêu cầu gọi Zalo tính theo người trả | plans/COMMERCE-DECISIONS.md:298 | 047c | CHƯA | TIP-047c §7–8 |
 | COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
 | D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
@@ -144,7 +148,7 @@
 | D04 | Kênh Zalo cá nhân + Web widget + Email | 01-REQUIREMENTS-MATRIX.md:255 | 014, 017, 018 | CHỜ-TK | packages/channels/src/{zalo-personal,webchat,email} · test zalo-adapter.test.ts, webchat.test.ts, email.test.ts; Zalo thật Q-003 |
 | D05 | Zalo cá nhân adapter cô lập, throttle chống khoá | 01-REQUIREMENTS-MATRIX.md:256 | 014 | CHỜ-TK | manifest.ts:22 jitter 2–6s; channels/jobs/send.processor.ts:43 · test channels.test.ts; Q-003 |
 | D06 | Tự chủ theo spec, ép duyệt tiền / HĐ / gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:257 | 003, 021 | ĐẠT | kernel/actions/policy.ts:8-26 · test packages/core/test/actions-unit.test.ts "policy nguồn × rủi ro" (ngưỡng 20M/5% riêng cho agent: COM-3-3) |
-| D07 | Không làm Call Center, Workflow engine | 01-REQUIREMENTS-MATRIX.md:258 | — | NGOÀI | D07 |
+| D07 | Không làm Workflow engine (Call Center vào phạm vi từ 2026-11-13 — D61) | 01-REQUIREMENTS-MATRIX.md:276 | — | NGOÀI | D07 (phần Workflow); Call Center → D61-* |
 | D08a | Ticket / SLA | 01-REQUIREMENTS-MATRIX.md:259 | 034 | ĐẠT | packages/core/src/support · test support.test.ts |
 | D08b | Marketing broadcast | 01-REQUIREMENTS-MATRIX.md:259 | 037 | ĐẠT | packages/core/src/marketing/* (phân khúc, duyệt + snapshot, gửi theo lô qua hàng kênh, số đo, AI); integration marketing*.test.ts 31 ca + E2E mock / http marketing |
 | D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | ĐẠT | module loyalty đủ: packages/core/src/loyalty/*, /v1/loyalty/*, màn apps/web/src/features/loyalty; reports/TIP-036-completion.md |
@@ -216,8 +220,21 @@
 | D57 | Goal backend một mạch, ba sổ | 01-REQUIREMENTS-MATRIX.md:306 | — | QUY-TẮC | Quy trình |
 | D58 | Phạm vi test TIP backend (đã thay) | 01-REQUIREMENTS-MATRIX.md:307 | — | NGOÀI | Thay bằng D59 |
 | D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |
-| D60-deal | Cơ hội / Sales Pipeline vào phạm vi (D60 #1–3, #8–12) | 01-REQUIREMENTS-MATRIX.md:311 | 026c | CHƯA | TIP-026c; kanban (#8) + Hẹn gọi lại (#9) làm sau |
-| D60-finance | Màn Tài chính vào phạm vi (D60 #4–7) | 01-REQUIREMENTS-MATRIX.md:311 | 032e | CHƯA | TIP-032e |
+| D60-deal | Cơ hội / Sales Pipeline vào phạm vi (D60 #1–3, #8–12) | 01-REQUIREMENTS-MATRIX.md:327 | 026c | CHƯA | TIP-026c; kanban (#8) + Hẹn gọi lại (#9) làm sau |
+| D60-finance | Màn Tài chính vào phạm vi (D60 #4–7) | 01-REQUIREMENTS-MATRIX.md:327 | 032e | CHƯA | TIP-032e |
+| D61-voice-infra | Hạ tầng thoại tự dựng không Docker: LiveKit server + SIP, SIP edge Kamailio + rtpengine, ghi track qua FilesService (D61 #1) | 01-REQUIREMENTS-MATRIX.md:328 | 047 | CHƯA | TIP-047 |
+| D61-channels | Bốn kênh thoại, mỗi cuộc một phòng LiveKit: ZCC · SĐT cá nhân (chuyển tiếp / hộp SIM) · hotline SIP · WebRTC widget (D61 #2) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §4 |
+| D61-plans | Gói có Gọi điện + hạn mức máy nhánh + addon "User tổng đài" 200.000đ; máy AI không tính license (D61 #3) | 01-REQUIREMENTS-MATRIX.md:328 | 047b | CHƯA | TIP-047b §4 |
+| D61-numbers | Shop mang số, trả cước nhà mạng; "Phút gọi Voice" / "Số hotline riêng" = Sắp có (D61 #4) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d §8 |
+| D61-perms | Quyền `call.use` / `call.view` (scope own) / `call.listen` / `call.monitor` / `callcenter.manage` theo 5 vai trò (D61 #5) | 01-REQUIREMENTS-MATRIX.md:328 | 047b | CHƯA | TIP-047b §3 |
+| D61-missed | Gọi nhỡ → việc gọi lại cho người phụ trách (không có → chưa giao, ai bấm thì nhận); hạn +30 phút / đầu giờ ngày kế; nhỡ lặp tăng đếm; số lạ → khách nháp (D61 #6) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §5 |
+| D61-ai | AI nghe máy cuộc vào; gọi ra chỉ từ Hẹn gọi lại một khách qua hotline / OA, không qua SIM; gọi hàng loạt / auto-dialer = Sắp có (D61 #7) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §7 |
+| D61-zcc-consent | Yêu cầu gọi Zalo do người bấm, xem trước phí; ví OA trả thì AppChat không thu, App trả thì trừ credit (D61 #8) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §8 |
+| D61-no-retry | Không tự gọi lần hai; hiện nút một chạm hotline / SIM hoặc gửi yêu cầu gọi Zalo (D61 #9) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d §3 |
+| D61-recording | Ghi âm mặc định + thông báo; 12 tháng xoá file + transcript, giữ tóm tắt; `contact.forget` xoá ngay (D61 #10) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §6 |
+| D61-zcc-scope | ZCC chỉ thoại — không ZNS, không chat OA (D61 #11) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §4 (ZNS / chat OA vẫn NGOÀI theo D04) |
+| D61-voice-ai-engine | Voice AI qua port: Realtime hoặc STT → LLM → TTS, credit theo lượt (D61 #12) | 01-REQUIREMENTS-MATRIX.md:328 | 047 | CHƯA | TIP-047 §2 (port) · TIP-047c §7 (phiên) |
+| D61-ui | Giao diện Gọi điện theo prototype + phần không vẽ theo SRS; rail giữa Lịch hẹn và AI Agents; chat header không nút gọi (D61 #13) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d |
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | 006d | CHƯA | DC-381 (2026-11-08) đảo DC-029: kênh `mobile` gửi Web Push + PWA trong bản phát hành — TIP-006d nhận; app native / push widget vẫn P2 |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | ĐẠT | DC-366; packages/core/src/insights/jobs/digest.service.ts + digest.consumer.ts (ROLE=jobs `insights.digest`); test apps/api/test/integration/digest.test.ts; Brevo thật chưa nghiệm thu (Q-004) |
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | ĐẠT | Bảng `subscription_addon` (billing-lifecycle.prisma, unique invoice_id), addons.service.ts withAddons trong QuotaService.limits; test apps/api/test/integration/billing-lifecycle.test.ts AC04 |
@@ -242,3 +259,7 @@ Ghi chú:
 
 | DC-901 | Mô hình cơ hội + giai đoạn khách suy từ cơ hội | DECISIONS.md:482 | 026c | CHƯA | TIP-026c |
 | DC-902 | Định nghĩa dòng / trạng thái / hoạt động / kỳ / nhắc hàng loạt của Tài chính | DECISIONS.md:483 | 032e | CHƯA | TIP-032e |
+| DC-903 | Ranh giới + mô hình dữ liệu Gọi điện (13 bảng tenant, `tenant_call_route`, `contact_task` callback, quyền, gói, giá voice) | DECISIONS.md:484 | 047b | CHƯA | TIP-047b |
+| DC-904 | Luồng cuộc gọi, webhook LiveKit / ZCC, realtime, gọi nhỡ, ghi âm, Voice AI, consent ZCC | DECISIONS.md:485 | 047c | CHƯA | TIP-047c |
+| DC-905 | Giao diện Gọi điện, WebPhone, màn prototype không vẽ | DECISIONS.md:486 | 047d | CHƯA | TIP-047d |
+| DC-906 | Hạ tầng thoại native + SIP edge, cấu hình qua env, script mặc định `plan` | DECISIONS.md:487 | 047 | CHƯA | TIP-047 |

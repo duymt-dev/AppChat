@@ -1,6 +1,9 @@
 # TIP-038b — Nhập/xuất CRM và commerce AI-first, file thật
 
 ## HEADER
+- **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `packages/shared/src/data-transfer/registry.ts`; integrate 038b before047b.
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/api/src/app.module.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 038b before047c.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/src/app/(app)/layout.tsx`, `tools/parity/parity.manifest.ts`; integrate 038b before047d.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038b before026c.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038b before032e.
 - **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038b before014c.

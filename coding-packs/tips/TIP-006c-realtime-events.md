@@ -1,6 +1,8 @@
 # TIP-006c — Sự kiện realtime còn thiếu (credits.changed, ui.command) và vô hiệu cache registry nhiều tiến trình
 
 ## HEADER
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/shared/src/events.ts`; integrate 006c before047c.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006c before047d.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006c before032e.
 - TIP-ID: TIP-006c; Project: AppChat V2; Module: realtime + registry cache; Priority: P1; Estimated: M. TIP bổ sung cho TIP-006 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 019b (run.step/run.done), 025b (conversation.counts), 023c (ui), 039 (wallet) đã tích hợp; trước 044/045/046.

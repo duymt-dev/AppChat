@@ -291,6 +291,13 @@ signed ──huỷ (lý do, Owner)──▶ terminated (Đã chấm dứt)
 - **Bỏ "tự nạp"** (REQ-L07), vì VietQR không trừ tiền tự động được. Thay bằng nhắc khi số dư thấp (mức 80% và 95% đã dùng).
 - Chỉ dùng VietQR và chuyển khoản. VNPAY / MoMo / ZaloPay: P2.
 - Hết credit: giữ D09 (chặn AI + popup nạp). Không làm "trả sau đến 5 triệu" (SRS BR-06) và không làm "tự chuyển model rẻ" (CHANGELOG 07-28).
+- **Gọi điện (D61, bổ sung 2026-11-13):**
+  - Gói có Gọi điện: Cá nhân Max (1 máy) · Business (5) · Ultimate (không giới hạn) · Enterprise (tuỳ chỉnh). Miễn phí / Cá nhân / Cá nhân Pro / Team không có.
+  - Mua thêm **"User tổng đài" 200.000đ / máy / tháng** (addon riêng, tự gia hạn cùng gói như addon người dùng / kênh — DC-056). Máy AI (900) không tính license.
+  - Cước viễn thông shop trả thẳng nhà mạng (shop mang số); AppChat không bán phút / số ở bản này ("Phút gọi Voice", "Số hotline riêng" = Sắp có).
+  - Voice AI (Realtime, STT, TTS) trừ **credit** theo lượt `voice_turn`, giá ở `model_price`; hết credit theo D09 (AI dừng, chuyển người / lời nhắn; cuộc gọi đang có người không bị cắt).
+  - Phí "yêu cầu gọi" Zalo (~440–550đ có VAT): Zalo trừ ví OA của shop → AppChat không trừ; Zalo trừ App AppChat → trừ credit đúng giá Zalo. Luôn do người bấm, có xem trước kèm phí.
+  - Cước gọi / credit voice **không** vào màn Tài chính (032e chỉ tiền thương mại của DN).
 
 ---
 

@@ -1,10 +1,10 @@
-# GOAL — Phát hành AppChat (86 TIP → cổng phát hành TIP-046)
+# GOAL — Phát hành AppChat (90 TIP → cổng phát hành TIP-046)
 
 > Thay `goals/GOAL-BACKEND.md` từ 2026-11-03 (file cũ giữ làm lịch sử TIP 001–035). Nguồn duy nhất cho thứ tự và tiến độ phần còn lại.
 
 ## Goal (1 câu)
 
-Làm tuần tự **86 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c / TIP-032e Cơ hội · Tài chính D60) theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
+Làm tuần tự **90 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c / TIP-032e Cơ hội · Tài chính D60 + TIP-047 / 047b / 047c / 047d Gọi điện D61) theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
 
 **Câu dán vào `/goal`:**
 `Làm xong AppChat tới phát hành theo coding-packs/goals/GOAL-RELEASE.md: lần lượt từng TIP trong bảng Thứ tự (023b → 046) tới khi TIP-046 đạt. Mỗi TIP: rà "Rà trước khi làm" với code thật; làm đúng manifest (tips/manifests/TIP-XXX-files.md); đọc và đối chiếu mọi standard TIP ghi tên, completion report có bảng "Đối chiếu standards" (file:dòng hoặc mã DV); test theo mục "Cổng test" của GOAL-RELEASE.md; commit; gh pr create --base dev; cập nhật COVERAGE (tools/obligations/parts + merge.py) và bảng tiến độ GOAL-RELEASE.md. TIP nhiều pha thì một PR mỗi pha. Test CHỈ trong phạm vi TIP thay đổi: cổng commit chạy lint/typecheck/unit của package đổi + depcheck + lint:size, lint:tokens, lint:masks, i18n:check; cổng chốt (một lần mỗi TIP) chạy lint/typecheck/unit/build của package đổi, integration CHỈ các file test của domain/action TIP chạm, E2E mock + http CHỈ spec của module TIP, parity màn TIP sửa; sửa lớp dùng chung (kernel, packages/db|actions|shared|ui, apps/web/src/shared) thì thêm E2E mock các module dùng phần đó + parity --done. KHÔNG chạy full integration hay full E2E hồi quy ở TIP thường — chỉ chạy ở TIP-046. Sau rebase chỉ chạy lại phần bị ảnh hưởng. Ca đỏ trong phạm vi TIP mà đã đỏ sẵn trên origin/dev hoặc là lỗi môi trường đã ghi sổ (vd Q-042, Q-010) thì chạy riêng chứng minh rồi ghi report — không tính là cổng đỏ. Thiếu provider thật (Zalo, SePay, Brevo, VPS, credit) ghi "chưa nghiệm thu với provider thật", không dừng. ai:live: lỗi hạ tầng provider chạy lại, lỗi hệ thống phải sửa, không hạ ngưỡng. Nhánh: tip/XXX-<slug> từ origin/dev; nếu PR TIP trước chưa merge thì tách xếp chồng từ nhánh TIP trước. Trước mỗi PR: git fetch, PR trước đã merge thì rebase lên origin/dev, chưa merge thì rebase lên nhánh TIP trước; thân PR ghi "xếp chồng trên #N — merge #N trước". Mở PR xong là sang ngay pha / TIP kế trong cùng lượt — KHÔNG dừng để tóm tắt hay chờ phản hồi; tiến độ ghi vào bảng tiến độ và coding-packs/HANDOFF-NEXT.md, không báo qua chat. Câu hỏi mới ghi QUESTIONS.md kèm đề xuất rồi làm tiếp theo đề xuất; quyết định kỹ thuật ghi DECISIONS.md; lệch spec ghi DEVIATIONS.md. Chỉ dừng khi: (1) TIP-046 đạt; (2) cần quyết định về luật tiền / quyền / pháp lý / xoá dữ liệu; (3) lỗi test thuộc phạm vi TIP mà đã thử sửa không được — ghi rõ lý do vào HANDOFF-NEXT.md.`
@@ -52,7 +52,7 @@ Làm tuần tự **86 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 
 **Mỗi TIP:** mọi AC có test chạy thật và xanh · mọi action của TIP có handler · shape đọc đúng contract FE, contract test xanh · tenant + role isolation có test khi chạm dữ liệu có chủ · cổng "chốt TIP" xanh · commit + SHA + PR + Completion Report + COVERAGE + ba sổ cập nhật.
 
-**Cả goal:** 86 TIP DONE (hoặc PARTIAL **chỉ** vì ô cần tài nguyên ngoài, ghi "chưa nghiệm thu với provider thật") · `node tools/release/gate.mjs --sha <sha>` (TIP-046) không còn ô đỏ ngoài ô `unknown-resource` · `COVERAGE.md` không còn dòng CHƯA / GIẢ / MỘT PHẦN trừ dòng chờ tài nguyên ngoài.
+**Cả goal:** 90 TIP DONE (hoặc PARTIAL **chỉ** vì ô cần tài nguyên ngoài, ghi "chưa nghiệm thu với provider thật") · `node tools/release/gate.mjs --sha <sha>` (TIP-046) không còn ô đỏ ngoài ô `unknown-resource` · `COVERAGE.md` không còn dòng CHƯA / GIẢ / MỘT PHẦN trừ dòng chờ tài nguyên ngoài.
 
 ## Tài nguyên ngoài (không chặn thi công, chặn nghiệm thu / bán)
 
@@ -64,6 +64,10 @@ Làm tuần tự **86 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 | SePay (thu tiền gói) | 012b, 039 | adapter `mock` | Hoãn (Q-004) — production cấm `mock` |
 | Brevo + domain gửi mail | 004c, 012c | adapter `console` | Chưa có (Q-004) — production cấm `console` |
 | VPS + domain | 045, 046 | `infra/` viết đủ + `pnpm infra:check`, script mặc định `plan` | Hoãn; viết infra trước (Q-006, DC-304) |
+| Máy Linux IP tĩnh cho LiveKit + SIP edge | 047, 047c, 047d | `livekit-server --dev` trên máy dev, port voice `mock` | Chưa có (Q-903 — chung VPS Q-006 hay VPS thoại riêng); `infra/livekit/*` viết trước, script mặc định `plan` (DC-906) |
+| Zalo Cloud Connect (App AppChat được duyệt, OA Doanh nghiệp xác thực) | 047, 047c | `ZccClient` mock | Chưa có (Q-902) — tới nghiệm thu thì Chủ nhà đăng ký App + cấp quyền OA |
+| SIP trunk / hotline thử · hộp SIM gateway (tuỳ chọn) | 047c | trunk giả lập SIPp | Chưa có (Q-904; hộp SIM Q-906 không chặn) — shop mang số riêng, cước trả nhà mạng (D61 #4) |
+| Key Voice AI (Realtime / STT / TTS tiếng Việt) | 047, 047c, 044 | `VOICE_AI_ENGINE=mock` | Chưa có (Q-905) — giá voice ở `model_price` để `active = false` tới khi có |
 
 ## Checklist bán được (ngoài code — Chủ nhà)
 
@@ -165,7 +169,11 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 81 | [032e](../tips/TIP-032e-finance.md) | W8 | chờ — D60 / DC-902, ngay sau 026c | `tip/032e-finance` | | |
 | 82 | [035b](../tips/TIP-035b-task-sparkline.md) | W8 | chờ | `tip/035b-task-sparkline` | | |
 | 83 | [035c](../tips/TIP-035c-test-ops-hygiene.md) | W8 | chờ | `tip/035c-test-ops-hygiene` | | |
-| 84 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
-| 85 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
-| 85b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
-| 86 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |
+| 84 | [047](../tips/TIP-047-voice-infra.md) | W8 | chờ — D61 / DC-906 (Gọi điện, RRI 2026-11-13); làm song song worktree, ghép sau chuỗi PR hiện tại | `tip/047-voice-infra` | | |
+| 85 | [047b](../tips/TIP-047b-callcenter-schema.md) | W8 | chờ — D61 / DC-903, sau 047 | `tip/047b-callcenter-schema` | | |
+| 86 | [047c](../tips/TIP-047c-callcenter-backend.md) | W8 | chờ — D61 / DC-904, sau 047b | `tip/047c-callcenter-backend` | | |
+| 87 | [047d](../tips/TIP-047d-callcenter-ui.md) | W8 | chờ — D61 / DC-905, sau 047c + 032e | `tip/047d-callcenter-ui` | | |
+| 88 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
+| 89 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
+| 89b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
+| 90 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |

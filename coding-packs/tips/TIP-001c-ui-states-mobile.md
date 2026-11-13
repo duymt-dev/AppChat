@@ -1,6 +1,7 @@
 # TIP-001c — Web: đủ 5 trạng thái, vùng chạm ≥ 44, ma trận mobile 390 và sửa lỗi WCAG AA
 
 ## HEADER
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/e2e/mobile-sweep.spec.ts`; integrate 001c before047d.
 - TIP-ID: TIP-001c; Project: AppChat V2; Module: apps/web trạng thái + mobile + a11y; Priority: P0; Estimated: L. TIP bổ sung cho TIP-001 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 001b; mọi TIP FE chung file; trước 044/045/046 (046 đo, 001c sửa).
 - **Files touched:** [exact M/C manifest](manifests/TIP-001c-files.md) — 14 paths (7 C). M path tương lai phải do TIP tạo trước tích hợp xong.

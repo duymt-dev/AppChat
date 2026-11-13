@@ -1,6 +1,7 @@
 # TIP-003d — OpenAPI tự sinh tại /v1/docs
 
 ## HEADER
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/api/src/openapi/route-scan.ts`; integrate 003d before047d.
 - TIP-ID: TIP-003d; Project: AppChat V2; Module: api contract; Priority: P0; Estimated: M. TIP bổ sung cho TIP-003 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 003 kernel; 045b actions controller; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-003d-files.md) — 9 paths (7 C). M path tương lai phải do TIP tạo trước tích hợp xong.

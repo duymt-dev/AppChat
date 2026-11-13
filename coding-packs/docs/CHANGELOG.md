@@ -869,8 +869,9 @@ Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon
 
 **Ảnh hưởng:**
 - Baseline parity dịch theo bản mới: phần lớn màn ~0,2% (rail thêm 2 mục), **Hộp thư ~6,6%** và **Khách hàng ~3,7%** (thẻ Cơ hội / Công nợ trong Hồ sơ 360°, cột mới) — các màn này cần đo lại `pnpm parity` trên app.
-- Màn ẩn theo V2 (Quy trình · Gọi điện · Báo cáo) và phạm vi module vẫn theo Blueprint §7 / D-quyết định hiện hành; prototype mới **không** ghi đè D42 (D43).
-- **Phạm vi (2026-11-12, D60 / Q-901):** Cơ hội / Sales Pipeline → TIP-026c (thay `contact_opportunity` 026b, sửa COMMERCE §8), Tài chính → TIP-032e (sửa COMMERCE §5); cả hai trước TIP-046. Hẹn gọi lại + màn kanban Pipeline làm sau.
+- Màn ẩn theo V2 (Quy trình · Báo cáo; Gọi điện vào phạm vi từ 2026-11-13 — D61) và phạm vi module vẫn theo Blueprint §7 / D-quyết định hiện hành; prototype mới **không** ghi đè D42 (D43).
+- **Phạm vi (2026-11-12, D60 / Q-901):** Cơ hội / Sales Pipeline → TIP-026c (thay `contact_opportunity` 026b, sửa COMMERCE §8), Tài chính → TIP-032e (sửa COMMERCE §5); cả hai trước TIP-046. Kanban Pipeline làm sau; Hẹn gọi lại làm cùng Gọi điện (TIP-047d).
+- **Phạm vi (2026-11-13, D61 / RRI Gọi điện):** Gọi điện / Call Center vào bản phát hành (đảo D07 phần Call Center): TIP-047 hạ tầng voice (LiveKit + SIP edge tự dựng, không Docker) → 047b schema / quyền / gói → 047c backend (LiveKit / Zalo Cloud Connect / hotline / SĐT cá nhân, gọi nhỡ → việc gọi lại, ghi âm 12 tháng, Voice AI) → 047d giao diện (màn L4775, WebPhone, Hẹn gọi lại L2835, Cài đặt Tổng đài L8173); trước TIP-044. Nút "Cuộc gọi đến (demo)", codec G.729, thiết bị Softphone / IP Phone / Mobile app của prototype không làm (PD-902).
 
 ---
 

@@ -262,6 +262,33 @@
 | ACT-team.update | `team.update` có trong registry + handler | plans/BLUEPRINT.md:582 | 042 | ĐẠT | team.handlers.ts (CAS, undo); team.update.action.test.ts |
 | ACT-contact.get_360 | `contact.get_360` có trong registry + handler | plans/BLUEPRINT.md:? | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/contact.get_360.action.test.ts |
 | ACT-workspace.transfer_ownership | `workspace.transfer_ownership` có trong registry + handler | plans/BLUEPRINT.md:583 | 045b | ĐẠT | packages/actions/src/identity.ts (request_transfer_otp + transfer_ownership, agentGrantable false, secret otp); identity/services/ownership-transfer.ts; matrix actions/workspace.transfer_ownership.action.test.ts; hardening-owner.test.ts |
+| ACT-call.list | `call.list` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.get | `call.get` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.kpis | `call.kpis` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.dial | `call.dial` (send) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.answer | `call.answer` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.hangup | `call.hangup` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.hold | `call.hold` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.mute | `call.mute` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.dtmf | `call.dtmf` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.transfer | `call.transfer` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.monitor | `call.monitor` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.assign_contact | `call.assign_contact` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.link_opportunity | `call.link_opportunity` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.save_note | `call.save_note` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.create_ticket | `call.create_ticket` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.schedule_callback | `call.schedule_callback` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.zcc_request_consent | `call.zcc_request_consent` (send) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.recording_url | `call.recording_url` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.export | `call.export` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_line.* | `call_line.*` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_extension.* | `call_extension.*` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_queue.* | `call_queue.*` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_ivr.update | `call_ivr.update` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_settings.update | `call_settings.update` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.ingest_event | `call.ingest_event` (internal) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.finalize | `call.finalize` (internal) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.record_missed | `call.record_missed` (internal) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
 | BP-3.2-a | Executor đúng thứ tự registry → zod → permission → policy → idempotency → transaction (handler + action_log + outbox) | plans/BLUEPRINT.md:525 | 003 | ĐẠT | packages/core/src/kernel/actions/executor.ts:73-179; test actions.test.ts (AC1–AC8), actions-unit.test.ts |
 | BP-3.2-b | confirm_token Redis 10 phút gắn hash input, dùng một lần | plans/BLUEPRINT.md:530 | 003 | ĐẠT | packages/core/src/kernel/actions/confirm-token.ts:6; test actions-unit.test.ts ("đúng input → dùng được một lần"), actions.test.ts AC4 |
 | BP-3.2-c | Boot fail nếu action thiếu handler (chưa cài → NOT_IMPLEMENTED kèm TIP chủ) | plans/BLUEPRINT.md:522 | 003 | ĐẠT | packages/core/src/kernel/actions/handler-registry.ts:1-26, tip-owners.ts; test actions-unit.test.ts ("mọi action có TIP chủ", "boot fail") |
@@ -287,6 +314,10 @@
 | BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005, 042 | ĐẠT | P1: uỷ quyền D35 là vai trò tuỳ biến bật rõ contract.sign / payment.refund_approve; job authz.legacy-delegations chuyển membership.delegations P0 (custom-roles.test.ts AC8); coding-packs/reports/TIP-042-completion.md |
 | BP-3.5-e | own = phụ trách / được gán + khách mình là collaborator / watcher (D32) | plans/BLUEPRINT.md:874 | 015, 042c | ĐẠT | own = phụ trách / được gán + khách collaborator / watcher ở mọi chứng từ + lịch hẹn (watcher chỉ đọc); CSKH crm đọc all / ghi own qua writeScope; coding-packs/reports/TIP-042c-completion.md |
 | BP-3.5-f | catalog.cost_view ẩn giá vốn | plans/BLUEPRINT.md:836 | 027 | ĐẠT | catalog/services/product-view.ts:49; test catalog.test.ts |
+| BP-3.5-calls | Quyền Gọi điện (`call.use` · `call.view` S · `call.listen` · `call.monitor` · `callcenter.manage`) + scope `callcenter` | plans/BLUEPRINT.md:908 | 047b | CHƯA | TIP-047b §3 |
+| BP-2.2-calls | `tenant/callcenter.prisma` (13 bảng) + `contact_task` callback + platform `tenant_call_route` / `plan.max_call_extensions` / giá voice | plans/BLUEPRINT.md:395 | 047b | CHƯA | TIP-047b §1–5 |
+| BP-3.4-callcenter | Domain `callcenter` (số, máy nhánh, nhóm, IVR, cuộc gọi, ghi âm, consent, webhook, phiên Voice AI) | plans/BLUEPRINT.md:66 | 047c | CHƯA | TIP-047c |
+| BP-7.2-calls | Màn `callcenter/` · host `(app)/_webphone` · `settings/callcenter` | plans/BLUEPRINT.md:1341 | 047d | CHƯA | TIP-047d |
 | BP-4.1-a | Envelope `{data}` / lỗi `{error:{code,message,fields}}` + bảng mã HTTP | plans/BLUEPRINT.md:882 | 003 | ĐẠT | apps/api/src/http/kernel/error.filter.ts; bootstrap.ts:18; test actions.test.ts |
 | BP-4.1-b | Header Bearer JWT + X-Workspace-Id, sai → 401/403 trước khi mở DB tenant | plans/BLUEPRINT.md:885 | 004 | ĐẠT | apps/api/src/http/kernel/request-actor.ts:45; test actions.test.ts AC11 |
 | BP-4.1-c | Cursor base64(sortKey,id), limit ≤100 mặc định 30 cho mọi list | plans/BLUEPRINT.md:887 | 003, 003i | MỘT PHẦN | chỉ billing-read.service.ts:22 có cursor base64url; nhiều list trả `next_cursor:null` (action-logs.read.ts:135); TIP-003i nhận (2026-11-02) |
@@ -334,6 +365,8 @@
 | BP-4.7-a | POST /hooks/payments/:provider (gói AppChat) | plans/BLUEPRINT.md:1017 | 010 | CHỜ-TK | billing/payments-hook.controller.ts; test billing-payments.test.ts (mock HMAC) — Q-004 SePay thật |
 | BP-4.7-b | POST /hooks/integrations/:connector/:connectionId | plans/BLUEPRINT.md:1018 | 012 | ĐẠT | integrations/hooks.controller.ts; test integrations.test.ts, orders.test.ts |
 | BP-4.7-c | POST /hooks/tenant-payments/:provider/:feedId | plans/BLUEPRINT.md:1019 | 032 | CHỜ-TK | sales/tenant-payments-hook.controller.ts; test payments.test.ts — Q-004 |
+| BP-4.7-calls | POST /hooks/livekit · POST /hooks/zalo-zcc/:appId (chữ ký, biên nhận idempotent, action nội bộ) | plans/BLUEPRINT.md:1082 | 047c | CHƯA | TIP-047c §3 (ZCC thật CHỜ-TK Q-902) |
+| BP-4.6-calls | Realtime `call.*` / `callcenter.extension_status` theo scope; media không đi Socket.IO | plans/BLUEPRINT.md:1073 | 047c | CHƯA | TIP-047c §9 · TIP-047d §8b |
 | BP-5.1-a | AiSdkEngine (streamText) chạy tool qua ToolSpec → ActionExecutor | plans/BLUEPRINT.md:1052 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:5; agent.runtime.ts:73; test engine.test.ts |
 | BP-5.1-b | Dừng run khi needs_* → lưu state jsonb, chạy tiếp bằng job ai-resume, idempotent | plans/BLUEPRINT.md:1054 | 021 | ĐẠT | engine.ts:94-95; core/ai/approvals/resume.ts:85-120, resume.queue.ts:22; test agents.test.ts, agent-reply.test.ts |
 | BP-5.1-c | Approval quá 72h → expired, run handoff, BÁO OWNER | plans/BLUEPRINT.md:1061 | 019b | ĐẠT | resume.ts expire CAS + handoff; agents.rules.ts `ai.approval_expired` → `ai_review` biến thể expired cho Owner hiện tại (`to.ownerOnly`, recipients.ts), một lần (`onceKey` + `ai_expiry_delivery`); test core ai-expiry-notification + api ai-runtime-lineage (TIP-019b P2) |
@@ -365,6 +398,7 @@
 | BP-6-c | Webchat widget ≤ 40KB gz, prechat, allowed_domains | plans/BLUEPRINT.md:1173 | 017 | ĐẠT | apps/widget/dist/widget.js (16.9KB gz), visitor.service.ts:11; test webchat.test.ts, apps/widget/test |
 | BP-6-d | Email IMAP poll 60s + SMTP, gom thread Message-ID/In-Reply-To | plans/BLUEPRINT.md:1174 | 018 | ĐẠT | packages/channels/src/email/{adapter,normalize}.ts; test email-adapter.test.ts, email.test.ts |
 | BP-6-e | Inbound pipeline ON CONFLICT dedupe → resolve contact → outbox message.received | plans/BLUEPRINT.md:1175 | 016 | ĐẠT | core/inbox/services/pipeline.ts:2,60,122; test inbox.test.ts |
+| BP-6b-voice | VOICE: `packages/voice` (LiveKit phòng / SIP / webhook, ZCC, ghi track, VoiceAiEnginePort), một cuộc = một phòng | plans/BLUEPRINT.md:1243 | 047, 047c | CHƯA | TIP-047 · TIP-047c |
 | BP-8-a | VietQR tự sinh payload + render ảnh `qrcode` | plans/BLUEPRINT.md:1321 | 032b | ĐẠT | packages/core/src/sales/payments/services/invoice-qr.ts (qrcode 1.5.4, DV-025) — ảnh QR trong PDF đề nghị + endpoint; decode bằng jsqr trong commerce-delivery.test.ts |
 | BP-8-b | Brevo MailProvider + webhook bounce/complaint | plans/BLUEPRINT.md:1319 | 004, 004c | MỘT PHẦN | integrations/connectors/brevo (CHỜ-TK Q-004); webhook bounce không có; TIP-004c nhận (2026-11-02) |
 | BP-8-c | Storage `s3` qua env | plans/BLUEPRINT.md:1324 | 045b | ĐẠT | packages/core/src/kernel/files/s3-storage.ts + storage-config.ts (STORAGE=s3 qua env, local mặc định — DV-019); core/test/s3-storage.test.ts (chưa nghiệm thu với bucket thật) |
@@ -397,6 +431,7 @@
 | BP-10-K11 | Scope own + collaborator làm chậm list lớn: EXPLAIN, denormalize khi p95 > 300ms | plans/BLUEPRINT.md:1369 | 042c, 046 | MỘT PHẦN | 042c scope SQL + EXPLAIN; đo p95 1M dòng → 046 |
 | BP-10-K12 | HNSW kèm filter giảm recall: iterative_scan, eval rag | plans/BLUEPRINT.md:1370 | 020, 044 | MỘT PHẦN | packages/core/src/ai/kb/search.ts:91 `hnsw.iterative_scan = relaxed_order`; eval rag → 044 |
 | BP-11-a | infra/ (provision, nginx, systemd, PG, prometheus, loki, grafana) + deploy releases/<sha> + rollback | plans/BLUEPRINT.md:1406 | 045 | CHƯA | thư mục infra/ không tồn tại — Q-006 |
+| BP-11-voice | Thoại native trên VPS: `livekit-server`, `livekit-sip`, Kamailio + rtpengine systemd, firewall riêng, script mặc định `plan` | plans/BLUEPRINT.md:1489 | 047 | CHƯA | TIP-047 §3 (máy thật CHỜ-TK Q-903) |
 | BP-11-a-1 | Six provisioned Grafana dashboards use real bounded metric/log sources | plans/BLUEPRINT.md §11.4 | 045 | CHƯA | TIP045 SPEC3.3–4/AC7; exact six JSON files and native query evidence required |
 | BP-11-a-2 | Exact alert thresholds, independent uptime and email+Telegram delivery | plans/BLUEPRINT.md §11.4 | 045 | CHƯA | TIP045 SPEC3.5–6/AC8; rule edge tests plus actual approved delivery, not config-only proof |
 | BP-11-a-3 | Native host/private listeners/SSH/TLS/least privilege and operator MFA hardening | plans/BLUEPRINT.md §11.5 | 045 | CHƯA | TIP045 SPEC1/3.6,AC1/2/6/12; no native Grafana local-user2FA assumption |

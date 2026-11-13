@@ -1,6 +1,9 @@
 # TIP-006d — Thông báo đẩy web (Web Push + PWA) cho kênh `mobile`
 
 ## HEADER
+- **Parallel-safe with TIP-047 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 006d before047.
+- **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before047b.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before047d.
 - TIP-ID: TIP-006d; Project: AppChat V2; Module: notify + web shell (PWA); Priority: P1; Estimated: M. TIP bổ sung cho TIP-006 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 006b (event delivery), 006c (realtime events) đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-006d-files.md) — 23 paths (12 C). M path tương lai phải do TIP tạo trước tích hợp xong.

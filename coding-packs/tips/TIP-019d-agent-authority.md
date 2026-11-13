@@ -1,6 +1,7 @@
 # TIP-019d — Quyền agent: write theo ngưỡng confidence, delegate lồng = giao quyền agent cha, kb_scope khi kb.search qua tool
 
 ## HEADER
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/actions/policy.ts`; integrate 019d before047c.
 - TIP-ID: TIP-019d; Project: AppChat V2; Module: AI policy/authority; Priority: P0; Estimated: M. TIP bổ sung cho TIP-019 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 023b (current-authority resolver), 020c (effective KB scope), 019b, 022b đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-019d-files.md) — 7 paths (3 C). M path tương lai phải do TIP tạo trước tích hợp xong.

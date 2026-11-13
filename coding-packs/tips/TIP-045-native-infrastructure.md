@@ -1,6 +1,9 @@
 # TIP-045: Native production deployment, observability and verifiable recovery
 
 ## HEADER
+- **Parallel-safe with TIP-047 (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047 before045.
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `packages/core/src/index.ts`; integrate 047c before045.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047d before045.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `.github/workflows/ci.yml`, `coding-packs/standards/workflow/git-flow-ci.md`, `package.json`, `pnpm-lock.yaml`; integrate 045 before046.
 - **Parallel-safe with TIP-003d (coverage-closure manifest):** sequential, shares `apps/api/src/bootstrap.ts`; integrate 003d before045.
 - **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/sessions.ts`; integrate 003g before045.

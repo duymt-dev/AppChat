@@ -93,6 +93,13 @@
 | Q-003 | Spike `zca-js` với tài khoản Zalo phụ | QUESTIONS.md:11 | — | CHỜ-TK | Q-003 mở |
 | Q-004 | SePay + Brevo (domain SPF / DKIM / DMARC) thật | QUESTIONS.md:12 | — | CHỜ-TK | Q-004 mở |
 | Q-006 | VPS + domain để deploy / nghiệm thu 045, 046 | QUESTIONS.md:14 | 045 | CHỜ-TK | Q-006 mở |
+| Q-902 | App Zalo của AppChat cho Zalo Cloud Connect (quyền gọi thoại được duyệt, OA Doanh nghiệp xác thực, ai trả phí yêu cầu gọi) | QUESTIONS.md:79 | 047c | CHỜ-TK | Q-902 mở — ZCC dựng bằng mock + tài liệu Zalo |
+| Q-903 | Máy Linux IP public tĩnh cho SIP edge + `livekit-sip` | QUESTIONS.md:80 | 047 | CHỜ-TK | Q-903 mở — `infra/livekit` viết đủ, dev chạy `livekit-server --dev` |
+| Q-904 | Số SIP / hotline thử cho kênh hotline + số đích chuyển tiếp | QUESTIONS.md:81 | 047c | CHỜ-TK | Q-904 mở — trunk giả lập SIPp |
+| Q-905 | Key Voice AI (Realtime / STT / TTS tiếng Việt) | QUESTIONS.md:82 | 047c | CHỜ-TK | Q-905 mở — `VOICE_AI_ENGINE=mock` |
+| Q-906 | Hộp SIM 4G VoLTE gateway (tuỳ chọn) | QUESTIONS.md:83 | 047c | CHỜ-TK | Q-906 mở — REGISTER TLS bằng SIPp, không chặn |
+| DV-901 | Duyệt thư viện / phần mềm ngoài stack cho Gọi điện: livekit-server-sdk, @livekit/rtc-node, livekit-client, livekit-server / livekit-sip, Kamailio + rtpengine | DEVIATIONS.md:129 | 047, 047c, 047d | CHƯA | DV-901 duyệt (D61); thi công ở TIP-047 / 047c / 047d |
+| PD-902 | Lệch prototype Gọi điện: dữ liệu thật, bỏ nút demo, codec thật, thiết bị khác Web phone Sắp có, màn không vẽ theo SRS | docs/06-prototype/DEVIATIONS.md:48 | 047d | CHƯA | TIP-047d (duyệt / từ chối lúc verify) |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |
 | Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | 035c | CHƯA | Không có commit fix flaky trong git log; TIP-035c nhận (2026-11-02) |

@@ -1,6 +1,9 @@
 # TIP-020d — Validated RAG answer citations in drafts and AI logs
 
 ## HEADER
+- **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 020d before047b.
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/shared/src/api/index.ts`; integrate 020d before047c.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`, `tools/parity/parity.manifest.ts`; integrate 020d before047d.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/core/src/inbox/services/view.ts`, `packages/shared/src/api/inbox.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before026c.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/core/src/inbox/services/view.ts`, `packages/shared/src/api/inbox.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before032e.
 - **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 020d before006d.
