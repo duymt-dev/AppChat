@@ -11,7 +11,6 @@
     "breach": "Quá hạn SLA",
     "closed": "Đã đóng"
   },
-  "trend": "↑ {v}",
   "listTitle": "Tất cả ticket",
   "listCount": "{n} ticket",
   "filter": {
@@ -276,5 +275,26 @@
     "used": "Đã dùng trong ticket",
     "more": "Tải thêm nhãn đã dùng",
     "free": "Dùng \"{q}\" làm danh mục mới"
+  },
+  "stock": {
+    "title": "So với hôm qua",
+    "vsYesterday": "So với hôm qua lúc {at}",
+    "noBaselineShort": "Chưa có số hôm qua để so",
+    "unknownShort": "Chưa rõ xu hướng",
+    "srUp": "tăng {n} so với hôm qua",
+    "srDown": "giảm {n} so với hôm qua",
+    "srFlat": "không đổi so với hôm qua",
+    "srUnknown": "chưa so được với hôm qua",
+    "measuredAt": "Số hiện tại đo lúc {at} ({tz}).",
+    "observedAt": "Mốc so sánh: quan sát thật lúc {at} hôm qua.",
+    "row": "{label}: {prior} → {now} ({delta})",
+    "cohort": "Chỉ so trên các ticket bạn còn thấy hiện nay; ticket đã xoá hoặc ngoài quyền không tính ở cả hai phía — đây không phải tăng trưởng ròng và không cho biết nguyên nhân.",
+    "unsupported": "Máy chủ chưa hỗ trợ so sánh với hôm qua.",
+    "reason": {
+      "baseline_missing": "Chưa có lần quan sát nào của hôm qua — chưa thể so sánh.",
+      "source_unavailable": "Một phần dữ liệu hôm qua không còn được dùng — chưa thể so sánh.",
+      "capture_unavailable": "Lần quan sát hôm qua không đầy đủ — chưa thể so sánh.",
+      "schema_unavailable": "Hệ thống đang cập nhật — chưa thể so sánh."
+    }
   }
 }

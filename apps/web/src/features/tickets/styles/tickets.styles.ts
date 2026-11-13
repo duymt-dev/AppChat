@@ -158,6 +158,61 @@ export const useTicketsStyles = createStyles(({ css, responsive }) => ({
     font-size: ${font.scale.s11}px;
     font-weight: ${font.weight.bold};
   `,
+  /** Chữ chỉ cho trình đọc màn hình (TIP-034d — dấu xu hướng có lời đọc rõ). */
+  sr: css`
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  `,
+  stockWrap: css`
+    position: relative;
+    margin: -8px 0 16px;
+  `,
+  stockBtn: css`
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border: none;
+    background: transparent;
+    padding: 0;
+    font-family: inherit;
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.semibold};
+    color: ${color.text3};
+    cursor: pointer;
+    ${responsive.md} {
+      min-height: ${layout.touch}px;
+    }
+  `,
+  stockPanel: css`
+    position: absolute;
+    z-index: 5;
+    top: 100%;
+    left: 0;
+    width: 360px;
+    max-width: calc(100vw - 32px);
+    margin-top: 4px;
+    padding: 12px;
+    background: ${color.surface};
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r10}px;
+    box-shadow: ${shadow.popover};
+    font-size: ${font.scale.s12}px;
+    color: ${color.text2};
+    p {
+      margin: 0 0 6px;
+    }
+  `,
+  stockList: css`
+    margin: 0 0 6px;
+    padding-left: 16px;
+  `,
+  stockNote: css`
+    color: ${color.text4};
+  `,
   head: css`
     display: flex;
     align-items: center;

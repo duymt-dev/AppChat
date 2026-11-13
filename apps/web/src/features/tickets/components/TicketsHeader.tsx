@@ -12,6 +12,8 @@ import type { TicketFilter, TicketsMeta } from '../types';
 import { CustomFilterSelects } from '@/shared/custom-fields';
 import { useCategorySuggestions } from '../hooks/useCategorySuggestions';
 import { CategoryFilterSelect } from './TicketCategoryInput';
+import { TicketTrendBadge } from './TicketTrendBadge';
+import { TicketTrendDetails } from './TicketTrendDetails';
 
 type KpiKey = keyof TicketsMeta['counts'];
 const KPI: [KpiKey, IconName, string, Partial<TicketFilter>][] = [
@@ -106,14 +108,13 @@ export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; 
                 <span className={styles.kpiV} data-testid={`tk-kpi-${k}-v`}>
                   {meta?.counts[k] ?? ''}
                 </span>
-                <span className={styles.kpiT} style={{ color: k === 'breach' ? color.dangerStrong : color.okStrong }}>
-                  {meta?.trend[k] ? t('trend', { v: meta.trend[k] }) : ''}
-                </span>
+                {meta ? <TicketTrendBadge summary={meta.stock_summary} metric={k} /> : null}
               </div>
             </div>
           </button>
         ))}
       </div>
+      {meta ? <TicketTrendDetails summary={meta.stock_summary} /> : null}
       <div className={styles.head}>
         <span className={styles.headT}>{t('listTitle')}</span>
         <span className={styles.headN} data-testid="tk-count">
