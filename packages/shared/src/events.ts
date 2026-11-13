@@ -13,6 +13,7 @@ import { TICKET_CATEGORY_EVENT_SCHEMAS } from './support/category-events';
 import { BASELINE_EVENT_SCHEMAS } from './events/protocol/baseline';
 import { PERMISSIONS } from './authz/permissions';
 import { NOTIFY_KIND_KEYS, type NotifyKind } from './notify/catalog';
+import { uiCommandSchema } from './genui/schema';
 
 const base = { ws: z.string().uuid(), occurred_at: z.string() };
 
@@ -43,6 +44,10 @@ export const workspaceDeclaredEvent = z.object({ ...base, workspace_id: z.string
 export const creditsLowEvent = z.object({ ...base, level: z.union([z.literal(80), z.literal(95)]), balance: z.number() });
 export const creditsExhaustedEvent = z.object({ ...base, balance: z.number() });
 export const creditsRestoredEvent = z.object({ ...base, balance: z.number() });
+/** Ví đổi số dư (TIP-006c): mỗi thay đổi đã ghi sổ — số dư sau khi đổi; realtime chỉ gửi số cho người có `billing.manage`. */
+export const creditsChangedEvent = z.object({ ...base, balance_plan: z.number(), balance_topup: z.number(), ledger_id: z.string() });
+/** Trợ lý ra lệnh UI (TIP-006c, Blueprint §4.6 `ui.command`): chỉ tới tab của người ra lệnh đã gửi lượt (`tab_id`), không phát rộng. */
+export const uiCommandIssuedEvent = z.object({ ...base, run_id: z.string().uuid(), user_id: z.string().uuid(), tab_id: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/), command: uiCommandSchema });
 /** Đổi gói / trạng thái subscription (TIP-009 / 010). */
 export const subscriptionChangedEvent = z.object({ ...base, plan_key: z.string(), status: z.enum(['trialing', 'active', 'expired', 'cancelled']), from_plan_key: z.string().nullable() });
 /** Hoá đơn gói AppChat đã thanh toán + ghi nhận (TIP-010) — notify Owner, làm mới màn Gói & ví. */
@@ -220,6 +225,8 @@ export const EVENT_SCHEMAS = {
   'credits.low': creditsLowEvent,
   'credits.exhausted': creditsExhaustedEvent,
   'credits.restored': creditsRestoredEvent,
+  'credits.changed': creditsChangedEvent,
+  'ui.command_issued': uiCommandIssuedEvent,
   'subscription.changed': subscriptionChangedEvent,
   'billing.invoice_paid': billingInvoicePaidEvent,
   'trial.expired': trialExpiredEvent,

@@ -6,6 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import type { UiCommand } from '@appchat/actions';
 import { dispatchUiCommand } from '@/shared/assistant/ui-command-bus';
+import { claimUiCommand } from '@/shared/assistant/ui-command-once';
 import { utilityCommandOf } from '@/shared/ai-utilities';
 import { confirmTurn } from '../api';
 import { useAssistantStream } from './useAssistantStream';
@@ -39,11 +40,13 @@ export function useAssistantChat() {
     [router],
   );
 
-  /** Sự kiện của lượt → bong bóng (chữ / thẻ / lỗi); lệnh UI chạy ngay. */
+  /** Sự kiện của lượt → bong bóng (chữ / thẻ / lỗi); lệnh UI chạy ngay (một lần — realtime `ui.command` có thể đã chạy, TIP-006c). */
   const show = useCallback(
-    (events: TurnEvent[]) => {
+    (events: TurnEvent[], runId?: string | null) => {
       for (const ev of events) {
-        if (ev.type === 'ui_command') runUi(ev.command);
+        if (ev.type === 'ui_command') {
+          if (claimUiCommand('turn', runId, ev.command)) runUi(ev.command);
+        }
         else if (ev.type === 'confirm') useAssistantUi.getState().push({ id: mid(), role: 'ai', text: '', card: ev, status: 'pending' });
         else if (ev.type === 'delta' || ev.type === 'error') useAssistantUi.getState().push({ id: mid(), role: 'ai', text: ev.type === 'delta' ? ev.text : ev.message });
         else if (ev.type === 'ui') useAssistantUi.getState().push({ id: mid(), role: 'ai', text: '', ui: ev });
@@ -78,7 +81,7 @@ export function useAssistantChat() {
         const [turn] = await Promise.all([stream.run({ text, mode, sessionId, tier, context: { route: from ?? pathname, surface: 'assistant' }, requestId, ...(attachments.length ? { attachments } : {}), ...(inputs.length ? { inputs } : {}), ...(mode === 'cowork' && agent ? { selectedAgentId: agent.id } : {}), ...(mode === 'cowork' && planDraft ? { planDraft } : {}) }), new Promise((r) => setTimeout(r, TYPING_MS))]);
         sent = true;
         if (files.length) useAttachStore.getState().renew();
-        show(turn.events);
+        show(turn.events, turn.run_id);
         if (planDraft) set({ planDraft: null });
         useAssistantUi.getState().set({ sessionId: turn.session_id, ...(mode === 'cowork' && turn.run_id ? { lastRunId: turn.run_id } : {}) });
         if (mode === 'cowork') await Promise.all([qc.invalidateQueries({ queryKey: ['runs'] }), qc.invalidateQueries({ queryKey: ['assistant', 'plan'] })]);

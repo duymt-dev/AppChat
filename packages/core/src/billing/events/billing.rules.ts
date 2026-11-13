@@ -2,7 +2,9 @@
 // workspace đang mở app (BillingNoticeHost hiện popup / banner; người có `billing.manage` có nút nạp, người khác nhắc liên hệ Owner — FE
 // quyết theo quyền của chính socket). Gói tin chỉ có loại + mốc + `event_id` (khoá chống trùng popup) — không số dư chi tiết, không PII.
 // Thông báo chuông cho Owner vẫn qua `notify.requested` (billing.events.ts). `subscription.changed` → WS `billing.changed` làm mới màn Gói.
-import { creditsLowEvent, subscriptionChangedEvent } from '@appchat/shared';
+// TIP-006c: `credits.changed` → WS cùng tên: người có `billing.manage` nhận số dư sau đổi (gói / mua thêm); người khác nhận gói tin
+// không số (chỉ để làm mới) — danh mục quyền không có `billing.view`.
+import { creditsChangedEvent, creditsLowEvent, subscriptionChangedEvent } from '@appchat/shared';
 import { registerRealtimeRule } from '../../notify/rules';
 import { rooms } from '../../notify/realtime/envelope';
 
@@ -45,5 +47,14 @@ registerRealtimeRule('billing.subscription_changed', 'subscription.changed', (e)
       event: 'billing.changed',
       data: { status: p.status, event_id: e.id },
     },
+  ];
+});
+
+registerRealtimeRule('billing.credits_changed', 'credits.changed', (e) => {
+  const p = creditsChangedEvent.parse(e.payload);
+  const room = [rooms.ws(e.workspaceId)];
+  return [
+    { ws: e.workspaceId, rooms: room, event: 'credits.changed', data: { balance_plan: p.balance_plan, balance_topup: p.balance_topup, event_id: e.id }, require: { permission: 'billing.manage' } },
+    { ws: e.workspaceId, rooms: room, event: 'credits.changed', data: { event_id: e.id }, require: { without: 'billing.manage' } },
   ];
 });

@@ -12,10 +12,17 @@ export const rooms = {
   ws: (workspaceId: string) => `ws:${workspaceId}`,
   user: (userId: string) => `user:${userId}`,
   conv: (conversationId: string) => `conv:${conversationId}`,
+  /** Tab trình duyệt của một user (TIP-006c `ui.command`): gateway chỉ cho socket vào phòng mang userId của chính JWT. */
+  tab: (userId: string, tabId: string) => `tab:${userId}:${tabId}`,
 };
+
+/** Mã tab client tự sinh (ngẫu nhiên mỗi lần tải trang) — chỉ dùng định tuyến, không phải bí mật / quyền. */
+export const TAB_ID = /^[A-Za-z0-9_-]{8,64}$/;
 
 export interface RealtimeRequire {
   permission?: PermissionKey;
+  /** Chỉ người KHÔNG có quyền này (gói tin rút gọn cho người còn lại — vd. `credits.changed` không kèm số dư, TIP-006c). */
+  without?: PermissionKey;
   /** Bản ghi (owner / assignee / contact) phải trong data scope của người nhận. */
   scope?: { module: ScopeModule; row: Record<string, unknown>; fields: ScopeFields };
   /**

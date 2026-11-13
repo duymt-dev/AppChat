@@ -25,6 +25,7 @@ function base(s: SocketIdentity, env: RealtimeEnvelope): boolean {
   if (env.exceptUserId && s.userId === env.exceptUserId) return false;
   const r = env.require;
   if (r?.permission && !can(s.authz, r.permission)) return false;
+  if (r?.without && can(s.authz, r.without)) return false;
   if (r?.scope && !inScope(s.authz, r.scope.module, r.scope.row, r.scope.fields)) return false;
   return true;
 }

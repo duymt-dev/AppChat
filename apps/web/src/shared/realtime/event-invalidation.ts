@@ -46,6 +46,8 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   // bộ gợi ý danh mục ticket đổi (TIP-034b — chỉ key + version, hai gói theo quyền) → Cài đặt đọc lại cấu hình; form / bộ lọc ticket đọc lại gợi ý
   'ticket_categories.config': [['settings', 'ticket-categories']],
   'ticket_categories.suggestions': [['tickets', 'meta'], ['tickets', 'category-suggestions']],
+  // ví đổi số dư (TIP-006c — người có billing.manage nhận số, người khác chỉ tín hiệu) → màn Gói / Ví, thẻ Ví ở Tổng quan, số dư menu người dùng
+  'credits.changed': [['billing'], ['dashboard'], qk.me()],
 };
 
 /** Khoá cần làm mới của một sự kiện (sự kiện hội thoại → theo `conversation_id`). */

@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 5 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 136 | 6 | 0 | 2 | 9 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 170 | 6 | 0 | 9 | 9 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 414 | 31 | 1 | 4 | 14 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 415 | 31 | 1 | 4 | 13 | 3 | 0 | 0 |
 | E. standards/* | 232 | 27 | 0 | 7 | 22 | 2 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 0 | 14 | 0 | 2 | 5 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 81 | 5 | 1 | 14 | 22 | 2 | 0 | 0 |
-| **Tổng** | **1268** | **81** | **16** | **49** | **83** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 82 | 5 | 1 | 14 | 21 | 2 | 0 | 0 |
+| **Tổng** | **1270** | **81** | **16** | **49** | **81** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -994,7 +994,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.5-b | POST /assistant/confirm | plans/BLUEPRINT.md:998 | 023 | ĐẠT | assistant.controller.ts:57; test assistant.test.ts |
 | BP-4.5-c | POST /runs/:id/cancel | plans/BLUEPRINT.md:999 | 019, 003i | MỘT PHẦN | không route; chỉ action run.cancel (run-cancel.handler.ts:17); test ai-runtime.test.ts; TIP-003i nhận (2026-11-02) |
 | BP-4.6-a | /ws: JWT + workspace, room ws/user/conv, conv.join/leave/typing, Redis adapter | plans/BLUEPRINT.md:1005 | 006 | ĐẠT | apps/api/src/http/notify/realtime/ws.gateway.ts:65-121; test realtime.test.ts |
-| BP-4.6-b | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | plans/BLUEPRINT.md:1008 | 006c | CHƯA | grep không thấy phát các event này; khung điều phối poll GET /runs; TIP-006c nhận (2026-11-02) |
+| BP-4.6-b | Server → client event `run.step`, `run.done`, `credits.changed`, `conversation.counts`, `ui.command` | plans/BLUEPRINT.md:1008 | 006c | ĐẠT | run.step / run.done: packages/core/src/ai/events/run.rules.ts:1 (019b, AI-RUN-EVENTS). conversation.counts: invalidation-only theo 025b — FE làm mới đếm từ message.* / conversation.updated (apps/web/src/shared/realtime/event-invalidation.ts keysFor, INBOX_COUNTS). credits.changed: packages/core/src/billing/events/billing.events.ts:1 (mọi thay đổi ví đã ghi sổ → outbox) + billing.rules.ts:1 (số dư chỉ billing.manage, người khác tín hiệu — filter `require.without`). ui.command: packages/core/src/ai/assistant/ui-command.ts:1 + ai/events/ui-command.rules.ts:1 (phòng `tab:{user}:{tab}`, apps/api/src/http/notify/realtime/ws.gateway.ts), FE apps/web/src/shared/assistant/useRealtimeUiCommands.ts + ui-command-once.ts. Test: packages/core/test/realtime-events-006c.test.ts, apps/api/test/integration/realtime-events.test.ts (AC1 / AC2), apps/web/e2e/http/realtime-events.spec.ts (DC-449) |
 | BP-4.6-c | /widget: public_key + visitor_token, visitor.hello, message.send, server message.new / typing / agent.status | plans/BLUEPRINT.md:1010 | 017, 017b | MỘT PHẦN | widget.gateway.ts:70-78, publisher.ts:18 chỉ message.new; typing / agent.status không phát; test webchat.test.ts; TIP-017b nhận (2026-11-02) |
 | BP-4.7-a | POST /hooks/payments/:provider (gói AppChat) | plans/BLUEPRINT.md:1017 | 010 | CHỜ-TK | billing/payments-hook.controller.ts; test billing-payments.test.ts (mock HMAC) — Q-004 SePay thật |
 | BP-4.7-b | POST /hooks/integrations/:connector/:connectionId | plans/BLUEPRINT.md:1018 | 012 | ĐẠT | integrations/hooks.controller.ts; test integrations.test.ts, orders.test.ts |
@@ -1592,7 +1592,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | 001b | ĐẠT | TIP-001b: vòng runtime apps/web 23 → 0 (barrel import chéo → module lá `api/*-store/types/ui-commands`, mock bỏ re-export handler); `.dependency-cruiser-known-violations.json` = `[]`; `pnpm depcheck` exit 0 (4433 module); `no-circular-web` = error (loại cạnh type-only, DC-446), `web-no-own-barrel`; thử vòng giả → depcheck đỏ |
 | DEF-001-2 | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | reports/TIP-001-completion.md:65 | 014b | ĐẠT | standards/channels/omnichannel-adapter.md: `group` gồm `'commerce'`, `capabilities.reactions` + `operations` (TIP-014b) khớp packages/channels/src/types.ts |
 | DEF-002-1 | CI GitHub chạy integration test với Postgres + Redis (Q-008) | reports/TIP-002-completion.md:38 | 046 | CHƯA | .github/workflows/{ci,e2e,full,parity}.yml không có service postgres; TG row 046 "CI backend-it.yml" |
-| DEF-002-2 | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | reports/TIP-002-completion.md:51; TIP-003:49 | 006c | CHƯA | packages/db/src/tenant-resolver.ts:81 TTL 60s trong process, `invalidate` (L62) chỉ xoá cache cục bộ; TIP-006c nhận (2026-11-02) |
+| DEF-002-2 | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | reports/TIP-002-completion.md:51; TIP-003:49 | 006c | ĐẠT | packages/db/src/registry-pubsub.ts:1 (kênh `tenant-registry:invalidate`) + tenant-resolver.ts (`invalidate` publish, `drop` nhận) + packages/core/src/kernel/tenant/registry-bus.ts:1 (api / worker có DB + Redis nối kênh); mất Redis → TTL 60s + thế hệ 2s. Test: packages/db/test/registry-invalidate.test.ts, apps/api/test/integration/realtime-events.test.ts AC3 (hai resolver, Memurai thật, < 2s) (DC-449) |
 | DEF-003-1 | Provisioner có `pg_signal_backend` khi xoá workspace ở production | reports/TIP-003-completion.md:36 | 041 | ĐẠT | TIP-041 P1: DROP qua kết nối giữ advisory lock của role provisioner (pg_signal_backend đã cấp ở setup) — integration DROP thật; infra prod do 045 |
 | DEF-004-1 | Bước smoke bản build (`pnpm smoke:build`) trong cổng chốt TIP (Q-009) | reports/TIP-004-completion.md:48 | 046 | CHƯA | package.json không có script `smoke:build`; TG row 046 ghi Q-009 |
 | DEF-004-2 | FE quên mật khẩu gọi đúng `/auth/password/reset-request` của backend | reports/TIP-004-completion.md:49 | 011 | ĐẠT | apps/api/src/http/identity/auth.controller.ts:85; apps/web/src/features/auth/api.ts:47; test apps/web/e2e/http/auth-onboarding.spec.ts:45 |

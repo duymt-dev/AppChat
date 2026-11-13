@@ -31,6 +31,8 @@ const turnBody = z.object({
   request_id: z.string().min(8).max(80).regex(/^[A-Za-z0-9_-]+$/).optional(),
   /** TIP-023g: lối vào theo bản ghi — chỉ là tham chiếu (server đọc lại theo quyền hiện hành); kiểm chặt ở core (`parseRecordIntent`). */
   record_intent: z.unknown().optional(),
+  /** TIP-006c: tab trình duyệt gửi lượt — realtime `ui.command` chỉ tới tab này; sai dạng → 422. */
+  tab_id: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/).optional(),
 });
 /** Soạn / viết lại tin Hộp thư (REQ-C05c) — cùng endpoint, rẽ theo `purpose` sang cổng chỉ-đề-xuất (không meta-tools). */
 const draftBody = z.object({
@@ -90,6 +92,7 @@ export class AssistantController {
       ...(b.plan_draft ? { planDraft: b.plan_draft } : {}),
       ...(b.selected_agent_id ? { selectedAgentId: b.selected_agent_id } : {}),
       ...(b.record_intent !== undefined ? { recordIntent: parseRecordIntent(b.record_intent) } : {}),
+      ...(b.tab_id ? { tabId: b.tab_id } : {}),
     };
     if (!String(req.headers.accept ?? '').includes('text/event-stream')) return { data: await this.svc.turn(c, q) };
     const t = await this.svc.claim(c, q);

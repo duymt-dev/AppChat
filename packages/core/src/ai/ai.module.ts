@@ -65,6 +65,7 @@ export { AI_ENV } from './ai.env';
 import { AI_ENV } from './ai.env';
 import { RunGuardInstaller } from './runs/run-guard.installer';
 import './events/run.rules';
+import './events/ui-command.rules';
 import { registerOperatorDecisionVerifier } from '../kernel/actions/customer-intent';
 import { verifyOperatorApproval } from './sales-behavior/command-provenance';
 export const AGENT_ENGINE = Symbol('AGENT_ENGINE');

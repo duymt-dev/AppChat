@@ -39,6 +39,7 @@ import { bindingOf } from './plans/driver';
 import { planGateOf, planHoldOf, recordCheckpoint } from './plans/checkpoint';
 import { bindDraft, type PlanDraftRef } from './plans/draft-binding';
 import { pinSelected, selectedCtx } from './plans/selected-agent';
+import { tabCtx, tabIdOf } from './ui-command';
 import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
@@ -90,6 +91,8 @@ export interface TurnRequest {
   planDraft?: PlanDraftRef;
   /** TIP-023d §5.1: agent người dùng chọn (UUID) — server ghim bản đã xuất bản lúc nhận lượt; không còn chạy → 404, không rơi về agent khác. */
   selectedAgentId?: string;
+  /** TIP-006c: tab trình duyệt gửi lượt — `ui.command` realtime chỉ tới tab này (không vào hash idempotent: gửi lại từ tab khác = cùng run). */
+  tabId?: string;
 }
 
 /** Mức AI của lượt: chọn của người dùng (hoặc mặc định ở Cài đặt › Mô hình AI), hạ về mức cao nhất gói cho phép. */
@@ -100,20 +103,20 @@ async function tierOf(d: Pick<AssistantDeps, 'planKey'>, db: TenantDb, ws: strin
   return 'standard';
 }
 
-type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery' | 'storage'>;
+type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery' | 'storage'> & { kv?: AssistantDeps['kv'] | null };
 
 export function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
   const inputs = t.sessionId ? inputResolver(db, d.storage ?? null, { userId: t.userId, sessionId: t.sessionId, now: d.now }) : null;
   // TIP-023d §3.2: cổng sửa kế hoạch của run gốc (Cowork) — người bấm "Sửa kế hoạch" thì lượt dừng ở checkpoint trước lời gọi kế.
   const plan = t.mode === 'cowork' ? { planGate: planGateOf(db, t.runId), planHold: planHoldOf(db, t.runId) } : {};
-  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs, ...plan };
+  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null, kv: d.kv ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs, ...plan };
 }
 
 /** Dựng lại system + tool của run `assistant` từ `ai_run.input` với quyền HIỆN TẠI của người ra lệnh (job `ai-resume`). */
 export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow, ws: string, authz: AuthzContext | null): Promise<Omit<RunSpec, 'messages'>> {
   const input = run.input as unknown as AssistantRunInput;
   if (!authz || !run.initiatedByUserId) return { system: '', tools: [], maxSteps: MAX_STEPS.assistant, source: 'assistant' };
-  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
+  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input), ...tabCtx(input) };
   return specFor(d, db, t, await assistantSystem(db, input, authz));
 }
 
@@ -216,6 +219,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
         ...(context ? { context } : {}),
         ...(attachments.length ? { attachments } : {}),
         ...(selected ? { selected_agent: selected } : {}),
+        ...(tabIdOf(q.tabId) ? { tab_id: q.tabId } : {}),
       };
       await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET, knowledge: assistantKnowledge(q.userId) });
       await writeOutbox(tx, q.ws, [{ topic: TURN_REQUESTED, payload: { run_id: runId, user_id: q.userId } }], now);
@@ -262,7 +266,7 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
       await fail('FORBIDDEN');
       return null;
     }
-    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
+    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input), ...tabCtx(input) };
     const spec = specFor(d, db, t, await assistantSystem(db, input, authz));
     const skeletons = new SkeletonFeed(live);
     const r = await d.runner.start(ws, store, run, {
@@ -335,7 +339,7 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const input = run.input as unknown as AssistantRunInput;
   const raw = state.pendingToolCall.input as { action_id?: string; input?: unknown };
   const call = { ...raw, action_id: raw.action_id ?? ALIAS_ACTION[state.pendingToolCall.toolName] ?? '' };
-  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
+  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input), ...tabCtx(input) };
 
   let outcome: ToolOutcome;
   let logId: string | undefined;

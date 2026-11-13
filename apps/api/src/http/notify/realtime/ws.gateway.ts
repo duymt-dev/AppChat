@@ -1,5 +1,5 @@
 // Socket.IO namespace `/ws` (Blueprint §4.6) gắn vào HTTP server của Nest + Redis adapter (fan-out nhiều node API).
-// Handshake JWT + workspace → room `ws:{id}` + `user:{id}`; client → server: `conv.join` / `conv.leave` / `typing` /
+// Handshake JWT + workspace → room `ws:{id}` + `user:{id}` (+ `tab:{user}:{tab}` khi gửi `tab_id` — TIP-006c `ui.command`); client → server: `conv.join` / `conv.leave` / `typing` /
 // `presence.list` (ack `{ data } | { error }`). Worker phát `RT_EVENT` qua redis-emitter → mỗi node lọc socket của mình theo
 // quyền (allowedFor) rồi mới emit (outbox §8).
 import { Inject, Optional, type BeforeApplicationShutdown, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
@@ -16,6 +16,7 @@ import {
   LOGGER,
   REDIS,
   RT_EVENT,
+  TAB_ID,
   WS_NAMESPACE,
   WorkspacesService,
   conversationGuard,
@@ -87,7 +88,9 @@ export class RealtimeGateway implements OnApplicationBootstrap, BeforeApplicatio
 
   private onConnection(s: Socket): void {
     const me = who(s);
-    void s.join([rooms.ws(me.workspaceId), rooms.user(me.userId)]);
+    // Phòng tab luôn ghép userId của JWT (không phải của client) — tab giả của người khác không nhận được lệnh của họ.
+    const tab = s.handshake.auth.tab_id;
+    void s.join([rooms.ws(me.workspaceId), rooms.user(me.userId), ...(typeof tab === 'string' && TAB_ID.test(tab) ? [rooms.tab(me.userId, tab)] : [])]);
     s.to(rooms.ws(me.workspaceId)).emit('presence', { user_id: me.userId, online: true });
     s.on('conv.join', (p: unknown, ack: unknown) => void this.join(s, p, ack));
     s.on('conv.leave', (p: unknown, ack: unknown) => {
