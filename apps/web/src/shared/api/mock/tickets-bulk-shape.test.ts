@@ -64,6 +64,14 @@ describe('mock ticket.bulk_update / ticket.bulk_undo', () => {
     // Hội tụ: gửi lại → cùng lượt hoàn tác, không ghi thêm.
     const again = await confirmed('ticket.bulk_undo', { parent_action_log_id: logId });
     expect(again.status === 200 && (again.data.result as TicketBulkUndoResult).operation.job_id).toBe(undo.operation.job_id);
+    // Tệp kết quả (tập chỉ xuất): trạng thái hoàn tác từng ticket, không tiêu đề.
+    const ex = await mockTransport.action('ticket.bulk_export', { parent_action_log_id: logId, format: 'csv' });
+    const file = ex.status === 200 ? (ex.data.result as { rows: number; download_url: string }) : null;
+    expect(file?.rows).toBe(2);
+    const csv = await (await mockTransport.blob(file!.download_url.replace(/^\/v1/, ''))).text();
+    expect(csv).toContain('tk_2041,ok,,yes,undone');
+    expect(csv).toContain('tk_2034,ok,,yes,conflict');
+    expect(csv).not.toContain(tk('tk_2041').title);
     // Niêm phong: thử lại thao tác đi → 409.
     await expect(mockTransport.action('data_job.retry', { job_id: (r.status === 200 ? (r.data.result as TicketBulkResult) : null)!.operation.job_id })).rejects.toMatchObject({ status: 409 });
   });

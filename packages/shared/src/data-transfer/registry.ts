@@ -5,10 +5,13 @@
 import { foldText } from '../crm/phone';
 import type { TransferField, TransferFieldType } from './field-types';
 import { CONTRACT_FIELDS, INVOICE_FIELDS, ORDER_FIELDS, PRODUCT_FIELDS, QUOTE_FIELDS } from './fields';
-import { CONTACT_NOTE_FIELDS, CONTACT_OPPORTUNITY_FIELDS, CONTACT_TASK_FIELDS, CUSTOMER_PACKAGE_FIELDS } from './activity-fields';
+import { CONTACT_NOTE_FIELDS, CONTACT_OPPORTUNITY_FIELDS, CONTACT_TASK_FIELDS, CUSTOMER_PACKAGE_FIELDS, TICKET_BULK_RESULT_FIELDS } from './activity-fields';
 
-/** `ticket_category_suggestions` (TIP-034b §4): từ điển GỢI Ý danh mục ticket — cấu hình, không phải bản ghi ticket; nhập = thay cả bộ. */
-export const TRANSFER_ENTITIES = ['contact', 'product', 'quote', 'order', 'contract', 'invoice', 'ticket_category_suggestions'] as const;
+/**
+ * `ticket_category_suggestions` (TIP-034b §4): từ điển GỢI Ý danh mục ticket — cấu hình, không phải bản ghi ticket; nhập = thay cả bộ.
+ * `ticket_bulk_results` (TIP-034c §4.4): kết quả từng id của MỘT thao tác sửa ticket hàng loạt — chỉ xuất, không phải bản ghi ticket.
+ */
+export const TRANSFER_ENTITIES = ['contact', 'product', 'quote', 'order', 'contract', 'invoice', 'ticket_category_suggestions', 'ticket_bulk_results'] as const;
 export type TransferEntity = (typeof TRANSFER_ENTITIES)[number];
 /**
  * Tập dữ liệu dưới một thực thể (TIP-026b §5): `base` = bản ghi chính của thực thể (038b); khách hàng có thêm 3 tập hoạt động CRM. Chọn
@@ -28,6 +31,7 @@ export const DATASETS_OF: Record<TransferEntity, readonly TransferDataset[]> = {
   contract: ['base'],
   invoice: ['base'],
   ticket_category_suggestions: ['base'],
+  ticket_bulk_results: ['base'],
 };
 export const datasetAllowed = (e: TransferEntity, d: TransferDataset) => DATASETS_OF[e].includes(d);
 export const targetOf = (e: TransferEntity, d: TransferDataset | null | undefined): TransferTarget =>
@@ -228,6 +232,18 @@ export const TRANSFER_REGISTRY: Record<TransferTarget, TransferEntitySpec> = {
     fields: TICKET_CATEGORY_FIELDS,
     importReady: true,
     atomic: true,
+  },
+  // TIP-034c §4.4 — kết quả của MỘT thao tác sửa ticket hàng loạt: CHỈ XUẤT (ticket.bulk_export — id / kết quả / mã lỗi an toàn / đã đổi /
+  // trạng thái hoàn tác; không tiêu đề / nội dung / ảnh chụp trước). Nhập tệp kết quả KHÔNG phải đường sửa ticket.
+  ticket_bulk_results: {
+    entity: 'ticket_bulk_results',
+    dataset: 'base',
+    schemaVersion: 1,
+    importPermission: 'ticket.manage',
+    exportAction: 'ticket.bulk_export',
+    fields: TICKET_BULK_RESULT_FIELDS,
+    importReady: false,
+    direction: 'export',
   },
   // TIP-033b §5.1 — liệu trình của khách: CHỈ XUẤT (CSV / XLSX qua package.export, cùng PackagesRead + quyền hiện tại).
   customer_packages: {

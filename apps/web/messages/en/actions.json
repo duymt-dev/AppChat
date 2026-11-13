@@ -1045,6 +1045,10 @@
     },
     "bulk_item_undo": {
       "title": "Undo one ticket of a bulk operation (system)"
+    },
+    "bulk_export": {
+      "title": "Download ticket bulk update results",
+      "desc": "CSV / Excel file with the per-ticket results of one bulk update (id, outcome, error code, changed, undo only — no ticket content)."
     }
   },
   "segment": {

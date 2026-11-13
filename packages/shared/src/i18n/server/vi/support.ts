@@ -13,4 +13,6 @@ export const support = {
   reason: { resolved: 'đã giải quyết', duplicate: 'trùng ticket', withdrawn: 'khách rút yêu cầu', out_of_scope: 'ngoài phạm vi' },
   teamAi: 'AI tự xử',  // TIP-034b: tệp xuất bộ gợi ý danh mục ticket (tiêu đề cột khớp alias nhập lại).
   categories: { sheet: 'Danh mục ticket', file: 'danh-muc-ticket', position: 'Vị trí', label: 'Danh mục' },
+  // TIP-034c §4.4: tệp kết quả sửa ticket hàng loạt (tập 038b chỉ xuất).
+  bulkResults: { sheet: 'Kết quả hàng loạt', file: 'ket-qua-ticket-hang-loat', note: 'Kết quả từng ticket của một thao tác sửa hàng loạt — chỉ id, không nội dung ticket', cols: { ticket_id: 'Ticket ID', outcome: 'Kết quả', error_code: 'Mã lỗi', changed: 'Đã đổi', undo_state: 'Hoàn tác' } },
 };

@@ -1,10 +1,15 @@
 // TIP-034c §2.2 / §2.3 / §2.6 — phần thuần của ghi một ticket (không DB thật: tx giả ghi lại lệnh). Patch kết hợp chỉ UPDATE trường đổi,
 // no-op không ghi / không event, biên nhận chỉ chứa trường đã đổi + dấu vân tay; hoàn tác có canh gác: lệch version / dấu (ABA) → 409,
-// khôi phục chỉ trường đã đổi; map hoàn tác trung lập ở kernel. Luồng thật trên Postgres: apps/api/test/integration/ticket-bulk.test.ts.
+// khôi phục chỉ trường đã đổi; map hoàn tác trung lập ở kernel; nguồn `$ref` GenUI đọc lại biên nhận theo quyền hiện hành. Luồng thật trên
+// Postgres: apps/api/test/integration/ticket-bulk.test.ts.
 import { describe, expect, it } from 'vitest';
 import { applyTicketPatch, fieldValues, fingerprintOf, revertTicketPatch } from '../src/support/bulk/mutations';
 import { registerUndoAction, undoActionOf } from '../src/kernel/actions/undo-action-registry';
 import type { ActionContext, TenantTx } from '../src/kernel/actions/action-context';
+import type { TenantDb } from '@appchat/db';
+import { authzForRole } from '@appchat/shared';
+import { REF_UNAVAILABLE, registerRefSource, resolveRefs } from '../src/ai/assistant/genui/refs';
+import { bulkRefSource } from '../src/support/bulk/results';
 
 const NOW = new Date('2026-11-13T08:00:00Z');
 const U1 = '0190f3a2-7b1c-7d10-9a5e-4c2b1f0e9a01';
@@ -84,5 +89,40 @@ describe('undo-action-registry (kernel trung lập)', () => {
     expect(undoActionOf('x.bulk_update')).toBe('x.bulk_undo');
     expect(undoActionOf('x.update')).toBeUndefined();
     expect(() => registerUndoAction('x.bulk_update', 'y.undo')).toThrow(/Trùng/);
+  });
+});
+
+describe('GenUI $ref — kết quả hàng loạt đọc lại từ biên nhận theo quyền hiện hành', () => {
+  const JOB = '0190f3a2-7b1c-7d10-9a5e-4c2b1f0e9a99';
+  const T1 = '0190f3a2-7b1c-7d10-9a5e-4c2b1f0e9b01';
+  const T2 = '0190f3a2-7b1c-7d10-9a5e-4c2b1f0e9b02';
+  const owner = authzForRole('owner', U1);
+  const step = { idx: 3, actionId: 'call_action', input: { action_id: 'ticket.bulk_update', input: {} }, output: { kind: 'ok', output: { operation: { job_id: JOB } } }, status: 'ok' };
+  function db(o: { actorId?: string; t2Assignee?: string } = {}) {
+    return {
+      aiRun: { findUnique: async () => ({ kind: 'assistant', initiatedByUserId: U1 }) },
+      aiRunStep: { findMany: async () => [step] },
+      dataJob: { findUnique: async () => ({ id: JOB, kind: 'ticket.bulk_update', status: 'completed', total: 2, input: { ids: [T1, T2], duplicates: 0 }, actorId: o.actorId ?? U1, actionId: 'ticket.bulk_update' }) },
+      dataJobItem: { findMany: async () => [{ targetId: T1, status: 'done', outcomeCode: null, error: null, changed: true }, { targetId: T2, status: 'done', outcomeCode: null, error: null, changed: true }] },
+      ticket: { findMany: async () => [{ id: T1, assigneeUserId: U1, teamId: null, createdByType: 'user', createdById: U1, contactId: null }, { id: T2, assigneeUserId: o.t2Assignee ?? U1, teamId: null, createdByType: 'user', createdById: U2, contactId: null }] },
+      $queryRaw: async () => [],
+    } as unknown as TenantDb;
+  }
+  registerRefSource('ticket.bulk_update', bulkRefSource);
+
+  it('chủ run + người tạo việc: ref trả số đọc từ biên nhận (không bản output đã lưu)', async () => {
+    const r = await resolveRefs(db(), { runId: 'r1', userId: U1, authz: owner, refs: ['step:3.changed_count', 'step:3.outcomes'] });
+    expect(r['step:3.changed_count']).toBe(2);
+    expect(r['step:3.outcomes']).toEqual([{ id: T1, ok: true, changed: true }, { id: T2, ok: true, changed: true }]);
+  });
+
+  it('ticket nay ngoài phạm vi (sales own) → chỉ id + NOT_FOUND, tổng đếm lại; việc của người khác / mất quyền → unavailable', async () => {
+    const sales = authzForRole('sales', U1);
+    const r = await resolveRefs(db({ t2Assignee: U2 }), { runId: 'r1', userId: U1, authz: sales, refs: ['step:3.changed_count', 'step:3.outcomes.1'] });
+    expect(r['step:3.changed_count']).toBe(1);
+    expect(r['step:3.outcomes.1']).toEqual({ id: T2, ok: false, error: { code: 'NOT_FOUND' } });
+    expect(await resolveRefs(db({ actorId: U2 }), { runId: 'r1', userId: U1, authz: owner, refs: ['step:3.changed_count'] })).toEqual({ 'step:3.changed_count': REF_UNAVAILABLE });
+    const none = { ...owner, isOwner: false, permissions: new Set<never>() };
+    expect(await resolveRefs(db(), { runId: 'r1', userId: U1, authz: none, refs: ['step:3.changed_count'] })).toEqual({ 'step:3.changed_count': REF_UNAVAILABLE });
   });
 });

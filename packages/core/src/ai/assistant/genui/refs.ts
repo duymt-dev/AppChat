@@ -2,6 +2,8 @@
 // run thuộc phiên của người xem trước, rồi đọc output (đã `safeForModel` lúc ghi — bỏ ô bí mật, ≤ 20 dòng / mảng) và chỉ trả đúng giá trị
 // mà ref trỏ tới (không gửi cả output). Khi mở lại phiên: quyền hiện hành phải còn quyền của action đã tạo bước — mất quyền → ref
 // `unavailable` (không xoá lịch sử, không đoán số). Persist cây + descriptor ref, KHÔNG persist bản copy payload.
+// Kết quả action GHI có biên nhận (TIP-034c: sửa ticket hàng loạt) là nguồn ref chỉ khi domain đăng ký bộ chiếu lại (`registerRefSource`):
+// đọc lại TỪ BIÊN NHẬN theo người xem + quyền hiện hành (không dùng bản output đã lưu), không có → unavailable. Không gọi model.
 import { registry } from '@appchat/actions';
 import type { TenantDb } from '@appchat/db';
 import { parseRef, readRef, type AuthzContext } from '@appchat/shared';
@@ -12,6 +14,16 @@ export const REF_UNAVAILABLE = { unavailable: true } as const;
 export type RefValue = unknown | typeof REF_UNAVAILABLE;
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiRunStep'>;
+
+/** Bộ chiếu lại kết quả action ghi theo người xem HIỆN HÀNH (null = không còn được xem). `db` là client tenant đầy đủ của người gọi. */
+export type RefSource = (db: TenantDb, viewer: { userId: string; authz: AuthzContext }, output: unknown) => Promise<unknown | null>;
+const SOURCES = new Map<string, RefSource>();
+export function registerRefSource(actionId: string, s: RefSource): void {
+  if (SOURCES.has(actionId) && SOURCES.get(actionId) !== s) throw new Error(`Trùng ref source: ${actionId}`);
+  SOURCES.set(actionId, s);
+}
+/** Gỡ đăng ký — chỉ dùng trong test. */
+export const unregisterRefSource = (actionId: string): boolean => SOURCES.delete(actionId);
 
 /** Output đã lưu của một bước tool `call_action` (ToolOutcome ok) → { actionId, output }. */
 function outcomeOf(step: { actionId: string | null; input: unknown; output: unknown; status: string }): { actionId: string; output: unknown } | null {
@@ -48,7 +60,13 @@ export async function resolveRefs(db: Db, q: { runId: string; userId: string; au
   const outputs = new Map<number, unknown>();
   for (const s of steps) {
     const o = outcomeOf(s);
-    if (o && can(q.authz, o.actionId)) outputs.set(s.idx, safeForModel(o.output));
+    if (!o) continue;
+    const src = SOURCES.get(o.actionId);
+    if (src) {
+      // Người gọi truyền client tenant đầy đủ (assistant.service / turn.service); bộ chiếu đọc biên nhận theo quyền hiện hành.
+      const v = await src(db as TenantDb, { userId: q.userId, authz: q.authz }, o.output);
+      if (v !== null) outputs.set(s.idx, safeForModel(v));
+    } else if (can(q.authz, o.actionId)) outputs.set(s.idx, safeForModel(o.output));
   }
   for (const [r, p] of parsed) {
     const v = p && outputs.has(p.step) ? readRef(outputs, r) : undefined;

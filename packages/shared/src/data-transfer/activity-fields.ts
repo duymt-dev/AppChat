@@ -61,3 +61,12 @@ export const CUSTOMER_PACKAGE_FIELDS: readonly TransferField[] = [
   f('expires_at', 'date', ['han dung', 'het han', 'expires']),
   EXPORTED_ID,
 ];
+
+/** Cột tệp kết quả sửa ticket hàng loạt (TIP-034c §4.4 — chỉ xuất): id người gọi đã gửi, kết quả, mã lỗi an toàn, đã đổi, hoàn tác. */
+export const TICKET_BULK_RESULT_FIELDS: readonly TransferField[] = [
+  f('ticket_id', 'text', ['ticket', 'ma ticket', 'id']),
+  f('outcome', 'enum', ['ket qua', 'outcome'], { options: ['ok', 'failed', 'pending'] }),
+  f('error_code', 'text', ['ma loi', 'error']),
+  f('changed', 'enum', ['da doi', 'changed'], { options: ['yes', 'no'] }),
+  f('undo_state', 'enum', ['hoan tac', 'undo'], { options: ['eligible', 'pending', 'undone', 'conflict', 'failed'] }),
+];

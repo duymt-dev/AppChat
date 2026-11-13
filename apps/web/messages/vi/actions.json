@@ -1045,6 +1045,10 @@
     },
     "bulk_item_undo": {
       "title": "Hoàn tác một ticket của thao tác hàng loạt (hệ thống)"
+    },
+    "bulk_export": {
+      "title": "Tải kết quả cập nhật hàng loạt ticket",
+      "desc": "Tệp CSV / Excel kết quả từng ticket của một lần cập nhật hàng loạt (chỉ mã, kết quả, mã lỗi, đã đổi, hoàn tác — không nội dung ticket)."
     }
   },
   "segment": {
