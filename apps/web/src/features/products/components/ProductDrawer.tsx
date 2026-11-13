@@ -7,7 +7,8 @@ import { useFmt } from '@/shared/i18n/useFmt';
 import { useDetailStyles } from '../styles/detail.styles';
 import { useProductsUi } from '../products-store';
 import { productQuery } from '../api';
-import { AiTab, CrmTab, FilesTab, HistoryTab, OverviewTab } from './DetailTabs';
+import { AiTab, CrmTab, HistoryTab, OverviewTab } from './DetailTabs';
+import { ProductMediaEditor } from './ProductMediaEditor';
 import type { ProductsMeta } from '../types';
 
 const TABS = ['overview', 'crm', 'ai', 'files', 'history'] as const;
@@ -70,7 +71,7 @@ export function ProductDrawer({ meta }: { meta: ProductsMeta }) {
           {ui.tab === 'overview' ? <OverviewTab p={p} /> : null}
           {ui.tab === 'crm' ? <CrmTab meta={meta} /> : null}
           {ui.tab === 'ai' ? <AiTab p={p} /> : null}
-          {ui.tab === 'files' ? <FilesTab meta={meta} /> : null}
+          {ui.tab === 'files' ? <ProductMediaEditor key={p.id} p={p} /> : null}
           {ui.tab === 'history' ? <HistoryTab p={p} /> : null}
         </div>
       ) : null}

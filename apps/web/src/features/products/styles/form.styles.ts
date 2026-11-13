@@ -127,43 +127,6 @@ export const useProductFormStyles = createStyles(({ css, responsive }) => ({
       height: ${layout.touch}px;
     }
   `,
-  rt: css`
-    border: 1px solid ${color.border};
-    border-radius: ${radius.r8}px;
-    overflow: hidden;
-  `,
-  rtBar: css`
-    display: flex;
-    gap: 2px;
-    padding: 4px 6px;
-    border-bottom: 1px solid ${color.pillBg};
-    background: ${color.rowHover};
-  `,
-  rtBtn: css`
-    width: 28px;
-    height: 28px;
-    border: none;
-    background: transparent;
-    border-radius: ${radius.r6}px;
-    cursor: pointer;
-    font-size: ${font.scale.s14}px;
-    color: ${color.text2};
-    font-family: inherit;
-  `,
-  rtArea: css`
-    width: 100%;
-    min-height: 96px;
-    padding: 8px 12px;
-    font-size: ${font.scale.s14}px;
-    line-height: 1.55;
-    color: ${color.text};
-    outline: none;
-    border: none;
-    resize: vertical;
-    font-family: inherit;
-    display: block;
-    box-sizing: border-box;
-  `,
   blocks: css`
     padding: 0 20px 16px;
     display: flex;
@@ -258,19 +221,6 @@ export const useProductFormStyles = createStyles(({ css, responsive }) => ({
     ${responsive.md} {
       grid-template-columns: 1fr;
     }
-  `,
-  rtBold: css`
-    font-weight: ${font.weight.heavy};
-  `,
-  rtItalic: css`
-    font-style: italic;
-    font-family: Georgia, serif;
-  `,
-  rtUnder: css`
-    text-decoration: underline;
-  `,
-  rtSmall: css`
-    font-size: ${font.scale.s12}px;
   `,
   cfEmpty: css`
     border: 1px dashed ${color.dotIdle};

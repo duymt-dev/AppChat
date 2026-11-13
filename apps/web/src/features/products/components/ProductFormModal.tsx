@@ -11,17 +11,12 @@ import { useProductFormStyles } from '../styles/form.styles';
 import { useProductsUi } from '../products-store';
 import { productQuery } from '../api';
 import { initialDraft, toInput, useProductForm } from '../hooks/useProductForm';
+import { useProductDescription } from '../hooks/useProductDescription';
+import { ProductDescriptionEditor } from './ProductDescriptionEditor';
 import { TypeSections } from './TypeSections';
 import type { Product, ProductType, ProductsMeta } from '../types';
 
 const TYPES: ProductType[] = ['physical', 'service', 'combo', 'package', 'digital', 'rental'];
-const RT = ['bold', 'italic', 'underline', 'list', 'olist'] as const;
-const RT_STYLE: Partial<Record<(typeof RT)[number], 'rtBold' | 'rtItalic' | 'rtUnder' | 'rtSmall'>> = {
-  bold: 'rtBold',
-  italic: 'rtItalic',
-  underline: 'rtUnder',
-  olist: 'rtSmall',
-};
 const CHANNELS = ['all', 'zalo_personal', 'webchat', 'shopee'] as const;
 
 export function ProductFormModal({ meta }: { meta: ProductsMeta }) {
@@ -47,6 +42,9 @@ function ProductForm({ meta, product }: { meta: ProductsMeta; product?: Product 
   const ui = useProductsUi();
   const f = useProductForm(initialDraft(meta.categories, product, ui.prefill));
   const cf = useCustomDraft('product', product?.custom);
+  // Điền sẵn từ Trợ lý có mô tả → chữ thuần (không áp tài liệu cũ); không thì mở lại đúng tài liệu đã lưu.
+  const seeded = ui.prefill?.description != null;
+  const ed = useProductDescription({ doc: seeded ? null : product?.description_doc, plain: f.d.description });
   const [cats, setCats] = useState(meta.categories);
   const [newCat, setNewCat] = useState<string | null>(null);
   const [err, setErr] = useState('');
@@ -69,7 +67,9 @@ function ProductForm({ meta, product }: { meta: ProductsMeta; product?: Product 
     if (!f.valid) return setErr(t('required'));
     const c = cf.collect(product ? 'update' : 'create');
     if (!c.ok) return;
-    const input = { ...toInput(f.d), ...(c.custom ? { custom: c.custom } : {}) };
+    // Mô tả: sửa mà không chạm vùng soạn → không gửi (giữ nguyên tài liệu đã lưu); tạo mới rỗng → bỏ qua.
+    const desc = product ? (ed.dirty || seeded ? ed.value : {}) : ed.value.description ? ed.value : {};
+    const input = { ...toInput(f.d), ...desc, ...(c.custom ? { custom: c.custom } : {}) };
     const onError = (e: ApiRequestError) => cf.absorb(e.error.fields);
     const res = product
       ? await update.run(
@@ -238,27 +238,7 @@ function ProductForm({ meta, product }: { meta: ProductsMeta; product?: Product 
         )}
         {field(
           t('desc'),
-          <div className={styles.rt}>
-            <div className={styles.rtBar}>
-              {RT.map((k) => (
-                <button
-                  key={k}
-                  type="button"
-                  className={cx(styles.rtBtn, RT_STYLE[k] && styles[RT_STYLE[k]!])}
-                  title={t(`rt.${k}`)}
-                  aria-label={t(`rt.${k}`)}
-                >
-                  {t(`rtl.${k}`)}
-                </button>
-              ))}
-            </div>
-            <textarea
-              className={styles.rtArea}
-              value={f.d.description}
-              onChange={(e) => f.set('description', e.target.value)}
-              data-testid="pd-f-desc"
-            />
-          </div>,
+          <ProductDescriptionEditor ed={ed} />,
           true,
         )}
       </div>

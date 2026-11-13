@@ -1,12 +1,13 @@
 // Mock Sản phẩm (Blueprint §4.4 catalog): GET /products?type=&category=&status=&q=, /products/:id, /products/meta,
 // /products/:id/activity, /categories (TIP-027 — cùng schema packages/shared/src/api/catalog.ts với API thật).
 // Dữ liệu = prototype L5624–5753 (fixture sinh bởi tools/scripts/fixtures/gen-products.py). Giá chưa VAT, tiền là string VND.
-import { ApiRequestError, type CustomValues } from '@appchat/shared';
+import { ApiRequestError, canonicalDoc, descriptionDocSchema, descriptionText, type CustomValues, type DescriptionDoc } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/products.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { paginate } from '../paginate';
+import { productMediaOf } from './product-media';
 import { importCancel, importPreview, importRetry, importRun, type ImportCatalog, type ImportInput } from './product-import';
 
 export type ProductsFixture = typeof fixture;
@@ -27,6 +28,7 @@ export type Product = Omit<Fixed, 'stock' | 'sessions' | 'valid_days' | 'cost'> 
   low_stock?: boolean;
   version?: number;
   custom?: CustomValues;
+  description_doc?: DescriptionDoc | null;
 };
 
 type Activity = {
@@ -123,7 +125,7 @@ export const productsParamRoute = (path: string): MockRoute | undefined => {
       name: c.name,
       qty: c.qty,
     }));
-    return { ...p, components: parts, attr_defs: p.attr_defs ?? [], variants: [] };
+    return { ...p, components: parts, attr_defs: p.attr_defs ?? [], variants: [], media: productMediaOf(db, p.id) };
   };
 };
 
@@ -132,6 +134,22 @@ const find = (db: MockDb, id: string) => {
   if (!p) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id });
   return p;
 };
+
+/** Mô tả như `normalizeDescription` của server: có tài liệu → chữ = phép chiếu (khác → 422); chỉ chữ cũ gửi lại nguyên → giữ định dạng. */
+function descOf(i: { description?: string; description_doc?: unknown }, cur?: Product): Partial<Product> {
+  const plain = i.description?.trim();
+  if (i.description_doc) {
+    const r = descriptionDocSchema.safeParse(i.description_doc);
+    if (!r.success) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'description_doc', fields: { description_doc: 'invalid' } });
+    const doc = canonicalDoc(r.data);
+    const text = descriptionText(doc);
+    if (plain !== undefined && plain !== text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'description', fields: { description: 'mismatch_doc' } });
+    return { description: text, description_doc: text ? doc : null };
+  }
+  if (i.description_doc === null || plain === '') return { description: '', description_doc: null };
+  if (plain === undefined || (cur?.description_doc && plain === cur.description.trim())) return {};
+  return { description: plain, description_doc: null };
+}
 
 type Fields = Partial<Product> & {
   name: string;
@@ -175,7 +193,8 @@ export const productsHandlers: Record<string, MockHandler> = {
         sold: 0,
         status: i.status ?? 'active',
         channels: [],
-        description: i.description ?? '',
+        description: '',
+        ...descOf(i),
         attrs: attrLabels(i.attrs),
         stock: i.stock ?? (i.type === 'physical' ? 0 : null),
         sessions: i.sessions ?? null,
@@ -204,9 +223,9 @@ export const productsHandlers: Record<string, MockHandler> = {
       const p = find(db, i.product_id);
       if (i.if_version !== undefined && i.if_version !== p.version)
         throw new ApiRequestError(409, { code: 'STALE_VERSION', message: p.id });
-      const { attrs, ...rest } = i.patch;
+      const { attrs, description, description_doc, ...rest } = i.patch;
       const price = p.price;
-      Object.assign(p, rest, attrs ? { attrs: attrLabels(attrs), attr_defs: attrs } : {});
+      Object.assign(p, rest, descOf({ description, description_doc }, p), attrs ? { attrs: attrLabels(attrs), attr_defs: attrs } : {});
       p.version = (p.version ?? 1) + 1;
       const priced = rest.price && rest.price !== price;
       log(

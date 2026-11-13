@@ -53,6 +53,7 @@ import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
 import { docTemplatePreview as mockBlob } from './domains/doc-templates';
 import { recordFileBlob, stageRecordFile } from './domains/record-files';
+import { productMediaBlob, stageProductFile } from './domains/product-media';
 import { claimVault, genUiNeedsPreview, putVault, splitSecrets } from './genui-vault';
 
 const fail = (
@@ -227,7 +228,9 @@ export const mockTransport: Transport = {
     // Tệp đính kèm đơn / đề nghị (TIP-032d): kiểm đích + quyền ghi trước khi nhận, tạo staging riêng.
     if (purpose === 'record_attachment') {
       const id = crypto.randomUUID();
-      stageRecordFile(mockDb(), id, file, fields);
+      // Ảnh / tài liệu sản phẩm (TIP-027b): cùng purpose, đích product.
+      if (fields?.parent_type === 'product') stageProductFile(mockDb(), id, file, fields.parent_id ?? '');
+      else stageRecordFile(mockDb(), id, file, fields);
       return { file_id: id, name: file.name, size: file.size };
     }
     // Đầu vào Trợ lý (TIP-023f): id dạng uuid như server (action prepare kiểm uuid) + kho tạm có giới hạn giữ chữ của tệp đọc được.
@@ -243,7 +246,7 @@ export const mockTransport: Transport = {
 
   async blob(path) {
     // Tải nguồn KB (TIP-020b): tệp → HTML có tên; URL / catalog → JSON mô tả như server.
-    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path) ?? recordFileBlob(path);
+    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path) ?? recordFileBlob(path) ?? productMediaBlob(mockDb(), path);
     if (kb) return kb;
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
     const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? billingInvoicePdf(mockDb(), path) ?? publicDocumentPdf(path);
