@@ -12,6 +12,7 @@ import {
   needsCustomerIntent,
   quoteFingerprint,
   sourceDigest,
+  verifyOperatorDecision,
   type CustomerIntentAction,
 } from '../../../kernel/actions/customer-intent';
 import { isPrivacyFenced } from '../../../kernel/privacy/guard';
@@ -37,6 +38,13 @@ export interface IntentAdmission {
 export async function admitCustomerIntent(tx: TenantTx, ctx: ActionContext, actionId: CustomerIntentAction, q: QuoteRecord): Promise<IntentAdmission | null> {
   if (!needsCustomerIntent(ctx)) return null;
   const h = customerIntentOf(ctx);
+  // Lệnh người vận hành (agent / tác vụ làm thay người, đã qua duyệt của người thật): dòng duyệt đúng action / run / người ra lệnh + dấu
+  // báo giá ràng lúc xin duyệt khớp dấu hiện tại (đọc SAU khoá báo giá). Không phải ý định khách — không đụng biên nhận khách.
+  if (!h && ctx.approvalId && ctx.onBehalfOfUserId) {
+    const op = await verifyOperatorDecision(tx, ctx, actionId, { id: q.id, fingerprint: quoteFingerprint(q) });
+    if (!op.ok) throw op.status === 409 ? conflict(op.reason) : deny(op.reason);
+    return { consume: op.consume };
+  }
   if (!h || h.actionId !== actionId || h.quoteId !== q.id || !ctx.runId || h.runId !== ctx.runId) throw deny('missing');
   const [r] = await tx.$queryRaw<Receipt[]>`
     SELECT id, run_id, conversation_id, source_ids::text[] AS source_ids, source_digest, turn_fence, quote_id, quote_fingerprint, intent, confidence_pct, state
@@ -65,9 +73,12 @@ export async function admitCustomerIntent(tx: TenantTx, ctx: ActionContext, acti
   };
 }
 
-/** Xem trước cho nguồn mang dòng dõi khách: không có handle → từ chối như execute (không dựng thẻ cho quyết định không căn cứ). */
+/**
+ * Xem trước cho nguồn mang dòng dõi khách: không có handle → từ chối như execute (không dựng thẻ cho quyết định không căn cứ). Ngoại lệ:
+ * agent / tác vụ làm thay người (`onBehalfOfUserId`) — preview dựng thẻ DUYỆT của người vận hành (executor đã ép `approval`).
+ */
 export function assertIntentForPreview(ctx: ActionContext, actionId: CustomerIntentAction, quoteId: string): void {
-  if (!needsCustomerIntent(ctx)) return;
+  if (!needsCustomerIntent(ctx) || (!customerIntentOf(ctx) && ctx.onBehalfOfUserId)) return;
   const h = customerIntentOf(ctx);
   if (!h || h.actionId !== actionId || h.quoteId !== quoteId) throw deny('missing');
 }

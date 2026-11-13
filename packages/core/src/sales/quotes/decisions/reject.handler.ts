@@ -12,7 +12,7 @@ import { lockQuote } from '../quote-access';
 import { moveStatus } from '../services/quote-write';
 import { admitCustomerIntent } from '../services/customer-intent-guard';
 import { rejectPreview } from '../previews/quote-decide.handlers.preview';
-import { actorOf, closeLost, payload, undoDecision, type Out } from './shared';
+import { actorOf, assertBoundDecision, bindDecision, closeLost, type Out, payload, undoDecision } from './shared';
 
 @Injectable()
 @ActionHandler('quote.mark_rejected')
@@ -23,6 +23,7 @@ export class QuoteRejectHandler implements Handler<ActionInput<typeof quoteMarkR
     await lockStageFamilyOf(tx, 'quote', input.quote_id);
     const q = await lockQuote(tx, ctx.authz, input.quote_id);
     const intent = await admitCustomerIntent(tx, ctx, 'quote.mark_rejected', q);
+    assertBoundDecision(ctx, q);
     const to = assertTransition(QUOTE_FLOW, q.status, 'quote.mark_rejected');
     const now = this.clock.now();
     await moveStatus(tx, q, to, { decidedAt: now }, now);
@@ -39,5 +40,9 @@ export class QuoteRejectHandler implements Handler<ActionInput<typeof quoteMarkR
 
   async preview(ctx: ActionContext, input: ActionInput<typeof quoteMarkRejected>, tx: TenantTx) {
     return rejectPreview(ctx, tx, input);
+  }
+
+  async bindPreview(ctx: ActionContext, input: ActionInput<typeof quoteMarkRejected>, tx: TenantTx) {
+    return bindDecision(ctx, tx, input.quote_id);
   }
 }

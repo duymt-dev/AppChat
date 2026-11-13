@@ -366,7 +366,8 @@
       "notify_customer": "Khách sẽ nhận thông báo",
       "new_contact": "Tạo khách hàng mới",
       "low_stock": "Tồn kho thấp",
-      "negative_stock": "Tồn kho sẽ âm"
+      "negative_stock": "Tồn kho sẽ âm",
+      "operator_decision": "Quyết định của người vận hành — không phải khách tự xác nhận"
     },
     "unset": "Không chọn"
   },

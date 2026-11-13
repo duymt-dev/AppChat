@@ -63,6 +63,7 @@ export const ai = {
       read: 'Cần người duyệt',
       config: 'Đổi cấu hình — cần người duyệt',
     },
+    operatorDecision: 'Quyết định báo giá thay mặt người vận hành — cần người xác nhận (không phải khách tự xác nhận)',
     rejected: 'Người duyệt đã từ chối thao tác này',
     expired: 'Hết hạn duyệt',
   },

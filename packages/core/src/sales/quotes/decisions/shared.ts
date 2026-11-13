@@ -5,7 +5,9 @@ import type { ActionContext, TenantTx } from '../../../kernel/actions/action-con
 import type { ActionLogRow } from '../../../kernel/actions/handler';
 import { actorUserId, applyStageRule, stageBinding, writeTimeline } from '../../../crm/public';
 import { familyHasOpenQuote } from '../services/open-family-quote';
-import type { QuoteRecord } from '../quote-access';
+import { visibleQuote, type QuoteRecord } from '../quote-access';
+import { quoteBinding } from '../../../kernel/actions/customer-intent';
+import { assertBoundPreview } from '../../../kernel/actions/preview-binding';
 
 export type Out = { quote_id: string; status: string };
 export type Actor = { type: string; id: string | null };
@@ -28,3 +30,14 @@ export async function undoDecision(tx: TenantTx, log: ActionLogRow, decided: 'ac
   const n = await tx.quote.updateMany({ where: { id: b.id, status: decided }, data: { status: b.status, decidedAt: null } });
   if (!n.count) throw new AppError('CONFLICT', 409, { quote_id: 'changed' });
 }
+
+/**
+ * Dấu báo giá ràng lúc xem trước (thẻ xác nhận Trợ lý — confirm_token) / lúc xin duyệt (dòng duyệt của người vận hành) — TIP-022c §2.2a.
+ * Execute so lại SAU khoá báo giá: báo giá đổi giữa hai bước → 409 xem trước lại, không âm thầm chạy trên bản mới.
+ */
+export async function bindDecision(ctx: ActionContext, tx: TenantTx, quoteId: string): Promise<Record<string, string>> {
+  return quoteBinding(await visibleQuote(tx, ctx.authz, quoteId, 'write'));
+}
+
+/** So dấu đã ràng (nếu lời gọi đi qua xem trước) với báo giá đã khoá. */
+export const assertBoundDecision = (ctx: ActionContext, q: QuoteRecord) => assertBoundPreview(ctx.previewFacts, quoteBinding(q));

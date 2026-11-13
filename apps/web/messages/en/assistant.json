@@ -366,7 +366,8 @@
       "notify_customer": "The customer will be notified",
       "new_contact": "Creates a new customer",
       "low_stock": "Low stock",
-      "negative_stock": "Stock will go negative"
+      "negative_stock": "Stock will go negative",
+      "operator_decision": "Operator decision — not a confirmation from the customer"
     },
     "unset": "Not set"
   },

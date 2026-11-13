@@ -65,6 +65,8 @@ export { AI_ENV } from './ai.env';
 import { AI_ENV } from './ai.env';
 import { RunGuardInstaller } from './runs/run-guard.installer';
 import './events/run.rules';
+import { registerOperatorDecisionVerifier } from '../kernel/actions/customer-intent';
+import { verifyOperatorApproval } from './sales-behavior/command-provenance';
 export const AGENT_ENGINE = Symbol('AGENT_ENGINE');
 
 const opt = (token: symbol) => ({ token, optional: true });
@@ -205,5 +207,7 @@ export class AiModule implements OnModuleInit {
     registerSystemVerifier('kb.system_publish', verifyKbPublish);
     registerSystemVerifier('approval.system_expire', verifyApprovalExpire);
     registerSystemVerifier('inbox.system_agent_transition', verifyAgentTransition);
+    // TIP-022c: duyệt của người vận hành cho quyết định báo giá do agent / tác vụ làm thay người (domain sales gọi qua kernel).
+    registerOperatorDecisionVerifier(verifyOperatorApproval);
   }
 }

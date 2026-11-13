@@ -65,6 +65,7 @@ export const ai: typeof vi = {
       read: 'Needs approval',
       config: 'Changes configuration — needs approval',
     },
+    operatorDecision: 'Quote decision on behalf of an operator — needs a person to confirm (not a confirmation from the customer)',
     rejected: 'The approver rejected this action',
     expired: 'Approval expired',
   },
