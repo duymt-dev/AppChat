@@ -7,7 +7,8 @@ import { AppError } from '@appchat/shared';
 import { sniff, type Sniffed } from './magic';
 import { checkZipShape, zipEntries, ZipRefusedError } from './zip-guard';
 
-export const UPLOAD_PURPOSES = ['kb', 'attachment', 'avatar', 'document', 'import'] as const;
+// TIP-032d: `record_attachment` = tệp đính kèm đơn / đề nghị (staging riêng tư, đích dự định khai lúc tải; kiểm cấu trúc cô lập trước khi gắn).
+export const UPLOAD_PURPOSES = ['kb', 'attachment', 'avatar', 'document', 'import', 'record_attachment'] as const;
 export type UploadPurpose = (typeof UPLOAD_PURPOSES)[number];
 
 const MB = 1024 * 1024;
@@ -21,6 +22,7 @@ const ALLOWED: Record<UploadPurpose, readonly Sniffed[]> = {
   document: ['pdf', 'docx', 'png', 'jpeg', 'webp'],
   kb: [...IMAGES, 'pdf', 'mp4', 'docx', 'xlsx', 'pptx', 'text', 'markup'],
   import: ['text', 'xlsx'],
+  record_attachment: ['pdf', 'docx', 'xlsx', 'png', 'jpeg', 'webp', 'text'],
 };
 
 /** Đuôi → các loại nội dung hợp lệ. Đuôi không có trong bảng: chỉ cần nội dung thuộc danh sách của purpose. */

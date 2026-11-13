@@ -58,6 +58,7 @@ import { InvoicesReadService } from './payments/services/invoices-read.service';
 import { PackagesReadModule } from './payments/packages/read.module';
 import { TenantBankHook, genericBankSink } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
+import { COMMERCE_FILE_HANDLERS, registerCommerceFileSources } from './files/module';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ActionExecutor) => ({ token, optional: true });
 const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
@@ -76,6 +77,7 @@ const HANDLERS = [
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler, BankFeedIngestHandler,
   // Đọc bản ghi cho Trợ lý / agent (TIP-023b R2).
   QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
+  ...COMMERCE_FILE_HANDLERS,
   // Gửi chứng từ cho khách (TIP-032b P2).
   OrderSendConfirmationHandler, ReceiptSendHandler,
   // Action riêng chuyển trạng thái hệ thống (TIP-003c).
@@ -134,6 +136,8 @@ export class SalesModule implements OnModuleInit {
   /** Port chuyển phụ trách báo giá (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Sales. */
   onModuleInit(): void {
     registerOwnershipPort(quoteOwnershipPort);
+    // TIP-032d: nguồn tệp đính kèm đơn / đề nghị — route tải tệp / dọn tệp hỏi qua kernel, không import sales.
+    registerCommerceFileSources();
     // 012b: claim FOR UPDATE + trạng thái biên nhận ngân hàng là khoá chống ghi đôi (domain).
     registerSystemVerifier('bank_feed.ingest', verifyBankIngress, { receipt: 'domain' });
     // TIP-003c: họ action riêng sales — biên nhận trigger bền (mặc định).

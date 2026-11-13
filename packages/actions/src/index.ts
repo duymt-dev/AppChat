@@ -30,6 +30,8 @@ import * as commerceSettings from './commerce-settings';
 import * as commerceDelivery from './commerce-delivery';
 import * as orders from './orders';
 import * as invoices from './invoices';
+import * as orderFiles from './order-files';
+import * as invoiceFiles from './invoice-files';
 import * as payments from './payments';
 import * as booking from './booking';
 import * as bookingConfig from './booking-config';
@@ -125,6 +127,9 @@ export * from './system/inbox';
 export * from './system/common';
 export * from './contracts';
 export * from './contract-files';
+export * from './order-files';
+export * from './invoice-files';
+export * from './commerce-file-schemas';
 export * from './contract-draft';
 export * from './contract-appendix';
 export * from './contract-signing';
@@ -222,6 +227,8 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(commerceDelivery),
   ...Object.values(orders),
   ...Object.values(invoices),
+  ...Object.values(orderFiles),
+  ...Object.values(invoiceFiles),
   ...Object.values(payments),
   ...Object.values(booking),
   ...Object.values(bookingConfig),
