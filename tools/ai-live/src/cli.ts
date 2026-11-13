@@ -262,6 +262,12 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
     const rf = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'commerce-files-seed.mjs')).href)) as { seedCommerceFiles(c: unknown, base: unknown, o: unknown): Promise<unknown> };
     seed = await rf.seedCommerceFiles(c, seed, { api, client: (e: string) => seedMod.client(api, e), mailDir: env.AI_LIVE_MAIL_DIR, password });
   }
+  // Suite ảnh / mô tả sản phẩm (TIP-027b AC2/AC4/AC6): sản phẩm theo khoá lượt + ảnh Trợ lý đã chuẩn bị + agent chỉ đọc catalog.
+  if (suite.cases.some((x) => x.product_media)) {
+    const api = env.AI_LIVE_API ?? 'http://localhost:4117/v1';
+    const pm = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'product-media-seed.mjs')).href)) as { seedProductMedia(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    seed = await pm.seedProductMedia(c, seed, { api });
+  }
   // Suite kế hoạch Cowork (TIP-023d): hai agent trùng tên (CRM / Sales có quote.send → duyệt) để chấm chọn theo UUID.
   if (suite.cases.some((x) => x.plan)) {
     const pl = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'assistant-plans-seed.mjs')).href)) as { seedPlans(c: unknown, base: unknown): Promise<unknown> };
