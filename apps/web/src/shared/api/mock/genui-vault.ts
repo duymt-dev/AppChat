@@ -15,7 +15,9 @@ function set(o: Record<string, unknown>, path: string, v: unknown) {
 }
 
 /** Nguồn assistant (có intent) bắt xem trước mọi action không phải đọc. */
-export const genUiNeedsPreview = (def: ActionDef, intent?: string) => !!intent && def.risk !== 'read';
+/** Action xem trước bắt buộc cho mọi nguồn như server (policy MANDATORY_PREVIEW_ACTIONS) — TIP-033c: tạo đơn từ lịch hẹn. */
+const MANDATORY_PREVIEW = new Set(['order.create_from_appointment']);
+export const genUiNeedsPreview = (def: ActionDef, intent?: string) => MANDATORY_PREVIEW.has(def.id) || (!!intent && def.risk !== 'read');
 
 /** Tách bí mật khỏi input: `plain` để hash / gắn token, `secrets` cất vault. */
 export function splitSecrets(def: ActionDef, input: unknown): { plain: unknown; secrets: Record<string, string> } {

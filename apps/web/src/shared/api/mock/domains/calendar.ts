@@ -154,4 +154,34 @@ export const calendarParamRoute = (path: string): MockRoute | undefined => {
   return (db) => enrich(db, find(db, m[1]!));
 };
 
+/**
+ * Gợi ý tạo đơn hiện hành (TIP-033c, `appointment.order_suggestions`): lịch done ∧ ngoài liệu trình ∧ chưa có đơn ∧ chưa xoá, giá dịch vụ
+ * hiện tại. Theo hội thoại: lịch gắn hội thoại (mock: `conversation_id` trên lịch, mặc định ap_1202 ↔ c_linh). Thuế dịch vụ mẫu 0%.
+ */
+export const CONV_OF: Record<string, string> = { ap_1202: 'c_linh' };
+export function orderSuggestions(db: MockDb, i: { appointment_id?: string; conversation_id?: string }) {
+  const ok = (a: Appointment) => !a.deleted && visible(db, a) && a.status === 'done' && !a.package_id && !a.order_id;
+  const convOf = (a: Appointment) => (a as Appointment & { conversation_id?: string | null }).conversation_id ?? CONV_OF[a.id] ?? null;
+  const list = i.appointment_id ? [find(db, i.appointment_id)] : db.calendar.appointments.filter((a) => convOf(a) === i.conversation_id);
+  const data = list.filter(ok).sort((x, y) => y.end_at.localeCompare(x.end_at)).map((a) => {
+    const s = svcOf(a.service_id);
+    return {
+      appointment_id: a.id,
+      code: a.code,
+      revision: `${a.version ?? 1}.1.1`,
+      conversation_id: convOf(a),
+      service_id: s.id,
+      service_name: s.name,
+      start_at: a.start_at,
+      end_at: a.end_at,
+      unit_price: s.price,
+      tax_rate: 0,
+      tax_total: '0',
+      total: s.price,
+      can_create: ROLE_DEFS[db.role].permissions.includes('order.manage'),
+    };
+  });
+  return { data, next_cursor: null };
+}
+
 export { calendarHandlers } from './calendar-actions';
