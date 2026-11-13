@@ -33,7 +33,8 @@
     "quote": "Báo giá",
     "order": "Đơn hàng",
     "contract": "Hợp đồng",
-    "invoice": "Đề nghị thanh toán"
+    "invoice": "Đề nghị thanh toán",
+    "ticket_category_suggestions": "Danh mục ticket"
   },
   "dataset": {
     "base": "Khách hàng",
@@ -89,7 +90,11 @@
     "terminal": "Không nhập cơ hội đã thắng / thua",
     "forbidden": "Bạn không có quyền ghi giá trị kỳ vọng",
     "id_warning": "Dòng xuất từ hệ thống — bỏ qua, không cập nhật",
-    "unsupported": "Tập dữ liệu không hỗ trợ"
+    "unsupported": "Tập dữ liệu không hỗ trợ",
+    "out_of_range": "Vị trí ngoài 1..N",
+    "too_many": "Quá 100 danh mục",
+    "control": "Có ký tự điều khiển / xuống dòng",
+    "empty": "Trống"
   },
   "errorFile": {
     "row": "Dòng",
@@ -146,6 +151,9 @@
     "stage": "Giai đoạn",
     "probability": "Xác suất (%)",
     "expected_close_date": "Ngày chốt dự kiến",
-    "id": "ID bản ghi (chỉ đọc)"
-  }
+    "id": "ID bản ghi (chỉ đọc)",
+    "position": "Vị trí",
+    "label": "Danh mục"
+  },
+  "atomicInvalid": "Tệp có dòng lỗi — sửa tệp rồi tải lại (tập này nhập nguyên bộ, không bỏ riêng dòng lỗi)."
 }

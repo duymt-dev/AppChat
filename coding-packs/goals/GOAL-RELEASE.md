@@ -131,7 +131,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 47 | [032d](../tips/TIP-032d-commerce-record-files.md) | W8 | DONE (P1 backend liên kết + file_claim + staging kiểm cấu trúc cô lập — DC-442, DV-110; P2 tab Tệp thật — PD-029; P3 sao chép tệp Trợ lý có đồng ý — DC-443, DV-111; P4 E2E http + ai:live 8 ca (chưa nghiệm thu — Postgres dùng chung cạn slot, Q-066) + COVERAGE) | `tip/032d-p4-close` | `f660a5bd` | #197, #198, #199, #200 |
 | 48 | [027b](../tips/TIP-027b-product-media-description.md) | W8 | DONE (ai:live chưa nghiệm thu — Q-066) | `tip/027b-product-media-description` · `tip/027b-p3-web` · `tip/027b-p4-close` | `733bfd75` (P1) · `9bcabcce` (P2) · `83016f9f` (P3) · `4ea2cdfd` (P4) | #201 (P1+P2) · #203 (P3) · #204 (P4) |
 | 49 | [028b](../tips/TIP-028b-document-integrity.md) | W8 | DONE | `tip/028b-document-integrity` · `tip/028b-p2-doc-render` | `04cac52d` (P1) · `e0bb391c` (P2) | #205 (P1) · #207 (P2) |
-| 50 | [034b](../tips/TIP-034b-support-categories.md) | W8 | đang làm (pha 1 / 4) | `tip/034b-support-categories` | `ecac5353` (P1) | #208 (P1) |
+| 50 | [034b](../tips/TIP-034b-support-categories.md) | W8 | đang làm (pha 2 / 4) | `tip/034b-support-categories` · `tip/034b-p2-category-transfer` | `ecac5353` (P1) · `6e2629f2` (P2) | #208 (P1) · #209 (P2) |
 | 51 | [001b](../tips/TIP-001b-web-architecture.md) | W8 | chờ | `tip/001b-web-architecture` | | |
 | 52 | [034c](../tips/TIP-034c-ticket-bulk.md) | W8 | chờ | `tip/034c-ticket-bulk` | | |
 | 53 | [022c](../tips/TIP-022c-sales-behavior.md) | W8 | chờ | `tip/022c-sales-behavior` | | |

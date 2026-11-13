@@ -7,7 +7,7 @@
 model TransferPlan {
   id                   String    @id @db.Uuid
   actorUserId          String    @map("actor_user_id") @db.Uuid
-  /// contact | product | quote | order | contract | invoice (registry `@appchat/shared` data-transfer).
+  /// contact | product | quote | order | contract | invoice | ticket_category_suggestions (TIP-034b) — registry `@appchat/shared` data-transfer.
   entity               String
   /// base | contact_notes | contact_tasks | contact_opportunities (TIP-026b §5) — bất biến sau khi tạo (trigger migration 026b P4).
   dataset              String    @default("base")

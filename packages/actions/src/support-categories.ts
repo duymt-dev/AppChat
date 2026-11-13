@@ -1,7 +1,7 @@
 // Từ điển gợi ý danh mục ticket (TIP-034b §1, DC-215): đọc / thay cả bộ cấu hình (settings.manage, không cấp agent — tool cấu hình) và
 // đọc gợi ý cho người xử lý ticket (ticket.view — kỹ năng AI đọc, Builder chọn cấp; không tự cấp). Ticket vẫn nhận danh mục tự do.
 import { z } from 'zod';
-import { CATEGORY_LABELS_MAX } from '@appchat/shared';
+import { CATEGORY_LABELS_MAX, listExportResultSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const config = z.object({ version: z.number().int(), labels: z.array(z.string()), default: z.string() });
@@ -47,4 +47,23 @@ export const ticketCategorySuggestions = defineAction({
   agentGrantable: true,
   skill: true,
   invalidates: [],
+});
+
+/**
+ * Xuất bộ gợi ý danh mục ra CSV / XLSX (TIP-034b §4.1): CHỈ bộ cấu hình (vị trí + nhãn) — không nhãn lấy từ ticket, không id / dữ liệu khách.
+ * Tệp qua việc dữ liệu (`data_job`, tải `/v1/data-jobs/:id/download`, chỉ người tạo, 24 giờ). Nhập lại bằng transfer.plan entity
+ * `ticket_category_suggestions` (cùng engine 038b).
+ */
+export const ticketCategoriesExport = defineAction({
+  id: 'ticket_categories.export',
+  module: 'support',
+  title: 'actions.ticket_categories.export.title',
+  description:
+    'Export the configured ticket category suggestions (position + label, in order; never labels taken from tickets) as an XLSX or CSV file the caller downloads. Import a file back with transfer.plan entity "ticket_category_suggestions" (replaces the whole list after confirmation). Example: {"format":"csv"}',
+  input: z.object({ format: z.enum(['xlsx', 'csv']).optional() }),
+  output: listExportResultSchema,
+  permission: 'settings.manage',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
 });

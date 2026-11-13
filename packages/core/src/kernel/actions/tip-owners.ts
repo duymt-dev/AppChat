@@ -22,7 +22,7 @@ const BY_ID: Record<string, string> = {
   'order.export': '038',
   'contract.export': '038',
   'ticket.export': '038',
-  'ticket.category_suggestions': '034b', 'ticket_categories.get': '034b', 'ticket_categories.replace': '034b',
+  'ticket.category_suggestions': '034b', 'ticket_categories.get': '034b', 'ticket_categories.replace': '034b', 'ticket_categories.export': '034b',
   'stock.adjust': '027',
   'stock.get': '027',
   'ai.translate': '022',
