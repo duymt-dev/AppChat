@@ -105,6 +105,7 @@ const EXEMPT: Record<string, string> = {
   artifact_id: 'tệp đính kèm của lượt Trợ lý (TIP-023f) — id có trong ngữ cảnh tệp hiện hành của lượt (thẻ tệp / attachment_read), người dùng không nói id tệp',
   media_id: 'ảnh / tài liệu sản phẩm (TIP-027b) — lấy từ product.media_list của đúng sản phẩm cùng lượt (tên tệp → media_id), không có mã người dùng nói',
   attachment_id: 'tệp đính kèm đơn / đề nghị (TIP-032d) — lấy từ order.files_list / invoice.files_list của đúng bản ghi cùng lượt (tên tệp → attachment_id), không có mã người dùng nói',
+  parent_action_log_id: 'thao tác hàng loạt cần hoàn tác (TIP-034c ticket.bulk_undo) — action_log_id có trong kết quả của chính thao tác đó (thẻ kết quả / toast / Nhật ký thao tác, 409 UNDO_REQUIRES_ACTION trả kèm), không phải mã người dùng nói ra',
   action_or_agent_id: 'bước kế hoạch Cowork (TIP-023d assistant.plan_propose) — action id lấy từ find_actions hoặc agent id lấy từ agent.search trong cùng lượt, không phải mã người dùng nói ra',
 };
 

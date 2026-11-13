@@ -1,4 +1,5 @@
-// POST /v1/action-logs/:id/undo (Blueprint §4.3): trong hạn → handler.undo + status=undone; quá hạn / không hỗ trợ → 409.
+// POST /v1/action-logs/:id/undo (Blueprint §4.3): trong hạn → handler.undo + status=undone; quá hạn / không hỗ trợ → 409. Cha có action
+// hoàn tác riêng (undo-action-registry, TIP-034c) → 409 UNDO_REQUIRES_ACTION trước mọi ghi.
 import { AppError } from '@appchat/shared';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { undoPlatformAction } from '../consistency/undo-operation';
@@ -8,6 +9,7 @@ import { withEventTransaction } from '../outbox/transaction';
 import type { KeyValueStore } from '../redis';
 import type { ActionContext } from './action-context';
 import type { ActionHandlerRegistry } from './handler-registry';
+import { undoActionOf } from './undo-action-registry';
 
 export class UndoService {
   constructor(
@@ -24,6 +26,12 @@ export class UndoService {
     const db = await this.resolver.get(TenantContexts.system(ctx.workspaceId, 'action:undo'));
     // Action nền tảng (TIP-045b): hoàn tác là thao tác nền tảng MỚI có điều kiện — không ghi PlatformDb trong transaction tenant.
     const peek = await db.actionLog.findUnique({ where: { id: actionLogId } });
+    // TIP-034c §3.3: cha có action hoàn tác riêng → chỉ người làm (hoặc Owner) được biết, không ghi gì, không đổi trạng thái log.
+    const mapped = peek ? undoActionOf(peek.actionId) : undefined;
+    if (peek && mapped) {
+      if (peek.actorId !== ctx.actor.id && peek.onBehalfOfUserId !== ctx.actor.id && !ctx.authz.isOwner) throw new AppError('FORBIDDEN', 403);
+      throw new AppError('UNDO_REQUIRES_ACTION', 409, { undo_action: mapped, parent_action_log_id: peek.id });
+    }
     const ph = peek ? this.handlers.get(peek.actionId) : undefined;
     if (peek && ph?.undoPlatform) {
       if (!this.platform) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');

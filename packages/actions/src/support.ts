@@ -173,22 +173,3 @@ export const ticketReopen = defineAction({
   agentGrantable: false,
   invalidates: ['tickets'],
 });
-
-export const ticketBulkUpdate = defineAction({
-  id: 'ticket.bulk_update',
-  module: 'support',
-  title: 'actions.ticket.bulk_update.title',
-  description: 'Apply one change to many tickets: assignee, priority, or hand over to the AI agent.',
-  input: z.object({
-    ticket_ids: z.array(ticketId).min(1).max(200),
-    assignee_user_id: z.string().optional(),
-    assignee_agent_id: z.string().optional(),
-    priority: priority.optional(),
-  }),
-  output: z.object({ updated: z.number() }),
-  permission: 'ticket.manage',
-  risk: 'write',
-  agentGrantable: false,
-  undo: { windowSec: 86_400 },
-  invalidates: ['tickets'],
-});

@@ -80,6 +80,7 @@ model Ticket {
   custom          Json            @default("{}")
   createdByType   String          @default("user") @map("created_by_type")
   createdById     String?         @map("created_by_id")
+  /// TIP-034c: trigger `ticket_bump_version` đặt OLD.version + 1 ở MỌI UPDATE (một nguồn duy nhất — giá trị người gọi gửi bị bỏ qua).
   version         Int             @default(1)
   createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt       DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)

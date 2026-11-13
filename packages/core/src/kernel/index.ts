@@ -19,6 +19,7 @@ export { lifecycleContext, LIFECYCLE_ACTIONS, LifecycleActionHandler, type Lifec
 export { WORKSPACE_ACTIVITY_TOPIC } from './actions/activity-event';
 export { executePlatformAction, previewPlatformAction, type PlatformExecuteOutcome } from './actions/platform-execution';
 export * from './actions/undo.service';
+export { registerUndoAction, undoActionOf } from './actions/undo-action-registry';
 export * from './actions/tip-owners';
 export * from './actions/authorizer';
 export * from './actions/actions.module';

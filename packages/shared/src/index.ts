@@ -35,6 +35,7 @@ export * from './support/sla-defaults';
 export * from './support/ticket-state';
 export * from './support/category-config';
 export * from './support/category-events';
+export * from './support/bulk';
 export * from './time/business-time';
 export * from './time/cron';
 export * from './ai-tasks/task-catalog';

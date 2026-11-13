@@ -387,7 +387,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | Bảng | Trường |
 |---|---|
 | `sla_policy` | name, is_default (không xoá được), frt_human_min (10), ttr_human_min (240), business_hours_only, escalation jsonb, active |
-| `ticket` | code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, team_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count. Index: idx(status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
+| `ticket` | code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, team_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count, version (trigger `ticket_bump_version` BEFORE UPDATE — `OLD.version + 1` ở MỌI UPDATE, nguồn duy nhất; TIP-034c). Index: idx(status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
 | `ticket_comment` | ticket_id, author_type, author_id, body, internal bool |
 | `ticket_category_config` | key = 'ticket_categories' (một dòng), labels jsonb (1–100 nhãn có thứ tự, nhãn đầu = mặc định), version, updated_at, updated_by — TIP-034b: chỉ là bộ GỢI Ý; chưa có dòng = version 0 ảo 8 nhãn prototype; `ticket.category` vẫn chữ tự do, không FK. Index nhãn đã dùng: `ticket(category COLLATE "C")`, `(assignee_user_id, category COLLATE "C")`, `(created_by_type, created_by_id, category COLLATE "C") INCLUDE(id)` |
 
@@ -756,7 +756,9 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `ticket.comment` | write | ✓ | 24h |
 | `ticket.close` | write, lý do bắt buộc | ✓ | 24h |
 | `ticket.reopen` | write | | |
-| `ticket.bulk_update` | write, bulk | | 24h |
+| `ticket.bulk_update` | write, bulk (≤ 200 id, người phụ trách HOẶC agent + ưu tiên, `if_versions?`; kết quả từng id; ≤ 50 chạy ngay, 51–200 → 202 data_job; Idempotency-Key bắt buộc — TIP-034c) | | 24h (qua `ticket.bulk_undo`; `/action-logs/:id/undo` → 409 `UNDO_REQUIRES_ACTION`) |
+| `ticket.bulk_undo` | write, bulk (chỉ người tạo; chỉ trường đã đổi trên ticket chưa ai sửa sau đó; đang chạy → 409 `OPERATION_BUSY`) | | |
+| `ticket.bulk_item` · `ticket.bulk_item_undo` | write, internal (003c — con riêng của thao tác hàng loạt, một ticket / transaction) | | |
 | `sla.update_default` | config | | |
 | `ticket.category_suggestions` | read (ticket.view, kỹ năng AI — không tự cấp) | ✓ | |
 | `ticket_categories.get` | read (settings.manage) | | |

@@ -50,6 +50,7 @@ export * from './invoices';
 export * from './customer-packages';
 export * from './calendar';
 export * from './tickets';
+export * from './ticket-bulk';
 export * from './ticket-categories';
 export * from './ai-tasks';
 export * from './commerce-settings';
