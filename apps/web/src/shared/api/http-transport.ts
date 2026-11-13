@@ -118,9 +118,10 @@ export const httpTransport: Transport = {
   async undo(actionLogId) {
     await parse(await send(`/action-logs/${actionLogId}/undo`, { method: 'POST' }));
   },
-  async upload(file, purpose, signal) {
+  async upload(file, purpose, signal, fields) {
     const form = new FormData();
     form.set('purpose', purpose);
+    for (const [k, v] of Object.entries(fields ?? {})) form.set(k, v);
     form.set('file', file, file.name);
     return (await parse<{ data: never }>(await send('/files', { method: 'POST', body: form, signal }))).data;
   },

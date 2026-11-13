@@ -111,20 +111,17 @@ export class InvoicesReadService {
     return rows.map((r) => ({ id: r.id, invoice_id: r.invoiceId, invoice_code: r.invoiceId ? (i.get(r.invoiceId) ?? '') : '', package_id: r.packageId, contact_name: c.get(r.contactId) ?? '', amount: String(-r.amount), reason: r.reason, by: r.createdById ? (names.get(r.createdById) ?? '') : 'system', at: r.createdAt.toISOString() }));
   }
 
-  /** Thẻ CRM (số đề nghị của khách, tỉ lệ trả đúng hạn, công nợ theo khách — crm/insights/customer-debt) + tệp (PDF đề nghị, phiếu thu) của đề nghị đang mở. */
+  /** Thẻ CRM (số đề nghị của khách, tỉ lệ trả đúng hạn, công nợ theo khách — crm/insights/customer-debt) của đề nghị đang mở. Tệp (chứng từ
+   *  đã sinh + tệp đính kèm, giữ đúng id tệp gốc) đọc qua `invoice.files_list` (TIP-032d). */
   private async oneMeta(tx: TenantTx, a: AuthzContext, one: Awaited<ReturnType<typeof visibleInvoice>> | null, today: string) {
-    if (!one) return { crm: { total: 0, on_time: '0%' }, files: [] };
+    if (!one) return { crm: { total: 0, on_time: '0%' } };
     const all = await tx.invoice.findMany({ where: { contactId: one.contactId, status: { not: 'void' } }, select: { id: true, status: true, dueDate: true } });
     const paid = all.filter((x) => x.status === 'paid');
     const last = paid.length ? await tx.customerPayment.groupBy({ by: ['invoiceId'], where: { invoiceId: { in: paid.map((x) => x.id) }, kind: { not: 'refund' }, status: 'confirmed' }, _max: { paidAt: true } }) : [];
     const due = new Map(paid.map((x) => [x.id, x.dueDate.getTime() + 86_400_000]));
     const onTime = last.filter((l) => l._max.paidAt && l._max.paidAt.getTime() < due.get(l.invoiceId!)!).length;
-    const files: { name: string; ext: string; by: string; at: string; size: string; url?: string }[] = [];
-    const ids = [one.fileId, ...(await tx.customerPayment.findMany({ where: { invoiceId: one.id, receiptFileId: { not: null } }, select: { receiptFileId: true } })).map((p) => p.receiptFileId)].filter((x): x is string => !!x);
-    for (const f of ids.length ? await tx.file.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, size: true, createdAt: true } }) : [])
-      files.push({ name: f.name, ext: 'pdf', by: 'system', at: f.createdAt.toISOString().slice(0, 10), size: `${Math.max(1, Math.round(Number(f.size) / 1024))} KB` });
     const debt = await customerDebt(tx, a, one.contactId, today);
-    return { crm: { total: all.length, on_time: paid.length ? `${Math.round((onTime * 100) / paid.length)}%` : '0%', ...(debt ? { debt: debt.due, overdue: debt.overdue } : {}) }, files };
+    return { crm: { total: all.length, on_time: paid.length ? `${Math.round((onTime * 100) / paid.length)}%` : '0%', ...(debt ? { debt: debt.due, overdue: debt.overdue } : {}) } };
   }
 
   /** PDF đề nghị: bản đã gửi (đóng băng) hoặc render bản hiện tại. */

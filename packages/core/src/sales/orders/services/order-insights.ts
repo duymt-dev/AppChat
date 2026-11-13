@@ -57,9 +57,9 @@ export async function orderRuns(tx: TenantTx, authz: AuthzContext, o: Place, all
   };
 }
 
-const EMPTY = { crm: { ltv: '0', total: 0, tier: '', points: 0 }, insight: '', files: [] as { name: string; ext: string; by: string; at: string; size: string }[] };
+const EMPTY = { crm: { ltv: '0', total: 0, tier: '', points: 0 }, insight: '' };
 
-/** Thẻ CRM / nhận định / tệp của MỘT đơn (drawer). Không có đơn → khung rỗng. */
+/** Thẻ CRM / nhận định của MỘT đơn (drawer). Không có đơn → khung rỗng. Tệp đính kèm đọc qua `order.files_list` (TIP-032d). */
 export async function orderInsights(tx: TenantTx, o: OrderRecord | null, p: Place) {
   if (!o) return EMPTY;
   const m = serverMessages(p.locale).sales.order;
@@ -72,5 +72,5 @@ export async function orderInsights(tx: TenantTx, o: OrderRecord | null, p: Plac
   const insight =
     interpolate(m.insight, { name: contact?.name ?? '', count, spent: fmt.moneyShort(String(contact?.totalSpent ?? 0n)) }) +
     (contact?.tierKey ? interpolate(m.insightTier, { tier: contact.tierKey, points: fmt.number(points) }) : '');
-  return { crm: { ltv: String(contact?.totalSpent ?? 0n), total: count, tier: contact?.tierKey ?? '', points }, insight, files: EMPTY.files };
+  return { crm: { ltv: String(contact?.totalSpent ?? 0n), total: count, tier: contact?.tierKey ?? '', points }, insight };
 }

@@ -10,7 +10,8 @@ import { useInvoicesUi } from '../invoices-store';
 import { invoiceQuery } from '../api';
 import { StatusChip } from '../columns';
 import { avInitial } from '../status';
-import { AiTab, CrmTab, FilesTab, HistoryTab, OverviewTab } from './DetailTabs';
+import { RecordFilesPanel } from '@/shared/commerce-files/RecordFilesPanel';
+import { AiTab, CrmTab, HistoryTab, OverviewTab } from './DetailTabs';
 import { refundRoom } from './RefundModals';
 import type { Invoice, InvoicesMeta } from '../types';
 
@@ -108,7 +109,7 @@ export function InvoiceDrawer({ meta }: { meta: InvoicesMeta }) {
         {i && ui.tab === 'overview' ? <OverviewTab i={i} /> : null}
         {i && ui.tab === 'crm' ? <CrmTab i={i} meta={meta} /> : null}
         {i && ui.tab === 'ai' ? <AiTab i={i} /> : null}
-        {i && ui.tab === 'files' ? <FilesTab meta={meta} /> : null}
+        {i && ui.tab === 'files' ? <RecordFilesPanel key={i.id} record={{ type: 'invoice', id: i.id }} /> : null}
         {i && ui.tab === 'history' ? <HistoryTab i={i} /> : null}
       </div>
     </EntityDrawer>

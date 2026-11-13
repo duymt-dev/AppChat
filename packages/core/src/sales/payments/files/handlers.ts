@@ -9,6 +9,7 @@ import { ActionHandler, type ActionHandler as Handler } from '../../../kernel/ac
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import { FilesService } from '../../../kernel/files/files.service';
 import { TENANT_RESOLVER } from '../../../kernel/tenant/tenant.providers';
+import { CrmMembers } from '../../../crm/public';
 import { AttachmentKit } from '../../files/handlers-kit';
 import { invoicePort } from './read';
 
@@ -53,11 +54,16 @@ export class InvoiceFileDetachHandler extends InvoiceFiles implements Handler<Ac
 @Injectable()
 @ActionHandler('invoice.files_list')
 export class InvoiceFilesListHandler extends InvoiceFiles implements Handler<ActionInput<typeof invoiceFilesList>, unknown> {
-  constructor(@Optional() @Inject(TENANT_RESOLVER) t: TenantDbResolver | null, @Optional() @Inject(FilesService) f: FilesService | null, @Inject(CLOCK) c: Clock) {
+  constructor(
+    @Optional() @Inject(TENANT_RESOLVER) t: TenantDbResolver | null,
+    @Optional() @Inject(FilesService) f: FilesService | null,
+    @Inject(CLOCK) c: Clock,
+    @Optional() @Inject(CrmMembers) private readonly members: CrmMembers | null,
+  ) {
     super(t, f, c);
   }
   async execute(ctx: ActionContext, i: ActionInput<typeof invoiceFilesList>, tx: TenantTx) {
-    return this.kit.list(ctx, tx, i.invoice_id, i);
+    return this.kit.list(ctx, tx, i.invoice_id, i, this.members ? (ids) => this.members!.names(ids) : undefined);
   }
 }
 

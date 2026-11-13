@@ -17,6 +17,8 @@ export const attachmentRow = z.object({
   bytes: z.number().int(),
   created_at: z.string(),
   created_by: z.string().nullable(),
+  /** Tên người gắn (thành viên hiện hành) — rỗng với chứng từ hệ thống sinh / thành viên đã rời. */
+  created_by_name: z.string(),
   /** user_attachment gỡ được; chứng từ đã sinh (PDF đề nghị / phiếu thu) chỉ mở / tải. */
   kind: z.enum(['user_attachment', 'generated_invoice', 'generated_receipt']),
   version: z.number().int().nullable(),

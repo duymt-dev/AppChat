@@ -39,7 +39,7 @@ describe('commerce file actions', () => {
   });
 
   it('kết quả danh sách: không có trường URL / storage; chứng từ đã sinh kind riêng, không gỡ', () => {
-    const row = { attachment_id: null, file_id: ID, name: 'DN.pdf', mime: 'application/pdf', bytes: 10, created_at: '2026-11-12T00:00:00.000Z', created_by: null, kind: 'generated_invoice', version: null, available: true, can_detach: false };
+    const row = { attachment_id: null, file_id: ID, name: 'DN.pdf', mime: 'application/pdf', bytes: 10, created_at: '2026-11-12T00:00:00.000Z', created_by: null, created_by_name: '', kind: 'generated_invoice', version: null, available: true, can_detach: false };
     const parsed = invoiceFilesList.output.parse({ files: [{ ...row, url: 'https://leak' }], revision: 0, can_attach: true, next_cursor: null });
     expect(Object.keys(parsed.files[0]!)).not.toContain('url');
     expect(JSON.stringify(orderFilesList.output.shape)).not.toMatch(/storage|url/i);
