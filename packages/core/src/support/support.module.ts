@@ -1,4 +1,5 @@
-// Domain `support` (TIP-034): ticket, chính sách SLA mặc định, đồng hồ SLA, leo thang — 10 handler (ticket.* + sla.update_default), đọc
+// Domain `support` (TIP-034): ticket, chính sách SLA mặc định, đồng hồ SLA, leo thang — 10 handler (ticket.* + sla.update_default) + từ
+// điển gợi ý danh mục (TIP-034b, categories/), đọc
 // /v1/tickets* (TicketsReadService), luật thông báo / realtime (events/support.rules.ts), seed chính sách mặc định, job quét SLA +
 // consumer tin nhắn (jobs/support.jobs.module.ts).
 import { Module, type OnModuleInit } from '@nestjs/common';
@@ -11,6 +12,7 @@ import { CrmMembers } from '../crm/public';
 import { IdentityModule } from '../identity/identity.module';
 import { SettingsReadService } from '../identity/public';
 import './events/support.rules';
+import './categories/events';
 import './seeds';
 import { TicketCreateHandler } from './actions/ticket-create.handler';
 import { TicketAssignHandler, TicketBulkUpdateHandler, TicketCommentHandler, TicketUpdateHandler } from './actions/ticket-edit.handlers';
@@ -23,6 +25,8 @@ import { TicketGetHandler } from './actions/ticket-read.handlers';
 import { registerSystemVerifier } from '../kernel/actions/system';
 import { TicketSystemTransitionHandler } from './system/handlers';
 import { verifyTicketTrigger } from './system/sources';
+import { CATEGORY_PROVIDERS } from './categories/providers';
+import { TicketCategoriesRead } from './categories/read';
 
 const HANDLERS = [
   TicketSearchHandler, TicketCreateHandler, TicketUpdateHandler, TicketAssignHandler, TicketSetStatusHandler,
@@ -36,6 +40,8 @@ const HANDLERS = [
   imports: [CrmModule, ChannelsModule, IdentityModule],
   providers: [
     ...HANDLERS,
+    // TIP-034b: từ điển gợi ý danh mục ticket (3 action + ký cursor + đọc cho controller).
+    ...CATEGORY_PROVIDERS,
     SlaCalendar,
     {
       provide: TicketsReadService,
@@ -44,7 +50,7 @@ const HANDLERS = [
         t ? new TicketsReadService(t, cal, m, () => c.now(), st ?? null) : null,
     },
   ],
-  exports: [SlaCalendar, TicketsReadService],
+  exports: [SlaCalendar, TicketsReadService, TicketCategoriesRead],
 })
 export class SupportModule implements OnModuleInit {
   /** TIP-003c: verifier nguồn của action riêng `ticket.system_transition`. */

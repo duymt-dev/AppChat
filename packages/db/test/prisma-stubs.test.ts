@@ -38,6 +38,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'commerce-files': '032d',
   'file-claims': '032d',
   'product-media': '027b',
+  'ticket-categories': '034b',
   },
 };
 
@@ -56,6 +57,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(68);
+    expect(n).toBe(69);
   });
 });

@@ -8,6 +8,7 @@ import { INSIGHTS_EVENT_SCHEMAS } from '../../insights/events';
 import { ACTION_DISCOVERY_EVENT_SCHEMAS } from '../action-discovery';
 import { ASSISTANT_INPUT_EVENT_SCHEMAS } from '../assistant-input';
 import { DOCUMENT_RENDER_EVENT_SCHEMAS } from '../document-render';
+import { TICKET_CATEGORY_EVENT_SCHEMAS } from '../../support/category-events';
 import { BASELINE_EVENT_SCHEMAS } from './baseline';
 
 export const EXTENSION_EVENT_GROUPS = {
@@ -18,6 +19,7 @@ export const EXTENSION_EVENT_GROUPS = {
   action_discovery: ACTION_DISCOVERY_EVENT_SCHEMAS,
   assistant_input: ASSISTANT_INPUT_EVENT_SCHEMAS,
   document_render: DOCUMENT_RENDER_EVENT_SCHEMAS,
+  ticket_categories: TICKET_CATEGORY_EVENT_SCHEMAS,
   baseline: BASELINE_EVENT_SCHEMAS,
 } as const;
 

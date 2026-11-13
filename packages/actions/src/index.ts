@@ -44,6 +44,7 @@ import * as groupResults from './group-results';
 import * as channelOperations from './channel-operations';
 import * as channelFriends from './channel-friends';
 import * as support from './support';
+import * as supportCategories from './support-categories';
 import * as marketing from './marketing';
 import * as marketingExtras from './marketing-extras';
 import * as tenantMail from './tenant-mail';
@@ -150,6 +151,7 @@ export * from './group-results';
 export * from './channel-operations';
 export * from './channel-friends';
 export * from './support';
+export * from './support-categories';
 export * from './marketing';
 export * from './marketing-extras';
 export * from './tenant-mail';
@@ -243,6 +245,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(channelOperations),
   ...Object.values(channelFriends),
   ...Object.values(support),
+  ...Object.values(supportCategories),
   ...Object.values(marketing),
   ...Object.values(marketingExtras),
   ...Object.values(tenantMail),

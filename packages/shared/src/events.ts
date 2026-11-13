@@ -9,6 +9,7 @@ import { ACTION_DISCOVERY_EVENT_SCHEMAS } from './events/action-discovery';
 import { ASSISTANT_INPUT_EVENT_SCHEMAS } from './events/assistant-input';
 import { COMMERCE_FILE_EVENT_SCHEMAS } from './events/commerce-files';
 import { DOCUMENT_RENDER_EVENT_SCHEMAS } from './events/document-render';
+import { TICKET_CATEGORY_EVENT_SCHEMAS } from './support/category-events';
 import { BASELINE_EVENT_SCHEMAS } from './events/protocol/baseline';
 import { PERMISSIONS } from './authz/permissions';
 import { NOTIFY_KIND_KEYS, type NotifyKind } from './notify/catalog';
@@ -309,6 +310,7 @@ export const EVENT_SCHEMAS = {
   ...ACTION_DISCOVERY_EVENT_SCHEMAS,
   ...COMMERCE_FILE_EVENT_SCHEMAS,
   ...DOCUMENT_RENDER_EVENT_SCHEMAS,
+  ...TICKET_CATEGORY_EVENT_SCHEMAS,
   ...ASSISTANT_INPUT_EVENT_SCHEMAS,
   /** Topic đang phát nhưng trước đây chưa khai (TIP-003b §1.3, DV-099). */
   ...BASELINE_EVENT_SCHEMAS,
