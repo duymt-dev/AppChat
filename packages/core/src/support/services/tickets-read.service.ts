@@ -11,6 +11,7 @@ import { searchSql } from '../actions/sla-config.handlers';
 import { defaultPolicy, escalationOf, type SlaCalendar } from './sla-clock';
 import { categoryMeta } from '../categories/read';
 import type { SettingsReadService } from '../../identity/public';
+import { readStockSummary } from '../trends/read';
 
 export interface TicketViewer {
   workspaceId: string;
@@ -170,6 +171,8 @@ export class TicketsReadService {
           count(*) FILTER (WHERE t.assignee_agent_id IS NOT NULL) AS ai
         FROM ticket t WHERE ${scope}`;
       const c = Object.fromEntries(Object.entries(counts!).map(([k, x]) => [k, Number(x)])) as Record<string, number>;
+      // Năm số thẻ KPI = tập hiện tại người xem thấy (scope + nguồn còn đọc được) — một câu lệnh, cùng mốc `now` với số phụ ở trên.
+      const stock = await readStockSummary(tx, v.authz, timeZone, now);
       const [used, agent, teams, members] = await Promise.all([
         // TIP-034b: bộ cấu hình + trang đầu nhãn đã dùng CHỈ trong ticket người xem thấy (trước đây distinct toàn bảng — lộ nhãn ngoài scope).
         categoryMeta(tx, v.authz),
@@ -191,10 +194,11 @@ export class TicketsReadService {
         ...used,
         agent: agent ? { id: agent.id, name: agent.name } : { id: '', name: '' },
         members,
-        // Xu hướng so kỳ trước: chưa đủ lịch sử → để trống (FE ẩn mũi tên khi rỗng).
+        // Chuỗi xu hướng cũ giữ rỗng (client cũ); TIP-034d: so với hôm qua ở `stock_summary` (cùng dịch vụ với action ticket.stock_summary).
         trend: { total: '', open: '', waiting: '', breach: '', closed: '' },
         ai,
-        counts: { total: c.total!, open: c.open!, waiting: c.waiting!, breach: c.breach!, closed: c.closed! },
+        counts: stock.counts,
+        stock_summary: stock,
       };
     });
   }

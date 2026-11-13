@@ -22,6 +22,8 @@ import { ActionExecutor } from '../../kernel/actions/executor';
 import { agentAuthz } from '../../ai/agents/agent-authz';
 import { AI_COMPLAINT_CONSUMER, aiComplaintConsumer } from '../events/ai-complaint.consumer';
 import { DataJobsModule } from '../../kernel/jobs/data-jobs/data-jobs.module';
+import { SlaCalendar } from '../services/sla-clock';
+import { STOCK_OBSERVE_EVERY_MS, STOCK_OBSERVE_JOB, observeAll } from '../trends/installer';
 
 export const SUPPORT_SCHEDULER_QUEUE = 'support-scheduler';
 export const SLA_SWEEP_JOB = 'support.sla-sweep';
@@ -74,6 +76,7 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
     @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
+    @Inject(SlaCalendar) private readonly cal: SlaCalendar,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -90,9 +93,16 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     const deps: SlaSweepDeps = { platform: this.platform, tenants: this.tenants, executor: this.executor, now, onError: (ws, err) => this.log.warn({ err, ws, job: SLA_SWEEP_JOB }, 'quét SLA lỗi ở workspace') };
     this.queue = new Queue(SUPPORT_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(SLA_SWEEP_JOB, { every: EVERY_MS }, { name: SLA_SWEEP_JOB });
+    // TIP-034d: chụp tồn ticket mỗi ngày (lần thành công đầu tiên của ngày) + dọn cache — cùng queue / worker, không consumer thứ hai.
+    await this.queue.upsertJobScheduler(STOCK_OBSERVE_JOB, { every: STOCK_OBSERVE_EVERY_MS }, { name: STOCK_OBSERVE_JOB });
+    const stock = { platform: this.platform, tenants: this.tenants, cal: this.cal, now, log: this.log };
     this.worker = new Worker(
       SUPPORT_SCHEDULER_QUEUE,
       async (job) => {
+        if (job.name === STOCK_OBSERVE_JOB) {
+          await observeAll(stock);
+          return;
+        }
         if (job.name !== SLA_SWEEP_JOB) return;
         const r = await sweepSupport(deps);
         if (r.warned || r.breached) this.log.info({ job: SLA_SWEEP_JOB, ...r }, 'quét SLA');
