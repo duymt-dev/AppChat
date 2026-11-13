@@ -13,6 +13,7 @@ import { lockQuote } from '../quote-access';
 import { hasNewerVersion, linesOf, moveStatus, writeLines } from '../services/quote-write';
 import { admitCustomerIntent } from '../services/customer-intent-guard';
 import { revisionPreview } from '../previews/quote-decide.handlers.preview';
+import { assertBoundDecision, bindDecision } from './shared';
 
 type RevOut = { quote_id: string; code: string; version: number };
 
@@ -24,6 +25,7 @@ export class QuoteRevisionHandler implements Handler<ActionInput<typeof quoteReq
   async execute(ctx: ActionContext, input: ActionInput<typeof quoteRequestRevision>, tx: TenantTx, _ptx?: unknown, _prepared?: unknown, meta?: ExecuteMeta): Promise<HandlerOutcome<RevOut>> {
     const q = await lockQuote(tx, ctx.authz, input.quote_id);
     const intent = await admitCustomerIntent(tx, ctx, 'quote.request_revision', q);
+    assertBoundDecision(ctx, q);
     const to = assertTransition(QUOTE_FLOW, q.status, 'quote.request_revision');
     if (await hasNewerVersion(tx, q)) throw new AppError('INVALID_TRANSITION', 409, { status: q.status, version: 'newer_exists' });
     const now = this.clock.now();
@@ -72,5 +74,9 @@ export class QuoteRevisionHandler implements Handler<ActionInput<typeof quoteReq
 
   async preview(ctx: ActionContext, input: ActionInput<typeof quoteRequestRevision>, tx: TenantTx) {
     return revisionPreview(ctx, tx, input);
+  }
+
+  async bindPreview(ctx: ActionContext, input: ActionInput<typeof quoteRequestRevision>, tx: TenantTx) {
+    return bindDecision(ctx, tx, input.quote_id);
   }
 }

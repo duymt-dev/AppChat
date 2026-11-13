@@ -32,7 +32,7 @@ describe('quote.mark_accepted', () => {
 
   it('preview Trợ lý → xác nhận → undo', async () => {
     const { preview, done } = await m.confirm({ quote_id: Q() });
-    expect(preview).toEqual({ summary: `${q.code} · L1 · Chị Lan BG · 3.240.000₫`, risk: 'write', changes: [{ entity: 'quote', id: Q(), before: { status: 'sent' }, after: { status: 'accepted' } }] });
+    expect(preview).toEqual({ summary: `${q.code} · L1 · Chị Lan BG · 3.240.000₫`, risk: 'write', changes: [{ entity: 'quote', id: Q(), before: { status: 'sent' }, after: { status: 'accepted' } }], warnings: ['operator_decision'] });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
     expect((await row()).status).toBe('accepted');
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);

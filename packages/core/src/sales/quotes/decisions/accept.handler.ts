@@ -11,7 +11,7 @@ import { lockQuote } from '../quote-access';
 import { moveStatus } from '../services/quote-write';
 import { admitCustomerIntent } from '../services/customer-intent-guard';
 import { acceptPreview } from '../previews/quote-decide.handlers.preview';
-import { actorOf, payload, undoDecision, type Out } from './shared';
+import { actorOf, assertBoundDecision, bindDecision, type Out, payload, undoDecision } from './shared';
 
 @Injectable()
 @ActionHandler('quote.mark_accepted')
@@ -21,6 +21,7 @@ export class QuoteAcceptHandler implements Handler<ActionInput<typeof quoteMarkA
   async execute(ctx: ActionContext, input: ActionInput<typeof quoteMarkAccepted>, tx: TenantTx, _ptx?: unknown, _prepared?: unknown, meta?: ExecuteMeta): Promise<HandlerOutcome<Out>> {
     const q = await lockQuote(tx, ctx.authz, input.quote_id);
     const intent = await admitCustomerIntent(tx, ctx, 'quote.mark_accepted', q);
+    assertBoundDecision(ctx, q);
     const to = assertTransition(QUOTE_FLOW, q.status, 'quote.mark_accepted');
     const now = this.clock.now();
     await moveStatus(tx, q, to, { decidedAt: now }, now);
@@ -35,5 +36,9 @@ export class QuoteAcceptHandler implements Handler<ActionInput<typeof quoteMarkA
 
   async preview(ctx: ActionContext, input: ActionInput<typeof quoteMarkAccepted>, tx: TenantTx) {
     return acceptPreview(ctx, tx, input);
+  }
+
+  async bindPreview(ctx: ActionContext, input: ActionInput<typeof quoteMarkAccepted>, tx: TenantTx) {
+    return bindDecision(ctx, tx, input.quote_id);
   }
 }

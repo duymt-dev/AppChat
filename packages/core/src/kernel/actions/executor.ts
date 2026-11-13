@@ -18,6 +18,7 @@ import { hashInput } from './confirm-token';
 import type { ActionHandlerRegistry } from './handler-registry';
 import { decidePolicy, requiresIdempotencyKey } from './policy';
 import { withRequiredApproval } from './required-approval';
+import { escalateOperatorDecision } from './customer-intent';
 import { maskSecrets } from './secret-fields';
 import { acceptedResponse, replayAccepted } from './job-accepted';
 import { redactDeep, toLogJson } from './executor-redact';
@@ -153,7 +154,8 @@ export class ActionExecutor {
     // Mọi hội thoại mà input chạm tới (nguồn + đích của chuyển tiếp) phải là hội thoại đang phục vụ.
     const io = input as { conversation_id?: unknown; target_conversation_id?: unknown };
     const served = !!ctx.servedConversationId && io.conversation_id === ctx.servedConversationId && (io.target_conversation_id === undefined || io.target_conversation_id === ctx.servedConversationId);
-    const decision = withRequiredApproval(decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk, servedConversation: served, autoSend: ctx.autoSend === true, actionId, previewRequested: ctx.previewRequested === true }), def, ctx.source);
+    // TIP-022c: quyết định báo giá do agent / tác vụ làm thay người, không căn cứ ý định khách → luôn qua duyệt của người thật.
+    const decision = escalateOperatorDecision(withRequiredApproval(decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk, servedConversation: served, autoSend: ctx.autoSend === true, actionId, previewRequested: ctx.previewRequested === true }), def, ctx.source), ctx, actionId);
     if (decision === 'forbidden') throw new AppError('FORBIDDEN', 403, { source: ctx.source });
     if (ctx.approvalId && !this.d.approvals) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '021' }, 'approval_request chưa cài');
     if (decision === 'approval' && !ctx.approvalId) {
