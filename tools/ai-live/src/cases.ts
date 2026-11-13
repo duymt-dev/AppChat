@@ -10,9 +10,9 @@ export const DEFAULT_CASES = join(REPO_ROOT, 'tools', 'ai-live', 'cases.yaml');
 export const DEFAULT_COUNT = 30;
 const MAX_BYTES = 256 * 1024;
 
-export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking', 'ai_utility', 'input', 'stage_hold', 'agent_draft', 'record', 'kb_scope', 'citation', 'plan'] as const;
+export const CATEGORIES = ['lookup', 'update', 'create', 'delete', 'chain', 'clarify', 'genui', 'connect', 'draft', 'contract', 'memory', 'loyalty', 'hardening', 'channel', 'marketing', 'insights', 'transfer', 'runtime', 'activity', 'ctransfer', 'cedit', 'lifecycle', 'merge', 'tenant_mail', 'booking', 'ai_utility', 'input', 'stage_hold', 'agent_draft', 'record', 'kb_scope', 'citation', 'plan', 'appt_order'] as const;
 /** Phân bổ bộ mặc định (TIP-023b R1.4): tra cứu 8 · sửa 6 · tạo 6 · xoá / huỷ 3 · chuỗi 4 · hỏi lại 3. */
-export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0, ai_utility: 0, input: 0, stage_hold: 0, agent_draft: 0, record: 0, kb_scope: 0, citation: 0, plan: 0 };
+export const DEFAULT_MIX: Record<(typeof CATEGORIES)[number], number> = { lookup: 8, update: 6, create: 6, delete: 3, chain: 4, clarify: 3, genui: 0, connect: 0, draft: 0, contract: 0, memory: 0, loyalty: 0, hardening: 0, channel: 0, marketing: 0, insights: 0, transfer: 0, runtime: 0, activity: 0, ctransfer: 0, cedit: 0, lifecycle: 0, merge: 0, tenant_mail: 0, booking: 0, ai_utility: 0, input: 0, stage_hold: 0, agent_draft: 0, record: 0, kb_scope: 0, citation: 0, plan: 0, appt_order: 0 };
 
 const expectSchema = z
   .object({
@@ -90,9 +90,11 @@ const expectSchema = z
     citation: z.literal(true).optional(),
     /** Ca kế hoạch Cowork TIP-023d (plans-judge.ts): chấm theo kế hoạch / run con / duyệt / bản ghi đọc lại từ API. */
     plan: z.literal(true).optional(),
+    /** Ca gợi ý tạo đơn từ lịch hẹn TIP-033c (appointment-order-judge.ts): chấm theo liên kết lịch ↔ đơn + tổng đơn thật. */
+    appointment_order: z.literal(true).optional(),
   })
   .strict()
-  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking || e.ai_utility || e.input_file || e.stage_hold || e.agent_draft || e.record || e.kb_scope || e.citation || e.plan, { message: 'action_or_sequence_or_ask_back' })
+  .refine((e) => e.ask_back || e.action || e.action_any || e.sequence || e.ui || e.draft || e.contract || e.memory || e.loyalty || e.hardening || e.channel || e.marketing || e.insights || e.transfer || e.runtime || e.activity || e.ctransfer || e.cedit || e.lifecycle || e.merge || e.tenant_mail || e.booking || e.ai_utility || e.input_file || e.stage_hold || e.agent_draft || e.record || e.kb_scope || e.citation || e.plan || e.appointment_order, { message: 'action_or_sequence_or_ask_back' })
   .refine((e) => !(e.action && e.action_any), { message: 'action_xor_action_any' });
 
 export const caseSchema = z
@@ -145,6 +147,8 @@ export const caseSchema = z
     tenant_mail: z.object({ kind: z.enum(['secret', 'probe', 'approval', 'rotation', 'unknown', 'evidence', 'file', 'manual']) }).strict().optional(),
     /** Ca lịch hẹn + liệu trình TIP-033b: loại ca (booking-judge.ts) — bộ theo khoá lượt từ booking-operations/seed.mjs. */
     booking: z.object({ kind: z.enum(['entitlement', 'expired', 'conflict', 'exhausted', 'hours', 'agent', 'export', 'import']) }).strict().optional(),
+    /** Ca gợi ý tạo đơn từ lịch hẹn TIP-033c: loại ca (appointment-order-judge.ts) — bộ theo khoá lượt từ appointment-order-seed.mjs. */
+    appointment_order: z.object({ kind: z.enum(['eligible', 'package', 'linked', 'limited', 'changed', 'selected']) }).strict().optional(),
     /** Ca sửa đơn / hợp đồng TIP-032c: loại ca (cedit-judge.ts) — bộ theo khoá lượt từ commerce-edit-integrity/seed.mjs. */
     cedit: z.object({ kind: z.enum(['assign', 'owner', 'marketplace', 'concurrent', 'deposit', 'shipping', 'transfer', 'export']) }).strict().optional(),
     /** Ca kỹ năng tiện ích AI TIP-019c AC8: loại ca (utility-judge.ts) + id seed khi cần (hội thoại / tin / khách). */
