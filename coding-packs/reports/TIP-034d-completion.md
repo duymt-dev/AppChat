@@ -1,8 +1,10 @@
 ### COMPLETION REPORT — TIP-034d
 
-**STATUS:** DONE — hai PR theo pha, nhánh `tip/034d-ticket-stock-trends` (từ `8116d4be`, xếp chồng trên #223):
-- P1 backend: PR #224, commit `d252d594`.
-- P2 FE / E2E / ai-eval: PR kế tiếp; SHA ghi ở bảng tiến độ `goals/GOAL-RELEASE.md` dòng 56.
+**STATUS:** DONE — PR #224, nhánh `tip/034d-ticket-stock-trends` (từ `8116d4be`, xếp chồng trên #223), hai commit theo pha:
+- P1 backend: commit `d252d594`.
+- P2 FE / E2E / ai-eval: commit `cc9c77ad`.
+- P2 bị push lên cùng nhánh của #224. Không force-push để tách, nên TIP là một PR (DV-123 mục 4).
+- SHA cuối ghi ở bảng tiến độ `goals/GOAL-RELEASE.md` dòng 56.
 
 Kết quả AC:
 - AC1–5 và AC8 đạt bằng unit + integration Postgres 16 thật.
