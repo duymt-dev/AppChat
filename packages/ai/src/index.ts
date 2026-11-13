@@ -21,5 +21,6 @@ export { MOCK_EMBED_MODEL, mockEmbedSource, mockEmbeddingModel, mockVector } fro
 export { PROMPTS, prompt, type PromptDoc, type PromptLocale } from './prompts';
 export { PiiMasker, unmaskPii, type PiiMap } from './reply/pii';
 export { MAX_ANSWER_CITATIONS, PLAIN_CONFIDENCE, agentReplySchema, answerCitationSchema, parseAgentReply, type AgentReply, type AnswerCitation } from './reply/output';
+export { parseSalesPlan, salesPlanSchema, SALES_PLAN_CLAIMS, MAX_PLAN_ITEMS, MAX_PLAN_ALTERNATIVES, type SalesPlan, type SalesPlanClaim } from './reply/sales-plan';
 export { decideHandoff, type HandoffInput, type HandoffReason } from './reply/handoff';
 export { TreeSkeletonStream, skeletonOf, type SkeletonNode, type UiSkeleton } from './genui/structured-stream';
