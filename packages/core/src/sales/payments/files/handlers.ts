@@ -29,11 +29,14 @@ export class InvoiceFileAttachHandler extends InvoiceFiles implements Handler<Ac
   async prepare(ctx: ActionContext, i: ActionInput<typeof invoiceFileAttach>) {
     return this.kit.prepare(ctx, i.invoice_id, i);
   }
-  async execute(ctx: ActionContext, i: ActionInput<typeof invoiceFileAttach>, tx: TenantTx) {
-    return this.kit.attach(ctx, tx, i.invoice_id, i);
+  async execute(ctx: ActionContext, i: ActionInput<typeof invoiceFileAttach>, tx: TenantTx, _ptx?: unknown, prepared?: unknown) {
+    return this.kit.attach(ctx, tx, i.invoice_id, i, prepared);
   }
   async preview(ctx: ActionContext, i: ActionInput<typeof invoiceFileAttach>, tx: TenantTx) {
     return this.kit.previewAttach(ctx, tx, i.invoice_id, i);
+  }
+  async bindPreview(ctx: ActionContext, i: ActionInput<typeof invoiceFileAttach>, tx: TenantTx) {
+    return this.kit.bindAttach(ctx, tx, i);
   }
 }
 

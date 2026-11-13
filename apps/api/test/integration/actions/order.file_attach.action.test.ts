@@ -64,11 +64,12 @@ describe('order.file_attach', () => {
     expect((await m.actWithKey('order-file-attach-idem', inp)).body.data.result).toEqual(a.body.data.result);
   });
 
-  it('trạng thái: revision lệch → 409 STALE_VERSION; nguồn artifact chưa cài → 422 rõ ràng', async () => {
+  it('trạng thái: revision lệch → 409 STALE_VERSION; artifact ref không phải artifact của người gọi (id tệp tải lên) → 404, không sao chép', async () => {
     const fid = await uploadFor(m, 'order', p.order.order_id, undefined, 'stale.pdf');
     expect((await m.act({ order_id: p.order.order_id, source: handle(fid), if_revision: 0 })).body.error).toMatchObject({ code: 'STALE_VERSION' });
     const art = await m.act({ order_id: p.order.order_id, source: { kind: 'assistant_artifact_ref', artifact_id: fid, revision: 1 }, if_revision: 0 });
-    expect(art.body.error.fields).toEqual({ source: 'artifact_copy_unavailable' });
+    expect(art.status).toBe(404);
+    expect(art.body.error.fields).toEqual({ artifact_id: 'not_found' });
   });
 
   it('ô không áp dụng có lý do', () => {

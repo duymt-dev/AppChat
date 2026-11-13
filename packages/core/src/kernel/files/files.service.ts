@@ -12,6 +12,8 @@ export interface UploadInput {
   body: Uint8Array;
   purpose: string;
   uploadedBy: string | null;
+  /** Id tất định do người gọi cấp (TIP-032d: bản sao theo thao tác — chạy lại cùng thao tác trùng khoá chính, không sao chép lần hai). */
+  id?: string;
 }
 
 export interface FileRow {
@@ -30,7 +32,7 @@ export class FilesService {
 
   async upload(db: Pick<TenantDb, 'file'>, ws: string, f: UploadInput): Promise<FileRow> {
     const g = guardUpload(f);
-    const id = uuidv7();
+    const id = f.id ?? uuidv7();
     const at = this.now();
     const key = storageKeyOf(ws, id, at);
     const sha256 = sha256Of(f.body);
