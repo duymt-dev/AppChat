@@ -7,6 +7,7 @@ import type { AuthzContext } from '@appchat/shared';
 import type { TenantDb } from '@appchat/db';
 import type { ActionContext } from '../../kernel/actions/action-context';
 import { implementedBy, type ToolExecutor } from '../../kernel/actions/executor';
+import { isCustomerIntentAction, sealCustomerIntent, type CustomerIntentAction, type CustomerIntentHandle } from '../../kernel/actions/customer-intent';
 import { resolveCodes } from '../assistant/code-refs';
 import { MAX_STEPS, type AiRunner, type RunResult } from '../runs/runner';
 import { RunStore, type NewRun } from '../runs/run.store';
@@ -80,6 +81,12 @@ export interface AgentRunCtx {
    * (executor claim một lần); khác → từ chối. Server dựng từ dòng dõi run, không bao giờ từ input model.
    */
   bindStep?: (actionId: string) => Promise<StepGate>;
+  /**
+   * TIP-022c: cổng ý định khách cho quyết định báo giá của lượt kênh — server dựng (reply-tools), không bao giờ từ input model. Trả handle
+   * (biên nhận `ai_sales_intent` đã ghi) → niêm phong vào ctx của ĐÚNG lời gọi; lỗi → tool error, không gọi Executor. Vắng → lời gọi
+   * mang dòng dõi khách không có handle và bị domain chặn (customer-intent-guard).
+   */
+  salesGate?: (actionId: CustomerIntentAction, input: unknown, authz: AuthzContext) => Promise<CustomerIntentHandle | { deny: string; message: string }>;
 }
 
 /** Quyết định cổng bước cho một lời gọi ghi (cùng hình `StepDecision` của kế hoạch — khai riêng để agents không import assistant). */
@@ -96,8 +103,16 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
   const knower = new Map<string, AuthzContext>();
   // Binding bước kế hoạch của lời gọi đang chạy (cùng khoá) — ctxOf gắn vào ActionContext để executor claim.
   const steps = new Map<string, NonNullable<ActionContext['planBinding']>>();
+  // Handle ý định khách của lời gọi đang chạy (cùng khoá) — ctxOf niêm phong vào ctx object mới của đúng lời gọi.
+  const intents = new Map<string, CustomerIntentHandle>();
   const narrowed = (a: AuthzContext) => (r.narrow ? r.narrow(a) : a);
-  const ctxOf = (def: ActionDef, stepIdx: number, toolCallId: string): ActionContext => ({
+  const ctxOf = (def: ActionDef, stepIdx: number, toolCallId: string): ActionContext => {
+    const ctx = baseCtx(def, stepIdx, toolCallId);
+    const h = intents.get(`${stepIdx}:${toolCallId}`);
+    if (h && h.actionId === def.id) sealCustomerIntent(ctx, h);
+    return ctx;
+  };
+  const baseCtx = (def: ActionDef, stepIdx: number, toolCallId: string): ActionContext => ({
     workspaceId: r.workspaceId,
     source: r.source,
     actor: { type: 'agent', id: r.agent.id },
@@ -135,6 +150,16 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
         const key = `${meta.stepIdx}:${meta.toolCallId}`;
         if (gate?.kind === 'bound') steps.set(key, gate.binding);
         live.set(key, cur.authz);
+        // TIP-022c: quyết định báo giá từ ý định khách — phân loại + biên nhận TRƯỚC Executor; không căn cứ → lỗi tool, không hiệu ứng.
+        if (r.salesGate && isCustomerIntentAction(d.id)) {
+          const g = await r.salesGate(d.id, input, narrowed(cur.authz));
+          if ('deny' in g) {
+            live.delete(key);
+            steps.delete(key);
+            return { kind: 'error', code: 'CUSTOMER_INTENT_REQUIRED', message: g.message };
+          }
+          intents.set(key, g);
+        }
         const who = d.id === 'kb.search' && commanderId && readCommander ? await readCommander(r.workspaceId, commanderId) : null;
         if (who) knower.set(key, who);
         try {
@@ -143,6 +168,7 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
           live.delete(key);
           knower.delete(key);
           steps.delete(key);
+          intents.delete(key);
         }
       },
     };
