@@ -1,6 +1,6 @@
 'use client';
 // Hộp xác nhận 202 preview của useAction: tóm tắt + cảnh báo + bảng kiểm pháp lý của chứng từ (TIP-028b — gửi / duyệt báo giá, hợp đồng,
-// đề nghị thanh toán). Bảng kiểm chỉ cảnh báo, nút xác nhận không khoá (DC-444).
+// đề nghị thanh toán). Bảng kiểm chỉ cảnh báo, nút xác nhận không khoá (DC-444). Mã cảnh báo có bản dịch `actions.warn.*` thì hiện chữ.
 import { Modal } from 'antd';
 import { useTranslations } from 'next-intl';
 import { z } from '@appchat/ui';
@@ -25,7 +25,11 @@ export function ConfirmActionHost() {
       destroyOnHidden
     >
       {pending?.preview.summary}
-      {pending?.preview.warnings?.map((w) => <div key={w}>{w}</div>)}
+      {pending?.preview.warnings?.map((w) => (
+        <div key={w} data-warning={w}>
+          {t.has(`actions.warn.${w}` as never) ? t(`actions.warn.${w}` as never) : w}
+        </div>
+      ))}
       {checklist?.length ? <ChecklistPanel items={checklist} /> : null}
     </Modal>
   );

@@ -37,6 +37,7 @@ import { settingsOpsRoutes } from './domains/settings-ops';
 import { settingsBillingRoutes } from './domains/settings-billing';
 import { platformAdminRoutes } from './domains/platform-admin';
 import { docTemplatesRoutes } from './domains/doc-templates';
+import { ticketCategoryRoutes } from './domains/ticket-categories';
 import { withCustomFilters } from './domains/custom-values';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
@@ -106,4 +107,5 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...settingsBillingRoutes,
   ...platformAdminRoutes,
   ...docTemplatesRoutes,
+  ...ticketCategoryRoutes,
 });

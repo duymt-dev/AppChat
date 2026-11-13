@@ -41,7 +41,8 @@
     "profile": "My profile",
     "sales_policy": "Sales policy",
     "routing": "Lead routing",
-    "booking": "Bookings"
+    "booking": "Bookings",
+    "ticket_categories": "Ticket categories"
   },
   "head": {
     "email_mkt": "Email Marketing",
@@ -70,7 +71,8 @@
     "profile": "My profile",
     "sales_policy": "Sales policy",
     "routing": "Routing & assignment",
-    "booking": "Bookings"
+    "booking": "Bookings",
+    "ticket_categories": "Ticket categories"
   },
   "headSub": {
     "roles": "Permission sets assigned to members",
@@ -2092,6 +2094,33 @@
       "invalid_day": "Invalid day",
       "duplicate_day": "Duplicate day",
       "seven_days": "All 7 days are required"
+    }
+  },
+  "ticketCategories": {
+    "hint": "Category suggestions for creating and filtering tickets. The first label is the default for new tickets. Tickets still accept any category; edits here never change existing tickets — a removed label may still appear under \"Used in tickets\".",
+    "label": "Category {n}",
+    "default": "Default",
+    "up": "Move up",
+    "down": "Move down",
+    "remove": "Remove category",
+    "add": "+ Add category",
+    "import": "Import from file",
+    "export": "Export file",
+    "discard": "Discard changes",
+    "save": "Save changes",
+    "conflict": "Someone else just saved the categories. Your draft is kept — saving replaces the latest version, or reload to drop your draft.",
+    "reload": "Reload latest",
+    "leave": "Discard unsaved category changes?",
+    "diffAdded": "Added: {list}",
+    "diffRemoved": "Removed from suggestions: {list}",
+    "diffDefault": "New default: {label}",
+    "diffOrder": "Order changed",
+    "error": {
+      "empty": "Enter a category name",
+      "too_long": "At most 60 characters",
+      "control": "No control characters or line breaks",
+      "duplicate": "Duplicates a category above (case-insensitive)",
+      "too_many": "At most 100 categories"
     }
   },
   "salesPolicy": {

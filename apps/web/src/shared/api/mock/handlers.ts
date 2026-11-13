@@ -1,4 +1,5 @@
 // Handler giả cho action (chạy trên store in-memory). Policy chung nằm ở mock-transport; ở đây chỉ có nghiệp vụ.
+import type { ActionPreview } from '@appchat/actions';
 import type { MockDb } from './store';
 import { dashboardHandlers } from './domains/dashboard';
 import { workspaceLifecycleHandlers } from './domains/workspace-lifecycle';
@@ -52,11 +53,12 @@ import { dataTransferHandlers } from './domains/data-transfer';
 import { channelFriendsHandlers } from './domains/channel-friends';
 import { recordFileHandlers } from './domains/record-files';
 import { productMediaHandlers } from './domains/product-media';
+import { ticketCategoryHandlers } from './domains/ticket-categories';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
   undo?(db: MockDb, input: never): void;
-  preview?(db: MockDb, input: never): { summary: string; count?: number; checklist?: { code: string; ok: boolean; hint?: string }[] };
+  preview?(db: MockDb, input: never): Omit<ActionPreview, 'risk'>;
 }
 
 export const mockHandlers: Record<string, MockHandler> = withDocChecklist(withCustomValues({
@@ -159,6 +161,8 @@ export const mockHandlers: Record<string, MockHandler> = withDocChecklist(withCu
   ...channelFriendsHandlers,
   ...recordFileHandlers,
   ...productMediaHandlers,
+  // TIP-034b: từ điển gợi ý danh mục ticket.
+  ...ticketCategoryHandlers,
   // Nhập dữ liệu dùng chung (TIP-038b): khách ghi qua đúng handler contact.import của mock.
   ...dataTransferHandlers((db: MockDb, rows) => customersHandlers['contact.import']!.execute(db, { rows } as never) as { created: number }),
 }));

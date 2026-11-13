@@ -64,7 +64,11 @@ export interface Ticket {
 export interface TicketsMeta {
   now: string;
   teams: { id: string; name: string }[];
+  /** Bộ cấu hình trước rồi trang đầu nhãn đã dùng (TIP-034b — giữ cho client cũ). */
   categories: string[];
+  category_config?: { version: number; labels: string[]; default: string };
+  /** Còn nhãn đã dùng ngoài trang đầu (đọc tiếp qua /support/category-suggestions). */
+  used_has_more?: boolean;
   agent: { id: string; name: string };
   members: { id: string; name: string; role: string }[];
   trend: Record<'total' | 'open' | 'waiting' | 'breach' | 'closed', string>;

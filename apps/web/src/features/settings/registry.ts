@@ -7,7 +7,8 @@ import type { PermissionKey } from '@appchat/shared';
 export type SectionKey =
   | 'general' | 'locale' | 'members' | 'roles' | 'teams' | 'org_sla' | 'channels' | 'web_widget' | 'integrations'
   | 'contacts_fields' | 'tags' | 'replies' | 'profile_360' | 'doc_templates' | 'ai_models' | 'rag_data' | 'ai_gov' | 'ai_audit'
-  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy' | 'routing' | 'email_mkt' | 'booking';
+  | 'audit' | 'notifications' | 'billing' | 'wallet' | 'profile' | 'sales_policy' | 'routing' | 'email_mkt' | 'booking'
+  | 'ticket_categories';
 
 export interface NavItem {
   key: SectionKey;
@@ -71,6 +72,8 @@ export const NAV: NavGroup[] = [
       { key: 'sales_policy', icon: 'ic-shield', badge: 'NEW', perm: 'settings.manage' },
       // Lịch hẹn (TIP-033b, DEF-033-1): giờ mở cửa + nhân sự / ca riêng — màn mới, cuối nav như doc_templates (prototype-parity §7).
       { key: 'booking', icon: 'ic-cal', badge: 'NEW', perm: 'booking.config' },
+      // Danh mục ticket (TIP-034b §3.1): bộ gợi ý danh mục — màn mới, cuối nav (prototype-parity §7); settings.manage, không phải sla.manage.
+      { key: 'ticket_categories', icon: 'ic-ticket', badge: 'NEW', perm: 'settings.manage' },
     ],
   },
 ];
@@ -85,7 +88,13 @@ const HIDDEN: Record<string, NavItem> = {
 };
 
 /** Đường dẫn cũ trỏ vào Cài đặt (onboarding, dashboard) → mục registry. */
-const ALIAS: Record<string, SectionKey> = { sla: 'org_sla', 'canned-replies': 'replies', fields: 'contacts_fields', rag: 'rag_data' };
+const ALIAS: Record<string, SectionKey> = {
+  sla: 'org_sla',
+  'canned-replies': 'replies',
+  fields: 'contacts_fields',
+  rag: 'rag_data',
+  'ticket-categories': 'ticket_categories',
+};
 
 export const ALL_ITEMS: NavItem[] = [...NAV.flatMap((g) => g.items), ...Object.values(HIDDEN)];
 

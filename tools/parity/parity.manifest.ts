@@ -1458,6 +1458,8 @@ export const MANIFEST: ParityEntry[] = [
     proto: settingsProto,
     clip: ST_MAIN,
   },
+  // Cài đặt › Danh mục ticket (TIP-034b §3.1, PD-031): màn mới không có trong prototype → không có dòng so pixel / không tuyên bố diff.
+  // Mục nav thêm cuối nhóm cuối (`settings:shell` vẫn so — không đẩy lệch hàng prototype); hành vi + 390 kiểm ở e2e/support-categories.mock.
   {
     id: 'modal:upgrade',
     route: '/settings/billing?upgrade=1',

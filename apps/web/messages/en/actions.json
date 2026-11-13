@@ -1779,5 +1779,8 @@
       "title": "Export ticket category suggestions",
       "desc": "Export the suggestion list (position + label) as a CSV / Excel file."
     }
+  },
+  "warn": {
+    "existing_tickets_unchanged": "Existing tickets keep their category — only the suggestions change."
   }
 }
