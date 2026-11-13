@@ -22,6 +22,7 @@ import {
   conversationGuard,
   filterRecipients,
   rooms,
+  touchNavBadges,
   type AppLogger,
   type RealtimeEnvelope,
   type SocketIdentity,
@@ -146,6 +147,8 @@ export class RealtimeGateway implements OnApplicationBootstrap, BeforeApplicatio
   /** Socket CỦA NODE NÀY trong các phòng của envelope → lệnh control → lọc quyền → emit. */
   private async deliver(env: RealtimeEnvelope): Promise<void> {
     const nsp = this.nsp!;
+    // TIP-016b: mọi node nhận mọi envelope → bỏ cache số đếm rail của workspace TRƯỚC khi client nhận event và đọc lại.
+    touchNavBadges(env.ws, env.event);
     const c = env.control;
     if (c) {
       for (const id of nsp.adapter.rooms.get(rooms.user(c.userId)) ?? []) {

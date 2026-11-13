@@ -17,5 +17,7 @@ import '../../crm/events/ownership.rules';
 import '../../crm/events/lifecycle.rules';
 // TIP-033b: WS cấu hình lịch hẹn (giờ mở cửa / nhân sự) — làm mới Cài đặt + lịch.
 import '../../booking/events/config.rules';
+// TIP-016b: WS lịch hẹn đổi (tạo / xác nhận / dời / check-in / xong / vắng / huỷ / hết hạn) — làm mới lịch + badge rail.
+import '../../booking/events/appointment.rules';
 // TIP-028b: WS render PDF chứng từ (Đang tạo PDF → xong / lỗi) — làm mới danh sách + chi tiết chứng từ.
 import '../../documents/events/render.rules';

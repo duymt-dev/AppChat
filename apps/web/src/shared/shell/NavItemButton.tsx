@@ -32,7 +32,11 @@ export function NavItemButton({ item, active, expanded, badge, onClick }: NavIte
       >
         {t(item.key)}
       </span>
-      {badge ? <span className={styles.badge}>{badge}</span> : null}
+      {badge ? (
+        <span className={styles.badge} data-testid="nav-badge">
+          {badge}
+        </span>
+      ) : null}
     </button>
   );
 }
