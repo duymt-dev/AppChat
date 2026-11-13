@@ -34,7 +34,8 @@
     "order": "Đơn hàng",
     "contract": "Hợp đồng",
     "invoice": "Đề nghị thanh toán",
-    "ticket_category_suggestions": "Danh mục ticket"
+    "ticket_category_suggestions": "Danh mục ticket",
+    "ticket_bulk_results": "Kết quả sửa ticket hàng loạt (chỉ xuất)"
   },
   "dataset": {
     "base": "Khách hàng",
@@ -153,7 +154,12 @@
     "expected_close_date": "Ngày chốt dự kiến",
     "id": "ID bản ghi (chỉ đọc)",
     "position": "Vị trí",
-    "label": "Danh mục"
+    "label": "Danh mục",
+    "ticket_id": "Ticket ID",
+    "outcome": "Kết quả",
+    "error_code": "Mã lỗi",
+    "changed": "Đã đổi",
+    "undo_state": "Hoàn tác"
   },
   "atomicInvalid": "Tệp có dòng lỗi — sửa tệp rồi tải lại (tập này nhập nguyên bộ, không bỏ riêng dòng lỗi)."
 }

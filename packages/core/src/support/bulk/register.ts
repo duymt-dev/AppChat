@@ -7,9 +7,10 @@ import { registerUndoAction } from '../../kernel/actions/undo-action-registry';
 import { registerDataJobKind } from '../../kernel/jobs/bulk-dispatch';
 import { dataJobUrl } from '../../kernel/jobs/data-jobs/handlers';
 import { registerJobResult } from '../../kernel/jobs/bulk-status';
+import { registerRefSource } from '../../ai/assistant/genui/refs';
 import { itemDispatch, verifyBulkItem } from './item';
 import { markForwardUndo } from './undo';
-import { TICKET_BULK_KIND, TICKET_BULK_UNDO_KIND, bulkResultOf, undoResultOf } from './results';
+import { TICKET_BULK_KIND, TICKET_BULK_UNDO_KIND, bulkRefSource, bulkResultOf, undoResultOf } from './results';
 import type { TicketBulkDeps } from './providers';
 
 export function registerTicketBulk(d: TicketBulkDeps): void {
@@ -22,5 +23,8 @@ export function registerTicketBulk(d: TicketBulkDeps): void {
   // Kết quả từng id qua GET /v1/data-jobs/:id/result (người tạo + quyền hiện tại — DataJobStatusService).
   registerJobResult(TICKET_BULK_KIND, bulkResultOf);
   registerJobResult(TICKET_BULK_UNDO_KIND, undoResultOf);
+  // Thẻ GenUI của Trợ lý trỏ kết quả qua `$ref` → đọc lại biên nhận theo quyền hiện hành (không bản lưu, không gọi model).
+  registerRefSource('ticket.bulk_update', bulkRefSource);
+  registerRefSource('ticket.bulk_undo', bulkRefSource);
   registerDataJobKind(TICKET_BULK_UNDO_KIND, { label: 'Hoàn tác cập nhật hàng loạt ticket', link: dataJobUrl, silent, dispatch: itemDispatch(d, 'ticket.bulk_item_undo', markForwardUndo) });
 }

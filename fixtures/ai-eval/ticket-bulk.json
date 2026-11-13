@@ -1,0 +1,71 @@
+{
+  "suite": "ticket-bulk",
+  "cases": [
+    {
+      "id": "tb-combined",
+      "category": "ticket_bulk",
+      "seed": "live-seed",
+      "actor": { "role": "owner" },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Giao các ticket $CODES cho $MEMBER phụ trách và tăng ưu tiên lên cao giúp tôi.",
+      "expect": { "confirm": true, "ticket_bulk": true },
+      "ticket_bulk": { "kind": "combined" }
+    },
+    {
+      "id": "tb-mixed",
+      "category": "ticket_bulk",
+      "seed": "live-seed",
+      "actor": { "role": "owner" },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Đổi ưu tiên các ticket $CODES sang thấp. Ticket nào không đổi được thì báo rõ từng mã và lý do.",
+      "expect": { "confirm": true, "ticket_bulk": true },
+      "ticket_bulk": { "kind": "mixed" }
+    },
+    {
+      "id": "tb-background",
+      "category": "ticket_bulk",
+      "seed": "live-seed",
+      "actor": { "role": "owner" },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Tăng ưu tiên lên cao cho toàn bộ các ticket có tiêu đề chứa \"$TAG\" (có hơn 50 ticket).",
+      "expect": { "confirm": true, "ticket_bulk": true },
+      "ticket_bulk": { "kind": "background" }
+    },
+    {
+      "id": "tb-partial-undo",
+      "category": "ticket_bulk",
+      "seed": "live-seed",
+      "actor": { "role": "owner" },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Hoàn tác lần cập nhật hàng loạt ticket vừa rồi của tôi (đổi ưu tiên các ticket $CODES).",
+      "expect": { "confirm": true, "ticket_bulk": true },
+      "ticket_bulk": { "kind": "undo" }
+    },
+    {
+      "id": "tb-agent-denied",
+      "category": "ticket_bulk",
+      "seed": "live-seed",
+      "actor": { "role": "owner" },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Giao các ticket $CODES cho $MEMBER và tăng ưu tiên lên cao.",
+      "expect": { "confirm": false, "ticket_bulk": true },
+      "ticket_bulk": { "kind": "agent" }
+    },
+    {
+      "id": "tb-export-revoked",
+      "category": "ticket_bulk",
+      "seed": "live-seed",
+      "actor": { "role": "owner" },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Xuất kết quả lần cập nhật hàng loạt ticket vừa rồi của tôi ra file Excel.",
+      "expect": { "confirm": true, "ticket_bulk": true },
+      "ticket_bulk": { "kind": "export" }
+    }
+  ]
+}

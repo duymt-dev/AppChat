@@ -27,6 +27,7 @@ import { appointmentOrderCase } from './appointment-order-judge';
 import { recordFilesCase } from './record-files-judge';
 import { productMediaCase } from './product-media-judge';
 import { supportCategoriesCase } from './support-categories-judge';
+import { ticketBulkCase } from './ticket-bulk-judge';
 import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
 import { utilityCase } from './utility-judge';
@@ -126,6 +127,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.record_files) return recordFilesCase(api, c, attempt, o);
   if (c.product_media) return productMediaCase(api, c, attempt, o);
   if (c.support_categories) return supportCategoriesCase(api, c, attempt, o);
+  if (c.ticket_bulk) return ticketBulkCase(api, c, attempt, o);
   if (c.cedit) return ceditCase(api, c, attempt, o);
   if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.utility) return utilityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));

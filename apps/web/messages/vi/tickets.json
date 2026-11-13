@@ -116,7 +116,8 @@
         "UNDO_EXPIRED": "Đã hết hạn hoàn tác",
         "NOT_APPLIED": "Chưa áp dụng (thao tác đã dừng)",
         "INTERNAL": "Lỗi hệ thống"
-      }
+      },
+      "download": "Tải kết quả (Excel)"
     }
   },
   "detail": {

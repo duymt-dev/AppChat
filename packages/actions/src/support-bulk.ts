@@ -3,7 +3,7 @@
 // HTTP / Trợ lý / Builder không liệt kê, không gọi được; chỉ ctx niêm phong capability của thao tác cha đã nhận). Con chạy một transaction
 // mỗi ticket qua Executor dưới quyền HIỆN TẠI của người tạo; biên nhận = data_job_item của 045b. ≤ 50 chạy ngay sau commit, 51–200 → 202.
 import { z } from 'zod';
-import { TICKET_BULK_MAX, ticketBulkResultSchema, ticketBulkUndoResultSchema } from '@appchat/shared';
+import { TICKET_BULK_MAX, listExportResultSchema, ticketBulkResultSchema, ticketBulkUndoResultSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const ticketId = z.string().min(1);
@@ -79,4 +79,24 @@ export const ticketBulkItemUndo = defineAction({
   agentGrantable: false,
   exposure: 'internal',
   invalidates: ['tickets'],
+});
+
+/**
+ * Tệp kết quả của MỘT thao tác sửa hàng loạt (TIP-034c §4.4, tập 038b `ticket_bulk_results` chỉ xuất): CSV / XLSX từng id — kết quả, mã lỗi
+ * an toàn, đã đổi, trạng thái hoàn tác; không tiêu đề / nội dung / ảnh trước. Chỉ người tạo thao tác + quyền ticket.manage HIỆN TẠI; ticket
+ * nay ngoài phạm vi (hoặc khách đang bị quên) chỉ còn id người gọi đã gửi + NOT_FOUND. Đổi quyền / phạm vi → tệp cũ không tải nữa.
+ */
+export const ticketBulkExport = defineAction({
+  id: 'ticket.bulk_export',
+  module: 'support',
+  title: 'actions.ticket.bulk_export.title',
+  description:
+    'Download the per-ticket results of one ticket bulk change you made (ticket id, ok / failed / pending, safe error code, changed, undo state) as an XLSX or CSV file. ' +
+    'Use the action_log_id returned by ticket.bulk_update. Never includes ticket titles or content. Example: {"parent_action_log_id":"0190f3a2-7b1c-7d10-9a5e-4c2b1f0e9a30","format":"csv"}',
+  input: z.object({ parent_action_log_id: z.string().min(1), format: z.enum(['xlsx', 'csv']).optional() }),
+  output: listExportResultSchema,
+  permission: 'ticket.manage',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['data-jobs'],
 });

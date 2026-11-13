@@ -3,10 +3,19 @@
 // quả từng id), 51–200 → 202 rồi đọc `/data-jobs/:id/result`. Hoàn tác thô của log cha → 409 UNDO_REQUIRES_ACTION (mock-transport);
 // `ticket.bulk_undo` chỉ khi thao tác đi đã kết thúc (OPERATION_BUSY), niêm phong (thử lại đi → 409), hai yêu cầu hội tụ một lượt;
 // ticket bị sửa sau đó (version khác) → CONFLICT, giữ nguyên. Log cha chỉ thành "đã hoàn tác" khi MỌI ticket đã đổi được hoàn tác.
+// `ticket.bulk_export` (tập 038b chỉ xuất): CSV id / kết quả / mã lỗi / đã đổi / hoàn tác — ticket nay không thấy chỉ còn id + NOT_FOUND.
 import { ApiRequestError, BULK_SYNC_MAX, normalizeTicketIds, type TicketBulkOutcome } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
-import { bindJobLog, jobOfLog, jobState, registerMockJobResult, sealJob, startJob } from './data-jobs';
+import {
+  bindJobLog,
+  exportJob,
+  jobOfLog,
+  jobState,
+  registerMockJobResult,
+  sealJob,
+  startJob,
+} from './data-jobs';
 import { ticketVisible } from './ticket-scope';
 import { touch, type Ticket } from './tickets';
 
@@ -24,6 +33,8 @@ type Run = {
   receipts: Map<string, Receipt>;
   parentLog?: string;
   undoJob?: string;
+  /** Trạng thái hoàn tác từng ticket đã đổi (cho tệp kết quả). */
+  undo?: Map<string, string>;
 };
 
 const runs = new Map<string, Run>();
@@ -208,9 +219,12 @@ export const ticketBulkHandlers: Record<string, MockHandler> = {
           if (
             (t.version ?? 1) !== r.version ||
             JSON.stringify(pick(t, Object.keys(r.after!) as (keyof Fields)[])) !== JSON.stringify(r.after)
-          )
+          ) {
+            run.undo = (run.undo ?? new Map()).set(id, 'conflict');
             return { status: 'failed' as const, error: 'CONFLICT' };
+          }
           Object.assign(t, r.before);
+          run.undo = (run.undo ?? new Map()).set(id, 'undone');
           touch(t, { type: 'assignee_user_id' in r.before! ? 'assigned' : 'priority' });
           return { status: 'done' as const, error: null };
         },
@@ -233,4 +247,53 @@ export const bindBulkLog = (result: unknown, logId: string) => {
   const r = result as { operation?: { job_id?: string }; __accepted?: { job_id: string } } | null;
   const jobId = r?.__accepted?.job_id ?? r?.operation?.job_id;
   if (jobId && runs.has(jobId) && jobState(jobId)?.logId === undefined) bindJobLog(jobId, logId);
+};
+
+const cell = (v: string) => (/^[=+\-@]/.test(v) ? `'${v}` : v);
+const EXPORT_HEAD = ['Ticket ID', 'Kết quả', 'Mã lỗi', 'Đã đổi', 'Hoàn tác'];
+
+/** Dòng tệp kết quả theo quyền HIỆN TẠI (như projectBulkRows của server). */
+function exportRows(db: MockDb, logId: string): string[][] {
+  const jobId = jobOfLog(logId);
+  const run = jobId ? runs.get(jobId) : undefined;
+  if (!jobId || !run)
+    throw new ApiRequestError(404, {
+      code: 'NOT_FOUND',
+      message: 'parent_action_log_id',
+      fields: { parent_action_log_id: 'not_found' },
+    });
+  return project(jobId).outcomes.map((o) => {
+    if (!live(db, o.id)) return [o.id, 'failed', 'NOT_FOUND', '', ''];
+    if (o.pending) return [o.id, 'pending', '', '', ''];
+    if (!o.ok) return [o.id, 'failed', o.error?.code ?? 'INTERNAL', '', ''];
+    return [o.id, 'ok', '', o.changed ? 'yes' : 'no', o.changed ? (run.undo?.get(o.id) ?? 'eligible') : ''];
+  });
+}
+
+ticketBulkHandlers['ticket.bulk_export'] = {
+  preview: (db, i: { parent_action_log_id: string }) => {
+    const n = exportRows(db, i.parent_action_log_id).length;
+    return { summary: `${n}`, count: n };
+  },
+  execute: (db, i: { parent_action_log_id: string; format?: 'csv' | 'xlsx' }) => {
+    const rows = exportRows(db, i.parent_action_log_id);
+    const body =
+      String.fromCharCode(0xfeff) +
+      [EXPORT_HEAD, ...rows].map((r) => r.map(cell).join(',')).join(String.fromCharCode(13, 10));
+    const name = `ket-qua-ticket-hang-loat-${new Date().toISOString().slice(0, 10)}.${i.format === 'csv' ? 'csv' : 'xlsx'}`;
+    const job = exportJob(
+      'ticket.bulk_export',
+      rows.map((r) => r[0]!),
+      name,
+      body,
+      true,
+    );
+    return {
+      job_id: job.id,
+      rows: rows.length,
+      file_name: name,
+      download_url: job.download_url,
+      expires_at: null,
+    };
+  },
 };

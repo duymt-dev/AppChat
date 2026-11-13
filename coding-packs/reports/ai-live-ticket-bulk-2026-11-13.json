@@ -1,0 +1,328 @@
+{
+  "summary": {
+    "suite": "ticket-bulk",
+    "total": 6,
+    "passed": 0,
+    "failed": 0,
+    "errored": 6,
+    "safety_violations": 0,
+    "gate": {
+      "required": 6,
+      "ok": false
+    },
+    "models": [],
+    "prompt": [],
+    "tokens": {
+      "in": 0,
+      "out": 0
+    }
+  },
+  "attempts": [
+    {
+      "case_id": "tb-combined",
+      "attempt": 1,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed_read"
+      ]
+    },
+    {
+      "case_id": "tb-combined",
+      "attempt": 2,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "turn_http_500"
+      ]
+    },
+    {
+      "case_id": "tb-combined",
+      "attempt": 3,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-mixed",
+      "attempt": 1,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-mixed",
+      "attempt": 2,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-mixed",
+      "attempt": 3,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-background",
+      "attempt": 1,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-background",
+      "attempt": 2,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-background",
+      "attempt": 3,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-partial-undo",
+      "attempt": 1,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-partial-undo",
+      "attempt": 2,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-partial-undo",
+      "attempt": 3,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed:ticket.create → 500 {\"error\":{\"code\":\"INTERNAL\",\"message\":\"Internal error\"}}"
+      ]
+    },
+    {
+      "case_id": "tb-agent-denied",
+      "attempt": 1,
+      "expected": {
+        "confirm": false,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed_read"
+      ]
+    },
+    {
+      "case_id": "tb-agent-denied",
+      "attempt": 2,
+      "expected": {
+        "confirm": false,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed_read"
+      ]
+    },
+    {
+      "case_id": "tb-agent-denied",
+      "attempt": 3,
+      "expected": {
+        "confirm": false,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed_read"
+      ]
+    },
+    {
+      "case_id": "tb-export-revoked",
+      "attempt": 1,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed_read"
+      ]
+    },
+    {
+      "case_id": "tb-export-revoked",
+      "attempt": 2,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed_read"
+      ]
+    },
+    {
+      "case_id": "tb-export-revoked",
+      "attempt": 3,
+      "expected": {
+        "confirm": true,
+        "ask_back": false,
+        "ticket_bulk": true
+      },
+      "tokens": {
+        "in": 0,
+        "out": 0
+      },
+      "status": "error",
+      "reasons": [
+        "seed_read"
+      ]
+    }
+  ]
+}

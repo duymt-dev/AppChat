@@ -34,7 +34,8 @@
     "order": "Orders",
     "contract": "Contracts",
     "invoice": "Payment requests",
-    "ticket_category_suggestions": "Ticket categories"
+    "ticket_category_suggestions": "Ticket categories",
+    "ticket_bulk_results": "Ticket bulk results (export only)"
   },
   "dataset": {
     "base": "Customers",
@@ -153,7 +154,12 @@
     "expected_close_date": "Expected close date",
     "id": "Record ID (read-only)",
     "position": "Position",
-    "label": "Category"
+    "label": "Category",
+    "ticket_id": "Ticket ID",
+    "outcome": "Outcome",
+    "error_code": "Error code",
+    "changed": "Changed",
+    "undo_state": "Undo"
   },
   "atomicInvalid": "The file has invalid rows — fix the file and upload again (this dataset is imported as a whole, invalid rows cannot be skipped)."
 }

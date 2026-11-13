@@ -10,7 +10,9 @@ import { useTranslations } from 'next-intl';
 import { transport } from '@/shared/api/client';
 import { useAction } from '@/shared/actions/useAction';
 import { toastUndo } from '@/shared/actions/useUndoAction';
+import { downloadJobFile } from '@/shared/actions/download';
 import { useMe } from '@/shared/shell/useShellData';
+import type { ListExportResult } from '@appchat/shared';
 import type { Paged } from '@/shared/list/paged';
 import { useTicketsUi } from '../tickets-store';
 import {
@@ -68,6 +70,7 @@ export function useTicketBulk() {
   const undoAct = useAction<TicketBulkUndoResult>('ticket.bulk_undo');
   const cancelAct = useAction('data_job.cancel');
   const retryAct = useAction('data_job.retry');
+  const exportAct = useAction<ListExportResult>('ticket.bulk_export');
   const fwd = useQuery(resultOpts<TicketBulkResult>(op?.jobId ?? null));
   const back = useQuery(resultOpts<TicketBulkUndoResult>(op?.undoJobId ?? null));
   const setOp = useCallback(
@@ -157,6 +160,13 @@ export function useTicketBulk() {
     await qc.invalidateQueries({ queryKey: bulkKey(op.jobId) });
   };
 
+  // Tệp kết quả (tập 038b chỉ xuất): server chiếu lại theo quyền hiện tại, tải qua link có hạn của việc dữ liệu.
+  const download = async () => {
+    if (!op?.logId) return;
+    const r = await exportAct.run({ parent_action_log_id: op.logId, format: 'xlsx' }, { silent: true });
+    if (r?.result.download_url) await downloadJobFile(r.result.download_url, r.result.file_name);
+  };
+
   const codeOf = (id: string) => activeRows(qc).find((r) => r.id === id)?.code ?? id;
   return {
     op,
@@ -167,8 +177,9 @@ export function useTicketBulk() {
     undo,
     cancel,
     retry,
+    download,
     dismiss: () => setOp(null),
     codeOf,
-    pending: bulk.isPending || undoAct.isPending,
+    pending: bulk.isPending || undoAct.isPending || exportAct.isPending,
   };
 }

@@ -1,6 +1,7 @@
 // Kết quả sửa ticket hàng loạt (TIP-034c §3.5 / §4.1): trạng thái thao tác (đang chạy nền / xong / dừng), tổng đã đổi / đã đúng sẵn / chưa áp
 // dụng, mã lỗi an toàn TỪNG id (không tiêu đề / người phụ trách của ticket ẩn), nút Hoàn tác (action chuẩn ticket.bulk_undo — xem trước +
-// xác nhận) chỉ khi thao tác đã kết thúc và có ticket đã đổi; hoàn tác một phần báo đúng số xung đột, không giả "đã hoàn tác".
+// xác nhận) chỉ khi thao tác đã kết thúc và có ticket đã đổi; hoàn tác một phần báo đúng số xung đột, không giả "đã hoàn tác". Tải kết
+// quả (Excel) = ticket.bulk_export — server chiếu lại theo quyền hiện tại.
 'use client';
 import { useTranslations } from 'next-intl';
 import { useBulkResultStyles } from '../styles/bulk-results.styles';
@@ -22,6 +23,8 @@ export interface TicketBulkResultsProps {
   onUndo: () => void;
   onCancel: () => void;
   onRetry: () => void;
+  /** Tệp kết quả (ticket.bulk_export — tập 038b chỉ xuất). */
+  onDownload: () => void;
   onClose: () => void;
 }
 
@@ -54,6 +57,7 @@ export function TicketBulkResults({
   onUndo,
   onCancel,
   onRetry,
+  onDownload,
   onClose,
 }: TicketBulkResultsProps) {
   const t = useTranslations('tickets.bulk.result');
@@ -86,6 +90,17 @@ export function TicketBulkResults({
         {done && !undoing && failed.some((o) => o.error?.code === 'INTERNAL') ? (
           <button type="button" className={styles.btn} onClick={onRetry} data-testid="tk-bulk-retry">
             {t('retry')}
+          </button>
+        ) : null}
+        {done && op.logId ? (
+          <button
+            type="button"
+            className={styles.btn}
+            onClick={onDownload}
+            disabled={pending}
+            data-testid="tk-bulk-download"
+          >
+            {t('download')}
           </button>
         ) : null}
         {done && !undoing && changed > 0 && op.logId ? (

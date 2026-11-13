@@ -13,4 +13,6 @@ export const support = {
   reason: { resolved: 'resolved', duplicate: 'duplicate', withdrawn: 'withdrawn by customer', out_of_scope: 'out of scope' },
   teamAi: 'AI self-serve',  // TIP-034b: ticket category suggestion export (headers match the import aliases).
   categories: { sheet: 'Ticket categories', file: 'ticket-categories', position: 'Position', label: 'Category' },
+  // TIP-034c §4.4: ticket bulk result file (export-only 038b dataset).
+  bulkResults: { sheet: 'Bulk results', file: 'ticket-bulk-results', note: 'Per-ticket results of one bulk change — ids only, no ticket content', cols: { ticket_id: 'Ticket ID', outcome: 'Outcome', error_code: 'Error code', changed: 'Changed', undo_state: 'Undo' } },
 };

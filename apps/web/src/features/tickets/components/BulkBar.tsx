@@ -75,6 +75,7 @@ export function BulkBar({ meta }: { meta: TicketsMeta }) {
       onUndo={() => void bulk.undo()}
       onCancel={() => void bulk.cancel()}
       onRetry={() => void bulk.retry()}
+      onDownload={() => void bulk.download()}
       onClose={bulk.dismiss}
     />
   ) : null;

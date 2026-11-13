@@ -759,6 +759,7 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `ticket.bulk_update` | write, bulk (≤ 200 id, người phụ trách HOẶC agent + ưu tiên, `if_versions?`; kết quả từng id; ≤ 50 chạy ngay, 51–200 → 202 data_job; Idempotency-Key bắt buộc — TIP-034c) | | 24h (qua `ticket.bulk_undo`; `/action-logs/:id/undo` → 409 `UNDO_REQUIRES_ACTION`) |
 | `ticket.bulk_undo` | write, bulk (chỉ người tạo; chỉ trường đã đổi trên ticket chưa ai sửa sau đó; đang chạy → 409 `OPERATION_BUSY`) | | |
 | `ticket.bulk_item` · `ticket.bulk_item_undo` | write, internal (003c — con riêng của thao tác hàng loạt, một ticket / transaction) | | |
+| `ticket.bulk_export` | write (ticket.manage; chỉ người tạo thao tác; tệp 038b `ticket_bulk_results` chỉ xuất — id / kết quả / mã lỗi / đã đổi / hoàn tác, không tiêu đề; dấu theo quyền hiện hành, đổi → 410) | | |
 | `sla.update_default` | config | | |
 | `ticket.category_suggestions` | read (ticket.view, kỹ năng AI — không tự cấp) | ✓ | |
 | `ticket_categories.get` | read (settings.manage) | | |
