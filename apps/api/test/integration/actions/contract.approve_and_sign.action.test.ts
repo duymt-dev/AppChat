@@ -6,6 +6,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { call } from '../setup';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
 
+const ART398 = ['parties', 'subject', 'quantity', 'price_payment', 'term_place', 'rights', 'breach', 'dispute', 'effective'].map((code) => ({ code, ok: true }));
 let m: Matrix;
 let c: { contract_id: string; code: string };
 let ownerEmail: string;
@@ -38,6 +39,8 @@ describe('contract.approve_and_sign', () => {
       risk: 'money',
       changes: [{ entity: 'contract', id: C(), before: { status: 'pending_approval', signed_by: null }, after: { status: 'pending_signature', signed_by: 'business' } }],
       warnings: ['e_signature:otp_email'],
+      // TIP-028b: bảng kiểm Điều 398 theo mẫu hợp đồng mặc định (đủ 9 mục) — cảnh báo, không chặn.
+      checklist: ART398,
     });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
     expect((await (await m.db()).contract.findUniqueOrThrow({ where: { id: C() } })).status).toBe('pending_signature');

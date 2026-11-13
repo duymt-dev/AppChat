@@ -12,6 +12,8 @@ export interface ActionCallOptions {
   genuiIntent?: string;
   /** Xác nhận form GenUI có ô bí mật: handle vault server trả ở 202 — thay cho giá trị bí mật (không gửi lại). */
   secretVault?: string;
+  /** Xin xem trước (TIP-028b) → header `x-action-preview: 1`; chỉ action trong REQUESTABLE_PREVIEW_ACTIONS (bảng kiểm chứng từ). */
+  preview?: boolean;
 }
 
 export type ActionResponse<O = unknown> =

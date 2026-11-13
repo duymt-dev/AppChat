@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoHorizontalOverflow, expectTouchTargets, isMobile } from './support/mobile';
+import { confirmPreview } from './support/confirm';
 
 const URL = '/quotes?session=authed,declared,trialSeen';
 
@@ -49,6 +50,7 @@ test.describe('quotes', () => {
     await drawer.getByTestId('q-approve').click();
     await expect(drawer).toContainText('Đã duyệt');
     await drawer.getByTestId('q-send-zalo').click();
+    await confirmPreview(page);
     await expect(drawer).toContainText('Đã gửi');
     await drawer.getByTestId('q-to-order').click();
     await expect(page).toHaveURL(/\/orders\?from_quote=q_2039/);
@@ -78,6 +80,7 @@ test.describe('quotes', () => {
     await drawer.getByTestId('q-comment-input').press('Enter');
     await expect(drawer.getByTestId('q-comments')).toContainText('Khách hỏi lịch tuần sau');
     await drawer.getByTestId('q-send-zalo').click();
+    await confirmPreview(page);
     await drawer.getByTestId('q-revision').click();
     await expect(drawer).toContainText('Lần 2');
     await drawer.getByRole('tab', { name: 'Lịch sử' }).click();

@@ -131,7 +131,7 @@ export class InvoicesReadService {
     const stored = i.fileId && this.d.files ? await this.d.files.read(db, i.fileId) : null;
     if (stored) return { name: stored.row.name, pdf: stored.body };
     const doc = await invoiceDocData(db, this.d.doc(), v.workspaceId, i);
-    return { name: interpolate(serverMessages(doc.locale).sales.invoice.pdfName, { code: i.code }), pdf: await renderDocPdf(db, this.d.doc(), 'payment_request', doc.data, doc.locale) };
+    return { name: interpolate(serverMessages(doc.locale).sales.invoice.pdfName, { code: i.code }), pdf: await renderDocPdf(db, this.d.doc(), 'payment_request', doc.data, doc.locale, i.templateId) };
   }
 
   /** Ảnh VietQR (PNG) của số còn phải thu — chưa có tài khoản nhận / đã thu đủ / đã huỷ → 404 (TIP-032b P2). */

@@ -130,7 +130,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 46 | [033c](../tips/TIP-033c-appointment-order-suggestions.md) | W8 | **DONE** (P1 action đọc gợi ý + xác nhận ràng giá / version — DC-441; P2 thẻ chung Lịch hẹn + Hộp thư — PD-028, DV-109; P3 khối GenUI `appointment_order` Trợ lý + ROLE=ai; P4 E2E http + ai:live 6/6) | `tip/033c-p4-close` | `bbeafb41` | #193, #194, #195, #196 |
 | 47 | [032d](../tips/TIP-032d-commerce-record-files.md) | W8 | DONE (P1 backend liên kết + file_claim + staging kiểm cấu trúc cô lập — DC-442, DV-110; P2 tab Tệp thật — PD-029; P3 sao chép tệp Trợ lý có đồng ý — DC-443, DV-111; P4 E2E http + ai:live 8 ca (chưa nghiệm thu — Postgres dùng chung cạn slot, Q-066) + COVERAGE) | `tip/032d-p4-close` | `f660a5bd` | #197, #198, #199, #200 |
 | 48 | [027b](../tips/TIP-027b-product-media-description.md) | W8 | DONE (ai:live chưa nghiệm thu — Q-066) | `tip/027b-product-media-description` · `tip/027b-p3-web` · `tip/027b-p4-close` | `733bfd75` (P1) · `9bcabcce` (P2) · `83016f9f` (P3) · `4ea2cdfd` (P4) | #201 (P1+P2) · #203 (P3) · #204 (P4) |
-| 49 | [028b](../tips/TIP-028b-document-integrity.md) | W8 | đang làm | `tip/028b-document-integrity` | | |
+| 49 | [028b](../tips/TIP-028b-document-integrity.md) | W8 | đang làm (pha 1 / 2) | `tip/028b-document-integrity` | `04cac52d` (P1) | #205 (P1) |
 | 50 | [034b](../tips/TIP-034b-support-categories.md) | W8 | chờ | `tip/034b-support-categories` | | |
 | 51 | [001b](../tips/TIP-001b-web-architecture.md) | W8 | chờ | `tip/001b-web-architecture` | | |
 | 52 | [034c](../tips/TIP-034c-ticket-bulk.md) | W8 | chờ | `tip/034c-ticket-bulk` | | |

@@ -12,7 +12,7 @@ export async function ensureReceiptPdf(db: TenantDb, d: QuoteDeps, ws: string, i
   const stored = p.receiptFileId && d.files ? await d.files.read(db, p.receiptFileId) : null;
   if (stored) return { name: stored.row.name, pdf: stored.body, fileId: p.receiptFileId };
   const doc = await receiptDocData(db, d.doc(), ws, i, p);
-  const pdf = await renderDocPdf(db, d.doc(), 'receipt', doc.data, doc.locale);
+  const pdf = await renderDocPdf(db, d.doc(), 'receipt', doc.data, doc.locale, p.templateId);
   const name = interpolate(serverMessages(doc.locale).sales.invoice.receiptName, { code: p.receiptCode ?? '' });
   if (!d.files) return { name, pdf, fileId: null };
   const f = await savePdf(db, d.doc(), ws, name, pdf, null);

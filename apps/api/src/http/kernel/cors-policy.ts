@@ -22,7 +22,7 @@ export function allowedOrigins(env: Record<string, string | undefined>): Set<str
   return out;
 }
 
-const ALLOW_HEADERS = 'authorization, content-type, idempotency-key, x-workspace-id, x-request-id, x-action-source';
+const ALLOW_HEADERS = 'authorization, content-type, idempotency-key, x-workspace-id, x-request-id, x-action-source, x-action-preview';
 const EXPOSE_HEADERS = 'x-request-id, retry-after, content-disposition';
 
 /** Route công khai cho mọi origin không credentials (script widget nhúng). */

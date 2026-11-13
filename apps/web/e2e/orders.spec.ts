@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoHorizontalOverflow, expectTouchTargets, isMobile } from './support/mobile';
+import { confirmPreview } from './support/confirm';
 
 const URL = '/orders?session=authed,declared,trialSeen';
 
@@ -105,6 +106,7 @@ test.describe('orders', () => {
     await page.locator('[data-quote="q_2041"]').click();
     // BG-2041 đã duyệt, chưa gửi → gửi khách trước (QUOTE_FLOW: approved chỉ có quote.send), rồi ghi nhận chốt khi chuyển.
     await page.getByTestId('q-drawer').getByTestId('q-send-zalo').click();
+    await confirmPreview(page);
     await expect(page.getByTestId('q-drawer')).toContainText('Đã gửi');
     await page.getByTestId('q-drawer').getByTestId('q-to-order').click();
     await expect(page).toHaveURL(/\/orders$/);

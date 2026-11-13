@@ -532,7 +532,8 @@
       "title": "Set product primary image"
     },
     "media_list": {
-      "title": "View product images / documents"
+      "title": "View product images / documents",
+      "desc": "List the images and documents of one product (primary image, order) — read only"
     }
   },
   "category": {
@@ -1697,6 +1698,64 @@
   "inbox": {
     "system_agent_transition": {
       "title": "Conversation agent transition (system)"
+    }
+  },
+  "checklist": {
+    "title": "Legal checklist",
+    "missing": "{n} items to review",
+    "allOk": "All items present",
+    "note": "Warning only — the parties may agree otherwise, you can still send.",
+    "hint": {
+      "template": "The document template lacks this item",
+      "empty": "The template has this item but {field} is empty"
+    },
+    "item": {
+      "parties": "Details of both parties",
+      "subject": "Subject matter",
+      "quantity": "Quantity and quality",
+      "price_payment": "Price and payment method",
+      "term_place": "Term, place and method of performance",
+      "rights": "Rights and obligations",
+      "breach": "Liability for breach",
+      "dispute": "Dispute resolution",
+      "effective": "Effective date",
+      "seller_tax": "Seller details + tax code",
+      "date": "Issue date",
+      "validity": "Quote validity",
+      "vat_note": "Price incl. / excl. VAT",
+      "not_vat": "\"Does not replace a VAT invoice\" line (auto-inserted)"
+    },
+    "field": {
+      "business_legal_name": "Business legal name",
+      "business_tax_code": "Business tax code",
+      "business_address": "Business address",
+      "business_representative": "Business representative",
+      "business_logo": "Logo",
+      "business_bank_account": "Receiving account",
+      "customer_name": "Customer name",
+      "customer_tax_code": "Customer tax code",
+      "customer_address": "Customer address",
+      "customer_phone": "Customer phone",
+      "customer_email": "Customer email",
+      "customer_representative": "Customer representative",
+      "doc_code": "Document no.",
+      "doc_date": "Issue date",
+      "doc_valid_until": "Valid until",
+      "doc_owner": "Owner",
+      "items": "Line items table",
+      "totals_subtotal": "Subtotal",
+      "totals_discount": "Discount",
+      "totals_vat": "VAT",
+      "totals_total": "Total",
+      "totals_total_words": "Amount in words",
+      "contract_kind": "Contract type",
+      "contract_value": "Contract value",
+      "contract_start": "Start date",
+      "contract_end": "End date",
+      "payment_vietqr": "VietQR code",
+      "payment_transfer_note": "Transfer note",
+      "signatures_seller": "Seller signature",
+      "signatures_buyer": "Buyer signature"
     }
   }
 }

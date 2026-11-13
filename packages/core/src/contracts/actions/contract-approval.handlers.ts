@@ -31,6 +31,7 @@ export class ContractSubmitHandler implements Handler<ActionInput<typeof contrac
   constructor(
     @Inject(CrmMembers) private readonly members: CrmMembers,
     @Inject(CLOCK) private readonly clock: Clock,
+    @Inject(ContractDeps) private readonly d: ContractDeps,
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contractSubmit>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
@@ -57,7 +58,7 @@ export class ContractSubmitHandler implements Handler<ActionInput<typeof contrac
   }
 
   async preview(ctx: ActionContext, input: ActionInput<typeof contractSubmit>, tx: TenantTx) {
-    return submitPreview(ctx, tx, input);
+    return submitPreview(ctx, tx, input, this.d);
   }
 }
 
@@ -176,6 +177,6 @@ export class ContractApproveAndSignHandler implements Handler<SignIn, Out> {
   }
 
   async preview(ctx: ActionContext, input: SignIn, tx: TenantTx) {
-    return approveSignPreview(ctx, tx, input);
+    return approveSignPreview(ctx, tx, input, this.d);
   }
 }

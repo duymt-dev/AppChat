@@ -16,6 +16,12 @@ export interface ActionContext {
   stepId?: string;
   idempotencyKey?: string;
   confirmToken?: string;
+  /**
+   * Người dùng XIN xem trước (TIP-028b, DC-444 — header `x-action-preview: 1` của UI): action thuộc `REQUESTABLE_PREVIEW_ACTIONS` đi qua
+   * 202 preview → ConfirmActionHost (bảng kiểm chứng từ) như nguồn assistant. Chỉ THÊM bước xác nhận cho chính người gọi — không nới
+   * quyền / policy, nguồn bị cấm / phải duyệt vẫn giữ nguyên.
+   */
+  previewRequested?: boolean;
   /** Chạy action đã được duyệt (job `ai-resume` — TIP-021): executor bỏ bước policy `approval`, gateway kiểm + đánh dấu đã chạy. */
   approvalId?: string;
   /**
@@ -75,6 +81,8 @@ export interface ActionPolicyInput {
   autoSend?: boolean;
   /** Id action — FORCE_APPROVAL theo action (policy.ts). */
   actionId?: string;
+  /** Người gọi xin xem trước (ActionContext.previewRequested). */
+  previewRequested?: boolean;
 }
 
 export const AUTHORIZER = Symbol('AUTHORIZER');
