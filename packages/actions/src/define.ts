@@ -84,10 +84,13 @@ export const isAgentGrantable = (d: Pick<ActionDef, 'exposure' | 'agentGrantable
 const PRIVACY_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation']);
 /** Điều khiển kế hoạch Cowork (TIP-023d §1.6): mọi lệnh ghi cần khoá ổn định — gửi lại trả đúng biên nhận, không thêm đợt dừng / root. */
 const PLAN_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['assistant.plan_request_edit', 'assistant.plan_update', 'assistant.plan_resume', 'assistant.plan_reuse']);
+/** Thao tác hàng loạt có thao tác cha bền (TIP-034c §1.4): một khoá = một thao tác đã nhận + đúng hash input; gửi lại / xác nhận / khôi phục
+ *  dùng lại khoá đó (không khoá mới khi transport thử lại). */
+const BULK_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['ticket.bulk_update', 'ticket.bulk_undo']);
 
 /** Idempotency-Key bắt buộc: risk send / money và lệnh tạo (response-envelope §7) — executor kiểm, FE `useAction` tự gửi. */
 export function requiresIdempotencyKey(actionId: string, risk: Risk): boolean {
-  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId) || PRIVACY_IDEMPOTENT_ACTIONS.has(actionId) || PLAN_IDEMPOTENT_ACTIONS.has(actionId);
+  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId) || PRIVACY_IDEMPOTENT_ACTIONS.has(actionId) || PLAN_IDEMPOTENT_ACTIONS.has(actionId) || BULK_IDEMPOTENT_ACTIONS.has(actionId);
 }
 
 export type ActionInput<D> = D extends ActionDef<infer I, z.ZodTypeAny> ? z.input<I> : never;

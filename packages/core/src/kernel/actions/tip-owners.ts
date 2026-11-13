@@ -22,6 +22,7 @@ const BY_ID: Record<string, string> = {
   'order.export': '038',
   'contract.export': '038',
   'ticket.export': '038',
+  'ticket.bulk_undo': '034c', 'ticket.bulk_item': '034c', 'ticket.bulk_item_undo': '034c',
   'ticket.category_suggestions': '034b', 'ticket_categories.get': '034b', 'ticket_categories.replace': '034b', 'ticket_categories.export': '034b',
   'stock.adjust': '027',
   'stock.get': '027',

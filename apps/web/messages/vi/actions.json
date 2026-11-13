@@ -1019,7 +1019,8 @@
       "title": "Mở lại ticket"
     },
     "bulk_update": {
-      "title": "Cập nhật hàng loạt ticket"
+      "title": "Cập nhật hàng loạt ticket",
+      "desc": "Giao người phụ trách hoặc AI Agent (chỉ là phân công — agent không tự chạy) và / hoặc đổi ưu tiên cho nhiều ticket; mỗi ticket có kết quả riêng."
     },
     "get": {
       "title": "Xem ticket",
@@ -1031,6 +1032,16 @@
     "category_suggestions": {
       "title": "Gợi ý danh mục ticket",
       "desc": "Đọc danh mục gợi ý đã cấu hình và danh mục đã dùng trong ticket bạn xem được."
+    },
+    "bulk_undo": {
+      "title": "Hoàn tác cập nhật hàng loạt ticket",
+      "desc": "Trả lại đúng các trường đã đổi trên những ticket chưa ai sửa sau đó; ticket đã đổi tiếp được giữ nguyên và báo xung đột."
+    },
+    "bulk_item": {
+      "title": "Cập nhật một ticket của thao tác hàng loạt (hệ thống)"
+    },
+    "bulk_item_undo": {
+      "title": "Hoàn tác một ticket của thao tác hàng loạt (hệ thống)"
     }
   },
   "segment": {
@@ -1781,6 +1792,9 @@
     }
   },
   "warn": {
-    "existing_tickets_unchanged": "Ticket cũ giữ nguyên danh mục — chỉ bộ gợi ý thay đổi."
+    "existing_tickets_unchanged": "Ticket cũ giữ nguyên danh mục — chỉ bộ gợi ý thay đổi.",
+    "agent_assignment_not_run": "Giao cho AI Agent chỉ là phân công — agent không tự chạy hay xử lý ticket.",
+    "bulk_background": "Hơn 50 ticket — chạy nền; theo dõi tiến độ, kết quả từng ticket hiện khi xong.",
+    "undo_conflicts_kept": "Ticket đã bị sửa sau thao tác này sẽ được giữ nguyên (báo xung đột)."
   }
 }

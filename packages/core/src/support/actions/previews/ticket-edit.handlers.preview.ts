@@ -1,9 +1,9 @@
 // Preview sửa ticket (TIP-023b R2.8): sửa / gán → mã + tiêu đề, trước / sau cột đổi (người phụ trách theo tên); bình luận → nội dung + nội bộ /
-// trả lời khách (kênh); hàng loạt → số ticket còn mở sẽ đổi. Ticket ngoài scope → 404 như execute. Chỉ đọc — không khoá dòng.
-import type { ActionInput, ActionPreview, ticketAssign, ticketBulkUpdate, ticketComment, ticketUpdate } from '@appchat/actions';
+// trả lời khách (kênh). Hàng loạt: support/bulk/parent.ts (TIP-034c). Ticket ngoài scope → 404 như execute. Chỉ đọc — không khoá dòng.
+import type { ActionInput, ActionPreview, ticketAssign, ticketComment, ticketUpdate } from '@appchat/actions';
 import type { AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../../kernel/actions/action-context';
-import { created, defined, line, preview, updated } from '../../../kernel/actions/preview-kit';
+import { created, line, preview, updated } from '../../../kernel/actions/preview-kit';
 import type { CrmMembers } from '../../../crm/public';
 import { visibleTicket, type TicketRecord } from '../../ticket-access';
 
@@ -26,13 +26,6 @@ export async function assignPreview(tx: TenantTx, a: AuthzContext, members: CrmM
   const t = await visibleTicket(tx, a, i.ticket_id, 'write');
   const [from, to] = [await who(tx, members, t.assigneeUserId, t.assigneeAgentId), await who(tx, members, i.assignee_user_id, i.assignee_agent_id)];
   return preview('write', line(label(t), to), { changes: updated('ticket', t.id, { assignee: from }, { assignee: to }) });
-}
-
-export async function bulkPreview(tx: TenantTx, a: AuthzContext, members: CrmMembers, i: ActionInput<typeof ticketBulkUpdate>): Promise<ActionPreview> {
-  let n = 0;
-  for (const id of new Set(i.ticket_ids)) if ((await visibleTicket(tx, a, id, 'write')).status !== 'closed') n++;
-  const assignee = await who(tx, members, i.assignee_user_id, i.assignee_agent_id);
-  return preview('write', `${n}`, { count: n, changes: [{ entity: 'ticket', after: defined({ assignee: assignee ?? undefined, priority: i.priority }) }] });
 }
 
 export async function commentPreview(tx: TenantTx, a: AuthzContext, i: ActionInput<typeof ticketComment>): Promise<ActionPreview> {

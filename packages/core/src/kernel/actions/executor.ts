@@ -222,13 +222,13 @@ export class ActionExecutor {
     const runFinal = async (tx: TenantTx) => {
       // Action riêng (TIP-003c §1.3, §3.3): kiểm lại capability ngay trước hiệu ứng + nhận biên nhận trigger trong CÙNG transaction.
       const sys = isInternalAction(def) ? await systemAdmission(tx, ctx, actionId, rawInput ?? {}, now) : undefined;
-      if (sys?.replay) return { data: sys.replay, queued: null, afterCommit: undefined };
+      if (sys?.replay) return { data: sys.replay, queued: null, afterCommit: undefined, settled: undefined };
       // Bước kế hoạch (TIP-023d §2.2-2.3): claim hiệu ứng chính TRƯỚC handler — cùng digest đã xong → biên nhận cũ, không chạy lại.
       if (ctx.planBinding && !this.binding) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '023d' }, 'execution binding chưa cài');
       const bound = ctx.planBinding ? await this.binding!.admit(tx, ctx, actionId, hashInput(input), now) : undefined;
-      if (bound?.replay) return { data: bound.replay.data, queued: bound.replay.queued ?? null, afterCommit: undefined };
+      if (bound?.replay) return { data: bound.replay.data, queued: bound.replay.queued ?? null, afterCommit: undefined, settled: undefined };
       await approved(tx);
-      const r = await handler.execute(ctx, input, tx, undefined, prepared);
+      const r = await handler.execute(ctx, input, tx, undefined, prepared, { actionLogId: logId });
       const undoUntil = r.noUndo ? undefined : undoWindow;
       // Quyền theo trường (TIP-045b annex C): output không mang key tuỳ biến / trường hệ thống người gọi không được xem.
       const output = await projectActionOutput(tx, actionId, ctx.authz, def.output.parse(r.result) as O);
@@ -268,7 +268,7 @@ export class ActionExecutor {
       // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.
       const queued = r.accepted ? acceptedResponse(logId, r.accepted) : null;
       if (key) await tx.idempotencyKey.create({ data: { key, route, requestHash: reqHash, response: json(queued ?? data), statusCode: queued ? 202 : 200, createdAt: now } });
-      return { data, queued, afterCommit: r.afterCommit };
+      return { data, queued, afterCommit: r.afterCommit, settled: r.settled };
     };
     // TIP-003b: collector gắn transaction cuối — writeOutbox (handler + executor) chỉ gom; flush DUY NHẤT sau idempotency, trước commit.
     const out = await db.$transaction(async (tx) => {
@@ -284,6 +284,11 @@ export class ActionExecutor {
     if (out.events) await markDirty(this.d.kv, ctx.workspaceId);
     // Đã commit: lỗi ở đây không đổi kết quả (việc tự idempotent + có scheduler quét lại — HandlerOutcome.afterCommit).
     if (out.afterCommit) await out.afterCommit().catch(() => undefined);
+    // TIP-034c: phản hồi lần này đọc lại từ biên nhận sau khi con chạy xong (bản lưu giữ trạng thái lúc nhận).
+    if (out.settled && !out.queued) {
+      const fresh = await out.settled().catch(() => undefined);
+      if (fresh !== undefined) out.data = { ...out.data, result: def.output.parse(fresh) as O };
+    }
 
     // 7. kết quả
     return out.queued ? { status: 202, data: out.queued } : { status: 200, data: out.data };

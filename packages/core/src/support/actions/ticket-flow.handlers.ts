@@ -38,7 +38,7 @@ async function restore(tx: TenantTx, log: ActionLogRow, expect: string, now: Dat
   if (!t || t.status !== expect) throw new AppError('CONFLICT', 409, { ticket_id: 'changed' });
   await tx.ticket.update({
     where: { id: b.id },
-    data: { status: b.status as TicketRecord['status'], pausedSince: d(b.paused_since), ttrDueAt: new Date(b.ttr_due_at), pausedTotalSec: b.paused_total_sec, slaResult: b.sla_result, closeReason: b.close_reason, closedAt: d(b.closed_at), version: { increment: 1 }, updatedAt: now },
+    data: { status: b.status as TicketRecord['status'], pausedSince: d(b.paused_since), ttrDueAt: new Date(b.ttr_due_at), pausedTotalSec: b.paused_total_sec, slaResult: b.sla_result, closeReason: b.close_reason, closedAt: d(b.closed_at), updatedAt: now },
   });
 }
 
@@ -60,7 +60,7 @@ export class TicketSetStatusHandler implements Handler<ActionInput<typeof ticket
     const t = await lockTicket(tx, ctx.authz, input.ticket_id);
     const to = step(t, setStatusKey(input.status));
     const resumed = t.status === 'waiting' ? resumeDue(t, now, await this.cal.of(ctx.workspaceId)) : {};
-    const row = await tx.ticket.update({ where: { id: t.id }, data: { status: to, pausedSince: to === 'waiting' ? now : null, ...resumed, version: { increment: 1 }, updatedAt: now } });
+    const row = await tx.ticket.update({ where: { id: t.id }, data: { status: to, pausedSince: to === 'waiting' ? now : null, ...resumed, updatedAt: now } });
     await logEvent(tx, t.id, 'status', await actorOf(ctx, tx, this.members), now, { status: to });
     return { result: { ticket_id: t.id, status: to }, before: snap(t), events: [evOf('ticket.updated', row)] };
   }
@@ -94,7 +94,7 @@ export class TicketCloseHandler implements Handler<ActionInput<typeof ticketClos
     const actor = await actorOf(ctx, tx, this.members);
     const row = await tx.ticket.update({
       where: { id: t.id },
-      data: { status: to, ...due, pausedSince: null, slaResult: sla_result, closeReason: input.reason, closeNote: input.note?.trim() || null, closedAt: now, version: { increment: 1 }, updatedAt: now },
+      data: { status: to, ...due, pausedSince: null, slaResult: sla_result, closeReason: input.reason, closeNote: input.note?.trim() || null, closedAt: now, updatedAt: now },
     });
     await logEvent(tx, t.id, 'closed', actor, now, { reason: input.reason, ...(input.note?.trim() ? { note: input.note.trim() } : {}) });
     const m = serverMessages(cal.locale).support;
@@ -148,7 +148,7 @@ export async function reopenTicket(tx: TenantTx, t: TicketRecord, now: Date, cal
   const sla = targetsFor(await defaultPolicy(tx, now), !!t.assigneeAgentId, now, cal);
   const row = await tx.ticket.update({
     where: { id: t.id },
-    data: { status: to, ...sla, firstResponseAt: null, slaResult: null, closeReason: null, closeNote: null, closedAt: null, pausedSince: null, warnedAt: null, frtBreachedAt: null, breachedAt: null, reopenedCount: { increment: 1 }, version: { increment: 1 }, updatedAt: now },
+    data: { status: to, ...sla, firstResponseAt: null, slaResult: null, closeReason: null, closeNote: null, closedAt: null, pausedSince: null, warnedAt: null, frtBreachedAt: null, breachedAt: null, reopenedCount: { increment: 1 }, updatedAt: now },
   });
   await logEvent(tx, t.id, 'reopened', actor, now);
   await timeline(tx, row, 'ticket_reopened', {}, actor, now);

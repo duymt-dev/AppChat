@@ -1019,7 +1019,8 @@
       "title": "Reopen ticket"
     },
     "bulk_update": {
-      "title": "Bulk update tickets"
+      "title": "Bulk update tickets",
+      "desc": "Assign a member or an AI agent (assignment only — the agent does not run) and / or change priority on many tickets; each ticket gets its own result."
     },
     "get": {
       "title": "View ticket",
@@ -1031,6 +1032,16 @@
     "category_suggestions": {
       "title": "Ticket category suggestions",
       "desc": "Read the configured category suggestions and categories used on tickets you can see."
+    },
+    "bulk_undo": {
+      "title": "Undo ticket bulk update",
+      "desc": "Restores only the changed fields on tickets nobody edited since; tickets changed later are kept and reported as conflicts."
+    },
+    "bulk_item": {
+      "title": "Update one ticket of a bulk operation (system)"
+    },
+    "bulk_item_undo": {
+      "title": "Undo one ticket of a bulk operation (system)"
     }
   },
   "segment": {
@@ -1781,6 +1792,9 @@
     }
   },
   "warn": {
-    "existing_tickets_unchanged": "Existing tickets keep their category — only the suggestions change."
+    "existing_tickets_unchanged": "Existing tickets keep their category — only the suggestions change.",
+    "agent_assignment_not_run": "Assigning to an AI agent is assignment only — the agent will not run or resolve the ticket.",
+    "bulk_background": "More than 50 tickets — runs in the background; per-ticket results appear when done.",
+    "undo_conflicts_kept": "Tickets edited after this operation are kept as they are (reported as conflicts)."
   }
 }
