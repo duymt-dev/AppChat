@@ -9,6 +9,7 @@ import { GENUI_DRAWERS } from './modules/genui';
 import { CONTACT_MEMORY } from './modules/contact-memory';
 import { DATA_TRANSFER } from './modules/data-transfer';
 import { ASSISTANT_INPUT } from './modules/assistant-input';
+import { ASSISTANT_PLANS } from './modules/assistant-plans';
 import { hardeningEntries } from './modules/hardening';
 import { PLATFORM_ADMIN } from './modules/platform-admin';
 import { tenantMailEntries } from './modules/tenant-mail';
@@ -1493,5 +1494,6 @@ export const MANIFEST: ParityEntry[] = [
   ...PLATFORM_ADMIN,
   ...DATA_TRANSFER,
   ...ASSISTANT_INPUT,
+  ...ASSISTANT_PLANS,
   ...tenantMailEntries(settingsProto),
 ];

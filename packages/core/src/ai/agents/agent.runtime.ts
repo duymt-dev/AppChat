@@ -74,8 +74,16 @@ export interface AgentRunCtx {
    * Quyền hiện hành mỗi lần gọi tool (TIP-023b SPEC A): `commander` đọc lại người ra lệnh ban đầu (mất quyền → chặn, không rơi về quyền
    * agent); `draft` = chat thử cấu hình nháp. Vắng → người ra lệnh lấy từ `commander` tĩnh (lượt đồng bộ trong request).
    */
-  authority?: { commanderId?: string; commander?: (ws: string, userId: string) => Promise<AuthzContext | null>; draft?: boolean };
+  authority?: { commanderId?: string; commander?: (ws: string, userId: string) => Promise<AuthzContext | null>; draft?: boolean; version?: number };
+  /**
+   * Run con dưới gốc có kế hoạch (TIP-023d §5.4): lời gọi ghi qua cùng cổng bước như run gốc — đúng action của bước hiện hành → binding
+   * (executor claim một lần); khác → từ chối. Server dựng từ dòng dõi run, không bao giờ từ input model.
+   */
+  bindStep?: (actionId: string) => Promise<StepGate>;
 }
+
+/** Quyết định cổng bước cho một lời gọi ghi (cùng hình `StepDecision` của kế hoạch — khai riêng để agents không import assistant). */
+export type StepGate = { kind: 'free' } | { kind: 'bound'; binding: NonNullable<ActionContext['planBinding']> } | { kind: 'reject'; code: string; message: string };
 
 /**
  * ToolSpec cho các action đã lọc (runToolIds): `execute` → ActionExecutor với ngữ cảnh agent của run. Chỉ action có handler thật
@@ -86,6 +94,8 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
   const live = new Map<string, AuthzContext>();
   // TIP-020c: người ra lệnh hiện hành cho quyền đọc nguồn của `kb.search` (đọc lại mỗi lời gọi, cùng khoá với `live`).
   const knower = new Map<string, AuthzContext>();
+  // Binding bước kế hoạch của lời gọi đang chạy (cùng khoá) — ctxOf gắn vào ActionContext để executor claim.
+  const steps = new Map<string, NonNullable<ActionContext['planBinding']>>();
   const narrowed = (a: AuthzContext) => (r.narrow ? r.narrow(a) : a);
   const ctxOf = (def: ActionDef, stepIdx: number, toolCallId: string): ActionContext => ({
     workspaceId: r.workspaceId,
@@ -100,6 +110,7 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
     ...(r.servedConversationId ? { servedConversationId: r.servedConversationId } : {}),
     ...(r.autoSend ? { autoSend: true } : {}),
     authz: narrowed(live.get(`${stepIdx}:${toolCallId}`) ?? agentAuthz(r.agent, r.commander)),
+    ...(steps.get(`${stepIdx}:${toolCallId}`) ? { planBinding: steps.get(`${stepIdx}:${toolCallId}`)! } : {}),
     ...(def.id === 'kb.search' && (knower.get(`${stepIdx}:${toolCallId}`) ?? r.commander) ? { knowledgeAuthz: narrowed((knower.get(`${stepIdx}:${toolCallId}`) ?? r.commander)!) } : {}),
   });
   const has = implementedBy(executor);
@@ -116,9 +127,13 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
         const cur = await currentAuthority({
           db, ws: r.workspaceId, agentId: r.agent.id, def: d, snapshot: r.agent.toolIds,
           ...(commanderId ? { commanderId } : {}), ...(readCommander ? { commander: readCommander } : {}), ...(r.authority?.draft ? { draft: true } : {}),
+          ...(r.authority?.version !== undefined ? { version: r.authority.version } : {}),
         });
         if (!cur.ok) return { kind: 'error', code: cur.code, message: cur.reason };
+        const gate = r.bindStep && d.risk !== 'read' ? await r.bindStep(d.id) : null;
+        if (gate?.kind === 'reject') return { kind: 'error', code: gate.code, message: gate.message };
         const key = `${meta.stepIdx}:${meta.toolCallId}`;
+        if (gate?.kind === 'bound') steps.set(key, gate.binding);
         live.set(key, cur.authz);
         const who = d.id === 'kb.search' && commanderId && readCommander ? await readCommander(r.workspaceId, commanderId) : null;
         if (who) knower.set(key, who);
@@ -127,6 +142,7 @@ export function agentToolSpecs(executor: ToolExecutor, ids: readonly string[], r
         } finally {
           live.delete(key);
           knower.delete(key);
+          steps.delete(key);
         }
       },
     };

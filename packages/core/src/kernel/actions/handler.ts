@@ -65,6 +65,8 @@ export interface ActionHandler<I = unknown, O = unknown> {
   /** Action nền tảng: ghi nền tảng SAU khi tenant đã áp (route kênh / widget / ngân hàng) — idempotent, khôi phục chạy lại. */
   finalizePlatform?(ctx: ActionContext, plan: Record<string, unknown>, ptx: PlatformTx, read: TenantTx): Promise<void>;
   preview?(ctx: ActionContext, input: I, tx: TenantTx): Promise<ActionPreview>;
+  /** Dữ kiện nguồn ràng vào confirm_token cùng transaction xem trước (TIP-033c §3.1) — execute so lại qua `ctx.previewFacts`. */
+  bindPreview?(ctx: ActionContext, input: I, tx: TenantTx): Promise<Record<string, string | number>>;
   undo?(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void>;
   /** Hoàn tác action nền tảng = thao tác MỚI có điều kiện (kernel/consistency/undo-operation) — ghi ptx, event ghi outbox tenant. */
   undoPlatform?(ctx: ActionContext, log: ActionLogRow, ptx: PlatformTx): Promise<{ events?: { topic: string; payload: Record<string, unknown> }[] }>;

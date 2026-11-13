@@ -12,6 +12,8 @@ import type { ChatMessage } from '../types';
 import { ActionPreviewCard } from './ActionPreviewCard';
 import { BotFaceSmall } from './BotFace';
 import { Composer } from './Composer';
+import { PlanCard } from '../plans/components/PlanCard';
+import { ReusePlans } from '../plans/components/ReusePlans';
 
 export interface ChatThreadProps {
   onSend: () => void;
@@ -26,7 +28,7 @@ export interface ChatThreadProps {
 export function ChatThread({ onSend, onDecide, onOpen, onUi, onExternal }: ChatThreadProps) {
   const t = useTranslations('assistant');
   const { styles } = useThreadStyles();
-  const { messages, typing } = useAssistantUi();
+  const { messages, typing, mode, sessionId, draft, set } = useAssistantUi();
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => {
     end.current?.scrollIntoView?.({ block: 'end' });
@@ -86,11 +88,13 @@ export function ChatThread({ onSend, onDecide, onOpen, onUi, onExternal }: ChatT
               </div>
             </div>
           ) : null}
+          {mode === 'cowork' ? <PlanCard sessionId={sessionId} /> : null}
           <div ref={end} />
         </div>
       </div>
       <div className={styles.foot}>
         <div className={styles.footInner}>
+          {mode === 'cowork' ? <ReusePlans text={draft} sessionId={sessionId} onDraft={(d) => set({ planDraft: d })} /> : null}
           <Composer rows={1} placeholder={t('placeholderShort')} onSend={onSend} sendIcon="plane" testId="asst-composer" />
         </div>
       </div>

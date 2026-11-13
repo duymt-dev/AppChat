@@ -932,6 +932,10 @@
     },
     "system_transition": {
       "title": "Appointment system transition"
+    },
+    "order_suggestions": {
+      "title": "View order suggestions from appointments",
+      "desc": "List finished non-package appointments without an order, with the current price."
     }
   },
   "ticket": {
@@ -1542,6 +1546,22 @@
     "plan_get": {
       "title": "View Cowork plan progress",
       "desc": "Read the real status of a plan (which steps are done, waiting, failed) — not the model's claim."
+    },
+    "plan_request_edit": {
+      "title": "Pause plan to edit",
+      "desc": "Stop new work on the plan, let running work finish, then mark it paused."
+    },
+    "plan_update": {
+      "title": "Edit plan",
+      "desc": "Update, add, remove or reorder steps that have not started; started steps stay as they are."
+    },
+    "plan_resume": {
+      "title": "Resume plan",
+      "desc": "Continue the edited plan from where it paused, with the same budget and current permissions."
+    },
+    "plan_reuse": {
+      "title": "Reuse plan",
+      "desc": "Create a new draft plan from one of your own earlier structures — step types only, no old data, values or results."
     },
     "plan_reusable": {
       "title": "Reusable plan suggestions",

@@ -23,6 +23,7 @@ import { approvalAccess, approvalDomainOf } from './domain-authorization';
 import type { SystemOutput } from '@appchat/actions';
 import { runSystemAction } from '../../kernel/actions/system';
 import { approvalExpireTrigger } from './system/expire';
+import { childBindingOf } from '../assistant/plans/driver';
 
 export interface ResumeDeps {
   tenants: TenantDbResolver;
@@ -55,7 +56,10 @@ const agentSpec: SpecFn = async (db, run, d, ws) => {
   const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, {
     workspaceId: ws, agent: { id: a.id, toolIds: cfg.tools }, ...(commander ? { commander } : {}), runId: run.id, source: run.kind === 'task' ? 'task' : 'agent', db,
     // Người ra lệnh ban đầu đọc lại mỗi lần gọi (SPEC A) — đã rời workspace thì chặn, không chạy bằng quyền agent.
-    ...(run.initiatedByUserId ? { authority: { commanderId: run.initiatedByUserId, commander: d.commander } } : {}),
+    // Agent người dùng chọn (TIP-023d §5.4, khoá con `selected:`): giữ đúng bản đã ghim — xuất bản bản mới không thay giữa chừng.
+    ...(run.initiatedByUserId ? { authority: { commanderId: run.initiatedByUserId, commander: d.commander, ...(run.childKey?.startsWith('selected:') && run.agentVersion ? { version: run.agentVersion } : {}) } } : {}),
+    // Run con dưới gốc có kế hoạch: lời gọi ghi qua cùng cổng bước sau khi chạy tiếp (dòng dõi run tin cậy, không từ trạng thái dừng).
+    ...(run.kind === 'delegate' ? { bindStep: (actionId: string) => childBindingOf(db, run.id, actionId) } : {}),
   });
   return { system: agentSystem(cfg), tools, maxSteps: MAX_STEPS.agent, source: run.kind === 'task' ? 'task' : 'agent' };
 };
@@ -95,6 +99,10 @@ async function executeApproved(d: ResumeDeps, db: TenantDb, ws: string, a: Appro
     idempotencyKey: `approval:${a.id}`,
     authz,
   };
+  // TIP-023d §5.4: duyệt của run con thuộc bước kế hoạch → claim bước cùng transaction hiệu ứng (binding dựng lại từ dòng dõi run).
+  const step = a.runId ? await childBindingOf(db, a.runId, a.actionId) : { kind: 'free' as const };
+  if (step.kind === 'reject') return { kind: 'error', code: step.code, message: step.message };
+  if (step.kind === 'bound') ctx.planBinding = step.binding;
   try {
     const out = await d.executor.execute(ctx, a.actionId, a.input);
     if (out.status === 200) return { kind: 'ok', output: out.data.result };

@@ -35,6 +35,10 @@ import { ExecutionLease, execStateOf } from './genui/execution-lease';
 import { ASSISTANT_ARMED_KEY, failTurn } from './genui/recovery';
 import { replayEvents } from './genui/turn-queue';
 import { bindToken, takePending } from './pending-action';
+import { bindingOf } from './plans/driver';
+import { planGateOf, planHoldOf, recordCheckpoint } from './plans/checkpoint';
+import { bindDraft, type PlanDraftRef } from './plans/draft-binding';
+import { pinSelected, selectedCtx } from './plans/selected-agent';
 import type { DiscoveryRuntime } from './discovery/find-tool';
 import { appendMessage, historyMessages, markCard, openSession, ownSession, type Part } from './sessions';
 import { inEventTransaction } from '../../kernel/outbox/transaction';
@@ -82,6 +86,10 @@ export interface TurnRequest {
   requestId?: string;
   /** TIP-023g: lối vào theo bản ghi — bản ghi bấm thay ngữ cảnh màn (đọc lại theo quyền hiện hành; không đọc được → 404 / 403). */
   recordIntent?: RecordIntentInput;
+  /** TIP-023d §4.3: bản nháp kế hoạch (plan_reuse) gắn vào lượt này — một lần, cùng transaction claim. */
+  planDraft?: PlanDraftRef;
+  /** TIP-023d §5.1: agent người dùng chọn (UUID) — server ghim bản đã xuất bản lúc nhận lượt; không còn chạy → 404, không rơi về agent khác. */
+  selectedAgentId?: string;
 }
 
 /** Mức AI của lượt: chọn của người dùng (hoặc mặc định ở Cài đặt › Mô hình AI), hạ về mức cao nhất gói cho phép. */
@@ -94,21 +102,23 @@ async function tierOf(d: Pick<AssistantDeps, 'planKey'>, db: TenantDb, ws: strin
 
 type SpecDeps = Pick<AssistantDeps, 'executor' | 'runner' | 'now' | 'discovery' | 'storage'>;
 
-function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
+export function specFor(d: SpecDeps, db: TenantDb, t: AssistantTurnCtx, system: string): Omit<RunSpec, 'messages'> {
   const inputs = t.sessionId ? inputResolver(db, d.storage ?? null, { userId: t.userId, sessionId: t.sessionId, now: d.now }) : null;
-  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs };
+  // TIP-023d §3.2: cổng sửa kế hoạch của run gốc (Cowork) — người bấm "Sửa kế hoạch" thì lượt dừng ở checkpoint trước lời gọi kế.
+  const plan = t.mode === 'cowork' ? { planGate: planGateOf(db, t.runId), planHold: planHoldOf(db, t.runId) } : {};
+  return { system, tools: assistantTools({ db, executor: d.executor, runner: d.runner, now: d.now, discovery: d.discovery ?? null }, t), maxSteps: MAX_STEPS.assistant, source: 'assistant', inputs, ...plan };
 }
 
 /** Dựng lại system + tool của run `assistant` từ `ai_run.input` với quyền HIỆN TẠI của người ra lệnh (job `ai-resume`). */
 export async function assistantResumeSpec(d: SpecDeps, db: TenantDb, run: RunRow, ws: string, authz: AuthzContext | null): Promise<Omit<RunSpec, 'messages'>> {
   const input = run.input as unknown as AssistantRunInput;
   if (!authz || !run.initiatedByUserId) return { system: '', tools: [], maxSteps: MAX_STEPS.assistant, source: 'assistant' };
-  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
+  const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
   return specFor(d, db, t, await assistantSystem(db, input, authz));
 }
 
 /** Sự kiện của một đoạn chạy: ui_command (bước tool `ui` từ `fromIdx`), cây GenUI, chữ, thẻ xác nhận / lỗi. Lưu thành tin của Trợ lý. */
-async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | 'now'>, db: TenantDb, run: RunRow, r: RunResult, fromIdx: number, locale: string, sessionId: string, viewer: { ws: string; authz: AuthzContext }): Promise<TurnEventDto[]> {
+export async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | 'now'>, db: TenantDb, run: RunRow, r: RunResult, fromIdx: number, locale: string, sessionId: string, viewer: { ws: string; authz: AuthzContext }): Promise<TurnEventDto[]> {
   const m = serverMessages(locale).ai.assistant;
   const events: TurnEventDto[] = [];
   const parts: Part[] = [];
@@ -140,6 +150,14 @@ async function eventsOf(d: Pick<AssistantDeps, 'executor' | 'intents' | 'kv' | '
       events.push(card);
       parts.push({ type: 'card', card, status: 'pending' });
     }
+  } else if (r.status === 'waiting_operation' && r.plan && r.planWait === 'plan_next') {
+    // TIP-023d §2.5: kế hoạch còn bước — run giữ chờ (không "xong"); chữ model đã nói bước kế / điều cần người dùng.
+  } else if (r.status === 'waiting_operation' && r.plan) {
+    // TIP-023d §3.3: dừng để sửa kế hoạch — checkpoint + thử xả; chữ hệ thống báo đang chờ người sửa (không phải lỗi).
+    await recordCheckpoint(db as never, run.id, r.plan, d.now());
+    const note = serverMessages(locale).ai.assistant.planPaused;
+    events.push({ type: 'delta', text: note });
+    parts.push({ type: 'text', text: note });
   } else if (r.status === 'failed' || r.status === 'cancelled') {
     const code = r.error?.code ?? r.status.toUpperCase();
     // Mã lỗi chỉ ở `code` của sự kiện + log / ai_run.error; câu hiện cho người dùng không kèm mã (DC-133).
@@ -161,7 +179,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   const now = d.now();
   // Tệp đã chuẩn bị: kiểm TRƯỚC (chủ / ready / revision / chưa buộc phiên khác); hash gồm id:revision:digest đã sắp → đổi danh sách = 409.
   const inputs = await checkInputs(db, q.userId, q.inputs ?? [], q.sessionId);
-  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, ...(q.recordIntent ? { record: q.recordIntent } : {}), attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}) });
+  const hash = requestHash(q.sessionId, { text: q.text, mode: q.mode, context: q.context ?? null, ...(q.recordIntent ? { record: q.recordIntent } : {}), attachments: (q.attachments ?? []).map((a) => a.id), tier: q.tier ?? null, ...(inputs.digest.length ? { inputs: inputs.digest } : {}), ...(q.planDraft ? { plan_draft: q.planDraft } : {}), ...(q.selectedAgentId ? { selected_agent_id: q.selectedAgentId } : {}) });
   const ledger = new RequestStore(db, d.now);
   const replay = async (): Promise<PreparedTurn | null> => {
     const prev = await db.assistantRequest.findUnique({ where: { userId_requestId: { userId: q.userId, requestId: q.requestId } } });
@@ -180,11 +198,13 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
   // Tệp đính kèm: guard server trước model (tenant / người tải / purpose / hạn / mime / size) — tên client gửi không được tin.
   const attachments = await resolveAttachments(db, q.userId, (q.attachments ?? []).map((a) => a.id), now);
   const tier = await tierOf(d, db, q.ws, q.tier);
+  const selected = q.selectedAgentId ? await pinSelected(db, q.selectedAgentId, await d.planKey(q.ws)) : null;
   try {
     const sessionId = await inEventTransaction(db, q.ws, async (tx) => {
       const session = await openSession(tx, q.userId, q.mode, q.text, q.sessionId, now);
       await tx.assistantRequest.create({ data: { id: uuidv7(now.getTime()), userId: q.userId, requestId: q.requestId, sessionId: session.id, runId, inputHash: hash, createdAt: now, updatedAt: now } });
       await bindInputs(tx as never, inputs.rows, session.id, now);
+      if (q.planDraft) await bindDraft(tx as never, { ownerUserId: q.userId, sessionId: session.id, runId, draft: q.planDraft, now });
       await appendMessage(tx, session.id, 'user', [{ type: 'text', text: q.text }, ...inputRefParts(inputs.rows)], null, now);
       const input: AssistantRunInput = {
         text: q.text,
@@ -195,6 +215,7 @@ export async function prepareTurn(d: Pick<AssistantDeps, 'executor' | 'now' | 'p
         role: q.role,
         ...(context ? { context } : {}),
         ...(attachments.length ? { attachments } : {}),
+        ...(selected ? { selected_agent: selected } : {}),
       };
       await new RunStore(tx as never, d.now).create({ id: runId, kind: 'assistant', title: q.text.slice(0, 200), tier, input, initiatedByUserId: q.userId, assistantSessionId: session.id, maxCredits: DEFAULT_RUN_BUDGET, knowledge: assistantKnowledge(q.userId) });
       await writeOutbox(tx, q.ws, [{ topic: TURN_REQUESTED, payload: { run_id: runId, user_id: q.userId } }], now);
@@ -241,7 +262,7 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
       await fail('FORBIDDEN');
       return null;
     }
-    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
+    const t: AssistantTurnCtx = { ws, runId: run.id, userId: run.initiatedByUserId, authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
     const spec = specFor(d, db, t, await assistantSystem(db, input, authz));
     const skeletons = new SkeletonFeed(live);
     const r = await d.runner.start(ws, store, run, {
@@ -253,7 +274,8 @@ export async function runTurn(d: RunDeps, db: TenantDb, ws: string, runId: strin
     const events = await eventsOf(d, db, run, r, 0, input.locale, input.session_id, { ws, authz });
     await finishStream(live, events, r, input.session_id);
     // Chờ run con: `waiting_for` có kiểu (lý do + run con) để khôi phục / giao diện biết đang chờ gì (DC-380).
-    await lease.finish(execStateOf(r.status), r.paused?.outcome.kind === 'waiting_child' ? { reason: 'waiting_child', child_run_id: r.paused.outcome.runId } : undefined);
+    const waitingFor = r.paused?.outcome.kind === 'waiting_child' ? { reason: 'waiting_child', child_run_id: r.paused.outcome.runId } : r.plan ? { reason: r.planWait ?? 'plan_edit', plan_epoch: r.plan.epoch } : undefined;
+    await lease.finish(execStateOf(r.status), waitingFor);
     return { session_id: input.session_id, run_id: run.id, events };
   } catch (e) {
     await live.close().catch(() => undefined);
@@ -289,10 +311,11 @@ const armEvents = async (d: Pick<AssistantDeps, 'kv'>, ws: string) => {
 };
 
 /** Phát phần còn lại của lượt lên luồng (delta đã phát trực tiếp) + `done`. */
-async function finishStream(live: RunStream, events: TurnEventDto[], r: RunResult, sessionId: string): Promise<void> {
+export async function finishStream(live: RunStream, events: TurnEventDto[], r: RunResult, sessionId: string): Promise<void> {
   for (const e of events) if (e.type !== 'delta') await live.emit(e);
   // Chờ run con (TIP-019b §4.3) = `waiting_external` của luồng 023c — không thêm trạng thái SSE thứ hai.
-  const status = r.status === 'waiting_child' ? 'waiting_external' : r.status;
+  // Chờ sửa kế hoạch (TIP-023d §3.3, `waiting_operation` lý do plan_edit) cũng là chờ ngoài theo nghĩa luồng — người bấm Tiếp tục.
+  const status = r.status === 'waiting_child' || r.status === 'waiting_operation' ? 'waiting_external' : r.status;
   await live.emit({ type: 'done', status, session_id: sessionId });
   await live.close();
 }
@@ -312,7 +335,7 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
   const input = run.input as unknown as AssistantRunInput;
   const raw = state.pendingToolCall.input as { action_id?: string; input?: unknown };
   const call = { ...raw, action_id: raw.action_id ?? ALIAS_ACTION[state.pendingToolCall.toolName] ?? '' };
-  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id };
+  const t: AssistantTurnCtx = { ws: q.ws, runId: run.id, userId: q.userId, authz: q.authz, mode: input.mode, locale: input.locale, role: input.role, sessionId: input.session_id, ...selectedCtx(input) };
 
   let outcome: ToolOutcome;
   let logId: string | undefined;
@@ -325,7 +348,9 @@ export async function assistantConfirm(d: AssistantDeps, db: TenantDb, q: Confir
       // Chạy đúng input chuẩn hoá đã gắn token lúc xem trước (mã đã đổi → id); không tra lại mã → tránh đổi đích giữa hai bước.
       const stepIdx = state.stepIdx - 1;
       const idem = DEFS.get(call.action_id)?.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(run.id, stepIdx, state.pendingToolCall.toolCallId) };
-      const ctx = assistantActionCtx(t, stepIdx, { confirmToken: q.token, ...idem });
+      // TIP-023d §1.4: ràng buộc bước kế hoạch server đã ghi cùng lời gọi đang chờ (không lấy từ model / request).
+      const planBinding = bindingOf(state.binding);
+      const ctx = assistantActionCtx(t, stepIdx, { confirmToken: q.token, ...idem, ...(planBinding ? { planBinding } : {}) });
       const out = await d.executor.execute(ctx, call.action_id, canonical);
       if (out.status === 200) {
         logId = out.data.action_log_id;

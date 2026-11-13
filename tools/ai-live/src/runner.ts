@@ -27,6 +27,7 @@ import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
 import { utilityCase } from './utility-judge';
 import { inputCase } from './input-judge';
+import { plansCase } from './plans-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown, headers?: Record<string, string>): Promise<{ status: number; body: unknown }>;
@@ -121,6 +122,7 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.utility) return utilityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.input_file) return inputCase(api, c, attempt, o);
+  if (c.plan) return plansCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.transfer) return transferCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.hardening) return hardeningCase(api, c, attempt, o, (s) => fillInput(s, o.seed), contextOf(c, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };

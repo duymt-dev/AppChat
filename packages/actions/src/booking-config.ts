@@ -85,13 +85,57 @@ export const orderCreateFromAppointment = defineAction({
   module: 'sales',
   title: 'actions.order.create_from_appointment.title',
   description:
-    'Create an order for a finished appointment that is not part of a package (COMMERCE 8b — only after the user / agent confirms the suggestion). One order per appointment. Example: {"appointment_id":"<id>"}',
+    'Create an order for a finished appointment that is not part of a package (COMMERCE 8b — only after the user / agent confirms the suggestion from appointment.order_suggestions). Always shows a preview with the current service price; confirming after the price / appointment changed returns 409 and a new preview. One order per appointment (calling again returns the existing order). Example: {"appointment_id":"<id>"}',
   input: z.object({ appointment_id: z.string().min(1) }),
-  output: z.object({ order_id: z.string(), code: z.string() }),
+  // `reused` (TIP-033c §3.4): true = lịch đã có đơn (gửi lại / client khác tạo trước) — biên nhận phân biệt tạo mới với dùng lại.
+  output: z.object({ order_id: z.string(), code: z.string(), reused: z.boolean().optional() }),
   permission: 'order.manage',
   risk: 'write',
   agentGrantable: true,
   undo: { windowSec: 86_400 },
   invalidates: ['orders', 'calendar'],
   uiTarget: (o: { order_id: string }) => ({ type: 'open' as const, entity: 'order', id: o.order_id, view: 'drawer' as const }),
+});
+
+// TIP-033c §1.2: thẻ gợi ý tạo đơn hiện hành — đúng một trong appointment_id / conversation_id; danh sách theo hội thoại phân trang con trỏ.
+const money = z.string().regex(/^\d+$/);
+export const appointmentOrderSuggestions = defineAction({
+  id: 'appointment.order_suggestions',
+  module: 'booking',
+  title: 'actions.appointment.order_suggestions.title',
+  description:
+    'List finished appointments (not part of a package, no order yet) that can become an order, with the CURRENT service price / tax / total — read only, never creates anything. Pass exactly one of appointment_id or conversation_id. To create the order call order.create_from_appointment (needs confirmation). Example: {"conversation_id":"0190f000-0000-7000-8000-000000000031"}',
+  input: z
+    .object({
+      appointment_id: z.string().uuid().optional(),
+      conversation_id: z.string().uuid().optional(),
+      limit: z.number().int().min(1).max(20).optional(),
+      cursor: z.string().min(1).max(256).optional(),
+    })
+    .strict()
+    .refine((v) => !!v.appointment_id !== !!v.conversation_id, { message: 'exactly one of appointment_id / conversation_id', path: ['appointment_id'] }),
+  output: z.object({
+    data: z.array(
+      z.object({
+        appointment_id: z.string(),
+        code: z.string(),
+        revision: z.string(),
+        conversation_id: z.string().nullable(),
+        service_id: z.string(),
+        service_name: z.string(),
+        start_at: z.string(),
+        end_at: z.string(),
+        unit_price: money,
+        tax_rate: z.number().int(),
+        tax_total: money,
+        total: money,
+        can_create: z.boolean(),
+      }),
+    ),
+    next_cursor: z.string().nullable(),
+  }),
+  permission: 'booking.view',
+  risk: 'read',
+  agentGrantable: true,
+  invalidates: [],
 });

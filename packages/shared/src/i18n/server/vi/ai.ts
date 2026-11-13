@@ -60,6 +60,9 @@ export const ai = {
     noAgents: 'Chưa có agent nào đang chạy.',
     owner: 'Chủ workspace (toàn quyền)',
     cancelled: 'Đã huỷ thao tác.',
+    planReuse: { analysis: 'Phân tích', delegate: 'Giao việc cho agent' },
+    selectedAgent: 'Người dùng đã chọn agent {name} (id: {id}) cho lượt này. Thao tác ghi nghiệp vụ phải giao cho đúng agent này bằng delegate (không giao agent khác); bạn chỉ lập / điều phối kế hoạch và tra cứu. Agent không làm được thì nói rõ và đề nghị người dùng bỏ chọn hoặc chọn agent khác.',
+    planPaused: 'Đã dừng để anh/chị sửa kế hoạch — việc đã làm giữ nguyên. Sửa xong bấm Tiếp tục.',
     error: { CREDIT_EXHAUSTED: 'Hết credit AI — nạp thêm ở Cài đặt › Ví & gói để tiếp tục.', generic: 'Trợ lý chưa xử lý được yêu cầu này, anh/chị thử lại sau nhé.' },
     entity: {
       agent: 'AI Agent', appointment: 'lịch hẹn', product: 'sản phẩm', category: 'danh mục', stock: 'tồn kho', contract: 'hợp đồng', contact: 'khách hàng',

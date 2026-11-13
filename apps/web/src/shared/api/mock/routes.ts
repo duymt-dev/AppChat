@@ -10,6 +10,7 @@ import { contactLifecycleRoutes } from './domains/contact-lifecycle';
 import { contactMergeRoutes } from './domains/contact-merge';
 import { assistantRoutes } from './domains/assistant';
 import { assistantSessionRoutes } from './domains/assistant-sessions';
+import { assistantPlanRoutes } from './domains/assistant-plans';
 import { aiTasksRoutes } from './domains/ai-tasks';
 import { agentsRoutes } from './domains/agents';
 import { productsRoutes } from './domains/products';
@@ -78,6 +79,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...contactMergeRoutes,
   ...assistantRoutes,
   ...assistantSessionRoutes,
+  ...assistantPlanRoutes,
   ...aiTasksRoutes,
   ...agentsRoutes,
   ...productsRoutes,

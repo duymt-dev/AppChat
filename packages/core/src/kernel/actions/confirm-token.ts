@@ -2,6 +2,7 @@
 import { createHash, createHmac, randomBytes } from 'node:crypto';
 import type { KeyValueStore } from '../redis';
 import type { ActionContext } from './action-context';
+import type { PreviewFacts } from './preview-binding';
 
 export const CONFIRM_TTL_MS = 600_000;
 
@@ -34,9 +35,11 @@ export class ConfirmTokens {
       .digest('hex');
   }
 
-  async issue(ctx: ActionContext, actionId: string, input: unknown, nowMs: number): Promise<{ token: string; expiresAt: Date }> {
+  /** `facts` (TIP-033c §3.1): dữ kiện nguồn đọc lúc xem trước (version / giá…) — lưu cùng token phía server, không đi qua client. */
+  async issue(ctx: ActionContext, actionId: string, input: unknown, nowMs: number, facts?: PreviewFacts): Promise<{ token: string; expiresAt: Date }> {
     const token = randomBytes(24).toString('base64url');
-    await this.kv.set(`confirm:${token}`, this.bind(ctx, actionId, input), 'PX', CONFIRM_TTL_MS);
+    const mac = this.bind(ctx, actionId, input);
+    await this.kv.set(`confirm:${token}`, facts && Object.keys(facts).length ? `${mac}|${JSON.stringify(facts)}` : mac, 'PX', CONFIRM_TTL_MS);
     return { token, expiresAt: new Date(nowMs + CONFIRM_TTL_MS) };
   }
 
@@ -45,10 +48,18 @@ export class ConfirmTokens {
     await revokeConfirm(this.kv, token);
   }
 
+  /** Đúng token + đúng input / action / actor → dữ kiện đã ràng lúc xem trước (`{}` khi không có) và xoá (một lần); sai → null. */
+  async take(ctx: ActionContext, actionId: string, input: unknown, token: string | undefined): Promise<PreviewFacts | null> {
+    if (!token) return null;
+    const raw = await this.kv.getdel(`confirm:${token}`);
+    if (raw === null) return null;
+    const cut = raw.indexOf('|');
+    if ((cut < 0 ? raw : raw.slice(0, cut)) !== this.bind(ctx, actionId, input)) return null;
+    return cut < 0 ? {} : (JSON.parse(raw.slice(cut + 1)) as PreviewFacts);
+  }
+
   /** Đúng token + đúng input / action / actor → true và xoá (một lần). */
   async consume(ctx: ActionContext, actionId: string, input: unknown, token: string | undefined): Promise<boolean> {
-    if (!token) return false;
-    const bound = await this.kv.getdel(`confirm:${token}`);
-    return bound !== null && bound === this.bind(ctx, actionId, input);
+    return (await this.take(ctx, actionId, input, token)) !== null;
   }
 }

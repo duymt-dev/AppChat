@@ -44,6 +44,7 @@ import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui'
 import { runDetailParamRoute } from './domains/run-detail';
 import { aiUtilityParamRoute } from './domains/ai-utilities';
 import { assistantSessionParamRoute } from './domains/assistant-sessions';
+import { assistantPlanParamRoute } from './domains/assistant-plans';
 import { assistantInputRoute } from './domains/assistant-input';
 import { keepUpload } from './assistant-input-store';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
@@ -113,6 +114,7 @@ export const mockTransport: Transport = {
       runDetailParamRoute(path) ??
       aiUtilityParamRoute(path) ??
       assistantSessionParamRoute(path) ??
+      assistantPlanParamRoute(path) ??
       assistantInputRoute(path) ??
       signParamRoute(path) ??
       agentToolsParamRoute(path) ??

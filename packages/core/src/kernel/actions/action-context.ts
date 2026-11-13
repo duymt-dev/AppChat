@@ -43,6 +43,13 @@ export interface ActionContext {
    * phản ánh quyền đọc module gốc của nguồn. Không phải input công khai (HTTP / model không đặt được).
    */
   knowledgeAuthz?: AuthzContext;
+  /**
+   * TIP-023d §2.1-2.3: ràng buộc bước kế hoạch Cowork đang chạy — server cấp (meta-tools / xác nhận thẻ đọc lại từ DB), KHÔNG phải input
+   * công khai (HTTP / model không đặt được). Không cấp quyền: chỉ để executor claim hiệu ứng chính một lần + gắn biên nhận thật.
+   */
+  planBinding?: { planId: string; stepId: string; generation: number; epoch: number };
+  /** TIP-033c §3.1: dữ kiện nguồn đã ràng vào confirm_token lúc xem trước — executor đặt sau khi tiêu token; không phải input công khai. */
+  previewFacts?: Record<string, string | number>;
   /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
   authz: AuthzContext;
 }

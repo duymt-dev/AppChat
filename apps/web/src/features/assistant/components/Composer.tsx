@@ -37,7 +37,8 @@ export function Composer({ rows, placeholder, onSend, full, sendIcon = 'up', onM
   const tAll = useTranslations();
   const { styles, cx } = useComposerStyles();
   const ui = useAssistantUi();
-  const setMode = (m: Mode) => (onMode ? onMode(m) : ui.set({ mode: m, pop: null }));
+  // §5.6: sang Chat bỏ chọn agent cho lượt mới (lượt Cowork đang chạy giữ ngữ cảnh đã ghim ở server).
+  const setMode = (m: Mode) => (onMode ? onMode(m) : ui.set({ mode: m, pop: null, ...(m === 'chat' ? { agent: null } : {}) }));
   const { message } = App.useApp();
   const att = useAssistantAttachments(useCallback((name: string, why: AttachReject) => void message.warning(`${name}: ${t(`attachments.rejected.${why}`)}`), [message, t]));
   const closeUtility = useCallback(() => useAssistantUi.getState().set({ utility: null }), []);
@@ -114,7 +115,7 @@ export function Composer({ rows, placeholder, onSend, full, sendIcon = 'up', onM
         {ui.mode === 'cowork' ? (
           <button type="button" className={styles.agentChip} data-testid="asst-agent" onClick={(e) => ui.openPop('agent', e.currentTarget)}>
             <Icon name="ic-bot" size={13} color={color.violet} strokeWidth={2} />
-            {ui.agent ? t('agentSuffix', { name: ui.agent }) : t('agentNone')}
+            {ui.agent ? t('agentSuffix', { name: ui.agent.name }) : t('agentNone')}
           </button>
         ) : null}
         <span className={styles.grow} />

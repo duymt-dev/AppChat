@@ -81,6 +81,8 @@ model AssistantPlanStep {
   actionOrAgentId String?             @map("action_or_agent_id")
   dependsOn    String[]               @map("depends_on") @db.Uuid
   state        AssistantPlanStepState @default(pending)
+  /// Thế hệ thực thi hiện hành (TIP-023d §2.2) — claim hiệu ứng chính = (plan, bước, thế hệ); chỉ sửa kế hoạch mới tăng, cho bước chưa admitted.
+  executionGeneration Int             @default(1) @map("execution_generation")
   createdAt    DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt    DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -128,6 +130,9 @@ model AssistantPlanPrimaryClaim {
   phase               String
   admissionId         String?  @map("admission_id")
   receiptRef          String?  @map("receipt_ref")
+  /// Việc nền đã nhận (202 job_accepted): handle để gọi lại cùng claim trả đúng handle cũ (TIP-023d §2.2).
+  jobId               String?  @map("job_id")
+  statusUrl           String?  @map("status_url")
   createdAt           DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt           DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 

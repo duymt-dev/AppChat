@@ -101,6 +101,7 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'assistant.plan_proposed': by('assistant_plan', 'plan_id'),
   'assistant.plan_progressed': by('assistant_plan', 'plan_id'),
   'assistant.plan_edit_requested': by('assistant_plan', 'plan_id'),
+  'assistant.plan_resumed': by('assistant_plan', 'plan_id'),
   'assistant.discovery_requested': by('discovery_generation', 'generation_id'),
   'assistant.input_prepare_requested': by('assistant_input', 'artifact_id'),
   // sản phẩm

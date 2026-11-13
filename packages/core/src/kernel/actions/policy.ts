@@ -39,7 +39,8 @@ export const UI_ONLY_ACTIONS: ReadonlySet<string> = new Set(['workspace.request_
  * `privacy.review_resolve` thêm ở pha 2 (handler thật — read.handlers.ts/review.handler.ts); `contact.allow_recreation` chờ pha sau
  * (identity-token anti-recreation chưa cài).
  */
-export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation']);
+// TIP-033c §3.2: tạo đơn từ lịch hẹn — xác nhận ràng giá / version lúc xem trước (UI / API thô không có token → preview_required, 0 ghi).
+export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation', 'order.create_from_appointment']);
 
 export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId }: ActionPolicyInput): PolicyDecision {
   if (actionId && UI_ONLY_ACTIONS.has(actionId) && source !== 'ui') return 'forbidden';

@@ -9,6 +9,7 @@ import type { MockDb } from '../store';
 import { createTasksState, type MockTask } from './ai-tasks';
 import { genUiReply } from './assistant-genui';
 import { recordTurn } from './assistant-sessions';
+import { planForTurn } from './assistant-plans';
 import { bindTurnInputs } from './assistant-input';
 import { assertRecordIntent, recordAssistantPosts } from './record-assistant';
 
@@ -209,13 +210,14 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     // Chỉ gửi tệp (TIP-023f §4.1): như server — câu hỏi trung tính, không bịa việc.
     const text = String(body.text ?? '').trim() || (hasInputs ? 'Tệp đính kèm nói gì?' : '');
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
-    const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
+    const session = String(body.session_id ?? `0190f0a5-0000-7000-8000-${String(++db.assistant.seq).padStart(12, '0')}`);
     const files = hasInputs ? bindTurnInputs(body.inputs, session) : null;
     // Mock không gọi model: tệp đã chuẩn bị → trả đoạn trích tất định (hợp đồng), không phải chứng minh hiểu nội dung.
     // TIP-023g: lối vào theo bản ghi — kiểm cặp / bản ghi như server (422 / 404), mock không gọi model.
     if (body.record_intent !== undefined) assertRecordIntent(db, body.record_intent);
     const events = files ? [{ type: 'delta' as const, text: `[mock] Đã nhận ${files.names.map((f) => f.name).join(', ')}${files.excerpt ? `: ${files.excerpt}` : ''}` }] : scriptReply(db, text, (body.context as { route?: string } | undefined)?.route);
     recordTurn(session, String(body.mode ?? 'chat'), text, events as never, files?.names);
+    planForTurn(session, String(body.mode ?? 'chat'), text, body.plan_draft as { plan_id: string } | undefined);
     return { session_id: session, run_id: null, events };
   },
   ...recordAssistantPosts,

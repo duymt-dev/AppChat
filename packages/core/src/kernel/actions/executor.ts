@@ -29,6 +29,7 @@ import { executeLifecycleAction, LIFECYCLE_ACTIONS, type LifecycleContext } from
 import { activityEvent } from './activity-event';
 import { admitInternal } from './system/capability';
 import { systemAdmission } from './system/executor-hook';
+import type { ExecutionBindingPort } from './execution-binding';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
 
@@ -80,6 +81,7 @@ export const implementedBy = (e: ToolExecutor) => (actionId: string) => e.isImpl
 
 export class ActionExecutor {
   private readonly defs: Map<string, ActionDef>;
+  private binding: ExecutionBindingPort | undefined;
 
   constructor(private readonly d: ExecutorDeps) {
     this.defs = new Map(d.registry.map((a) => [a.id, a]));
@@ -88,6 +90,11 @@ export class ActionExecutor {
   /** Gắn gateway duyệt lúc boot (domain `ai` — TIP-021 cài; kernel không phụ thuộc domain). */
   setApprovals(g: ApprovalGateway): void {
     this.d.approvals = g;
+  }
+
+  /** Gắn port ràng buộc bước kế hoạch lúc boot (TIP-023d §2.3 — domain `ai` cài; kernel không import AI). */
+  setExecutionBinding(p: ExecutionBindingPort): void {
+    this.binding = p;
   }
 
   /** Cổng duyệt đã gắn (thao tác nền tảng tiêu thụ duyệt ở pha tenant — TIP-045b). */
@@ -177,12 +184,15 @@ export class ActionExecutor {
       }
     }
 
-    if (decision === 'preview' && !(await this.d.confirm.consume(ctx, actionId, input, ctx.confirmToken))) {
-      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input.
-      const preview = handler.preview ? await db.$transaction((tx) => handler.preview!(ctx, input, tx)) : { summary: '', risk: def.risk };
-      const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime());
+    const bound = decision === 'preview' ? await this.d.confirm.take(ctx, actionId, input, ctx.confirmToken) : null;
+    if (decision === 'preview' && !bound) {
+      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input. Dữ kiện nguồn (bindPreview)
+      // đọc cùng transaction với preview, ràng vào token phía server (TIP-033c §3.1).
+      const [preview, facts] = await db.$transaction(async (tx) => [handler.preview ? await handler.preview(ctx, input, tx) : { summary: '', risk: def.risk }, await handler.bindPreview?.(ctx, input, tx)] as const);
+      const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime(), facts);
       return { status: 202, data: { status: 'preview_required', preview, confirm_token: token, expires_at: expiresAt.toISOString() } };
     }
+    if (bound && Object.keys(bound).length) ctx.previewFacts = bound;
 
     if (!key && requiresIdempotencyKey(actionId, def.risk)) throw new AppError('VALIDATION_FAILED', 422, { idempotency_key: 'required' });
 
@@ -195,6 +205,7 @@ export class ActionExecutor {
     // Action `db: 'platform'` (TIP-045b annex A1): sổ thao tác xuyên DB — nền tảng commit trước, tenant áp sau với biên nhận, khôi phục
     // theo pha; không còn transaction tenant lồng trong transaction nền tảng. Idempotency theo sổ (workspace + actor + khoá).
     if (def.db === 'platform') {
+      if (ctx.planBinding) throw new AppError('CONFLICT', 409, { plan_step: 'unsupported_action' });
       if (!this.d.operations) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
       let after: (() => Promise<void>) | undefined;
       const r = await this.d.operations.run<O>(ctx, def, handler, input, prepared, {
@@ -212,6 +223,10 @@ export class ActionExecutor {
       // Action riêng (TIP-003c §1.3, §3.3): kiểm lại capability ngay trước hiệu ứng + nhận biên nhận trigger trong CÙNG transaction.
       const sys = isInternalAction(def) ? await systemAdmission(tx, ctx, actionId, rawInput ?? {}, now) : undefined;
       if (sys?.replay) return { data: sys.replay, queued: null, afterCommit: undefined };
+      // Bước kế hoạch (TIP-023d §2.2-2.3): claim hiệu ứng chính TRƯỚC handler — cùng digest đã xong → biên nhận cũ, không chạy lại.
+      if (ctx.planBinding && !this.binding) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '023d' }, 'execution binding chưa cài');
+      const bound = ctx.planBinding ? await this.binding!.admit(tx, ctx, actionId, hashInput(input), now) : undefined;
+      if (bound?.replay) return { data: bound.replay.data, queued: bound.replay.queued ?? null, afterCommit: undefined };
       await approved(tx);
       const r = await handler.execute(ctx, input, tx, undefined, prepared);
       const undoUntil = r.noUndo ? undefined : undoWindow;
@@ -247,6 +262,7 @@ export class ActionExecutor {
         },
       });
       if (sys) await sys.settle(tx, output, logId);
+      if (bound) await bound.settle(tx, logId, r.accepted);
       const sec = securityEvents(actionId, logId, ctx.actor, ctx.onBehalfOfUserId, ctx.source);
       await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec, ...activityEvent(ctx, def, logId)], now, traceId);
       // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.

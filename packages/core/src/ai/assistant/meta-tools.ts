@@ -24,6 +24,8 @@ import { aiCustomErrors, withCustomSchema } from './custom-schema';
 import { delegateTool, type DelegateDeps } from './delegate';
 import { renderTool } from './genui/render';
 import { planOfRoot } from './plans/repo';
+import { decideStep } from './plans/driver';
+import { rootAuthority } from './plans/selected-agent';
 import { dispatchOutcome } from './read-dispatch';
 import type { AssistantTurnCtx } from './types';
 
@@ -112,7 +114,15 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
     if (Object.keys(notAi).length) throw new AppError('VALIDATION_FAILED', 422, notAi);
     // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước + lời gọi (chạy lại cùng lời gọi không tạo hai lần).
     const idem = def.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(t.runId, stepIdx, toolCallId) };
-    return dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input), stripSecrets(def, input), maxRows);
+    // TIP-023d §2.1-2.2: lời gọi ghi khi run có kế hoạch đang chạy → server ràng với bước hiện hành (hoặc từ chối ghi ngoài kế hoạch).
+    const step = def.risk === 'read' || def.id.startsWith('assistant.plan_') ? null : await decideStep(d.db, t.runId, def.id);
+    if (step?.kind === 'reject') return err(step.code, step.message);
+    const binding = step?.kind === 'bound' ? { planBinding: step.binding } : {};
+    // TIP-023d §5.3: đã chọn agent → run gốc chỉ tra cứu trong quyền agent ∩ người dùng; ghi nghiệp vụ phải giao cho agent đó.
+    const sel = t.selected ? await rootAuthority(d.db, t.selected, t.authz, def) : null;
+    if (sel && !sel.ok) return err(sel.code, sel.message);
+    const out = dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, { ...idem, ...binding, ...(sel ? { authz: sel.authz } : {}) }), def.id, input), stripSecrets(def, input), maxRows);
+    return out.kind === 'needs_confirmation' && step?.kind === 'bound' ? { ...out, binding: step.binding } : out;
   } catch (e) {
     if (e instanceof AppError && e.code === 'VALIDATION_FAILED') {
       // Sai khuôn input → kèm khuôn đúng + ví dụ để model tự gọi lại (không bỏ cuộc, không bắt người dùng tự sửa).
