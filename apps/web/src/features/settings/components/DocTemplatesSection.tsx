@@ -16,9 +16,11 @@ import { useSettingsUi } from '../settings-store';
 import { useDocPreview } from '../hooks/useDocPreview';
 import { docTemplatesQuery } from '../api';
 import type { DocTemplate } from '../types';
-import { DocxWizard } from './DocxWizard';
 import { RichTemplateModal } from './RichTemplateModal';
 import { RowMenu } from './RowMenu';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const DocxWizard = lazyDrawer(() => import('./DocxWizard').then((m) => m.DocxWizard));
 
 const VER = 'v';
 const KINDS = ['all', ...DOC_KINDS] as const;
@@ -129,7 +131,9 @@ export function DocTemplatesSection() {
         {t('rule')}
       </div>
       {docModal?.source === 'rich' && (!docModal.id || editing) ? <RichTemplateModal tpl={editing} onClose={() => set({ docModal: null })} /> : null}
-      {docModal?.source === 'docx' && (!docModal.id || editing) ? <DocxWizard tpl={editing} onClose={() => set({ docModal: null })} /> : null}
+      <Opened name="docx-wizard" when={docModal?.source === 'docx' && (!docModal.id || !!editing)} keep={false} onClose={() => set({ docModal: null })}>
+        <DocxWizard tpl={editing} onClose={() => set({ docModal: null })} />
+      </Opened>
     </>
   );
 }

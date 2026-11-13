@@ -119,6 +119,9 @@ export async function captureApp(browser: Browser, e: ParityEntry, baseUrl: stri
   if (e.shellOnly) await page.addStyleTag({ content: '[data-testid="app-shell"] main > div > * { visibility: hidden !important; }' });
   await settle(page);
   if (e.app) await e.app(page);
+  // Drawer / modal tải lười (TIP-001b, shared/dynamic/lazy-drawers): chờ chunk về và khung skeleton biến mất trước khi chụp.
+  await page.waitForLoadState('networkidle');
+  await page.waitForSelector('[data-testid="drawer-loading"]', { state: 'detached' });
   await settle(page);
   let clip = e.clip;
   if (e.clipTo && protoBox) {

@@ -1,7 +1,7 @@
 | ID | Nghĩa vụ | Nguồn | TIP nhận | Trạng thái | Bằng chứng |
 |----|----------|-------|----------|-----------|------------|
 | Q-027 | Chốt ca biên tiền/điểm: đảo điểm đã dùng, trả lô đã hết hạn, completed chưa đủ tiền | QUESTIONS.md:35 | 036 | ĐẠT | DC-297 a/b/c duyệt; test loyalty-events.test.ts (nợ chặn đổi, trả lô giữ hạn gốc, earn theo thực thu) |
-| DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | 001b | CHƯA | `.dependency-cruiser-known-violations.json` vẫn 99 mục (đếm 2026-11-01) — không giảm sau 25 TIP nối http; TIP-001b nhận (2026-11-02) |
+| DEF-001-1 | Gỡ 99 vòng phụ thuộc `apps/web` (barrel features + mock transport), xoá dòng baseline khi nối http | reports/TIP-001-completion.md:51 | 001b | ĐẠT | TIP-001b: vòng runtime apps/web 23 → 0 (barrel import chéo → module lá `api/*-store/types/ui-commands`, mock bỏ re-export handler); `.dependency-cruiser-known-violations.json` = `[]`; `pnpm depcheck` exit 0 (4433 module); `no-circular-web` = error (loại cạnh type-only, DC-446), `web-no-own-barrel`; thử vòng giả → depcheck đỏ |
 | DEF-001-2 | Standard omnichannel-adapter ghi `capabilities.reactions` + `group: 'commerce'` cho khớp code | reports/TIP-001-completion.md:65 | 014b | ĐẠT | standards/channels/omnichannel-adapter.md: `group` gồm `'commerce'`, `capabilities.reactions` + `operations` (TIP-014b) khớp packages/channels/src/types.ts |
 | DEF-002-1 | CI GitHub chạy integration test với Postgres + Redis (Q-008) | reports/TIP-002-completion.md:38 | 046 | CHƯA | .github/workflows/{ci,e2e,full,parity}.yml không có service postgres; TG row 046 "CI backend-it.yml" |
 | DEF-002-2 | Cache registry workspace qua Redis / invalidate pub/sub khi nhiều tiến trình api | reports/TIP-002-completion.md:51; TIP-003:49 | 006c | CHƯA | packages/db/src/tenant-resolver.ts:81 TTL 60s trong process, `invalidate` (L62) chỉ xoá cache cục bộ; TIP-006c nhận (2026-11-02) |
@@ -109,7 +109,7 @@
 | Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | ĐẠT | Ngưỡng ≥ 27/30 + 0 vi phạm an toàn đạt: 27/30, an toàn 0 (reports/ai-live-2026-11-03.md); 3 ca fail đã phân loại (model chọn đường khác / seed Q-044 / dấu "Huế") |
 | Q-024 | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket bằng exceljs theo bộ lọc | QUESTIONS.md:32 | 038 | ĐẠT | 4 nút gọi action thật (DC-365); không thêm module Báo cáo (D19) |
 | Q-025 | Chặn chéo: báo giá đã sinh đơn không sinh HĐ và ngược lại | QUESTIONS.md:33 | 032b | ĐẠT | Như COM-3-13 (lockConversion, QUOTE_ALREADY_CONVERTED cả hai chiều) |
-| DV-001 | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | DEVIATIONS.md:18 | 001b | CHƯA | Baseline vẫn 99 (xem DEF-001-1); TIP-001b nhận (2026-11-02) |
+| DV-001 | Duyệt baseline vòng `apps/web` hoặc gỡ vòng | DEVIATIONS.md:18 | 001b | ĐẠT | DEVIATIONS DV-001 đã đóng bởi TIP-001b — baseline `[]`, luật vòng web = error (xem DEF-001-1, DC-446) |
 | DV-002 | Duyệt `platform/notify.prisma` + `event_consumption` + thư viện socket.io / nodemailer | DEVIATIONS.md:19 | 006 | ĐẠT | packages/db/prisma/platform/notify.prisma:7; tenant/kernel.prisma:137; test notify.test.ts |
 | DV-003 | Duyệt Storage / `POST /v1/files` ở kernel (s3 sau) | DEVIATIONS.md:20 | 020 | ĐẠT | apps/api/src/http/files/files.controller.ts:32; test documents.test.ts, inbox-ui.test.ts |
 | DV-004 | Duyệt `prepare` ngoài transaction + `/agents/meta` + `/settings/governance` | DEVIATIONS.md:21 | 021 | ĐẠT | kernel/actions/handler.ts:35; test agents.test.ts |

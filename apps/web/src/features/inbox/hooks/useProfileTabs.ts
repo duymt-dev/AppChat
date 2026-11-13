@@ -3,7 +3,7 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
 import { useAuthz } from '@/shared/authz/useCan';
-import { profileLayoutsQuery } from '@/features/settings';
+import { profileLayoutsQuery } from '@/features/settings/api';
 import { contactQuery } from '../api';
 import type { LayoutTab } from '../types';
 

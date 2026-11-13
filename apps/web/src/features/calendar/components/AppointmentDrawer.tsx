@@ -15,7 +15,7 @@ import { CustomFieldList } from '@/shared/custom-fields';
 import { AppointmentHeader } from './AppointmentHeader';
 import { AppointmentFooter } from './AppointmentFooter';
 import { AppointmentOrderCards } from '@/shared/appointment-order/AppointmentOrderCard';
-import { useOrdersUi } from '@/features/orders';
+import { useOrdersUi } from '@/features/orders/orders-store';
 
 const SP = ' ';
 /** Lý do kiểm toán khi hoàn tác tạo lịch (TIP-033b — server giữ bản ghi, chuyển cancelled). */

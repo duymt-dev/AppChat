@@ -137,4 +137,3 @@ export const ticketsParamRoute = (path: string): MockRoute | undefined => {
   return (db) => view(find(db, m[1]!));
 };
 
-export { ticketsHandlers } from './tickets-actions';

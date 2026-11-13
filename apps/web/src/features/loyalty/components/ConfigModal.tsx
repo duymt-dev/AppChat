@@ -10,8 +10,9 @@ import { useAction } from '@/shared/actions/useAction';
 import { useModalStyles } from '../styles/modal.styles';
 import { useLoyaltyUi } from '../loyalty-store';
 import { loyaltyConfigQuery } from '../api';
-import { TIER_TONE, pts } from '../status';
+import {TIER_TONE } from '../status';
 import type { LoyaltyConfig, TierKey } from '../types';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const FIXED = ['earn', 'redeem', 'expiry', 'review'] as const;
 
@@ -23,6 +24,7 @@ export function ConfigModal() {
 }
 
 function Config({ cfg }: { cfg: LoyaltyConfig }) {
+  const fmt = useFmt();
   const t = useTranslations('loyalty');
   const { message } = App.useApp();
   const { styles, cx } = useModalStyles();
@@ -77,7 +79,7 @@ function Config({ cfg }: { cfg: LoyaltyConfig }) {
                     <span className={styles.tier} style={{ background: `${tone}18`, color: tone }}>
                       {t(`tier.${x.key}`)}
                     </span>
-                    <span className={styles.muted}>{t('cfg.from', { n: pts(x.min) })}</span>
+                    <span className={styles.muted}>{t('cfg.from', { n: fmt.number(x.min) })}</span>
                   </div>
                   <input
                     className={styles.input}

@@ -8,7 +8,8 @@ import { Icon, color } from '@appchat/ui';
 import { useModalStyles } from '../styles/modal.styles';
 import { useLoyaltyUi } from '../loyalty-store';
 import { useAdjust, type AdjustDir } from '../hooks/useAdjust';
-import { TIER_TONE, avColor, initial, pts } from '../status';
+import {TIER_TONE, avColor, initial } from '../status';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const DIRS: AdjustDir[] = ['plus', 'minus'];
 const REQ = '*';
@@ -45,6 +46,7 @@ function Steps({ step }: { step: number }) {
 }
 
 function Adjust({ initialPhone }: { initialPhone: string }) {
+  const fmt = useFmt();
   const t = useTranslations('loyalty');
   const { styles, cx } = useModalStyles();
   const a = useAdjust(initialPhone);
@@ -104,13 +106,13 @@ function Adjust({ initialPhone }: { initialPhone: string }) {
                   </span>
                   <div>
                     {`${t('adj.cur')} `}
-                    <b>{pts(m.points)}</b>
+                    <b>{fmt.number(m.points)}</b>
                   </div>
                 </div>
               </div>
               <div className={styles.next}>
                 {next
-                  ? t.rich('adj.toNext', { n: pts(Math.max(0, next.min - m.earned)), t: t(`tier.${next.key}`), b: (c) => <b>{c}</b> })
+                  ? t.rich('adj.toNext', { n: fmt.number(Math.max(0, next.min - m.earned)), t: t(`tier.${next.key}`), b: (c) => <b>{c}</b> })
                   : t('adj.maxTier')}
               </div>
             </div>
@@ -177,7 +179,7 @@ function Adjust({ initialPhone }: { initialPhone: string }) {
                 <div className={styles.resH}>{t('adj.result')}</div>
                 <div className={styles.resRow}>
                   <span className={styles.grow}>{t('adj.curPoints')}</span>
-                  <b>{pts(a.current)}</b>
+                  <b>{fmt.number(a.current)}</b>
                 </div>
                 <div className={styles.resRow}>
                   <span className={styles.grow}>{t('adj.tierAfter')}</span>
@@ -185,7 +187,7 @@ function Adjust({ initialPhone }: { initialPhone: string }) {
                 </div>
                 <div className={styles.resTot}>
                   <span className={styles.grow}>{t('adj.after')}</span>
-                  <b data-testid="ly-adj-balance">{pts(a.balance)}</b>
+                  <b data-testid="ly-adj-balance">{fmt.number(a.balance)}</b>
                 </div>
               </div>
               <div className={styles.muted}>{t('adj.log')}</div>

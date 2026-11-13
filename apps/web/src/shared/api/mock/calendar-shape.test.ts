@@ -5,7 +5,7 @@ import { appointmentRowSchema, appointmentsPageSchema, bookingSettingsSchema, ca
 import { mockTransport } from './mock-transport';
 import { mockDb, setMockRole } from './store';
 import { createCalendarState, isPast } from './domains/calendar';
-import { calendarHandlers } from './domains/calendar';
+import { calendarHandlers } from './domains/calendar-actions';
 
 const issues = (r: { success: boolean; error?: { issues: unknown[] } }) => (r.success ? [] : r.error!.issues);
 const run = (id: string, input: unknown) => calendarHandlers[id]!.execute(mockDb(), input as never) as Record<string, unknown>;
