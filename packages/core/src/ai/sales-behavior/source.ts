@@ -22,7 +22,7 @@ export async function captureSource(db: Db, runId: string, conversationId: strin
   const anchorId = sourceIdOf(run.input) ?? sourceIdOf(root?.input);
   if (!anchorId) return { deny: 'no_source' };
 
-  const c = await db.conversation.findUnique({ where: { id: conversationId }, select: { kind: true, contactId: true, aiMode: true, aiTurnFence: true, aiTurnOwner: true } });
+  const c = await db.conversation.findUnique({ where: { id: conversationId }, select: { kind: true, contactId: true, aiMode: true, aiTurnFence: true, aiTurnOwner: true, clearedAt: true } });
   if (!c) return { deny: 'no_source' };
   if (c.kind !== 'direct') return { deny: 'group_source' };
   if (!c.contactId) return { deny: 'no_contact' };
@@ -33,6 +33,8 @@ export async function captureSource(db: Db, runId: string, conversationId: strin
 
   const anchor = await db.message.findUnique({ where: { id: anchorId }, select: { conversationId: true, direction: true, origin: true, deletedAt: true, recalledAt: true, createdAt: true } });
   if (!anchor || anchor.conversationId !== conversationId || anchor.direction !== 'in' || anchor.origin !== 'live' || anchor.deletedAt || anchor.recalledAt) return { deny: 'no_source' };
+  // Tin trước mốc "xoá lịch sử" không còn là nguồn (P4) — kể cả khi mốc được hoàn tác sau đó, biên nhận cũ đã vô hiệu không hồi sinh.
+  if (c.clearedAt && anchor.createdAt <= c.clearedAt) return { deny: 'no_source' };
   // Tập nguồn = tin khách sống kể từ câu trả lời thường gần nhất trước tin neo (lời chào không tính), tối đa 10 tin, kết thúc ở tin neo.
   const lastOut = await db.message.findFirst({
     where: { conversationId, direction: 'out', deletedAt: null, purpose: null, createdAt: { lt: anchor.createdAt } },
@@ -40,7 +42,7 @@ export async function captureSource(db: Db, runId: string, conversationId: strin
     select: { createdAt: true },
   });
   const rows = await db.message.findMany({
-    where: { conversationId, direction: 'in', origin: 'live', deletedAt: null, recalledAt: null, kind: { notIn: ['note', 'system'] }, createdAt: { lte: anchor.createdAt, ...(lastOut ? { gt: lastOut.createdAt } : {}) } },
+    where: { conversationId, direction: 'in', origin: 'live', deletedAt: null, recalledAt: null, kind: { notIn: ['note', 'system'] }, createdAt: { lte: anchor.createdAt, ...(lastOut || c.clearedAt ? { gt: [lastOut?.createdAt, c.clearedAt].filter((x): x is Date => !!x).sort((a, b) => b.getTime() - a.getTime())[0] } : {}) } },
     orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
     take: MAX_SOURCE_MESSAGES,
     select: { id: true, body: true },

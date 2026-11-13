@@ -23,6 +23,7 @@ import { assertTurnWritable } from '../../ai/reply/send-fence';
 import { me, updatedEvent } from './kit';
 import * as pv from './previews/message.handlers.preview';
 import { verifyDraftRef } from '../../ai/kb/scope/draft-binding';
+import { fenceCustomerSource } from '../services/customer-source-fence';
 
 type Conv = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
 const SEND_KINDS = new Set(['text', 'image', 'file', 'sticker', 'audio', 'card']);
@@ -68,7 +69,7 @@ export class MessageSendHandler implements Handler<ActionInput<typeof messageSen
     // TIP-022b: lời chào chỉ khi lượt agent + ràng run / tin nguồn đã lưu; ghi id tin lên receipt cùng transaction.
     const purpose = turn ? await greetingPurpose(tx, ctx, c.id) : undefined;
     // TIP-020c: nội dung phụ thuộc nguồn tri thức — tin agent theo run đang gửi, tin người theo nháp / gợi ý AI đã kiểm.
-    const knowledgeRunId = turn && ctx.runId ? ctx.runId : await verifyDraftRef(tx, c, input.ai_draft_ref);
+    const knowledgeRunId = turn && ctx.runId ? ctx.runId : await verifyDraftRef(tx, c, input.ai_draft_ref, { authz: ctx.authz, now: this.clock.now() });
     // Tệp đính kèm (TIP-025): kiểm kênh hỗ trợ trước khi đổi tệp thành link ký.
     const ids = input.attachments ?? [];
     if (ids.length) sendKindOf(this.registry, c.channelType, [{ mime: 'application/octet-stream' }]);
@@ -139,6 +140,8 @@ export class MessageDeleteHandler implements Handler<ActionInput<typeof messageD
   async execute(ctx: ActionContext, input: ActionInput<typeof messageDelete>, tx: TenantTx): Promise<HandlerOutcome<{ deleted: boolean }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
     const m = await messageOf(tx, c.id, input.message_id);
+    // TIP-022c: khách → hội thoại → tin → biên nhận (cùng thứ tự cổng ý định khách); căn cứ báo giá dựa trên tin này vô hiệu ngay.
+    await fenceCustomerSource(tx, c.id, [m.id], 'source_deleted', this.clock.now());
     await tx.message.update({ where: { id: m.id }, data: { deletedAt: m.deletedAt ?? this.clock.now() } });
     if (c.pinnedMessageId === m.id) await tx.conversation.update({ where: { id: c.id }, data: { pinnedMessageId: null } });
     return {
@@ -150,6 +153,8 @@ export class MessageDeleteHandler implements Handler<ActionInput<typeof messageD
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const b = log.before as { conversation_id: string; message_id: string; deleted_at: string | null; pinned: boolean };
+    // Hoàn xoá: cùng thứ tự khoá; căn cứ đã vô hiệu KHÔNG mở lại (khách phải nói lại → tin nguồn mới).
+    await fenceCustomerSource(tx, b.conversation_id, [b.message_id], 'source_restored', this.clock.now());
     await tx.message.updateMany({ where: { id: b.message_id }, data: { deletedAt: b.deleted_at ? new Date(b.deleted_at) : null } });
     if (b.pinned) await tx.conversation.updateMany({ where: { id: b.conversation_id }, data: { pinnedMessageId: b.message_id } });
   }

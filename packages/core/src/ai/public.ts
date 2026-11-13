@@ -135,3 +135,5 @@ export { proposeFromConversation, parsePairs, type ProposeDeps, type ProposeOutc
 export { kbSuggestConsumer, closedCutoff } from './kb/suggestions/suggestion.consumer';
 export { KbSuggestQueue, KB_SUGGEST_QUEUE } from './kb/suggestions/suggestion.jobs';
 export { CREDIT_HANDOFF_CONSUMER, creditHandoffConsumer, handoffForCredit, type CreditHandoffDeps } from './reply/credit-handoff.consumer';
+// TIP-022c: căn cứ công bố câu bán hàng (digest sự thật hiển thị / chữ) — bằng chứng worker / integration dựng căn cứ như lượt thật.
+export { contentDigest, visibleDigests } from './sales-behavior/publication';

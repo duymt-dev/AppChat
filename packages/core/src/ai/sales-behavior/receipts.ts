@@ -28,8 +28,8 @@ export async function receiptOfSource(db: Pick<TenantDb, 'aiSalesIntent'>, src: 
 
 export async function prepareReceipt(db: TenantDb, src: TrustedSource, i: ReceiptInput, now: Date): Promise<PreparedReceipt | Deny> {
   return db.$transaction(async (tx) => {
-    const rows = await tx.$queryRaw<{ ai_mode: string; ai_turn_fence: number }[]>`
-      SELECT ai_mode::text AS ai_mode, ai_turn_fence FROM conversation WHERE id = ${src.conversationId}::uuid FOR UPDATE`;
+    const rows = await tx.$queryRaw<{ ai_mode: string; ai_turn_fence: number; ai_epoch: number }[]>`
+      SELECT ai_mode::text AS ai_mode, ai_turn_fence, ai_epoch FROM conversation WHERE id = ${src.conversationId}::uuid FOR UPDATE`;
     if (!rows[0] || rows[0].ai_mode !== 'auto' || rows[0].ai_turn_fence !== src.turnFence) return { deny: 'not_auto' as const };
     const prior = await receiptOfSource(tx, src);
     if (prior) {
@@ -48,6 +48,7 @@ export async function prepareReceipt(db: TenantDb, src: TrustedSource, i: Receip
         sourceIds: src.messages.map((m) => m.id),
         sourceDigest: src.digest,
         turnFence: src.turnFence,
+        aiEpoch: rows[0].ai_epoch,
         originalContactId: src.contactId,
         quoteId: i.quote.id,
         quoteVersion: i.quote.version,
