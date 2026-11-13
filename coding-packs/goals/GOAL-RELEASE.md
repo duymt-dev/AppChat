@@ -133,7 +133,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 49 | [028b](../tips/TIP-028b-document-integrity.md) | W8 | DONE | `tip/028b-document-integrity` · `tip/028b-p2-doc-render` | `04cac52d` (P1) · `e0bb391c` (P2) | #205 (P1) · #207 (P2) |
 | 50 | [034b](../tips/TIP-034b-support-categories.md) | W8 | DONE (ai:live chưa nghiệm thu — Q-066) | `tip/034b-support-categories` · `tip/034b-p2-category-transfer` · `tip/034b-p3-category-web` · `tip/034b-p4-close` | `ecac5353` (P1) · `6e2629f2` (P2) · `3b1f0c0e` (P3) · `3ed9fe7a` (P4) | #208 (P1) · #209 (P2) · #210 (P3) · #211 (P4) |
 | 51 | [001b](../tips/TIP-001b-web-architecture.md) | W8 | DONE | `tip/001b-web-architecture` | `ab277e75` | #212 |
-| 52 | [034c](../tips/TIP-034c-ticket-bulk.md) | W8 | chờ | `tip/034c-ticket-bulk` | | |
+| 52 | [034c](../tips/TIP-034c-ticket-bulk.md) | W8 | đang làm (pha 1/3 #213) | `tip/034c-ticket-bulk` | d86d0fd2 | #213 |
 | 53 | [022c](../tips/TIP-022c-sales-behavior.md) | W8 | chờ | `tip/022c-sales-behavior` | | |
 | 54 | [006c](../tips/TIP-006c-realtime-events.md) | W8 | chờ | `tip/006c-realtime-events` | | |
 | 55 | [016b](../tips/TIP-016b-nav-badges.md) | W8 | chờ | `tip/016b-nav-badges` | | |
