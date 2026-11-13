@@ -26,6 +26,7 @@ import { invoicesHandlers } from './domains/invoices';
 import { invoicesActionHandlers } from './domains/invoices-actions';
 import { calendarHandlers } from './domains/calendar-actions';
 import { ticketsHandlers } from './domains/tickets-actions';
+import { ticketBulkHandlers } from './domains/tickets-bulk';
 import { marketingHandlers } from './domains/marketing';
 import { loyaltyHandlers } from './domains/loyalty';
 import { settingsHandlers } from './domains/settings';
@@ -139,6 +140,7 @@ export const mockHandlers: Record<string, MockHandler> = withDocChecklist(withCu
   ...invoicesActionHandlers,
   ...calendarHandlers,
   ...ticketsHandlers,
+  ...ticketBulkHandlers,
   ...marketingHandlers,
   ...loyaltyHandlers,
   ...settingsHandlers,

@@ -42,6 +42,9 @@
   "approvalSent": "Sent for approval: {title} — nothing runs until it is approved",
   "jobAccepted": "Accepted: {title} — running in the background, results update when done",
   "operationPending": "Finishing: {title} — the system completes the rest automatically, no need to retry",
+  "undone": "Undone: {title}",
+  "undoAccepted": "Undoing: {title} — running in the background, results update when done",
+  "undoPartial": "Partially undone: {title} — {undone} undone, {failed} kept (edited afterwards or failed)",
   "previewTitle": "Confirm action",
   "business_profile": {
     "update": {

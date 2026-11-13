@@ -114,6 +114,12 @@ describe('ticket.bulk_update — kết quả từng id (AC1)', () => {
     expect((await tk(same!)).version).toBe(2);
     expect(await db.ticketEvent.count({ where: { ticketId: same!, type: 'priority' } })).toBe(0);
     expect((await tk(hidden[0]!)).priority).toBe('medium');
+    // GET /data-jobs/:id/result: kết quả từng id theo thứ tự nhập từ biên nhận — chỉ người tạo; Owner không phải người tạo → 404.
+    const result = (await call(h, `/data-jobs/${job}/result`, undefined, as(sales)).then(json)).body.data;
+    expect(result).toMatchObject({ updated: 193, changed_count: 192, duplicates: 1, operation: { job_id: job, status: 'completed', pending: 0 } });
+    expect(result.outcomes.find((o: { id: string }) => o.id === closed)).toEqual({ id: closed, ok: false, error: { code: 'INVALID_TRANSITION' } });
+    expect(result.outcomes.find((o: { id: string }) => o.id === hidden[0])).toEqual({ id: hidden[0], ok: false, error: { code: 'NOT_FOUND' } });
+    expect((await call(h, `/data-jobs/${job}/result`).then(json)).status).toBe(404);
   }, 180_000);
 
   it('≤ 50 chạy ngay sau commit cha; phản hồi đọc từ biên nhận theo thứ tự nhập; legacy `updated` giữ nghĩa', async () => {

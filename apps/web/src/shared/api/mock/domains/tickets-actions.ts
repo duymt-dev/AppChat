@@ -1,7 +1,7 @@
 // Ghi Ticket ở mock — cùng TICKET_FLOW + luật với server (TIP-034, REQ-H01–H04): sai bước → INVALID_TRANSITION 409; phụ trách đúng
 // một (người hoặc agent); cùng khách + danh mục còn mở trong 24 giờ → hỏi gộp (CONFLICT duplicate_of) / gộp / tạo mới; hạn SLA theo chính
 // sách mặc định; đóng chốt sla_result; mở lại +1.
-import { ApiRequestError, TICKET_DUP_HOURS, TICKET_FLOW, assertTransition, normalizeTicketIds, setStatusKey, type AppError } from '@appchat/shared';
+import { ApiRequestError, TICKET_DUP_HOURS, TICKET_FLOW, assertTransition, setStatusKey, type AppError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
@@ -176,35 +176,6 @@ export const ticketsHandlers: Record<string, MockHandler> = {
       Object.assign(t, { status: 'open', close_reason: null, sla_result: null, reopened_count: t.reopened_count + 1 });
       touch(t, { type: 'reopened' });
       return { ticket_id: t.id, status: t.status };
-    },
-  },
-  // TIP-034c: kết quả TỪNG id như native (đóng → INVALID_TRANSITION, không thấy → NOT_FOUND, đã đúng → no-op); ticket khác vẫn chạy.
-  'ticket.bulk_update': {
-    execute: (
-      db,
-      i: { ticket_ids: string[]; assignee_user_id?: string; assignee_agent_id?: string; priority?: 'high' | 'medium' | 'low' },
-    ) => {
-      const { ids, duplicates } = normalizeTicketIds(i.ticket_ids);
-      const outcomes = ids.map((id) => {
-        const t = db.tickets.tickets.find((x) => x.id === id && !x.deleted);
-        if (!t) return { id, ok: false, error: { code: 'NOT_FOUND' } };
-        if (t.status === 'closed') return { id, ok: false, error: { code: 'INVALID_TRANSITION' } };
-        const same = (!i.assignee_user_id || t.assignee_user_id === i.assignee_user_id) && (!i.assignee_agent_id || t.assignee_agent_id === i.assignee_agent_id) && (!i.priority || t.priority === i.priority);
-        if (same) return { id, ok: true, changed: false };
-        if (i.assignee_user_id || i.assignee_agent_id) assign(t, i);
-        if (i.priority) t.priority = i.priority;
-        touch(t, { type: i.assignee_user_id || i.assignee_agent_id ? 'assigned' : 'priority' });
-        return { id, ok: true, changed: true };
-      });
-      const ok = outcomes.filter((o) => o.ok);
-      return {
-        updated: ok.length,
-        changed_count: ok.filter((o) => o.changed).length,
-        failed: outcomes.length - ok.length,
-        duplicates,
-        outcomes,
-        operation: { job_id: `job-${ids.length}`, status: 'completed' as const, total: ids.length, pending: 0 },
-      };
     },
   },
 };

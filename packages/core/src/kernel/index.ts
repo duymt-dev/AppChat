@@ -42,7 +42,7 @@ export { eraseOutboxEvent } from './privacy/cleanup';
 export { kernelInventory } from './privacy/inventory';
 export * from './outbox/outbox.jobs.module';
 // Việc dữ liệu nặng (TIP-045b annex D): đọc trạng thái / tải tệp cho /v1/data-jobs (+ runner cho test).
-export { DataJobStatusService, allowedAction } from './jobs/bulk-status';
+export { DataJobStatusService, allowedAction, registerJobResult } from './jobs/bulk-status';
 export { runDataJob, registerDataJobKind, dataJobKinds, type RunDeps, type RunOutcome } from './jobs/bulk-dispatch';
 export { DataJobActionsModule, DataJobsModule, DATA_JOBS_RUNTIME } from './jobs/data-jobs/data-jobs.module';
 export * from './rate-limit';

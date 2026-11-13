@@ -295,8 +295,7 @@
     },
     "undo": "Undo",
     "dash": "—",
-    "empty": "No actions of this type.",
-    "undone": "Undone: {title}"
+    "empty": "No actions of this type."
   },
   "ap": {
     "title": "Approvals",

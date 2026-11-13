@@ -1,7 +1,9 @@
-// UI state Ticket: bộ lọc, chế độ xem, chọn nhiều, drawer + tab, form tạo, hộp đóng ticket, AI panel, menu dòng.
+// UI state Ticket: bộ lọc, chế độ xem, chọn nhiều, drawer + tab, form tạo, hộp đóng ticket, AI panel, menu dòng, thao tác hàng loạt đang
+// theo dõi (TIP-034c — giữ qua điều hướng trong app; tải lại trang nối lại từ sessionStorage ở useTicketBulk).
 import { create } from 'zustand';
 import { FIRST_PAGE, type PageState } from '@/shared/list/paged';
 import type { TicketFilter } from './types';
+import type { BulkOp } from './bulk-types';
 
 export type DetailTab = 'detail' | 'thread' | 'history' | 'sla';
 
@@ -20,6 +22,7 @@ interface TicketsUi {
   menuFor: string | null;
   /** Giá trị Trợ lý điền sẵn cho form (UiCommand prefill `ticket.form`). */
   prefill: Record<string, unknown> | null;
+  bulkOp: BulkOp | null;
   setFilter: (p: Partial<TicketFilter>) => void;
   set: (p: Partial<Omit<TicketsUi, 'set' | 'setFilter' | 'setPg'>>) => void;
 }
@@ -47,6 +50,7 @@ export const useTicketsUi = create<TicketsUi>((set) => ({
   aiOpen: false,
   menuFor: null,
   prefill: null,
+  bulkOp: null,
   setPg: (pg) => set({ pg }),
   setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p }, pg: { ...s.pg, page: 1 }, selected: [] })),
   set: (p) => set(p),
