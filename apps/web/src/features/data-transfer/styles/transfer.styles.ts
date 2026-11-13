@@ -214,6 +214,9 @@ export const useTransferStyles = createStyles(({ css, responsive }) => ({
   muted: css`
     color: ${color.text4};
   `,
+  warn: css`
+    color: ${color.amberText};
+  `,
   policy: css`
     display: flex;
     align-items: center;

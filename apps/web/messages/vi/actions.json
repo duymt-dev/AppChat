@@ -518,6 +518,21 @@
     },
     "import_retry": {
       "title": "Chạy lại nhập sản phẩm"
+    },
+    "media_attach": {
+      "title": "Gắn ảnh / tài liệu sản phẩm"
+    },
+    "media_detach": {
+      "title": "Gỡ ảnh / tài liệu sản phẩm"
+    },
+    "media_reorder": {
+      "title": "Sắp xếp ảnh / tài liệu sản phẩm"
+    },
+    "media_set_primary": {
+      "title": "Đặt ảnh chính sản phẩm"
+    },
+    "media_list": {
+      "title": "Xem ảnh / tài liệu sản phẩm"
     }
   },
   "category": {

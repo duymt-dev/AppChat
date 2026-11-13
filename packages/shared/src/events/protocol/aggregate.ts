@@ -106,6 +106,7 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'assistant.input_prepare_requested': by('assistant_input', 'artifact_id'),
   // sản phẩm
   'product.changed': by('product', 'product_id'),
+  'product.media_changed': by('product', 'product_id'),
   'product.import_requested': by('product_import', 'import_id'),
   // thương mại
   'quote.sent': by('quote', 'quote_id'),

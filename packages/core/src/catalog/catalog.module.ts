@@ -1,7 +1,8 @@
 // Domain `catalog` (TIP-027): sản phẩm 6 loại, danh mục, biến thể, combo, sổ kho `stock_movement`; đọc cho /v1/products*.
 // Danh mục mặc định seed qua migration 027 (DC-154). Thiếu DB → service null. TIP-032b: danh mục sửa / xoá, biến thể riêng, nhập sản phẩm
-// CSV / XLSX (≤ 500 đồng bộ, > 500 việc nền 202 — consumer ở catalog.jobs.module).
-import { Module } from '@nestjs/common';
+// CSV / XLSX (≤ 500 đồng bộ, > 500 việc nền 202 — consumer ở catalog.jobs.module). TIP-027b: media riêng tư của sản phẩm (5 action) + nguồn
+// tệp / đích tải lên đăng ký vào registry kernel.
+import { Module, type OnModuleInit } from '@nestjs/common';
 import type { PlatformDb, TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../kernel/clock';
 import { FilesService } from '../kernel/files/files.service';
@@ -18,6 +19,8 @@ import { CategoryDeleteHandler, CategoryListHandler, CategoryUpdateHandler } fro
 import { VariantArchiveHandler, VariantCreateHandler, VariantUpdateHandler } from './actions/variant.handlers';
 import { ProductImportCancelHandler, ProductImportHandler, ProductImportRetryHandler } from './import/import.handler';
 import { ImportDeps, ImportStatusService } from './import/status';
+import { PRODUCT_MEDIA_HANDLERS } from './media/handlers';
+import { registerProductMediaSources } from './media/module';
 
 const opt = (token: symbol) => ({ token, optional: true });
 
@@ -27,6 +30,7 @@ const HANDLERS = [
   // TIP-032b: danh mục sửa / xoá, biến thể, nhập sản phẩm.
   CategoryListHandler, CategoryUpdateHandler, CategoryDeleteHandler, VariantCreateHandler, VariantUpdateHandler, VariantArchiveHandler,
   ProductImportHandler, ProductImportCancelHandler, ProductImportRetryHandler,
+  ...PRODUCT_MEDIA_HANDLERS,
 ];
 
 @Module({
@@ -47,4 +51,8 @@ const HANDLERS = [
   ],
   exports: [CatalogReadService, ImportDeps, ImportStatusService],
 })
-export class CatalogModule {}
+export class CatalogModule implements OnModuleInit {
+  onModuleInit(): void {
+    registerProductMediaSources();
+  }
+}
