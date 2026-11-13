@@ -39,6 +39,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'file-claims': '032d',
   'product-media': '027b',
   'ticket-categories': '034b',
+  'ai-sales-behavior': '022c',
   },
 };
 
@@ -57,6 +58,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(69);
+    expect(n).toBe(70);
   });
 });
