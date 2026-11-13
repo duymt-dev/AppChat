@@ -18,6 +18,7 @@ import { aiTasksHandlers } from './domains/ai-tasks';
 import { agentsHandlers } from './domains/agents';
 import { productsHandlers } from './domains/products';
 import { quotesHandlers } from './domains/quotes-actions';
+import { quoteRenderHandlers } from './domains/quote-render';
 import { contractsHandlers } from './domains/contracts-actions';
 import { ordersHandlers } from './domains/orders-actions';
 import { invoicesHandlers } from './domains/invoices';
@@ -129,6 +130,7 @@ export const mockHandlers: Record<string, MockHandler> = withDocChecklist(withCu
   ...agentsHandlers,
   ...productsHandlers,
   ...quotesHandlers,
+  ...quoteRenderHandlers,
   ...contractsHandlers,
   ...ordersHandlers,
   ...invoicesHandlers,

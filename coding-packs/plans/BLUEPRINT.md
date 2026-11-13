@@ -461,6 +461,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `contact.created` / `contact.merged` / `contact.stage_changed` | | timeline, marketing segments, ai tasks |
 | `lead.routing_requested` | contact_id, conversation_id, channel_account_id, message_id | consumer `crm.lead-routing` (ROLE=jobs) → `lead_routing.apply` nguồn system — chỉ khi tin 1-1 live vừa tạo khách (không nhóm / khớp khách cũ / lịch sử) (TIP-042b) |
 | `quote.sent` / `quote.viewed` / `quote.accepted` / `quote.rejected` / `quote.expired` | | crm stage (COMMERCE-DECISIONS §8); timeline; nhắc hết hạn |
+| `document.render_requested` / `document.rendered` / `document.render_failed` | render_id, kind, document_id, generation (+ error mã đã làm sạch) | consumer `documents.render` (ROLE=jobs) đẩy queue `doc-render` (jobId render:thế hệ); WS `document.render` làm mới chứng từ (TIP-028b) |
 | `contract.approved` / `contract.sent_for_signature` / `contract.signed` / `contract.declined` / `contract.expiring` (T-30) / `contract.expired` / `contract.terminated` | contract_id, contact_id | crm stage → Hợp đồng; timeline; thông báo Owner; gửi PDF đã ký 2 bên; nhắc gia hạn; gợi ý agent |
 | `order.confirmed` | order_id | trừ kho (`stock_movement`), sinh `customer_package` nếu đủ điều kiện |
 | `order.completed` / `order.cancelled` | total, net_before_vat, contact_id | loyalty earn (một lần) / reverse; crm stage → Đã mua; total_spent; hoàn kho + yêu cầu hoàn tiền khi huỷ |

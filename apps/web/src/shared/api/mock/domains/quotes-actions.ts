@@ -8,6 +8,7 @@ import { ME } from './customers';
 import { approvalPolicyOf } from './sales-policy';
 import { draftFromContent } from './quotes-draft';
 import { MOCK_NOW, enrich, find, validUntilOf, type Quote, type QuoteItem } from './quotes';
+import { queueRender } from './quote-render';
 
 type Fields = Partial<Pick<Quote, 'contact_id' | 'owner_user_id' | 'items' | 'header_discount' | 'valid_days' | 'payment_terms' | 'note' | 'gift'>>;
 
@@ -125,6 +126,7 @@ export const quotesHandlers: Record<string, MockHandler> = {
       const to = step(q, 'quote.send');
       if (q.status === 'draft' && approvalReasons(quoteTotals(q.items, q.header_discount), { offCatalog: q.off_catalog, policy: approvalPolicyOf(db) }).length) deny('QUOTE_NEEDS_APPROVAL', q.status);
       Object.assign(q, { status: to, sent_at: MOCK_NOW, valid_until_at: validUntilOf(MOCK_NOW, q.valid_days) });
+      queueRender(q);
       for (const x of db.quotes.quotes) if (x.root_id === q.root_id && x.version < q.version && x.status === 'revision_requested') x.status = 'superseded';
       return { quote_id: q.id, valid_until: enrich(q).valid_until };
     },

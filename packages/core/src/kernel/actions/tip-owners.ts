@@ -18,6 +18,7 @@ const BY_ID: Record<string, string> = {
   'follow_up.reconcile': '038',
   'digest.dispatch': '038',
   'quote.export': '038',
+  'quote.retry_render': '028b',
   'order.export': '038',
   'contract.export': '038',
   'ticket.export': '038',

@@ -136,6 +136,10 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'invoice.voided': by('invoice', 'invoice_id'),
   'invoice.file_attached': by('invoice', 'invoice_id'),
   'invoice.file_detached': by('invoice', 'invoice_id'),
+  // TIP-028b: render chứng từ — thứ tự theo dòng render (một dòng mỗi chứng từ).
+  'document.render_requested': by('document_render', 'render_id'),
+  'document.rendered': by('document_render', 'render_id'),
+  'document.render_failed': by('document_render', 'render_id'),
   'receipt.sent': by('payment', 'payment_id'),
   'sales_settings.updated': ws,
   'payment.confirmed': by('payment', 'payment_id'),

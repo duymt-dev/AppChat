@@ -12,3 +12,7 @@ export { CONTRACT_DOCX, CONTRACT_PDF, CONTRACT_UPLOAD_RULE, guardContractFile, i
 export { PDF_LIMITS } from './security/pdf-inspection';
 export { DOCX_LIMITS } from './security/docx-container';
 export { ISOLATED_CONVERTER, LauncherConverter, isolationLauncher, type IsolatedConverter } from './security/render-isolation';
+// TIP-028b: render chứng từ phát hành qua queue `doc-render` — domain chủ đăng ký kind, action ghi yêu cầu trong transaction.
+export { registerRenderKind, renderKindOf, type RenderKind, type RenderJobRow, type RenderedFile, type PublishOutcome } from './render/kinds';
+export { requestRender, retryRender, renderStates, type RenderState } from './render/request';
+export { RENDER_ATTEMPTS, runRender, renderErrorCode, type RenderJob, type RenderRunResult } from './render/runner';

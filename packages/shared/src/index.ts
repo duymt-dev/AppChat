@@ -28,6 +28,7 @@ export * from './events/protocol/aggregate';
 export * from './events/protocol/metadata';
 export * from './events/protocol/extensions';
 export * from './events/protocol/baseline';
+export * from './events/document-render';
 export * from './billing';
 export * from './identity';
 export * from './support/sla-defaults';

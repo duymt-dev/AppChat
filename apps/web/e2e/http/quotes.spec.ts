@@ -1,6 +1,6 @@
 // TIP-029 AC3 — E2E chế độ http: Báo giá trên backend thật — kết nối Email giả → tạo dịch vụ + khách (có email) → tạo báo giá
 // (chọn dịch vụ từ catalog) → gửi Zalo khi khách chưa nhắn → báo lý do → gửi Email (PDF đóng băng qua LibreOffice + link xem vào hội
-// thoại email mới) → Tải PDF → mở link xem công khai (không đăng nhập) → báo giá thành "Khách đã xem" → xin sửa → lần 2.
+// thoại email mới — TIP-028b: tạo PDF ở job doc-render, drawer hiện "Đang tạo PDF" rồi tự xong) → Tải PDF → mở link xem công khai (không đăng nhập) → báo giá thành "Khách đã xem" → xin sửa → lần 2.
 import { expect, test } from '@playwright/test';
 import { isMobile } from '../support/mobile';
 import { onboarded, spoofIp } from './support';
@@ -65,6 +65,9 @@ test.describe('báo giá (http)', () => {
     await drawer.getByRole('button', { name: 'Gửi Email' }).first().click();
     await confirmPreview(page);
     await expect(drawer).toContainText('Đã gửi', { timeout: 60_000 });
+    // TIP-028b AC1: API trả ngay — PDF tạo ở worker ROLE=jobs (queue doc-render); dải "Đang tạo PDF" tự mất khi xong (WS document.render).
+    // (job có thể xong trước khi kịp thấy dải — trạng thái chờ kiểm ở integration doc-render-queue + E2E mock).
+    await expect(drawer.getByTestId('q-render')).toHaveCount(0, { timeout: 60_000 });
 
     // Tải PDF (bản đóng băng).
     const popup = context.waitForEvent('page');
