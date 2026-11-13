@@ -67,7 +67,7 @@ export { recoverDrafts } from './agents/drafting/publication';
 export { seedAgentTemplates, templateDefaults, upgradeAgentTemplates } from './agents/templates.seed';
 // TIP-022b: hành vi agent trực kênh.
 export { channelBindingPreview } from './agents/channel-binding-preview';
-export { TEMPLATE_REVISION, ROLE_DEFAULTS_V1, ROLE_DEFAULTS_V2, invalidTemplateTools, planUpgrade, replacementPreview } from './agents/template-revisions';
+export { TEMPLATE_REVISION, ROLE_DEFAULTS, ROLE_DEFAULTS_V1, ROLE_DEFAULTS_V2, ROLE_DEFAULTS_V3, invalidTemplateTools, planUpgrade, replacementPreview } from './agents/template-revisions';
 export { agentSchedule, scheduleState, assertPublishable } from './agents/schedule-config';
 export { availability } from './reply/availability';
 export { routeByKeyword, normalizePhrase, longestMatch } from './reply/keyword-router';

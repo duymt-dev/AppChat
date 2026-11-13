@@ -7,6 +7,7 @@ import { mockKbSuggestion } from './mock-kb-suggestion';
 import { mockUtility } from './mock-utility';
 import { mockAgentDraft } from './mock-agent-draft';
 import { mockRecordProposal } from './mock-record-proposal';
+import { mockSales } from './mock-sales';
 
 export type MockTurn =
   | { text: string; tokensIn?: number; tokensOut?: number }
@@ -258,6 +259,9 @@ export const echoScript: MockScript = (ctx) => {
     const bullets = lastUser.split('\n').filter((l) => l.startsWith('- ')).map((l) => l.slice(2)).slice(0, 5);
     return { text: JSON.stringify({ bullets: bullets.length ? bullets : [lastUser.split('\n')[1] ?? ''] }) };
   }
+  // TIP-022c: lượt bán hàng (tồn kho / chốt báo giá / phân loại ý định / kiểm khẳng định).
+  const sales = mockSales(ctx);
+  if (sales) return sales;
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
   const qr = lastTool ? null : ASK_QR.exec(lastUser);
