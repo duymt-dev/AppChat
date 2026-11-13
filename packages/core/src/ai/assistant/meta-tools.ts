@@ -23,6 +23,7 @@ import { pinVersion } from './version-pin';
 import { aiCustomErrors, withCustomSchema } from './custom-schema';
 import { delegateTool, type DelegateDeps } from './delegate';
 import { renderTool } from './genui/render';
+import { orderCardCheck } from './genui/appointment-order';
 import { planOfRoot } from './plans/repo';
 import { decideStep } from './plans/driver';
 import { rootAuthority } from './plans/selected-agent';
@@ -199,7 +200,7 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       // Cùng đường call_action (executor, quyền người dùng / Cowork ∩ agent, log nối run) — không SQL, không bỏ actor.
       execute: (input, meta) => callAction(d, t, { action_id: 'insight.query', input: queryInput(input) }, meta.stepIdx, meta.toolCallId, INSIGHT_LIMITS.maxRows),
     },
-    renderTool({ db: d.db, implemented: implementedBy(d.executor) }, t),
+    renderTool({ db: d.db, implemented: implementedBy(d.executor), orderCard: orderCardCheck(d.db) }, t),
   ];
   if (t.mode === 'chat') return tools;
   return [
