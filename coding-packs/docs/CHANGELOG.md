@@ -854,6 +854,20 @@ Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon
 
 ---
 
+## [2026-11-14] — Phạm vi D63: đồng bộ sàn Shopee + TikTok Shop
+
+**Lý do:** DN dịch vụ có bán thêm qua sàn cần đơn sàn về AppChat (đơn, trạng thái, mã vận đơn, sản phẩm / giá / biến thể). Chỉ đồng bộ về — AppChat vẫn không vận hành gian hàng.
+
+**Thay đổi:**
+- Adapter thật **Shopee** (Open Platform v2) + **TikTok Shop** (Partner API VN) qua port `OrderSyncProvider` có sẵn (D31); kết nối bằng uỷ quyền sàn + chọn shop, nhiều shop / sàn mỗi workspace.
+- Kéo đơn theo trang qua hàng đợi + webhook mức App; mã vận đơn chỉ đọc; đọc sản phẩm để ghép SKU (drawer Ghép SKU).
+- Sửa lỗi đồng bộ có sẵn: vận đơn bị ghi đè bằng rỗng, khách / đơn trùng khi nối lại, ghép SKU bỏ qua ánh xạ, tồn biến thể không trừ (Q-916), một kết nối mỗi connector.
+- Luật COMMERCE §4b giữ nguyên. Lazada / Sapo / KiotViet / Haravan / WooCommerce, đẩy tồn / trạng thái lên sàn, đăng sản phẩm, chat người mua, livestream sàn: vẫn "Sắp có" / P2.
+
+**Ảnh hưởng:** 4 TIP mới (049 → 049d) sau 048h, GOAL-RELEASE 103 TIP. Cần đăng ký Shopee ISV (Q-914) + TikTok Shop Partner (Q-915) sớm.
+
+---
+
 ## [2026-11-14] — Phạm vi D62: kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream, cô lập worktree
 
 **Lý do:** Chủ nhà muốn ship các kênh webhook cùng bản phát hành (trước đây P2 — D04) và làm song song nhiều worktree.

@@ -110,6 +110,7 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 - **Khách:** sàn thường che SĐT, nên khớp theo `contact_identity(channel_type = marketplace, external_id = buyer_id)`. Chỉ lưu dữ liệu sàn cho phép.
 - **Loyalty:** đơn sàn **mặc định không tích điểm** (sàn thường cấm kéo khách ra ngoài). Bật được trong cấu hình loyalty; khi bật vẫn đúng Q1 (10.000đ = 1 điểm, một lần khi `completed`).
 - **Khi nào có:** khung, port, mock, thẻ "Sắp có": P0. Adapter thật (Sapo, Shopee, TikTok Shop, Lazada, Haravan, KiotViet, WooCommerce): P2. Đẩy trạng thái / tồn lên sàn: P2.
+  - **Cập nhật 2026-11-14 (D63):** adapter thật **Shopee + TikTok Shop** vào bản phát hành (TIP-049 → 049d). Mọi luật trên giữ nguyên; các nền tảng khác và đẩy trạng thái / tồn lên sàn vẫn P2.
 
 ## 5. Đề nghị thanh toán và thu tiền
 

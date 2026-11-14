@@ -1,6 +1,8 @@
 # TIP-041 — Archive, restore và xoá workspace an toàn
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/i18n/server/en/notify.ts`, `packages/shared/src/i18n/server/vi/notify.ts`, `packages/shared/src/notify/catalog.ts`; integrate 041 before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 041 before049d.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `packages/db/src/lifecycle/restore.ts`; integrate 041 before035d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 041 before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 041 before048b.

@@ -1,6 +1,8 @@
 # TIP-025b: Inbox — nối hai chiều Zalo, CRM, Commerce và Trợ lý AI
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/actions/src/orders.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/sales/orders/services/order-write.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`; integrate 025b before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/domains/orders.ts`, `tools/parity/parity.manifest.ts`; integrate 025b before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`; integrate 025b before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/inbox/services/meta.service.ts`, `packages/db/prisma/tenant/inbox.prisma`, `packages/shared/src/api/inbox.ts`; integrate 025b before048b.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/components/ConvRow.tsx`, `apps/web/src/features/inbox/components/ConversationList.tsx`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `tools/parity/parity.manifest.ts`; integrate 025b before048c.

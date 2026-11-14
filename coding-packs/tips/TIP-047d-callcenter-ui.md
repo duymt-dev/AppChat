@@ -1,6 +1,8 @@
 # TIP-047d — Giao diện Gọi điện: màn Call Center, WebPhone, Hẹn gọi lại, Cài đặt → Tổng đài, nút gọi, rail (D61)
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/core/src/integrations/services/read.service.ts`; integrate 047d before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/shared/api/mock/handlers.ts`, `tools/parity/parity.manifest.ts`; integrate 047d before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/common.json`, `apps/web/messages/vi/common.json`, `apps/web/src/shared/api/mock/handlers.ts`; integrate 048 before047d.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `apps/web/package.json`; integrate 035d before047d.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/customers.json`, `apps/web/messages/vi/customers.json`, `packages/core/src/inbox/services/meta.service.ts`; integrate 047d before048b.

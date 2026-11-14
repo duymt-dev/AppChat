@@ -1,6 +1,10 @@
 # TIP-048 — OAuth + kho token dùng chung: `oauth_grant`, `TokenVault`, callback `/hooks/oauth` (Kênh, D62)
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`, `packages/shared/src/events/protocol/aggregate.ts`, `packages/shared/test/event-protocol.test.ts`; integrate 048 before049.
+- **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 048 before049b.
+- **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `.env.example`; integrate 048 before049c.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/handlers.ts`; integrate 048 before049d.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before048.
 - **Parallel-safe with TIP-015c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`; integrate 015c before048.
 - **Parallel-safe with TIP-045 (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/kernel.module.ts`; integrate 048 before045.

@@ -44,7 +44,8 @@
 | COM-4b-5 | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | plans/COMMERCE-DECISIONS.md:109 | 031c | MỘT PHẦN | Đơn sàn vẫn ghi sổ kho (order-import.ts:53); không có cấu hình `stock_master` (chỉ comment order-write.ts:4); đẩy tồn lên sàn P2; TIP-031c nhận (2026-11-02) |
 | COM-4b-6 | Khớp khách sàn theo `contact_identity(marketplace, buyer_id)` | plans/COMMERCE-DECISIONS.md:110 | 031 | ĐẠT | order-import.ts:93 · test orders.test.ts "khách theo buyer" |
 | COM-4b-7 | Đơn sàn mặc định không tích điểm, bật được trong cấu hình | plans/COMMERCE-DECISIONS.md:111 | 031 | ĐẠT | order-flow.handlers.ts:28-32 (`loyalty_enabled`) · test orders.test.ts "hoàn tất không tích điểm" (bật ở cấu hình loyalty: 036) |
-| COM-4b-8 | Khung port + mock + thẻ "Sắp có" P0; adapter thật sàn / POS P2 | plans/COMMERCE-DECISIONS.md:112 | 031 | ĐẠT | packages/integrations/src/registry.ts:19; coming-soon.ts:8-9 · test order-sync.test.ts "registry"; adapter thật: NGOÀI P2 |
+| COM-4b-8 | Khung port + mock + thẻ "Sắp có" P0; adapter thật sàn / POS P2 (Shopee + TikTok Shop vào phạm vi D63 — COM-4b-9) | plans/COMMERCE-DECISIONS.md:112 | 031 | ĐẠT | packages/integrations/src/registry.ts:19; coming-soon.ts:8-9 · test order-sync.test.ts "registry"; adapter thật: NGOÀI P2 |
+| COM-4b-9 | Adapter thật Shopee + TikTok Shop vào bản phát hành, luật §4b giữ nguyên (D63) | plans/COMMERCE-DECISIONS.md:113 | 049, 049b, 049c | CHƯA | TIP-049 → 049c |
 | COM-5-1 | Tên "Đề nghị thanh toán", mã `TT-000123` | plans/COMMERCE-DECISIONS.md:116 | 032 | ĐẠT | packages/shared/src/codes.ts:8 · test payments.test.ts "TT-001001" |
 | COM-5-2 | PDF ĐNTT / phiếu thu ghi "không thay thế hoá đơn GTGT" (không xoá được) | plans/COMMERCE-DECISIONS.md:117,239 | 028, 032 | ĐẠT | sales/payments/services/invoice-doc.ts:1-3 (renderRich tự chèn) · test documents.test.ts "đề nghị thanh toán / phiếu thu có dòng không thay thế HĐ GTGT" |
 | COM-5-3 | Hoá đơn điện tử thật qua `EInvoiceProvider` | plans/COMMERCE-DECISIONS.md:118 | — | NGOÀI | P2 (Q2); thẻ "Sắp có" packages/integrations/src/coming-soon.ts:14-17 |
@@ -273,6 +274,15 @@ Ghi chú:
 | D62-soon | Kênh còn lại "Sắp có" theo registry (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048c | CHƯA | TIP-048c (PD-903) |
 | D62-quota | Hạn mức kênh của gói cho kênh mới (D62 #6 — Q-907 mở, tạm theo đề xuất) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b §chọn tài khoản (`QuotaService.assert('channels')`) |
 | D62-order | Thứ tự: 035d sớm nhất (ngay sau TIP chờ đang mở PR — 016b / 034d lúc viết); 048 sau 047b trước 047c / 047d; 048b → 048h trước 044 / 045 / 046 (D62 #8) | 01-REQUIREMENTS-MATRIX.md:336 | 035d, 048 | QUY-TẮC | `python -X utf8 tools/obligations/order.py` + `manifests.py --order` |
+| D63-foundation | Nền sàn: OAuth + nhiều shop + webhook mức App + pull cursor + 5 lỗi đồng bộ (D63 #2, #4) | 01-REQUIREMENTS-MATRIX.md:338 | 049 | CHƯA | TIP-049 |
+| D63-shopee | Connector Shopee (D63 #1) | 01-REQUIREMENTS-MATRIX.md:338 | 049b | CHƯA | TIP-049b |
+| D63-tiktok-shop | Connector TikTok Shop (D63 #1) | 01-REQUIREMENTS-MATRIX.md:338 | 049c | CHƯA | TIP-049c |
+| D63-ui | Giao diện sàn: thẻ + chọn shop, Ghép SKU, đơn / sản phẩm sàn (D63) | 01-REQUIREMENTS-MATRIX.md:338 | 049d | CHƯA | TIP-049d |
+| D63-scope | Không đăng sản phẩm / đẩy tồn / chat người mua / livestream sàn; Lazada & POS vẫn Sắp có (D63 #3, #5) | 01-REQUIREMENTS-MATRIX.md:338 | — | NGOÀI | D63 |
+| DC-917 | Nền đồng bộ sàn: OAuth connector, shop route, pull cursor, sửa 5 lỗi | DECISIONS.md:498 | 049 | CHƯA | TIP-049 |
+| DC-918 | Connector Shopee | DECISIONS.md:499 | 049b | CHƯA | TIP-049b |
+| DC-919 | Connector TikTok Shop | DECISIONS.md:500 | 049c | CHƯA | TIP-049c |
+| DC-920 | Giao diện sàn | DECISIONS.md:501 | 049d | CHƯA | TIP-049d |
 | DC-908 | Cô lập 3 worktree: env theo bảng, Memurai riêng, slot Postgres, cổng theo env | DECISIONS.md:489 | 035d | CHƯA | TIP-035d |
 | DC-909 | Kho token OAuth chung + một App Zalo cho OA + ZCC; sửa 047 / 047b / 047c / 047d | DECISIONS.md:490 | 048 | CHƯA | TIP-048 |
 | DC-910 | Nền kênh webhook: route mức App, biên nhận, chọn tài khoản, cửa sổ gửi, registry | DECISIONS.md:491 | 048b | CHƯA | TIP-048b |

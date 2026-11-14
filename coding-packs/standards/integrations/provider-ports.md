@@ -18,12 +18,12 @@
 | `LlmProvider` | LLM (nền tảng, không phải của workspace) | Anthropic, OpenAI, Google, DeepSeek + **mọi router OpenAI-compatible** (OpenRouter, 9router, LiteLLM, vLLM) qua AI SDK — D33 | — |
 | `AccountingSyncProvider` | đồng bộ đơn / công nợ sang kế toán | — | MISA AMIS, Fast, Odoo |
 | `CommerceSyncProvider` | đồng bộ sản phẩm / tồn | — | KiotViet, Sapo, Haravan, WooCommerce |
-| `OrderSyncProvider` | kéo đơn từ sàn / POS (webhook + poll), đẩy trạng thái (P2) — D31 | `mock` | Sapo, Shopee, TikTok Shop, Lazada, Haravan, KiotViet, WooCommerce |
+| `OrderSyncProvider` | kéo đơn từ sàn / POS (webhook + poll), đọc sản phẩm để ghép SKU, đẩy trạng thái (P2) — D31 | `mock`, **Shopee, TikTok Shop** (D63) | Sapo, Lazada, Haravan, KiotViet, WooCommerce |
 | `SheetSyncProvider` | xuất / đồng bộ bảng | — | Google Sheets |
 | `SmsProvider` | SMS (P2) | — | Viettel, VNPT, eSMS, Twilio |
 
 2. **Mỗi adapter có `ConnectorManifest`.** Trang Nền tảng kết nối, form kết nối, nhóm, logo và trạng thái đều đọc manifest. Nhóm theo prototype: Kênh & Studio · Marketing · CRM · TMĐT · Thanh toán · Năng suất · ERP & Vận hành.
-3. **Mỗi workspace một bản ghi kết nối** `integration_connection(id, connector_key, port, status, config jsonb, secret_enc bytea, last_sync_at, last_error)` trong DB tenant.
+3. **Mỗi workspace một bản ghi kết nối** `integration_connection(id, connector_key, port, status, config jsonb, secret_enc bytea, last_sync_at, last_error)` trong DB tenant. **D63:** connector sàn cho phép nhiều kết nối (mỗi shop một bản ghi, `external_account_id` = shop_id); token OAuth ở `oauth_grant` (TokenVault), không ở `secret_enc`.
    - Secret mã hoá AES-256-GCM, không trả về API.
    - Webhook vào → tra `tenant_integration_route(connection_id → ws)` ở DB nền tảng.
    - Kết nối của nền tảng (SePay cho thu phí AppChat, SMTP hệ thống, LLM key) cấu hình ở DB nền tảng / env, không ở workspace.
@@ -43,7 +43,8 @@
 
 ## Đồng bộ đơn (D31)
 
-- `OrderSyncProvider.pull(conn, since)` / `handleWebhook()` → `ExternalOrder` chuẩn hoá (buyer, lines, totals, platform_status, paid). Core gọi `order.import_external` (`source = system`), idempotent theo `(connection_id, external_id)`.
+- `OrderSyncProvider.pull(conn, cursor)` → `{ orders, nextCursor, done }` (D63 — theo trang, chạy ở hàng đợi, không trong request; cửa sổ đầu `initial_days`) / `handleWebhook()` → `ExternalOrder` chuẩn hoá (buyer, lines, totals, platform_status, paid, shipping). Core gọi `order.import_external` (`source = system`), idempotent theo `(external_shop_key, external_id)` (D63; trước là `(connection_id, external_id)` — nối lại tạo trùng).
+- **D63:** `getTracking?` (mã vận đơn chỉ đọc; rỗng thì giữ giá trị cũ), `listProducts?(conn, cursor)` (đọc sản phẩm / giá / biến thể để ghép SKU — không đẩy lên sàn). Webhook sàn mức App `/hooks/marketplace/:connector`, tra `tenant_shop_route`.
 - Adapter cung cấp `mapStatus(platform_status) → { status, pay_status }`. Core không biết trạng thái riêng của sàn.
 - `integration_connection.config.stock_master = 'appchat' | 'external'`; `config.loyalty_enabled` mặc định `false`.
 - Quy tắc nghiệp vụ: COMMERCE-DECISIONS §4b.

@@ -1,10 +1,10 @@
-# GOAL — Phát hành AppChat (99 TIP → cổng phát hành TIP-046)
+# GOAL — Phát hành AppChat (103 TIP → cổng phát hành TIP-046)
 
 > Thay `goals/GOAL-BACKEND.md` từ 2026-11-03 (file cũ giữ làm lịch sử TIP 001–035). Nguồn duy nhất cho thứ tự và tiến độ phần còn lại.
 
 ## Goal (1 câu)
 
-Làm tuần tự **99 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c / TIP-032e Cơ hội · Tài chính D60 + TIP-047 / 047b / 047c / 047d Gọi điện D61 + TIP-035d cô lập worktree + TIP-048 → 048h kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream D62) theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
+Làm tuần tự **103 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c / TIP-032e Cơ hội · Tài chính D60 + TIP-047 / 047b / 047c / 047d Gọi điện D61 + TIP-035d cô lập worktree + TIP-048 → 048h kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream D62 + TIP-049 → 049d đồng bộ sàn Shopee / TikTok Shop D63) theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
 
 **Câu dán vào `/goal`:**
 `Làm xong AppChat tới phát hành theo coding-packs/goals/GOAL-RELEASE.md: lần lượt từng TIP trong bảng Thứ tự (023b → 046) tới khi TIP-046 đạt. Mỗi TIP: rà "Rà trước khi làm" với code thật; làm đúng manifest (tips/manifests/TIP-XXX-files.md); đọc và đối chiếu mọi standard TIP ghi tên, completion report có bảng "Đối chiếu standards" (file:dòng hoặc mã DV); test theo mục "Cổng test" của GOAL-RELEASE.md; commit; gh pr create --base dev; cập nhật COVERAGE (tools/obligations/parts + merge.py) và bảng tiến độ GOAL-RELEASE.md. TIP nhiều pha thì một PR mỗi pha. Test CHỈ trong phạm vi TIP thay đổi: cổng commit chạy lint/typecheck/unit của package đổi + depcheck + lint:size, lint:tokens, lint:masks, i18n:check; cổng chốt (một lần mỗi TIP) chạy lint/typecheck/unit/build của package đổi, integration CHỈ các file test của domain/action TIP chạm, E2E mock + http CHỈ spec của module TIP, parity màn TIP sửa; sửa lớp dùng chung (kernel, packages/db|actions|shared|ui, apps/web/src/shared) thì thêm E2E mock các module dùng phần đó + parity --done. KHÔNG chạy full integration hay full E2E hồi quy ở TIP thường — chỉ chạy ở TIP-046. Sau rebase chỉ chạy lại phần bị ảnh hưởng. Ca đỏ trong phạm vi TIP mà đã đỏ sẵn trên origin/dev hoặc là lỗi môi trường đã ghi sổ (vd Q-042, Q-010) thì chạy riêng chứng minh rồi ghi report — không tính là cổng đỏ. Thiếu provider thật (Zalo, SePay, Brevo, VPS, credit) ghi "chưa nghiệm thu với provider thật", không dừng. ai:live: lỗi hạ tầng provider chạy lại, lỗi hệ thống phải sửa, không hạ ngưỡng. Nhánh: tip/XXX-<slug> từ origin/dev; nếu PR TIP trước chưa merge thì tách xếp chồng từ nhánh TIP trước. Trước mỗi PR: git fetch, PR trước đã merge thì rebase lên origin/dev, chưa merge thì rebase lên nhánh TIP trước; thân PR ghi "xếp chồng trên #N — merge #N trước". Mở PR xong là sang ngay pha / TIP kế trong cùng lượt — KHÔNG dừng để tóm tắt hay chờ phản hồi; tiến độ ghi vào bảng tiến độ và coding-packs/HANDOFF-NEXT.md, không báo qua chat. Câu hỏi mới ghi QUESTIONS.md kèm đề xuất rồi làm tiếp theo đề xuất; quyết định kỹ thuật ghi DECISIONS.md; lệch spec ghi DEVIATIONS.md. Chỉ dừng khi: (1) TIP-046 đạt; (2) cần quyết định về luật tiền / quyền / pháp lý / xoá dữ liệu; (3) lỗi test thuộc phạm vi TIP mà đã thử sửa không được — ghi rõ lý do vào HANDOFF-NEXT.md.`
@@ -52,7 +52,7 @@ Làm tuần tự **99 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 
 **Mỗi TIP:** mọi AC có test chạy thật và xanh · mọi action của TIP có handler · shape đọc đúng contract FE, contract test xanh · tenant + role isolation có test khi chạm dữ liệu có chủ · cổng "chốt TIP" xanh · commit + SHA + PR + Completion Report + COVERAGE + ba sổ cập nhật.
 
-**Cả goal:** 99 TIP DONE (hoặc PARTIAL **chỉ** vì ô cần tài nguyên ngoài, ghi "chưa nghiệm thu với provider thật") · `node tools/release/gate.mjs --sha <sha>` (TIP-046) không còn ô đỏ ngoài ô `unknown-resource` · `COVERAGE.md` không còn dòng CHƯA / GIẢ / MỘT PHẦN trừ dòng chờ tài nguyên ngoài.
+**Cả goal:** 103 TIP DONE (hoặc PARTIAL **chỉ** vì ô cần tài nguyên ngoài, ghi "chưa nghiệm thu với provider thật") · `node tools/release/gate.mjs --sha <sha>` (TIP-046) không còn ô đỏ ngoài ô `unknown-resource` · `COVERAGE.md` không còn dòng CHƯA / GIẢ / MỘT PHẦN trừ dòng chờ tài nguyên ngoài.
 
 ## Tài nguyên ngoài (không chặn thi công, chặn nghiệm thu / bán)
 
@@ -70,6 +70,8 @@ Làm tuần tự **99 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 | Meta (Facebook Page / Instagram): Business Verification + App Review + domain HTTPS | 048e, 048f, 048g | Transport `fake` + fixtures webhook | Chủ nhà nộp ngay (Q-908); domain HTTPS cần sớm hơn VPS (Q-006) |
 | App Zalo quyền OA API + OA thử gói Tăng trưởng | 048, 048d | Transport `fake` | Dùng chung App Zalo với ZCC (DC-909); Chủ nhà xin quyền OA API (Q-909) |
 | TikTok Business Messaging API + Accounts API | 048h | Transport `fake` | Chủ nhà nộp form (Q-910) |
+| Shopee Open Platform: ISV + app ERP + shop thật | 049b | Server giả + fixtures | Chủ nhà nộp ngay (Q-914): pháp nhân, domain HTTPS TLS ≥ 1.2, khai IP |
+| TikTok Shop Partner Center (VN): app ISV + shop thật | 049c | Server giả + fixtures | Chủ nhà nộp ngay (Q-915); thẩm định ~4–6 tuần |
 | Memurai cài sẵn (chạy nhiều tiến trình cổng riêng) | 035d | Worktree dùng chung Redis của checkout chính (không song song) | Có sẵn trên máy dev (Q-913) |
 | Voice AI | 047, 047c, 044 | `VOICE_AI_ENGINE=mock` | **Tự dựng** (Q-905 → DC-907 a–d): PhoWhisper + VieNeu-TTS chạy local, không cần key; Realtime tuỳ chọn khi có key. Còn đo độ trễ / số phiên ở TIP-047 |
 
@@ -80,6 +82,7 @@ Làm tuần tự **99 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 - [ ] Nạp credit OpenAI (embedding); 9router đủ quota cho tải thật.
 - [ ] Quét QR Zalo cho tài khoản nghiệm thu.
 - [ ] Kênh D62: Meta Business Verification + App Review (Q-908) · App Zalo quyền OA API + OA thử (Q-909) · TikTok Business Messaging (Q-910) · domain HTTPS cho webhook.
+- [ ] Sàn D63: Shopee Open Platform ISV (Q-914) · TikTok Shop Partner Center (Q-915).
 - [ ] Pháp lý: Điều khoản dịch vụ, Chính sách bảo mật (Nghị định 13/2023), xuất hoá đơn GTGT tiền gói — Chủ nhà xác nhận làm trong app hay ngoài (chưa có TIP).
 - [ ] Gate TIP-046 đạt trên SHA phát hành; Chủ nhà tự merge `dev → main`.
 
@@ -87,7 +90,7 @@ Làm tuần tự **99 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 
 Sinh bằng `python -X utf8 tools/obligations/order.py --table`: sắp topo theo khai `integrate A before B` (máy kiểm hai phía) + dòng "Depends on" của từng TIP; khi hai nguồn mâu thuẫn, khai hai phía thắng. Thêm / đổi phụ thuộc → chạy lại công cụ, giữ cột trạng thái đã điền. TIP 001–035 đã DONE — xem `goals/GOAL-BACKEND.md`.
 
-**Ba luồng song song (D62 #7, DC-908):** làm **035d trước tiên** (cô lập worktree: DB / cổng / Memurai / slot Postgres riêng). Sau đó tối đa 3 worktree: **A** = TIP cũ theo bảng · **B** = Gọi điện 047 → 047b → 047c → 047d · **C** = Kênh 048 → 048b → … → 048h. Bảng dưới vẫn là thứ tự **ghép** (PR vào `dev`): 048 nằm giữa 047b và 047c (một kho token cho ZCC + kênh Zalo OA — DC-909) — luồng C bắt đầu 048 khi 047b đã ghép, hoặc luồng B làm luôn 048. Mỗi luồng một dải số sổ riêng (B: 8xx, C: 7xx, tài liệu: 9xx) để không trùng mã DC / Q / DV / PD.
+**Ba luồng song song (D62 #7, DC-908):** làm **035d trước tiên** (cô lập worktree: DB / cổng / Memurai / slot Postgres riêng). Sau đó tối đa 3 worktree: **A** = TIP cũ theo bảng · **B** = Gọi điện 047 → 047b → 047c → 047d · **C** = Kênh 048 → 048b → … → 048h → Sàn 049 → 049b → 049c → 049d (D63; 049 dùng kho token của 048). Bảng dưới vẫn là thứ tự **ghép** (PR vào `dev`): 048 nằm giữa 047b và 047c (một kho token cho ZCC + kênh Zalo OA — DC-909) — luồng C bắt đầu 048 khi 047b đã ghép, hoặc luồng B làm luôn 048. Mỗi luồng một dải số sổ riêng (B: 8xx, C: 7xx, tài liệu: 9xx) để không trùng mã DC / Q / DV / PD.
 
 Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài nguyên ngoài) · `BLOCKED`.
 
@@ -189,7 +192,11 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 94 | [048f](../tips/TIP-048f-social-comments.md) | W8 | chờ — D62 / DC-914 (bình luận) | `tip/048f-social-comments` | | |
 | 95 | [048g](../tips/TIP-048g-livestream.md) | W8 | chờ — D62 / DC-915 (livestream) | `tip/048g-livestream` | | |
 | 96 | [048h](../tips/TIP-048h-tiktok-messaging.md) | W8 | chờ — D62 / DC-916 (TikTok, Q-910) | `tip/048h-tiktok-messaging` | | |
-| 97 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
-| 98 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
-| 98b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
-| 99 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |
+| 97 | [049](../tips/TIP-049-marketplace-foundation.md) | W8 | chờ — D63 / DC-917 (nền sàn, Q-916), luồng C sau 048h | `tip/049-marketplace-foundation` | | |
+| 98 | [049b](../tips/TIP-049b-shopee.md) | W8 | chờ — D63 / DC-918 (Shopee, Q-914) | `tip/049b-shopee` | | |
+| 99 | [049c](../tips/TIP-049c-tiktok-shop.md) | W8 | chờ — D63 / DC-919 (TikTok Shop, Q-915) | `tip/049c-tiktok-shop` | | |
+| 100 | [049d](../tips/TIP-049d-marketplace-ui.md) | W8 | chờ — D63 / DC-920 (giao diện sàn) | `tip/049d-marketplace-ui` | | |
+| 101 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
+| 102 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
+| 102b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
+| 103 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |

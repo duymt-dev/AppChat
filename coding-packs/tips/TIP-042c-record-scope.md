@@ -1,6 +1,7 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/services/order-import.ts`, `packages/db/prisma/tenant/sales-orders.prisma`; integrate 042c before049.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`, `packages/core/src/sales/quotes/services/quote-send.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 042c before048b.
 - **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/inbox.module.ts`, `packages/core/src/inbox/services/pipeline.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 042c before048f.
 - **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/inbox.module.ts`; integrate 042c before048g.

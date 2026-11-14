@@ -1,6 +1,10 @@
 # TIP-048e — Facebook Page (Messenger) + Instagram: adapter Graph, cửa sổ 24 giờ + HUMAN_AGENT, data deletion (Kênh, D62)
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`, `packages/channels/src/coming-soon.ts`, `packages/channels/test/registry.test.ts`; integrate 048e before049.
+- **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 048e before049b.
+- **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `.env.example`; integrate 048e before049c.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 048e before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `.env.example`, `packages/channels/src/index.ts`, `packages/shared/src/i18n/server/en/channels.ts`, `packages/shared/src/i18n/server/vi/channels.ts`; integrate 048 before048e.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `.env.example`, `apps/api/src/http/channels/channel-hooks.controller.ts`, `packages/channels/src/coming-soon.ts`, `packages/channels/src/index.ts`, `packages/channels/src/registry.ts`, `packages/channels/test/registry.test.ts`, `packages/core/src/channels/channels.env.ts`, `packages/core/src/channels/channels.module.ts`, `packages/core/src/channels/jobs/channels.jobs.module.ts`, `packages/shared/src/i18n/server/en/channels.ts`, `packages/shared/src/i18n/server/vi/channels.ts`; integrate 048b before048e.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 048c before048e.

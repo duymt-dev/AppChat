@@ -65,7 +65,7 @@ Nền tảng cho doanh nghiệp dịch vụ nhỏ vận hành theo mô hình **O
 ### Roadmap Priorities
 
 - Bản phát hành đầu = **toàn bộ P0 + P1** (D26), theo 9 wave trong `02-TASK-GRAPH.md`.
-- Chưa làm: Workflow engine, module Báo cáo, kênh WhatsApp / Telegram / LINE / Viber / WeChat, ZNS, ký số CA, hoá đơn điện tử thật, MCP server / client (đã chừa đường — D37). ~~Call Center~~ vào phạm vi (D61, TIP-047 → 047d). ~~Zalo OA / Facebook / Instagram / TikTok~~ vào phạm vi (D62, TIP-048 → 048h). Adapter sàn thật (khung + mock đã có).
+- Chưa làm: Workflow engine, module Báo cáo, kênh WhatsApp / Telegram / LINE / Viber / WeChat, ZNS, ký số CA, hoá đơn điện tử thật, MCP server / client (đã chừa đường — D37). ~~Call Center~~ vào phạm vi (D61, TIP-047 → 047d). ~~Zalo OA / Facebook / Instagram / TikTok~~ vào phạm vi (D62, TIP-048 → 048h). Adapter sàn thật: Shopee + TikTok Shop vào phạm vi (D63, TIP-049 → 049d); Lazada / Sapo / KiotViet / Haravan / WooCommerce vẫn "Sắp có".
 
 ### Applicable Standards
 

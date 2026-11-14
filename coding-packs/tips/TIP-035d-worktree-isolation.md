@@ -1,6 +1,9 @@
 # TIP-035d — Cô lập worktree chạy song song: env, Memurai, cổng, slot Postgres (Hạ tầng thi công, D62)
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before049.
+- **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before049b.
+- **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before049c.
 - **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before006d.
 - **Parallel-safe with TIP-015c (coverage-closure manifest):** sequential, shares `packages/db/src/lifecycle/restore.ts`; integrate 015c before035d.
 - **Parallel-safe with TIP-020e (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before020e.

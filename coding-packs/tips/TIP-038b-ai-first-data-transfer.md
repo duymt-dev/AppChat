@@ -1,6 +1,8 @@
 # TIP-038b — Nhập/xuất CRM và commerce AI-first, file thật
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 038b before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038b before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 038b before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 038b before048b.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038b before048c.

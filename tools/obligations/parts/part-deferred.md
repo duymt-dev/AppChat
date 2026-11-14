@@ -73,7 +73,7 @@
 | DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | ĐẠT | Đã làm ở TIP-030b F3 — xem COM-9-17 / ACT-contract.create_appendix |
 | DEF-030-2 | AI soạn nháp hợp đồng `contract.draft_from_content` | reports/TIP-030-completion.md:3 | 030b | ĐẠT | Đã làm ở TIP-030b F2 — xem ACT-contract.draft_from_content |
 | DEF-030-3 | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | reports/TIP-030-completion.md:25 | 003e | CHƯA | Chỉ migration 20261101600000_030_contracts có trigger; TIP-003e nhận (2026-11-02) |
-| DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | — | NGOÀI | REQ-F07b adapter P2 |
+| DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | 049b, 049c | CHƯA | Shopee + TikTok Shop vào phạm vi D63 (TIP-049b / 049c); Sapo / Lazada / KiotViet… vẫn NGOÀI (REQ-F07b-4) |
 | DEF-031-2 | `order.cancelled` (`refund_requested`) sinh yêu cầu hoàn tiền | reports/TIP-031-completion.md:27 | 032 | ĐẠT | sales/payments/services/refunds.ts:3; test payments.test.ts:268-270 |
 | DEF-031-3 | `order.completed` ghi sổ điểm + đảo khi hoàn tác | reports/TIP-031-completion.md:33 | 036 | ĐẠT | order-flow.handlers.ts completeOrder earnSnapshot + undo reverseCompletion; test loyalty-events.test.ts |
 | DEF-031-4 | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | reports/TIP-031-completion.md:26; TIP-024:27 | 035c | CHƯA | tools/scripts/fixtures/gen-assistant.py:137 vẫn `conversation.close`; TIP-035c nhận (2026-11-02) |
@@ -114,6 +114,11 @@
 | PD-904 | Hộp thư bình luận (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:50 | 048f | CHƯA | TIP-048f (duyệt / từ chối lúc verify) |
 | PD-905 | Livestream (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:51 | 048g | CHƯA | TIP-048g (duyệt / từ chối lúc verify) |
 | PD-906 | Khối Đồng bộ theo năng lực, hạn uỷ quyền thật | docs/06-prototype/DEVIATIONS.md:52 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
+| Q-914 | Shopee Open Platform ISV + shop thật | QUESTIONS.md:91 | 049b | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
+| Q-915 | TikTok Shop Partner Center ISV + shop thật | QUESTIONS.md:92 | 049c | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
+| Q-916 | Tồn biến thể không trừ — sửa đúng COMMERCE Q8 | QUESTIONS.md:93 | 049 | CHƯA | Tạm theo đề xuất: sửa ở TIP-049 |
+| PD-907 | Nền tảng kết nối: thẻ Shopee / TikTok Shop OAuth + chọn shop | docs/06-prototype/DEVIATIONS.md:53 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
+| PD-908 | Đơn / Sản phẩm sàn: badge, mã ngoài, trạng thái, vận đơn chỉ đọc, Ghép SKU, Kênh bán | docs/06-prototype/DEVIATIONS.md:54 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |
 | Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | 035c | CHƯA | Không có commit fix flaky trong git log; TIP-035c nhận (2026-11-02) |

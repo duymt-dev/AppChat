@@ -1,6 +1,8 @@
 # TIP-015c — Quên khách xuyên Zalo, CRM, Commerce và AI
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/sales/orders/services/blocked-imports.ts`, `packages/core/src/sales/orders/services/order-import.ts`, `packages/core/src/sales/orders/services/order-view.ts`, `packages/shared/src/api/index.ts`; integrate 015c before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/handlers.ts`, `tools/parity/parity.manifest.ts`; integrate 015c before049d.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `packages/db/src/lifecycle/restore.ts`; integrate 015c before035d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`; integrate 015c before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/inbox/services/outbound.ts`, `packages/core/src/inbox/services/pipeline.ts`; integrate 015c before048b.

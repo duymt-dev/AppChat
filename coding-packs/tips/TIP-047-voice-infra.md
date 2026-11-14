@@ -1,6 +1,9 @@
 # TIP-047 — Hạ tầng thoại: `packages/voice` + LiveKit / SIP edge native (Gọi điện, D61)
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before049.
+- **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before049b.
+- **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before049c.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before047.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before048b.

@@ -1,6 +1,8 @@
 # TIP-042b — Chia lead mới và cấu hình routing theo tài khoản kênh
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 042b before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/shared/api/mock/domains/settings-apps.ts`, `tools/parity/parity.manifest.ts`; integrate 042b before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 042b before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `apps/api/src/http/channels/channels.http.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/channels/services/accounts.service.ts`, `packages/core/src/inbox/services/pipeline.ts`, `packages/shared/src/api/channels.ts`; integrate 042b before048b.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/channel-types.ts`, `apps/web/src/features/settings/components/ConnectChannelModal.tsx`, `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`, `apps/web/src/shared/api/mock/domains/settings-apps.ts`, `tools/parity/parity.manifest.ts`; integrate 042b before048c.

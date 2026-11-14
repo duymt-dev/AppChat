@@ -1,6 +1,7 @@
 # TIP-035c — Vệ sinh kiểm thử & job quét: generator fixture, db:cleanup-test, E2E chập chờn, tập workspace "armed"
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`; integrate 035c before049.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `packages/db/package.json`; integrate 035d before035c.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/e2e/settings.spec.ts`; integrate 035c before048c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `tools/scripts/fixtures/gen-inbox.py`; integrate 035c before047d.

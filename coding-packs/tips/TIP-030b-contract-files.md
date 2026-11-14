@@ -1,6 +1,10 @@
 # TIP-030b: Hợp đồng từ file — tải PDF / DOCX hợp đồng có sẵn, từ tệp khách gửi trong hội thoại, chọn mẫu theo loại, phụ lục, AI soạn nháp
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/test/assistant-coverage.test.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 030b before049.
+- **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 030b before049b.
+- **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 030b before049c.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `tools/parity/parity.manifest.ts`; integrate 030b before049d.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `apps/api/package.json`; integrate 030b before035d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`; integrate 030b before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 030b before048b.

@@ -1,6 +1,7 @@
 # TIP-045: Native production deployment, observability and verifiable recovery
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`; integrate 049 before045.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `package.json`, `packages/db/package.json`, `packages/db/src/lifecycle/restore.ts`; integrate 035d before045.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/kernel.module.ts`; integrate 048 before045.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `apps/api/src/bootstrap.ts`, `packages/core/src/channels/jobs/channels.jobs.module.ts`; integrate 048b before045.

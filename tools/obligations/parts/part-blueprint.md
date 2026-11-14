@@ -366,6 +366,7 @@
 | BP-4.7-b | POST /hooks/integrations/:connector/:connectionId | plans/BLUEPRINT.md:1018 | 012 | ĐẠT | integrations/hooks.controller.ts; test integrations.test.ts, orders.test.ts |
 | BP-4.7-c | POST /hooks/tenant-payments/:provider/:feedId | plans/BLUEPRINT.md:1019 | 032 | CHỜ-TK | sales/tenant-payments-hook.controller.ts; test payments.test.ts — Q-004 |
 | BP-4.7-calls | POST /hooks/livekit · POST /hooks/zalo-zcc/:appId (chữ ký, biên nhận idempotent, action nội bộ) | plans/BLUEPRINT.md:1082 | 047c | CHƯA | TIP-047c §3 (ZCC thật CHỜ-TK Q-902) |
+| BP-4.7-marketplace | POST /hooks/marketplace/:connector mức App: chữ ký khoá app, shop route, integration_event, Shopee body rỗng (D63) | plans/BLUEPRINT.md:1093 | 049 | CHƯA | TIP-049 |
 | BP-4.7-oauth | GET /hooks/oauth/:provider/callback: state ký + nonce một lần → oauth.complete → về app (D62) | plans/BLUEPRINT.md:1091 | 048 | CHƯA | TIP-048 |
 | BP-4.7-channels | GET / POST /hooks/channels/:type mức App: chữ ký, tách theo route, biên nhận idempotent, 200 nhanh; data deletion Meta (D62) | plans/BLUEPRINT.md:1090 | 048b, 048e | CHƯA | TIP-048b · 048e (data deletion) |
 | BP-2.2-oauth-grant | Bảng `oauth_grant` + TokenVault làm mới có khoá (D62) | plans/BLUEPRINT.md:320 | 048 | CHƯA | TIP-048 |
@@ -435,7 +436,7 @@
 | BP-10-K6 | Single VPS: backup offsite + restore thử, runbook dựng lại < 1 giờ | plans/BLUEPRINT.md:1365 | 045 | CHƯA | 045 BP-11-a-4/5 (checkpoint offsite, drill RPO/RTO) |
 | BP-10-K7 | Theo dõi số DB / kích thước; > 500 DB hoặc đĩa > 70% thêm cluster | plans/BLUEPRINT.md:1364 | 045 | CHƯA | 045 cảnh báo tenant DB + routing nhiều cluster (packages/db/src/routing/reconciler.ts theo manifest 045) |
 | BP-10-K8 | LibreOffice DOCX→PDF lệch bố cục/font: spike 5 mẫu, cài font | plans/BLUEPRINT.md:1366 | 028, 045 | MỘT PHẦN | Spike DV-007/008/009 (TIP-028); cài font production → 045 provision |
-| BP-10-K9 | API sàn TMĐT cần đăng ký app đối tác; adapter thật P2 | plans/BLUEPRINT.md:1367 | 031 | NGOÀI | REQ-F07b adapter sàn P2; OQ-10 Chủ nhà đăng ký |
+| BP-10-K9 | API sàn TMĐT cần đăng ký app đối tác; Shopee + TikTok Shop vào phạm vi (D63) | plans/BLUEPRINT.md:1472 | 049b, 049c | CHỜ-TK | Q-914 · Q-915; Lazada vẫn P2 |
 | BP-10-K13 | Kênh webhook cần App duyệt (Meta / Zalo / TikTok) + domain HTTPS — nộp sớm, test bằng transport giả (D62) | plans/BLUEPRINT.md:1461 | 048d, 048e, 048h | CHỜ-TK | Q-908 · Q-909 · Q-910 |
 | BP-10-K10 | AI nhận diện biến DOCX / soạn số liệu: người xác nhận field map, số liệu từ bản ghi, eval doc-draft | plans/BLUEPRINT.md:1368 | 028, 030b, 044 | MỘT PHẦN | Xác nhận field map có (DocxWizard); eval `doc-draft` → 044 |
 | BP-10-K11 | Scope own + collaborator làm chậm list lớn: EXPLAIN, denormalize khi p95 > 300ms | plans/BLUEPRINT.md:1369 | 042c, 046 | MỘT PHẦN | 042c scope SQL + EXPLAIN; đo p95 1M dòng → 046 |

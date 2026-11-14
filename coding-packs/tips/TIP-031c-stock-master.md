@@ -1,6 +1,8 @@
 # TIP-031c — Bên giữ tồn chuẩn theo kết nối bán hàng (stock_master appchat / external)
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/core/src/sales/jobs/order-sync.jobs.ts`, `packages/core/src/sales/orders/services/order-import.ts`, `packages/integrations/src/connectors/mock/order-sync.ts`, `packages/integrations/src/ports/order-sync.ts`; integrate 031c before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/components/ConnectIntegrationModal.tsx`; integrate 031c before049d.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 031c before048c.
 - **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 031c before048d.
 - **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 031c before048e.

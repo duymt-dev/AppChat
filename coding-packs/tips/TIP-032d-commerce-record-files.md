@@ -1,6 +1,8 @@
 # TIP-032d — Real order and invoice attachment tabs
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/api/orders.ts`; integrate 032d before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/orders.json`, `apps/web/messages/vi/orders.json`, `apps/web/src/features/orders/components/DetailTabs.tsx`, `apps/web/src/shared/api/mock/domains/orders.ts`, `tools/parity/parity.manifest.ts`; integrate 032d before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 032d before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 032d before048b.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032d before048c.

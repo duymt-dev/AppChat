@@ -1,6 +1,9 @@
 # TIP-012d — Connector storage phát hành (S3-compatible) cho tệp workspace
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/integrations/src/registry.ts`; integrate 012d before049.
+- **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `packages/integrations/src/coming-soon.ts`, `packages/integrations/src/registry.ts`; integrate 012d before049b.
+- **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `packages/integrations/src/coming-soon.ts`, `packages/integrations/src/registry.ts`; integrate 012d before049c.
 - TIP-ID: TIP-012d; Project: AppChat V2; Module: integrations storage; Priority: P1; Estimated: M. TIP bổ sung cho TIP-012 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 045b (adapter S3 platform + file security + `kernel/http/safe-fetch.ts`) đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-012d-files.md) — 15 paths (10 C). M path tương lai phải do TIP tạo trước tích hợp xong.

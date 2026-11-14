@@ -1,6 +1,7 @@
 # TIP-046 — Release gate: CI backend, build smoke, hiệu năng, a11y, i18n, parity đầy đủ
 
 ## HEADER
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 049d before046.
 - **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `apps/web/package.json`, `package.json`, `tools/parity/src/cli.ts`, `tools/scripts/e2e-http.mjs`; integrate 035d before046.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 048c before046.
 - **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `tools/scripts/e2e-http.mjs`; integrate 048d before046.
