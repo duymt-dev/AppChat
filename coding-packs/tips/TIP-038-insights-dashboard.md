@@ -1,6 +1,11 @@
 # TIP-038 — Tổng quan, scoped insights, agent statistics, list export và digest
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 038 before048.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 038 before048b.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038 before048c.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before048f.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before048g.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/booking/services/calendar-read.service.ts`, `packages/core/src/index.ts`, `packages/core/src/insights/exports/export-runner.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/api/list-exports.ts`, `packages/shared/src/index.ts`; integrate 038 before047c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/agents.json`, `apps/web/messages/vi/agents.json`, `apps/web/src/shared/api/mock/domains/calendar.ts`, `packages/core/src/ai/agents/agents.read.ts`, `packages/shared/src/i18n/server/en/insights.ts`, `packages/shared/src/i18n/server/vi/insights.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before047d.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before026c.

@@ -1,6 +1,13 @@
 # TIP-006d — Thông báo đẩy web (Web Push + PWA) cho kênh `mobile`
 
 ## HEADER
+- **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before006d.
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 006d before048.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 006d before048b.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before048c.
+- **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `.env.example`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before048d.
+- **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `.env.example`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before048e.
+- **Parallel-safe with TIP-048h (coverage-closure manifest):** sequential, shares `.env.example`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before048h.
 - **Parallel-safe with TIP-047 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 006d before047.
 - **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before047b.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before047d.

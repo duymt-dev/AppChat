@@ -34,7 +34,7 @@ Domain mới `packages/core/src/callcenter/`. Không thêm `callcenter` vào `DO
 | C | `packages/core/src/callcenter/callcenter.providers.ts` | Provider port voice (LiveKit / SIP / ZCC / recorder / Voice AI) từ env, mock khi thiếu |
 | C | `packages/core/src/callcenter/jobs/callcenter.jobs.module.ts` | ROLE=jobs: system adapter + verifier (ingest, missed), lịch expiry / receipts_gc / callback_reminder |
 | C | `packages/core/src/callcenter/jobs/callcenter-media.module.ts` | ROLE=channels: phòng / SIP / ghi âm / phiên Voice AI |
-| C | `packages/core/src/callcenter/jobs/callcenter-ai.module.ts` | ROLE=ai: transcript + tóm tắt sau `call.recording_ready` |
+| C | `packages/core/src/callcenter/jobs/callcenter-ai.module.ts` | ROLE=ai: transcript + tóm tắt sau `call.recording_ready`; cuộc gọi của AI agent → agent tự áp đề xuất bằng tool đã cấp (DC-922) |
 | C | `packages/core/src/callcenter/jobs/expiry.ts` | Xoá ghi âm / transcript hết hạn hoặc đã quên (dòng → Storage), giữ tóm tắt |
 | C | `packages/core/src/callcenter/jobs/callback-reminder.ts` | Nhắc trước 10 phút + chạy Hẹn gọi lại `caller: agent` |
 | C | `packages/core/src/callcenter/jobs/receipts-gc.ts` | Dọn biên nhận webhook > 30 ngày |
@@ -79,7 +79,7 @@ Domain mới `packages/core/src/callcenter/`. Không thêm `callcenter` vào `DO
 | M | `packages/core/src/billing/services/credit-meter.ts` | `chargeVoice` (ref `voice_turn`, đơn vị theo `model_price.unit`) — tách file nếu > 200 dòng |
 | C | `packages/core/src/billing/services/voice-meter.ts` | Định giá voice / phí consent + biên nhận idempotent (dùng `usage-receipt`) |
 | M | `packages/core/src/billing/public.ts` | Export `VoiceMeter` |
-| M | `packages/core/src/kernel/actions/policy.ts` | `call.zcc_request_consent` vào `MANDATORY_PREVIEW_ACTIONS` + `FORCE_APPROVAL_ACTIONS` |
+| M | `packages/core/src/kernel/actions/policy.ts` | `call.zcc_request_consent` vào `MANDATORY_PREVIEW_ACTIONS` (người / Trợ lý xem phí); không vào `FORCE_APPROVAL_ACTIONS` (DC-922) |
 | M | `packages/core/src/ai/assistant/catalog.ts` | Mô tả nhóm callcenter; `SYSTEM_ONLY` thêm 4 action internal |
 | M | `packages/core/src/ai/jobs/ai-domain-handlers.module.ts` | `CallcenterModule` vào `AI_DOMAIN_MODULES` |
 | M | `packages/core/src/notify/events/domain.rules.ts` | Import `callcenter/events/call.rules` |

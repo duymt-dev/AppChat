@@ -25,7 +25,7 @@ M = modify, C = create. Một M ở tương lai chỉ hợp lệ khi TIP đứng
 | M | `packages/shared/src/data-transfer/activity-fields.ts` | Dataset cơ hội: bỏ `probability`, thêm stage mới / owner / source_kind |
 | M | `packages/shared/src/i18n/server/vi/crm.ts` | Nhãn giai đoạn khách D60 + khoá timeline / lịch sử cơ hội |
 | M | `packages/shared/src/i18n/server/en/crm.ts` | Như trên (en) |
-| M | `packages/actions/src/contact-opportunities.ts` | create / update / archive mới (bỏ probability, ép lead cho agent) |
+| M | `packages/actions/src/contact-opportunities.ts` | create / update / archive mới (bỏ probability; agentGrantable theo DC-922) |
 | C | `packages/actions/src/contact-opportunity-flow.ts` | `set_stage` · `mark_lost` · `reopen` · `set_owner` · `list` · `get` |
 | M | `packages/actions/src/quotes.ts` | `quote.create / update` nhận `opportunity_id` + cờ |
 | M | `packages/actions/src/orders.ts` | `order.create` / `create_from_appointment` nhận `opportunity_id` |
@@ -145,7 +145,7 @@ M = modify, C = create. Một M ở tương lai chỉ hợp lệ khi TIP đứng
 | M | `apps/web/messages/en/actions.json` | Như trên (en) |
 | C | `apps/web/e2e/sales-pipeline.spec.ts` | E2E mock: thẻ → drawer → chuỗi → Thua / Mở lại; mobile 390 |
 | C | `apps/web/e2e/http/sales-pipeline.spec.ts` | E2E http cùng luồng |
-| C | `fixtures/ai-eval/sales-pipeline.json` | 6 ca: tạo từ hội thoại (ép Lead mới), đổi giai đoạn bị chặn, Trợ lý preview, Áp dụng gợi ý, liên kết sai khách, ẩn tiền |
+| C | `fixtures/ai-eval/sales-pipeline.json` | 6 ca: agent tạo từ hội thoại đúng giai đoạn, agent đổi giai đoạn chạy thẳng, Trợ lý preview, Áp dụng gợi ý, liên kết sai khách, ẩn tiền |
 | C | `tools/parity/modules/sales-pipeline.ts` | Entry `customers:360-pipeline`, `deal:drawer` + mask có mã |
 | M | `tools/parity/parity.manifest.ts` | Nối module sales-pipeline |
 | M | `tools/parity/src/capture.ts` | `OUT_LABELS` thêm "Báo cáo", "Tài chính" |

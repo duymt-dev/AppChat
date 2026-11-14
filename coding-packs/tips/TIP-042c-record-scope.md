@@ -1,6 +1,9 @@
 # TIP-042c — Scope bản ghi thống nhất và watcher chỉ đọc
 
 ## HEADER
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`, `packages/core/src/sales/quotes/services/quote-send.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 042c before048b.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/inbox.module.ts`, `packages/core/src/inbox/services/pipeline.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 042c before048f.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/inbox.module.ts`; integrate 042c before048g.
 - **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `packages/core/test/authz-unit.test.ts`, `packages/shared/src/authz/permissions.ts`, `packages/shared/src/authz/roles.ts`; integrate 042c before047b.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 042c before047c.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `packages/core/src/booking/actions/appointment-book.handlers.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-decide.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-send.handlers.ts`, `packages/core/src/sales/quotes/actions/quote-write.handlers.ts`, `packages/db/prisma/tenant/booking.prisma`, `packages/db/prisma/tenant/sales-orders.prisma`, `packages/db/prisma/tenant/sales-quotes.prisma`; integrate 042c before026c.

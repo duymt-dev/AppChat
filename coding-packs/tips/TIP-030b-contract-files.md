@@ -1,6 +1,15 @@
 # TIP-030b: Hợp đồng từ file — tải PDF / DOCX hợp đồng có sẵn, từ tệp khách gửi trong hội thoại, chọn mẫu theo loại, phụ lục, AI soạn nháp
 
 ## HEADER
+- **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `apps/api/package.json`; integrate 030b before035d.
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`; integrate 030b before048.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 030b before048b.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`, `tools/parity/parity.manifest.ts`; integrate 030b before048c.
+- **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 030b before048d.
+- **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 030b before048e.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/components/MessageBubble.tsx`, `packages/actions/src/index.ts`, `packages/core/test/assistant-coverage.test.ts`, `tools/parity/parity.manifest.ts`; integrate 030b before048f.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/inbox.json`, `packages/actions/src/index.ts`, `packages/core/test/assistant-coverage.test.ts`, `tools/parity/parity.manifest.ts`; integrate 030b before048g.
+- **Parallel-safe with TIP-048h (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`; integrate 030b before048h.
 - **Parallel-safe with TIP-047 (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 030b before047.
 - **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 030b before047b.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/index.ts`, `packages/core/test/assistant-coverage.test.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 030b before047c.

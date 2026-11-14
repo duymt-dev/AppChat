@@ -1,6 +1,10 @@
 # TIP-030c — Parent contract signing receipts and OTP generation integrity
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/log/redact.ts`; integrate 030c before048.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 030c before048b.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 030c before048f.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 030c before048g.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/roles/ai.module.ts`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 030c before047c.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/contracts/signing/finalize.ts`, `packages/core/src/contracts/signing/public.handlers.ts`, `packages/shared/src/api/index.ts`; integrate 030c before026c.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 030c before032e.

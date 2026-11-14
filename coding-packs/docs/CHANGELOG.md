@@ -854,6 +854,22 @@ Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon
 
 ---
 
+## [2026-11-14] — Phạm vi D62: kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream, cô lập worktree
+
+**Lý do:** Chủ nhà muốn ship các kênh webhook cùng bản phát hành (trước đây P2 — D04) và làm song song nhiều worktree.
+
+**Thay đổi:**
+- **Kênh mới có adapter thật:** Zalo OA (tin tư vấn ≤ 7 ngày), Facebook Page / Messenger, Instagram (gắn Page), TikTok Business Messaging (Beta). Kết nối bằng đăng nhập nền tảng (OAuth) + chọn Page / OA / tài khoản; một Page / OA chỉ thuộc một workspace.
+- **Bình luận bài đăng** (Facebook / Instagram / TikTok) vào Hộp thư: trả lời công khai, nhắn riêng, ẩn, xoá, thích; AI agent trả lời thẳng như nhân viên (Q-911 chốt 2026-11-14).
+- **Livestream** Facebook / Instagram: gom bình luận theo phiên, cờ ý mua / SĐT; người hoặc AI agent tạo khách + đơn, trả lời / nhắn riêng người bình luận.
+- **Vẫn "Sắp có":** ZNS, WhatsApp, WhatsApp Business API, Telegram, LINE, Viber, WeChat; bình luận bài Zalo OA; live TikTok / Shopee; chat người mua trên sàn. Danh sách kênh ở mọi màn lấy từ registry (PD-903).
+- **Hạ tầng thi công:** TIP-035d cô lập worktree (DB / cổng / Memurai / slot Postgres riêng) để ba luồng A (TIP cũ) / B (Gọi điện) / C (Kênh) chạy song song.
+- **Kho token OAuth chung** (`oauth_grant` + `TokenVault`): một App Zalo cho kênh OA và Zalo Cloud Connect; TIP-047 / 047b / 047c / 047d sửa theo (DC-909).
+
+**Ảnh hưởng:** 9 TIP mới (035d, 048 → 048h), GOAL-RELEASE 99 TIP. Tài nguyên cần nộp sớm: Meta Business Verification + App Review, App Zalo quyền OA API, TikTok Business Messaging, domain HTTPS (Q-908…910). Prototype chưa vẽ Hộp thư bình luận và màn livestream (PD-904, PD-905 — mức 2).
+
+---
+
 ## [2026-11-12] — Prototype mới (bản 2026-11-10) thay ver2.1
 
 **Nguồn:** `Team Work AppChat – AppChat.html` (bản đóng gói tự giải nén, lưu 2026-11-10). Bản gốc giữ nguyên ở `06-prototype/AppChat (standalone).html`; `AppChat.dc.html` là bản nguồn giải ra từ đó (support.js · font Google · `assets/appchat-symbol.png` dùng lại như cũ), đã chạy `normalize-prototype.mjs` (D44, 10.836 giá trị). Đo trên Playwright: bản giải ra khớp bản đóng gói ≤ 0,005% ở 14 màn.

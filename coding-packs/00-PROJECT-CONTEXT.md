@@ -660,7 +660,7 @@ Dữ liệu tra cứu ngày 2026-10-28 qua GitHub/npm và tài liệu chính th�
 | Call Center / AI Voice / WebPhone | Sau |
 | Module Báo cáo (10 trang / 5 nhóm, xuất Excel, báo cáo lên lịch) | Loại bỏ (2026-10-28) |
 | Workflow engine + builder | Sau |
-| Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok | P2 |
+| Zalo OA / ZNS, Facebook, Instagram, WhatsApp, Telegram, TikTok | P2 — **đổi 2026-11-14 (D62):** Zalo OA, Facebook Page / Messenger, Instagram, TikTok (tin nhắn + bình luận + livestream FB / IG) vào bản phát hành; ZNS, WhatsApp, Telegram vẫn P2 |
 | Ký số CA cho hợp đồng (ký điện tử của AppChat đã IN — D25) | P2 |
 | Phòng ban, sơ đồ tổ chức, KPI, phân ca, vai trò tuỳ biến, SLA nhiều chính sách | P3 |
 | Help Center, Training Studio/canary, Dashboard builder, Template Studio | P3 |
@@ -841,7 +841,7 @@ Không đổi so với Vision (V6–V15). Prototype ver2.1 không kéo thêm th�
 ## Auto-Answered Requirements (ver2.1 — bỏ qua ở RRI)
 - **AA-v21-1:** Bảng cuộn trong khung giữ D42 + Pager, cho cả 9 bảng (D43). Tweak `tableScroll='page'` của prototype không làm.
 - **AA-v21-2:** Mục 11 (thanh nổi) đã hoàn tác trong prototype → không làm.
-- **AA-v21-3:** Kênh ngoài manifest vẫn ẩn hoặc hiện "Sắp có" (D04, D28, prototype-parity §6). Gồm Zalo OA, Facebook, Messenger, Instagram, WhatsApp, Telegram, LINE, Viber, WeChat, Tổng đài SIP, TikTok. Luồng kết nối chỉ có 3 đường: QR (Zalo cá nhân), form (Email IMAP), webchat. Nhánh OAuth và đồng bộ bình luận / đánh giá không làm.
+- **AA-v21-3:** Kênh ngoài manifest vẫn ẩn hoặc hiện "Sắp có" (D04, D28, prototype-parity §6). Gồm Zalo OA, Facebook, Messenger, Instagram, WhatsApp, Telegram, LINE, Viber, WeChat, Tổng đài SIP, TikTok. Luồng kết nối chỉ có 3 đường: QR (Zalo cá nhân), form (Email IMAP), webchat. Nhánh OAuth và đồng bộ bình luận / đánh giá không làm. **Đổi 2026-11-14 (D62):** Zalo OA, Facebook / Messenger, Instagram, TikTok có adapter, kết nối OAuth, đồng bộ bình luận; WhatsApp, Telegram, LINE, Viber, WeChat, Tổng đài SIP (kênh chat) vẫn "Sắp có"; đánh giá vẫn không làm.
 - **AA-v21-4:** Connector ngoài manifest hiện "Sắp có" (D28): ZBS, Misa, KiotViet, Sapo, Haravan, WooCommerce, Odoo, Fast, Google Sheets. Brevo là nhà cung cấp email hệ thống (D34), không phải connector của agent.
 - **AA-v21-5:** Bỏ nút video / gọi điện ở header chat (D07) — khớp ver2.1.
 - **AA-v21-6:** Nút Trợ lý AI ở màn ẩn (Gọi điện, Quy trình) không làm. Tooltip "Hóa đơn" → "Đề nghị thanh toán".

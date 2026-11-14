@@ -1,10 +1,10 @@
-# GOAL — Phát hành AppChat (90 TIP → cổng phát hành TIP-046)
+# GOAL — Phát hành AppChat (99 TIP → cổng phát hành TIP-046)
 
 > Thay `goals/GOAL-BACKEND.md` từ 2026-11-03 (file cũ giữ làm lịch sử TIP 001–035). Nguồn duy nhất cho thứ tự và tiến độ phần còn lại.
 
 ## Goal (1 câu)
 
-Làm tuần tự **90 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c / TIP-032e Cơ hội · Tài chính D60 + TIP-047 / 047b / 047c / 047d Gọi điện D61) theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
+Làm tuần tự **99 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c / TIP-032e Cơ hội · Tài chính D60 + TIP-047 / 047b / 047c / 047d Gọi điện D61 + TIP-035d cô lập worktree + TIP-048 → 048h kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream D62) theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
 
 **Câu dán vào `/goal`:**
 `Làm xong AppChat tới phát hành theo coding-packs/goals/GOAL-RELEASE.md: lần lượt từng TIP trong bảng Thứ tự (023b → 046) tới khi TIP-046 đạt. Mỗi TIP: rà "Rà trước khi làm" với code thật; làm đúng manifest (tips/manifests/TIP-XXX-files.md); đọc và đối chiếu mọi standard TIP ghi tên, completion report có bảng "Đối chiếu standards" (file:dòng hoặc mã DV); test theo mục "Cổng test" của GOAL-RELEASE.md; commit; gh pr create --base dev; cập nhật COVERAGE (tools/obligations/parts + merge.py) và bảng tiến độ GOAL-RELEASE.md. TIP nhiều pha thì một PR mỗi pha. Test CHỈ trong phạm vi TIP thay đổi: cổng commit chạy lint/typecheck/unit của package đổi + depcheck + lint:size, lint:tokens, lint:masks, i18n:check; cổng chốt (một lần mỗi TIP) chạy lint/typecheck/unit/build của package đổi, integration CHỈ các file test của domain/action TIP chạm, E2E mock + http CHỈ spec của module TIP, parity màn TIP sửa; sửa lớp dùng chung (kernel, packages/db|actions|shared|ui, apps/web/src/shared) thì thêm E2E mock các module dùng phần đó + parity --done. KHÔNG chạy full integration hay full E2E hồi quy ở TIP thường — chỉ chạy ở TIP-046. Sau rebase chỉ chạy lại phần bị ảnh hưởng. Ca đỏ trong phạm vi TIP mà đã đỏ sẵn trên origin/dev hoặc là lỗi môi trường đã ghi sổ (vd Q-042, Q-010) thì chạy riêng chứng minh rồi ghi report — không tính là cổng đỏ. Thiếu provider thật (Zalo, SePay, Brevo, VPS, credit) ghi "chưa nghiệm thu với provider thật", không dừng. ai:live: lỗi hạ tầng provider chạy lại, lỗi hệ thống phải sửa, không hạ ngưỡng. Nhánh: tip/XXX-<slug> từ origin/dev; nếu PR TIP trước chưa merge thì tách xếp chồng từ nhánh TIP trước. Trước mỗi PR: git fetch, PR trước đã merge thì rebase lên origin/dev, chưa merge thì rebase lên nhánh TIP trước; thân PR ghi "xếp chồng trên #N — merge #N trước". Mở PR xong là sang ngay pha / TIP kế trong cùng lượt — KHÔNG dừng để tóm tắt hay chờ phản hồi; tiến độ ghi vào bảng tiến độ và coding-packs/HANDOFF-NEXT.md, không báo qua chat. Câu hỏi mới ghi QUESTIONS.md kèm đề xuất rồi làm tiếp theo đề xuất; quyết định kỹ thuật ghi DECISIONS.md; lệch spec ghi DEVIATIONS.md. Chỉ dừng khi: (1) TIP-046 đạt; (2) cần quyết định về luật tiền / quyền / pháp lý / xoá dữ liệu; (3) lỗi test thuộc phạm vi TIP mà đã thử sửa không được — ghi rõ lý do vào HANDOFF-NEXT.md.`
@@ -52,7 +52,7 @@ Làm tuần tự **90 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 
 **Mỗi TIP:** mọi AC có test chạy thật và xanh · mọi action của TIP có handler · shape đọc đúng contract FE, contract test xanh · tenant + role isolation có test khi chạm dữ liệu có chủ · cổng "chốt TIP" xanh · commit + SHA + PR + Completion Report + COVERAGE + ba sổ cập nhật.
 
-**Cả goal:** 90 TIP DONE (hoặc PARTIAL **chỉ** vì ô cần tài nguyên ngoài, ghi "chưa nghiệm thu với provider thật") · `node tools/release/gate.mjs --sha <sha>` (TIP-046) không còn ô đỏ ngoài ô `unknown-resource` · `COVERAGE.md` không còn dòng CHƯA / GIẢ / MỘT PHẦN trừ dòng chờ tài nguyên ngoài.
+**Cả goal:** 99 TIP DONE (hoặc PARTIAL **chỉ** vì ô cần tài nguyên ngoài, ghi "chưa nghiệm thu với provider thật") · `node tools/release/gate.mjs --sha <sha>` (TIP-046) không còn ô đỏ ngoài ô `unknown-resource` · `COVERAGE.md` không còn dòng CHƯA / GIẢ / MỘT PHẦN trừ dòng chờ tài nguyên ngoài.
 
 ## Tài nguyên ngoài (không chặn thi công, chặn nghiệm thu / bán)
 
@@ -67,6 +67,10 @@ Làm tuần tự **90 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 | Máy Linux IP tĩnh cho LiveKit + SIP edge + Voice AI | 047, 047c, 047d | `livekit-server --dev` trên máy dev, port voice `mock` | Chung VPS-APP khi mua VPS (Q-903 → DC-907 f), tách bằng env khi tải lớn; chờ VPS (Q-006); `infra/livekit/*` viết trước, script mặc định `plan` |
 | Zalo Cloud Connect (App AppChat được duyệt, OA Doanh nghiệp xác thực) | 047, 047c | `ZccClient` mock | Chủ nhà đăng ký App "AppChat" + xin quyền gọi thoại, OA thử của công ty, `ZCC_BILLING=oa` (Q-902 → DC-907 e); chờ App được duyệt |
 | SIP trunk / hotline thử | 047c | trunk giả lập SIPp | Thuê 1 số SIP REGISTER gói rẻ nhất (Q-904 → DC-907 g); hộp SIM không mua, form hiện "Sắp có" (Q-906 → DC-907 h) |
+| Meta (Facebook Page / Instagram): Business Verification + App Review + domain HTTPS | 048e, 048f, 048g | Transport `fake` + fixtures webhook | Chủ nhà nộp ngay (Q-908); domain HTTPS cần sớm hơn VPS (Q-006) |
+| App Zalo quyền OA API + OA thử gói Tăng trưởng | 048, 048d | Transport `fake` | Dùng chung App Zalo với ZCC (DC-909); Chủ nhà xin quyền OA API (Q-909) |
+| TikTok Business Messaging API + Accounts API | 048h | Transport `fake` | Chủ nhà nộp form (Q-910) |
+| Memurai cài sẵn (chạy nhiều tiến trình cổng riêng) | 035d | Worktree dùng chung Redis của checkout chính (không song song) | Có sẵn trên máy dev (Q-913) |
 | Voice AI | 047, 047c, 044 | `VOICE_AI_ENGINE=mock` | **Tự dựng** (Q-905 → DC-907 a–d): PhoWhisper + VieNeu-TTS chạy local, không cần key; Realtime tuỳ chọn khi có key. Còn đo độ trễ / số phiên ở TIP-047 |
 
 ## Checklist bán được (ngoài code — Chủ nhà)
@@ -75,12 +79,15 @@ Làm tuần tự **90 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c
 - [ ] SePay + tài khoản nhận tiền thật; Brevo + domain gửi đã xác minh.
 - [ ] Nạp credit OpenAI (embedding); 9router đủ quota cho tải thật.
 - [ ] Quét QR Zalo cho tài khoản nghiệm thu.
+- [ ] Kênh D62: Meta Business Verification + App Review (Q-908) · App Zalo quyền OA API + OA thử (Q-909) · TikTok Business Messaging (Q-910) · domain HTTPS cho webhook.
 - [ ] Pháp lý: Điều khoản dịch vụ, Chính sách bảo mật (Nghị định 13/2023), xuất hoá đơn GTGT tiền gói — Chủ nhà xác nhận làm trong app hay ngoài (chưa có TIP).
 - [ ] Gate TIP-046 đạt trên SHA phát hành; Chủ nhà tự merge `dev → main`.
 
 ## Thứ tự và tiến độ
 
 Sinh bằng `python -X utf8 tools/obligations/order.py --table`: sắp topo theo khai `integrate A before B` (máy kiểm hai phía) + dòng "Depends on" của từng TIP; khi hai nguồn mâu thuẫn, khai hai phía thắng. Thêm / đổi phụ thuộc → chạy lại công cụ, giữ cột trạng thái đã điền. TIP 001–035 đã DONE — xem `goals/GOAL-BACKEND.md`.
+
+**Ba luồng song song (D62 #7, DC-908):** làm **035d trước tiên** (cô lập worktree: DB / cổng / Memurai / slot Postgres riêng). Sau đó tối đa 3 worktree: **A** = TIP cũ theo bảng · **B** = Gọi điện 047 → 047b → 047c → 047d · **C** = Kênh 048 → 048b → … → 048h. Bảng dưới vẫn là thứ tự **ghép** (PR vào `dev`): 048 nằm giữa 047b và 047c (một kho token cho ZCC + kênh Zalo OA — DC-909) — luồng C bắt đầu 048 khi 047b đã ghép, hoặc luồng B làm luôn 048. Mỗi luồng một dải số sổ riêng (B: 8xx, C: 7xx, tài liệu: 9xx) để không trùng mã DC / Q / DV / PD.
 
 Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài nguyên ngoài) · `BLOCKED`.
 
@@ -142,38 +149,47 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 54 | [006c](../tips/TIP-006c-realtime-events.md) | W8 | DONE | `tip/006c-realtime-events` | `8c43594c` | #222 |
 | 55 | [016b](../tips/TIP-016b-nav-badges.md) | W8 | DONE | `tip/016b-nav-badges` | `342d1a84` | #223 |
 | 56 | [034d](../tips/TIP-034d-ticket-stock-trends.md) | W8 | DONE | `tip/034d-ticket-stock-trends` | `cc9c77ad` | #224 |
-| 57 | [020e](../tips/TIP-020e-rag-model-lifecycle.md) | W8 | DONE | `tip/020e-rag-model-lifecycle` | `bcc52d2e` | #226 |
-| 58 | [003e](../tips/TIP-003e-action-integrity.md) | W8 | chờ | `tip/003e-action-integrity` | | |
-| 59 | [001c](../tips/TIP-001c-ui-states-mobile.md) | W8 | chờ | `tip/001c-ui-states-mobile` | | |
-| 60 | [003f](../tips/TIP-003f-validation-forms.md) | W8 | chờ | `tip/003f-validation-forms` | | |
-| 61 | [003g](../tips/TIP-003g-time-query-hygiene.md) | W8 | chờ | `tip/003g-time-query-hygiene` | | |
-| 62 | [003h](../tips/TIP-003h-state-flows.md) | W8 | chờ | `tip/003h-state-flows` | | |
-| 63 | [003i](../tips/TIP-003i-api-contract-gaps.md) | W8 | chờ | `tip/003i-api-contract-gaps` | | |
-| 64 | [004b](../tips/TIP-004b-auth-security.md) | W8 | chờ | `tip/004b-auth-security` | | |
-| 65 | [004c](../tips/TIP-004c-mail-provider-webhooks.md) | W8 | chờ | `tip/004c-mail-provider-webhooks` | | |
-| 66 | [011b](../tips/TIP-011b-industry-taxonomy.md) | W8 | chờ | `tip/011b-industry-taxonomy` | | |
-| 67 | [012d](../tips/TIP-012d-storage-connector.md) | W8 | chờ | `tip/012d-storage-connector` | | |
-| 68 | [013b](../tips/TIP-013b-settings-workspace.md) | W8 | chờ | `tip/013b-settings-workspace` | | |
-| 69 | [013c](../tips/TIP-013c-owner-availability.md) | W8 | chờ | `tip/013c-owner-availability` | | |
-| 70 | [014c](../tips/TIP-014c-channel-consistency.md) | W8 | chờ | `tip/014c-channel-consistency` | | |
-| 71 | [017b](../tips/TIP-017b-web-widget.md) | W8 | chờ | `tip/017b-web-widget` | | |
-| 72 | [018b](../tips/TIP-018b-email-oauth.md) | W8 | chờ | `tip/018b-email-oauth` | | |
-| 73 | [019d](../tips/TIP-019d-agent-authority.md) | W8 | chờ | `tip/019d-agent-authority` | | |
-| 74 | [020f](../tips/TIP-020f-kb-parsers.md) | W8 | chờ | `tip/020f-kb-parsers` | | |
-| 75 | [022d](../tips/TIP-022d-zalo-proactive-cap.md) | W8 | chờ | `tip/022d-zalo-proactive-cap` | | |
-| 76 | [031b](../tips/TIP-031b-commerce-bulk.md) | W8 | chờ | `tip/031b-commerce-bulk` | | |
-| 77 | [031c](../tips/TIP-031c-stock-master.md) | W8 | chờ | `tip/031c-stock-master` | | |
-| 78 | [006d](../tips/TIP-006d-web-push.md) | W8 | chờ | `tip/006d-web-push` | | |
-| 79 | [033d](../tips/TIP-033d-order-deposit.md) | W8 | chờ | `tip/033d-order-deposit` | | |
-| 80 | [026c](../tips/TIP-026c-sales-pipeline.md) | W8 | chờ — D60 / DC-901 (Q-901, 2026-11-12) | `tip/026c-sales-pipeline` | | |
-| 81 | [032e](../tips/TIP-032e-finance.md) | W8 | chờ — D60 / DC-902, ngay sau 026c | `tip/032e-finance` | | |
-| 82 | [035b](../tips/TIP-035b-task-sparkline.md) | W8 | chờ | `tip/035b-task-sparkline` | | |
-| 83 | [035c](../tips/TIP-035c-test-ops-hygiene.md) | W8 | chờ | `tip/035c-test-ops-hygiene` | | |
-| 84 | [047](../tips/TIP-047-voice-infra.md) | W8 | chờ — D61 / DC-906 (Gọi điện, RRI 2026-11-13); làm song song worktree, ghép sau chuỗi PR hiện tại | `tip/047-voice-infra` | | |
-| 85 | [047b](../tips/TIP-047b-callcenter-schema.md) | W8 | chờ — D61 / DC-903, sau 047 | `tip/047b-callcenter-schema` | | |
-| 86 | [047c](../tips/TIP-047c-callcenter-backend.md) | W8 | chờ — D61 / DC-904, sau 047b | `tip/047c-callcenter-backend` | | |
-| 87 | [047d](../tips/TIP-047d-callcenter-ui.md) | W8 | chờ — D61 / DC-905, sau 047c + 032e | `tip/047d-callcenter-ui` | | |
-| 88 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
-| 89 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
-| 89b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
-| 90 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |
+| 57 | [035d](../tips/TIP-035d-worktree-isolation.md) | W8 | chờ — D62 / DC-908 (cô lập worktree) — **làm trước tiên** rồi mới chia 3 luồng A / B / C | `tip/035d-worktree-isolation` | | |
+| 58 | [020e](../tips/TIP-020e-rag-model-lifecycle.md) | W8 | DONE | `tip/020e-rag-model-lifecycle` | `bcc52d2e` | #226 |
+| 59 | [003e](../tips/TIP-003e-action-integrity.md) | W8 | chờ | `tip/003e-action-integrity` | | |
+| 60 | [001c](../tips/TIP-001c-ui-states-mobile.md) | W8 | chờ | `tip/001c-ui-states-mobile` | | |
+| 61 | [003f](../tips/TIP-003f-validation-forms.md) | W8 | chờ | `tip/003f-validation-forms` | | |
+| 62 | [003g](../tips/TIP-003g-time-query-hygiene.md) | W8 | chờ | `tip/003g-time-query-hygiene` | | |
+| 63 | [003h](../tips/TIP-003h-state-flows.md) | W8 | chờ | `tip/003h-state-flows` | | |
+| 64 | [003i](../tips/TIP-003i-api-contract-gaps.md) | W8 | chờ | `tip/003i-api-contract-gaps` | | |
+| 65 | [004b](../tips/TIP-004b-auth-security.md) | W8 | chờ | `tip/004b-auth-security` | | |
+| 66 | [004c](../tips/TIP-004c-mail-provider-webhooks.md) | W8 | chờ | `tip/004c-mail-provider-webhooks` | | |
+| 67 | [011b](../tips/TIP-011b-industry-taxonomy.md) | W8 | chờ | `tip/011b-industry-taxonomy` | | |
+| 68 | [012d](../tips/TIP-012d-storage-connector.md) | W8 | chờ | `tip/012d-storage-connector` | | |
+| 69 | [013b](../tips/TIP-013b-settings-workspace.md) | W8 | chờ | `tip/013b-settings-workspace` | | |
+| 70 | [013c](../tips/TIP-013c-owner-availability.md) | W8 | chờ | `tip/013c-owner-availability` | | |
+| 71 | [014c](../tips/TIP-014c-channel-consistency.md) | W8 | chờ | `tip/014c-channel-consistency` | | |
+| 72 | [017b](../tips/TIP-017b-web-widget.md) | W8 | chờ | `tip/017b-web-widget` | | |
+| 73 | [018b](../tips/TIP-018b-email-oauth.md) | W8 | chờ | `tip/018b-email-oauth` | | |
+| 74 | [019d](../tips/TIP-019d-agent-authority.md) | W8 | chờ | `tip/019d-agent-authority` | | |
+| 75 | [020f](../tips/TIP-020f-kb-parsers.md) | W8 | chờ | `tip/020f-kb-parsers` | | |
+| 76 | [022d](../tips/TIP-022d-zalo-proactive-cap.md) | W8 | chờ | `tip/022d-zalo-proactive-cap` | | |
+| 77 | [031b](../tips/TIP-031b-commerce-bulk.md) | W8 | chờ | `tip/031b-commerce-bulk` | | |
+| 78 | [031c](../tips/TIP-031c-stock-master.md) | W8 | chờ | `tip/031c-stock-master` | | |
+| 79 | [006d](../tips/TIP-006d-web-push.md) | W8 | chờ | `tip/006d-web-push` | | |
+| 80 | [033d](../tips/TIP-033d-order-deposit.md) | W8 | chờ | `tip/033d-order-deposit` | | |
+| 81 | [026c](../tips/TIP-026c-sales-pipeline.md) | W8 | chờ — D60 / DC-901 (Q-901, 2026-11-12) | `tip/026c-sales-pipeline` | | |
+| 82 | [032e](../tips/TIP-032e-finance.md) | W8 | chờ — D60 / DC-902, ngay sau 026c | `tip/032e-finance` | | |
+| 83 | [035b](../tips/TIP-035b-task-sparkline.md) | W8 | chờ | `tip/035b-task-sparkline` | | |
+| 84 | [035c](../tips/TIP-035c-test-ops-hygiene.md) | W8 | chờ | `tip/035c-test-ops-hygiene` | | |
+| 85 | [047](../tips/TIP-047-voice-infra.md) | W8 | chờ — D61 / DC-906 (Gọi điện, RRI 2026-11-13); làm song song worktree, ghép sau chuỗi PR hiện tại | `tip/047-voice-infra` | | |
+| 86 | [047b](../tips/TIP-047b-callcenter-schema.md) | W8 | chờ — D61 / DC-903, sau 047 | `tip/047b-callcenter-schema` | | |
+| 87 | [048](../tips/TIP-048-oauth-token-vault.md) | W8 | chờ — D62 / DC-909 (OAuth + kho token), sau 047b, trước 047c | `tip/048-oauth-token-vault` | | |
+| 88 | [047c](../tips/TIP-047c-callcenter-backend.md) | W8 | chờ — D61 / DC-904, sau 047b + 048 (token OA qua kho chung — DC-909) | `tip/047c-callcenter-backend` | | |
+| 89 | [047d](../tips/TIP-047d-callcenter-ui.md) | W8 | chờ — D61 / DC-905, sau 047c + 032e | `tip/047d-callcenter-ui` | | |
+| 90 | [048b](../tips/TIP-048b-channel-webhooks.md) | W8 | chờ — D62 / DC-910, luồng C | `tip/048b-channel-webhooks` | | |
+| 91 | [048c](../tips/TIP-048c-channel-connect-ui.md) | W8 | chờ — D62 / DC-911, luồng C | `tip/048c-channel-connect-ui` | | |
+| 92 | [048d](../tips/TIP-048d-zalo-oa.md) | W8 | chờ — D62 / DC-912 (Zalo OA, Q-909) | `tip/048d-zalo-oa` | | |
+| 93 | [048e](../tips/TIP-048e-meta-messaging.md) | W8 | chờ — D62 / DC-913 (Meta, Q-908) | `tip/048e-meta-messaging` | | |
+| 94 | [048f](../tips/TIP-048f-social-comments.md) | W8 | chờ — D62 / DC-914 (bình luận) | `tip/048f-social-comments` | | |
+| 95 | [048g](../tips/TIP-048g-livestream.md) | W8 | chờ — D62 / DC-915 (livestream) | `tip/048g-livestream` | | |
+| 96 | [048h](../tips/TIP-048h-tiktok-messaging.md) | W8 | chờ — D62 / DC-916 (TikTok, Q-910) | `tip/048h-tiktok-messaging` | | |
+| 97 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
+| 98 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
+| 98b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
+| 99 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |

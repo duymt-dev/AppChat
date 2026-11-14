@@ -1,6 +1,12 @@
 # TIP-046 — Release gate: CI backend, build smoke, hiệu năng, a11y, i18n, parity đầy đủ
 
 ## HEADER
+- **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `apps/web/package.json`, `package.json`, `tools/parity/src/cli.ts`, `tools/scripts/e2e-http.mjs`; integrate 035d before046.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 048c before046.
+- **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `tools/scripts/e2e-http.mjs`; integrate 048d before046.
+- **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `tools/scripts/e2e-http.mjs`; integrate 048e before046.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 048f before046.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 048g before046.
 - **Parallel-safe with TIP-047 (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047 before046.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/package.json`, `pnpm-lock.yaml`, `tools/parity/parity.manifest.ts`; integrate 047d before046.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 026c before046.

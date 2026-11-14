@@ -1,6 +1,10 @@
 # TIP-017b — Widget web: logo, nút hành động, nhiều widget, agent.status/typing, đủ danh sách agent
 
 ## HEADER
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 017b before048c.
+- **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 017b before048d.
+- **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 017b before048e.
+- **Parallel-safe with TIP-048h (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 017b before048h.
 - **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 017b before047b.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/api/src/http/channels/widget.gateway.ts`, `packages/actions/src/settings-apps.ts`, `packages/core/src/channels/webchat/webchat.handlers.ts`, `packages/core/src/channels/webchat/widget.service.ts`; integrate 017b before047c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/components/WidgetSection.tsx`, `apps/widget/src/main.ts`, `apps/widget/src/types.ts`, `apps/widget/src/ui.ts`; integrate 017b before047d.

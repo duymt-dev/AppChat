@@ -1,6 +1,11 @@
 # TIP-034d — Observed ticket stock trends, current cohort and honest AI summary
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 034d before048.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 034d before048b.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/src/features/tickets/types.ts`, `apps/web/src/shared/api/mock/handlers.ts`, `tools/parity/parity.manifest.ts`; integrate 034d before048c.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 034d before048f.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 034d before048g.
 - **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/tickets.json`, `apps/web/messages/vi/tickets.json`; integrate 034d before047b.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 034d before047c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/handlers.ts`, `tools/parity/parity.manifest.ts`; integrate 034d before047d.

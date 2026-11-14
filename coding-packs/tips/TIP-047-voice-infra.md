@@ -1,6 +1,12 @@
 # TIP-047 — Hạ tầng thoại: `packages/voice` + LiveKit / SIP edge native (Gọi điện, D61)
 
 ## HEADER
+- **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before047.
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before048.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before048b.
+- **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before048d.
+- **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before048e.
+- **Parallel-safe with TIP-048h (coverage-closure manifest):** sequential, shares `.env.example`; integrate 047 before048h.
 - **Parallel-safe with TIP-044 (coverage-closure manifest):** sequential, shares `.dependency-cruiser.cjs`, `pnpm-lock.yaml`; integrate 047 before044.
 - **Parallel-safe with TIP-045 (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047 before045.
 - **Parallel-safe with TIP-046 (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047 before046.
@@ -20,7 +26,7 @@
   - 047 không đụng DB / action / UI nên dựng song song được trên worktree riêng.
   - Phải ghép sau khi chuỗi PR hiện tại đã merge, vì `.dependency-cruiser.cjs`, `pnpm-lock.yaml` và `packages/core/package.json` là file dùng chung.
 - **Files touched:** [exact M/C manifest](manifests/TIP-047-files.md). Package mới `packages/voice` theo khuôn `packages/integrations`; thư mục mới `infra/livekit/`. Không sửa `infra/security/ufw.rules` của TIP-045 (luật thoại nằm ở `infra/livekit/ufw-voice.rules`, 045 nạp nếu có).
-- **Quyết định nguồn:** D61 (#1, #2, #12) · DC-906 · **DC-907** (Voice AI tự dựng) · DV-901 · **DV-902** · Blueprint §1.1, §6b, §8, §11.1.
+- **Quyết định nguồn:** D61 (#1, #2, #12) · DC-906 · **DC-907** (Voice AI tự dựng) · **DC-909** (một App Zalo chung kênh OA + ZCC, token OA ở kho chung — sửa 2026-11-14) · DV-901 · **DV-902** · Blueprint §1.1, §6b, §8, §11.1.
 - **Dòng COVERAGE nhận:** REQ-O01 · REQ-O08 (port + bộ cài local) · D61-voice-infra · D61-voice-ai-engine · DC-906 · DC-907 · DV-901 · DV-902 · BP-6b-voice · BP-11-voice.
 
 ## CONTEXT
@@ -91,7 +97,7 @@ Dựng lớp hạ tầng thoại dùng chung cho Gọi điện (D61), không đ�
 3. Cấu hình đọc qua `voiceEnv()` (zod):
    - LiveKit: `LIVEKIT_URL`, `LIVEKIT_API_KEY`, `LIVEKIT_API_SECRET`, `LIVEKIT_WEBHOOK_KEY` (mặc định = API key).
    - SIP edge: `VOICE_SIP_EDGE_HOST`, `VOICE_PUBLIC_IP`.
-   - ZCC: `ZCC_APP_ID`, `ZCC_APP_SECRET`, `ZCC_BILLING` (`oa` | `app`, mặc định `oa` — DC-904 f).
+   - ZCC: `ZALO_APP_ID`, `ZALO_APP_SECRET` (một App Zalo dùng chung kênh Zalo OA và ZCC — DC-909; TIP-048 thêm khối biến này vào `.env.example`, 047 chỉ đọc), `ZCC_BILLING` (`oa` | `app`, mặc định `oa` — DC-904 f).
    - Voice AI: `VOICE_AI_ENGINE` (`mock` | `pipeline` | `realtime`; mặc định `mock` ở dev / test, production đặt `pipeline` — DC-907), `VOICE_STT_PROVIDER` (`local` | `mock`), `VOICE_TTS_PROVIDER` (`local` | `piper` | `mock`), `VOICE_STT_MODEL_DIR`, `VOICE_TTS_URL` (mặc định `http://127.0.0.1:8090`), `VOICE_TTS_VOICE` (một trong 23 giọng có sẵn), `VOICE_AI_MAX_SESSIONS` (mặc định 2), `VOICE_REALTIME_PROVIDER` (`openai` | `gemini`, chỉ khi `realtime`).
    - Thiếu biến bắt buộc ở chế độ thật → lỗi khởi tạo có mã (`VOICE_CONFIG_MISSING`), không chạy ngầm.
    - Secret không bao giờ xuất hiện trong log / lỗi trả ra.
@@ -102,7 +108,7 @@ Dựng lớp hạ tầng thoại dùng chung cho Gọi điện (D61), không đ�
 | `LiveKitRoomPort` | `createRoom(name, opts)` · `deleteRoom(name)` · `token(room, identity, grants, ttlSec)` · `listParticipants(room)` · `removeParticipant(room, identity)` · `muteTrack(...)` | Tên phòng `ws_<workspace>_call_<callId>` (hàm `roomName()` thuần, có test). Token TTL mặc định 10 phút, quyền tối thiểu: agent publish + subscribe, monitor `listen` chỉ subscribe, `whisper` publish tới agent. Widget: token khách riêng, phòng riêng của cuộc |
 | `SipDispatchPort` | `dialOut(req)` (trunk, số đích E.164 / UserID ZCC, caller id, room) · `transfer(participant, target)` · `hangup(participant)` · `sendDtmf(...)` | Gói `livekit-server-sdk` SipClient (CreateSIPParticipant / TransferSIPParticipant). Trunk / dispatch rule tạo bằng `ensureTrunk(line)` idempotent theo `line_id` (047c gọi lúc lưu `call_line`) |
 | `LiveKitWebhookVerifier` | `verify(rawBody, authHeader) → LiveKitEvent` | Kiểm JWT webhook (sha256 body) bằng `WebhookReceiver`. Trả `{ id, event, room, participant?, track?, createdAt }`. `id` là khoá biên nhận (DC-904 a). Sai chữ ký → `VOICE_WEBHOOK_INVALID` |
-| `ZccClient` | `requestConsent(oa, to, reason)` · `checkConsent(oa, to)` · `verifyWebhook(raw, headers)` | OA Access Token v4 do caller truyền vào (token OA lưu mã hoá ở DB tenant — 047b / 047c, không lưu trong voice). Lỗi Zalo ánh xạ: `ZCC_NOT_ENTERPRISE`, `ZCC_PERMISSION_DENIED`, `ZCC_QUOTA`, `ZCC_UNAVAILABLE`. Trả `cost` (VND, chuỗi) nếu API có, không có thì `null` |
+| `ZccClient` | `requestConsent(oa, to, reason)` · `checkConsent(oa, to)` · `verifyWebhook(raw, headers)` | OA Access Token v4 do caller truyền vào (token OA ở kho `oauth_grant` của TIP-048, 047c đọc qua `TokenVault.access` — DC-909; voice không lưu, không làm mới token). Lỗi Zalo ánh xạ: `ZCC_NOT_ENTERPRISE`, `ZCC_PERMISSION_DENIED`, `ZCC_QUOTA`, `ZCC_UNAVAILABLE`. Trả `cost` (VND, chuỗi) nếu API có, không có thì `null` |
 | `TrackRecorder` | `start(room, opts) → RecordingHandle` · `stop(handle) → { bytes: Uint8Array, durationMs, codec: 'opus', container: 'ogg' }` | `@livekit/rtc-node`: subscribe audio của mọi participant, trộn mono 16 kHz hoặc giữ 2 kênh (khách / nhân viên — tham số, mặc định 2 kênh cho transcript theo người nói). Giới hạn 4 giờ / file, quá thì cắt đoạn. Không ghi đĩa ngoài thư mục tạm của tiến trình; 047c lưu qua FilesService |
 | `VoiceAiEnginePort` | `start(init) → VoiceSession` (`on('turn', …)`, `on('handoff', …)`, `stop()`) | Hai bộ cài theo §3. `init`: room, agentId, locale `vi-VN`, system prompt, tools (đã lọc quyền ở 047c), giới hạn lượt, ngưỡng tin cậy |
 

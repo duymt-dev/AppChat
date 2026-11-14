@@ -1,6 +1,8 @@
 # TIP-003d — OpenAPI tự sinh tại /v1/docs
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/api/src/http/kernel/kernel.http.module.ts`; integrate 003d before048.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `apps/api/src/bootstrap.ts`; integrate 003d before048b.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/api/src/openapi/route-scan.ts`; integrate 003d before047d.
 - TIP-ID: TIP-003d; Project: AppChat V2; Module: api contract; Priority: P0; Estimated: M. TIP bổ sung cho TIP-003 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 003 kernel; 045b actions controller; trước 044/045/046.

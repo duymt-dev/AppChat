@@ -1,6 +1,15 @@
 # TIP-047d — Giao diện Gọi điện: màn Call Center, WebPhone, Hẹn gọi lại, Cài đặt → Tổng đài, nút gọi, rail (D61)
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/common.json`, `apps/web/messages/vi/common.json`, `apps/web/src/shared/api/mock/handlers.ts`; integrate 048 before047d.
+- **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `apps/web/package.json`; integrate 035d before047d.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/customers.json`, `apps/web/messages/vi/customers.json`, `packages/core/src/inbox/services/meta.service.ts`; integrate 047d before048b.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/agents/components/builder/RoutingSection.tsx`, `apps/web/src/features/inbox/components/ConnectChannelModal.tsx`, `apps/web/src/shared/api/mock/handlers.ts`, `fixtures/prototype-parity/settings.json`, `tools/parity/parity.manifest.ts`; integrate 047d before048c.
+- **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 047d before048d.
+- **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 047d before048e.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/shared/src/i18n/server/en/inbox.ts`, `packages/shared/src/i18n/server/vi/inbox.ts`, `tools/parity/parity.manifest.ts`; integrate 047d before048f.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/shared/src/i18n/server/en/inbox.ts`, `packages/shared/src/i18n/server/vi/inbox.ts`, `tools/parity/parity.manifest.ts`; integrate 047d before048g.
+- **Parallel-safe with TIP-048h (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`; integrate 047d before048h.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/calendar.json`, `apps/web/messages/en/common.json`, `apps/web/messages/en/customers.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/calendar.json`, `apps/web/messages/vi/common.json`, `apps/web/messages/vi/customers.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/customers/columns.tsx`, `apps/web/src/features/inbox/components/Overview360.tsx`, `apps/web/src/shared/contact-activities/ActivityCards.test.tsx`, `apps/web/src/shared/contact-activities/ActivityFormHost.tsx`, `apps/web/src/shared/contact-activities/activity-store.ts`, `apps/web/src/shared/contact-activities/commands.ts`, `tools/parity/parity.manifest.ts`, `tools/parity/src/capture.ts`; integrate 026c before047d.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/finance.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/en/shell.json`, `apps/web/messages/vi/finance.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/shell.json`, `apps/web/src/features/finance/components/FinanceCustomerDrawer.tsx`, `apps/web/src/features/inbox/components/Overview360.tsx`, `apps/web/src/i18n/messages.ts`, `apps/web/src/shared/api/mock/routes.ts`, `apps/web/src/shared/realtime/event-invalidation.ts`, `apps/web/src/shared/shell/NavRail.tsx`, `apps/web/src/shared/shell/nav-config.test.ts`, `apps/web/src/shared/shell/nav-config.ts`, `tools/parity/parity.manifest.ts`, `tools/parity/src/capture.ts`; integrate 032e before047d.
 - **Parallel-safe with TIP-044 (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047d before044.
@@ -68,7 +77,7 @@
 - **Parallel-safe with TIP-043 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `tools/parity/parity.manifest.ts`; integrate 043 before047d.
 - **Parallel-safe with TIP-045b (coverage-closure manifest):** sequential, shares `apps/api/src/http/kernel/api-rate-limit.guard.ts`, `apps/api/src/http/kernel/cors-policy.ts`, `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/calendar/components/ListView.tsx`, `apps/web/src/features/calendar/types.ts`, `apps/web/src/features/customers/columns.tsx`, `apps/web/src/features/settings/registry.ts`, `apps/web/src/features/settings/types.ts`, `pnpm-lock.yaml`, `tools/parity/parity.manifest.ts`; integrate 045b before047d.
 - **TIP-ID:** TIP-047d · **Project:** AppChat V2 · **Module:** Gọi điện — frontend (web + widget) · **Priority:** P0 · **Estimated:** XL (4 pha)
-- **Depends on:** 047c, 032e, 026c và mọi TIP chờ cũ có chung file (dòng khai hai phía ở trên) — trước 044, 045, 046.
+- **Depends on:** 047c, 048, 032e, 026c và mọi TIP chờ cũ có chung file (dòng khai hai phía ở trên) — trước 044, 045, 046.
 - **Vì sao phụ thuộc:**
   - 047c cung cấp action / API / realtime / token LiveKit.
   - 032e dựng rail "Tài chính" + drawer Tài chính, nơi đặt nút Gọi điện; cùng file `nav-config.ts` / `capture.ts`.
@@ -80,7 +89,7 @@
   - Modal dùng chung `apps/web/src/shared/contact-activities/CallbackModal.tsx`.
   - Section Cài đặt `callcenter`.
   - Màn = orchestrator; component 150–250 dòng, trần 400.
-- **Quyết định nguồn:** D61 (#2–#10, #13) · DC-905 · DC-907 h (Hộp SIM "Sắp có") · PD-902 · D42 / D43 · D60 #9–10 · REQ-C13 · prototype-parity §6.
+- **Quyết định nguồn:** D61 (#2–#10, #13) · DC-905 · DC-907 h (Hộp SIM "Sắp có") · **DC-909** (nút "Uỷ quyền OA" dùng `useOAuthConnect` của TIP-048) · PD-902 · D42 / D43 · D60 #9–10 · REQ-C13 · prototype-parity §6. · DC-922
 - **Dòng COVERAGE nhận:** REQ-O04 (UI) · REQ-O05 · REQ-O06 · REQ-O07 (UI) · REQ-O09 (UI) · REQ-O10 · REQ-O12 · D61-ui · DC-905 · PD-902 · PRO-callcenter-* · PRO-deal-callback.
 
 ## CONTEXT
@@ -217,7 +226,7 @@ Dựng toàn bộ giao diện Gọi điện theo prototype + SRS, chỉ qua acti
 - **Khối cơ hội** (prototype L4897–4920) dùng `shared/opportunities/*` (026c):
   - Khách có đúng 1 cơ hội mở → hiện "tự gán theo khách đang có 1 cơ hội mở" + `call.link_opportunity` khi người bấm.
   - "+ Thêm" / "+ Tạo cơ hội từ cuộc gọi" → `contact_opportunity.create` (source `call`, Lead mới).
-  - Đề xuất AI ("AI đề xuất sau cuộc gọi … Áp dụng / Bỏ qua") chỉ hiện khi `call_summary.suggestion` có. Áp dụng = `contact_opportunity.set_stage` + `call.schedule_callback` / `contact_task.create` dưới quyền người bấm (D60 #10).
+  - Đề xuất AI ("AI đề xuất sau cuộc gọi … Áp dụng / Bỏ qua") chỉ hiện khi `call_summary.suggestion` có. Áp dụng = `contact_opportunity.set_stage` + `call.schedule_callback` / `contact_task.create` dưới quyền người bấm (D60 #10). Cuộc gọi do AI agent xử lý đã tự áp (DC-922) → hiện "AI đã cập nhật" từ lịch sử cơ hội, không hiện nút Áp dụng.
   - "Đã cập nhật cơ hội" sau khi áp. Lịch sử cơ hội từ 026c.
 - **Transcript** (`TranscriptView.tsx`): đoạn theo người nói (Khách / Agent / AI), "Dịch tiếng Việt" bật bản dịch (`call.get?translate=vi`). Chỉ `call.listen`.
 - **Gán cuộc gọi:**
@@ -281,7 +290,7 @@ Dựng toàn bộ giao diện Gọi điện theo prototype + SRS, chỉ qua acti
   - **Nâng cao** (`AdvancedTab.tsx`):
     - Số tổng đài: danh sách `call_line`, "Thêm số" mở `LineFormModal`. Bốn loại:
       - Hotline / SIP trunk: nhà mạng, peering / register, host, user, mật khẩu.
-      - Zalo Cloud Connect: OA, mã luồng, hướng dẫn cấp quyền ở OA manager + trạng thái App được duyệt.
+      - Zalo Cloud Connect: nút "Uỷ quyền OA" (`apps/web/src/shared/oauth/useOAuthConnect.ts` của TIP-048, `oauth.start` purpose `grant`, provider `zalo_oa`) → OA đã uỷ quyền tự điền `zcc_oa_id` + `oauth_grant_id`; mã luồng; hướng dẫn cấp quyền gọi ở OA manager + trạng thái App được duyệt. Không ô dán token tay (DC-909).
       - SĐT cá nhân chuyển tiếp: số, mã chuyển tiếp `**21*` / `**61*` / `**62*` / `**67*` hiển thị để copy, cước do SIM shop trả.
       - Hộp SIM gateway: thẻ hiện "Sắp có", không chọn được (DC-907 h — chưa có thiết bị nghiệm thu; backend 047c đã hỗ trợ, bật bằng DC mới).
       - Nút "Kiểm tra kết nối" (`call_line.test`).

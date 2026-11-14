@@ -374,6 +374,10 @@
 | BP-4.7-b | POST /hooks/integrations/:connector/:connectionId | plans/BLUEPRINT.md:1018 | 012 | ĐẠT | integrations/hooks.controller.ts; test integrations.test.ts, orders.test.ts |
 | BP-4.7-c | POST /hooks/tenant-payments/:provider/:feedId | plans/BLUEPRINT.md:1019 | 032 | CHỜ-TK | sales/tenant-payments-hook.controller.ts; test payments.test.ts — Q-004 |
 | BP-4.7-calls | POST /hooks/livekit · POST /hooks/zalo-zcc/:appId (chữ ký, biên nhận idempotent, action nội bộ) | plans/BLUEPRINT.md:1082 | 047c | CHƯA | TIP-047c §3 (ZCC thật CHỜ-TK Q-902) |
+| BP-4.7-oauth | GET /hooks/oauth/:provider/callback: state ký + nonce một lần → oauth.complete → về app (D62) | plans/BLUEPRINT.md:1091 | 048 | CHƯA | TIP-048 |
+| BP-4.7-channels | GET / POST /hooks/channels/:type mức App: chữ ký, tách theo route, biên nhận idempotent, 200 nhanh; data deletion Meta (D62) | plans/BLUEPRINT.md:1090 | 048b, 048e | CHƯA | TIP-048b · 048e (data deletion) |
+| BP-2.2-oauth-grant | Bảng `oauth_grant` + TokenVault làm mới có khoá (D62) | plans/BLUEPRINT.md:320 | 048 | CHƯA | TIP-048 |
+| BP-2.2-webhook-route | `tenant_channel_webhook_route` PK `<type>:<external_id>` (D62) | plans/BLUEPRINT.md:290 | 048b | CHƯA | TIP-048b |
 | BP-4.6-calls | Realtime `call.*` / `callcenter.extension_status` theo scope; media không đi Socket.IO | plans/BLUEPRINT.md:1073 | 047c | CHƯA | TIP-047c §9 · TIP-047d §8b |
 | BP-5.1-a | AiSdkEngine (streamText) chạy tool qua ToolSpec → ActionExecutor | plans/BLUEPRINT.md:1052 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:5; agent.runtime.ts:73; test engine.test.ts |
 | BP-5.1-b | Dừng run khi needs_* → lưu state jsonb, chạy tiếp bằng job ai-resume, idempotent | plans/BLUEPRINT.md:1054 | 021 | ĐẠT | engine.ts:94-95; core/ai/approvals/resume.ts:85-120, resume.queue.ts:22; test agents.test.ts, agent-reply.test.ts |
@@ -406,6 +410,11 @@
 | BP-6-c | Webchat widget ≤ 40KB gz, prechat, allowed_domains | plans/BLUEPRINT.md:1173 | 017 | ĐẠT | apps/widget/dist/widget.js (16.9KB gz), visitor.service.ts:11; test webchat.test.ts, apps/widget/test |
 | BP-6-d | Email IMAP poll 60s + SMTP, gom thread Message-ID/In-Reply-To | plans/BLUEPRINT.md:1174 | 018 | ĐẠT | packages/channels/src/email/{adapter,normalize}.ts; test email-adapter.test.ts, email.test.ts |
 | BP-6-e | Inbound pipeline ON CONFLICT dedupe → resolve contact → outbox message.received | plans/BLUEPRINT.md:1175 | 016 | ĐẠT | core/inbox/services/pipeline.ts:2,60,122; test inbox.test.ts |
+| BP-6-webhook | Kênh webhook: OAuth, không lease, cửa sổ gửi theo manifest (D62) | plans/BLUEPRINT.md:1249 | 048b | CHƯA | TIP-048b |
+| BP-6-zalo-oa | Zalo OA: tin tư vấn ≤ 7 ngày, rate App 4.000 / phút chung + OA theo gói (D62) | plans/BLUEPRINT.md:1249 | 048d | CHƯA | TIP-048d (Zalo thật CHỜ-TK Q-909) |
+| BP-6-meta | Facebook Page / Instagram: 24 giờ + HUMAN_AGENT người gửi 7 ngày (D62) | plans/BLUEPRINT.md:1249 | 048e | CHƯA | TIP-048e (Meta thật CHỜ-TK Q-908) |
+| BP-6-tiktok | TikTok: 48 giờ, 10 tin trước khi khách trả lời, +3 sau 48 giờ (D62) | plans/BLUEPRINT.md:1249 | 048h | CHƯA | TIP-048h (TikTok thật CHỜ-TK Q-910) |
+| BP-6-comments-live | Bình luận = hội thoại comment; livestream FB SSE + poll / IG webhook; agent làm như nhân viên (D62, DC-921) | plans/BLUEPRINT.md:1249 | 048f, 048g | CHƯA | TIP-048f · 048g |
 | BP-6b-voice | VOICE: `packages/voice` (LiveKit phòng / SIP / webhook, ZCC, ghi track, VoiceAiEnginePort), một cuộc = một phòng | plans/BLUEPRINT.md:1243 | 047, 047c | CHƯA | TIP-047 · TIP-047c |
 | BP-8-a | VietQR tự sinh payload + render ảnh `qrcode` | plans/BLUEPRINT.md:1321 | 032b | ĐẠT | packages/core/src/sales/payments/services/invoice-qr.ts (qrcode 1.5.4, DV-025) — ảnh QR trong PDF đề nghị + endpoint; decode bằng jsqr trong commerce-delivery.test.ts |
 | BP-8-b | Brevo MailProvider + webhook bounce/complaint | plans/BLUEPRINT.md:1319 | 004, 004c | MỘT PHẦN | integrations/connectors/brevo (CHỜ-TK Q-004); webhook bounce không có; TIP-004c nhận (2026-11-02) |
@@ -435,6 +444,7 @@
 | BP-10-K7 | Theo dõi số DB / kích thước; > 500 DB hoặc đĩa > 70% thêm cluster | plans/BLUEPRINT.md:1364 | 045 | CHƯA | 045 cảnh báo tenant DB + routing nhiều cluster (packages/db/src/routing/reconciler.ts theo manifest 045) |
 | BP-10-K8 | LibreOffice DOCX→PDF lệch bố cục/font: spike 5 mẫu, cài font | plans/BLUEPRINT.md:1366 | 028, 045 | MỘT PHẦN | Spike DV-007/008/009 (TIP-028); cài font production → 045 provision |
 | BP-10-K9 | API sàn TMĐT cần đăng ký app đối tác; adapter thật P2 | plans/BLUEPRINT.md:1367 | 031 | NGOÀI | REQ-F07b adapter sàn P2; OQ-10 Chủ nhà đăng ký |
+| BP-10-K13 | Kênh webhook cần App duyệt (Meta / Zalo / TikTok) + domain HTTPS — nộp sớm, test bằng transport giả (D62) | plans/BLUEPRINT.md:1461 | 048d, 048e, 048h | CHỜ-TK | Q-908 · Q-909 · Q-910 |
 | BP-10-K10 | AI nhận diện biến DOCX / soạn số liệu: người xác nhận field map, số liệu từ bản ghi, eval doc-draft | plans/BLUEPRINT.md:1368 | 028, 030b, 044 | MỘT PHẦN | Xác nhận field map có (DocxWizard); eval `doc-draft` → 044 |
 | BP-10-K11 | Scope own + collaborator làm chậm list lớn: EXPLAIN, denormalize khi p95 > 300ms | plans/BLUEPRINT.md:1369 | 042c, 046 | MỘT PHẦN | 042c scope SQL + EXPLAIN; đo p95 1M dòng → 046 |
 | BP-10-K12 | HNSW kèm filter giảm recall: iterative_scan, eval rag | plans/BLUEPRINT.md:1370 | 020, 044 | MỘT PHẦN | packages/core/src/ai/kb/search.ts:91 `hnsw.iterative_scan = relaxed_order`; eval rag → 044 |
