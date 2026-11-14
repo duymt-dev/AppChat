@@ -12,11 +12,13 @@ import { QUOTE_FLOW, nextState } from '@appchat/shared';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useEmailComposeUi } from '@/shared/crm-forms/email-compose-store';
-import { latestQuoteByContactQuery, useQuotesUi } from '@/features/quotes';
-import { latestContractByContactQuery, useContractsUi } from '@/features/contracts';
-import { useOrdersUi } from '@/features/orders';
-import { useTicketsUi } from '@/features/tickets';
-import { useCalendarUi } from '@/features/calendar';
+import { latestQuoteByContactQuery } from '@/features/quotes/api';
+import { useQuotesUi } from '@/features/quotes/quotes-store';
+import { latestContractByContactQuery } from '@/features/contracts/api';
+import { useContractsUi } from '@/features/contracts/contracts-store';
+import { useOrdersUi } from '@/features/orders/orders-store';
+import { useTicketsUi } from '@/features/tickets/tickets-store';
+import { useCalendarUi } from '@/features/calendar/calendar-store';
 import { usePanelStyles } from '../styles/panel.styles';
 import { contactQuery } from '../api';
 

@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import { customValuesSchema } from '../custom-fields/values';
 import { TICKET_CHANNELS, TICKET_PRIORITIES, TICKET_STATUSES } from '../support/ticket-state';
+import { ticketStockSummarySchema } from './ticket-stock';
 
 export const ticketCommentSchema = z.object({
   id: z.string(),
@@ -59,6 +60,8 @@ export const ticketRowSchema = z.object({
   events: z.array(ticketEventSchema),
   sla: z.object({ state: z.enum(['breach', 'risk', 'ok']), left_min: z.number().int().nullable() }),
   custom: customValuesSchema.optional(),
+  /** TIP-034c: version hiện tại (trigger DB tăng mỗi UPDATE) — chọn nhiều gửi kèm `if_versions`; client cũ bỏ qua. */
+  version: z.number().int().optional(),
 });
 
 export const ticketsPageSchema = z.object({
@@ -72,12 +75,19 @@ const kpi = z.object({ total: z.number().int(), open: z.number().int(), waiting:
 export const ticketsMetaSchema = z.object({
   now: z.string(),
   teams: z.array(z.object({ id: z.string(), name: z.string() })),
+  /** Gợi ý danh mục = bộ cấu hình (TIP-034b) ∪ trang đầu nhãn đã dùng trong ticket người xem thấy (khử trùng, cấu hình trước). */
   categories: z.array(z.string()),
+  /** TIP-034b: bộ cấu hình riêng (version + mặc định) — client cũ bỏ qua. */
+  category_config: z.object({ version: z.number().int(), labels: z.array(z.string()), default: z.string() }).optional(),
+  /** Còn nhãn đã dùng ngoài trang đầu (đọc tiếp qua /support/category-suggestions). */
+  used_has_more: z.boolean().optional(),
   agent: z.object({ id: z.string(), name: z.string() }),
   members: z.array(z.object({ id: z.string(), name: z.string(), role: z.string() })),
   trend: z.record(z.enum(['total', 'open', 'waiting', 'breach', 'closed']), z.string()),
   ai: z.array(z.tuple([z.string(), z.string(), z.string()])),
   counts: kpi,
+  /** TIP-034d: so với hôm qua (cùng dịch vụ với action `ticket.stock_summary`); `counts` = `stock_summary.counts`. Client cũ bỏ qua. */
+  stock_summary: ticketStockSummarySchema.optional(),
 });
 
 export type TicketRow = z.infer<typeof ticketRowSchema>;

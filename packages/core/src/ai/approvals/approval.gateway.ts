@@ -10,6 +10,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import type { ApprovalGateway } from '../../kernel/actions/executor';
 import type { ActionHandlerRegistry } from '../../kernel/actions/handler-registry';
 import { hashInput } from '../../kernel/actions/confirm-token';
+import { isCustomerIntentAction, operatorDecisionPath } from '../../kernel/actions/customer-intent';
 import { uuidv7 } from '../../kernel/ids';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
@@ -41,6 +42,9 @@ export class DbApprovalGateway implements ApprovalGateway {
     const events = await inEventTransaction(db, ctx.workspaceId, async (tx) => {
       // Preview của handler domain (nếu có) — lỗi preview không chặn việc xin duyệt.
       const preview = handler?.preview ? await handler.preview(ctx, input, tx).catch(() => null) : null;
+      // Dữ kiện nguồn ràng lúc xin duyệt (TIP-022c — dấu báo giá của quyết định do agent / tác vụ làm thay người): server ghi cùng preview,
+      // người duyệt không sửa được; chạy sau duyệt so lại dưới khoá. Lỗi đọc → không ràng (verifier từ chối khi cần).
+      const bound = handler?.bindPreview ? await handler.bindPreview(ctx, input, tx).catch(() => null) : null;
       const agent = agentId ? await tx.aiAgent.findUnique({ where: { id: agentId }, select: { name: true } }) : null;
       const gov = await tx.aiGovernance.findUnique({ where: { id: 1 }, select: { approvalTtlHours: true } });
       const agentName = agent?.name ?? t.agent.assistant;
@@ -56,12 +60,12 @@ export class DbApprovalGateway implements ApprovalGateway {
           actionId: def.id,
           input: toJson(input) as object,
           inputHash: hashInput(input),
-          ...(preview ? { preview: toJson(preview) as object } : {}),
+          ...(preview || bound ? { preview: toJson({ ...(preview ?? {}), ...(bound && Object.keys(bound).length ? { bound } : {}) }) as object } : {}),
           risk: def.risk,
           permission,
           title: title.slice(0, 200),
           summary: interpolate(t.approval.summary, { agent: agentName, action: title }).slice(0, 500),
-          reason: t.approval.reason[def.risk],
+          reason: operatorDecisionPath(ctx) && isCustomerIntentAction(def.id) ? t.approval.operatorDecision : t.approval.reason[def.risk],
           source: ctx.source,
           onBehalfOfUserId: ctx.onBehalfOfUserId ?? null,
           requestedAt: now,

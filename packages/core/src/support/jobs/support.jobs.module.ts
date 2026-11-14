@@ -1,7 +1,8 @@
 // Worker ROLE=jobs của domain `support` (TIP-034, Blueprint §1.4 "SLA tick"): scheduler `support.sla-sweep` mỗi phút trên queue riêng
 // `support-scheduler` (jobId cố định → một lịch dù nhiều worker) — sắp đến hạn / quá hạn FRT / TTR → leo thang. Consumer `support` của
 // queue `events`: tin khách vào hội thoại có ticket (bình luận, Đang chờ → Đang xử lý, tự mở lại trong 7 ngày, CSAT) + trả lời đầu.
-// Consumer `support.ai-complaint` (TIP-022b): khiếu nại ở lượt agent auto → ticket.create qua Executor.
+// Consumer `support.ai-complaint` (TIP-022b): khiếu nại ở lượt agent auto → ticket.create qua Executor. TIP-034c: DataJobsModule chạy việc
+// sửa ticket hàng loạt > 50 + hoàn tác (kind ở SupportModule).
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
@@ -20,6 +21,9 @@ import { onAgentReply, onCustomerMessage, sweepSla } from '../services/support-s
 import { ActionExecutor } from '../../kernel/actions/executor';
 import { agentAuthz } from '../../ai/agents/agent-authz';
 import { AI_COMPLAINT_CONSUMER, aiComplaintConsumer } from '../events/ai-complaint.consumer';
+import { DataJobsModule } from '../../kernel/jobs/data-jobs/data-jobs.module';
+import { SlaCalendar } from '../services/sla-clock';
+import { STOCK_OBSERVE_EVERY_MS, STOCK_OBSERVE_JOB, observeAll } from '../trends/installer';
 
 export const SUPPORT_SCHEDULER_QUEUE = 'support-scheduler';
 export const SLA_SWEEP_JOB = 'support.sla-sweep';
@@ -72,6 +76,7 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     @Inject(CLOCK) private readonly clock: Clock,
     @Inject(LOGGER) private readonly log: AppLogger,
     @Optional() @Inject(ActionExecutor) private readonly executor: ActionExecutor | undefined,
+    @Inject(SlaCalendar) private readonly cal: SlaCalendar,
   ) {}
 
   async onApplicationBootstrap(): Promise<void> {
@@ -88,9 +93,16 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     const deps: SlaSweepDeps = { platform: this.platform, tenants: this.tenants, executor: this.executor, now, onError: (ws, err) => this.log.warn({ err, ws, job: SLA_SWEEP_JOB }, 'quét SLA lỗi ở workspace') };
     this.queue = new Queue(SUPPORT_SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(SLA_SWEEP_JOB, { every: EVERY_MS }, { name: SLA_SWEEP_JOB });
+    // TIP-034d: chụp tồn ticket mỗi ngày (lần thành công đầu tiên của ngày) + dọn cache — cùng queue / worker, không consumer thứ hai.
+    await this.queue.upsertJobScheduler(STOCK_OBSERVE_JOB, { every: STOCK_OBSERVE_EVERY_MS }, { name: STOCK_OBSERVE_JOB });
+    const stock = { platform: this.platform, tenants: this.tenants, cal: this.cal, now, log: this.log };
     this.worker = new Worker(
       SUPPORT_SCHEDULER_QUEUE,
       async (job) => {
+        if (job.name === STOCK_OBSERVE_JOB) {
+          await observeAll(stock);
+          return;
+        }
         if (job.name !== SLA_SWEEP_JOB) return;
         const r = await sweepSupport(deps);
         if (r.warned || r.breached) this.log.info({ job: SLA_SWEEP_JOB, ...r }, 'quét SLA');
@@ -108,5 +120,6 @@ class SupportJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
   }
 }
 
-@Module({ imports: [SupportModule], providers: [SupportJobsRunner] })
+// TIP-034c: việc nền sửa ticket hàng loạt 51–200 (+ hoàn tác) chạy ở consumer / quét data-jobs của 045b — kind đăng ký trong SupportModule.
+@Module({ imports: [SupportModule, DataJobsModule], providers: [SupportJobsRunner] })
 export class SupportJobsModule {}

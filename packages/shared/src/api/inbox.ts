@@ -136,6 +136,10 @@ export const folderCountsSchema = z.object({
 });
 export type FolderCountsDto = z.infer<typeof folderCountsSchema>;
 
+/** Số đếm trên rail (TIP-016b) — khoá vắng khi người xem không có quyền xem module đó. */
+export const navBadgesSchema = z.object({ inbox: z.number().int().optional(), tickets: z.number().int().optional(), calendar: z.number().int().optional() });
+export type NavBadgesDto = z.infer<typeof navBadgesSchema>;
+
 export const inboxAccountsSchema = z.array(z.object({ id: z.string(), channel: z.string(), name: z.string(), count: z.number().int() }));
 export const inboxChannelsSchema = z.record(z.string(), z.object({ label: z.string(), short: z.string(), color: z.string() }));
 export const connectChannelsSchema = z.array(

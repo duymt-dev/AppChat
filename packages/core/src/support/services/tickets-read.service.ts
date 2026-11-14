@@ -2,14 +2,16 @@
 // `ticket_recent_idx`, lọc trạng thái / ưu tiên / nhóm / danh mục / người phụ trách / SLA / tìm không dấu / trường tuỳ biến, sắp xếp mới
 // nhất hoặc ưu tiên), chi tiết (bình luận + lịch sử), meta (nhóm, danh mục, agent, thành viên, KPI 5 ô, gợi ý AI theo luật), cài đặt SLA.
 import { TenantContexts, TenantSql as Prisma, type TenantDbResolver } from '@appchat/db';
-import { SLA_DEFAULT, TICKET_CATEGORIES, interpolate, serverMessages, slaStateOf, utcToWall, type AuthzContext, type TicketRow } from '@appchat/shared';
+import { SLA_DEFAULT, interpolate, serverMessages, slaStateOf, utcToWall, type AuthzContext, type TicketRow } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { CrmMembers } from '../../crm/public';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { UUID, supportScopeSql, visibleTicket, type TicketRecord } from '../ticket-access';
 import { searchSql } from '../actions/sla-config.handlers';
 import { defaultPolicy, escalationOf, type SlaCalendar } from './sla-clock';
+import { categoryMeta } from '../categories/read';
 import type { SettingsReadService } from '../../identity/public';
+import { readStockSummary } from '../trends/read';
 
 export interface TicketViewer {
   workspaceId: string;
@@ -113,6 +115,7 @@ export class TicketsReadService {
         csat: t.csat,
         created_at: iso(t.createdAt),
         updated_at: iso(t.updatedAt),
+        version: t.version,
         comments: comments.filter((c) => c.ticketId === t.id).map((c) => ({ id: c.id, author_type: c.authorType, author: c.authorName, body: c.body, internal: c.internal, at: iso(c.createdAt) })),
         events: events
           .filter((e) => e.ticketId === t.id)
@@ -168,8 +171,11 @@ export class TicketsReadService {
           count(*) FILTER (WHERE t.assignee_agent_id IS NOT NULL) AS ai
         FROM ticket t WHERE ${scope}`;
       const c = Object.fromEntries(Object.entries(counts!).map(([k, x]) => [k, Number(x)])) as Record<string, number>;
+      // Năm số thẻ KPI = tập hiện tại người xem thấy (scope + nguồn còn đọc được) — một câu lệnh, cùng mốc `now` với số phụ ở trên.
+      const stock = await readStockSummary(tx, v.authz, timeZone, now);
       const [used, agent, teams, members] = await Promise.all([
-        tx.ticket.findMany({ distinct: ['category'], select: { category: true }, take: 50 }),
+        // TIP-034b: bộ cấu hình + trang đầu nhãn đã dùng CHỈ trong ticket người xem thấy (trước đây distinct toàn bảng — lộ nhãn ngoài scope).
+        categoryMeta(tx, v.authz),
         // Agent nhận ticket khi bấm "Giao AI": agent đang chạy đầu tiên, chưa có thì agent đầu tiên của workspace.
         tx.aiAgent
           .findFirst({ where: { status: 'active', deletedAt: null }, orderBy: { createdAt: 'asc' }, select: { id: true, name: true } })
@@ -185,13 +191,14 @@ export class TicketsReadService {
       return {
         now: utcToWall(now, timeZone).iso,
         teams,
-        categories: [...new Set([...TICKET_CATEGORIES, ...used.map((x) => x.category)])],
+        ...used,
         agent: agent ? { id: agent.id, name: agent.name } : { id: '', name: '' },
         members,
-        // Xu hướng so kỳ trước: chưa đủ lịch sử → để trống (FE ẩn mũi tên khi rỗng).
+        // Chuỗi xu hướng cũ giữ rỗng (client cũ); TIP-034d: so với hôm qua ở `stock_summary` (cùng dịch vụ với action ticket.stock_summary).
         trend: { total: '', open: '', waiting: '', breach: '', closed: '' },
         ai,
-        counts: { total: c.total!, open: c.open!, waiting: c.waiting!, breach: c.breach!, closed: c.closed! },
+        counts: stock.counts,
+        stock_summary: stock,
       };
     });
   }

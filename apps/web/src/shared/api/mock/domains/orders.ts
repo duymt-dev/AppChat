@@ -133,10 +133,10 @@ export const ordersRoutes: Record<string, MockRoute> = {
     return {
       counts,
       stats: { total: all.length, paid: counts.paid ?? 0, pending: counts.pending ?? 0, revenue: String(revenue) },
-      // Thẻ CRM / nhận định / tệp theo đơn (`?order_id=`); không có thì để trống như server.
+      // Thẻ CRM / nhận định theo đơn (`?order_id=`); không có thì để trống như server. Tệp: `order.files_list` (record-files.ts).
       ...(p.order_id
-        ? { crm: fixture.crm, insight: fixture.insight, files: fixture.files }
-        : { crm: { ltv: '0', total: 0, tier: '', points: 0 }, insight: '', files: [] }),
+        ? { crm: fixture.crm, insight: fixture.insight }
+        : { crm: { ltv: '0', total: 0, tier: '', points: 0 }, insight: '' }),
       ai_runs: fixture.ai_runs,
     };
   },

@@ -1,9 +1,11 @@
 // Reader xuất Sản phẩm · Đề nghị thanh toán (TIP-038b P3, DC-374 — mở rộng khung xuất 038 pha 3, không exporter thứ hai). Sản phẩm: cùng
 // `where` + thứ tự màn Sản phẩm (`snapshotProductIds`), giá vốn CHỈ khi người xuất có `catalog.cost_view` (ô trống — không '0'), tồn là ảnh
-// chụp chỉ đọc. Đề nghị thanh toán: scope sales HIỆN TẠI (`invoiceScopeSql`), tiền chuỗi chữ số, không phải hoá đơn GTGT (tên sheet ghi rõ).
+// chụp chỉ đọc; mô tả = chữ thuần (phép chiếu) + JSON định dạng schema đóng (TIP-027b — tiêu đề trùng alias nhập 038b để khứ hồi định
+// dạng; tài liệu hỏng / null → ô trống, không bịa). Đề nghị thanh toán: scope sales HIỆN TẠI (`invoiceScopeSql`), tiền chuỗi chữ số, không phải hoá đơn GTGT (tên sheet ghi rõ).
 import { TenantSql as Prisma } from '@appchat/db';
 import { can, serverMessages } from '@appchat/shared';
 import { snapshotProductIds, type ProductFilter } from '../../catalog/repos/products.repo';
+import { docOf } from '../../catalog/description/view';
 import { snapshotInvoiceIds, type InvoiceFilter } from '../../sales/payments/repos/invoices.repo';
 import { invoiceScopeSql } from '../../sales/payments/invoice-access';
 import { customCell, day, money, stamp } from './export-columns';
@@ -38,6 +40,8 @@ export const productReader: ListReader<ProductFilter> = {
     { key: 'tax', header: m.col.taxRate },
     { key: 'stock', header: m.col.stock },
     { key: 'status', header: m.col.status },
+    { key: 'description', header: m.col.description, width: 40 },
+    { key: 'descriptionDoc', header: m.col.descriptionDoc, width: 40 },
     { key: 'createdAt', header: m.col.createdAt },
   ],
   async rows(tx, a, xs, place) {
@@ -70,6 +74,8 @@ export const productReader: ListReader<ProductFilter> = {
         p.taxRate,
         p.stock,
         m.productStatus[p.status as keyof typeof m.productStatus] ?? p.status,
+        p.description,
+        ((d) => (d ? JSON.stringify(d) : null))(docOf(p.descriptionDoc).description_doc),
         stamp(p.createdAt, place.timeZone),
         ...place.custom.map((c) => customCell(p.custom, c.key)),
       ]),
@@ -89,6 +95,8 @@ type ProductRow = {
   taxRate: number;
   stock: number | null;
   status: string;
+  description: string;
+  descriptionDoc: unknown;
   createdAt: Date;
   custom: unknown;
 };

@@ -1,4 +1,5 @@
 // tenant/data-jobs.prisma — sở hữu: TIP-045b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// TIP-034c: biên nhận có kiểu cho sửa ticket hàng loạt + lượt hoàn tác (parent_job_id / undo_seal) — migrations 20261113020000_ticket_bulk + 20261113030000_ticket_bulk_log_key.
 // Bảng: data_job (việc dữ liệu nặng chạy nền — xuất > 5.000 dòng, sửa hàng loạt > 50 bản ghi: tập id chốt lúc nhận, người gọi, hash input,
 // lease / fence, tiến độ, tệp kết quả), data_job_item (biên nhận từng bản ghi, PK (job_id, seq) — chạy lại / thử lại không ghi trùng).
 
@@ -31,6 +32,10 @@ model DataJob {
   createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   finishedAt  DateTime? @map("finished_at") @db.Timestamptz(6)
+  /// TIP-034c: lượt hoàn tác trỏ về thao tác đi (duy nhất — hai yêu cầu hoàn tác hội tụ một lượt).
+  parentJobId String?   @map("parent_job_id") @db.Uuid
+  /// TIP-034c: digest tập con "đã đổi thành công" đã niêm phong cho hoàn tác — sau đó không thử lại / nhận thêm bản ghi đi.
+  undoSeal    String?   @map("undo_seal")
 
   items DataJobItem[]
 
@@ -46,10 +51,21 @@ model DataJobItem {
   /// pending | done | failed | skipped
   status    String   @default("pending")
   error     String?
+  /// TIP-034c — biên nhận có kiểu (không phải sổ hiệu ứng thứ hai): thế hệ (0 = đi; mục của lượt hoàn tác = 1), mã kết quả an toàn, có đổi không,
+  /// version đã nhận / sau ghi, `receipt` = trường đã đổi + trước / sau của CHỈ các trường đó + dấu vân tay, trạng thái hoàn tác.
+  generation      Int      @default(0)
+  outcomeCode     String?  @map("outcome_code")
+  changed         Boolean?
+  admittedVersion Int?     @map("admitted_version")
+  afterVersion    Int?     @map("after_version")
+  receipt         Json?
+  /// eligible | pending | undone | conflict | failed
+  undoState       String?  @map("undo_state")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   job DataJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
 
   @@id([jobId, seq])
+  @@unique([jobId, targetId, generation], map: "data_job_item_target_generation_key")
   @@map("data_job_item")
 }

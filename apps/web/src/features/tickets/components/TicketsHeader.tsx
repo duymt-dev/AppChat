@@ -10,6 +10,10 @@ import { EMPTY_FILTER, useTicketsUi } from '../tickets-store';
 import { PRIORITIES, SLA_STATES, STATUSES } from '../status';
 import type { TicketFilter, TicketsMeta } from '../types';
 import { CustomFilterSelects } from '@/shared/custom-fields';
+import { useCategorySuggestions } from '../hooks/useCategorySuggestions';
+import { CategoryFilterSelect } from './TicketCategoryInput';
+import { TicketTrendBadge } from './TicketTrendBadge';
+import { TicketTrendDetails } from './TicketTrendDetails';
 
 type KpiKey = keyof TicketsMeta['counts'];
 const KPI: [KpiKey, IconName, string, Partial<TicketFilter>][] = [
@@ -57,6 +61,7 @@ export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; 
   const canCreate = useCan('ticket.manage');
   const f = ui.filter;
   const exp = useListExport('ticket.export');
+  const cats = useCategorySuggestions(meta);
   const kpiOn = (p: Partial<TicketFilter>) =>
     Object.keys(p).length
       ? Object.entries(p).every(([k, v]) => f[k as keyof TicketFilter] === v)
@@ -103,14 +108,13 @@ export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; 
                 <span className={styles.kpiV} data-testid={`tk-kpi-${k}-v`}>
                   {meta?.counts[k] ?? ''}
                 </span>
-                <span className={styles.kpiT} style={{ color: k === 'breach' ? color.dangerStrong : color.okStrong }}>
-                  {meta?.trend[k] ? t('trend', { v: meta.trend[k] }) : ''}
-                </span>
+                {meta ? <TicketTrendBadge summary={meta.stock_summary} metric={k} /> : null}
               </div>
             </div>
           </button>
         ))}
       </div>
+      {meta ? <TicketTrendDetails summary={meta.stock_summary} /> : null}
       <div className={styles.head}>
         <span className={styles.headT}>{t('listTitle')}</span>
         <span className={styles.headN} data-testid="tk-count">
@@ -121,7 +125,7 @@ export function TicketsHeader({ meta, count }: { meta: TicketsMeta | undefined; 
         <Sel k="priority" opts={PRIORITIES.map((p) => [p, t(`priority.${p}`)])} testId="tk-f-priority" />
         <Sel k="status" opts={STATUSES.map((s) => [s, t(`status.${s}`)])} testId="tk-f-status" />
         <Sel k="team" opts={(meta?.teams ?? []).map((x) => [x.id, x.name])} />
-        <Sel k="category" opts={(meta?.categories ?? []).map((c) => [c, c])} />
+        <CategoryFilterSelect value={f.category} onPick={(v) => ui.setFilter({ category: v })} options={cats} className={styles.select} label={t('filter.category')} />
         <Sel k="assignee" opts={[...(meta?.members ?? []).map((m): [string, string] => [m.id, m.name]), [AGENT, t('agent')]]} testId="tk-f-assignee" />
         <Sel k="sla" opts={SLA_STATES.map((s) => [s, t(`slaState.${s}`)])} testId="tk-f-sla" />
         <CustomFilterSelects

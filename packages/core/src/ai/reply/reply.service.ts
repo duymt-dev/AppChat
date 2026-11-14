@@ -6,6 +6,7 @@
 // điều kiện kênh + giờ. Run chờ duyệt → `ai_state=waiting_approval`; job `ai-resume` chạy tiếp rồi gọi `finishResumedTurn`.
 import { decideHandoff, parseAgentReply, unmaskPii, type Embedder } from '@appchat/ai';
 import { isMeteringStop, queryEmbedder, type EmbedMeter } from '../runs/metered-embedding';
+import { kbSpaceEmbedder } from '../kb/reindex/space';
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { foldText } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
@@ -33,6 +34,7 @@ import { handoff, reasonText, setState, type ReasonKey } from './turn-handoff';
 import { acquireTurn, releaseTurn, renewTurn, stillOwns, TURN_LEASE_MS, type TurnLease } from './turn-lease';
 import { agentKnowledge } from '../kb/scope/context';
 import { gateAnswer } from '../citations/answer-gate';
+import { gateSalesReply } from '../sales-behavior/orchestrator';
 import { writeAiDraft } from '../kb/scope/draft-binding';
 
 /** Tối đa 3 lần `transfer_to_agent` mỗi lượt khách (agent-gateway §5). */
@@ -111,7 +113,8 @@ async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Publ
     knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { channel: true }),
     publicationMode: 'validated_citations',
   });
-  const embed = d.embedder ? queryEmbedder({ db: store.metered(), embedder: d.embedder, meter: d.meter ?? null, now: d.now }, { ws, runId: created.id, rootRunId: created.rootRunId, source: 'inbox' }) : null;
+  // TIP-020e: câu hỏi embed ghim space của khe đang phục vụ (không so vector khác không gian).
+  const embed = d.embedder ? queryEmbedder({ db: store.metered(), embedder: await kbSpaceEmbedder(db, d.embedder), meter: d.meter ?? null, now: d.now }, { ws, runId: created.id, rootRunId: created.rootRunId, source: 'inbox' }) : null;
   let ctx: ReplyContext;
   try {
     ctx = await buildReplyContext(db, c, a, embed, {}, created.id);
@@ -149,7 +152,8 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
     const out = r.status === 'completed' ? parseAgentReply(r.text) : null;
     // TIP-020d: nháp giữ lại cũng qua cổng trích dẫn (trích dẫn hỏng → không giữ nháp).
     const g = out ? await gateAnswer(db, run.id, r.text, out, out.reply ? unmaskPii(out.reply, ctx.pii) : null, ctx.pii, d.now()) : null;
-    const draft = g?.kind === 'pass' ? g.reply : g?.kind === 'handoff' ? g.draft : null;
+    // TIP-022c: câu có kế hoạch bán hàng chưa qua cổng tồn — không giữ chữ thô của model (lời hứa tồn / giá chưa kiểm) làm nháp.
+    const draft = out?.sales_plan ? null : g?.kind === 'pass' ? g.reply : g?.kind === 'handoff' ? g.draft : null;
     if (draft) await writeAiDraft(db, c.id, draft, run.id);
     await new RunStore(db, d.now).finish(run.id, 'completed', { output: { superseded: true } }).catch(() => undefined);
     return 'superseded';
@@ -198,8 +202,10 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
   // TIP-020d: chốt trích dẫn trước khi dùng chữ — hỏng / thiếu nguồn → chuyển người, không tự gửi như có căn cứ.
   const gate = await gateAnswer(db, run.id, r.text, out, out.reply ? unmaskPii(out.reply, ctx.pii) : null, ctx.pii, d.now());
   if (gate.kind === 'superseded') return 'superseded';
-  const reply = gate.kind === 'pass' ? gate.reply : gate.draft;
-  const cited = gate.kind === 'handoff' ? gate.reason : null;
+  // TIP-022c §3.5–3.6: tồn / giá có căn cứ — kế hoạch bán hàng → câu server dựng; không kế hoạch mà có khẳng định thương mại → chặn tự gửi.
+  const sg = gate.kind === 'pass' ? await gateSalesReply({ db, runner: d.runner, now: d.now, ws, runId: run.id, conversationId: c.id, agent: { id: agent.id, toolIds: ctx.cfg.tools }, cfg: ctx.cfg, unmask: (s) => unmaskPii(s, ctx.pii) }, out, gate.reply) : null;
+  const reply = sg ? (sg.kind === 'pass' ? sg.reply : sg.draft) : gate.kind === 'pass' ? gate.reply : gate.draft;
+  const cited = gate.kind === 'handoff' ? gate.reason : sg?.kind === 'handoff' ? sg.reason : null;
   const rule = coord?.kind === 'handoff' ? 'needs_human' : (cited ?? decideHandoff({ out, threshold: ctx.cfg.threshold, lastCustomerFolded: ctx.lastCustomer, previousCustomerFolded: ctx.previousCustomer, banned: ctx.banned, replyFolded: foldText(reply ?? '') }));
   await db.aiRun.update({ where: { id: run.id }, data: { confidence: out.confidence } });
   if (intent && turn) await recordIntent(db, c.id, intent, { source_message_id: source?.sourceMessageId ?? null, run_id: run.id, fence: turn.fence });

@@ -1,10 +1,12 @@
 // TenantDbResolver.get(ctx) — cổng duy nhất tới DB tenant (Blueprint §2.0, tenant-db §4).
-// Kiểm context đã xác thực TRƯỚC khi tra registry / mở kết nối; cache registry 60s; LRU client theo workspace.
+// Kiểm context đã xác thực TRƯỚC khi tra registry / mở kết nối; cache registry 60s; LRU client theo workspace. TIP-006c: `invalidate`
+// phát kênh Redis (registry-pubsub.ts) để tiến trình khác bỏ cache ngay; `drop` = phía nhận, chỉ xoá cục bộ.
 import { withDatabase } from './env';
 import { createTenantDb, type TenantDb } from './clients';
 import { assertTenantDbName } from './db-name';
 import { TenantContextError, WorkspaceNotFoundError, WorkspaceUnavailableError } from './errors';
 import { IdleLru } from './lru';
+import type { RegistryBus, RegistryCache } from './registry-pubsub';
 import type { WorkspaceDbInfo, WorkspaceRegistry } from './registry';
 import { isVerifiedContext, type TenantContext } from './tenant-context';
 
@@ -21,12 +23,13 @@ export interface TenantResolverOptions {
   createClient?: (url: string, poolMax: number) => TenantDb;
 }
 
-export class TenantDbResolver {
+export class TenantDbResolver implements RegistryCache {
   private readonly clients: IdleLru<TenantDb>;
   private readonly info = new Map<string, { at: number; row: WorkspaceDbInfo | null }>();
   private readonly now: () => number;
   private timer: NodeJS.Timeout | undefined;
   private gen: { at: number; value: bigint } | null = null;
+  private bus: RegistryBus | null = null;
 
   constructor(private readonly opts: TenantResolverOptions) {
     this.now = opts.now ?? Date.now;
@@ -59,9 +62,19 @@ export class TenantDbResolver {
     return db;
   }
 
-  /** Bỏ cache registry của workspace (đổi db_status / chuyển host). */
+  /** Bỏ cache registry của workspace (đổi db_status / chuyển host) — cục bộ + báo tiến trình khác qua kênh (nếu đã nối). */
   invalidate(workspaceId: string): void {
     this.info.delete(workspaceId);
+    this.bus?.publish(workspaceId);
+  }
+
+  /** Tín hiệu từ tiến trình khác: chỉ xoá cache cục bộ (không phát lại). */
+  drop(workspaceId: string): void {
+    this.info.delete(workspaceId);
+  }
+
+  attachBus(bus: RegistryBus | null): void {
+    this.bus = bus;
   }
 
   get openClients(): number {

@@ -26,5 +26,7 @@
   "UNDO_EXPIRED": "The undo window has passed",
   "UNDO_NOT_SUPPORTED": "This action cannot be undone",
   "NOT_IMPLEMENTED": "This feature is not available yet",
-  "ATTACHMENT_NOT_PREPARED": "The attachment is not ready yet — wait until it is prepared, then send again"
+  "ATTACHMENT_NOT_PREPARED": "The attachment is not ready yet — wait until it is prepared, then send again",
+  "UNDO_REQUIRES_ACTION": "This change is undone with its own step — open it to preview what will be undone",
+  "OPERATION_BUSY": "The bulk operation is still running — wait for it to finish and try again"
 }

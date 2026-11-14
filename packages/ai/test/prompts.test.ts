@@ -7,12 +7,12 @@ import { PROMPTS, prompt } from '../src';
 const md = (locale: string) => readFileSync(new URL(`../src/prompts/agent-reply.${locale}.md`, import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 
 describe('prompt agent-reply', () => {
-  it('version 2 ở vi / en; registry khớp file .md', () => {
+  it('version 3 ở vi / en; registry khớp file .md', () => {
     for (const locale of ['vi', 'en'] as const) {
       const [head, ...body] = md(locale).trimEnd().split('\n');
-      expect(head).toBe(`<!-- prompt: agent-reply · version: 2 · locale: ${locale} -->`);
+      expect(head).toBe(`<!-- prompt: agent-reply · version: 3 · locale: ${locale} -->`);
       expect(body.join('\n')).toBe(PROMPTS['agent-reply']![locale].text);
-      expect(PROMPTS['agent-reply']![locale].version).toBe(2);
+      expect(PROMPTS['agent-reply']![locale].version).toBe(3);
     }
   });
 

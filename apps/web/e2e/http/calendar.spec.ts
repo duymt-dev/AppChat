@@ -82,8 +82,14 @@ test.describe('lịch hẹn (http)', () => {
     await expect(d.getByTestId('cal-status')).toHaveText('Đã đến');
     await d.getByTestId('cal-complete').click();
     await expect(d.getByTestId('cal-status')).toHaveText('Hoàn thành');
-    await expect(d.getByTestId('cal-suggest')).toContainText('Tạo đơn cho buổi này?');
-    await d.getByTestId('cal-suggest-order').click();
+    // TIP-033c: thẻ gợi ý (phép chiếu hiện hành) → xem trước bắt buộc → biên nhận → mở đơn.
+    const card = d.getByTestId('appt-order-card');
+    await expect(card).toContainText('Tạo đơn cho buổi này?');
+    await expect(card.getByTestId('appt-order-total')).toContainText('486.000'); // 450.000 + thuế 8% mặc định
+    await card.getByTestId('appt-order-create').click();
+    await page.getByRole('button', { name: 'Xác nhận', exact: true }).click();
+    await expect(d.getByTestId('appt-order-created')).toContainText(/DH-\d+/);
+    await d.getByTestId('appt-order-open').click();
     const od = page.getByTestId('od-drawer');
     await expect(od).toContainText(/DH-\d+/);
     await expect(od).toContainText('Massage thư giãn');

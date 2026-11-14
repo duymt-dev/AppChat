@@ -1,15 +1,14 @@
 // Popover của composer — prototype L640–676: menu "+" (Chat / Cowork — hàng nguồn đầu vào ở InputSourcePicker), chọn mức AI (D29: không
 // hiện tên model), chọn AI Agent.
 'use client';
-import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { Icon, color, layout } from '@appchat/ui';
+import { layout } from '@appchat/ui';
 import { useComposerStyles } from '../styles/composer.styles';
 import { useAssistantUi } from '../assistant-store';
-import { homeQuery } from '../api';
 import { UtilityMenu } from '@/shared/ai-utilities';
 import { InputSourcePicker } from './InputSourcePicker';
+import { SelectedAgentPicker } from '../plans/components/SelectedAgentPicker';
 import type { Tier } from '../types';
 
 const TIERS: Tier[] = ['max', 'advanced', 'standard'];
@@ -20,7 +19,6 @@ export function ComposerPopovers() {
   const router = useRouter();
   const { styles } = useComposerStyles();
   const ui = useAssistantUi();
-  const agents = useQuery(homeQuery()).data?.cowork_cards ?? [];
   if (!ui.pop) return null;
   const close = () => ui.set({ pop: null });
   const pick = (key: string) => {
@@ -55,18 +53,7 @@ export function ComposerPopovers() {
             </div>
           </>
         ) : null}
-        {ui.pop === 'agent' ? (
-          <>
-            <div className={styles.popHead}>{t('agentPick')}</div>
-            {agents.map((a) => (
-              <button key={a.id} type="button" role="menuitemradio" aria-checked={ui.agent === a.name} className={styles.popRow} onClick={() => ui.set({ agent: a.name, pop: null })}>
-                <Icon name="ic-bot" size={15} color={color.violet} strokeWidth={1.9} />
-                <span className={styles.popLabel}>{t('agentSuffix', { name: a.name })}</span>
-                <span className={styles.check}>{ui.agent === a.name ? t('tier.check') : ''}</span>
-              </button>
-            ))}
-          </>
-        ) : null}
+        {ui.pop === 'agent' ? <SelectedAgentPicker /> : null}
       </div>
     </>
   );

@@ -79,6 +79,22 @@ export const kbDocSchema = z.object({
   /** TIP-020b: nguồn gốc — `catalog` đồng bộ từ sản phẩm (không sửa / xoá trực tiếp). */
   origin: z.enum(KB_ORIGINS).optional(),
 });
+/** Trạng thái chỉ mục embedding (TIP-020e §4.1): chỉ nhãn `provider · model` — không key / URL / thế hệ cấu hình. `phase` null = không có
+ *  lần tái tạo nào đang chạy / vừa kết thúc lỗi; `reason` = lý do lỗi / huỷ / suy giảm (FE dịch). */
+export const KB_INDEX_PHASES = ['building', 'catching_up', 'active', 'failed', 'cancelled', 'superseded'] as const;
+export const kbIndexStatusSchema = z.object({
+  state: z.enum(['current', 'stale']),
+  phase: z.enum(KB_INDEX_PHASES).nullable(),
+  generation_id: z.string().uuid().nullable(),
+  active_space_label: z.string().nullable(),
+  target_space_label: z.string().nullable().optional(),
+  done: z.number().int(),
+  expected: z.number().int(),
+  degraded: z.enum(['embed_space_retired', 'no_model_route']).nullable().optional(),
+  reason: z.string().max(60).nullable().optional(),
+});
+export type KbIndexStatus = z.infer<typeof kbIndexStatusSchema>;
+
 export const kbDataSchema = z.object({
   types: z.record(z.string(), z.tuple([z.string(), z.string(), z.string()])),
   folders: z.array(kbFolderSchema),
@@ -86,6 +102,8 @@ export const kbDataSchema = z.object({
   learned_total: z.number().int(),
   size: z.string(),
   data: z.array(kbDocSchema),
+  /** TIP-020e: trạng thái chỉ mục embedding (vắng ở mock / client cũ). */
+  index: kbIndexStatusSchema.optional(),
 });
 
 /** AI Agents (TIP-021, `GET /v1/agents` · `/agents/:id` — FE `features/agents/types.ts` Agent). Cấu hình = bản nháp. */

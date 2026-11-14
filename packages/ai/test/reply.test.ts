@@ -25,7 +25,7 @@ describe('PII', () => {
 describe('output có cấu trúc', () => {
   it('JSON trong ```json kèm chữ; confidence phần trăm → 0–1; reply rỗng → null', () => {
     const r = parseAgentReply('Dạ em xem rồi:\n```json\n{"reply":" Spa mở 8h–20h ","confidence":85,"intent":"hours","sentiment":"neutral","needs_human":null}\n```');
-    expect(r).toEqual({ ok: true, reply: 'Spa mở 8h–20h', raw_reply: ' Spa mở 8h–20h ', citations: null, confidence: 0.85, intent: 'hours', sentiment: 'neutral', needs_human: null });
+    expect(r).toEqual({ ok: true, reply: 'Spa mở 8h–20h', raw_reply: ' Spa mở 8h–20h ', citations: null, sales_plan: null, confidence: 0.85, intent: 'hours', sentiment: 'neutral', needs_human: null });
     expect(parseAgentReply('{"reply":"","confidence":0.9}').reply).toBeNull();
   });
 
@@ -40,7 +40,7 @@ describe('output có cấu trúc', () => {
 
 describe('luật chuyển sang người', () => {
   const base = (o: Partial<HandoffInput> = {}): HandoffInput => ({
-    out: { ok: true, reply: 'Dạ spa mở cửa 8h', raw_reply: 'Dạ spa mở cửa 8h', citations: null, confidence: 0.9, intent: 'hours', sentiment: 'neutral', needs_human: null },
+    out: { ok: true, reply: 'Dạ spa mở cửa 8h', raw_reply: 'Dạ spa mở cửa 8h', citations: null, sales_plan: null, confidence: 0.9, intent: 'hours', sentiment: 'neutral', needs_human: null },
     threshold: 70,
     lastCustomerFolded: 'spa mo cua may gio',
     previousCustomerFolded: [],

@@ -23,10 +23,16 @@ const turnBody = z.object({
   attachments: z.array(z.object({ id: z.string().max(80), name: z.string().max(200) })).max(10).optional(),
   /** TIP-023f: tệp đã chuẩn bị qua assistant.attachment_prepare — handle + revision (server kiểm lại chủ / ready / nguồn). */
   inputs: z.array(z.object({ artifact_id: z.string().uuid(), revision: z.number().int().min(1) })).max(5).optional(),
+  /** TIP-023d §4.3: bản nháp kế hoạch tái dùng gắn vào lượt này (server kiểm chủ / phiên / revision, một lần). */
+  plan_draft: z.object({ plan_id: z.string().uuid(), revision: z.number().int().min(1) }).optional(),
+  /** TIP-023d §5.1: agent đã chọn (UUID, không tên) — server ghim bản đã xuất bản; không còn chạy → 404, không rơi về agent khác. */
+  selected_agent_id: z.string().uuid().nullish(),
   /** Khoá idempotent của lượt (TIP-023c) — gửi lại cùng khoá → cùng run. */
   request_id: z.string().min(8).max(80).regex(/^[A-Za-z0-9_-]+$/).optional(),
   /** TIP-023g: lối vào theo bản ghi — chỉ là tham chiếu (server đọc lại theo quyền hiện hành); kiểm chặt ở core (`parseRecordIntent`). */
   record_intent: z.unknown().optional(),
+  /** TIP-006c: tab trình duyệt gửi lượt — realtime `ui.command` chỉ tới tab này; sai dạng → 422. */
+  tab_id: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/).optional(),
 });
 /** Soạn / viết lại tin Hộp thư (REQ-C05c) — cùng endpoint, rẽ theo `purpose` sang cổng chỉ-đề-xuất (không meta-tools). */
 const draftBody = z.object({
@@ -83,7 +89,10 @@ export class AssistantController {
       ...(b.attachments ? { attachments: b.attachments } : {}),
       ...(b.inputs?.length ? { inputs: b.inputs } : {}),
       ...(b.request_id ? { requestId: b.request_id } : {}),
+      ...(b.plan_draft ? { planDraft: b.plan_draft } : {}),
+      ...(b.selected_agent_id ? { selectedAgentId: b.selected_agent_id } : {}),
       ...(b.record_intent !== undefined ? { recordIntent: parseRecordIntent(b.record_intent) } : {}),
+      ...(b.tab_id ? { tabId: b.tab_id } : {}),
     };
     if (!String(req.headers.accept ?? '').includes('text/event-stream')) return { data: await this.svc.turn(c, q) };
     const t = await this.svc.claim(c, q);
@@ -143,6 +152,13 @@ export class AssistantController {
   @Get('assistant/sessions/:id/messages')
   async messages(@Req() req: IncomingMessage, @Param('id') id: string) {
     return { data: await this.svc.messages(await this.caller(req, 'assistant.use'), id), next_cursor: null };
+  }
+
+  /** Thẻ kế hoạch của phiên (TIP-023d §6.1) — chưa có kế hoạch → `{ data: null }`; phiên người khác → 404. */
+  @Get('assistant/sessions/:id/plan')
+  async sessionPlan(@Req() req: IncomingMessage, @Param('id') id: string) {
+    if (!z.string().uuid().safeParse(id).success) throw new AppError('NOT_FOUND', 404, { session_id: 'not_found' });
+    return { data: await this.svc.sessionPlan(await this.caller(req, 'assistant.use'), id) };
   }
 
   @Get('assistant/input/:id')

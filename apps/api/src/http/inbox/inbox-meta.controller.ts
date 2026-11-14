@@ -1,17 +1,32 @@
 // Đọc phụ trợ Hộp thư (Blueprint §4.4 inbox + settings, TIP-016): /v1/inbox/accounts, /inbox/channels, /inbox/connect-channels,
-// /groups/:id, /canned-replies, /tags (quyền `inbox.view`); /settings/tags, /settings/replies (Cài đặt — `inbox.manage`).
-import { Controller, Get, Inject, Param, Query, Req } from '@nestjs/common';
+// /groups/:id, /canned-replies, /tags (quyền `inbox.view`); /settings/tags, /settings/replies (Cài đặt — `inbox.manage`); /nav/badges (số đếm
+// trên rail — mọi thành viên, khoá theo quyền từng module — TIP-016b).
+import { Controller, Get, Inject, Optional, Param, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { InboxMetaService } from '@appchat/core';
+import type { PlatformDb, TenantDbResolver } from '@appchat/db';
+import { CLOCK, InboxMetaService, NavBadgesService, PLATFORM_DB, TENANT_RESOLVER, type Clock } from '@appchat/core';
 import { AppError, type PermissionKey } from '@appchat/shared';
 import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
 
 @Controller()
 export class InboxMetaController {
+  private readonly badges: NavBadgesService | null;
+
   constructor(
     @Inject(ACTOR_RESOLVER) private readonly actors: ActorResolver,
     @Inject(InboxMetaService) private readonly meta: InboxMetaService,
-  ) {}
+    @Inject(CLOCK) clock: Clock,
+    @Optional() @Inject(TENANT_RESOLVER) tenants?: TenantDbResolver,
+    @Optional() @Inject(PLATFORM_DB) platform?: PlatformDb,
+  ) {
+    this.badges = tenants && platform ? new NavBadgesService(tenants, platform, () => clock.now()) : null;
+  }
+
+  @Get('nav/badges')
+  async navBadges(@Req() req: IncomingMessage) {
+    const a = await this.actors.resolve(req);
+    return { data: this.badges ? await this.badges.read(a) : {} };
+  }
 
   private async viewer(req: IncomingMessage, perm: PermissionKey = 'inbox.view') {
     const a = await this.actors.resolve(req);

@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, ModalShell, color } from '@appchat/ui';
-import { DATASETS_OF, TRANSFER_ENTITIES } from '@appchat/shared';
+import { DATASETS_OF, TRANSFER_ENTITIES, targetOf, transferSpec } from '@appchat/shared';
 import { allInvalidRows, transferCapsQuery } from '../api';
 import { errorCsv, saveText } from '../error-file';
 import { useTransfer } from '../hooks/useTransfer';
@@ -129,10 +129,15 @@ export function TransferPanel() {
               <PreviewTable plan={p} />
               {p.counts.invalid > 0 ? (
                 <div className={s.policy}>
+                  {/* Tập ghi cả tệp một lệnh (danh mục ticket / sản phẩm): không "chỉ nhập dòng hợp lệ" — sửa tệp rồi tải lại. */}
+                  {transferSpec(targetOf(p.entity, p.dataset)).atomic ? (
+                    <span data-testid="dt-atomic-invalid">{t('atomicInvalid')}</span>
+                  ) : (
                   <label className={s.policy}>
                     <input type="checkbox" checked={p.row_policy === 'only_valid'} disabled={x.busy} onChange={(e) => void x.update({ row_policy: e.target.checked ? 'only_valid' : 'all_valid' })} data-testid="dt-only-valid" />
                     {t('onlyValid', { n: p.counts.invalid })}
                   </label>
+                  )}
                   <button type="button" className={cx(s.btn, s.touch)} disabled={saving} onClick={() => void downloadErrors()} data-testid="dt-errors">
                     {t('downloadErrors')}
                   </button>

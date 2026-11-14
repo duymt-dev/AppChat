@@ -24,3 +24,13 @@ export async function recoverAllIngest(platform: Pick<PlatformDb, 'workspace'>, 
     }
   }
 }
+
+/**
+ * TIP-020e: generation tái tạo chỉ mục còn dở mà lease đã hết hạn (job mất / worker chết / drain) → đẩy lại job từ cursor bền (job id theo
+ * cursor → đã có job cùng điểm thì BullMQ bỏ trùng). Không tạo generation, không trừ Credit ở đây.
+ */
+export async function recoverReindex(db: Pick<TenantDb, 'kbEmbedGeneration'>, ws: string, push: (ws: string, generationId: string, cursor: string | null) => Promise<void>, now: Date): Promise<boolean> {
+  const g = await db.kbEmbedGeneration.findFirst({ where: { phase: { in: ['building', 'catching_up'] }, OR: [{ leaseUntil: null }, { leaseUntil: { lt: now } }] }, select: { id: true, cursorChunkId: true } });
+  if (g) await push(ws, g.id, g.cursorChunkId);
+  return !!g;
+}

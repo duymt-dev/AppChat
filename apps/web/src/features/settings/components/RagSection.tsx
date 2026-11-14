@@ -3,7 +3,7 @@
 // bảng tệp (badge loại, thẻ, "Đã học", size, nguồn, người tạo, ngày, ⋯ Học lại / Xoá). Ghi: kb.add_source / remove_source /
 // refresh_source / folder.create. Thùng rác giữ 30 ngày (undo của kb.remove_source). TIP-020b: nút tải thật (useKbDownload), nguồn catalog
 // không xoá (khoá + giải thích — server cũng chặn), sửa / xoá thư mục ở KbFolderEditor. TIP-043: mục "Chờ duyệt" (người có kb.manage) →
-// KbSuggestionsPanel (hàng chờ học từ hội thoại).
+// KbSuggestionsPanel (hàng chờ học từ hội thoại). TIP-020e: thẻ trạng thái chỉ mục embedding (KbIndexStatus) trên lưới.
 'use client';
 import { useEffect } from 'react';
 import { App } from 'antd';
@@ -27,6 +27,8 @@ import { KbFolderEditor } from './KbFolderEditor';
 import { useKbDownload } from '../hooks/useKbDownload';
 import { useKbPendingCount } from '../hooks/useKbSuggestions';
 import { KbSuggestionsPanel } from './KbSuggestionsPanel';
+import { KbIndexStatus } from './KbIndexStatus';
+import { useKbIndexStatus } from '../hooks/useKbIndexStatus';
 
 const NAV: [string, IconName][] = [
   ['all', 'ic-doc'],
@@ -111,6 +113,7 @@ export function RagSection() {
   const folder = useAction('kb.folder.create');
   const kb = q.data;
   const pending = useKbPendingCount();
+  const idx = useKbIndexStatus();
   const sp = useSearchParams();
   const setUi = ui.set;
   // Link thông báo `ai_review` (kb) → /settings/rag_data?nav=review mở thẳng hàng chờ.
@@ -153,6 +156,7 @@ export function RagSection() {
           </>
         ) : null}
       </div>
+      {can ? <KbIndexStatus status={idx.status} busy={idx.busy} onReindex={idx.reindex} onCancel={idx.cancel} /> : null}
       <PageStates state={stateOf(q)} onRetry={() => void q.refetch()}>
         {kb ? (
           <div className={styles.grid}>

@@ -106,6 +106,8 @@ const importMapping = z.object({
   unit: z.string().max(80).optional(),
   tax_rate: z.string().max(80).optional(),
   description: z.string().max(80).optional(),
+  /** TIP-027b: cột JSON mô tả có định dạng (schema đóng) — khứ hồi định dạng; vắng = chỉ chữ thuần. */
+  description_doc: z.string().max(80).optional(),
   sessions: z.string().max(80).optional(),
   valid_days: z.string().max(80).optional(),
 });

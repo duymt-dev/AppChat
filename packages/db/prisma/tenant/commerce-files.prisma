@@ -1,0 +1,45 @@
+// tenant/commerce-files.prisma — sở hữu: TIP-032d (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Tệp đính kèm đơn / đề nghị thanh toán (TIP-032d §1.1): liên kết RIÊNG mỗi loại cha (không bảng dùng chung theo tên), một tệp mới tải chỉ
+// gắn đúng một cha (chốt bền ở `file_claim`). Gỡ = đánh dấu `detached_at` (giữ lineage cho quên khách / dọn tệp), không xoá blob. Bộ tệp của
+// cha có revision riêng (`record_attachment_state`) — KHÔNG đổi version / tiền / trạng thái của đơn / đề nghị. PDF đề nghị / phiếu thu đã
+// sinh (chứng từ) KHÔNG nằm ở đây: đọc từ invoice.file_id / customer_payment.receipt_file_id, không gỡ / thay được.
+// Unique sống + index danh sách (partial, INCLUDE) ở migration `20261112020000_commerce_record_files`.
+
+model OrderAttachment {
+  id         String    @id @db.Uuid
+  orderId    String    @map("order_id") @db.Uuid
+  fileId     String    @map("file_id") @db.Uuid
+  createdBy  String?   @map("created_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  version    Int       @default(1)
+  detachedAt DateTime? @map("detached_at") @db.Timestamptz(6)
+  detachedBy String?   @map("detached_by") @db.Uuid
+
+  @@index([fileId], map: "order_attachment_file_idx")
+  @@map("order_attachment")
+}
+
+model InvoiceAttachment {
+  id         String    @id @db.Uuid
+  invoiceId  String    @map("invoice_id") @db.Uuid
+  fileId     String    @map("file_id") @db.Uuid
+  createdBy  String?   @map("created_by") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  version    Int       @default(1)
+  detachedAt DateTime? @map("detached_at") @db.Timestamptz(6)
+  detachedBy String?   @map("detached_by") @db.Uuid
+
+  @@index([fileId], map: "invoice_attachment_file_idx")
+  @@map("invoice_attachment")
+}
+
+/// Revision bộ tệp của một cha (khoá FOR UPDATE khi gắn / gỡ) — tách khỏi version nghiệp vụ của đơn / đề nghị.
+model RecordAttachmentState {
+  parentType String   @map("parent_type")
+  parentId   String   @map("parent_id") @db.Uuid
+  revision   Int      @default(0)
+  updatedAt  DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@id([parentType, parentId])
+  @@map("record_attachment_state")
+}

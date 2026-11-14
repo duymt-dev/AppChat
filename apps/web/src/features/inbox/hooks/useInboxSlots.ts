@@ -4,7 +4,7 @@
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { calendarMetaQuery, calendarSlotsQuery } from '@/features/calendar';
+import { calendarMetaQuery, slotsQuery as calendarSlotsQuery } from '@/features/calendar/api';
 
 export function useInboxSlots(enabled: boolean) {
   const meta = useQuery({ ...calendarMetaQuery(), enabled }).data;

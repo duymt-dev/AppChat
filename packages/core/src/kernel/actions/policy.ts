@@ -1,7 +1,7 @@
 // Policy nguồn × rủi ro (Blueprint §3.3). Governance cứng (FORCE_APPROVAL — COMMERCE / D05, TIP-032b): ngưỡng báo giá (> ngưỡng
 // workspace, giảm vượt trần agent) do handler domain chặn bằng QUOTE_NEEDS_APPROVAL; hợp đồng / hoàn tiền / gửi hàng loạt do agent / tác vụ
 // gọi LUÔN qua duyệt ở đây — "agent trực kênh trong hội thoại đang phục vụ" hay "tác vụ không hỏi trước khi gửi" không miễn được.
-import type { Risk } from '@appchat/actions';
+import { REQUESTABLE_PREVIEW_ACTIONS, type Risk } from '@appchat/actions';
 import type { ActionPolicyInput, ActionSource } from './action-context';
 
 export type PolicyDecision = 'run' | 'preview' | 'approval' | 'forbidden';
@@ -39,9 +39,11 @@ export const UI_ONLY_ACTIONS: ReadonlySet<string> = new Set(['workspace.request_
  * `privacy.review_resolve` thêm ở pha 2 (handler thật — read.handlers.ts/review.handler.ts); `contact.allow_recreation` chờ pha sau
  * (identity-token anti-recreation chưa cài).
  */
-export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation']);
+// TIP-033c §3.2: tạo đơn từ lịch hẹn — xác nhận ràng giá / version lúc xem trước (UI / API thô không có token → preview_required, 0 ghi).
+// TIP-020e §2.2: tái tạo chỉ mục kho tri thức trừ Credit — luôn xem ước tính (đoạn / token / Credit / dung lượng) rồi mới xác nhận.
+export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation', 'order.create_from_appointment', 'kb.reindex']);
 
-export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId }: ActionPolicyInput): PolicyDecision {
+export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId, previewRequested }: ActionPolicyInput): PolicyDecision {
   if (actionId && UI_ONLY_ACTIONS.has(actionId) && source !== 'ui') return 'forbidden';
   if (actionId && MANDATORY_PREVIEW_ACTIONS.has(actionId) && (source === 'ui' || source === 'api' || source === 'system')) return 'preview';
   if ((source === 'agent' || source === 'task') && actionId && FORCE_APPROVAL_ACTIONS.has(actionId)) return TABLE[source][risk] === 'forbidden' ? 'forbidden' : 'approval';
@@ -52,6 +54,8 @@ export function decidePolicy({ source, risk, bulk, servedConversation, autoSend,
   const base = TABLE[source][risk] as PolicyDecision;
   // bulk luôn preview kèm số bản ghi, kể cả ui (§3.3) — trừ khi nguồn đã bị cấm / phải duyệt.
   if (bulk && base === 'run' && risk !== 'read' && source !== 'system') return 'preview';
+  // TIP-028b (DC-444): người gọi XIN xem trước action chứng từ (bảng kiểm) — chỉ thêm bước xác nhận; không xin → hành vi cũ.
+  if (previewRequested && base === 'run' && (source === 'ui' || source === 'api') && actionId && REQUESTABLE_PREVIEW_ACTIONS.has(actionId)) return 'preview';
   return base;
 }
 

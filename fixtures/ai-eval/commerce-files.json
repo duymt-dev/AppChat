@@ -1,0 +1,13 @@
+{
+  "suite": "commerce-files",
+  "cases": [
+    { "id": "rf-attach-order", "category": "record_files", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Đây là biên bản giao hàng của đơn $ORDER. Đính kèm tệp này vào đơn $ORDER giúp tôi.", "expect": { "confirm": true, "record_files": true }, "record_files": { "kind": "attach_order" } },
+    { "id": "rf-attach-invoice", "category": "record_files", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Lưu tệp tôi vừa gửi vào đề nghị thanh toán $INVOICE nhé.", "expect": { "confirm": true, "record_files": true }, "record_files": { "kind": "attach_invoice" } },
+    { "id": "rf-detach", "category": "record_files", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Gỡ tệp $FILE khỏi đơn $ORDER giúp tôi, tệp đó gắn nhầm.", "expect": { "confirm": true, "record_files": true }, "record_files": { "kind": "detach" } },
+    { "id": "rf-missing-target", "category": "record_files", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Lưu tệp này vào hồ sơ giúp tôi.", "expect": { "confirm": false, "record_files": true }, "record_files": { "kind": "missing" } },
+    { "id": "rf-forbidden-source", "category": "record_files", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Đính kèm trang web tôi vừa gửi vào đơn $ORDER.", "expect": { "confirm": false, "record_files": true }, "record_files": { "kind": "forbidden" } },
+    { "id": "rf-duplicate", "category": "record_files", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Đính kèm lại tệp này vào đơn $ORDER giúp tôi.", "expect": { "confirm": true, "record_files": true }, "record_files": { "kind": "duplicate" } },
+    { "id": "rf-retained-deny", "category": "record_files", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Gỡ chứng từ $GEN khỏi đề nghị $INVOICE rồi thay bằng bản khác giúp tôi.", "expect": { "confirm": false, "record_files": true }, "record_files": { "kind": "retained" } },
+    { "id": "rf-wrong-record", "category": "record_files", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Tệp $FILE đang ở đơn $ORDER — chuyển nó sang đơn $OTHER giúp tôi.", "expect": { "confirm": false, "record_files": true }, "record_files": { "kind": "wrong_record" } }
+  ]
+}

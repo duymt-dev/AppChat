@@ -1,4 +1,5 @@
 // Handler giả cho action (chạy trên store in-memory). Policy chung nằm ở mock-transport; ở đây chỉ có nghiệp vụ.
+import type { ActionPreview } from '@appchat/actions';
 import type { MockDb } from './store';
 import { dashboardHandlers } from './domains/dashboard';
 import { workspaceLifecycleHandlers } from './domains/workspace-lifecycle';
@@ -13,16 +14,21 @@ import { inboxTranslationHandlers } from './domains/inbox-translation';
 import { aiUtilityHandlers } from './domains/ai-utilities';
 import { assistantHandlers } from './domains/assistant';
 import { assistantInputHandlers } from './domains/assistant-input';
+import { assistantPlanHandlers } from './domains/assistant-plans';
 import { aiTasksHandlers } from './domains/ai-tasks';
 import { agentsHandlers } from './domains/agents';
 import { productsHandlers } from './domains/products';
 import { quotesHandlers } from './domains/quotes-actions';
+import { quoteRenderHandlers } from './domains/quote-render';
 import { contractsHandlers } from './domains/contracts-actions';
 import { ordersHandlers } from './domains/orders-actions';
 import { invoicesHandlers } from './domains/invoices';
 import { invoicesActionHandlers } from './domains/invoices-actions';
-import { calendarHandlers } from './domains/calendar';
-import { ticketsHandlers } from './domains/tickets';
+import { calendarHandlers } from './domains/calendar-actions';
+import { ticketsHandlers } from './domains/tickets-actions';
+import { ticketBulkHandlers } from './domains/tickets-bulk';
+import { ticketStockHandlers } from './domains/ticket-stock';
+import { stockCountsOf } from './domains/tickets';
 import { marketingHandlers } from './domains/marketing';
 import { loyaltyHandlers } from './domains/loyalty';
 import { settingsHandlers } from './domains/settings';
@@ -36,6 +42,7 @@ import { assistantUiHandlers } from './domains/assistant-ui';
 import { profileLayoutHandlers } from './domains/profile-layout';
 import { settingsDataHandlers } from './domains/settings-data';
 import { settingsAiHandlers } from './domains/settings-ai';
+import { kbIndexHandlers } from './domains/kb-index';
 import { kbFolderHandlers } from './domains/kb-folders';
 import { kbSuggestionHandlers } from './domains/kb-suggestions';
 import { settingsOpsHandlers } from './domains/settings-ops';
@@ -43,18 +50,22 @@ import { settingsBillingHandlers } from './domains/settings-billing';
 import { platformAdminHandlers } from './domains/platform-admin';
 import { docTemplatesHandlers } from './domains/doc-templates';
 import { withCustomValues } from './domains/custom-values';
+import { withDocChecklist } from './domains/doc-checklist';
 import { dataJobsHandlers } from './domains/data-jobs';
 import { listExportsHandlers } from './domains/list-exports';
 import { dataTransferHandlers } from './domains/data-transfer';
 import { channelFriendsHandlers } from './domains/channel-friends';
+import { recordFileHandlers } from './domains/record-files';
+import { productMediaHandlers } from './domains/product-media';
+import { ticketCategoryHandlers } from './domains/ticket-categories';
 
 export interface MockHandler {
   execute(db: MockDb, input: never): unknown;
   undo?(db: MockDb, input: never): void;
-  preview?(db: MockDb, input: never): { summary: string; count?: number };
+  preview?(db: MockDb, input: never): Omit<ActionPreview, 'risk'>;
 }
 
-export const mockHandlers: Record<string, MockHandler> = withCustomValues({
+export const mockHandlers: Record<string, MockHandler> = withDocChecklist(withCustomValues({
   'business_profile.update': {
     execute: (
       db,
@@ -120,16 +131,21 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...listExportsHandlers,
   ...assistantHandlers,
   ...assistantInputHandlers,
+  ...assistantPlanHandlers,
   ...aiTasksHandlers,
   ...agentsHandlers,
   ...productsHandlers,
   ...quotesHandlers,
+  ...quoteRenderHandlers,
   ...contractsHandlers,
   ...ordersHandlers,
   ...invoicesHandlers,
   ...invoicesActionHandlers,
   ...calendarHandlers,
   ...ticketsHandlers,
+  ...ticketBulkHandlers,
+  // TIP-034d: đọc tồn ticket so với hôm qua (cùng số với /tickets/meta).
+  ...ticketStockHandlers((db) => ({ counts: stockCountsOf(db) })),
   ...marketingHandlers,
   ...loyaltyHandlers,
   ...settingsHandlers,
@@ -143,6 +159,7 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...profileLayoutHandlers,
   ...settingsDataHandlers,
   ...settingsAiHandlers,
+  ...kbIndexHandlers,
   ...kbFolderHandlers,
   ...kbSuggestionHandlers,
   ...settingsOpsHandlers,
@@ -150,6 +167,10 @@ export const mockHandlers: Record<string, MockHandler> = withCustomValues({
   ...platformAdminHandlers,
   ...docTemplatesHandlers,
   ...channelFriendsHandlers,
+  ...recordFileHandlers,
+  ...productMediaHandlers,
+  // TIP-034b: từ điển gợi ý danh mục ticket.
+  ...ticketCategoryHandlers,
   // Nhập dữ liệu dùng chung (TIP-038b): khách ghi qua đúng handler contact.import của mock.
   ...dataTransferHandlers((db: MockDb, rows) => customersHandlers['contact.import']!.execute(db, { rows } as never) as { created: number }),
-});
+}));

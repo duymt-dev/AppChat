@@ -18,6 +18,7 @@ import { hashInput } from './confirm-token';
 import type { ActionHandlerRegistry } from './handler-registry';
 import { decidePolicy, requiresIdempotencyKey } from './policy';
 import { withRequiredApproval } from './required-approval';
+import { escalateOperatorDecision } from './customer-intent';
 import { maskSecrets } from './secret-fields';
 import { acceptedResponse, replayAccepted } from './job-accepted';
 import { redactDeep, toLogJson } from './executor-redact';
@@ -29,6 +30,7 @@ import { executeLifecycleAction, LIFECYCLE_ACTIONS, type LifecycleContext } from
 import { activityEvent } from './activity-event';
 import { admitInternal } from './system/capability';
 import { systemAdmission } from './system/executor-hook';
+import type { ExecutionBindingPort } from './execution-binding';
 
 export type ExecuteOutcome<O = unknown> = { status: 200; data: ActionResult<O> } | { status: 202; data: ActionAccepted };
 
@@ -80,6 +82,7 @@ export const implementedBy = (e: ToolExecutor) => (actionId: string) => e.isImpl
 
 export class ActionExecutor {
   private readonly defs: Map<string, ActionDef>;
+  private binding: ExecutionBindingPort | undefined;
 
   constructor(private readonly d: ExecutorDeps) {
     this.defs = new Map(d.registry.map((a) => [a.id, a]));
@@ -88,6 +91,11 @@ export class ActionExecutor {
   /** Gắn gateway duyệt lúc boot (domain `ai` — TIP-021 cài; kernel không phụ thuộc domain). */
   setApprovals(g: ApprovalGateway): void {
     this.d.approvals = g;
+  }
+
+  /** Gắn port ràng buộc bước kế hoạch lúc boot (TIP-023d §2.3 — domain `ai` cài; kernel không import AI). */
+  setExecutionBinding(p: ExecutionBindingPort): void {
+    this.binding = p;
   }
 
   /** Cổng duyệt đã gắn (thao tác nền tảng tiêu thụ duyệt ở pha tenant — TIP-045b). */
@@ -146,7 +154,8 @@ export class ActionExecutor {
     // Mọi hội thoại mà input chạm tới (nguồn + đích của chuyển tiếp) phải là hội thoại đang phục vụ.
     const io = input as { conversation_id?: unknown; target_conversation_id?: unknown };
     const served = !!ctx.servedConversationId && io.conversation_id === ctx.servedConversationId && (io.target_conversation_id === undefined || io.target_conversation_id === ctx.servedConversationId);
-    const decision = withRequiredApproval(decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk, servedConversation: served, autoSend: ctx.autoSend === true, actionId }), def, ctx.source);
+    // TIP-022c: quyết định báo giá do agent / tác vụ làm thay người, không căn cứ ý định khách → luôn qua duyệt của người thật.
+    const decision = escalateOperatorDecision(withRequiredApproval(decidePolicy({ source: ctx.source, risk: def.risk, bulk: def.bulk, servedConversation: served, autoSend: ctx.autoSend === true, actionId, previewRequested: ctx.previewRequested === true }), def, ctx.source), ctx, actionId);
     if (decision === 'forbidden') throw new AppError('FORBIDDEN', 403, { source: ctx.source });
     if (ctx.approvalId && !this.d.approvals) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '021' }, 'approval_request chưa cài');
     if (decision === 'approval' && !ctx.approvalId) {
@@ -177,12 +186,15 @@ export class ActionExecutor {
       }
     }
 
-    if (decision === 'preview' && !(await this.d.confirm.consume(ctx, actionId, input, ctx.confirmToken))) {
-      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input.
-      const preview = handler.preview ? await db.$transaction((tx) => handler.preview!(ctx, input, tx)) : { summary: '', risk: def.risk };
-      const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime());
+    const bound = decision === 'preview' ? await this.d.confirm.take(ctx, actionId, input, ctx.confirmToken) : null;
+    if (decision === 'preview' && !bound) {
+      // Handler chưa có preview → bản tối thiểu từ ActionDef (DC-128): vẫn bắt xác nhận, thẻ hiện action + input. Dữ kiện nguồn (bindPreview)
+      // đọc cùng transaction với preview, ràng vào token phía server (TIP-033c §3.1).
+      const [preview, facts] = await db.$transaction(async (tx) => [handler.preview ? await handler.preview(ctx, input, tx) : { summary: '', risk: def.risk }, await handler.bindPreview?.(ctx, input, tx)] as const);
+      const { token, expiresAt } = await this.d.confirm.issue(ctx, actionId, input, this.d.clock.now().getTime(), facts);
       return { status: 202, data: { status: 'preview_required', preview, confirm_token: token, expires_at: expiresAt.toISOString() } };
     }
+    if (bound && Object.keys(bound).length) ctx.previewFacts = bound;
 
     if (!key && requiresIdempotencyKey(actionId, def.risk)) throw new AppError('VALIDATION_FAILED', 422, { idempotency_key: 'required' });
 
@@ -195,6 +207,7 @@ export class ActionExecutor {
     // Action `db: 'platform'` (TIP-045b annex A1): sổ thao tác xuyên DB — nền tảng commit trước, tenant áp sau với biên nhận, khôi phục
     // theo pha; không còn transaction tenant lồng trong transaction nền tảng. Idempotency theo sổ (workspace + actor + khoá).
     if (def.db === 'platform') {
+      if (ctx.planBinding) throw new AppError('CONFLICT', 409, { plan_step: 'unsupported_action' });
       if (!this.d.operations) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'PlatformDb chưa cấu hình');
       let after: (() => Promise<void>) | undefined;
       const r = await this.d.operations.run<O>(ctx, def, handler, input, prepared, {
@@ -211,9 +224,13 @@ export class ActionExecutor {
     const runFinal = async (tx: TenantTx) => {
       // Action riêng (TIP-003c §1.3, §3.3): kiểm lại capability ngay trước hiệu ứng + nhận biên nhận trigger trong CÙNG transaction.
       const sys = isInternalAction(def) ? await systemAdmission(tx, ctx, actionId, rawInput ?? {}, now) : undefined;
-      if (sys?.replay) return { data: sys.replay, queued: null, afterCommit: undefined };
+      if (sys?.replay) return { data: sys.replay, queued: null, afterCommit: undefined, settled: undefined };
+      // Bước kế hoạch (TIP-023d §2.2-2.3): claim hiệu ứng chính TRƯỚC handler — cùng digest đã xong → biên nhận cũ, không chạy lại.
+      if (ctx.planBinding && !this.binding) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '023d' }, 'execution binding chưa cài');
+      const bound = ctx.planBinding ? await this.binding!.admit(tx, ctx, actionId, hashInput(input), now) : undefined;
+      if (bound?.replay) return { data: bound.replay.data, queued: bound.replay.queued ?? null, afterCommit: undefined, settled: undefined };
       await approved(tx);
-      const r = await handler.execute(ctx, input, tx, undefined, prepared);
+      const r = await handler.execute(ctx, input, tx, undefined, prepared, { actionLogId: logId });
       const undoUntil = r.noUndo ? undefined : undoWindow;
       // Quyền theo trường (TIP-045b annex C): output không mang key tuỳ biến / trường hệ thống người gọi không được xem.
       const output = await projectActionOutput(tx, actionId, ctx.authz, def.output.parse(r.result) as O);
@@ -247,12 +264,13 @@ export class ActionExecutor {
         },
       });
       if (sys) await sys.settle(tx, output, logId);
+      if (bound) await bound.settle(tx, logId, r.accepted);
       const sec = securityEvents(actionId, logId, ctx.actor, ctx.onBehalfOfUserId, ctx.source);
       await writeOutbox(tx, ctx.workspaceId, [...(r.events ?? []), ...sec, ...activityEvent(ctx, def, logId)], now, traceId);
       // Việc nền (202 job_accepted): lưu đúng handle vào idempotency (mã 202) — gửi lại cùng khoá không xếp việc lần hai.
       const queued = r.accepted ? acceptedResponse(logId, r.accepted) : null;
       if (key) await tx.idempotencyKey.create({ data: { key, route, requestHash: reqHash, response: json(queued ?? data), statusCode: queued ? 202 : 200, createdAt: now } });
-      return { data, queued, afterCommit: r.afterCommit };
+      return { data, queued, afterCommit: r.afterCommit, settled: r.settled };
     };
     // TIP-003b: collector gắn transaction cuối — writeOutbox (handler + executor) chỉ gom; flush DUY NHẤT sau idempotency, trước commit.
     const out = await db.$transaction(async (tx) => {
@@ -268,6 +286,11 @@ export class ActionExecutor {
     if (out.events) await markDirty(this.d.kv, ctx.workspaceId);
     // Đã commit: lỗi ở đây không đổi kết quả (việc tự idempotent + có scheduler quét lại — HandlerOutcome.afterCommit).
     if (out.afterCommit) await out.afterCommit().catch(() => undefined);
+    // TIP-034c: phản hồi lần này đọc lại từ biên nhận sau khi con chạy xong (bản lưu giữ trạng thái lúc nhận).
+    if (out.settled && !out.queued) {
+      const fresh = await out.settled().catch(() => undefined);
+      if (fresh !== undefined) out.data = { ...out.data, result: def.output.parse(fresh) as O };
+    }
 
     // 7. kết quả
     return out.queued ? { status: 202, data: out.queued } : { status: 200, data: out.data };

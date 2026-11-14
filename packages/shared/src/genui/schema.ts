@@ -24,6 +24,7 @@ const label = z.string().trim().min(1).max(L.label);
 const key = z.string().regex(/^[a-z_][a-z0-9_]{0,63}$/);
 const actionId = z.string().regex(/^[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+$/).max(80);
 const openSpec = z.object({ entity: z.string().max(40), id_key: key }).strict();
+const recordId = z.string().regex(/^[A-Za-z0-9_-]{1,64}$/);
 
 export type Tone = (typeof TONES)[number];
 export type ValueFormat = (typeof FORMATS)[number];
@@ -43,6 +44,15 @@ export interface ButtonBlock {
   label: string;
   tone?: Tone;
   on: ButtonOn;
+}
+/**
+ * Thẻ gợi ý tạo đơn từ lịch hẹn (TIP-033c §2.2): chỉ id lịch (+ hội thoại tuỳ chọn) — KHÔNG giá, quyền, điều kiện, URL; giá / thuế / tổng
+ * và nút tạo do server chiếu theo quyền hiện hành của người xem lúc hiển thị (bộ đọc booking), tạo đơn qua action chuẩn có xem trước.
+ */
+export interface AppointmentOrderBlock {
+  type: 'appointment_order';
+  appointment_id: string;
+  conversation_id?: string;
 }
 export interface FormField {
   name: string;
@@ -65,7 +75,8 @@ export type UiBlock =
   | ButtonBlock
   | { type: 'button_group'; buttons: ButtonBlock[] }
   | { type: 'form'; action_id: string; title?: string; fields: FormField[]; submit_label?: string }
-  | { type: 'qr'; login: GenUiRef; title?: string };
+  | { type: 'qr'; login: GenUiRef; title?: string }
+  | AppointmentOrderBlock;
 export type UiBlockType = UiBlock['type'];
 export interface UiTree {
   version: 1;
@@ -128,6 +139,7 @@ export const uiBlockSchema: z.ZodType<UiBlock> = z.lazy(() =>
     z.object({ type: z.literal('button_group'), buttons: z.array(buttonSchema).min(1).max(L.buttonGroup) }).strict(),
     z.object({ type: z.literal('form'), action_id: actionId, title: label.optional(), fields: z.array(fieldSchema).min(1).max(L.formFields), submit_label: label.optional() }).strict(),
     z.object({ type: z.literal('qr'), login: refSchema, title: label.optional() }).strict(),
+    z.object({ type: z.literal('appointment_order'), appointment_id: recordId, conversation_id: recordId.optional() }).strict(),
   ]),
 ) as z.ZodType<UiBlock>;
 

@@ -84,7 +84,7 @@ export const transferSampleSchema = z.object({
   columns: z.array(z.string()),
   total_rows: z.number().int(),
   sample: z.array(z.array(z.string())),
-  fields: z.array(z.object({ key: z.string(), type: z.string(), required: z.boolean(), options: z.array(z.string()).optional(), item: z.boolean().optional() })),
+  fields: z.array(z.object({ key: z.string(), type: z.string(), required: z.boolean(), options: z.array(z.string()).optional(), item: z.boolean().optional(), hint: z.enum(['plain_projection', 'structured_json']).optional(), warnings: z.array(z.string()).optional() })),
   mapping: z.record(z.string(), z.string()),
   import_supported: z.boolean(),
 });

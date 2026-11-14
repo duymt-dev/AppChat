@@ -7,6 +7,7 @@ import { expect, test, type Locator, type Page } from '@playwright/test';
 import { badPdf, pdf } from '../../../../fixtures/contracts/files/build-fixtures';
 import { isMobile } from '../support/mobile';
 import { mailMatch, onboarded, otpOf, spoofIp } from './support';
+import { confirmPreview } from '../support/confirm';
 
 async function scribble(page: Page, pad: Locator) {
   await pad.scrollIntoViewIfNeeded();
@@ -76,6 +77,7 @@ test.describe('hợp đồng từ tệp (http)', () => {
     const drawer = page.getByTestId('ct-drawer');
     await expect(drawer).toContainText('HĐ-1001');
     await drawer.getByTestId('ct-submit').click();
+    await confirmPreview(page, { checklist: false });
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
     await drawer.getByTestId('ct-approve-sign').click();
     const box = page.getByTestId('ct-approve-box');
@@ -84,11 +86,13 @@ test.describe('hợp đồng từ tệp (http)', () => {
     await box.getByTestId('ct-otp').fill(await otpOf(owner));
     await scribble(page, box.getByTestId('ct-sig'));
     await box.getByTestId('ct-approve-ok').click();
+    await confirmPreview(page, { checklist: false });
     await expect(box).toHaveCount(0, { timeout: 60_000 });
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ ký');
 
     await drawer.getByTestId('ct-send-sign').click();
     await page.getByTestId('ct-send-email').click();
+    await confirmPreview(page, { checklist: false });
     await expect(drawer.getByTestId('ct-sign-link')).toContainText('/sign/', { timeout: 30_000 });
     const out = await lastOut(page, 'Chị Mai');
     const link = (await out.innerText()).match(/\/sign\/[^\s]+/)![0];
@@ -223,6 +227,7 @@ test.describe('hợp đồng từ tệp (http)', () => {
     await sug.getByTestId('ct-sug-discard-s2').click();
     await expect(sug.getByTestId('ct-sug-state-s2')).toHaveText('Đã bỏ');
     await drawer.getByTestId('ct-submit').click();
+    await confirmPreview(page, { checklist: false });
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
     // Không tự gửi ký.
     await expect(drawer.getByTestId('ct-sign-link')).toHaveCount(0);

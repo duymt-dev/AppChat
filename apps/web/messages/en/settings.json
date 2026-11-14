@@ -41,7 +41,8 @@
     "profile": "My profile",
     "sales_policy": "Sales policy",
     "routing": "Lead routing",
-    "booking": "Bookings"
+    "booking": "Bookings",
+    "ticket_categories": "Ticket categories"
   },
   "head": {
     "email_mkt": "Email Marketing",
@@ -70,7 +71,8 @@
     "profile": "My profile",
     "sales_policy": "Sales policy",
     "routing": "Routing & assignment",
-    "booking": "Bookings"
+    "booking": "Bookings",
+    "ticket_categories": "Ticket categories"
   },
   "headSub": {
     "roles": "Permission sets assigned to members",
@@ -1343,6 +1345,41 @@
       "errName": "Enter a document name",
       "errUpload": "Could not upload the file — please try again.",
       "visInherited": "(folder default)"
+    },
+    "index": {
+      "title": {
+        "stale": "Embedding model changed — index still uses the old model",
+        "building": "Rebuilding the index",
+        "catching_up": "Adding recent documents to the index",
+        "failed": "Index rebuild did not finish",
+        "cancelled": "Index rebuild cancelled",
+        "embed_space_retired": "The index model was removed — keyword search only",
+        "no_model_route": "No embedding model configured"
+      },
+      "text": {
+        "stale": "Search still uses the {from} index. Rebuild with {to} so AI searches with the new model (costs Credit like ingesting documents; you see the estimate before confirming).",
+        "building": "Building the {to} index; search keeps using {from} meanwhile.",
+        "catching_up": "Build finished; adding recently changed documents before switching to {to}.",
+        "failed": "The {from} index is still in use.",
+        "cancelled": "The {from} index is still in use.",
+        "embed_space_retired": "Model {from} is no longer configured, so AI searches by keyword only. Rebuild the index with the current model to search by meaning.",
+        "no_model_route": "The platform admin has not configured an embedding model — AI searches by keyword only."
+      },
+      "reasonLabel": "Reason: {r}.",
+      "reason": {
+        "credit_exhausted": "out of Credit",
+        "usage_unknown": "a batch result is unknown — awaiting reconciliation",
+        "budget": "AI budget exceeded",
+        "space_retired": "the target model is no longer configured",
+        "price_missing": "the target model has no price",
+        "provider_unavailable": "the AI provider did not respond",
+        "catch_up_exhausted": "documents kept changing during the rebuild",
+        "cancelled_by_user": "cancelled",
+        "other": "system error"
+      },
+      "progress": "{done} / {total} chunks",
+      "reindex": "Rebuild index",
+      "cancel": "Cancel"
     }
   },
   "gov": {
@@ -2092,6 +2129,33 @@
       "invalid_day": "Invalid day",
       "duplicate_day": "Duplicate day",
       "seven_days": "All 7 days are required"
+    }
+  },
+  "ticketCategories": {
+    "hint": "Category suggestions for creating and filtering tickets. The first label is the default for new tickets. Tickets still accept any category; edits here never change existing tickets — a removed label may still appear under \"Used in tickets\".",
+    "label": "Category {n}",
+    "default": "Default",
+    "up": "Move up",
+    "down": "Move down",
+    "remove": "Remove category",
+    "add": "+ Add category",
+    "import": "Import from file",
+    "export": "Export file",
+    "discard": "Discard changes",
+    "save": "Save changes",
+    "conflict": "Someone else just saved the categories. Your draft is kept — saving replaces the latest version, or reload to drop your draft.",
+    "reload": "Reload latest",
+    "leave": "Discard unsaved category changes?",
+    "diffAdded": "Added: {list}",
+    "diffRemoved": "Removed from suggestions: {list}",
+    "diffDefault": "New default: {label}",
+    "diffOrder": "Order changed",
+    "error": {
+      "empty": "Enter a category name",
+      "too_long": "At most 60 characters",
+      "control": "No control characters or line breaks",
+      "duplicate": "Duplicates a category above (case-insensitive)",
+      "too_many": "At most 100 categories"
     }
   },
   "salesPolicy": {

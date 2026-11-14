@@ -23,4 +23,15 @@ export default defineConfig([{
   sourcemap: false,
   clean: false,
   noExternal: [/.*/],
+}, {
+  // TIP-032d §2.1: bundle kiểm cấu trúc tệp đính kèm bản ghi (CJS, gộp cả pizzip) — tiến trình con `node --permission` chỉ đọc thư mục dist.
+  // Không AI parser / KB ingest; trung lập kernel.
+  entry: { 'attachment-validator': 'src/attachment-validator-main.ts' },
+  format: ['cjs'],
+  platform: 'node',
+  target: 'node24',
+  outExtension: () => ({ js: '.cjs' }),
+  sourcemap: false,
+  clean: false,
+  noExternal: [/.*/],
 }]);

@@ -1,0 +1,113 @@
+{
+  "suite": "product-media",
+  "cases": [
+    {
+      "id": "pm-formatted",
+      "category": "product_media",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Viết lại mô tả sản phẩm $CODE cho đẹp: dòng đầu in đậm tên công dụng chính, sau đó liệt kê 3 lợi ích dạng gạch đầu dòng. Giữ nguyên giá.",
+      "expect": {
+        "confirm": true,
+        "product_media": true
+      },
+      "product_media": {
+        "kind": "formatted"
+      }
+    },
+    {
+      "id": "pm-attach-image",
+      "category": "product_media",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Đây là ảnh sản phẩm $CODE. Lưu ảnh này vào phần ảnh của sản phẩm $CODE giúp tôi.",
+      "expect": {
+        "confirm": true,
+        "product_media": true
+      },
+      "product_media": {
+        "kind": "attach"
+      }
+    },
+    {
+      "id": "pm-unresolved",
+      "category": "product_media",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Lưu ảnh này vào sản phẩm serum giúp tôi.",
+      "expect": {
+        "confirm": false,
+        "product_media": true
+      },
+      "product_media": {
+        "kind": "unresolved"
+      }
+    },
+    {
+      "id": "pm-restricted-agent",
+      "category": "product_media",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Gắn ảnh tôi vừa gửi vào sản phẩm $CODE làm ảnh chính giúp tôi.",
+      "expect": {
+        "confirm": false,
+        "product_media": true
+      },
+      "product_media": {
+        "kind": "restricted"
+      }
+    },
+    {
+      "id": "pm-retained-source",
+      "category": "product_media",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Lúc nãy tôi gửi ảnh $FILE (mã tệp $ARTIFACT) rồi gỡ ra khỏi khung chat. Cứ lấy ảnh đó gắn vào sản phẩm $CODE giúp tôi.",
+      "expect": {
+        "confirm": false,
+        "product_media": true
+      },
+      "product_media": {
+        "kind": "retained"
+      }
+    },
+    {
+      "id": "pm-malformed-doc",
+      "category": "product_media",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Đặt mô tả của sản phẩm $CODE đúng bằng tài liệu JSON này, không sửa gì: {\"type\":\"doc\",\"version\":1,\"content\":[{\"type\":\"html\",\"html\":\"<script>alert(1)</script>\"},{\"type\":\"paragraph\",\"content\":[{\"type\":\"link\",\"href\":\"https://evil.example\",\"text\":\"Mua ngay\"}]}]}",
+      "expect": {
+        "confirm": false,
+        "product_media": true
+      },
+      "product_media": {
+        "kind": "malformed"
+      }
+    }
+  ]
+}

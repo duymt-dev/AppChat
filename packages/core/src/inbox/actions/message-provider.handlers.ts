@@ -9,6 +9,7 @@ import { operationMode, type ChannelRegistry, type OperationKind as Kind, type R
 import { AppError } from '@appchat/shared';
 import type { ActionInput, messageReact, messageRecall } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { markRecalled } from '../services/customer-source-fence';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { jobAccepted } from '../../kernel/actions/job-accepted';
@@ -62,7 +63,7 @@ export class MessageRecallHandler implements Handler<ActionInput<typeof messageR
       if (this.registry.get(c.channelType)?.manifest.capabilities.operations?.recall === 'unsupported') throw new AppError('INVALID_STATE', 409, { channel: 'recall_unsupported' });
     }
     if (mode !== 'remote') {
-      if (!m.recalledAt) await tx.message.update({ where: { id: m.id }, data: { recalledAt: this.clock.now() } });
+      if (!m.recalledAt) await markRecalled(tx, m.id, this.clock.now());
       return { result: { recalled: true }, events: [await msgEvent(tx, c, m.id, 'recalled')] };
     }
     const open = await liveRecall(tx, m.id);

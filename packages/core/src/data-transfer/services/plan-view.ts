@@ -3,6 +3,7 @@
 import {
   AppError,
   can,
+  targetOf,
   transferSpec,
   type AuthzContext,
   type PermissionKey,
@@ -78,6 +79,10 @@ export function planView(p: PlanRow, columns: string[]): TransferPlanDto {
   };
 }
 
+/** Kế hoạch của tập ghi cả tệp một lệnh (registry `atomic`). */
+export const atomicPlan = (p: Pick<PlanRow, 'entity' | 'dataset'>) =>
+  !!transferSpec(targetOf(p.entity as TransferEntity, p.dataset as TransferDataset)).atomic;
+
 /** Commit được không: nháp, chưa hết hạn, có dòng hợp lệ; all_valid → không còn dòng lỗi (không âm thầm bỏ lỗi). */
 export function commitBlocker(
   p: Pick<PlanRow, 'status' | 'expiresAt' | 'valid' | 'invalid' | 'rowPolicy' | 'entity' | 'dataset'>,
@@ -87,7 +92,8 @@ export function commitBlocker(
   if (p.expiresAt <= now) return { plan_id: 'expired' };
   if (!p.valid) return { rows: 'none_valid' };
   if (p.rowPolicy === 'all_valid' && p.invalid) return { rows: 'has_invalid' };
-  // Sản phẩm ghi bằng `product.import` trên CẢ tệp (032b) — không bỏ được riêng dòng lỗi; sửa tệp rồi lập kế hoạch mới.
-  if (p.entity === 'product' && p.dataset === 'base' && p.invalid) return { rows: 'has_invalid' };
+  // Tập ghi cả tệp bằng MỘT lệnh (sản phẩm `product.import` 032b; danh mục ticket `ticket_categories.replace` 034b) — không bỏ được riêng
+  // dòng lỗi; sửa tệp rồi lập kế hoạch mới.
+  if (atomicPlan(p) && p.invalid) return { rows: 'has_invalid' };
   return null;
 }

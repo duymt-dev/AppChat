@@ -28,6 +28,12 @@ export interface NewJob {
   /** Id bản ghi đích đã chốt (thứ tự = seq). */
   targets: string[];
   fieldPolicy?: string;
+  /** Thế hệ biên nhận (TIP-034c: 0 = thao tác đi, 1 = lượt hoàn tác của nó). */
+  generation?: number;
+  /** Lượt hoàn tác trỏ về thao tác đi (duy nhất). */
+  parentJobId?: string;
+  /** Version đã nhận theo id (TIP-034c — con so khớp trước khi ghi). */
+  admitted?: ReadonlyMap<string, number>;
   now: Date;
 }
 
@@ -35,10 +41,10 @@ export interface NewJob {
 export async function createJob(tx: Pick<TenantTx, 'dataJob' | 'dataJobItem'>, j: NewJob): Promise<string> {
   const id = uuidv7(j.now.getTime());
   await tx.dataJob.create({
-    data: { id, kind: j.kind, actionId: j.actionId, actorId: j.actorId, actionLogId: j.actionLogId, inputHash: inputHash(j.input), input: j.input as object, fieldPolicy: j.fieldPolicy ?? '', total: j.targets.length, createdAt: j.now, updatedAt: j.now },
+    data: { id, kind: j.kind, actionId: j.actionId, actorId: j.actorId, actionLogId: j.actionLogId, inputHash: inputHash(j.input), input: j.input as object, fieldPolicy: j.fieldPolicy ?? '', total: j.targets.length, parentJobId: j.parentJobId ?? null, createdAt: j.now, updatedAt: j.now },
   });
   for (let i = 0; i < j.targets.length; i += 1000) {
-    await tx.dataJobItem.createMany({ data: j.targets.slice(i, i + 1000).map((targetId, k) => ({ jobId: id, seq: i + k, targetId, updatedAt: j.now })) });
+    await tx.dataJobItem.createMany({ data: j.targets.slice(i, i + 1000).map((targetId, k) => ({ jobId: id, seq: i + k, targetId, generation: j.generation ?? 0, admittedVersion: j.admitted?.get(targetId) ?? null, updatedAt: j.now })) });
   }
   return id;
 }

@@ -5,7 +5,7 @@ import { randomBytes } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { LlmRouter, type ProviderConfig, type RouteRow } from '@appchat/ai';
 import { encryptSecret } from '../src/kernel/crypto';
-import { providerRevision, routeRevision, type ProviderFingerprint, type RouteFingerprint } from '../src/ai/router/config-revision';
+import { providerRevision, routeRevision, spaceRevision, type ProviderFingerprint, type RouteFingerprint } from '../src/ai/router/config-revision';
 
 const encKey = randomBytes(32);
 const baseProvider: ProviderFingerprint = { key: 'nine', kind: 'openai_compatible', baseUrl: 'https://r.example', capabilities: { tools: true }, status: 'active', version: 1, apiKeyEnc: new Uint8Array(encryptSecret('sk-aaaaaaaaaaaaaaaa', encKey)), headersEnc: null };
@@ -38,6 +38,14 @@ describe('providerRevision / routeRevision (TIP-023e §1.2)', () => {
     expect(routeRevision(encKey, { ...baseRoute, model: 'gpt-y' })).not.toBe(a);
     expect(routeRevision(encKey, { ...baseRoute, priority: 1 })).not.toBe(a);
     expect(routeRevision(encKey, { ...baseRoute, params: { temperature: 0.5 } })).not.toBe(a);
+  });
+
+  it('TIP-020e spaceRevision: lưu lại nhóm (id mới) / thêm route dự phòng (priority đổi) → GIỮ nguyên; đổi model / params → đổi', () => {
+    const a = spaceRevision(encKey, baseRoute);
+    expect(spaceRevision(encKey, { ...baseRoute, id: 'route-2', priority: 3 } as RouteFingerprint)).toBe(a);
+    expect(spaceRevision(encKey, { ...baseRoute, model: 'gpt-y' })).not.toBe(a);
+    expect(spaceRevision(encKey, { ...baseRoute, params: { dimensions: 1536 } })).not.toBe(a);
+    expect(spaceRevision(encKey, baseRoute)).not.toBe(routeRevision(encKey, baseRoute));
   });
 });
 
