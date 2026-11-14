@@ -9,7 +9,7 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ModelPrice } from '../../billing/public';
 import type { AiEnv } from '../ai.env';
 import { AI_CONFIG_SCOPE, RevisionWatch } from '../../platform/public';
-import { providerRevision, routeRevision } from './config-revision';
+import { providerRevision, routeRevision, spaceRevision } from './config-revision';
 
 const TTL_MS = 60_000;
 
@@ -70,7 +70,7 @@ export class ProviderStore implements RouterConfigSource {
       const snap: Snapshot = {
         at: this.now(),
         gen,
-        routes: routes.map((r) => ({ tier: r.tier, purpose: r.purpose, priority: r.priority, providerKey: r.providerKey, model: r.model, vision: (r.params as { vision?: unknown } | null)?.vision === true, configRevision: routeRevision(this.key, { id: r.id, model: r.model, params: r.params, priority: r.priority }) })),
+        routes: routes.map((r) => ({ tier: r.tier, purpose: r.purpose, priority: r.priority, providerKey: r.providerKey, model: r.model, vision: (r.params as { vision?: unknown } | null)?.vision === true, configRevision: routeRevision(this.key, { id: r.id, model: r.model, params: r.params, priority: r.priority }), spaceRevision: spaceRevision(this.key, { model: r.model, params: r.params }) })),
         providers: map,
         prices: new Map(prices.map((x) => [`${x.providerKey}:${x.model}`, { per1kIn: Number(x.creditsPer1kIn), per1kOut: Number(x.creditsPer1kOut), tier: x.tier }])),
       };

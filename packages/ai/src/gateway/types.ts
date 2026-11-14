@@ -61,7 +61,7 @@ export interface ModelCandidate {
   /** Thế hệ cấu hình opaque của route đã chọn (TIP-023e §1.2) — route có, provider không → vẫn route's; cả hai vắng → undefined.
    *  Dùng để ghim `embedding_space` của một generation vào đúng cấu hình đã phục vụ nó (023e §1.6), không suy luận ngầm. */
   configRevision?: string;
-  /** Chỉ nửa route của thế hệ cấu hình (TIP-020e) — khoá không gian kho tri thức `provider:model:1536:<route>`; vắng ở mock / test cũ. */
+  /** Thế hệ không gian của route (TIP-020e — model + params, không id / priority) — khoá kho tri thức `provider:model:1536:<route>`; vắng ở mock / test cũ. */
   routeRevision?: string;
 }
 

@@ -75,5 +75,8 @@ describe('LlmRouter', () => {
     expect((await r.candidates('standard', 'rerank', { tools: false })).map((c) => c.model)).toEqual(['rb']);
     const [e] = await r.candidates('standard', 'embed', { tools: false });
     expect(e).toMatchObject({ provider: 'b', model: 'eb', routeRevision: 'route-e', configRevision: 'prov-b:route-e' });
+    // Thế hệ không gian (model + params) ưu tiên hơn thế hệ route (id / priority) — lưu lại nhóm không đổi khoá kho.
+    const r2 = router([{ ...rr[2]!, spaceRevision: 'space-e' }], { b: prov('b', { capabilities: { embeddings: true }, configRevision: 'prov-b' }) });
+    expect((await r2.candidates('standard', 'embed', { tools: false }))[0]).toMatchObject({ routeRevision: 'space-e', configRevision: 'prov-b:route-e' });
   });
 });

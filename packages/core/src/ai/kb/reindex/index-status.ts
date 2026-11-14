@@ -16,8 +16,9 @@ export async function currentSpace(embedder: Embedder | null): Promise<string | 
 }
 
 /**
- * Route embed hiện hành khác space của khe đang phục vụ → đánh dấu `stale` (một lần — đã stale thì không ghi lại) + outbox. Kho chưa có
- * space (rỗng) → gắn luôn space hiện hành, không stale (chưa có vector nào để lệch). Trả trạng thái sau khi đối chiếu.
+ * Route embed hiện hành khác space của khe đang phục vụ → đánh dấu `stale` (một lần — đã stale thì không ghi lại) + outbox. Route quay
+ * lại đúng space đang phục vụ → bỏ dấu cũ (không cần tạo lại, không tốn Credit). Kho chưa có space (rỗng) → gắn luôn space hiện hành,
+ * không stale (chưa có vector nào để lệch). Trả trạng thái sau khi đối chiếu.
  */
 export async function reconcileIndexState(db: TenantDb, ws: string, current: string | null, now: Date): Promise<'current' | 'stale'> {
   const s = await readIndexSetting(db);
@@ -29,7 +30,10 @@ export async function reconcileIndexState(db: TenantDb, ws: string, current: str
       return 'current';
     }
   }
-  if (sameSpace(s.activeSpace, current)) return s.indexState;
+  if (sameSpace(s.activeSpace, current)) {
+    if (s.indexState === 'stale') await db.kbSetting.updateMany({ where: { id: 1, indexState: 'stale' }, data: { indexState: 'current', staleSince: null, version: { increment: 1 } } });
+    return 'current';
+  }
   if (s.indexState === 'stale') return 'stale';
   await inEventTransaction(db, ws, async (tx: TenantTx) => {
     const n = await tx.kbSetting.updateMany({ where: { id: 1, indexState: 'current' }, data: { indexState: 'stale', staleSince: now, version: { increment: 1 } } });

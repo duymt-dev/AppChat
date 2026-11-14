@@ -11,6 +11,8 @@ export interface RouteRow {
   model: string;
   /** Thế hệ cấu hình opaque của route (TIP-023e §1.2) — vắng ở test cũ, router lùi về khoá theo priority/model. */
   configRevision?: string;
+  /** Thế hệ không gian embedding (TIP-020e): chỉ model + params — lưu lại nhóm / đổi priority không đổi; vắng → lùi về `configRevision`. */
+  spaceRevision?: string;
   /** Route đọc được ảnh (TIP-023f §3.2) — khai rõ ở `model_route.params.vision` cho ĐÚNG model đó; vắng = không (fail closed). */
   vision?: boolean;
 }
@@ -60,7 +62,7 @@ export class LlmRouter implements ModelSource {
       // Thế hệ cấu hình đưa ra ngoài cho người gọi ghim không gian embedding (TIP-023e §1.6) — opaque, chỉ ghép khi có ít nhất
       // một nửa (provider hoặc route); vắng cả hai (test/mock cũ) → undefined, người gọi tự quyết không ghim được.
       const configRevision = p.configRevision || r.configRevision ? `${p.configRevision ?? ''}:${r.configRevision ?? ''}` : undefined;
-      out.push({ provider: p.key, model: r.model, handle, ...(configRevision ? { configRevision } : {}), ...(r.configRevision ? { routeRevision: r.configRevision } : {}) });
+      out.push({ provider: p.key, model: r.model, handle, ...(configRevision ? { configRevision } : {}), ...((r.spaceRevision ?? r.configRevision) ? { routeRevision: (r.spaceRevision ?? r.configRevision)! } : {}) });
     }
     return out;
   }

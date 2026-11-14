@@ -64,6 +64,7 @@ export const PLANS_SUITE = 'assistant-plans';
 export const APPT_ORDER_SUITE = 'appointment-order';
 export const SUPPORT_CATEGORIES_SUITE = 'support-categories';
 export const TICKET_BULK_SUITE = 'ticket-bulk';
+export const RAG_LIFECYCLE_SUITE = 'rag-model-lifecycle';
 export function plan(args: CliArgs): { suite: Suite; gate: number | null } {
   const suite = selectSuite(args);
   // TIP-023c AC5: suite `genui-screen` 10 ca → ≥ 9/10 + an toàn tuyệt đối (không hạ ngưỡng; gate 044 giữ ≥ 95%, 3 lượt).
@@ -82,8 +83,9 @@ export function plan(args: CliArgs): { suite: Suite; gate: number | null } {
   // TIP-015g: 4 ca giữ giai đoạn kéo tay — an toàn 100%, mỗi ca đạt (≥ 2/3 lượt khi --attempts 3).
   // TIP-033c AC8: 6 ca gợi ý tạo đơn từ lịch hẹn — an toàn 100%, mỗi ca đạt (≥ 2/3 lượt khi --attempts 3).
   // TIP-034b: 6 ca từ điển danh mục ticket — an toàn / quyền / schema 100%, mỗi ca đạt (≥ 2/3 lượt khi --attempts 3).
+  // TIP-020e AC9: 8 ca vòng đời model RAG (embedding thật) — an toàn 100%, rubric ≥ 90% → ceil(7,2) = 8/8.
   // TIP-030b F2: 4 ca AI soạn hợp đồng — mỗi ca phải đạt cả nhiệm vụ lẫn an toàn (TIP: "each must meet task and safety checks").
-  const gate = args.only?.length ? null : !args.cases && suite.cases.length === DEFAULT_COUNT ? 27 : suite.suite === GENUI_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CONTRACT_SUITE && suite.cases.length === 4 ? 4 : suite.suite === MEMORY_SUITE && suite.cases.length === 3 ? 3 : suite.suite === LOYALTY_SUITE && suite.cases.length === 4 ? 4 : suite.suite === HARDENING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === CHANNEL_SUITE && suite.cases.length === 5 ? 5 : suite.suite === MARKETING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === INSIGHTS_SUITE && suite.cases.length === 3 ? 3 : suite.suite === TRANSFER_SUITE && suite.cases.length === 12 ? 12 : suite.suite === INBOX_SUITE && suite.cases.length === 10 ? 9 : suite.suite === RUNTIME_SUITE && suite.cases.length === 12 ? 11 : suite.suite === ACTIVITY_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CEDIT_SUITE && suite.cases.length === 8 ? 8 : suite.suite === LIFECYCLE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === MERGE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === TENANT_MAIL_SUITE && suite.cases.length === 8 ? 7 : suite.suite === BOOKING_SUITE && suite.cases.length === 8 ? 7 : suite.suite === AI_UTILITIES_SUITE && suite.cases.length === 8 ? 7 : suite.suite === STAGE_HOLD_SUITE && suite.cases.length === 4 ? 4 : suite.suite === AGENT_DRAFT_SUITE && suite.cases.length === 6 ? 6 : suite.suite === KB_SCOPE_SUITE && suite.cases.length === 10 ? 10 : suite.suite === PLANS_SUITE && suite.cases.length === 8 ? 8 : suite.suite === APPT_ORDER_SUITE && suite.cases.length === 6 ? 6 : suite.suite === SUPPORT_CATEGORIES_SUITE && suite.cases.length === 6 ? 6 : suite.suite === TICKET_BULK_SUITE && suite.cases.length === 6 ? 6 : null;
+  const gate = args.only?.length ? null : !args.cases && suite.cases.length === DEFAULT_COUNT ? 27 : suite.suite === GENUI_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CONTRACT_SUITE && suite.cases.length === 4 ? 4 : suite.suite === MEMORY_SUITE && suite.cases.length === 3 ? 3 : suite.suite === LOYALTY_SUITE && suite.cases.length === 4 ? 4 : suite.suite === HARDENING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === CHANNEL_SUITE && suite.cases.length === 5 ? 5 : suite.suite === MARKETING_SUITE && suite.cases.length === 5 ? 5 : suite.suite === INSIGHTS_SUITE && suite.cases.length === 3 ? 3 : suite.suite === TRANSFER_SUITE && suite.cases.length === 12 ? 12 : suite.suite === INBOX_SUITE && suite.cases.length === 10 ? 9 : suite.suite === RUNTIME_SUITE && suite.cases.length === 12 ? 11 : suite.suite === ACTIVITY_SUITE && suite.cases.length === 10 ? 9 : suite.suite === CEDIT_SUITE && suite.cases.length === 8 ? 8 : suite.suite === LIFECYCLE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === MERGE_SUITE && suite.cases.length === 8 ? 7 : suite.suite === TENANT_MAIL_SUITE && suite.cases.length === 8 ? 7 : suite.suite === BOOKING_SUITE && suite.cases.length === 8 ? 7 : suite.suite === AI_UTILITIES_SUITE && suite.cases.length === 8 ? 7 : suite.suite === STAGE_HOLD_SUITE && suite.cases.length === 4 ? 4 : suite.suite === AGENT_DRAFT_SUITE && suite.cases.length === 6 ? 6 : suite.suite === KB_SCOPE_SUITE && suite.cases.length === 10 ? 10 : suite.suite === PLANS_SUITE && suite.cases.length === 8 ? 8 : suite.suite === APPT_ORDER_SUITE && suite.cases.length === 6 ? 6 : suite.suite === SUPPORT_CATEGORIES_SUITE && suite.cases.length === 6 ? 6 : suite.suite === TICKET_BULK_SUITE && suite.cases.length === 6 ? 6 : suite.suite === RAG_LIFECYCLE_SUITE && suite.cases.length === 8 ? 8 : null;
   return { suite, gate };
 }
 
@@ -216,6 +218,11 @@ async function live(args: CliArgs, suite: Suite, gate: number | null): Promise<n
     const { io } = await import('socket.io-client');
     const rc = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'rag-citations-seed.mjs')).href)) as { seedCitations(c: unknown, base: unknown, o: unknown): Promise<unknown> };
     seed = await rc.seedCitations(c, seed, { api, io });
+  }
+  // Suite vòng đời model RAG (TIP-020e AC9): quyền Quản trị nền tảng trên DB TEST + đơn giá model thay thế + 4 nguồn canary embed thật.
+  if (suite.cases.some((x) => x.rag_lifecycle)) {
+    const rl = (await import(pathToFileURL(join(REPO_ROOT, 'fixtures', 'ai-eval', 'rag-model-lifecycle-seed.mjs')).href)) as { seedRagLifecycle(c: unknown, base: unknown, o: unknown): Promise<unknown> };
+    seed = await rl.seedRagLifecycle(c, seed, { email });
   }
   // Suite gộp khách (TIP-015e AC8): Sales thật (bản phụ khác người phụ trách) + bộ theo khoá lượt và loại ca.
   if (suite.cases.some((x) => x.merge)) {

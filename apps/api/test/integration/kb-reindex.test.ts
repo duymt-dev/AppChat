@@ -116,6 +116,13 @@ describe('đổi route → chỉ đánh dấu cũ', () => {
     expect(await openGeneration(db)).toBeNull();
     expect(calls).toBe(0);
     expect((await usageKb()).length).toBe(before);
+    // Route quay lại X → hết cũ (không tạo lại, không Credit); đổi sang Y lần nữa → cũ + outbox mới.
+    route = [X];
+    expect((await get('/settings/kb')).body.data.index).toMatchObject({ state: 'current', target_space_label: null });
+    route = [Y, X];
+    expect((await get('/settings/kb')).body.data.index).toMatchObject({ state: 'stale', target_space_label: `${PY} · mock-embed` });
+    expect(await db.outboxEvent.count({ where: { topic: 'kb.index_stale' } })).toBe(2);
+    expect([calls, (await usageKb()).length]).toEqual([0, before]);
   });
 
   it('AC1 trong lúc cũ: câu hỏi embed GHIM space X (route X còn) → nhánh vector khe A chạy, không suy giảm', async () => {
