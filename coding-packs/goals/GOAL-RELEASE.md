@@ -176,7 +176,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 78 | [031c](../tips/TIP-031c-stock-master.md) | W8 | DONE (`4345dfb7`, chưa nghiệm thu provider thật — `mock_marketplace`) | `tip/031c-stock-master` | [#233](https://github.com/duymt-dev/AppChat/pull/233) | `COM-4b-5`, `REQ-F07b-3` ĐẠT (`DC-704`, `DV-704`, PR vào `dev`, dừng trước `048b` chờ `026c`+`048` merge) |
 | 79 | [006d](../tips/TIP-006d-web-push.md) | W8 | chờ | `tip/006d-web-push` | | |
 | 80 | [033d](../tips/TIP-033d-order-deposit.md) | W8 | chờ | `tip/033d-order-deposit` | | |
-| 81 | [026c](../tips/TIP-026c-sales-pipeline.md) | W8 | chờ — D60 / DC-901 (Q-901, 2026-11-12) | `tip/026c-sales-pipeline` | | |
+| 81 | [026c](../tips/TIP-026c-sales-pipeline.md) | W8 | DONE (`8e9cbe56`, luồng B wt2; ai:live 18/18 model thật) | `tip/026c-sales-pipeline` | [#234](https://github.com/duymt-dev/AppChat/pull/234) | COM-8-2…12, D60-deal, DC-901, REQ-F10 / F13, PRO-deal-* ĐẠT (`DC-801`, `DV-801`; DC-922 / Q-918 còn 047c / 047d) |
 | 82 | [032e](../tips/TIP-032e-finance.md) | W8 | chờ — D60 / DC-902, ngay sau 026c | `tip/032e-finance` | | |
 | 83 | [035b](../tips/TIP-035b-task-sparkline.md) | W8 | chờ | `tip/035b-task-sparkline` | | |
 | 84 | [035c](../tips/TIP-035c-test-ops-hygiene.md) | W8 | chờ | `tip/035c-test-ops-hygiene` | | |
