@@ -1,4 +1,5 @@
 // Kiểu dữ liệu Cài đặt (khớp mock /settings/* — Blueprint §4.4).
+import type { KbIndexStatus } from '@appchat/shared';
 
 export interface Workspace {
   id: string;
@@ -197,6 +198,8 @@ export interface KbData {
   learned_total: number;
   size: string;
   data: KbDoc[];
+  /** TIP-020e: trạng thái chỉ mục embedding (vắng ở backend cũ). */
+  index?: KbIndexStatus;
 }
 
 export interface Governance {

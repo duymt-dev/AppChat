@@ -32,6 +32,7 @@ import { createPlatformAdminState, type PlatformAdminState } from './domains/pla
 import { createDocTemplatesState, type DocTemplatesState } from './domains/doc-templates';
 import { createKbSuggestionState } from './domains/kb-suggestions';
 import type { KbSuggestionDto } from '@appchat/shared';
+import type { KbIndexState } from './domains/kb-index';
 
 export type ShellFixture = typeof shell;
 export type AuthFixture = typeof auth;
@@ -82,6 +83,8 @@ export interface MockDb {
   platformAdmin: PlatformAdminState;
   docTemplates: DocTemplatesState;
   kbSuggestions: KbSuggestionDto[];
+  /** Trạng thái chỉ mục embedding (TIP-020e) — lười theo kịch bản `ac_mock_kb_index` ở lần đọc đầu. */
+  kbIndex?: KbIndexState;
 }
 
 const ROLE_KEY = 'ac_mock_role';

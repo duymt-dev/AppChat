@@ -1432,6 +1432,12 @@
     },
     "system_publish": {
       "title": "Công bố kết quả nạp nguồn tri thức (hệ thống)"
+    },
+    "reindex": {
+      "title": "Tạo lại chỉ mục kho tri thức"
+    },
+    "reindex_cancel": {
+      "title": "Huỷ tạo lại chỉ mục"
     }
   },
   "governance": {
@@ -1803,6 +1809,11 @@
     }
   },
   "warn": {
+    "kb_reindex_old_slot_serves": "Trong lúc tạo lại, tìm kiếm vẫn dùng chỉ mục hiện tại; chuyển sang chỉ mục mới khi xong.",
+    "kb_reindex_price_missing": "Model đích chưa có đơn giá — chưa ước tính được Credit.",
+    "kb_reindex_supersedes": "Lần tạo lại đang chạy với model khác sẽ bị thay thế.",
+    "kb_reindex_in_progress": "Đang có lần tạo lại với model này — xác nhận sẽ tiếp tục lần đó.",
+    "kb_reindex_nothing_open": "Không có lần tạo lại nào đang chạy.",
     "existing_tickets_unchanged": "Ticket cũ giữ nguyên danh mục — chỉ bộ gợi ý thay đổi.",
     "agent_assignment_not_run": "Giao cho AI Agent chỉ là phân công — agent không tự chạy hay xử lý ticket.",
     "bulk_background": "Hơn 50 ticket — chạy nền; theo dõi tiến độ, kết quả từng ticket hiện khi xong.",

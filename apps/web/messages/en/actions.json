@@ -1432,6 +1432,12 @@
     },
     "system_publish": {
       "title": "Publish knowledge source ingest result (system)"
+    },
+    "reindex": {
+      "title": "Rebuild knowledge base index"
+    },
+    "reindex_cancel": {
+      "title": "Cancel index rebuild"
     }
   },
   "governance": {
@@ -1803,6 +1809,11 @@
     }
   },
   "warn": {
+    "kb_reindex_old_slot_serves": "While rebuilding, search keeps using the current index; it switches when done.",
+    "kb_reindex_price_missing": "The target model has no price — Credit cannot be estimated.",
+    "kb_reindex_supersedes": "The rebuild in progress with another model will be replaced.",
+    "kb_reindex_in_progress": "A rebuild with this model is already running — confirming continues it.",
+    "kb_reindex_nothing_open": "No rebuild is running.",
     "existing_tickets_unchanged": "Existing tickets keep their category — only the suggestions change.",
     "agent_assignment_not_run": "Assigning to an AI agent is assignment only — the agent will not run or resolve the ticket.",
     "bulk_background": "More than 50 tickets — runs in the background; per-ticket results appear when done.",

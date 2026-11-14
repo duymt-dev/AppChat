@@ -42,6 +42,7 @@ import { assistantUiHandlers } from './domains/assistant-ui';
 import { profileLayoutHandlers } from './domains/profile-layout';
 import { settingsDataHandlers } from './domains/settings-data';
 import { settingsAiHandlers } from './domains/settings-ai';
+import { kbIndexHandlers } from './domains/kb-index';
 import { kbFolderHandlers } from './domains/kb-folders';
 import { kbSuggestionHandlers } from './domains/kb-suggestions';
 import { settingsOpsHandlers } from './domains/settings-ops';
@@ -158,6 +159,7 @@ export const mockHandlers: Record<string, MockHandler> = withDocChecklist(withCu
   ...profileLayoutHandlers,
   ...settingsDataHandlers,
   ...settingsAiHandlers,
+  ...kbIndexHandlers,
   ...kbFolderHandlers,
   ...kbSuggestionHandlers,
   ...settingsOpsHandlers,

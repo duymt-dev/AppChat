@@ -1345,6 +1345,41 @@
       "errName": "Nhập tên tài liệu",
       "errUpload": "Không tải được tệp lên — thử lại.",
       "visInherited": "(theo mặc định của thư mục)"
+    },
+    "index": {
+      "title": {
+        "stale": "Model embedding đã đổi — chỉ mục đang dùng model cũ",
+        "building": "Đang tạo lại chỉ mục",
+        "catching_up": "Đang bù tài liệu mới vào chỉ mục",
+        "failed": "Tạo lại chỉ mục chưa xong",
+        "cancelled": "Đã huỷ tạo lại chỉ mục",
+        "embed_space_retired": "Model của chỉ mục đã gỡ — tạm chỉ tìm theo từ khoá",
+        "no_model_route": "Chưa cấu hình model embedding"
+      },
+      "text": {
+        "stale": "Tìm kiếm vẫn dùng chỉ mục {from}. Tạo lại với {to} để AI tìm theo model mới (tốn Credit như nạp tài liệu, xem ước tính trước khi xác nhận).",
+        "building": "Đang dựng chỉ mục {to}; trong lúc này tìm kiếm vẫn dùng {from}.",
+        "catching_up": "Đã dựng xong, đang thêm các tài liệu vừa đổi trước khi chuyển sang {to}.",
+        "failed": "Chỉ mục {from} vẫn đang dùng.",
+        "cancelled": "Chỉ mục {from} vẫn đang dùng.",
+        "embed_space_retired": "Model {from} không còn được cấu hình nên AI chỉ tìm theo từ khoá. Tạo lại chỉ mục với model hiện hành để tìm theo ngữ nghĩa.",
+        "no_model_route": "Quản trị nền tảng chưa cấu hình model embedding — AI chỉ tìm theo từ khoá."
+      },
+      "reasonLabel": "Lý do: {r}.",
+      "reason": {
+        "credit_exhausted": "hết Credit",
+        "usage_unknown": "chưa rõ kết quả một lô — đang chờ đối soát",
+        "budget": "vượt ngân sách AI",
+        "space_retired": "model đích không còn được cấu hình",
+        "price_missing": "model đích chưa có đơn giá",
+        "provider_unavailable": "nhà cung cấp AI không phản hồi",
+        "catch_up_exhausted": "tài liệu thay đổi liên tục trong lúc tạo lại",
+        "cancelled_by_user": "đã huỷ",
+        "other": "lỗi hệ thống"
+      },
+      "progress": "{done} / {total} đoạn",
+      "reindex": "Tạo lại chỉ mục",
+      "cancel": "Huỷ"
     }
   },
   "gov": {
