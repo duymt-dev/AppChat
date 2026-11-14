@@ -16,9 +16,10 @@
    - Lưu ở DB tenant: `role(id, key, name, is_system, permissions text[], data_scope jsonb)`.
    - `membership.role_id` lấy từ DB nền tảng; quyền resolve ở DB tenant.
    - Vai trò hệ thống (`is_system`) không xoá được và không sửa được permission. Owner có thể nhân bản thành vai trò tuỳ biến (P1).
-5. **Phạm vi dữ liệu theo module** (`data_scope`): `own | team | all`.
+5. **Phạm vi dữ liệu theo module** (`data_scope`): `own | team | dept | all` (D64 thêm `dept`).
    - `own`: bản ghi có `owner_user_id = me` hoặc `assignee_user_id = me`, cộng hội thoại được gán cho mình, **cộng mọi bản ghi của khách mà mình là collaborator / watcher** (`contact_collaborator`, D32).
    - `team`: bản ghi của các thành viên cùng `team_id`. Bảng `team` và `team_member` có từ đầu; UI quản lý Nhóm ở P1.
+   - `dept` (D64, DC-924): bản ghi có `team_id` thuộc đơn vị của mình **hoặc đơn vị con** (cây `team.path`). Trưởng phòng thấy cả phòng và các nhóm dưới.
    - `all`: toàn bộ workspace.
    - Repo **bắt buộc** áp `scopeFilter(ctx, module)` vào mọi query list/get. Không có bypass ngầm.
 6. **AI chạy đúng quyền người ra lệnh.**

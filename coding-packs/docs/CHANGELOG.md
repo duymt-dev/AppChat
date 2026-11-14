@@ -854,6 +854,22 @@ Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon
 
 ---
 
+## [2026-11-14] — Phạm vi D64: doanh nghiệp nhiều phòng ban
+
+**Lý do:** Khách dùng AppChat không chỉ có bán hàng — có Nhân sự, Marketing, Vận hành / Kỹ thuật… Cần chia dữ liệu theo phòng ban và tách khách hàng khỏi ứng viên / đối tác / nhà cung cấp.
+
+**Thay đổi:**
+- **Phòng ban + Sơ đồ tổ chức** vào bản phát hành (trước P3): cây Chi nhánh → Phòng ban → Nhóm, mỗi đơn vị có trưởng; thành viên gồm người và AI agent (agent là nhân viên).
+- **Phạm vi dữ liệu "Phòng ban"**: thấy dữ liệu của phòng mình và các nhóm con.
+- **Kênh theo phòng ban nhận**: hội thoại vào tài khoản kênh của phòng nào thì phòng đó thấy và chia trong phòng (vd. kênh tuyển dụng chỉ Nhân sự thấy).
+- **Vai trò mẫu** Nhân sự · Marketing · Vận hành / Kỹ thuật · Chỉ xem (tạo vai trò tuỳ biến nhanh; 5 vai trò hệ thống giữ nguyên).
+- **Loại liên hệ** Khách hàng · Ứng viên · Đối tác · Nhà cung cấp; phễu bán hàng, doanh số, báo giá / hợp đồng / đơn chỉ cho Khách hàng.
+- **Không làm:** chấm công, lương, nghỉ phép, hồ sơ nhân sự, phễu tuyển dụng riêng; KPI / phân ca vẫn P3.
+
+**Ảnh hưởng:** 3 TIP mới (051 → 051c) sau 050, GOAL-RELEASE 107 TIP.
+
+---
+
 ## [2026-11-14] — Phạm vi D63: đồng bộ sàn Shopee + TikTok Shop
 
 **Lý do:** DN dịch vụ có bán thêm qua sàn cần đơn sàn về AppChat (đơn, trạng thái, mã vận đơn, sản phẩm / giá / biến thể). Chỉ đồng bộ về — AppChat vẫn không vận hành gian hàng.

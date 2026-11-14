@@ -4,7 +4,7 @@ Quy tắc dự án nằm ở **`CLAUDE.md`** (tên file theo Claude Code nhưng 
 
 Đầu phiên đọc thêm **`coding-packs/HANDOFF-NEXT.md`**: trạng thái lúc dừng, việc kế tiếp, câu giao việc dán sẵn.
 
-Goal hiện tại: **`coding-packs/goals/GOAL-RELEASE.md`** — 104 TIP chưa DONE làm tuần tự theo bảng thứ tự trong file (023b → 046; 035d cô lập worktree làm trước tiên, rồi tối đa 3 luồng song song A / B / C — D62), mỗi TIP một nhánh `tip/XXX-<slug>` + `gh pr create --base dev`, tới khi TIP-046 (cổng phát hành) đạt. `GOAL-BACKEND.md` chỉ còn là lịch sử TIP 001–035.
+Goal hiện tại: **`coding-packs/goals/GOAL-RELEASE.md`** — 107 TIP chưa DONE làm tuần tự theo bảng thứ tự trong file (023b → 046; 035d cô lập worktree làm trước tiên, rồi tối đa 3 luồng song song A / B / C — D62), mỗi TIP một nhánh `tip/XXX-<slug>` + `gh pr create --base dev`, tới khi TIP-046 (cổng phát hành) đạt. `GOAL-BACKEND.md` chỉ còn là lịch sử TIP 001–035.
 
 Tóm tắt luật cứng (chi tiết trong `CLAUDE.md` + `coding-packs/BUILDER-HANDOFF.md`):
 - Kích thước file: backend 200–400 dòng, trần 600; frontend 150–250, trần 400; test ở file riêng.

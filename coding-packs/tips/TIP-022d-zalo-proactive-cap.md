@@ -1,6 +1,7 @@
 # TIP-022d — Zalo cá nhân: cap 200 tin chủ động / ngày cấu hình được
 
 ## HEADER
+- **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `packages/core/src/channels/services/accounts.service.ts`; integrate 022d before051b.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/channels/services/accounts.service.ts`; integrate 022d before048b.
 - TIP-ID: TIP-022d; Project: AppChat V2; Module: channels send policy; Priority: P0; Estimated: S. TIP bổ sung cho TIP-022 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 014b, 037 (dùng cap cho chiến dịch) đã tích hợp; trước 044/045/046.

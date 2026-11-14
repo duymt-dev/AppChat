@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 157 | 10 | 0 | 13 | 14 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 134 | 7 | 0 | 2 | 25 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 71 | 12 | 21 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 134 | 7 | 0 | 2 | 26 | 10 | 5 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 77 | 13 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 403 | 33 | 1 | 6 | 60 | 2 | 0 | 0 |
 | E. standards/* | 226 | 31 | 0 | 7 | 28 | 1 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 67 | 1 | 18 | 0 | 29 | 6 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 22 | 46 | 2 | 0 | 0 |
-| **Tổng** | **1227** | **100** | **20** | **59** | **273** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 22 | 48 | 2 | 0 | 0 |
+| **Tổng** | **1227** | **100** | **20** | **59** | **282** | **36** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -392,7 +392,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-M03a | Trang Nền tảng kết nối: registry + port theo năng lực, thẻ "Sắp có" + "Đăng ký quan tâm", kết nối / ngắt, bí mật mã hoá | 01-REQUIREMENTS-MATRIX.md:201 | 012 | ĐẠT | packages/integrations/src/registry.ts, coming-soon.ts; packages/core/src/integrations/actions/*; test integrations.test.ts AC1–AC10, packages/integrations/test/registry.test.ts, apps/web/e2e/http/integrations.spec.ts |
 | REQ-M03b | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | 01-REQUIREMENTS-MATRIX.md:201 | 012d | MỘT PHẦN | SMTP thật (packages/integrations/src/connectors/smtp/mail.ts, test smtp.test.ts); storage LocalStorage (DV-003); SePay / Casso của DN là mock (registry.ts:16–17 — xem REQ-F08f); TIP-012d nhận (2026-11-02) |
 | REQ-M03c | Adapter thật hoá đơn điện tử / ký số CA / kế toán / TMĐT / Google Sheets / webhook HMAC / API key | 01-REQUIREMENTS-MATRIX.md:202 | — | NGOÀI | REQ-M03b Priority P2 |
-| REQ-M04 | Phòng ban, sơ đồ tổ chức, KPI, phân ca | 01-REQUIREMENTS-MATRIX.md:203 | — | NGOÀI | Ma trận Priority P3 |
+| REQ-M04 | KPI, phân ca (Phòng ban + sơ đồ tổ chức tách REQ-M04b — D64) | 01-REQUIREMENTS-MATRIX.md:213 | — | NGOÀI | Ma trận Priority P3 |
+| REQ-M04b | Tổ chức nhiều phòng ban: cây đơn vị + agent thành viên + scope Phòng ban + kênh theo phòng ban + vai trò mẫu + loại liên hệ (D64) | 01-REQUIREMENTS-MATRIX.md:214 | 051, 051b, 051c | CHƯA | TIP-051 (cây, scope, UI) · 051b (kênh, vai trò mẫu) · 051c (loại liên hệ) |
 | REQ-M05 | Cài đặt → Hồ sơ 360°: danh sách mẫu, gán vai trò, sửa / nhân bản / xoá, tạo mẫu, "Xem như vai trò" | 01-REQUIREMENTS-MATRIX.md:204 | 015, 026 | ĐẠT | apps/web/src/features/settings/components/Profile360Section.tsx:102; profile-layout.handlers.ts; test crm-settings.test.ts AC9b, apps/web/e2e/http/customers.spec.ts "→ bố cục Hồ sơ 360°" |
 | REQ-N01a | Không Docker; monorepo pnpm Next.js + NestJS api / worker; PG16 + Redis native | 01-REQUIREMENTS-MATRIX.md:209 | 001 | QUY-TẮC | Không có Dockerfile trong repo (`find . -name 'Dockerfile*'` rỗng); apps/{api,worker,web}; kiểm `pnpm depcheck` + ci.yml |
 | REQ-N01b | Chạy production bằng PM2 / systemd | 01-REQUIREMENTS-MATRIX.md:209 | 045 | CHƯA | thư mục `infra/` chưa tồn tại |
@@ -712,6 +713,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D63-tiktok-shop | Connector TikTok Shop (D63 #1) | 01-REQUIREMENTS-MATRIX.md:338 | 049c | CHƯA | TIP-049c |
 | D63-ui | Giao diện sàn: thẻ + chọn shop, Ghép SKU, đơn / sản phẩm sàn (D63) | 01-REQUIREMENTS-MATRIX.md:338 | 049d | CHƯA | TIP-049d |
 | D63-scope | Không đăng sản phẩm / đẩy tồn / chat người mua / livestream sàn; Lazada & POS vẫn Sắp có (D63 #3, #5) | 01-REQUIREMENTS-MATRIX.md:338 | — | NGOÀI | D63 |
+| D64-org | Cây đơn vị + agent thành viên + scope `dept` + Sơ đồ tổ chức / Phòng ban (D64 #1–#3) | 01-REQUIREMENTS-MATRIX.md:340 | 051 | CHƯA | TIP-051 |
+| D64-channels-roles | Kênh theo phòng ban nhận + vai trò mẫu (D64 #4–#5) | 01-REQUIREMENTS-MATRIX.md:340 | 051b | CHƯA | TIP-051b |
+| D64-relation | Loại liên hệ, chỉ Khách hàng vào phễu / chứng từ (D64 #6) | 01-REQUIREMENTS-MATRIX.md:340 | 051c | CHƯA | TIP-051c |
+| D64-scope | Không làm chấm công / lương / nghỉ phép / hồ sơ nhân sự / phễu tuyển dụng / KPI / phân ca (D64 #7) | 01-REQUIREMENTS-MATRIX.md:340 | — | NGOÀI | D64 #7; KPI / phân ca giữ REQ-M04 P3 |
 | DC-917 | Nền đồng bộ sàn: OAuth connector, shop route, pull cursor, sửa 5 lỗi | DECISIONS.md:498 | 049 | CHƯA | TIP-049 |
 | DC-918 | Connector Shopee | DECISIONS.md:499 | 049b | CHƯA | TIP-049b |
 | DC-919 | Connector TikTok Shop | DECISIONS.md:500 | 049c | CHƯA | TIP-049c |
@@ -728,6 +733,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-921 | AI agent là nhân viên trên kênh D62: không trần gợi ý / luật riêng; `comment.*` (trừ delete) + `live.flag_update` cấp được cho agent; giữ luật chung §3.3 / D06 + luật nền tảng | DECISIONS.md:498 | 048f, 048g, 048h | CHƯA | TIP-048f §3 / §6 · 048g §5–6 · 048h §5 |
 | DC-922 | Agent là nhân viên áp cho cơ hội (bỏ ép Lead mới, set_stage / mark_lost / reopen / set_owner cấp được) + gọi điện (agent tự áp đề xuất, ZCC consent cấp được) | DECISIONS.md:499 | 026c, 047c, 047d | CHƯA | TIP-026c §2 / §4 · 047c §4 / §8 · 047d |
 | DC-923 | Chốt Q-917 / 049 / 907 / 913 / 054 / 919 theo đề xuất | DECISIONS.md:500 | 035d, 045, 048b, 049, 049d, 050 | CHƯA | TIP-049 §5 · 048b §6.4 · 035d §4.2 · 045 §3.7 · 050 |
+| DC-924 | Cây đơn vị trên bảng `team`, `team_agent`, scope `dept`, `org_unit.*` | DECISIONS.md:505 | 051 | CHƯA | TIP-051 §1–§4 |
+| DC-925 | `channel_account.settings.unit_id`, chia trong phòng, agent vào phòng, vai trò mẫu | DECISIONS.md:506 | 051b | CHƯA | TIP-051b §1–§4 |
+| DC-926 | `contact.relation`, chỉ Khách hàng vào phễu / chứng từ (422 `contact_not_customer`) | DECISIONS.md:507 | 051c | CHƯA | TIP-051c §1–§3 |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1863,6 +1871,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-917 | Quyền `order.sync_now`: đổi `integrations.manage` → `order.manage`? (luật quyền — Chủ nhà) | QUESTIONS.md:94 | 049, 049d | CHƯA | Chốt DC-923 (a): `order.manage` — TIP-049 §5, 049d §4 |
 | PD-907 | Nền tảng kết nối: thẻ Shopee / TikTok Shop OAuth + chọn shop | docs/06-prototype/DEVIATIONS.md:53 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
 | PD-908 | Đơn / Sản phẩm sàn: badge, mã ngoài, trạng thái, vận đơn chỉ đọc, Ghép SKU, Kênh bán | docs/06-prototype/DEVIATIONS.md:54 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
+| PD-909 | Sơ đồ tổ chức + Phòng ban theo prototype, bỏ cấp Tập đoàn, agent là thành viên | docs/06-prototype/DEVIATIONS.md:55 | 051 | CHƯA | TIP-051 §6 |
+| PD-910 | Cột + lọc "Loại" màn Khách hàng, form, Hồ sơ 360° | docs/06-prototype/DEVIATIONS.md:56 | 051c | CHƯA | TIP-051c §4 |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |
 | Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | 035c | CHƯA | Không có commit fix flaky trong git log; TIP-035c nhận (2026-11-02) |

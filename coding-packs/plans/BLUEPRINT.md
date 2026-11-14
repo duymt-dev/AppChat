@@ -616,7 +616,8 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `notification.mark_read` (mọi thành viên, write)
 - `notification.update_prefs` (self, write, `db: 'platform'` — tuỳ chọn thông báo của tôi, bảng nền tảng `notification_pref`; TIP-006)
 - `role.create` / `role.update` / `role.delete` (P1, permission `roles.manage`; vai trò hệ thống không sửa được)
-- `team.create` / `team.update` / `team.set_members` (P1)
+- `team.create` / `team.update` / `team.set_members` (P1) — giữ làm alias một bản phát hành.
+- **D64 (TIP-051):** `org_unit.create` / `org_unit.update` / `org_unit.move` / `org_unit.set_members` (config, `members.manage`; thành viên người hoặc AI agent, trưởng là người) · `org_unit.delete` (delete; chỉ đơn vị không còn thành viên / con / bản ghi gắn). Scope `dept` = đơn vị mình + con (DC-924). TIP-051b: `channel.update_settings` nhận `unit_id`. TIP-051c: `contact.set_relation` (write, `crm.edit`, agentGrantable).
 - `workspace.transfer_ownership` (owner, OTP)
 - `integration.connect` / `integration.disconnect` / `integration.test` / `integration.sync_now` / `integration.register_interest` (permission `integrations.manage`; `register_interest` = write)
 

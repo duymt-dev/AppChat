@@ -1,6 +1,9 @@
 # TIP-048b — Nền kênh webhook: route mức App, biên nhận, chọn tài khoản OAuth, cửa sổ gửi, danh sách kênh theo registry (Kênh, D62)
 
 ## HEADER
+- **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 048b before051.
+- **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `packages/core/src/channels/services/accounts.service.ts`, `packages/core/src/channels/services/read.service.ts`, `packages/core/src/inbox/services/pipeline.ts`, `packages/shared/src/api/channels.ts`; integrate 048b before051b.
+- **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/customers.json`, `apps/web/messages/vi/customers.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/inbox.ts`; integrate 048b before051c.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`, `packages/actions/src/index.ts`, `packages/channels/src/coming-soon.ts`, `packages/channels/test/registry.test.ts`, `packages/db/prisma/platform/routing.prisma`; integrate 048b before049.
 - **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 048b before049b.
 - **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `.env.example`; integrate 048b before049c.

@@ -279,6 +279,10 @@ Ghi chú:
 | D63-tiktok-shop | Connector TikTok Shop (D63 #1) | 01-REQUIREMENTS-MATRIX.md:338 | 049c | CHƯA | TIP-049c |
 | D63-ui | Giao diện sàn: thẻ + chọn shop, Ghép SKU, đơn / sản phẩm sàn (D63) | 01-REQUIREMENTS-MATRIX.md:338 | 049d | CHƯA | TIP-049d |
 | D63-scope | Không đăng sản phẩm / đẩy tồn / chat người mua / livestream sàn; Lazada & POS vẫn Sắp có (D63 #3, #5) | 01-REQUIREMENTS-MATRIX.md:338 | — | NGOÀI | D63 |
+| D64-org | Cây đơn vị + agent thành viên + scope `dept` + Sơ đồ tổ chức / Phòng ban (D64 #1–#3) | 01-REQUIREMENTS-MATRIX.md:340 | 051 | CHƯA | TIP-051 |
+| D64-channels-roles | Kênh theo phòng ban nhận + vai trò mẫu (D64 #4–#5) | 01-REQUIREMENTS-MATRIX.md:340 | 051b | CHƯA | TIP-051b |
+| D64-relation | Loại liên hệ, chỉ Khách hàng vào phễu / chứng từ (D64 #6) | 01-REQUIREMENTS-MATRIX.md:340 | 051c | CHƯA | TIP-051c |
+| D64-scope | Không làm chấm công / lương / nghỉ phép / hồ sơ nhân sự / phễu tuyển dụng / KPI / phân ca (D64 #7) | 01-REQUIREMENTS-MATRIX.md:340 | — | NGOÀI | D64 #7; KPI / phân ca giữ REQ-M04 P3 |
 | DC-917 | Nền đồng bộ sàn: OAuth connector, shop route, pull cursor, sửa 5 lỗi | DECISIONS.md:498 | 049 | CHƯA | TIP-049 |
 | DC-918 | Connector Shopee | DECISIONS.md:499 | 049b | CHƯA | TIP-049b |
 | DC-919 | Connector TikTok Shop | DECISIONS.md:500 | 049c | CHƯA | TIP-049c |
@@ -295,3 +299,6 @@ Ghi chú:
 | DC-921 | AI agent là nhân viên trên kênh D62: không trần gợi ý / luật riêng; `comment.*` (trừ delete) + `live.flag_update` cấp được cho agent; giữ luật chung §3.3 / D06 + luật nền tảng | DECISIONS.md:498 | 048f, 048g, 048h | CHƯA | TIP-048f §3 / §6 · 048g §5–6 · 048h §5 |
 | DC-922 | Agent là nhân viên áp cho cơ hội (bỏ ép Lead mới, set_stage / mark_lost / reopen / set_owner cấp được) + gọi điện (agent tự áp đề xuất, ZCC consent cấp được) | DECISIONS.md:499 | 026c, 047c, 047d | CHƯA | TIP-026c §2 / §4 · 047c §4 / §8 · 047d |
 | DC-923 | Chốt Q-917 / 049 / 907 / 913 / 054 / 919 theo đề xuất | DECISIONS.md:500 | 035d, 045, 048b, 049, 049d, 050 | CHƯA | TIP-049 §5 · 048b §6.4 · 035d §4.2 · 045 §3.7 · 050 |
+| DC-924 | Cây đơn vị trên bảng `team`, `team_agent`, scope `dept`, `org_unit.*` | DECISIONS.md:505 | 051 | CHƯA | TIP-051 §1–§4 |
+| DC-925 | `channel_account.settings.unit_id`, chia trong phòng, agent vào phòng, vai trò mẫu | DECISIONS.md:506 | 051b | CHƯA | TIP-051b §1–§4 |
+| DC-926 | `contact.relation`, chỉ Khách hàng vào phễu / chứng từ (422 `contact_not_customer`) | DECISIONS.md:507 | 051c | CHƯA | TIP-051c §1–§3 |

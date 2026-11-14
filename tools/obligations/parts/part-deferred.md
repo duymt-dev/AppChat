@@ -122,6 +122,8 @@
 | Q-917 | Quyền `order.sync_now`: đổi `integrations.manage` → `order.manage`? (luật quyền — Chủ nhà) | QUESTIONS.md:94 | 049, 049d | CHƯA | Chốt DC-923 (a): `order.manage` — TIP-049 §5, 049d §4 |
 | PD-907 | Nền tảng kết nối: thẻ Shopee / TikTok Shop OAuth + chọn shop | docs/06-prototype/DEVIATIONS.md:53 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
 | PD-908 | Đơn / Sản phẩm sàn: badge, mã ngoài, trạng thái, vận đơn chỉ đọc, Ghép SKU, Kênh bán | docs/06-prototype/DEVIATIONS.md:54 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
+| PD-909 | Sơ đồ tổ chức + Phòng ban theo prototype, bỏ cấp Tập đoàn, agent là thành viên | docs/06-prototype/DEVIATIONS.md:55 | 051 | CHƯA | TIP-051 §6 |
+| PD-910 | Cột + lọc "Loại" màn Khách hàng, form, Hồ sơ 360° | docs/06-prototype/DEVIATIONS.md:56 | 051c | CHƯA | TIP-051c §4 |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |
 | Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | 035c | CHƯA | Không có commit fix flaky trong git log; TIP-035c nhận (2026-11-02) |

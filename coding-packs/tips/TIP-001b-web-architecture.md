@@ -1,6 +1,7 @@
 # TIP-001b — Web: gỡ vòng phụ thuộc, error boundary, lazy drawer, breakpoint, fmt
 
 ## HEADER
+- **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`; integrate 001b before051b.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/src/features/inbox/components/FolderRail.tsx`, `apps/web/src/features/settings/components/ChannelsSection.tsx`, `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`; integrate 001b before048c.
 - **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/src/features/inbox/components/FolderRail.tsx`; integrate 001b before048g.
 - **Parallel-safe with TIP-047 (coverage-closure manifest):** sequential, shares `.dependency-cruiser.cjs`; integrate 001b before047.

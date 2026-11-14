@@ -1,6 +1,7 @@
 # TIP-033d — Cọc đơn theo % và gợi ý bật cọc (DC-300, DC-301)
 
 ## HEADER
+- **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/orders/actions/order-create.handlers.ts`; integrate 033d before051c.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/actions/src/orders.ts`, `packages/db/prisma/tenant/sales-orders.prisma`; integrate 033d before049.
 - **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/orders.json`, `apps/web/messages/vi/orders.json`, `apps/web/src/shared/api/mock/domains/orders-actions.ts`; integrate 033d before049d.
 - **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/src/features/orders/components/OrderFormModal.tsx`, `apps/web/src/features/orders/hooks/useOrderForm.ts`; integrate 033d before048g.

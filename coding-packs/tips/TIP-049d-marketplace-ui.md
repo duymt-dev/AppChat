@@ -1,6 +1,9 @@
 # TIP-049d — Giao diện sàn: kết nối Shopee / TikTok Shop + chọn shop, đơn sàn chỉ đọc, Ghép SKU, Kênh bán theo ánh xạ (Sàn, D63)
 
 ## HEADER
+- **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/shared/api/mock/handlers.ts`, `tools/parity/parity.manifest.ts`; integrate 049d before051.
+- **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/shared/api/mock/domains/settings-apps.ts`; integrate 049d before051b.
+- **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 049d before051c.
 - **Parallel-safe with TIP-027b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/products.json`, `apps/web/messages/vi/products.json`, `apps/web/src/features/products/api.ts`, `apps/web/src/features/products/components/ProductDrawer.tsx`, `apps/web/src/shared/api/mock/domains/products.ts`, `packages/core/src/catalog/services/catalog-read.service.ts`, `packages/core/src/catalog/services/product-view.ts`, `packages/shared/src/api/catalog.ts`, `tools/parity/parity.manifest.ts`; integrate 027b before049d.
 - **Parallel-safe with TIP-046 (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 049d before046.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/handlers.ts`; integrate 048 before049d.
