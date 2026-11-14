@@ -99,7 +99,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
 }
 
 const MENU_KINDS = new Set(['text', 'image', 'file', 'sticker', 'audio', 'card']);
-const STATUS: Record<string, string> = { queued: 'sending', sent: 'sent', delivered: 'sent', read: 'read', failed: 'failed', partial: 'partial', unknown: 'unknown' };
+const STATUS: Record<string, string> = { queued: 'sending', deferred_cap: 'deferred_cap', sent: 'sent', delivered: 'sent', read: 'read', failed: 'failed', partial: 'partial', unknown: 'unknown' };
 
 export interface MsgExtras {
   /** Cảm xúc của người xem trên tin. */

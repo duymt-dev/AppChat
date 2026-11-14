@@ -87,7 +87,7 @@ export async function sweepOutbox(d: InboxJobDeps): Promise<number> {
     seen.add(ws);
     try {
       const t = await db(d, ws);
-      const rows = await t.outboxMessage.findMany({ where: { status: 'pending', nextAttemptAt: { lte: cutoff } }, take: 100, orderBy: { nextAttemptAt: 'asc' } });
+      const rows = await t.outboxMessage.findMany({ where: { status: { in: ['pending', 'deferred_cap'] }, nextAttemptAt: { lte: cutoff } }, take: 100, orderBy: { nextAttemptAt: 'asc' } });
       for (const o of rows) {
         await d.send.enqueue({ ws, account_id: o.channelAccountId, ref_id: o.id, message: o.payload as never });
         await t.outboxMessage.update({ where: { id: o.id }, data: { status: 'sending', nextAttemptAt: d.now() } });

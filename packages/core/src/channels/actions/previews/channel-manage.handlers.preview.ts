@@ -6,17 +6,17 @@ import { channelRegistry } from '@appchat/channels';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { preview, removed, updated } from '../../../kernel/actions/preview-kit';
 import { assertAgentAssignable } from '../../../ai/agents/agent-names';
-import { settingsOf, type ChannelAccounts } from '../../services/accounts.service';
+import { checkProactiveCap, settingsOf, type ChannelAccounts } from '../../services/accounts.service';
 
 export async function updateSettingsPreview(accounts: ChannelAccounts, tx: TenantTx, i: ActionInput<typeof channelUpdateSettings>): Promise<ActionPreview> {
   const row = await accounts.live(tx, i.channel_account_id);
   const { name, agent_id, ...rest } = i.patch;
   await assertAgentAssignable(tx, agent_id);
   const cur = { name: row.name, ...settingsOf(row) };
-  // D35: trần ngày cao hơn mặc định manifest → rủi ro khoá tài khoản (vẫn cho lưu, người bấm thấy cảnh báo).
+  // D35: trần ngày Zalo cá nhân chỉnh 50–500; cao hơn mặc định manifest (> 200) → rủi ro khoá tài khoản (cảnh báo ở preview + execute).
   const capDefault = channelRegistry.manifests().find((m) => m.type === row.type)?.rateLimit.perDayProactive;
-  const risky = capDefault !== undefined && (i.patch.daily_cap ?? 0) > capDefault;
-  return preview('config', row.name, { changes: updated('channel_account', row.id, cur, { name, ...rest, agent_id: agent_id === undefined ? undefined : agent_id || null }), ...(risky ? { warnings: [`daily_cap_over_default:${capDefault}`] } : {}) });
+  const warnings = checkProactiveCap(row.type, capDefault, i.patch.daily_cap);
+  return preview('config', row.name, { changes: updated('channel_account', row.id, cur, { name, ...rest, agent_id: agent_id === undefined ? undefined : agent_id || null }), ...(warnings.length ? { warnings } : {}) });
 }
 
 export async function pausePreview(accounts: ChannelAccounts, tx: TenantTx, i: ActionInput<typeof channelPause>): Promise<ActionPreview> {

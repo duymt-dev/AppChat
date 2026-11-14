@@ -26,7 +26,7 @@ export interface SendJob {
  */
 export type SendResult =
   | { ok: true; ws: string; account_id: string; ref_id: string; external_msg_id: string; parts?: ProviderMessageRef[] }
-  | { ok: false; ws: string; account_id: string; ref_id: string; error: string; final: boolean; parts?: ProviderMessageRef[]; outcome?: SendOutcome };
+  | { ok: false; ws: string; account_id: string; ref_id: string; error: string; final: boolean; parts?: ProviderMessageRef[]; outcome?: SendOutcome; deferred_until?: string };
 
 /**
  * Kết quả lỗi trung thực (TIP-014b B): `partial` = một số phần đã tới khách; `unknown` = đã gọi kênh mà không biết kết quả (mất kết

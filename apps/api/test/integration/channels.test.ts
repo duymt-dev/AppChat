@@ -271,5 +271,65 @@ describe('kết nối Zalo cá nhân', () => {
     expect((await act('channel.test', { type: 'email', fields: { imap_host: 'imap.gmail.com' } })).body.error).toMatchObject({ code: 'VALIDATION_FAILED', fields: { password: 'invalid' } });
     expect((await act('channel.test', { type: 'zalo_personal', fields: {} })).body.error).toMatchObject({ code: 'VALIDATION_FAILED', fields: { type: 'unsupported' } });
   }, 60_000);
+
+  it('AC11 TIP-022d: cap 50–500 + cảnh báo > 200; mất Redis → đếm bảng dự phòng; vượt cap → deferred_cap; reply 24h miễn cap', async () => {
+    const C = await connect('Zalo Cap Test');
+    const s = fakeZaloTransport.session(C)!;
+    // 1. Cấu hình ngoài [50, 500] → 422; > 200 → cảnh báo rủi ro ở preview + execute; 50 hợp lệ (kèm rate_per_minute: 60 để chạy nhanh).
+    expect((await act('channel.update_settings', { channel_account_id: C, patch: { daily_cap: 49 } })).status).toBe(422);
+    expect((await act('channel.update_settings', { channel_account_id: C, patch: { daily_cap: 501 } })).status).toBe(422);
+    const prevOver = await call(h, '/actions/channel.update_settings', { input: { channel_account_id: C, patch: { daily_cap: 250 } } }, { 'idempotency-key': uuidv7(), 'x-action-source': 'assistant' }).then(json);
+    expect(prevOver.status).toBe(202);
+    expect(prevOver.body.data.preview.warnings).toContain('daily_cap_over_default:200');
+    const updOver = await act('channel.update_settings', { channel_account_id: C, patch: { daily_cap: 250 } });
+    expect(updOver.status).toBe(200);
+    expect(updOver.body.data.result.warnings).toContain('daily_cap_over_default:200');
+    expect((await act('channel.update_settings', { channel_account_id: C, patch: { daily_cap: 50, rate_per_minute: 60 } })).status).toBe(200);
+
+    const db = await tenant();
+    const now = h.clock.now();
+    const day = new Date(now.getTime() + 7 * 3_600_000).toISOString().slice(0, 10);
+    const seedOut = async (thread: string, text: string) => {
+      let conv = await db.conversation.findUnique({ where: { channelAccountId_externalThreadId: { channelAccountId: C, externalThreadId: thread } } });
+      if (!conv) {
+        conv = await db.conversation.create({ data: { id: uuidv7(), channelAccountId: C, channelType: 'zalo_personal', externalThreadId: thread } });
+      }
+      const msgId = uuidv7();
+      const obId = uuidv7();
+      await db.message.create({ data: { id: msgId, conversationId: conv.id, channelAccountId: C, direction: 'out', senderType: 'user', kind: 'text', body: text, status: 'queued', createdAt: now } });
+      await db.outboxMessage.create({ data: { id: obId, messageId: msgId, channelAccountId: C, payload: { externalThreadId: thread, kind: 'text', text }, status: 'pending', nextAttemptAt: now, createdAt: now } });
+      return { convId: conv.id, msgId, obId };
+    };
+
+    // 2. Gửi 30 tin chủ động → xoá khoá Redis (giả lập mất Redis giữa ngày) → gửi thêm 21 tin chủ động → đúng 50 gửi, tin 51 deferred_cap.
+    for (let i = 1; i <= 30; i++) {
+      const o = await seedOut(`cap_${i}`, `Proactive ${i}`);
+      await sendQ.enqueue({ ws: h.ws, account_id: C, ref_id: o.obId, message: { externalThreadId: `cap_${i}`, kind: 'text', text: `Proactive ${i}` } });
+    }
+    expect(await until(() => s.sent.length === 30, 30_000)).toBe(true);
+    await redis.del(`chcap:${C}:${day}`);
+
+    let lastOut: { convId: string; msgId: string; obId: string } | undefined;
+    for (let i = 31; i <= 51; i++) {
+      const o = await seedOut(`cap_${i}`, `Proactive ${i}`);
+      lastOut = o;
+      await sendQ.enqueue({ ws: h.ws, account_id: C, ref_id: o.obId, message: { externalThreadId: `cap_${i}`, kind: 'text', text: `Proactive ${i}` } });
+    }
+    expect(await until(async () => (await db.outboxMessage.findUnique({ where: { id: lastOut!.obId } }))?.status === 'deferred_cap', 30_000)).toBe(true);
+    expect(s.sent).toHaveLength(50);
+    expect(await db.channelProactiveSlot.count({ where: { channelAccountId: C, day } })).toBe(50);
+    expect(await db.message.findUnique({ where: { id: lastOut!.msgId } })).toMatchObject({ status: 'deferred_cap', error: 'deferred_cap' });
+
+    // 3. Khách vừa nhắn trong 24h → tin trả lời gửi ngay dù đã đầy 50/50 cap và không tăng số suất cap!
+    const replyConv = await db.conversation.create({ data: { id: uuidv7(), channelAccountId: C, channelType: 'zalo_personal', externalThreadId: 'u_reply_24h' } });
+    await db.message.create({ data: { id: uuidv7(), conversationId: replyConv.id, channelAccountId: C, direction: 'in', senderType: 'contact', kind: 'text', body: 'Hỏi giá', status: 'sent', createdAt: new Date(now.getTime() - 5 * 60_000) } });
+    const reply = await seedOut('u_reply_24h', 'Dạ 199k ạ');
+    await sendQ.enqueue({ ws: h.ws, account_id: C, ref_id: reply.obId, message: { externalThreadId: 'u_reply_24h', kind: 'text', text: 'Dạ 199k ạ' } });
+    expect(await until(() => s.sent.some((m) => m.msg === 'Dạ 199k ạ'), 15_000)).toBe(true);
+    expect(s.sent).toHaveLength(51);
+    expect(await db.channelProactiveSlot.count({ where: { channelAccountId: C, day } })).toBe(50);
+
+    expect((await act('channel.disconnect', { channel_account_id: C })).status).toBe(200);
+  }, 60_000);
 });
 

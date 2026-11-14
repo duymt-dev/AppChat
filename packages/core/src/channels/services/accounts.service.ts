@@ -6,6 +6,21 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+/** Trần tin chủ động / ngày của Zalo cá nhân (TIP-022d, D35c): mặc định 200, cho chỉnh 50–500, cảnh báo rủi ro khi > 200. */
+export const ZALO_PROACTIVE_CAP = { default: 200, min: 50, max: 500 } as const;
+
+/**
+ * Kiểm khoảng cấu hình trần tin chủ động / ngày qua `channel.update_settings` (TIP-022d, D35c):
+ * Zalo cá nhân cho chỉnh 50–500; vượt mặc định manifest (> 200) trả mã cảnh báo rủi ro khoá tài khoản.
+ */
+export function checkProactiveCap(type: string, capDefault: number | undefined, dailyCap: number | undefined): string[] {
+  if (dailyCap === undefined) return [];
+  if (type === 'zalo_personal' && (dailyCap < ZALO_PROACTIVE_CAP.min || dailyCap > ZALO_PROACTIVE_CAP.max)) {
+    throw new AppError('VALIDATION_FAILED', 422, { daily_cap: 'out_of_range' });
+  }
+  return capDefault !== undefined && dailyCap > capDefault ? [`daily_cap_over_default:${capDefault}`] : [];
+}
+
 export type AccountStatus = 'pending' | 'connecting' | 'connected' | 'error' | 'disconnected' | 'expired';
 /** Trạng thái ở `tenant_channel_route`: như account, thêm `paused` (worker chỉ giữ phiên tài khoản `connected`). */
 export type RouteStatus = AccountStatus | 'paused';

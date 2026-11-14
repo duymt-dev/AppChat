@@ -83,6 +83,8 @@ enum MessageStatus {
   partial
   /// TIP-014b B: đã gọi kênh nhưng không biết kết quả (mạng / hết giờ sau đặt chỗ) — không tự gửi lại.
   unknown
+  /// TIP-022d: vượt trần tin chủ động / ngày — chờ đầu ngày kế tiếp theo tz workspace, không mất.
+  deferred_cap
 
   @@map("message_status")
 }
@@ -111,6 +113,8 @@ enum OutboxMessageStatus {
   dead
   /// TIP-014b B: đã đặt chỗ gửi, kết quả không biết — không tự gửi lại.
   unknown
+  /// TIP-022d: vượt trần tin chủ động / ngày — chờ next_attempt_at đầu ngày kế tiếp, không mất.
+  deferred_cap
 
   @@map("outbox_message_status")
 }

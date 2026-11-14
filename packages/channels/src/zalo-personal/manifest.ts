@@ -1,6 +1,9 @@
 // Zalo cá nhân (Blueprint §6): QR login, giữ phiên bằng lease, chống khoá 1 tin / 2–6 giây. Adapter zca-js: TIP-014.
 import type { ChannelManifest } from '../types';
 
+export const ZALO_PROACTIVE_CAP_DEFAULT = 200;
+export const ZALO_PROACTIVE_CAP_RANGE = [50, 500] as const;
+
 export const zaloPersonalManifest: ChannelManifest = {
   type: 'zalo_personal',
   label: 'channels.zalo_personal.label',
@@ -22,7 +25,7 @@ export const zaloPersonalManifest: ChannelManifest = {
     markdown: 'rich',
     proactive: 'disallowed',
   },
-  // D35: tin chủ động (chiến dịch / mở chuỗi) mặc định 200 / ngày / tài khoản — chỉnh ở Cài đặt kênh kèm cảnh báo (TIP-037).
-  rateLimit: { perMinute: 15, perDayProactive: 200, jitterMs: [2000, 6000] },
+  // D35: tin chủ động (chiến dịch / mở chuỗi) mặc định 200 / ngày / tài khoản — chỉnh 50–500 ở Cài đặt kênh kèm cảnh báo (TIP-022d / TIP-037).
+  rateLimit: { perMinute: 15, perDayProactive: ZALO_PROACTIVE_CAP_DEFAULT, jitterMs: [2000, 6000] },
   session: 'lease',
 };

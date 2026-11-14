@@ -198,7 +198,7 @@ export const channelUpdateSettings = defineAction({
     /** TIP-022b: bản chụp gán agent lúc xem trước — gán đã bị đổi → 409, giữ gán cũ. */
     expected_version: z.string().max(32).optional(),
   }),
-  output: z.object({ ok: z.boolean() }),
+  output: z.object({ ok: z.boolean(), warnings: z.array(z.string()).optional() }),
   permission: 'channels.manage',
   risk: 'config',
   agentGrantable: false,
