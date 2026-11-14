@@ -1,6 +1,6 @@
 # Báo cáo hoàn thành TIP-022d — Chặn gửi quá cap Zalo cá nhân (200 tin chủ động / ngày)
 
-**TIP:** `022d` · **Nhánh:** `tip/022d-zalo-proactive-cap` (`wt1` `D:/CODING/AppChat-Agy`) · **Nền rebase:** `origin/dev` `79b8c351` (PR #231 `TIP-003e`) · **Commit code:** *(cập nhật sau PR)* · **PR:** *(cập nhật sau `gh pr create --base dev`)* · **Ngày:** 2026-11-15  
+**TIP:** `022d` · **Nhánh:** `tip/022d-zalo-proactive-cap` (`wt1` `D:/CODING/AppChat-Agy`) · **Nền rebase:** `origin/dev` `79b8c351` (PR #231 `TIP-003e`) · **Commit code:** `40740351` · **PR:** [#232](https://github.com/duymt-dev/AppChat/pull/232) (`--base dev`) · **Ngày:** 2026-11-15  
 **Trạng thái nghiệm thu provider thật:** **chưa nghiệm thu với provider thật** (`Q-003` — Zalo cá nhân chạy với transport giả `ZALO_TRANSPORT=fake` / mock transport).
 
 ---
