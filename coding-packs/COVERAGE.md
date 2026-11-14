@@ -12,14 +12,14 @@
 
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
-| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 12 | 2 | 0 | 0 |
+| A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 166 | 4 | 0 | 13 | 11 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 7 | 0 | 2 | 25 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 169 | 9 | 0 | 9 | 76 | 13 | 21 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 170 | 8 | 0 | 9 | 76 | 13 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 415 | 32 | 0 | 6 | 58 | 2 | 0 | 0 |
-| E. standards/* | 239 | 25 | 0 | 6 | 22 | 1 | 43 | 0 |
+| E. standards/* | 240 | 24 | 0 | 6 | 22 | 1 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 1 | 13 | 0 | 29 | 6 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 85 | 4 | 0 | 22 | 44 | 2 | 0 | 0 |
-| **Tổng** | **1278** | **84** | **13** | **58** | **266** | **36** | **69** | **0** |
+| **Tổng** | **1283** | **80** | **13** | **58** | **265** | **36** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -74,7 +74,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B02f | Báo trạng thái kênh | 01-REQUIREMENTS-MATRIX.md:49 | 014 | ĐẠT | sessions.ts:149; test channels.test.ts AC9 |
 | REQ-B03a | Nhận tin nhóm Zalo | 01-REQUIREMENTS-MATRIX.md:50 | 014, 016 | CHỜ-TK | test inbox.test.ts AC2 (nhóm → participant), zalo-adapter.test.ts — Q-003 |
 | REQ-B03b | AI nhóm 3 chế độ đổi được | 01-REQUIREMENTS-MATRIX.md:50 | 025b | ĐẠT | TIP-025b P3: group.set_ai_policy (CAS) + đọc GET /conversations/:id/group; FE GroupSections ghi theo phiên bản; pipeline đọc group_ai_policy; inbox-group-controls.test.ts |
-| REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | 014c | CHƯA | manifest.ts:11 riskNotice không được FE dùng, không có chuỗi i18n; TIP-014c nhận (2026-11-02) |
+| REQ-B04a | Cảnh báo rủi ro khi kết nối Zalo | 01-REQUIREMENTS-MATRIX.md:51 | 014c | ĐẠT | `ZaloQrStep.tsx:33-41` (`st-ch-wizard-risk`, `st-ch-wizard-risk-ack` gác `st-ch-wizard-qr`) + `ConnectChannelModal.tsx` (`c.connect?.risk_notice`) + `messages/{vi,en}/settings.json`; `e2e/settings.spec.ts:165` + `e2e/http/channels.spec.ts` (`ZALO_TRANSPORT=fake`, chưa nghiệm thu provider thật) · `coding-packs/reports/TIP-014c-completion.md` |
 | REQ-B04b | Random delay + giới hạn / phút | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | channels/jobs/send.processor.ts:42-59; test channels.test.ts AC8 — Q-003 |
 | REQ-B04c | Quota tin / ngày | 01-REQUIREMENTS-MATRIX.md:51 | 037 | ĐẠT | Trần tin chủ động / ngày mặc định 200 (manifest.ts:26), chỉnh ở kênh kèm cảnh báo; test proactive-cap.test.ts |
 | REQ-B04d | Tự ngắt khi bị chặn | 01-REQUIREMENTS-MATRIX.md:51 | 014 | CHỜ-TK | sessions.ts:149; test channels.test.ts AC8/AC9 — Q-003 |
@@ -97,7 +97,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B11a | Drawer: kiểm tra, đồng bộ lại | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:88,111; test channels.test.ts AC6 |
 | REQ-B11b | Hiệu suất 7 ngày | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | read.service.ts:72; test channels.test.ts AC5 |
 | REQ-B11c | Trả lời tự động: agent, chế độ, giờ, lời chào | 01-REQUIREMENTS-MATRIX.md:58 | 022b | ĐẠT | Lịch tài khoản có cấu trúc (∩ lịch agent) chặn ngoài giờ trước model / gửi / credit (ai/reply/availability.ts, agent-pick.ts); lời chào bật tường minh gửi một lần qua message.send + receipt lượt (ai/reply/greeting.ts, inbox/services/greeting-purpose.ts); drawer Quản lý kênh khối Hành vi AI Agent (ChannelRoutingSettings.tsx); test agent-schedules / agent-greeting, worker agent-channel-behavior, E2E mock + http agent-channel-behavior; coding-packs/reports/TIP-022b-completion.md |
-| REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | 014c | MỘT PHẦN | Phân công: XONG ở TIP-042b (rule chia lead canonical, drawer kênh hiện rule đang áp, assign_mode chỉ bản chiếu cũ, cần crm.reassign) — coding-packs/reports/TIP-042b-completion.md; SLA theo tài khoản (sla_policy chỉ lưu) vẫn thuộc TIP-014c |
+| REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | 014c | ĐẠT | Phân công: XONG ở TIP-042b (`TIP-042b-completion.md`); SLA theo tài khoản: `sla-defaults.ts:7`, `sla-clock.ts:110` (`resolveAccountSlaPolicy`), `ticket-create.handler.ts:105`, `inbox/services/read.service.ts:172-186` (FRT inbox + `ChatHeader.tsx:91`), `GET /v1/sla-policies`, `ManageChannelDrawer.tsx`; integration `apps/api/test/integration/channel-sla.test.ts` (2/2) · `TIP-014c-completion.md` |
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | ĐẠT | TIP-014b D1 + C2: core/src/inbox/services/inbound-sync-policy.ts áp sync_messages / sync_auto_create_contact trước khi ghi (live + lịch sử chung chính sách); lịch sử 0/7/30/90 bền có giới hạn (operations/history-run.ts); test apps/api/test/integration/channel-sync-policy.test.ts, channel-history.test.ts |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
 | REQ-B12 | Nền kênh webhook: route mức App, chữ ký, biên nhận, cửa sổ gửi chặn lúc ghi + lúc gửi, tag chỉ người gửi | 01-REQUIREMENTS-MATRIX.md:60 | 048b | CHƯA | TIP-048b |
@@ -132,7 +132,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C09c | Dịch tin | 01-REQUIREMENTS-MATRIX.md:71 | 025 | CHỜ-TK | ai/skills/translate.handler.ts:22; test inbox-ui.test.ts "ai.translate (model giả)" — Q-001 |
 | REQ-C09d | Tạo ticket từ tin | 01-REQUIREMENTS-MATRIX.md:71 | 025, 034 | ĐẠT | MessageMenu.tsx:41-48; TicketsScreen.tsx:45; test support.test.ts (source_message_id) |
 | REQ-C09e | Thu hồi / Xoá có xác nhận | 01-REQUIREMENTS-MATRIX.md:71 | 016 | ĐẠT | message.handlers.ts:100,115; test inbox.test.ts AC6 |
-| REQ-C10a | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | 01-REQUIREMENTS-MATRIX.md:72 | 014c | MỘT PHẦN | ConvMenu.tsx:63 "sáng mai" = +16 giờ, "tuỳ chọn" = +24 giờ cố định; TIP-014c nhận (2026-11-02) |
+| REQ-C10a | Đóng · Tạm ẩn 1 giờ / 3 giờ / sáng mai / tuỳ chọn | 01-REQUIREMENTS-MATRIX.md:72 | 014c | ĐẠT | `nextMorningSnoozeUtc` (`packages/shared/src/time/business-time.ts:68`, 6 tests) + `SnoozePicker.tsx` ("Sáng mai" 08:00 ngày làm việc kế tiếp / "Tuỳ chọn" DateTimePicker) + `ConvMenu.tsx:103` + `conversation-state.handlers.ts:62-71` (`snoozed_until > now`, `view.ts:63` tự mở lại khi đọc); `SnoozePicker.test.tsx` (3/3) + `channel-sla.test.ts` · `TIP-014c-completion.md` |
 | REQ-C10b | Phím tắt chèn câu trả lời mẫu | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:110-119; e2e inbox.spec.ts:23 |
 | REQ-C10c | Phân công nhân viên + agent kèm tải | 01-REQUIREMENTS-MATRIX.md:72 | 025b | ĐẠT | TIP-025b P7: `GET /v1/conversations/:id/assignees` (người + agent đúng kênh, tải mở, phiên bản, trang) + AssignPicker.tsx; ghi qua conversation.assign; test inbox-assignees + AssignPicker + e2e |
 | REQ-C10d | Vòng đời = contact.stage (D49) | 01-REQUIREMENTS-MATRIX.md:72 | 025 | ĐẠT | ConvMenu.tsx:16,143; test crm-contacts.test.ts |
@@ -642,7 +642,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D45 | Phạm vi đợt ver2.1 | 01-REQUIREMENTS-MATRIX.md:294 | — | QUY-TẮC | Phạm vi |
 | D46 | Hồ sơ 360°: nháp → Cập nhật, BG đã gửi → phiên bản mới, HĐ đã gửi → chi tiết | 01-REQUIREMENTS-MATRIX.md:295 | 025, 026 | ĐẠT | apps/web/src/features/inbox/components/Profile360Actions.tsx:2 · test apps/web/e2e/inbox.spec.ts:69 |
 | D47 | Danh mục công cụ agent cũ | 01-REQUIREMENTS-MATRIX.md:296 | — | NGOÀI | Thay bằng D51 |
-| D48 | Research / Web search khoá "Sắp có" | 01-REQUIREMENTS-MATRIX.md:297 | 014c | MỘT PHẦN | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:58; không có test kiểm khoá; TIP-014c nhận (2026-11-02) |
+| D48 | Research / Web search khoá "Sắp có" | 01-REQUIREMENTS-MATRIX.md:297 | 014c | ĐẠT | `apps/web/src/features/inbox/components/AgentToolsMenu.tsx:59` (`data-testid="agent-tools-research"`, `disabled`, nhãn `"Sắp có"`, không `onClick`); `AgentToolsMenu.test.tsx` (1/1) · `coding-packs/reports/TIP-014c-completion.md` |
 | D49 | Submenu Vòng đời = `contact.set_stage` | 01-REQUIREMENTS-MATRIX.md:298 | 025 | ĐẠT | features/inbox/components/ConvMenu.tsx:26 · test apps/web/e2e/inbox.spec.ts "menu hội thoại" |
 | D50a | Ẩn trò chuyện = `conversation.hidden_at`, có tin mới hiện lại | 01-REQUIREMENTS-MATRIX.md:299 | 016 | ĐẠT | inbox/actions/conversation-state.handlers.ts:88 · test inbox.test.ts:136 |
 | D50b | Tạo nhóm Zalo (hết khoá sau TIP-014) | 01-REQUIREMENTS-MATRIX.md:299 | 023b | ĐẠT | conversation.create_group (durable request + group worker): packages/core/src/inbox/…; test conversation-groups.test.ts + apps/api/test/integration/actions/conversation.create_group.action.test.ts |
@@ -1375,7 +1375,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-authz-rbac-D32c | `contact_collaborator(user_id, contact_id)` index cho scope own | standards/authz/rbac-permissions.md:44 | 015 | ĐẠT | migration 20261031000000_015_crm:226 |
 | STD-authz-rbac-plan | Giới hạn user theo `plan.max_users` | standards/authz/rbac-permissions.md:65 | 009 | ĐẠT | billing/services/quota.service.ts:23; test billing.test.ts |
 | STD-channels-adapter-1 | Mọi kênh qua ChannelAdapter; core không import SDK kênh (zca-js, imapflow) | standards/channels/omnichannel-adapter.md:8 | mọi TIP | QUY-TẮC | `pnpm depcheck` (.dependency-cruiser.cjs `no-non-package-json`; SDK chỉ ở packages/channels/package.json:18-21) |
-| STD-channels-adapter-2 | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | standards/channels/omnichannel-adapter.md:9 | 014c | MỘT PHẦN | Cần rà từng UI/AI consumer manifest để chứng minh toàn nghĩa vụ. Bằng chứng cũ poller.ts:105 là worker core, không phải UI/AI nên đã bỏ như một kết luận vi phạm dòng này; chưa nâng ĐẠT khi thiếu audit đúng phạm vi.; TIP-014c nhận (2026-11-02) |
+| STD-channels-adapter-2 | UI và AI chỉ đọc ChannelManifest, không `switch(type)` rải rác | standards/channels/omnichannel-adapter.md:9 | 014c | ĐẠT | `ConnectChannelModal`, `ChannelCard`, `ChannelsSection`, `ChannelRateFields`, `ManageChannelDrawer` đọc `connect.kind` + `capabilities.operations` từ `ChannelManifest`; AI `agent-draft.ts` / `catalog.ts` / `mock-agent-draft.ts` bỏ nhánh cứng; grep UI/AI `0` rẽ nhánh loại kênh (chỉ còn 2 hit cấu trúc `structured.ts:45` JSON schema và `agent-draft.ts:103` `m.group === 'email'`) · `TIP-014c-completion.md` |
 | STD-channels-adapter-3 | `channel_account.type` là text theo registry, không enum Postgres | standards/channels/omnichannel-adapter.md:10 | 014 | ĐẠT | packages/db/prisma/tenant/channels.prisma:21; test packages/channels/test/registry.test.ts |
 | STD-channels-adapter-4 | Inbound → NormalizedInbound; outbound nhận OutboundMessage; adapter tự render | standards/channels/omnichannel-adapter.md:13 | 014 | ĐẠT | packages/channels/src/types.ts:42,56; test zalo-render.test.ts, zalo-adapter.test.ts |
 | STD-channels-adapter-5 | UNIQUE(channel_account_id, external_msg_id) chống trùng | standards/channels/omnichannel-adapter.md:14 | 016 | ĐẠT | packages/db/prisma/tenant/inbox.prisma:173; test inbox.test.ts |
@@ -1895,7 +1895,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-017 | `e2e-http.mjs` tự dọn workspace test sau lượt | QUESTIONS.md:25 | 046 | MỘT PHẦN | `db:cleanup-test` có (packages/db/package.json:17); tools/scripts/e2e-http.mjs không gọi dọn; TIP-046 SPEC1 runner release dọn đúng tài nguyên mình tạo (2026-11-02) |
 | Q-018 | Cửa sổ ~10 giây dùng lại refresh token vừa xoay (nhiều tab) + sửa generator lệch fixture | QUESTIONS.md:26 | 004b | CHƯA | identity/services/sessions.service.ts:45-49 thu hồi cả family ngay; TIP-004b nhận (2026-11-02) |
 | Q-019 | Chọn nhiều hội thoại + thanh thao tác hàng loạt ở Hộp thư (REQ-C08) | QUESTIONS.md:27 | 025b | KHÔNG LÀM | DC-422 (đảo DC-250): Chủ nhà yêu cầu bỏ hẳn UI chọn nhiều (ô chọn trên avatar + ConversationBulkBar + BulkResultPanel) — nghiệp vụ gán theo tài khoản kênh, không gán lẻ nhiều hội thoại; dùng menu ⋯ từng dòng (ConvMenu.tsx) |
-| Q-020 | Ngoại lệ D28 / mask cho parity `inbox:connect-channel` (6,20%) + soi `inbox:default` | QUESTIONS.md:28 | 046, 014c | MỘT PHẦN | tools/parity/parity.manifest.ts:348-357 chưa có mask lưới kênh; TIP-014c nhận (2026-11-02) |
+| Q-020 | Ngoại lệ D28 / mask cho parity `inbox:connect-channel` (6,20%) + soi `inbox:default` | QUESTIONS.md:28 | 046, 014c | MỘT PHẦN | TIP-014c: `tools/parity/parity.manifest.ts:361-378` mask lưới thẻ kênh (DC-295, D28) → `inbox:connect-channel` 0,89% (< 5%, PASS), đã xoá khỏi `parity-debt.json` (`lint:parity-debt` xanh); phần `inbox:default` 8,14% (nợ D60 trên nền `dev`) giữ lại cho 046 soi trước phát hành · `TIP-014c-completion.md` |
 | Q-021 | "Chuyển tiếp" hàng loạt khách = gửi danh sách cho thành viên | QUESTIONS.md:29 | 031b | CHƯA | Nút đang ẩn; chờ Chủ nhà xác nhận; TIP-031b nhận (2026-11-02); Chủ nhà 2026-11-03: duyệt → DC-296 |
 | Q-023 | Ngưỡng `pnpm ai:live` ≥ 27/30 | QUESTIONS.md:31 | 023b | ĐẠT | Ngưỡng ≥ 27/30 + 0 vi phạm an toàn đạt: 27/30, an toàn 0 (reports/ai-live-2026-11-03.md); 3 ca fail đã phân loại (model chọn đường khác / seed Q-044 / dấu "Huế") |
 | Q-024 | "Xuất Excel" Báo giá / Đơn / HĐ / Ticket bằng exceljs theo bộ lọc | QUESTIONS.md:32 | 038 | ĐẠT | 4 nút gọi action thật (DC-365); không thêm module Báo cáo (D19) |

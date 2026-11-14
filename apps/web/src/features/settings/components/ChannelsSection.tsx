@@ -31,7 +31,7 @@ function ListRow({ c }: { c: Channel }) {
   const can = useCan('channels.manage');
   const open = () => {
     if (c.connected) return set({ channelDrawer: { type: c.type, accountId: null } });
-    if (c.type === 'webchat') return router.push(WIDGET);
+    if (c.connect?.kind === 'embed') return router.push(WIDGET);
     return set({ channelWizard: { type: c.type, step: 2 } });
   };
   return (

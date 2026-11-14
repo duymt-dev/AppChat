@@ -15,16 +15,32 @@ interface Props {
   qr: string | null;
   status: string | null;
   failed: boolean;
+  riskNotice?: string | null;
+  riskAcked?: boolean;
+  onRiskAck?: (v: boolean) => void;
 }
 
-export function ZaloQrStep({ label, onLabel, qr, status, failed }: Props) {
+export function ZaloQrStep({ label, onLabel, qr, status, failed, riskNotice, riskAcked, onRiskAck }: Props) {
   const t = useTranslations('settings.channels.wizard');
+  const ts = useTranslations('settings');
   const s = useSectionStyles().styles;
   const { styles } = useChannelWizardStyles();
+  const showQr = !riskNotice || Boolean(riskAcked);
   const wait = failed ? t('qrExpired') : status === 'scanned' ? t('qrScanned') : status ? t('qrWaiting') : t('qrStart');
   return (
-    <div className={styles.qrWrap}>
-      <div className={styles.qrBox} aria-label={t('qr')} data-testid="st-ch-wizard-qr" data-status={status ?? 'idle'}>
+    <>
+      {riskNotice ? (
+        <div className={styles.riskBox} data-testid="st-ch-wizard-risk">
+          <div>{ts(riskNotice as never)}</div>
+          <label className={styles.riskAck}>
+            <input type="checkbox" checked={Boolean(riskAcked)} onChange={(e) => onRiskAck?.(e.target.checked)} data-testid="st-ch-wizard-risk-ack" />
+            <span>{ts(`${riskNotice}Ack` as never)}</span>
+          </label>
+        </div>
+      ) : null}
+      <div className={styles.qrWrap}>
+        {showQr ? (
+          <div className={styles.qrBox} aria-label={t('qr')} data-testid="st-ch-wizard-qr" data-status={status ?? 'idle'}>
         {qr ? (
           // QR là data URI PNG từ worker — next/image không tối ưu được ảnh nội tuyến.
           // eslint-disable-next-line @next/next/no-img-element
@@ -32,8 +48,9 @@ export function ZaloQrStep({ label, onLabel, qr, status, failed }: Props) {
         ) : (
           <Icon name="ic-grid" size={96} color={color.text} strokeWidth={1.2} />
         )}
-      </div>
-      <div className={styles.qrSide}>
+          </div>
+        ) : null}
+        <div className={styles.qrSide}>
         <div className={styles.qrTitle}>{t('qrApp')}</div>
         <div className={styles.qrSteps}>
           {QR_STEPS.map((k, i) => (
@@ -52,6 +69,7 @@ export function ZaloQrStep({ label, onLabel, qr, status, failed }: Props) {
           <input className={s.input} value={label} onChange={(e) => onLabel(e.target.value)} placeholder={t('labelPh')} disabled={!!status && !failed} data-testid="st-ch-wizard-label" />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

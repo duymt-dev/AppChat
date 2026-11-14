@@ -31,6 +31,8 @@ export interface AccountSettings {
   routing?: ChannelRoutingDto;
   /** TIP-022b: lời chào tự động — cấu hình cũ mặc định tắt. */
   greeting_enabled?: boolean;
+  /** TIP-014c: ghi đè SLA riêng theo tài khoản kênh (tùy chọn). */
+  sla_override?: { first_response_min: number; resolution_min?: number } | null;
 }
 
 export interface AccountHealth {

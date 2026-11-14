@@ -1,4 +1,5 @@
 // Kiểu dữ liệu Kênh kết nối (REQ-B09 một kênh nhiều tài khoản) — tách khỏi types.ts để giữ dưới trần 400 dòng.
+import type { ChannelCapabilitiesDto, ChannelConnectDto, SlaOverrideDto } from '@appchat/shared';
 import type { ChannelAgentBehavior } from './channel-behavior-types';
 
 export type ChannelAiMode = 'auto' | 'suggest' | 'off';
@@ -43,6 +44,7 @@ export interface ChannelAccount {
   daily_cap?: number | null;
   rate_default?: number;
   daily_cap_default?: number | null;
+  sla_override?: SlaOverrideDto | null;
 }
 
 /** Một loại kênh (vd Zalo cá nhân) với danh sách tài khoản — trạng thái/hội thoại gộp từ `accounts`. */
@@ -68,4 +70,6 @@ export interface Channel {
   account: string;
   /** AI Agent của tài khoản đầu tiên (hiển thị tóm tắt ở danh sách). */
   agent: string;
+  connect?: ChannelConnectDto;
+  capabilities?: ChannelCapabilitiesDto;
 }

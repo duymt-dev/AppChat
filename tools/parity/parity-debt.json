@@ -3,7 +3,6 @@
   "screens": {
     "inbox:default": { "ceiling": 0.056, "owner": "pha trả nợ parity", "note": "CI 5,30% · Win 4,70%. Dòng hội thoại đang chọn không tô nền + vạch xanh; vị trí huy hiệu kênh / avatar nhóm lệch; chip 'Zalo OA' prototype vs 'Zalo cá nhân' (D04 — mask)" },
     "inbox:folder-rail": { "ceiling": 0.054, "owner": "pha trả nợ parity", "note": "CI 5,09% · Win 4,57%" },
-    "inbox:connect-channel": { "ceiling": 0.065, "owner": "TIP-014c (DC-295 mask lưới kênh)", "note": "CI 5,70% · Win 6,20%. Lưới kênh render từ ChannelManifest (D28) — lệch có chủ đích, mask theo DC-295" },
     "inbox:zalo-group-info": { "ceiling": 0.057, "owner": "pha trả nợ parity", "note": "CI 5,36% · Win 4,51%" },
     "tickets:list": { "ceiling": 0.054, "owner": "pha trả nợ parity", "note": "CI 5,10% · Win 4,21%" },
     "tickets:detail": { "ceiling": 0.055, "owner": "TIP-001c (DEF-034-3 drawer)", "note": "CI 5,16% · Win 4,91%" },

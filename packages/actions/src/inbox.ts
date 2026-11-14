@@ -22,7 +22,12 @@ export const conversationSetStatus = defineAction({
   module: 'inbox',
   title: 'actions.conversation.set_status.title',
   description: 'Close, reopen or snooze a conversation. Example: {"conversation_id":"c_lan","status":"snoozed","snooze_hours":4}',
-  input: z.object({ conversation_id: convId, status: z.enum(['open', 'pending', 'snoozed', 'closed']), snooze_hours: z.number().int().positive().optional() }),
+  input: z.object({
+    conversation_id: convId,
+    status: z.enum(['open', 'pending', 'snoozed', 'closed']),
+    snooze_hours: z.number().int().positive().optional(),
+    snoozed_until: z.string().datetime({ offset: true }).optional(),
+  }),
   output: z.object({ status: z.string() }),
   permission: 'inbox.reply',
   risk: 'write',

@@ -69,6 +69,10 @@ export const conversationSchema = z.object({
   co_assignees: z.array(coAssignee).optional(),
   archived: z.boolean().optional(),
   last_message_at: z.string().optional(),
+  /** TIP-014c: hạn phản hồi đầu + mục tiêu (phút) + trạng thái theo chính sách SLA của tài khoản kênh. */
+  frt_due_at: z.string().nullable().optional(),
+  frt_target_min: z.number().int().nullable().optional(),
+  sla_state: z.enum(['breach', 'risk', 'ok']).optional(),
 });
 export type ConversationDto = z.infer<typeof conversationSchema>;
 

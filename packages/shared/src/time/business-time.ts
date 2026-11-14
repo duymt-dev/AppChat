@@ -60,3 +60,27 @@ export function businessMinutesBetween(a: Date, b: Date, c: BusinessCalendar): n
   }
   return Math.round(total / MIN);
 }
+
+/**
+ * Mốc "Sáng mai" khi tạm ẩn hội thoại (TIP-014c): giờ mở cửa (mặc định 08:00) của ngày làm việc kế tiếp
+ * theo múi giờ & lịch làm việc workspace (`cal.timeZone`). Khi không bật giờ làm việc → 08:00 ngày mai.
+ */
+export function nextMorningSnoozeUtc(now: Date, cal: BusinessCalendar): Date {
+  const local = utcToWall(now, cal.timeZone);
+  let targetDate = nextDate(local.date);
+  let openHour = '08:00';
+  if (cal.enabled) {
+    for (let i = 0; i < 7; i += 1) {
+      const wd = cal.days.find((d) => d.day === weekdayOf(targetDate));
+      if (wd?.on) {
+        openHour = wd.from || '08:00';
+        break;
+      }
+      targetDate = nextDate(targetDate);
+    }
+  } else {
+    const wd = cal.days.find((d) => d.day === weekdayOf(targetDate));
+    if (wd?.on && wd.from) openHour = wd.from;
+  }
+  return wallToUtc(targetDate, openHour, cal.timeZone);
+}

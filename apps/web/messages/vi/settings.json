@@ -520,6 +520,10 @@
       "saved": "Đã lưu hành vi AI Agent",
       "overnight": "Khung qua nửa đêm sẽ được tách thành hai ngày liền nhau. Tiếp tục?"
     },
+    "zalo_personal": {
+      "risk": "Zalo cá nhân chạy qua phiên đăng nhập điện thoại — gửi tin hàng loạt hoặc vượt tần suất có thể khiến Zalo hạn chế hoặc khoá tài khoản.",
+      "riskAck": "Tôi hiểu rủi ro này và muốn tiếp tục"
+    },
     "wizard": {
       "title": "Kết nối kênh",
       "titleAcc": "Thêm tài khoản {n}",
@@ -595,6 +599,8 @@
       "assignMode": "Cách chia",
       "assign": { "round_robin": "Xoay vòng", "least_busy": "Người ít việc nhất", "shift": "Theo ca trực" },
       "slaPolicy": "Chính sách SLA",
+      "slaDefaultFmt": "{name} (mặc định) · phản hồi đầu {frt} phút",
+      "slaFmt": "{name} · phản hồi đầu {frt} phút",
       "sla": { "std": "Tiêu chuẩn · phản hồi đầu 5 phút", "vip": "Khách VIP · phản hồi đầu 2 phút", "soc": "Mạng xã hội · phản hồi đầu 15 phút" },
       "s5": "5 · Đồng bộ dữ liệu",
       "syncMessages": "Đồng bộ tin nhắn",
@@ -2013,6 +2019,10 @@
       "asDefault": "Đặt làm mẫu mặc định của loại này",
       "errName": "Nhập tên mẫu",
       "errVars": "Biến không hợp lệ cho loại chứng từ này: {v}"
+    },
+    "zalo_personal": {
+      "risk": "Zalo cá nhân chạy qua phiên đăng nhập điện thoại — gửi tin hàng loạt hoặc vượt tần suất có thể khiến Zalo hạn chế hoặc khoá tài khoản.",
+      "riskAck": "Tôi hiểu rủi ro này và muốn tiếp tục"
     },
     "wizard": {
       "title": "Tải mẫu DOCX của doanh nghiệp",

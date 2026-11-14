@@ -91,6 +91,7 @@ test.describe('hành vi agent trực kênh (http)', () => {
     await page.goto('/settings/channels');
     await page.getByTestId('st-ch-zalo_personal').click();
     const wz = page.getByTestId('st-ch-wizard');
+    await wz.getByTestId('st-ch-wizard-risk-ack').check();
     await wz.getByTestId('st-ch-wizard-label').fill('Zalo hành vi');
     await wz.getByTestId('st-ch-wizard-next').click();
     await expect(wz.getByTestId('st-ch-wizard-cfg-name')).toBeVisible({ timeout: 30_000 });

@@ -69,6 +69,11 @@ export interface Conversation {
   channel_account_id?: string;
   /** Đồng phụ trách (conversation_assignee) — khác người/agent phụ trách chính; thêm/gỡ qua menu ⋯. */
   co_assignees?: { kind: 'user' | 'agent'; id: string; name: string }[];
+  /** Đồng hồ SLA phản hồi đầu (TIP-014c) chiếu theo policy của tài khoản kênh. */
+  frt_due_at?: string | null;
+  frt_target_min?: number | null;
+  sla_state?: 'breach' | 'risk' | 'ok';
+  snoozed_until?: string | null;
 }
 
 export interface Message {

@@ -1,6 +1,7 @@
 // Mock Cài đặt › Vận hành (Blueprint §2 sla_policy mặc định, §3.4 support / notifications): GET /settings/sla (chính sách mặc định,
 // giờ làm việc, quy tắc leo thang, dự báo rủi ro), /settings/notifications (tuỳ chọn thông báo của người dùng hiện tại).
 // Ghi: sla.update_default, working_hours.update, notification.update_prefs.
+import { SLA_PRESETS, type SlaPolicyItemDto } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -20,6 +21,30 @@ export const createSettingsOpsState = (): SettingsOpsState => ({ sla: structured
 export const settingsOpsRoutes: Record<string, MockRoute> = {
   '/settings/sla': (db) => db.settingsOps.sla,
   '/settings/notifications': (db) => db.settingsOps.notif,
+  '/sla-policies': (db): SlaPolicyItemDto[] =>
+    SLA_PRESETS.map((p) =>
+      p.isDefault
+        ? {
+            id: p.id,
+            name: db.settingsOps.sla.policy.name,
+            is_default: true,
+            frt_ai: db.settingsOps.sla.policy.frt_ai,
+            frt_human: db.settingsOps.sla.policy.frt_human,
+            ttr_ai: db.settingsOps.sla.policy.ttr_ai,
+            ttr_human: db.settingsOps.sla.policy.ttr_human,
+            active: db.settingsOps.sla.policy.on,
+          }
+        : {
+            id: p.id,
+            name: p.name,
+            is_default: false,
+            frt_ai: p.frt_ai,
+            frt_human: p.frt_human,
+            ttr_ai: p.ttr_ai,
+            ttr_human: p.ttr_human,
+            active: true,
+          },
+    ),
 };
 
 export const settingsOpsHandlers: Record<string, MockHandler> = {

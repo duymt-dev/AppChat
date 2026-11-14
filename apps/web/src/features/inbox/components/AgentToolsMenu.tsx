@@ -56,7 +56,7 @@ export function AgentToolsMenu({ conversationId, onClose, onPickFile, onCapture,
           </div>
         ) : null}
         {!groups.length && !skill ? <div className={ps.popHint}>{t('attachMenu.noTools')}</div> : null}
-        <button type="button" className={ps.slot} disabled>
+        <button type="button" className={ps.slot} disabled data-testid="agent-tools-research">
           <Icon name="ic-globe" size={15} color={color.text4} />
           <span className={styles.grow}>{t('attachMenu.research')}</span>
           <span className={styles.conf}>{t('attachMenu.soon')}</span>

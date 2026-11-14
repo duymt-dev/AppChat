@@ -16,13 +16,13 @@ const intIn = (v: string, max: number) => {
   return Number.isInteger(n) && n >= 1 && n <= max ? n : undefined;
 };
 
-export function ChannelRateFields({ type, value, onChange }: { type: string; value: Rate; onChange: (p: Partial<Rate>) => void }) {
+export function ChannelRateFields({ value, onChange }: { value: Rate; onChange: (p: Partial<Rate>) => void }) {
   const t = useTranslations('settings.channels.drawer.rate');
   const s = useSectionStyles().styles;
   const { styles, cx } = useChannelManageStyles();
   if (value.rate_default === undefined) return null;
   const capDefault = value.daily_cap_default ?? null;
-  const over = type === 'zalo_personal' && capDefault !== null && (value.daily_cap ?? 0) > capDefault;
+  const over = capDefault !== null && (value.daily_cap ?? 0) > capDefault;
   return (
     <div data-testid="st-ch-drawer-rate">
       <div className={styles.syncRow}>

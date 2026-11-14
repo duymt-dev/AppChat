@@ -1,11 +1,12 @@
 // Bản ghi hội thoại / tin → shape đọc FE (packages/shared/src/api/inbox.ts). Chữ theo locale người xem, giờ theo múi giờ workspace.
-import { AGENT_INTENTS_CLOSED, CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type AgentIntent, type ConversationDto, type MessageDto } from '@appchat/shared';
+import { AGENT_INTENTS_CLOSED, CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type AgentIntent, type BusinessCalendar, type ConversationDto, type MessageDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 
 export interface Place {
   locale: string;
   timeZone: string;
   now: Date;
+  cal?: BusinessCalendar;
 }
 
 type ConvRow = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
@@ -51,12 +52,15 @@ export interface ConvExtras {
   coAssignees?: Map<string, { kind: 'user' | 'agent'; id: string; name: string }[]>;
   /** TIP-020c: hội thoại có nháp AI phụ thuộc nguồn tri thức không còn hợp lệ — không chiếu nháp. */
   staleDrafts?: Set<string>;
+  /** TIP-014c: hạn phản hồi đầu + mục tiêu + trạng thái SLA theo chính sách của tài khoản kênh. */
+  slaByConv?: Map<string, { frt_due_at: string; frt_target_min: number; sla_state: 'breach' | 'risk' | 'ok' }>;
 }
 
 export function toConversation(c: ConvRow, x: ConvExtras, p: Place): ConversationDto {
   const title = c.title?.trim() || (c.contactId ? x.contactName.get(c.contactId) : undefined) || serverMessages(p.locale).inbox.unknownContact;
   const tags = (x.tags.get(c.id) ?? []).map((t) => ({ label: t.emoji ? `${t.emoji} ${t.name}` : t.name, tone: CONV_TAG_TONE_OF[t.color.toUpperCase()] ?? ('channel' as const) }));
   const group = c.kind === 'group';
+  const status = c.status === 'snoozed' && c.snoozedUntil && c.snoozedUntil.getTime() <= p.now.getTime() ? 'open' : c.status;
   return {
     id: c.id,
     kind: c.kind,
@@ -81,7 +85,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     ...(c.aiDraft && !x.staleDrafts?.has(c.id) ? { ai_draft: c.aiDraft, ...(c.aiDraftRunId ? { ai_draft_ref: { id: c.aiDraftRunId, generation: c.aiDraftGen } } : {}) } : {}),
     ...(c.intent && (AGENT_INTENTS_CLOSED as readonly string[]).includes(c.intent) ? { intent: c.intent as AgentIntent } : {}),
     ...(c.handoffSummary ? { has_handoff_summary: true } : {}),
-    status: c.status,
+    status,
     pinned_message_id: c.pinnedMessageId,
     hidden: !!c.hiddenAt,
     channel_account_id: c.channelAccountId,
@@ -90,6 +94,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     ...(x.coAssignees?.get(c.id)?.length ? { co_assignees: x.coAssignees.get(c.id) } : {}),
     archived: !!c.archivedAt,
     last_message_at: c.lastMessageAt.toISOString(),
+    ...(x.slaByConv?.get(c.id) ?? {}),
   };
 }
 

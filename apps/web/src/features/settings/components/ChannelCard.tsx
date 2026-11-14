@@ -19,7 +19,7 @@ export function ChannelCard({ c }: { c: Channel }) {
   const can = useCan('channels.manage');
   const open = () => {
     if (c.connected) return set({ channelDrawer: { type: c.type, accountId: null } });
-    if (c.type === 'webchat') return router.push(WIDGET);
+    if (c.connect?.kind === 'embed') return router.push(WIDGET);
     return set({ channelWizard: { type: c.type, step: 2 } });
   };
   // Nhãn: đã kết nối > nhãn prototype (Phổ biến / bản thử nghiệm). "Sắp có" hiện ở nút, không thay nhãn (giữ đúng vị trí như prototype).

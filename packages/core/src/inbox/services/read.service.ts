@@ -2,8 +2,11 @@
 // một hội thoại, tin theo trang (mới nhất trước) / cửa sổ quanh tin / tìm có trang (thread-window — TIP-025b), tìm trong hội thoại (REQ-C12). Mỗi lệnh một transaction chỉ-đọc trên
 // DB tenant (TenantDbResolver) + scope inbox của người xem (rbac §5).
 import { TenantSql as Prisma, TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
-import { foldRanges, foldText, type AuthzContext, type ConversationDto, type FolderCountsDto } from '@appchat/shared';
+import { DEFAULT_WORKING_DAYS, foldRanges, foldText, type AuthzContext, type BusinessCalendar, type ConversationDto, type FolderCountsDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
+import { workingHoursOf } from '../../identity/public';
+import { settingsOf } from '../../channels/public';
+import { ensureSlaPolicies, resolveSlaPolicyFromList, targetsFor } from '../../support/services/sla-clock';
 import { folderCounts, listConversationIds, type ConvFilter } from '../repos/conversations.repo';
 import { visibleConversation, type Conv } from './access';
 import { toConversation, type ConvExtras, type Place } from './view';
@@ -43,13 +46,20 @@ export class InboxReadService {
     return db.$transaction(fn);
   }
 
-  /** Locale người xem + múi giờ workspace + "bây giờ" (giờ hiển thị). */
+  /** Locale người xem + múi giờ workspace + lịch làm việc + "bây giờ" (giờ hiển thị & SLA). */
   async place(v: Viewer): Promise<Place> {
     const [u, ws] = await Promise.all([
       this.platform.user.findUnique({ where: { id: v.userId }, select: { locale: true } }),
-      this.platform.workspace.findUnique({ where: { id: v.workspaceId }, select: { timezone: true } }),
+      this.platform.workspace.findUnique({ where: { id: v.workspaceId }, select: { timezone: true, settings: true } }),
     ]);
-    return { locale: u?.locale ?? 'vi', timeZone: ws?.timezone ?? 'Asia/Ho_Chi_Minh', now: this.now() };
+    const timeZone = ws?.timezone ?? 'Asia/Ho_Chi_Minh';
+    const wh = ws && 'settings' in ws && ws.settings ? workingHoursOf(ws.settings) : { days: DEFAULT_WORKING_DAYS.map((d) => ({ ...d })), pause_sla: true };
+    return {
+      locale: u?.locale ?? 'vi',
+      timeZone,
+      now: this.now(),
+      cal: { days: wh.days, enabled: wh.pause_sla, timeZone },
+    };
   }
 
   async list(v: Viewer, f: ConvFilter, cursor?: string, limit?: number) {
@@ -153,11 +163,27 @@ export class InboxReadService {
     const groupIds = convs.filter((c) => c.kind === 'group').map((c) => c.id);
     const [contacts, accounts, links, members, coRows] = await Promise.all([
       contactIds.length ? tx.contact.findMany({ where: { id: { in: contactIds } }, select: { id: true, name: true, avatarUrl: true, deletedAt: true } }) : [],
-      tx.channelAccount.findMany({ where: { id: { in: accountIds } }, select: { id: true, name: true } }),
+      tx.channelAccount.findMany({ where: { id: { in: accountIds } }, select: { id: true, name: true, settings: true } }),
       tx.conversationTag.findMany({ where: { conversationId: { in: ids } }, orderBy: { createdAt: 'asc' } }),
       groupIds.length ? tx.conversationParticipant.groupBy({ by: ['conversationId'], where: { conversationId: { in: groupIds } }, _count: { _all: true } }) : [],
       tx.conversationAssignee.findMany({ where: { conversationId: { in: ids } }, orderBy: { createdAt: 'asc' } }),
     ]);
+    let slaByConv: Map<string, { frt_due_at: string; frt_target_min: number; sla_state: 'breach' | 'risk' | 'ok' }> | undefined;
+    if (convs.some((c) => c.frtPendingSince && c.status !== 'closed')) {
+      const policies = await ensureSlaPolicies(tx, p.now);
+      const settingsByAcc = new Map(accounts.map((a) => [a.id, settingsOf(a)]));
+      const cal: BusinessCalendar = p.cal ?? { days: DEFAULT_WORKING_DAYS.map((d) => ({ ...d })), enabled: true, timeZone: p.timeZone };
+      slaByConv = new Map();
+      for (const c of convs) {
+        if (!c.frtPendingSince || c.status === 'closed') continue;
+        const st = settingsByAcc.get(c.channelAccountId);
+        const policy = resolveSlaPolicyFromList(policies, st?.sla_policy, st?.sla_override);
+        const targets = targetsFor(policy, !!c.assigneeAgentId && !c.assigneeUserId, c.frtPendingSince, cal);
+        const remMs = targets.frtDueAt.getTime() - p.now.getTime();
+        const sla_state: 'breach' | 'risk' | 'ok' = remMs < 0 ? 'breach' : remMs <= targets.frtTargetMin * 60_000 * 0.2 ? 'risk' : 'ok';
+        slaByConv.set(c.id, { frt_due_at: targets.frtDueAt.toISOString(), frt_target_min: targets.frtTargetMin, sla_state });
+      }
+    }
     const tagRows = links.length ? await tx.tag.findMany({ where: { id: { in: [...new Set(links.map((l) => l.tagId))] } } }) : [];
     const tagById = new Map(tagRows.map((t) => [t.id, t]));
     const tags = new Map<string, { name: string; color: string; emoji: string }[]>();
@@ -176,6 +202,7 @@ export class InboxReadService {
       avatars: await this.convAvatars(tx, convs, contacts, ws),
       coAssignees,
       staleDrafts: (await staleAiContent(tx, convs)).drafts,
+      slaByConv,
     };
     return convs.map((c) => toConversation(c, x, p));
   }

@@ -520,6 +520,10 @@
       "saved": "AI Agent behavior saved",
       "overnight": "An interval past midnight will be split across two consecutive days. Continue?"
     },
+    "zalo_personal": {
+      "risk": "Personal Zalo runs through a linked phone session — rapid or bulk automated messaging may cause Zalo to limit or lock your account.",
+      "riskAck": "I understand the risks and want to proceed"
+    },
     "wizard": {
       "title": "Connect a channel",
       "titleAcc": "Add {n} account",
@@ -595,6 +599,8 @@
       "assignMode": "Split",
       "assign": { "round_robin": "Round robin", "least_busy": "Least busy", "shift": "By shift" },
       "slaPolicy": "SLA policy",
+      "slaDefaultFmt": "{name} (default) · first reply {frt} min",
+      "slaFmt": "{name} · first reply {frt} min",
       "sla": { "std": "Standard · first reply 5 min", "vip": "VIP · first reply 2 min", "soc": "Social · first reply 15 min" },
       "s5": "5 · Data sync",
       "syncMessages": "Sync messages",
@@ -2013,6 +2019,10 @@
       "asDefault": "Make this the default for this type",
       "errName": "Enter a template name",
       "errVars": "Variables not allowed for this type: {v}"
+    },
+    "zalo_personal": {
+      "risk": "Personal Zalo runs through a linked phone session — rapid or bulk automated messaging may cause Zalo to limit or lock your account.",
+      "riskAck": "I understand the risks and want to proceed"
     },
     "wizard": {
       "title": "Upload your DOCX template",

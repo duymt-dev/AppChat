@@ -186,6 +186,14 @@ export const channelUpdateSettings = defineAction({
       /** TIP-037: tốc độ gửi / phút (≤ trần limiter) và trần tin chủ động / ngày — vượt mặc định Zalo (200) có cảnh báo ở preview (D35). */
       rate_per_minute: z.number().int().min(1).max(CHANNEL_RATE_MAX).optional(),
       daily_cap: z.number().int().min(1).max(DAILY_CAP_MAX).optional(),
+      /** TIP-014c: ghi đè hạn SLA cho riêng tài khoản kênh (null = bỏ ghi đè, quay về chính sách `sla_policy`). */
+      sla_override: z
+        .object({
+          first_response_min: z.number().int().min(1).max(10_080),
+          resolution_min: z.number().int().min(1).max(43_200).optional(),
+        })
+        .nullable()
+        .optional(),
     }),
     /** TIP-022b: bản chụp gán agent lúc xem trước — gán đã bị đổi → 409, giữ gán cũ. */
     expected_version: z.string().max(32).optional(),

@@ -101,6 +101,28 @@ export const useChatStyles = createStyles(({ css, responsive }) => ({
     font-weight: ${font.weight.heavy};
     flex-shrink: 0;
   `,
+  frtPill: css`
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 8px;
+    border-radius: ${radius.pill}px;
+    font-size: ${font.scale.s11}px;
+    font-weight: ${font.weight.bold};
+    flex-shrink: 0;
+  `,
+  frtBreach: css`
+    background: ${color.dangerSoftBg};
+    color: ${color.dangerDeep};
+  `,
+  frtRisk: css`
+    background: ${color.warnBg};
+    color: ${color.warn};
+  `,
+  frtOk: css`
+    background: ${color.brandBg};
+    color: ${color.brandInk};
+  `,
   icons: css`
     display: flex;
     align-items: center;

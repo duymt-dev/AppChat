@@ -3,7 +3,17 @@ import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
 import { sessionAuth } from '@/shared/api/http-transport';
 import { apiMode } from '@/shared/api/transport';
-import type { BillQuoteDto as BillQuote, BookingSettingsDto, SalesPolicyDto, WorkspaceDeletePreviewDto, WorkspaceLifecycleDto } from '@appchat/shared';
+import {
+  DEFAULT_SLA_POLICY_ID,
+  SOCIAL_SLA_POLICY_ID,
+  VIP_SLA_POLICY_ID,
+  type BillQuoteDto as BillQuote,
+  type BookingSettingsDto,
+  type SalesPolicyDto,
+  type SlaPolicyItemDto,
+  type WorkspaceDeletePreviewDto,
+  type WorkspaceLifecycleDto,
+} from '@appchat/shared';
 import type {
   DocTemplate,
   BillInvoice,
@@ -141,6 +151,23 @@ export const aiAuditQuery = (f: AuditFilter = {}) =>
   });
 
 export const slaQuery = () => queryOptions({ queryKey: ['settings', 'sla'], queryFn: () => transport.get<SlaData>('/settings/sla') });
+
+export const slaPoliciesQuery = () =>
+  queryOptions({ queryKey: ['sla-policies'], queryFn: () => transport.get<SlaPolicyItemDto[]>('/sla-policies') });
+
+/** Chuẩn hoá giá trị `sla_policy` cũ/tên/id thành id chính sách SLA đang chọn. */
+export function resolveSlaPolicyId(raw: string | undefined, list: readonly SlaPolicyItemDto[]): string {
+  const fallback = list.find((p) => p.is_default)?.id ?? list[0]?.id ?? DEFAULT_SLA_POLICY_ID;
+  const q = (raw ?? '').trim();
+  if (!q) return fallback;
+  if (list.some((p) => p.id === q)) return q;
+  const ql = q.toLowerCase();
+  if (ql === 'vip' || ql.includes('vip')) return list.find((p) => p.id === VIP_SLA_POLICY_ID || p.name.toLowerCase().includes('vip'))?.id ?? fallback;
+  if (ql === 'soc' || ql === 'social' || ql.includes('mạng xã hội')) {
+    return list.find((p) => p.id === SOCIAL_SLA_POLICY_ID || p.name.toLowerCase().includes('xã hội') || p.name.toLowerCase().includes('social'))?.id ?? fallback;
+  }
+  return list.find((p) => p.name.toLowerCase() === ql)?.id ?? fallback;
+}
 
 export const notifPrefsQuery = () => queryOptions({ queryKey: ['me', 'notif-prefs'], queryFn: () => transport.get<NotifPrefs>('/settings/notifications') });
 

@@ -17,6 +17,7 @@ test.describe('marketing (http)', () => {
     await page.goto('/settings/channels');
     await page.getByTestId('st-ch-zalo_personal').click();
     const cw = page.getByTestId('st-ch-wizard');
+    await cw.getByTestId('st-ch-wizard-risk-ack').check();
     await cw.getByTestId('st-ch-wizard-label').fill('Zalo Marketing');
     await cw.getByTestId('st-ch-wizard-next').click();
     await expect(cw.getByTestId('st-ch-wizard-cfg-name')).toBeVisible({ timeout: 30_000 });

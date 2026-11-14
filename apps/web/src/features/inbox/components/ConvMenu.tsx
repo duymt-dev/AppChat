@@ -4,7 +4,7 @@
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
+import { useTimeZone, useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useRowStyles } from '../styles/row.styles';
@@ -13,12 +13,13 @@ import { cannedQuery, channelsQuery } from '../api';
 import type { Conversation } from '../types';
 import { AssignPicker } from './AssignPicker';
 import { CoAssigneesSection } from './CoAssigneesSection';
+import { SnoozePicker } from './SnoozePicker';
 
 const STAGES = ['lead', 'potential', 'consulting', 'quote', 'contract', 'won', 'lost'] as const;
-const SNOOZE = ['1h', '3h', 'tomorrow', 'custom'] as const;
 
 export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: boolean; onClose: () => void }) {
   const t = useTranslations('inbox.list');
+  const timeZone = useTimeZone() ?? 'Asia/Ho_Chi_Minh';
   const { styles, cx } = useRowStyles();
   const ui = useInboxUi();
   const sub = ui.menuFor === conv.id ? ui.convSub : null;
@@ -61,7 +62,6 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
     ui.select(conv.id);
     ui.set({ draft: body });
   };
-  const snoozeHours: Record<(typeof SNOOZE)[number], number> = { '1h': 1, '3h': 3, tomorrow: 16, custom: 24 };
   const doAssign = (id: string, isAgent: boolean) => {
     onClose();
     void assign.run({ conversation_id: conv.id, ...(isAgent ? { agent_id: id } : { user_id: id }) });
@@ -98,14 +98,13 @@ export function ConvMenu({ conv, open, onClose }: { conv: Conversation; open: bo
             {t(`actions.${sub === 'hide' ? 'snooze' : sub === 'stage' ? 'lifecycle' : sub}` as never)}
           </div>
           {sub === 'hide' ? (
-            <div className={styles.subList}>
-              {SNOOZE.map((k) => (
-                <button key={k} type="button" className={styles.item} onClick={() => { onClose(); void setStatus.run({ conversation_id: conv.id, status: 'snoozed', snooze_hours: snoozeHours[k] }); }}>
-                  <span className={styles.dot} />
-                  <span className={styles.grow}>{t(`snoozeOpts.${k}` as never)}</span>
-                </button>
-              ))}
-            </div>
+            <SnoozePicker
+              timeZone={timeZone}
+              onPick={(snoozed_until) => {
+                onClose();
+                void setStatus.run({ conversation_id: conv.id, status: 'snoozed', snoozed_until });
+              }}
+            />
           ) : null}
           {sub === 'shortcut' ? (
             <div className={styles.subList}>

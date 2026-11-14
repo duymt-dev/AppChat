@@ -1,15 +1,18 @@
 // Soạn cấu hình agent từ mô tả (§5.3b) + tối ưu prompt: khuôn bản soạn, đọc JSON model trả, và bản tất định (mẫu theo từ khoá) cho các
 // lý do fallback đã khai (TIP-021b §3.2). Tool của bản soạn — model hay tất định — luôn ⊆ tập ứng viên discovery đã lọc quyền hiện hành
 // (TIP-021b §1.5); không còn danh sách tool tĩnh nào vượt qua discovery. Prompt hệ thống + JSON Schema ở `drafting/generation.ts`.
+import { channelRegistry, type ChannelManifest } from '@appchat/channels';
 import { can, foldText, isPermissionKey, type AuthzContext } from '@appchat/shared';
 import { z } from 'zod';
 import { blankConfig, grantableAction, type AgentConfig } from './agent.store';
 import { AGENT_INTENTS, OPTIMIZE_SUFFIX, PROMPT_TEMPLATES } from './catalog';
 
+const CONNECTABLE = channelRegistry.manifests().filter((m) => channelRegistry.isConnectable(m.type));
+
 export const ROLES = ['sales', 'cs', 'booking', 'marketing', 'accounting', 'ops', 'custom'] as const;
 export const DRAFT_LANGUAGES = ['vi', 'en', 'bilingual', 'auto'] as const;
 export const DRAFT_TIERS = ['standard', 'advanced', 'max'] as const;
-export const DRAFT_CHANNELS = ['zalo_personal', 'webchat', 'email'] as const;
+export const DRAFT_CHANNELS = CONNECTABLE.map((m) => m.type) as [string, ...string[]];
 
 export const OPTIMIZE_SYSTEM = [
   'Bạn tối ưu system prompt cho AI Agent chăm sóc khách hàng.',
@@ -83,11 +86,29 @@ const RULES: Rule[] = [
   { re: /cong no|ke toan|thanh toan|hoa don/, role: 'accounting', emoji: '💡', intents: [6], tools: ['invoice.create', 'conversation.handoff'], template: 0 },
   { re: /ban hang|tu van|bao gia|chot don|sales/, role: 'sales', emoji: '🛍️', intents: [0, 1], tools: ['contact.update', 'contact.set_stage', 'quote.create', 'conversation.handoff'], template: 1 },
 ];
-const CHANNELS: [RegExp, string][] = [
-  [/zalo/, 'zalo_personal'],
-  [/web|website|widget/, 'webchat'],
-  [/email|mail/, 'email'],
-];
+function channelRegex(m: ChannelManifest): RegExp {
+  const words = new Set<string>([
+    ...foldText(m.display.name)
+      .split(/\s+/)
+      .filter((w) => w.length >= 3),
+    ...foldText(m.type)
+      .split('_')
+      .filter((w) => w.length >= 3),
+  ]);
+  if (m.group === 'web' || m.connect.kind === 'embed') {
+    words.add('web');
+    words.add('website');
+    words.add('widget');
+  }
+  if (m.group === 'email') {
+    words.add('email');
+    words.add('mail');
+  }
+  return new RegExp([...words].join('|'));
+}
+
+const CHANNEL_MATCHERS: [RegExp, string][] = CONNECTABLE.map((m) => [channelRegex(m), m.type]);
+const DEFAULT_DRAFT_CHANNELS = CONNECTABLE.filter((m) => m.group === 'chat' || m.group === 'web').map((m) => m.type);
 
 function pickTools(preferred: readonly string[], candidates: readonly string[]): string[] {
   const set = new Set(candidates);
@@ -100,7 +121,7 @@ function pickTools(preferred: readonly string[], candidates: readonly string[]):
 export function draftFromText(description: string, candidates: readonly string[]): AgentConfig {
   const f = foldText(description);
   const rule = RULES.find((r) => r.re.test(f));
-  const channels = CHANNELS.filter(([re]) => re.test(f)).map(([, c]) => c);
+  const channels = CHANNEL_MATCHERS.filter(([re]) => re.test(f)).map(([, c]) => c);
   const name = description.trim().split(/[.,;\n]/)[0]!.slice(0, 60).trim();
   return {
     ...blankConfig(name || 'Agent'),
@@ -110,7 +131,7 @@ export function draftFromText(description: string, candidates: readonly string[]
     prompt: PROMPT_TEMPLATES[rule?.template ?? 0]!.text,
     intents: rule?.intents ?? [2],
     tools: pickTools(rule?.tools ?? [], candidates),
-    channels: channels.length ? channels : ['zalo_personal', 'webchat'],
+    channels: channels.length ? channels : [...DEFAULT_DRAFT_CHANNELS],
     model_tier: 'advanced',
     threshold: 75,
   };

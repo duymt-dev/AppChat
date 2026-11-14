@@ -201,7 +201,7 @@
 | D45 | Phạm vi đợt ver2.1 | 01-REQUIREMENTS-MATRIX.md:294 | — | QUY-TẮC | Phạm vi |
 | D46 | Hồ sơ 360°: nháp → Cập nhật, BG đã gửi → phiên bản mới, HĐ đã gửi → chi tiết | 01-REQUIREMENTS-MATRIX.md:295 | 025, 026 | ĐẠT | apps/web/src/features/inbox/components/Profile360Actions.tsx:2 · test apps/web/e2e/inbox.spec.ts:69 |
 | D47 | Danh mục công cụ agent cũ | 01-REQUIREMENTS-MATRIX.md:296 | — | NGOÀI | Thay bằng D51 |
-| D48 | Research / Web search khoá "Sắp có" | 01-REQUIREMENTS-MATRIX.md:297 | 014c | MỘT PHẦN | apps/web/src/features/inbox/components/AgentToolsMenu.tsx:58; không có test kiểm khoá; TIP-014c nhận (2026-11-02) |
+| D48 | Research / Web search khoá "Sắp có" | 01-REQUIREMENTS-MATRIX.md:297 | 014c | ĐẠT | `apps/web/src/features/inbox/components/AgentToolsMenu.tsx:59` (`data-testid="agent-tools-research"`, `disabled`, nhãn `"Sắp có"`, không `onClick`); `AgentToolsMenu.test.tsx` (1/1) · `coding-packs/reports/TIP-014c-completion.md` |
 | D49 | Submenu Vòng đời = `contact.set_stage` | 01-REQUIREMENTS-MATRIX.md:298 | 025 | ĐẠT | features/inbox/components/ConvMenu.tsx:26 · test apps/web/e2e/inbox.spec.ts "menu hội thoại" |
 | D50a | Ẩn trò chuyện = `conversation.hidden_at`, có tin mới hiện lại | 01-REQUIREMENTS-MATRIX.md:299 | 016 | ĐẠT | inbox/actions/conversation-state.handlers.ts:88 · test inbox.test.ts:136 |
 | D50b | Tạo nhóm Zalo (hết khoá sau TIP-014) | 01-REQUIREMENTS-MATRIX.md:299 | 023b | ĐẠT | conversation.create_group (durable request + group worker): packages/core/src/inbox/…; test conversation-groups.test.ts + apps/api/test/integration/actions/conversation.create_group.action.test.ts |
