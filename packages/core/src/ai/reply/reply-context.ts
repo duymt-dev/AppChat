@@ -159,14 +159,16 @@ async function replyKb(db: TenantDb, embed: QueryEmbed | null, runId: string, qu
   const r = b.k ? await admit(db, b.k, null) : null;
   if (!r?.ok) return null;
   let e: EmbedResult | null = null;
+  let embedError: string | null = null;
   if (embed) {
     try {
       e = await embed(query);
     } catch (err) {
       if (isMeteringStop(err)) throw err;
+      embedError = String((err as { code?: string })?.code ?? '');
     }
   }
-  const out = await searchKb(db, null, { query, restriction: r.r, queryEmbedding: e }).catch(() => null);
+  const out = await searchKb(db, null, { query, restriction: r.r, queryEmbedding: e, embedError }).catch(() => null);
   if (out?.refs.length) await recordRefs(db, runId, out.refs.map((x) => ({ ...x, b: b.runId })));
   return out;
 }

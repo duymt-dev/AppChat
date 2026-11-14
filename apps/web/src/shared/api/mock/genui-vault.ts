@@ -15,8 +15,9 @@ function set(o: Record<string, unknown>, path: string, v: unknown) {
 }
 
 /** Nguồn assistant (có intent) bắt xem trước mọi action không phải đọc. */
-/** Action xem trước bắt buộc cho mọi nguồn như server (policy MANDATORY_PREVIEW_ACTIONS) — TIP-033c: tạo đơn từ lịch hẹn. */
-const MANDATORY_PREVIEW = new Set(['order.create_from_appointment']);
+/** Action xem trước bắt buộc cho mọi nguồn như server (policy MANDATORY_PREVIEW_ACTIONS) — TIP-033c: tạo đơn từ lịch hẹn; TIP-020e: tạo
+ *  lại chỉ mục kho tri thức (trừ Credit — luôn xem ước tính). */
+const MANDATORY_PREVIEW = new Set(['order.create_from_appointment', 'kb.reindex']);
 export const genUiNeedsPreview = (def: ActionDef, intent?: string) => MANDATORY_PREVIEW.has(def.id) || (!!intent && def.risk !== 'read');
 
 /** Tách bí mật khỏi input: `plain` để hash / gắn token, `secrets` cất vault. */

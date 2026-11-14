@@ -8,6 +8,8 @@
 // TIP-022c: biên nhận ý định khách `ai_sales_intent` theo khách gốc lúc nhận (index original_contact_id, id INCLUDE state) — luôn exclusive
 // (biên nhận của một khách, lấy từ hội thoại 1-1 của khách đó). Căn cứ công bố `ai_sales_publication` theo hội thoại của khách (index
 // conversation_id, id) — như ai_run: 1-1 exclusive, nhóm shared.
+// TIP-020e: vector chỉ mục kho (cả khe A / B + generation đã ghi) của nguồn học từ hội thoại của khách (kb_suggestion → conversation) —
+// `kb_index_vector`, record = id nguồn, revision = số đoạn còn vector; nhóm → shared. Nội dung đoạn / nguồn thuộc pha erase KB của 015c.
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { idsSql, toInventory, type InvRow } from '../../kernel/privacy/sql';
 
@@ -29,6 +31,12 @@ export async function aiInventory(tx: TenantTx, contactIds: readonly string[]) {
     UNION ALL
     SELECT 'ai_sales_publication' AS kind, p.id AS record_id, 1 AS revision, CASE WHEN c.kind = 'direct' THEN 'exclusive' ELSE 'shared' END AS ownership
       FROM ai_sales_publication p JOIN conversation c ON c.id = p.conversation_id
-      WHERE c.contact_id = ANY(${ids})`;
+      WHERE c.contact_id = ANY(${ids})
+    UNION ALL
+    SELECT 'kb_index_vector' AS kind, g.kb_source_id AS record_id,
+           (SELECT count(*)::int FROM kb_chunk k WHERE k.source_id = g.kb_source_id AND (k.embedding IS NOT NULL OR k.embedding_b IS NOT NULL)) AS revision,
+           CASE WHEN c.kind = 'direct' THEN 'exclusive' ELSE 'shared' END AS ownership
+      FROM kb_suggestion g JOIN conversation c ON c.id = g.conversation_id
+      WHERE g.kb_source_id IS NOT NULL AND c.contact_id = ANY(${ids})`;
   return toInventory(rows);
 }

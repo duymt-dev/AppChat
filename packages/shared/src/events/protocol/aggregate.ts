@@ -96,6 +96,9 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'kb.suggestion_created': conv,
   'kb.suggestion_approved': by('kb_suggestion', 'suggestion_id'),
   'kb.suggestion_rejected': by('kb_suggestion', 'suggestion_id'),
+  // TIP-020e: chỉ mục embedding — một dòng setting mỗi workspace (khoá cố định), cùng luồng thứ tự với generation đang phục vụ.
+  'kb.index_stale': ws,
+  'kb.index_published': ws,
   'agent.published': by('agent', 'agent_id'),
   'agent.paused': by('agent', 'agent_id'),
   'agent.deleted': by('agent', 'agent_id'),

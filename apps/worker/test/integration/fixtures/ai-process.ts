@@ -28,6 +28,8 @@ export const testEnv: Record<string, string> = {
   NODE_ENV: 'test',
   LOG_LEVEL: 'warn',
   AI_ENGINE: 'mock',
+  // Không seed provider embed thật vào DB nền tảng của test (TIP-020e).
+  EMBED_SEED_PROVIDER_KEY: '',
   MAIL_PROVIDER: 'console',
   MAIL_TRANSPORT: 'fake',
   TAX_LOOKUP_PROVIDER: 'mock',

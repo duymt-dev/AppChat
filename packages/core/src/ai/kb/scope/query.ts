@@ -16,7 +16,7 @@ export function memberSql(s: KbScope): Prisma.Sql {
 }
 
 /** Nguồn gắn bản ghi còn hợp lệ cho mọi người xem: sản phẩm còn sống; nguồn hội thoại có nguồn gốc + khách chưa bị "Quên". */
-const LINKED = Prisma.sql`(s.product_id IS NULL OR EXISTS (SELECT 1 FROM product p WHERE p.id = s.product_id AND p.deleted_at IS NULL))
+export const LINKED = Prisma.sql`(s.product_id IS NULL OR EXISTS (SELECT 1 FROM product p WHERE p.id = s.product_id AND p.deleted_at IS NULL))
   AND (s.origin <> 'conversation' OR EXISTS (
     SELECT 1 FROM kb_suggestion g JOIN conversation cv ON cv.id = g.conversation_id
     WHERE g.kb_source_id = s.id AND (cv.contact_id IS NULL OR NOT EXISTS (SELECT 1 FROM privacy_family_member pm WHERE pm.contact_id = cv.contact_id))))`;

@@ -48,7 +48,20 @@ export { registerPassages, registryOf, MAX_CITATION_CANDIDATES } from './citatio
 export { bindingOf, CITATION_SCHEMA_VERSION } from './citations/publication';
 export { recoverCitations } from './citations/recovery';
 export { citationsOf } from './citations/projection';
-export { readKb, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
+export { readKb, readKbWithIndex, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
+// TIP-020e: tái tạo chỉ mục embedding + rerank kho tri thức.
+export { KB_RERANKER } from './kb/reindex/providers';
+export { KbReindexQueue, KB_REINDEX_QUEUE, reindexJobId } from './kb/reindex/reindex.queue';
+export { runGeneration, purgeGeneration, reasonOf, REINDEX_BATCH, MAX_CATCHUP_ROUNDS, type ReindexDeps, type ReindexOutcome } from './kb/reindex/reindex.service';
+export { publishGeneration, missingCount } from './kb/reindex/publish';
+export { readIndexStatus, reconcileIndexState, currentSpace } from './kb/reindex/index-status';
+export { readIndexSetting, sameSpace, spaceLabel, slotCols, kbSpaceEmbedder, type Slot } from './kb/reindex/space';
+export { claimLease, createGeneration, getGeneration, openGeneration, LEASE_MS as KB_REINDEX_LEASE_MS } from './kb/reindex/generation.store';
+export { estimateReindex } from './kb/reindex/estimate';
+export { rerankStage } from './kb/rerank-stage';
+export { rerankHooks, rerankPriceMissing } from './runs/metered-rerank';
+export { recoverReindex } from './kb/ingest-recovery';
+export { startKbReindexWorker } from './jobs/kb-reindex.processor';
 export { sourceDownload, safeName as kbSafeName, type KbDownload } from './kb/source-download';
 export { ParseError, csvBlocks, htmlBlocks, kindOf, markdownBlocks, parseDocument } from './kb/parse';
 export { AI_RUNTIME } from './jobs/ai.jobs.module';

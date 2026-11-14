@@ -58,6 +58,7 @@ import { TaskPlace } from './tasks/task-place';
 import { ASSISTANT_PLAN_PROVIDERS } from './assistant/plans/providers';
 import { ASSISTANT_INPUT_PROVIDERS } from './assistant/input/providers';
 import { ASSISTANT_DISCOVERY_PROVIDERS } from './assistant/discovery/providers';
+import { KB_REINDEX_EXPORTS, KB_REINDEX_PROVIDERS } from './kb/reindex/providers';
 import { DISCOVERY_MODEL_SOURCE } from './assistant/discovery/prepare.handler';
 import { CLOCK, type Clock } from '../kernel/clock';
 
@@ -88,6 +89,12 @@ class ProviderSeed implements OnModuleInit {
     // Header provider cũ (giá trị thô) → mã hoá (TIP-040, DC-371) — trước mọi lần nạp cấu hình.
     if (this.store) await this.store.sealLegacyHeaders().catch((err: unknown) => this.log.warn({ err }, 'provider header seal failed'));
     if (this.store && this.env.AI_ENGINE === 'mock') await this.store.seedMockPrices().catch((err: unknown) => this.log.warn({ err }, 'mock price seed failed'));
+    // TIP-020e (DC-305): provider embed riêng — độc lập seed chat, chỉ khi provider chưa có.
+    if (this.store && this.env.EMBED_SEED_PROVIDER_KEY)
+      await this.store.seedEmbed(this.env).then(
+        (done) => done && this.log.info({ provider: this.env.EMBED_SEED_PROVIDER_KEY }, 'embed provider seeded'),
+        (err: unknown) => this.log.error({ err }, 'embed provider seed failed'),
+      );
     if (!this.store || !this.env.LLM_SEED_PROVIDER_KEY) return;
     await this.store.seed(this.env).then(
       (done) => done && this.log.info({ provider: this.env.LLM_SEED_PROVIDER_KEY }, 'llm provider seeded'),
@@ -199,8 +206,10 @@ class ProviderSeed implements OnModuleInit {
     ...ASSISTANT_PLAN_PROVIDERS,
     ...ASSISTANT_INPUT_PROVIDERS,
     ...ASSISTANT_DISCOVERY_PROVIDERS,
+    // TIP-020e: tái tạo chỉ mục embedding + rerank kho tri thức.
+    ...KB_REINDEX_PROVIDERS,
   ],
-  exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, DISCOVERY_MODEL_SOURCE, DiscoveryBuildQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS],
+  exports: [AI_ENV, AGENT_ENGINE, ProviderStore, AiRunner, KB_EMBEDDER, KbIngestQueue, DISCOVERY_MODEL_SOURCE, DiscoveryBuildQueue, ResumeQueue, AssistantService, ...TASK_EXPORTS, ...KB_REINDEX_EXPORTS],
 })
 export class AiModule implements OnModuleInit {
   /** TIP-003c: verifier nguồn của action riêng kho / duyệt / agent Hộp thư. */

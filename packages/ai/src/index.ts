@@ -12,10 +12,13 @@ export { LlmRouter, isFallbackError, type RouteRow, type RouterConfigSource } fr
 export { buildModel, type ProviderCapabilities, type ProviderConfig, type ProviderKind } from './router/providers';
 export { mergeCapabilities, probeError, probeProvider, type ProbeCapability, type ProbeCheck, type ProbeError, type ProbeRequest } from './router/probe';
 export { MOCK_MODEL, MOCK_PROVIDER, echoScript, mockLanguageModel, mockModelSource, staticModelSource, type MockCtx, type MockScript, type MockTurn } from './testing/mock-model';
-export { AiSdkEmbedder, EMBED_DIM, type EmbedResult, type Embedder } from './embed/embedder';
+export { AiSdkEmbedder, EMBED_DIM, embedSpaceKey, spaceMatches, type EmbedResult, type EmbedSpace, type Embedder } from './embed/embedder';
 export type { EmbedAttempt, EmbedHooks } from './embed/attempts';
 export { CHUNK_MAX_TOKENS, CHUNK_MIN_TOKENS, chunkDocument, hasPrice, tokensOf, type Chunk, type ChunkMeta, type DocBlock } from './kb/chunker';
 export { RRF_K, rrf } from './kb/rrf';
+export { AiSdkReranker } from './rerank/reranker';
+export { COMPATIBLE_NS, compatibleReranker, type CompatibleRerankConfig } from './rerank/compatible-reranker';
+export { RERANK_MAX_DOCS, RERANK_TIMEOUT_MS, RerankUnsupportedError, validOrder, type RerankAttempt, type RerankAttemptOutcome, type RerankHooks, type RerankOutcome, type RerankStatus, type Reranker } from './rerank/types';
 export { KB_LABELS, nameVariants, redactForKnowledge, sensitiveLeft, type KbLabelLocale, type KnowledgeContext } from './kb/suggestion-redaction';
 export { MOCK_EMBED_MODEL, mockEmbedSource, mockEmbeddingModel, mockVector } from './testing/mock-embed';
 export { PROMPTS, prompt, type PromptDoc, type PromptLocale } from './prompts';

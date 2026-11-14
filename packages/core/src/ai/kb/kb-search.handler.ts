@@ -17,6 +17,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { kbVisibility, searchPreview } from './previews/kb-search.handler.preview';
 import { emptyResult, minScoreOf, searchKb, type KbSearchResult } from './search';
 import { queryRunFor } from './query-run';
+import { kbSpaceEmbedder } from './reindex/space';
 import { recordRefs } from './scope/provenance';
 import { resolveFor } from './scope/resolve';
 import { registerPassages } from '../citations/binding';
@@ -26,7 +27,7 @@ export const KB_EMBEDDER = Symbol('KB_EMBEDDER');
 
 type Out = Pick<KbSearchResult, 'grounded' | 'chunks' | 'citations'> | { grounded: boolean; passages: ReturnType<typeof aliasedHits> };
 /** Kết quả `prepare`: bị chặn (lý do an toàn) hoặc vector đã đo (null = nhánh từ khoá). */
-type Prepared = { denied: string } | { e: EmbedResult | null };
+type Prepared = { denied: string } | { e: EmbedResult | null; retired?: boolean };
 
 const pick = (r: KbSearchResult): Out => ({ grounded: r.grounded, chunks: r.chunks, citations: r.citations });
 
@@ -49,8 +50,15 @@ export class KbSearchHandler implements Handler<ActionInput<typeof kbSearch>, Ou
     const r = await resolveFor(db, ctx);
     if (!r.admission.ok) return { denied: r.admission.reason };
     if (!this.embedder) return { e: null };
-    if (!this.meter?.usage) return { e: await this.embedder.embed([input.query]) };
-    return { e: await queryRunFor({ db, embedder: this.embedder, meter: this.meter, now: () => this.clock?.now() ?? new Date() }, ctx, input.query) };
+    if (!this.meter?.usage) {
+      const pinned = await kbSpaceEmbedder(db, this.embedder);
+      return pinned.embed([input.query]).then(
+        (e) => ({ e }),
+        (err: unknown) => ((err as { code?: string })?.code === 'EMBED_SPACE_RETIRED' ? { e: null, retired: true } : Promise.reject(err)),
+      );
+    }
+    const e = await queryRunFor({ db, embedder: this.embedder, meter: this.meter, now: () => this.clock?.now() ?? new Date() }, ctx, input.query);
+    return e && 'retired' in e ? { e: null, retired: true } : { e };
   }
 
   async execute(ctx: ActionContext, input: ActionInput<typeof kbSearch>, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<Out>> {
@@ -59,7 +67,7 @@ export class KbSearchHandler implements Handler<ActionInput<typeof kbSearch>, Ou
     // Nhận lại trong transaction ngắn sau embed: thu hồi / đổi phạm vi giữa hai bước → không đưa nội dung cho model.
     const r = await resolveFor(tx, ctx);
     if (!r.admission.ok) return { result: pick(emptyResult(await minScoreOf(tx))) };
-    const out = await searchKb(tx, null, { query: input.query, restriction: r.admission.r, ...(input.limit ? { limit: input.limit } : {}), queryEmbedding: pre.e });
+    const out = await searchKb(tx, null, { query: input.query, restriction: r.admission.r, ...(input.limit ? { limit: input.limit } : {}), queryEmbedding: pre.e, embedError: pre.retired ? 'EMBED_SPACE_RETIRED' : null });
     if (r.bindingRunId && ctx.runId) await recordRefs(tx, ctx.runId, out.refs.map((x) => ({ ...x, b: r.bindingRunId! })));
     const cited = ctx.runId ? await tx.aiRun.findUnique({ where: { id: ctx.runId }, select: { citationPhase: true } }) : null;
     if (cited?.citationPhase && r.bindingRunId) {

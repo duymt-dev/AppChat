@@ -6,6 +6,7 @@
 // điều kiện kênh + giờ. Run chờ duyệt → `ai_state=waiting_approval`; job `ai-resume` chạy tiếp rồi gọi `finishResumedTurn`.
 import { decideHandoff, parseAgentReply, unmaskPii, type Embedder } from '@appchat/ai';
 import { isMeteringStop, queryEmbedder, type EmbedMeter } from '../runs/metered-embedding';
+import { kbSpaceEmbedder } from '../kb/reindex/space';
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
 import { foldText } from '@appchat/shared';
 import type { ActionContext } from '../../kernel/actions/action-context';
@@ -112,7 +113,8 @@ async function runAgent(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, a: Publ
     knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { channel: true }),
     publicationMode: 'validated_citations',
   });
-  const embed = d.embedder ? queryEmbedder({ db: store.metered(), embedder: d.embedder, meter: d.meter ?? null, now: d.now }, { ws, runId: created.id, rootRunId: created.rootRunId, source: 'inbox' }) : null;
+  // TIP-020e: câu hỏi embed ghim space của khe đang phục vụ (không so vector khác không gian).
+  const embed = d.embedder ? queryEmbedder({ db: store.metered(), embedder: await kbSpaceEmbedder(db, d.embedder), meter: d.meter ?? null, now: d.now }, { ws, runId: created.id, rootRunId: created.rootRunId, source: 'inbox' }) : null;
   let ctx: ReplyContext;
   try {
     ctx = await buildReplyContext(db, c, a, embed, {}, created.id);

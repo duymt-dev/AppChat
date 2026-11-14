@@ -25,6 +25,7 @@ const BY_ID: Record<string, string> = {
   'ticket.bulk_undo': '034c', 'ticket.bulk_item': '034c', 'ticket.bulk_item_undo': '034c',
   'ticket.category_suggestions': '034b', 'ticket_categories.get': '034b', 'ticket_categories.replace': '034b', 'ticket_categories.export': '034b',
   'ticket.stock_summary': '034d',
+  'kb.reindex': '020e', 'kb.reindex_cancel': '020e',
   'stock.adjust': '027',
   'stock.get': '027',
   'ai.translate': '022',

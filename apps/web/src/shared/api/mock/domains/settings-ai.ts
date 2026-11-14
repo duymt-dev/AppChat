@@ -1,5 +1,6 @@
 // Mock Cài đặt › AI (Blueprint §3.4 ai, §5; D29): GET /settings/ai (mức AI theo tác vụ, ngân sách), /settings/kb?nav&folder&q (kho tri thức),
-// /settings/governance (audit: domains/audit.ts — TIP-045b). Ghi qua ai_settings.update, kb.*, governance.update.
+// /settings/governance (audit: domains/audit.ts — TIP-045b). Ghi qua ai_settings.update, kb.*, governance.update. TIP-020e: `index` (trạng thái
+// chỉ mục embedding — domains/kb-index.ts).
 import { ApiRequestError } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
@@ -7,6 +8,7 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { assertEditable, inheritVisibility } from './kb-folders';
 import { revokeAiDrafts } from './inbox-draft-ref';
+import { readKbIndex } from './kb-index';
 import inboxSeed from '../../../../../../../fixtures/prototype-parity/inbox.json';
 
 const suggestionsSeed = inboxSeed.suggestions as Record<string, unknown>;
@@ -53,7 +55,7 @@ export const settingsAiRoutes: Record<string, MockRoute> = {
       (d) => (NAV[nav]?.(d) ?? true) && (!folder || d.folder_id === folder) && (!q || fold(d.name).includes(q) || d.tags.some((t) => fold(t).includes(q))),
     );
     const { types, folders, nav: counts, learned_total, size } = db.settingsAi.kb;
-    return { types, folders, nav: counts, learned_total, size, data: nav === 'trash' ? [] : docs };
+    return { types, folders, nav: counts, learned_total, size, data: nav === 'trash' ? [] : docs, index: readKbIndex(db) };
   },
   '/settings/governance': (db) => db.settingsAi.gov,
 };

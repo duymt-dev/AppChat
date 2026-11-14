@@ -89,7 +89,7 @@
 | DEF-035-1 | E2E mock `settings` "thêm email qua wizard 3 bước" đỏ sẵn | reports/TIP-035-completion.md:25 | 035c | CHƯA | Chưa sửa (gần Q-010); TIP-035c nhận (2026-11-02) |
 | DEF-035-2 | Tập "armed" cho mọi job quét tenant (sla / booking / contracts / sales / payment / order-sync) | reports/TIP-035-completion.md:27,34 | 035c | CHƯA | support/jobs/support.jobs.module.ts:31, booking/jobs/booking.jobs.module.ts:35, contracts/jobs/contracts.jobs.module.ts:21, sales/jobs/{sales.jobs.module.ts:42, payment.jobs.ts:26, order-sync.jobs.ts:14} quét mọi workspace active; TIP-035c nhận (2026-11-02) |
 | Q-001 | Nạp 9router (base URL, key, model) qua env / `admin.llm_provider.upsert`, chạy nghiệm thu AI thật | QUESTIONS.md:9 | 044 | CHỜ-TK | Q-001 mở |
-| Q-002 | Route `purpose=embed` sang model 1536 chiều (9router hoặc OpenAI) | QUESTIONS.md:10 | 020e | CHỜ-TK | Q-002 mở; TG 046 "re-embed khi đổi model"; TIP-020e AC9 — cơ chế ở 020e, model thật vẫn chờ Q-002 |
+| Q-002 | Route `purpose=embed` sang model 1536 chiều (9router hoặc OpenAI) | QUESTIONS.md:10 | 020e | CHỜ-TK | Q-002: OpenAI embed 1536 chiều có credit (DC-305, kiểm 2026-11-14 text-embedding-3-small + ada-002). Cơ chế đổi model ở 020e (DC-452); suite ai:live `rag-model-lifecycle` (8 ca, seed đổi route thật) viết xong nhưng 2/2 lần chạy hỏng ở seed vì cạn slot Postgres (Q-066) — chưa nghiệm thu với provider thật |
 | Q-003 | Spike `zca-js` với tài khoản Zalo phụ | QUESTIONS.md:11 | — | CHỜ-TK | Q-003 mở |
 | Q-004 | SePay + Brevo (domain SPF / DKIM / DMARC) thật | QUESTIONS.md:12 | — | CHỜ-TK | Q-004 mở |
 | Q-006 | VPS + domain để deploy / nghiệm thu 045, 046 | QUESTIONS.md:14 | 045 | CHỜ-TK | Q-006 mở |

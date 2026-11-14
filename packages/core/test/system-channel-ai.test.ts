@@ -98,7 +98,7 @@ describe('kb.system_publish', () => {
 
   it('nguồn đã xoá / đã sang lần nạp khác dưới khoá → no_effect, không thay đoạn', async () => {
     const tx = (s: Record<string, unknown>) => ({ $queryRaw: vi.fn(async () => []), $executeRaw: vi.fn(), kbSource: { findUnique: vi.fn(async () => s), update: vi.fn() }, kbChunk: { deleteMany: vi.fn() } });
-    const c = { kind: 'ready' as const, model: 'm', chunks: [{ content: 'a', tokens: 1, meta: {}, vector: [0.1] }] };
+    const c = { kind: 'ready' as const, model: 'm', space: 'p:m:1536:', chunks: [{ content: 'a', tokens: 1, meta: {}, vector: [0.1] }] };
     const del = tx({ deletedAt: now, ingestSeq: 3, status: 'processing' });
     expect((await publishSource(del as never, SRC, 'publish_ready', 3, c, now)).out.reason_code).toBe('deleted');
     const sup = tx({ deletedAt: null, ingestSeq: 4, status: 'pending' });
