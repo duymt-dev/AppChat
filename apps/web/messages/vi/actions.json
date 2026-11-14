@@ -1036,6 +1036,10 @@
       "title": "Gợi ý danh mục ticket",
       "desc": "Đọc danh mục gợi ý đã cấu hình và danh mục đã dùng trong ticket bạn xem được."
     },
+    "stock_summary": {
+      "title": "Xem tồn ticket so với hôm qua",
+      "desc": "Năm số tồn ticket bạn đang xem được, so với lần quan sát thật của hôm qua (chỉ ticket còn tồn tại và còn trong quyền)."
+    },
     "bulk_undo": {
       "title": "Hoàn tác cập nhật hàng loạt ticket",
       "desc": "Trả lại đúng các trường đã đổi trên những ticket chưa ai sửa sau đó; ticket đã đổi tiếp được giữ nguyên và báo xung đột."

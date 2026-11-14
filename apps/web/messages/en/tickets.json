@@ -11,7 +11,6 @@
     "breach": "SLA breached",
     "closed": "Closed"
   },
-  "trend": "↑ {v}",
   "listTitle": "All tickets",
   "listCount": "{n} tickets",
   "filter": {
@@ -276,5 +275,26 @@
     "used": "Used in tickets",
     "more": "Load more used labels",
     "free": "Use \"{q}\" as a new category"
+  },
+  "stock": {
+    "title": "Compared with yesterday",
+    "vsYesterday": "Compared with yesterday at {at}",
+    "noBaselineShort": "No figures from yesterday to compare",
+    "unknownShort": "Trend unknown",
+    "srUp": "up {n} from yesterday",
+    "srDown": "down {n} from yesterday",
+    "srFlat": "unchanged from yesterday",
+    "srUnknown": "cannot compare with yesterday",
+    "measuredAt": "Current figures measured at {at} ({tz}).",
+    "observedAt": "Baseline: actual observation at {at} yesterday.",
+    "row": "{label}: {prior} → {now} ({delta})",
+    "cohort": "Only compares tickets you can still see now; deleted or out-of-scope tickets are left out on both sides — this is not net growth and does not explain the cause.",
+    "unsupported": "The server does not support comparing with yesterday yet.",
+    "reason": {
+      "baseline_missing": "There is no observation from yesterday yet — cannot compare.",
+      "source_unavailable": "Part of yesterday’s data can no longer be used — cannot compare.",
+      "capture_unavailable": "Yesterday’s observation is incomplete — cannot compare.",
+      "schema_unavailable": "The system is being updated — cannot compare."
+    }
   }
 }

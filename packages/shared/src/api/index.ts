@@ -52,6 +52,7 @@ export * from './calendar';
 export * from './tickets';
 export * from './ticket-bulk';
 export * from './ticket-categories';
+export * from './ticket-stock';
 export * from './ai-tasks';
 export * from './commerce-settings';
 export * from './public-commerce-document';

@@ -27,6 +27,8 @@ import { invoicesActionHandlers } from './domains/invoices-actions';
 import { calendarHandlers } from './domains/calendar-actions';
 import { ticketsHandlers } from './domains/tickets-actions';
 import { ticketBulkHandlers } from './domains/tickets-bulk';
+import { ticketStockHandlers } from './domains/ticket-stock';
+import { stockCountsOf } from './domains/tickets';
 import { marketingHandlers } from './domains/marketing';
 import { loyaltyHandlers } from './domains/loyalty';
 import { settingsHandlers } from './domains/settings';
@@ -141,6 +143,8 @@ export const mockHandlers: Record<string, MockHandler> = withDocChecklist(withCu
   ...calendarHandlers,
   ...ticketsHandlers,
   ...ticketBulkHandlers,
+  // TIP-034d: đọc tồn ticket so với hôm qua (cùng số với /tickets/meta).
+  ...ticketStockHandlers((db) => ({ counts: stockCountsOf(db) })),
   ...marketingHandlers,
   ...loyaltyHandlers,
   ...settingsHandlers,

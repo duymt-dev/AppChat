@@ -62,6 +62,8 @@ const ACTION_VI: Record<string, string> = {
   // TIP-033b: "giờ mở cửa / giờ nhận lịch của tiệm" = giờ đặt lịch (business_hours); "giờ làm việc của nhân viên / SLA" = working_hours.
   'business_hours.update': 'gio mo cua gio nhan lich gio hoat dong cua tiem cua hang mo cua dong cua chu nhat ngay nghi lich hen',
   'working_hours.update': 'gio lam viec nhan vien tinh sla tra loi hoi thoai',
+  // TIP-034d: "ticket hôm nay so với hôm qua" = tồn ticket (5 thẻ KPI) so với quan sát hôm qua — KHÔNG phải support.performance (đóng / CSAT).
+  'ticket.stock_summary': 'ton ticket so voi hom qua xu huong so sanh',
 };
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */

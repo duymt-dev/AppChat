@@ -34,6 +34,7 @@ import { TicketBulkItemHandler } from './bulk/item';
 import { TicketBulkItemUndoHandler, TicketBulkUndoHandler } from './bulk/undo';
 import { TICKET_BULK_DEPS, TicketBulkDeps } from './bulk/providers';
 import { registerTicketBulk } from './bulk/register';
+import { STOCK_HANDLERS, registerTicketStock } from './trends/providers';
 
 const HANDLERS = [
   TicketSearchHandler, TicketCreateHandler, TicketUpdateHandler, TicketAssignHandler, TicketSetStatusHandler,
@@ -49,6 +50,8 @@ const HANDLERS = [
   imports: [CrmModule, ChannelsModule, IdentityModule, AuthzModule, DataJobActionsModule],
   providers: [
     ...HANDLERS,
+    // TIP-034d: đọc tồn ticket so với hôm qua (action + nguồn $ref lịch sử).
+    ...STOCK_HANDLERS,
     // TIP-034b: từ điển gợi ý danh mục ticket (3 action + ký cursor + đọc cho controller).
     ...CATEGORY_PROVIDERS,
     TICKET_BULK_DEPS,
@@ -69,5 +72,6 @@ export class SupportModule implements OnModuleInit {
   onModuleInit(): void {
     registerSystemVerifier('ticket.system_transition', verifyTicketTrigger);
     registerTicketBulk(this.bulk);
+    registerTicketStock();
   }
 }

@@ -1085,6 +1085,16 @@ export const MANIFEST: ParityEntry[] = [
     appWait: '[data-ticket]',
   },
   {
+    // TIP-034d: 5 thẻ KPI có huy hiệu "so với hôm qua" (↑ n / ↓ n / = / —, PD-032) thay chuỗi "↑ +12%" cố định của prototype. So vùng
+    // topbar + KPI; dòng "So với hôm qua lúc …" (nút chi tiết ngoài thẻ) là phần thêm — mask.
+    id: 'tickets:kpi-stock',
+    route: '/tickets',
+    protoStorage: tickets,
+    appWait: '[data-testid="tk-trend-total"]',
+    clip: { x: 0, y: 0, width: 1440, height: 200 },
+    mask: [{ x: 0, y: 170, width: 600, height: 30, reason: 'PD-032 — nút "So với hôm qua lúc …" (chi tiết mốc quan sát thật) không có ở prototype' }],
+  },
+  {
     id: 'tickets:detail',
     route: '/tickets',
     protoStorage: tickets,

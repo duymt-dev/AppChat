@@ -10,6 +10,7 @@ import { MOCK_NOW } from './quotes';
 import { paginate } from '../paginate';
 import { categoryMeta, type CategoryConfigState } from './ticket-categories';
 import { ticketVisible } from './ticket-scope';
+import { mockStockSummary } from './ticket-stock';
 
 type Fixed = (typeof fixture.tickets)[number];
 export type Comment = Fixed['comments'][number];
@@ -114,7 +115,8 @@ export const ticketsRoutes: Record<string, MockRoute> = {
     return paginate(rows, p);
   },
   '/tickets/meta': (db) => {
-    const all = db.tickets.tickets.filter((t) => visible(db, t));
+    const counts = stockCountsOf(db);
+    const stock = mockStockSummary(counts);
     return {
       now: MOCK_NOW,
       teams: fixture.teams,
@@ -122,18 +124,26 @@ export const ticketsRoutes: Record<string, MockRoute> = {
       ...categoryMeta(db),
       agent: fixture.agent,
       members: custFixture.members,
-      trend: fixture.trend,
+      // Chuỗi xu hướng cũ rỗng (như server, TIP-034d); so với hôm qua ở `stock_summary` (kịch bản mock — ticket-stock.ts).
+      trend: { total: '', open: '', waiting: '', breach: '', closed: '' },
       ai: fixture.ai,
-      counts: {
-        total: all.length,
-        open: all.filter((t) => t.status === 'open').length,
-        waiting: all.filter((t) => t.status === 'waiting').length,
-        breach: all.filter((t) => slaOf(t).state === 'breach').length,
-        closed: all.filter((t) => t.status === 'closed').length,
-      },
+      counts,
+      ...(stock ? { stock_summary: stock } : {}),
     };
   },
 };
+
+/** Năm số KPI của tập ticket người xem thấy (dùng chung meta + action `ticket.stock_summary`). */
+export function stockCountsOf(db: MockDb) {
+  const all = db.tickets.tickets.filter((t) => visible(db, t));
+  return {
+    total: all.length,
+    open: all.filter((t) => t.status === 'open').length,
+    waiting: all.filter((t) => t.status === 'waiting').length,
+    breach: all.filter((t) => slaOf(t).state === 'breach').length,
+    closed: all.filter((t) => t.status === 'closed').length,
+  };
+}
 
 export const ticketsParamRoute = (path: string): MockRoute | undefined => {
   const m = path.match(/^\/tickets\/(tk_[^/]+)$/);

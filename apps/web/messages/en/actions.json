@@ -1036,6 +1036,10 @@
       "title": "Ticket category suggestions",
       "desc": "Read the configured category suggestions and categories used on tickets you can see."
     },
+    "stock_summary": {
+      "title": "View ticket stock vs. yesterday",
+      "desc": "The five ticket stock counts you can currently see, compared with yesterday's real observation (only tickets that still exist and are still visible)."
+    },
     "bulk_undo": {
       "title": "Undo ticket bulk update",
       "desc": "Restores only the changed fields on tickets nobody edited since; tickets changed later are kept and reported as conflicts."

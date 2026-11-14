@@ -24,6 +24,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'contact-lifecycle': '015f',
   'contact-merge': '015e',
   'tenant-mail': '012c',
+  'ticket-stock': '034d',
   'ai-utilities': '019c',
   privacy: '015c',
   'assistant-plans': '023d',
@@ -58,6 +59,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(70);
+    expect(n).toBe(71);
   });
 });

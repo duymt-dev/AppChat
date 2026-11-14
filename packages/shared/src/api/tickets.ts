@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import { customValuesSchema } from '../custom-fields/values';
 import { TICKET_CHANNELS, TICKET_PRIORITIES, TICKET_STATUSES } from '../support/ticket-state';
+import { ticketStockSummarySchema } from './ticket-stock';
 
 export const ticketCommentSchema = z.object({
   id: z.string(),
@@ -85,6 +86,8 @@ export const ticketsMetaSchema = z.object({
   trend: z.record(z.enum(['total', 'open', 'waiting', 'breach', 'closed']), z.string()),
   ai: z.array(z.tuple([z.string(), z.string(), z.string()])),
   counts: kpi,
+  /** TIP-034d: so với hôm qua (cùng dịch vụ với action `ticket.stock_summary`); `counts` = `stock_summary.counts`. Client cũ bỏ qua. */
+  stock_summary: ticketStockSummarySchema.optional(),
 });
 
 export type TicketRow = z.infer<typeof ticketRowSchema>;
