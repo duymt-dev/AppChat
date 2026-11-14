@@ -23,10 +23,17 @@ import { citationCase } from './citation-judge';
 import { mergeCase } from './merge-judge';
 import { tenantMailCase } from './tenant-mail-judge';
 import { bookingCase } from './booking-judge';
+import { appointmentOrderCase } from './appointment-order-judge';
+import { recordFilesCase } from './record-files-judge';
+import { productMediaCase } from './product-media-judge';
+import { supportCategoriesCase } from './support-categories-judge';
+import { ticketBulkCase } from './ticket-bulk-judge';
+import { ragLifecycleCase } from './rag-lifecycle-judge';
 import { ceditCase } from './cedit-judge';
 import { runtimeCase } from './runtime-judge';
 import { utilityCase } from './utility-judge';
 import { inputCase } from './input-judge';
+import { plansCase } from './plans-judge';
 
 export interface Api {
   req(method: string, path: string, body?: unknown, headers?: Record<string, string>): Promise<{ status: number; body: unknown }>;
@@ -117,10 +124,17 @@ async function one(api: Api, c: LiveCase, attempt: number, o: RunOptions): Promi
   if (c.merge) return mergeCase(api, c, attempt, o);
   if (c.tenant_mail) return tenantMailCase(api, c, attempt, o);
   if (c.booking) return bookingCase(api, c, attempt, o);
+  if (c.appointment_order) return appointmentOrderCase(api, c, attempt, o);
+  if (c.record_files) return recordFilesCase(api, c, attempt, o);
+  if (c.product_media) return productMediaCase(api, c, attempt, o);
+  if (c.support_categories) return supportCategoriesCase(api, c, attempt, o);
+  if (c.ticket_bulk) return ticketBulkCase(api, c, attempt, o);
+  if (c.rag_lifecycle) return ragLifecycleCase(api, c, attempt, o);
   if (c.cedit) return ceditCase(api, c, attempt, o);
   if (c.activity) return activityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.utility) return utilityCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.input_file) return inputCase(api, c, attempt, o);
+  if (c.plan) return plansCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.transfer) return transferCase(api, c, attempt, o, (s) => fillInput(s, o.seed));
   if (c.hardening) return hardeningCase(api, c, attempt, o, (s) => fillInput(s, o.seed), contextOf(c, o.seed));
   const base = { case_id: c.id, attempt, expected: c.expect, tokens: { in: 0, out: 0 } };

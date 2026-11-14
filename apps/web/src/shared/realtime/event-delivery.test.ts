@@ -25,4 +25,9 @@ describe('dedupe', () => {
     expect(keysFor('notification.new', { rt_id: 'z' }).length).toBeGreaterThan(0);
     expect(keysFor('message.new', { conversation_id: 'c1', rt_id: 'z' })).toContainEqual(['inbox', 'messages', 'c1']);
   });
+
+  it('TIP-016b: tin / hội thoại / ticket / lịch hẹn đổi → số đếm rail đọc lại; sự kiện không liên quan thì không', () => {
+    for (const e of ['message.new', 'message.updated', 'conversation.updated', 'ticket.updated', 'appointment.updated']) expect(keysFor(e, { rt_id: 'z' }), e).toContainEqual(['nav', 'badges']);
+    expect(keysFor('run.step', {})).not.toContainEqual(['nav', 'badges']);
+  });
 });

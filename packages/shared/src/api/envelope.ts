@@ -26,8 +26,14 @@ export const ERROR_CODES = [
   'STALE_VERSION',
   'UNDO_EXPIRED',
   'UNDO_NOT_SUPPORTED',
+  // TIP-034c §3.3: log này hoàn tác bằng action riêng (fields: undo_action, parent_action_log_id) — không có gì bị hoàn tác.
+  'UNDO_REQUIRES_ACTION',
+  // TIP-034c §3.1: thao tác hàng loạt còn đang chạy / đang huỷ — chưa hoàn tác được.
+  'OPERATION_BUSY',
   'HAS_DEPENDENCIES',
   'SLOT_TAKEN',
+  // TIP-032d §2.1: thiếu tiến trình kiểm cấu trúc cô lập — không kiểm trong tiến trình chính, tệp không được gắn.
+  'VALIDATION_ISOLATION_UNAVAILABLE',
   'NOT_IMPLEMENTED',
   'INTERNAL',
 ] as const;

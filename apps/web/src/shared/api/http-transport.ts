@@ -108,6 +108,7 @@ export const httpTransport: Transport = {
         'x-action-source': 'ui',
         ...(opts?.idempotencyKey ? { 'idempotency-key': opts.idempotencyKey } : {}),
         ...(opts?.genuiIntent ? { 'x-genui-intent': opts.genuiIntent } : {}),
+        ...(opts?.preview ? { 'x-action-preview': '1' } : {}),
       },
       body: JSON.stringify({ input, confirm_token: opts?.confirmToken, ...(opts?.secretVault ? { secret_vault: opts.secretVault } : {}) }),
     });
@@ -118,9 +119,10 @@ export const httpTransport: Transport = {
   async undo(actionLogId) {
     await parse(await send(`/action-logs/${actionLogId}/undo`, { method: 'POST' }));
   },
-  async upload(file, purpose, signal) {
+  async upload(file, purpose, signal, fields) {
     const form = new FormData();
     form.set('purpose', purpose);
+    for (const [k, v] of Object.entries(fields ?? {})) form.set(k, v);
     form.set('file', file, file.name);
     return (await parse<{ data: never }>(await send('/files', { method: 'POST', body: form, signal }))).data;
   },

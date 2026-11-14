@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoHorizontalOverflow, expectTouchTargets, isMobile } from './support/mobile';
+import { confirmPreview } from './support/confirm';
 
 const URL = '/quotes?session=authed,declared,trialSeen';
 
@@ -49,9 +50,16 @@ test.describe('quotes', () => {
     await drawer.getByTestId('q-approve').click();
     await expect(drawer).toContainText('Đã duyệt');
     await drawer.getByTestId('q-send-zalo').click();
+    await confirmPreview(page);
     await expect(drawer).toContainText('Đã gửi');
+    // TIP-028b: PDF tạo ở job — API trả ngay, dải "Đang tạo PDF" rồi tự mất khi job xong (WS document.render).
+    await expect(drawer.getByTestId('q-render')).toHaveAttribute('data-render', 'pending_render');
+    await expect(drawer.getByTestId('q-render')).toContainText('Đang tạo PDF');
+    await expect(drawer.getByTestId('q-render')).toHaveCount(0);
     await drawer.getByTestId('q-to-order').click();
-    await expect(page).toHaveURL(/\/orders\?from_quote=q_2039/);
+    // OrdersScreen tạo đơn từ `?from_quote=` rồi thay URL về /orders (như orders.spec) — kiểm đơn mở đúng báo giá.
+    await expect(page).toHaveURL(/\/orders$/);
+    await expect(page.getByTestId('od-drawer')).toContainText('BG-2039');
   });
 
   test('tạo báo giá: chọn khách + sản phẩm catalog, chiết khấu tổng, ngoài danh mục buộc duyệt; trao đổi nội bộ; bản sửa n+1', async ({
@@ -77,7 +85,15 @@ test.describe('quotes', () => {
     await drawer.getByTestId('q-comment-input').fill('Khách hỏi lịch tuần sau');
     await drawer.getByTestId('q-comment-input').press('Enter');
     await expect(drawer.getByTestId('q-comments')).toContainText('Khách hỏi lịch tuần sau');
+    // TIP-028b: mock — ghi chú "[render-fail]" làm job render lỗi hết lượt → dải lỗi + Thử lại → tạo lại được.
+    await drawer.getByPlaceholder('Ghi chú').fill('[render-fail]');
+    await drawer.getByPlaceholder('Ghi chú').blur();
     await drawer.getByTestId('q-send-zalo').click();
+    await confirmPreview(page);
+    await expect(drawer.getByTestId('q-render')).toHaveAttribute('data-render', 'render_failed');
+    await expect(drawer.getByTestId('q-render')).toContainText('Tạo PDF chưa được');
+    await drawer.getByTestId('q-render-retry').click();
+    await expect(drawer.getByTestId('q-render')).toHaveCount(0);
     await drawer.getByTestId('q-revision').click();
     await expect(drawer).toContainText('Lần 2');
     await drawer.getByRole('tab', { name: 'Lịch sử' }).click();

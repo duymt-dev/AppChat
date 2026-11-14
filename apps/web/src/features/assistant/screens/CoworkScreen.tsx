@@ -20,8 +20,10 @@ import { Composer } from '../components/Composer';
 import { ComposerPopovers } from '../components/ComposerPopovers';
 import { TaskCard } from '../components/TaskCard';
 import { TaskCreateModal } from '../components/TaskCreateModal';
-import { TaskDrawer } from '../components/TaskDrawer';
 import { useAssistantUiCommands } from '../ui-commands';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const TaskDrawer = lazyDrawer(() => import('../components/TaskDrawer').then((m) => m.TaskDrawer));
 
 export function CoworkScreen() {
   useAssistantUiCommands();
@@ -40,7 +42,7 @@ export function CoworkScreen() {
     useAssistantUi.getState().set({ mode: 'cowork' });
   }, []);
   const goChat = () => {
-    ui.set({ mode: 'chat' });
+    ui.set({ mode: 'chat', agent: null });
     router.push('/assistant');
   };
   const send = () => {
@@ -101,7 +103,9 @@ export function CoworkScreen() {
         </div>
       </div>
       {d ? <TaskCreateModal data={d} /> : null}
-      {d ? <TaskDrawer data={d} /> : null}
+      <Opened name="task-drawer" when={!!ui.taskOpen && !!d} keep={false} onClose={() => ui.set({ taskOpen: null })}>
+        {d ? <TaskDrawer data={d} /> : null}
+      </Opened>
       <ComposerPopovers />
     </div>
   );

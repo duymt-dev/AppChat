@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Empty } from 'antd';
 import { PageStates, stateOf } from '@/shared/states/PageStates';
+import { PanelBoundary } from '@/shared/states/PanelBoundary';
 import { useInboxStyles } from '../styles/inbox.styles';
 import { useInboxUi } from '../inbox-store';
 import { accountsQuery, channelsQuery, countParams, countsQuery } from '../api';
@@ -58,7 +59,11 @@ export function InboxScreen() {
           {conv ? (
             <>
               <ChatPanel key={conv.id} conv={conv} channel={channels?.[conv.channel]} className={cx(!ui.mobileChat && styles.hideMobile)} />
-              {ui.show360 ? conv.kind === 'group' ? <GroupInfoPanel conv={conv} /> : conv.contact_deleted ? <DeletedContactPanel /> : conv.contact_id ? <Panel360 contactId={conv.contact_id} conversationId={conv.id} /> : null : null}
+              {ui.show360 ? (
+                <PanelBoundary name="p360">
+                  {conv.kind === 'group' ? <GroupInfoPanel conv={conv} /> : conv.contact_deleted ? <DeletedContactPanel /> : conv.contact_id ? <Panel360 contactId={conv.contact_id} conversationId={conv.id} /> : null}
+                </PanelBoundary>
+              ) : null}
             </>
           ) : (
             <div className={cx(styles.empty, styles.hideMobile)} data-testid="inbox-empty">

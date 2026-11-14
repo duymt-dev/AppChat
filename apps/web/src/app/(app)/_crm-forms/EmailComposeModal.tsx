@@ -8,7 +8,7 @@ import { ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useEmailComposeStyles } from '@/shared/crm-forms/email-compose.styles';
 import { useEmailComposeUi } from '@/shared/crm-forms/email-compose-store';
-import { accountsQuery, contactQuery } from '@/features/inbox';
+import { accountsQuery, contactQuery } from '@/features/inbox/api';
 
 const TPL_KEYS = ['followUp', 'resendQuote', 'confirmBooking'] as const;
 /** Tên tài khoản kênh email có dạng "Email · địa chỉ" (fixtures/prototype-parity/inbox.json) — tách lấy địa chỉ. */

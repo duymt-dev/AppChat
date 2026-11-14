@@ -5,17 +5,20 @@
 // 402 CREDIT_EXHAUSTED (TIP-039) → thêm popup ví toàn app.
 // GenUI (TIP-023c): `genui.intent` = handle server ký cho node → header `x-genui-intent` (server đặt nguồn assistant → xem trước / xác
 // nhận như Trợ lý). Form có ô bí mật: 202 trả `secret_vault`; lần xác nhận gửi vault + input ĐÃ BỎ ô bí mật (không gửi lại giá trị).
+// Vòng gửi / xem trước / xác nhận nằm ở runActionRequest (dùng chung với cầu nối hoàn tác); bấm "Hoàn tác" trên toast đi qua useUndoAction
+// (TIP-034c: cha có action hoàn tác riêng → xem trước + xác nhận, không báo "đã hoàn tác" khi chỉ một phần).
 'use client';
 import { useCallback, useState } from 'react';
 import { App } from 'antd';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
-import { getAction, requiresIdempotencyKey, type ActionAccepted, type ActionResult } from '@appchat/actions';
+import { getAction, type ActionAccepted, type ActionResult } from '@appchat/actions';
 import { ApiRequestError } from '@appchat/shared';
-import { transport } from '../api/client';
 import { matchesInvalidation } from '../api/query-keys';
 import { useConfirmStore } from './confirm-store';
 import { creditExhausted } from '../billing/credit-error';
+import { runActionRequest } from './run-action-request';
+import { useUndoAction } from './useUndoAction';
 
 export interface RunOptions {
   silent?: boolean;
@@ -27,17 +30,7 @@ export interface RunOptions {
   genui?: { intent: string; secretPaths?: string[] };
 }
 
-/** Bản sao input không có các ô bí mật (`fields.password`). */
-export function withoutPaths(input: unknown, paths: string[]): unknown {
-  if (!paths.length || !input || typeof input !== 'object') return input;
-  const out = structuredClone(input) as Record<string, unknown>;
-  for (const p of paths) {
-    const keys = p.split('.');
-    const parent = keys.slice(0, -1).reduce<unknown>((o, k) => (o && typeof o === 'object' ? (o as Record<string, unknown>)[k] : undefined), out);
-    if (parent && typeof parent === 'object') delete (parent as Record<string, unknown>)[keys.at(-1)!];
-  }
-  return out;
-}
+export { withoutPaths } from './run-action-request';
 
 const never = (x: never): never => {
   throw new Error(`202 chưa xử lý: ${JSON.stringify(x)}`);
@@ -48,29 +41,18 @@ export function useAction<O = unknown>(id: string) {
   const { message } = App.useApp();
   const t = useTranslations();
   const ask = useConfirmStore((s) => s.ask);
+  const undo = useUndoAction();
   const [isPending, setPending] = useState(false);
   const [accepted, setAccepted] = useState<Exclude<ActionAccepted, { status: 'preview_required' }> | null>(null);
 
   const run = useCallback(
     async (input: unknown, opts: RunOptions = {}): Promise<ActionResult<O> | null> => {
       const def = getAction(id);
-      // Một khoá mỗi lần bấm (dùng lại khi xác nhận preview) — gửi lại do mạng không tạo bản ghi thứ hai.
-      const idem = {
-        ...(def && requiresIdempotencyKey(id, def.risk) ? { idempotencyKey: crypto.randomUUID() } : {}),
-        ...(opts.genui ? { genuiIntent: opts.genui.intent } : {}),
-      };
       setPending(true);
       setAccepted(null);
       try {
-        let res = await transport.action<O>(id, input, idem);
-        if (res.status === 202 && res.data.status === 'preview_required') {
-          const ok = await ask(id, res.data.preview);
-          if (!ok) return null;
-          const vault = (res.data as { secret_vault?: string }).secret_vault;
-          res = vault
-            ? await transport.action<O>(id, withoutPaths(input, opts.genui?.secretPaths ?? []), { ...idem, confirmToken: res.data.confirm_token, secretVault: vault })
-            : await transport.action<O>(id, input, { ...idem, confirmToken: res.data.confirm_token });
-        }
+        const res = await runActionRequest<O>(id, input, { ask, ...(opts.genui ? { genui: opts.genui } : {}) });
+        if (!res) return null;
         if (res.status !== 200) {
           const a = res.data;
           switch (a.status) {
@@ -111,9 +93,9 @@ export function useAction<O = unknown>(id: string) {
             content: t('actions.done', { title }),
             ...(res.data.undo_until
               ? {
-                  onClick: async () => {
-                    await transport.undo(logId);
-                    await qc.invalidateQueries({ predicate: (q) => matchesInvalidation(invalidates, q.queryKey) });
+                  onClick: () => {
+                    message.destroy(logId);
+                    void undo(logId, id, title);
                   },
                 }
               : {}),
@@ -131,7 +113,7 @@ export function useAction<O = unknown>(id: string) {
         setPending(false);
       }
     },
-    [id, qc, message, t, ask],
+    [id, qc, message, t, ask, undo],
   );
 
   return { run, isPending, accepted };

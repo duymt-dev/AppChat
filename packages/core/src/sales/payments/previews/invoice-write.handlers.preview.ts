@@ -1,6 +1,7 @@
 // Preview đề nghị thanh toán (TIP-023b R2.8): tạo → khách + loại + số tiền (chuỗi VND) + hạn (mặc định +7 ngày giờ workspace) + đơn gắn
 // (còn phải thu sau các đề nghị đang mở — vượt → 422 như execute; đơn sàn / đã huỷ → 409); huỷ (risk money) → mã + số tiền + lý do, đã có
-// khoản thu → 409 (phải hoàn tiền). Chỉ đọc — không khoá đơn, không cấp mã TT-.
+// khoản thu → 409 (phải hoàn tiền). Chỉ đọc — không khoá đơn, không cấp mã TT-. TIP-028b: gửi lần đầu (PDF) kèm bảng kiểm theo mẫu đã
+// chụp trên đề nghị — dòng "không thay thế hoá đơn GTGT" luôn đạt (render tự chèn); cảnh báo, không chặn (DC-444).
 import type { ActionInput, ActionPreview, invoiceCreate, invoiceSendPaymentQr, invoiceVoid } from '@appchat/actions';
 import { AppError, INVOICE_DUE_DAYS, INVOICE_FLOW, assertTransition, createFmt } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
@@ -10,6 +11,9 @@ import { visibleOrder } from '../../orders/order-access';
 import { visibleInvoice, type InvoiceRecord } from '../invoice-access';
 import { localDay } from '../services/payment-write';
 import { inSameFamily } from '../../../crm/lifecycle/family-sql';
+import { docChecklist } from '../../../documents/public';
+import type { QuoteDocDeps } from '../../quotes/services/quote-doc';
+import { invoiceDocData } from '../services/invoice-doc';
 
 const DAY = 86_400_000;
 export const money = (v: string | bigint) => createFmt({ locale: 'vi' }).money(String(v));
@@ -46,13 +50,19 @@ export async function voidPreview(ctx: ActionContext, tx: TenantTx, i: ActionInp
 
 /** Gửi đề nghị (risk send): mã + khách + còn phải thu; tin qua kênh (lần đầu kèm PDF, sau là nhắc) + trạng thái trước / sau. Trạng thái không
  * gửi được → 409 như execute. Không render PDF, không đăng tin. */
-export async function sendPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof invoiceSendPaymentQr>): Promise<ActionPreview> {
+export async function sendPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof invoiceSendPaymentQr>, doc: QuoteDocDeps, now: Date): Promise<ActionPreview> {
   const inv = await visibleInvoice(tx, ctx.authz, i.invoice_id, 'write');
   const to = assertTransition(INVOICE_FLOW, inv.status, 'invoice.send_payment_qr');
   const first = inv.status === 'draft';
   const due = String(inv.amount - inv.paidAmount);
+  // Nhắc lại không render PDF mới → không bảng kiểm. Mẫu: đã chụp trên đề nghị → mặc định loại (như renderDocPdf).
+  const t = !first
+    ? null
+    : ((inv.templateId ? await tx.docTemplate.findFirst({ where: { id: inv.templateId, kind: 'payment_request' } }) : null) ??
+      (await tx.docTemplate.findFirst({ where: { kind: 'payment_request', isDefault: true, deletedAt: null } })));
   return preview('send', line(await label(tx, inv), money(due)), {
     changes: [{ entity: 'message', after: { channel: i.channel, invoice: inv.code, amount: due, attachment: first ? 'pdf' : null } }, ...updated('invoice', inv.id, { status: inv.status }, { status: to })],
     warnings: [first ? 'first_send' : 'reminder'],
+    checklist: t ? await docChecklist(t, async () => (await invoiceDocData(tx, doc, ctx.workspaceId, { ...inv, sentAt: now })).data) : undefined,
   });
 }

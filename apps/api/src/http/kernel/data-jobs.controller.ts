@@ -1,5 +1,5 @@
 // Việc dữ liệu nặng (TIP-045b annex D): GET /v1/data-jobs/:id (trạng thái + đếm từ biên nhận + link tải khi còn hợp lệ), /:id/items
-// (biên nhận theo seq, `?only=failed`, con trỏ), /:id/download (tệp xuất — chỉ người tạo, còn quyền, trong 24 giờ, chính sách trường không
+// (biên nhận theo seq, `?only=failed`, con trỏ), /:id/result (kết quả theo loại — TIP-034c), /:id/download (tệp xuất — chỉ người tạo, còn quyền, trong 24 giờ, chính sách trường không
 // đổi; khác → 404 / 410). Đọc không xếp việc / chạy lại; huỷ và thử lại là action `data_job.cancel` / `data_job.retry` qua ActionExecutor.
 import { Controller, Get, Inject, Optional, Param, Query, Req, Res } from '@nestjs/common';
 import type { IncomingMessage, ServerResponse } from 'node:http';
@@ -30,6 +30,12 @@ export class DataJobsController {
     if (limit !== undefined && (!Number.isInteger(limit) || limit < 1)) throw new AppError('VALIDATION_FAILED', 400, { limit: 'invalid' });
     if (q.only !== undefined && q.only !== 'failed') throw new AppError('VALIDATION_FAILED', 400, { only: 'invalid' });
     return this.svc().items(await this.actors.resolve(req), id, { cursor: q.cursor, limit, only: q.only });
+  }
+
+  /** Kết quả từng bản ghi theo loại việc (TIP-034c — sửa ticket hàng loạt): chỉ id + mã an toàn, từ biên nhận. */
+  @Get(':id/result')
+  async result(@Param('id') id: string, @Req() req: IncomingMessage) {
+    return { data: await this.svc().result(await this.actors.resolve(req), id) };
   }
 
   @Get(':id/download')

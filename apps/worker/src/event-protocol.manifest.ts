@@ -38,6 +38,8 @@ export const EVENT_PROTOCOL_MANIFEST: EventProtocolManifest = {
     pending('ai.operation-continuation', '006b'),
     pending('assistant-turn', '006b'),
     pending('assistant-input', '006b'),
+    // TIP-028b: đánh thức queue doc-render (chỉ đẩy job theo id + thế hệ — dòng document_render là nguồn sự thật); adapter v2 theo 006b.
+    pending('documents.render', '006b'),
     pending('discovery-build', '006b'),
     pending('kb-suggest', '006b'),
     pending('marketing.analyze', '006b'),

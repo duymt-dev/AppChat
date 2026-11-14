@@ -27,7 +27,7 @@ export function WelcomeView({ name, onSend }: { name: string; onSend: (text?: st
   const pages = cowork ? 3 : 2;
   const accent = cowork ? color.violet : color.brand;
   const setMode = (m: 'chat' | 'cowork') => {
-    ui.set({ mode: m, pop: null });
+    ui.set({ mode: m, pop: null, ...(m === 'chat' ? { agent: null } : {}) });
     setPg(0);
   };
 
@@ -79,7 +79,8 @@ export function WelcomeView({ name, onSend }: { name: string; onSend: (text?: st
                   type="button"
                   className={styles.card}
                   style={{ background: `linear-gradient(135deg,${a.color}12,${a.color}03)` }}
-                  onClick={() => ui.set({ agent: a.name })}
+                  disabled={a.status !== 'active'}
+                  onClick={() => ui.set({ agent: { id: a.id, name: a.name } })}
                 >
                   <div className={styles.cardHead}>
                     <span className={styles.cardIcon} style={{ background: a.color }}>

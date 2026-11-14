@@ -95,7 +95,10 @@ export const PRODUCT_FIELDS: readonly TransferField[] = [
   f('category', 'text', ['danh muc', 'nhom hang', 'category'], { max: 60 }),
   f('unit', 'text', ['don vi', 'don vi tinh', 'dvt', 'unit'], { max: 20 }),
   f('tax_rate', 'text', ['thue', 'thue suat', 'vat', 'tax', 'tax rate'], { max: 8 }),
-  f('description', 'text', ['mo ta', 'ghi chu', 'description'], { max: 4000 }),
+  // Chữ thuần (phép chiếu): khác chữ hiện có của sản phẩm đã định dạng → cảnh báo `description_warning: formatting_reset` trước khi xác nhận.
+  f('description', 'text', ['mo ta', 'ghi chu', 'description'], { max: 4000, hint: 'plain_projection', warnings: ['formatting_reset'] }),
+  // TIP-027b: tài liệu định dạng tuỳ chọn (JSON schema đóng, ≤ 32 KiB) — khứ hồi định dạng; không ánh xạ tự đoán từ cột khác.
+  f('description_doc', 'description_doc', ['description doc', 'mo ta dinh dang'], { max: 32768, hint: 'structured_json' }),
   f('sessions', 'text', ['so buoi', 'sessions'], { max: 8 }),
   f('valid_days', 'text', ['so ngay hieu luc', 'han dung', 'valid days'], { max: 8 }),
 ];

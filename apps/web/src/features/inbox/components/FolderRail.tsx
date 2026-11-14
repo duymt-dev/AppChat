@@ -15,9 +15,6 @@ const useStyles = createStyles(({ css, responsive }) => ({
     display: flex;
     flex-direction: column;
     overflow-y: auto;
-    @media (max-width: 900px) {
-      display: none;
-    }
     ${responsive.md} {
       display: none;
     }

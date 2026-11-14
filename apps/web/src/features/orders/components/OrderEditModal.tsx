@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
-import { membersQuery } from '@/features/customers';
+import { membersQuery } from '@/features/customers/api';
 import { useOrderFormStyles } from '../styles/form.styles';
 import { useOrdersUi } from '../orders-store';
 import { orderQuery } from '../api';

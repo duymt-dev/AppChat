@@ -1,6 +1,7 @@
 // Áp kết quả lệnh thao tác + sự kiện kênh vào DB tenant (TIP-014b A). Idempotent: lệnh đã kết thúc không đổi lại; sự kiện kênh chỉ khớp tin
 // trong ĐÚNG tài khoản theo msgId đã lưu (không tạo tin / khách, không khớp tài khoản khác). Thu hồi: `recalled_at` chỉ ghi khi mọi phần
 // của tin đã xác nhận (ACK hoặc sự kiện thu hồi của kênh). Cảm xúc: revision đơn điệu — ACK / sự kiện cũ không đè ý định mới hơn.
+// TIP-022c: cả hai đường ghi `recalled_at` đi qua `markRecalled` (inbox — cùng thứ tự khoá với cổng ý định khách, vô hiệu căn cứ báo giá).
 import type { ProviderEvent, ReactionEmoji } from '@appchat/channels';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { OutboxEventInput } from '../../kernel/outbox/outbox';
@@ -8,6 +9,7 @@ import { applySelfRef, messageByProviderId, messageRefs } from './operation-stor
 import { applyReceipt } from './delivery-receipts';
 import { applyFriendEvent } from './friend-store';
 import type { OperationStatus } from './types';
+import { markRecalled } from '../../inbox/services/customer-source-fence';
 
 type Part = { part_no: number; status: 'confirmed' | 'failed' | 'unknown'; error?: string };
 export type OperationOutcome = { status: 'confirmed' | 'failed' | 'unknown'; error?: string; parts?: Part[] };
@@ -37,7 +39,7 @@ export async function applyOperationResult(tx: TenantTx, operationId: string, o:
   await tx.channelOperation.update({ where: { id: op.id }, data: { status, error: o.error?.slice(0, 200) ?? null, result: o.parts ? { parts: o.parts } : {}, finishedAt: now } });
   let change = 'operation';
   if (op.kind === 'recall' && status === 'confirmed') {
-    await tx.message.updateMany({ where: { id: op.messageId, recalledAt: null }, data: { recalledAt: now } });
+    await markRecalled(tx, op.messageId, now);
     change = 'recalled';
   }
   if (op.kind === 'react' && status === 'confirmed') {
@@ -77,7 +79,7 @@ export async function applyProviderEvent(tx: TenantTx, e: ProviderEvent, now: Da
     } else if (op) {
       await tx.channelOperation.update({ where: { id: op.id }, data: { status: 'confirmed', finishedAt: now } });
     }
-    await tx.message.update({ where: { id: msg.id }, data: { recalledAt: now } });
+    await markRecalled(tx, msg.id, now);
     const ev = await updatedEvent(tx, msg.id, 'recalled');
     return ev ? [ev] : [];
   }

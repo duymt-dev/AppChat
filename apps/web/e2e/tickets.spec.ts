@@ -79,10 +79,13 @@ test.describe('tickets', () => {
     await expect(page.getByTestId('tk-bulk')).toContainText('Đã chọn 2 ticket');
     await page.getByTestId('tk-bulk-assign').click();
     await page.getByRole('menuitem', { name: 'Minh' }).click();
+    // TIP-034c: hàng loạt luôn qua xem trước (bulk) — xác nhận rồi mới ghi.
+    await page.getByRole('button', { name: 'Xác nhận' }).click();
     await expect(page.getByTestId('tk-bulk')).toHaveCount(0);
     await expect(page.locator('[data-ticket="tk_2041"]')).toContainText('Minh');
     await page.locator('[data-ticket="tk_2034"] input[type="checkbox"]').check();
     await page.getByTestId('tk-bulk-ai').click();
+    await page.getByRole('button', { name: 'Xác nhận' }).click();
     await expect(page.locator('[data-ticket="tk_2034"]')).toContainText('AI Agent');
   });
 
@@ -98,7 +101,7 @@ test.describe('tickets', () => {
     await f.getByTestId('tk-company').fill('Cty Hoà Bình');
     await f.getByTestId('tk-email').fill('ketoan@hoabinh.vn');
     await f.getByTestId('tk-channel').selectOption('email');
-    await f.getByTestId('tk-category').selectOption('Billing');
+    await f.getByTestId('tk-category').fill('Billing');
     await f.getByTestId('tk-priority').selectOption('medium');
     await f.getByTestId('tk-desc').fill('Cần hoá đơn cho gói 10 buổi');
     await f.getByTestId('tk-save').click();

@@ -21,12 +21,15 @@ import { ChannelsModule } from '../channels/channels.module';
 import { registerSystemVerifier } from '../kernel/actions/system';
 import { AppointmentSystemTransitionHandler } from './system/handlers';
 import { verifyBookingTrigger } from './system/sources';
+import { AppointmentOrderSuggestionsHandler } from './order-suggestions/handler';
 
 const HANDLERS = [
   AppointmentFindSlotsHandler, AppointmentListHandler, AppointmentCreateHandler, AppointmentRescheduleHandler,
   AppointmentConfirmHandler, AppointmentCheckInHandler, AppointmentCompleteHandler, AppointmentNoShowHandler, AppointmentCancelHandler,
   StaffCreateHandler, StaffUpdateHandler, StaffDeactivateHandler, BusinessHoursUpdateHandler,
   AppointmentGetHandler, StaffSearchHandler, ServiceSearchHandler, AppointmentUpdateHandler, BookingSettingsGetHandler,
+  // Gợi ý tạo đơn hiện hành (TIP-033c) — chỉ đọc; tạo đơn vẫn là order.create_from_appointment của sales.
+  AppointmentOrderSuggestionsHandler,
   // Action riêng chuyển trạng thái hệ thống (TIP-003c).
   AppointmentSystemTransitionHandler,
 ];

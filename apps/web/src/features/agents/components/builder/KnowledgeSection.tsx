@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
-import { kbQuery } from '@/features/settings';
+import { kbQuery } from '@/features/settings/api';
 import { useBuilderStyles } from '../../styles/builder.styles';
 import { useSectionStyles } from '../../styles/sections.styles';
 import type { KbScope } from '../../types';

@@ -15,6 +15,8 @@ export const previewSchema = z.object({
   count: z.number().optional(),
   changes: z.array(z.object({ entity: z.string(), id: z.string().optional(), before: z.record(z.string(), z.unknown()).optional(), after: z.record(z.string(), z.unknown()).optional() })).optional(),
   warnings: z.array(z.string()).optional(),
+  /** Bảng kiểm pháp lý của chứng từ (TIP-028b) — preview gửi / duyệt báo giá, hợp đồng, đề nghị thanh toán. */
+  checklist: z.array(z.object({ code: z.string(), ok: z.boolean(), hint: z.string().optional() })).optional(),
 });
 
 /** Thẻ xác nhận (ChatThread ActionCard) — dựng từ preview của handler hoặc ActionDef. */

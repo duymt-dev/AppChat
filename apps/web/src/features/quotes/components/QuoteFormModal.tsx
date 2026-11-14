@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { ModalShell, Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useFmt } from '@/shared/i18n/useFmt';
-import { contactsQuery, membersQuery } from '@/features/customers';
+import { contactsQuery, membersQuery } from '@/features/customers/api';
 import { useQuoteFormStyles } from '../styles/form.styles';
 import { useQuotesUi } from '../quotes-store';
 import { initialQuoteDraft, useQuoteDraft } from '../hooks/useQuoteDraft';

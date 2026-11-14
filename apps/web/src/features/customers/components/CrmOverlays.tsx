@@ -8,7 +8,6 @@ import { useCrmUi } from '../crm-store';
 import { crmAiQuery } from '../api';
 import { CollaboratorsModal } from './CollaboratorsModal';
 import { ContactFormModal } from './ContactFormModal';
-import { CrmAiDrawer } from './CrmAiDrawer';
 import { Customer360Drawer } from './Customer360Drawer';
 import { DedupeModal } from './DedupeModal';
 import { FieldsModal } from './FieldsModal';
@@ -17,6 +16,9 @@ import { BulkTransferModal } from './BulkTransferModal';
 import { ImportModal } from './ImportModal';
 import { DeletedContactsDrawer } from './DeletedContactsDrawer';
 import type { ContactRow } from '../types';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const CrmAiDrawer = lazyDrawer(() => import('./CrmAiDrawer').then((m) => m.CrmAiDrawer));
 
 function AiPeek() {
   const t = useTranslations('customers.peek');
@@ -60,7 +62,9 @@ export function CrmOverlays({ rows, selected, onBulkDone }: { rows: ContactRow[]
   return (
     <>
       <Customer360Drawer />
-      <CrmAiDrawer />
+      <Opened name="crm-ai" when={ui.modal === 'ai'} onClose={() => ui.set({ modal: null })}>
+        <CrmAiDrawer />
+      </Opened>
       <DeletedContactsDrawer />
       {ui.modal === 'create' ? <ContactFormModal mode="create" /> : null}
       {ui.modal === 'edit' && target ? <ContactFormModal key={target.id} mode="edit" contact={target} /> : null}

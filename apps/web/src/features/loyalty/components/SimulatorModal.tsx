@@ -9,11 +9,12 @@ import { Icon, color } from '@appchat/ui';
 import { useModalStyles } from '../styles/modal.styles';
 import { useLoyaltyUi } from '../loyalty-store';
 import { loyaltyConfigQuery } from '../api';
-import { pts } from '../status';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const SAMPLE = '2000000';
 
 export function SimulatorModal() {
+  const fmt = useFmt();
   const open = useLoyaltyUi((s) => s.sim);
   const cfg = useQuery({ ...loyaltyConfigQuery(), enabled: open }).data;
   const t = useTranslations('loyalty');
@@ -64,17 +65,17 @@ export function SimulatorModal() {
             <div className={styles.resH}>{t('sim.applied')}</div>
             <div className={styles.resRow}>
               <span className={styles.grow}>{t('sim.base')}</span>
-              <b>{`+${pts(base)}`}</b>
+              <b>{`+${fmt.number(base)}`}</b>
             </div>
             {m > 1 ? (
               <div className={styles.resRow}>
                 <span className={styles.grow}>{t('sim.mult', { t: t(`tier.${tier}`), m: String(m).replace('.', ',') })}</span>
-                <b>{`+${pts(total - base)}`}</b>
+                <b>{`+${fmt.number(total - base)}`}</b>
               </div>
             ) : null}
             <div className={styles.resTot}>
               <span className={styles.grow}>{t('sim.total')}</span>
-              <b data-testid="ly-sim-total">{pts(total)}</b>
+              <b data-testid="ly-sim-total">{fmt.number(total)}</b>
             </div>
           </div>
           <div className={styles.muted}>{t('sim.note')}</div>

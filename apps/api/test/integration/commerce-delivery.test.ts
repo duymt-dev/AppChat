@@ -11,6 +11,7 @@ import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appc
 import { DocRenderer, uuidv7 } from '@appchat/core';
 import { vietQrPayload } from '@appchat/shared';
 import { call, env, startApi, type Harness } from './setup';
+import { drainRenders } from './helpers/doc-render';
 
 let h: Harness;
 let resolver: TenantDbResolver;
@@ -169,6 +170,7 @@ describe('báo giá dạng ảnh', () => {
     const items = Array.from({ length: 40 }, (_, k) => ({ name: `Dịch vụ chăm sóc số ${k + 1}`, qty: 1, unit_price: '100000', tax_rate: 0 }));
     const q = ok(await act('quote.create', { contact_id: lan, items })).quote_id;
     ok(await act('quote.send', { quote_id: q, channel: 'zalo_personal', format: 'image' }));
+    await drainRenders(h, resolver);
     const db = await tenant();
     const quote = await db.quote.findUniqueOrThrow({ where: { id: q } });
     const pdf = Buffer.from(await (await call(h, `/quotes/${q}/pdf`)).arrayBuffer());
@@ -183,6 +185,7 @@ describe('báo giá dạng ảnh', () => {
     expect(quote.fileId).toBeTruthy();
     const q2 = ok(await act('quote.create', { contact_id: lan, items: items.slice(0, 2) })).quote_id;
     ok(await act('quote.send', { quote_id: q2, channel: 'webchat' }));
+    await drainRenders(h, resolver);
     const w = await lastOut(webConv);
     expect(w.kind).toBe('file');
     expect(tokenOf(w.body)).toBeTruthy();

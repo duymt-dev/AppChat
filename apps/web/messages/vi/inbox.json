@@ -112,7 +112,9 @@
   "chat": {
     "aiDraftRef": {
       "stale": "Nháp AI đã cũ — nội dung tham khảo không còn dùng được. Hãy soạn lại hoặc gửi như tin tự viết.",
-      "revoked": "Tài liệu mà nháp AI dựa vào đã thay đổi hoặc bị thu hồi — nháp không được gửi. Hãy soạn lại."
+      "revoked": "Tài liệu mà nháp AI dựa vào đã thay đổi hoặc bị thu hồi — nháp không được gửi. Hãy soạn lại.",
+      "stockChanged": "Tồn kho / giá trong nháp AI đã đổi so với lúc kiểm — nháp không được gửi. Hãy soạn lại hoặc kiểm tồn mới.",
+      "stockUnverified": "Không kiểm lại được tồn kho / giá của nháp AI với quyền của bạn — nháp không được gửi. Hãy soạn lại."
     },
     "back": "Quay lại danh sách",
     "search": "Tìm trong hội thoại",

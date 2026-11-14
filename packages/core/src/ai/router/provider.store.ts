@@ -9,7 +9,7 @@ import { uuidv7 } from '../../kernel/ids';
 import type { ModelPrice } from '../../billing/public';
 import type { AiEnv } from '../ai.env';
 import { AI_CONFIG_SCOPE, RevisionWatch } from '../../platform/public';
-import { providerRevision, routeRevision } from './config-revision';
+import { providerRevision, routeRevision, spaceRevision } from './config-revision';
 
 const TTL_MS = 60_000;
 
@@ -70,7 +70,7 @@ export class ProviderStore implements RouterConfigSource {
       const snap: Snapshot = {
         at: this.now(),
         gen,
-        routes: routes.map((r) => ({ tier: r.tier, purpose: r.purpose, priority: r.priority, providerKey: r.providerKey, model: r.model, vision: (r.params as { vision?: unknown } | null)?.vision === true, configRevision: routeRevision(this.key, { id: r.id, model: r.model, params: r.params, priority: r.priority }) })),
+        routes: routes.map((r) => ({ tier: r.tier, purpose: r.purpose, priority: r.priority, providerKey: r.providerKey, model: r.model, vision: (r.params as { vision?: unknown } | null)?.vision === true, configRevision: routeRevision(this.key, { id: r.id, model: r.model, params: r.params, priority: r.priority }), spaceRevision: spaceRevision(this.key, { model: r.model, params: r.params }) })),
         providers: map,
         prices: new Map(prices.map((x) => [`${x.providerKey}:${x.model}`, { per1kIn: Number(x.creditsPer1kIn), per1kOut: Number(x.creditsPer1kOut), tier: x.tier }])),
       };
@@ -151,6 +151,29 @@ export class ProviderStore implements RouterConfigSource {
     await this.platform.modelPrice.upsert({
       where: { providerKey_model: { providerKey: key, model } },
       create: { providerKey: key, model, tier: 'standard', creditsPer1kIn: env.LLM_SEED_CREDITS_PER_1K_IN, creditsPer1kOut: env.LLM_SEED_CREDITS_PER_1K_OUT },
+      update: {},
+    });
+    this.invalidate();
+    return true;
+  }
+
+  /**
+   * Seed provider embed riêng từ env (TIP-020e §1.4, DC-305): provider + route `embed` (mức standard — embed không phân mức) + đơn giá,
+   * CHỈ khi provider chưa có (không ghi đè cấu hình Quản trị nền tảng 040), độc lập với seed chat. Route thêm sau route embed đã có.
+   */
+  async seedEmbed(env: AiEnv): Promise<boolean> {
+    const key = env.EMBED_SEED_PROVIDER_KEY;
+    if (!key || !env.EMBED_SEED_API_KEY) return false;
+    if (await this.platform.llmProvider.findUnique({ where: { key }, select: { key: true } })) return false;
+    const model = env.EMBED_SEED_MODEL;
+    await this.platform.llmProvider.create({
+      data: { key, kind: env.EMBED_SEED_KIND, name: key, baseUrl: env.EMBED_SEED_BASE_URL ?? null, apiKeyEnc: new Uint8Array(encryptSecret(env.EMBED_SEED_API_KEY, this.key)), capabilities: { embeddings: true } },
+    });
+    const taken = await this.platform.modelRoute.findFirst({ where: { tier: 'standard', purpose: 'embed' }, orderBy: { priority: 'desc' }, select: { priority: true } });
+    await this.platform.modelRoute.create({ data: { id: uuidv7(), tier: 'standard', purpose: 'embed', priority: (taken?.priority ?? -1) + 1, providerKey: key, model } });
+    await this.platform.modelPrice.upsert({
+      where: { providerKey_model: { providerKey: key, model } },
+      create: { providerKey: key, model, tier: 'standard', creditsPer1kIn: env.EMBED_SEED_CREDITS_PER_1K, creditsPer1kOut: 0 },
       update: {},
     });
     this.invalidate();

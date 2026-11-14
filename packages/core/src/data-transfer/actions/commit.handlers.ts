@@ -25,7 +25,8 @@ import { dataJobUrl } from '../../kernel/jobs/data-jobs/handlers';
 import { actorUserId } from '../../crm/public';
 import { TransferDeps } from '../data-transfer.providers';
 import { ownPlan } from '../services/planner';
-import { commitBlocker, requireImport } from '../services/plan-view';
+import { atomicPlan, commitBlocker, requireImport } from '../services/plan-view';
+import { categoryCommitPreview } from '../adapters/ticket-categories';
 import { assertDataset, planTarget } from '../services/dataset';
 import { commitPlan } from '../jobs/transfer.runner';
 import { TRANSFER_COMMIT_KIND } from '../types';
@@ -51,7 +52,7 @@ async function draftPlan(tx: TenantTx, ctx: ActionContext, i: CommitIn, now: Dat
   const block = commitBlocker(plan, now);
   // Thông điệp chỉ đường cho Trợ lý / API: còn dòng lỗi với `all_valid` → đổi chính sách (KHÔNG lập kế hoạch mới — kế hoạch mới vẫn lỗi).
   if (block)
-    throw new AppError('INVALID_STATE', 409, block, block.rows === 'has_invalid' && plan.entity !== 'product' ? `${plan.invalid} invalid rows: call transfer.update_mapping {plan_id, if_version, row_policy:"only_valid"} to skip them (user choice), then transfer.commit with the new version` : undefined);
+    throw new AppError('INVALID_STATE', 409, block, block.rows === 'has_invalid' && !atomicPlan(plan) ? `${plan.invalid} invalid rows: call transfer.update_mapping {plan_id, if_version, row_policy:"only_valid"} to skip them (user choice), then transfer.commit with the new version` : undefined);
   return plan;
 }
 
@@ -64,11 +65,15 @@ async function unitCount(tx: TenantTx, plan: { id: string; entity: string; datas
   return Number(r[0]?.n ?? 0);
 }
 
-/** Chạy nền: khách > 500 dòng (lô contact.import); chứng từ / hoạt động CRM > 50 (mỗi bản ghi một action). Sản phẩm luôn qua product.import (tự chạy nền > 500). */
+/** Chạy nền: khách > 500 dòng (lô contact.import); chứng từ / hoạt động CRM > 50 (mỗi bản ghi một action). Tập ghi cả tệp một lệnh (sản
+ *  phẩm qua product.import — tự chạy nền > 500; danh mục ticket ≤ 100 nhãn) luôn chạy ngay. */
 const runsAsJob = (plan: { entity: string; dataset: string; valid: number }, docs: number) =>
   plan.entity === 'contact' && plan.dataset === 'base'
     ? plan.valid > TRANSFER_SYNC_ROWS
-    : plan.entity !== 'product' && docs > TRANSFER_SYNC_DOCS;
+    : !atomicPlan(plan) && docs > TRANSFER_SYNC_DOCS;
+
+/** Danh mục ticket (TIP-034b §4.3): thẻ xác nhận là thay CẢ bộ cấu hình (risk config, trước / sau đầy đủ); cấu hình đổi sau khi lập → 409. */
+const isCategories = (plan: { entity: string }) => plan.entity === 'ticket_category_suggestions';
 
 @Injectable()
 @ActionHandler('transfer.commit')
@@ -77,6 +82,7 @@ export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
 
   async preview(ctx: ActionContext, i: CommitIn, tx: TenantTx): Promise<ActionPreview> {
     const plan = await draftPlan(tx, ctx, i, this.d.now());
+    if (isCategories(plan)) return preview('config', line(plan.fileName, `${plan.valid}`), await categoryCommitPreview(tx, plan.id));
     const sample = await tx.transferRow.findMany({
       where: { planId: plan.id, check: 'valid' },
       orderBy: { rowNo: 'asc' },
@@ -107,6 +113,8 @@ export class TransferCommitHandler implements Handler<CommitIn, CommitOut> {
   async execute(ctx: ActionContext, i: CommitIn, tx: TenantTx): Promise<HandlerOutcome<CommitOut>> {
     const now = this.d.now();
     const plan = await draftPlan(tx, ctx, i, now);
+    // Cấu hình đã đổi (tay / Trợ lý) sau khi lập kế hoạch → 409 ngay, không tự áp lên bản mới.
+    if (isCategories(plan)) await categoryCommitPreview(tx, plan.id);
     const ws = ctx.workspaceId;
     const result: CommitOut = {
       plan_id: plan.id,

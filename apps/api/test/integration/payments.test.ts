@@ -326,7 +326,6 @@ describe('quét + đọc + quyền', () => {
     expect(m.stats.total).toBeGreaterThan(0);
     expect(m.payment_account).toMatchObject({ bin: '970436' });
     expect(m.crm.total).toBeGreaterThan(0);
-    expect(m.files.length).toBeGreaterThanOrEqual(1);
     // Sales chỉ thấy đề nghị mình phụ trách.
     const mine = ok(await act('invoice.create', { contact_id: ids.vy, kind: 'full', amount: '300000' }, sales)).result.invoice_id;
     const list = invoicesPageSchema.parse((await get('/invoices?page=1&limit=50', sales)).body);

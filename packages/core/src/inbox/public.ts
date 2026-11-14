@@ -18,3 +18,7 @@ export { groupState, groupCommand, groupCandidates } from './groups/group-read';
 export { groupBoard } from './groups/group-board';
 export { assigneeCandidates } from './services/assignee-candidates';
 export { conversationApprovals } from './approvals/conversation-approvals';
+// TIP-022c §2.3: người ghi nguồn khách (xoá / thu hồi / xoá lịch sử) — cùng thứ tự khoá với cổng ý định khách của báo giá.
+export { fenceCustomerSource, markRecalled, type SourceFenceReason } from './services/customer-source-fence';
+// TIP-016b: số đếm trên rail (hội thoại chưa đọc / ticket đang mở / lịch hôm nay) theo quyền + scope người xem.
+export { NavBadgesService, NAV_BADGES_TTL_MS, NAV_BADGE_EVENTS, touchNavBadges, type NavViewer } from './services/nav-badges';

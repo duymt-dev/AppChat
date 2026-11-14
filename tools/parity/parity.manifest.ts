@@ -9,6 +9,7 @@ import { GENUI_DRAWERS } from './modules/genui';
 import { CONTACT_MEMORY } from './modules/contact-memory';
 import { DATA_TRANSFER } from './modules/data-transfer';
 import { ASSISTANT_INPUT } from './modules/assistant-input';
+import { ASSISTANT_PLANS } from './modules/assistant-plans';
 import { hardeningEntries } from './modules/hardening';
 import { PLATFORM_ADMIN } from './modules/platform-admin';
 import { tenantMailEntries } from './modules/tenant-mail';
@@ -900,6 +901,25 @@ export const MANIFEST: ParityEntry[] = [
     appWait: '[data-order]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
   },
+  // TIP-032d: tab Tệp thật (danh sách theo bản ghi, Mở / Gỡ / + Tải tệp lên) — prototype L5967–5978. Tên / meta tệp khác dữ liệu mẫu
+  // prototype (seed theo fixture đơn), nút Gỡ thêm ở tệp người dùng gắn (PD-029).
+  {
+    id: 'orders:files',
+    route: '/orders',
+    protoStorage: orders,
+    proto: async (p) => {
+      await p.locator('span', { hasText: 'SP290411' }).first().click();
+      await protoOverrideVals(p, { odDetailOn: true });
+      await protoSetState(p, { od360Tab: 'files' });
+    },
+    app: async (p) => {
+      await p.locator('[data-order="ord_290411"]').first().click();
+      await p.getByTestId('od-drawer').getByRole('tab', { name: 'Tệp' }).click();
+      await p.getByTestId('rf-order-row').first().waitFor();
+    },
+    appWait: '[data-order]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
   {
     id: 'orders:create',
     route: '/orders',
@@ -957,6 +977,24 @@ export const MANIFEST: ParityEntry[] = [
       await protoOverrideVals(p, { ivDetailOn: true });
     },
     app: (p) => p.locator('[data-invoice="inv_2041"]').first().click(),
+    appWait: '[data-invoice]',
+    clip: { x: 1048, y: 0, width: 392, height: 900 },
+  },
+  // TIP-032d: tab Tệp đề nghị — chứng từ đã sinh (chỉ Mở) + tệp người dùng gắn (Mở / Gỡ) — prototype L5685–5696 (PD-029).
+  {
+    id: 'invoices:files',
+    route: '/invoices',
+    protoStorage: invoices,
+    proto: async (p) => {
+      await p.locator('b', { hasText: 'HD-2039' }).first().click();
+      await protoOverrideVals(p, { ivDetailOn: true });
+      await protoSetState(p, { iv360Tab: 'files' });
+    },
+    app: async (p) => {
+      await p.locator('[data-invoice="inv_2039"]').first().click();
+      await p.getByTestId('iv-drawer').getByRole('tab', { name: 'Tệp' }).click();
+      await p.getByTestId('rf-invoice-row').first().waitFor();
+    },
     appWait: '[data-invoice]',
     clip: { x: 1048, y: 0, width: 392, height: 900 },
   },
@@ -1045,6 +1083,16 @@ export const MANIFEST: ParityEntry[] = [
     proto: (p) => p.locator('button', { hasText: 'Kanban' }).first().click(),
     app: (p) => p.getByTestId('tk-view-kanban').click(),
     appWait: '[data-ticket]',
+  },
+  {
+    // TIP-034d: 5 thẻ KPI có huy hiệu "so với hôm qua" (↑ n / ↓ n / = / —, PD-032) thay chuỗi "↑ +12%" cố định của prototype. So vùng
+    // topbar + KPI; dòng "So với hôm qua lúc …" (nút chi tiết ngoài thẻ) là phần thêm — mask.
+    id: 'tickets:kpi-stock',
+    route: '/tickets',
+    protoStorage: tickets,
+    appWait: '[data-testid="tk-trend-total"]',
+    clip: { x: 0, y: 0, width: 1440, height: 200 },
+    mask: [{ x: 0, y: 170, width: 600, height: 30, reason: 'PD-032 — nút "So với hôm qua lúc …" (chi tiết mốc quan sát thật) không có ở prototype' }],
   },
   {
     id: 'tickets:detail',
@@ -1420,6 +1468,8 @@ export const MANIFEST: ParityEntry[] = [
     proto: settingsProto,
     clip: ST_MAIN,
   },
+  // Cài đặt › Danh mục ticket (TIP-034b §3.1, PD-031): màn mới không có trong prototype → không có dòng so pixel / không tuyên bố diff.
+  // Mục nav thêm cuối nhóm cuối (`settings:shell` vẫn so — không đẩy lệch hàng prototype); hành vi + 390 kiểm ở e2e/support-categories.mock.
   {
     id: 'modal:upgrade',
     route: '/settings/billing?upgrade=1',
@@ -1493,5 +1543,6 @@ export const MANIFEST: ParityEntry[] = [
   ...PLATFORM_ADMIN,
   ...DATA_TRANSFER,
   ...ASSISTANT_INPUT,
+  ...ASSISTANT_PLANS,
   ...tenantMailEntries(settingsProto),
 ];

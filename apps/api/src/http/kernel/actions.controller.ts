@@ -94,6 +94,8 @@ export class ActionsController {
     }
     const ctx = await this.context(req);
     ctx.confirmToken = parsed.data.confirm_token;
+    // TIP-028b (DC-444): UI xin xem trước action chứng từ (bảng kiểm) — chỉ thêm bước xác nhận, policy kiểm ở executor.
+    if (header(req, 'x-action-preview') === '1') ctx.previewRequested = true;
     const intent = header(req, 'x-genui-intent');
     const out = intent
       ? await runGenUiAction({ executor: this.executor, intents: this.intents, vault: this.vault }, ctx, id, { handle: intent, input: parsed.data.input, vault: parsed.data.secret_vault })

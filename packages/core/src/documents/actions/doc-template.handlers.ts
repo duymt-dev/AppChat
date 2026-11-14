@@ -1,6 +1,7 @@
 // doc_template.create / update / delete / detect_fields (Blueprint §3.4, D30 — standards/documents/templates.md). Mẫu chỉ là trình bày:
 // số liệu luôn từ bản ghi có cấu trúc. Lưu mẫu DOCX chỉ khi đã qua bước người xác nhận vị trí → biến (field_map). Xoá = xoá mềm,
-// không xoá mẫu mặc định của loại; hoàn tác trong 24h. detect_fields gọi model trong `prepare` (ngoài transaction).
+// không xoá mẫu mặc định của loại; hoàn tác trong 24h. Hoàn tác tạo (TIP-028b) = xoá mềm mẫu khi chưa chứng từ nào dùng, trả mặc định nhóm
+// về mẫu cũ. detect_fields gọi model trong `prepare` (ngoài transaction).
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError, legalChecklist, type DocKind } from '@appchat/shared';
@@ -18,6 +19,7 @@ import { runOnce } from '../../ai/agents/agent.runtime';
 import { detectByRules, detectPrompt, parseDetected, type DetectedField } from '../services/detect';
 import { checkDocxFields, checkRich, docxParas, liveTemplate } from '../services/template-store';
 import { checkContractKind, groupHasDefault, makeGroupDefault } from '../services/contract-template';
+import { templateUsedBy } from '../services/template-usage';
 import { createPreview, deletePreview, updatePreview } from './previews/doc-template.handlers.preview';
 
 const need = <T>(v: T | null | undefined, what: string): T => {
@@ -50,8 +52,27 @@ export class DocTemplateCreateHandler implements Handler<ActionInput<typeof docT
     const contractKind = checkContractKind(kind, input.contract_kind);
     await tx.docTemplate.create({ data: { id, kind, contractKind, name: input.name, source: input.source, ...data, updatedBy: actorUserId(ctx) } });
     // Nhóm (loại chứng từ + loại hợp đồng) chưa có mặc định → mẫu đầu tiên của nhóm thành mặc định.
-    if (input.is_default || !(await groupHasDefault(tx, kind, contractKind))) await makeGroupDefault(tx, kind, contractKind, id);
-    return { result: { template_id: id }, after: { id, kind, source: input.source, contract_kind: contractKind } };
+    const first = !(await groupHasDefault(tx, kind, contractKind));
+    const prevDefault = input.is_default || first ? await makeGroupDefault(tx, kind, contractKind, id) : null;
+    return { result: { template_id: id }, before: { id, prevDefault }, after: { id, kind, source: input.source, contract_kind: contractKind } };
+  }
+
+  /**
+   * Hoàn tác tạo mẫu: chứng từ đã chụp mẫu này (báo giá / hợp đồng / đề nghị / phiếu thu) → 409 HAS_DEPENDENCIES nêu loại chứng từ;
+   * không thì xoá mềm, mặc định nhóm về mẫu cũ (còn sống). Mẫu là mặc định duy nhất của nhóm vẫn gỡ được — render báo `template_id:
+   * missing` như trước khi tạo, không ngầm dùng mẫu nhóm khác.
+   */
+  async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
+    const b = log.before as { id: string; prevDefault: string | null };
+    await tx.$queryRaw`SELECT 1 FROM doc_template WHERE id = ${b.id}::uuid FOR UPDATE`;
+    const t = await tx.docTemplate.findUnique({ where: { id: b.id } });
+    if (!t || t.deletedAt) return;
+    const used = await templateUsedBy(tx, t.id);
+    if (used) throw new AppError('HAS_DEPENDENCIES', 409, { template_id: `used_by:${used}` });
+    await tx.docTemplate.update({ where: { id: t.id }, data: { deletedAt: this.clock.now(), isDefault: false } });
+    if (!t.isDefault || !b.prevDefault) return;
+    const prev = await tx.docTemplate.findFirst({ where: { id: b.prevDefault, deletedAt: null } });
+    if (prev) await makeGroupDefault(tx, t.kind as DocKind, prev.contractKind ?? null, prev.id);
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof docTemplateCreate>, tx: TenantTx) {

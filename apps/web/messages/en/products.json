@@ -74,8 +74,6 @@
     "chanCount": "{n} channels",
     "syncTitle": "Multi-channel sync",
     "edit": "Edit product",
-    "filesTitle": "Attachments",
-    "open": "Open",
     "perf": "Sales performance",
     "crm": {
       "buyers": "Buyers",
@@ -99,7 +97,6 @@
     "adjust": "Adjust stock",
     "noSales": "No sales data yet — shown once quotes / orders include this product.",
     "noBuyers": "No customers have bought this product yet.",
-    "noFiles": "No attachments yet.",
     "noHistory": "No history yet.",
     "by": "{when} · {by}"
   },
@@ -206,7 +203,8 @@
       "list": "•",
       "olist": "1."
     },
-    "required": "Enter a name and a price"
+    "required": "Enter a name and a price",
+    "rtBar": "Description formatting"
   },
   "unit": "products",
   "stockAdjust": {
@@ -250,6 +248,59 @@
       "completed": "Done",
       "failed": "Has errors — see failed rows",
       "cancelled": "Cancelled"
+    }
+  },
+  "media": {
+    "title": "Attachments",
+    "upload": "+ Upload file",
+    "full": "Image and document limits reached",
+    "empty": "No images or documents yet.",
+    "images": "Images · {n}/{max}",
+    "documents": "Documents · {n}/{max}",
+    "primary": "Primary",
+    "makePrimary": "Make {name} the primary image",
+    "moveUp": "Move {name} earlier",
+    "moveDown": "Move {name} later",
+    "open": "Open",
+    "openName": "Open {name}",
+    "openFail": "Could not open the file.",
+    "detach": "Remove",
+    "detachName": "Remove {name}",
+    "cancel": "Cancel",
+    "retry": "Retry",
+    "meta": "{at} · {size}",
+    "missing": "original no longer available",
+    "uploading": "Uploading {name}…",
+    "attaching": "Checking and attaching {name}…",
+    "failed": "{name} was not attached: {reason}",
+    "stale": "The images / files just changed — reloaded. Click Retry to attach {name}.",
+    "detachTitle": "Remove {name} from this product?",
+    "detachBody": "It will no longer show on the product. The original file is kept under the retention policy; copies already downloaded cannot be recalled.",
+    "reason": {
+      "failed": "something went wrong, try again later",
+      "network": "connection lost",
+      "unavailable": "files cannot be checked right now (checker paused)",
+      "forbidden": "you cannot edit this product",
+      "too_large": "file too large",
+      "type_not_allowed": "unsupported type (PNG/JPEG/WEBP image, PDF, DOCX, XLSX, TXT/CSV)",
+      "type_mismatch": "file extension does not match its content",
+      "image_too_large": "image too large (max 8000 px per side, 40 megapixels)",
+      "animated": "animated images are not accepted",
+      "corrupt": "image is damaged or unreadable",
+      "limit_reached": "limit reached",
+      "other_target": "file was uploaded for another record",
+      "claimed": "file is attached elsewhere",
+      "not_found": "temporary upload expired — choose the file again",
+      "not_validated": "file has not been checked",
+      "macro": "Office file contains macros",
+      "executable": "executables are not accepted",
+      "detached": "this item was already removed"
+    },
+    "glyph": {
+      "up": "‹",
+      "primary": "★",
+      "down": "›",
+      "remove": "✕"
     }
   }
 }

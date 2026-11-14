@@ -63,7 +63,8 @@ export class ChannelPollers {
       await scanRoutes(this.d.platform, types, async (r) => {
         live.add(r.channelAccountId);
         if (!this.opened.has(r.channelAccountId)) await this.load(r.channelAccountId, r.workspaceId).catch((err: unknown) => this.d.log.warn({ err, account: r.channelAccountId }, 'poll channel open failed'));
-        if (this.opened.has(r.channelAccountId)) void this.poll(r.channelAccountId);
+        // Poll chạy nền (không chờ) — lỗi ngoài try của poll (vd. Redis đã đóng lúc tắt tiến trình) chỉ ghi log, không thành unhandled rejection.
+        if (this.opened.has(r.channelAccountId)) void this.poll(r.channelAccountId).catch((err: unknown) => this.d.log.warn({ err, account: r.channelAccountId }, 'channel poll aborted'));
       });
       for (const id of [...this.opened.keys()]) if (!live.has(id)) await this.drop(id);
     } catch (err) {

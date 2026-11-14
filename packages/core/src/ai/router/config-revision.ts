@@ -49,3 +49,12 @@ export function providerRevision(encKey: Buffer, p: ProviderFingerprint): string
 export function routeRevision(encKey: Buffer, r: RouteFingerprint): string {
   return hmac(encKey, 'route', [r.id, r.model, stable(r.params), String(r.priority)]);
 }
+
+/**
+ * Thế hệ KHÔNG GIAN embedding của một route (TIP-020e §1.1): chỉ các trường quyết định vector — model + params. Không gồm id / priority:
+ * `admin.model_route.upsert` xoá rồi tạo lại cả nhóm (id mới) và thêm route dự phòng đổi priority — vector của model cũ vẫn nguyên, kho
+ * không được bị coi là "model đã gỡ" / cũ chỉ vì lưu lại cấu hình (khoá cache handle vẫn theo `routeRevision`).
+ */
+export function spaceRevision(encKey: Buffer, r: Pick<RouteFingerprint, 'model' | 'params'>): string {
+  return hmac(encKey, 'space', [r.model, stable(r.params)]);
+}

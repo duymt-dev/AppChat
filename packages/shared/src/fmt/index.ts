@@ -45,6 +45,16 @@ export const createFmt = ({ locale, timeZone = DEFAULT_TZ }: FmtOptions) => {
       new Intl.DateTimeFormat(intl, { weekday: 'long', day: 'numeric', month: 'long', timeZone }).format(
         new Date(typeof d === 'string' && d.length === 10 ? `${d}T12:00:00Z` : d),
       ),
+    /** Ngày + giờ đầy đủ theo locale + timezone workspace (vd lần chạy kế tiếp của việc tự động). */
+    dateTime: (d: Date | string | number): string =>
+      new Intl.DateTimeFormat(intl, { dateStyle: 'medium', timeStyle: 'short', timeZone }).format(new Date(d)),
+    /** Ngày / tháng / năm dạng số theo timezone workspace — cho chuỗi i18n tự ghép thứ tự (vd "Ngày {d} tháng {m} năm {y}"). */
+    dateParts: (d: Date | string | number): { d: number; m: number; y: number } => {
+      const p = Object.fromEntries(
+        new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone }).formatToParts(new Date(d)).map((x) => [x.type, x.value]),
+      );
+      return { d: Number(p.day), m: Number(p.month), y: Number(p.year) };
+    },
     time: (d: Date | string | number): string =>
       new Intl.DateTimeFormat(intl, { hour: '2-digit', minute: '2-digit', hour12: false, timeZone }).format(
         new Date(d),

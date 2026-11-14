@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import type { AdjustReason } from '@appchat/actions';
 import { useAction } from '@/shared/actions/useAction';
+import { useFmt } from '@/shared/i18n/useFmt';
 import { useLoyaltyUi } from '../loyalty-store';
 import { loyaltyConfigQuery, lookupMember } from '../api';
 import type { Lookup, TierKey } from '../types';
@@ -16,6 +17,7 @@ export type AdjustDir = 'plus' | 'minus';
 
 export function useAdjust(initialPhone: string) {
   const t = useTranslations('loyalty.adj');
+  const fmt = useFmt();
   const { message } = App.useApp();
   const set = useLoyaltyUi((s) => s.set);
   const cfg = useQuery(loyaltyConfigQuery()).data;
@@ -55,7 +57,7 @@ export function useAdjust(initialPhone: string) {
     }
     const r = await adjust.run({ contact_id: id, delta, reason, ...(note.trim() ? { note: note.trim() } : {}) }, { silent: false });
     if (!r) return;
-    void message.success(t('done', { d: (delta > 0 ? '+' : '') + delta.toLocaleString('vi-VN'), name: who }));
+    void message.success(t('done', { d: (delta > 0 ? '+' : '') + fmt.number(delta), name: who }));
     set({ adjust: false, adjustFor: null });
   };
 

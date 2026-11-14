@@ -1,0 +1,113 @@
+{
+  "suite": "appointment-order",
+  "cases": [
+    {
+      "id": "ao-eligible-create",
+      "category": "appt_order",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Khách $NAME vừa làm xong buổi $SERVICE (lịch $CODE). Tạo đơn cho buổi này giúp tôi.",
+      "expect": {
+        "confirm": true,
+        "appointment_order": true
+      },
+      "appointment_order": {
+        "kind": "eligible"
+      }
+    },
+    {
+      "id": "ao-package-session",
+      "category": "appt_order",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Buổi $CODE của khách $NAME vừa xong. Tạo đơn cho buổi này giúp tôi.",
+      "expect": {
+        "confirm": false,
+        "appointment_order": true
+      },
+      "appointment_order": {
+        "kind": "package"
+      }
+    },
+    {
+      "id": "ao-already-linked",
+      "category": "appt_order",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Tạo đơn cho buổi $CODE của khách $NAME vừa xong giúp tôi.",
+      "expect": {
+        "confirm": false,
+        "appointment_order": true
+      },
+      "appointment_order": {
+        "kind": "linked"
+      }
+    },
+    {
+      "id": "ao-limited-role",
+      "category": "appt_order",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Tạo đơn cho buổi $CODE của khách $NAME vừa xong giúp tôi, báo luôn tổng tiền.",
+      "expect": {
+        "confirm": false,
+        "appointment_order": true
+      },
+      "appointment_order": {
+        "kind": "limited"
+      }
+    },
+    {
+      "id": "ao-changed-price",
+      "category": "appt_order",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Khách $NAME vừa làm xong buổi $SERVICE (lịch $CODE). Tạo đơn cho buổi này giúp tôi.",
+      "expect": {
+        "confirm": true,
+        "appointment_order": true
+      },
+      "appointment_order": {
+        "kind": "changed"
+      }
+    },
+    {
+      "id": "ao-selected-agent",
+      "category": "appt_order",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Buổi $CODE của khách $NAME vừa xong — nếu tạo đơn thì tổng tiền bao nhiêu? Chỉ xem, chưa tạo.",
+      "expect": {
+        "confirm": false,
+        "appointment_order": true
+      },
+      "appointment_order": {
+        "kind": "selected"
+      }
+    }
+  ]
+}

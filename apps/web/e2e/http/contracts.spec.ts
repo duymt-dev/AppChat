@@ -4,6 +4,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { isMobile } from '../support/mobile';
 import { onboarded, otpOf, spoofIp } from './support';
+import { confirmPreview } from '../support/confirm';
 
 async function scribble(page: Page, pad: Locator) {
   await pad.scrollIntoViewIfNeeded();
@@ -66,6 +67,7 @@ test.describe('hợp đồng (http)', () => {
     await expect(drawer).toContainText('HĐ-1001');
     await expect(drawer.getByTestId('ct-status')).toHaveText('Nháp');
     await drawer.getByTestId('ct-submit').click();
+    await confirmPreview(page);
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
 
     // Duyệt & ký: OTP thật gửi email chủ sở hữu.
@@ -76,12 +78,14 @@ test.describe('hợp đồng (http)', () => {
     await box.getByTestId('ct-otp').fill(await otpOf(owner));
     await scribble(page, box.getByTestId('ct-sig'));
     await box.getByTestId('ct-approve-ok').click();
+    await confirmPreview(page);
     await expect(box).toHaveCount(0, { timeout: 60_000 });
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ ký');
 
     // Gửi ký qua Email → link ký trong drawer + trong tin gửi khách.
     await drawer.getByTestId('ct-send-sign').click();
     await page.getByTestId('ct-send-email').click();
+    await confirmPreview(page);
     await expect(drawer.getByTestId('ct-sign-link')).toContainText('/sign/', { timeout: 30_000 });
     const out = await lastOut(page, 'Chị Hoa');
     await expect(out).toContainText('HĐ-1001');

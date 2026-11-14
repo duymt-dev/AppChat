@@ -8,7 +8,7 @@ import { FilterPopover, Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
 import { useListExport } from '@/shared/actions/useListExport';
-import { membersQuery } from '@/features/customers';
+import { membersQuery } from '@/features/customers/api';
 import { useOrdersStyles } from '../styles/orders.styles';
 import { useOrdersUi } from '../orders-store';
 import { FILTERS } from '../status';

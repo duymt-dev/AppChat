@@ -1,6 +1,6 @@
 // Màn AI Agents — tiêu đề, thư viện mẫu (lọc + lưới 5 cột + phân trang), "Agent của bạn" — prototype L2227–2289.
 import { createStyles } from 'antd-style';
-import { color, font, layout, radius, shadow } from '@appchat/ui';
+import { color, font, layout, mq, radius, shadow } from '@appchat/ui';
 
 export const useAgentsStyles = createStyles(({ css, responsive }) => ({
   page: css`
@@ -154,7 +154,7 @@ export const useAgentsStyles = createStyles(({ css, responsive }) => ({
     grid-template-columns: repeat(5, 1fr);
     gap: 12px;
     margin-bottom: 20px;
-    @media (max-width: 1100px) {
+    ${mq.max1100} {
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     }
     ${responsive.md} {

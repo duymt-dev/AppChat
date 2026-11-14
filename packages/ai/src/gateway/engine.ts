@@ -10,6 +10,7 @@ import { jsonSchema, streamText, tool, type ModelMessage, type ToolSet } from 'a
 import { classifyAttemptError, type AttemptOutcome } from './attempts';
 import { outputTokens, requestBytes, REQUEST_MAX_BYTES } from './limits';
 import { liveStep } from './delta-stream';
+import { checkpointBatch } from './plan-checkpoint';
 import { callKey, countCalls, resultPart, toJson } from './messages';
 import { hydrateMessages, stripMedia } from './input-parts';
 import { assertStructuredRequest, parseStructured, StructuredError, structuredOutput } from './structured';
@@ -66,6 +67,9 @@ export class AiSdkEngine implements AgentEngine {
       if (signal.aborted) return yield done('cancelled');
       if (step >= req.maxSteps) return yield done('max_steps');
       if (spent >= req.budget.maxCredits) return yield done('budget');
+      // TIP-023d §3.2: đã yêu cầu sửa kế hoạch → dừng trước lời gọi model mới (không admit provider cho revision cũ).
+      const gate = await req.hooks?.planGate?.();
+      if (gate) return yield { type: 'plan_paused', checkpoint: checkpointBatch(messages, [], [], step, gate.paused) };
       try {
         await req.hooks?.beforeStep?.(step);
       } catch (err) {
@@ -121,6 +125,9 @@ export class AiSdkEngine implements AgentEngine {
         seen.set(k, n);
         if (n >= LOOP_LIMIT) return yield done('loop_guard');
         if (signal.aborted) return yield done('cancelled');
+        // Cổng sửa kế hoạch trước MỖI tool: kết quả đã chạy giữ nguyên, phần còn lại của batch → superseded (đúng một lần).
+        const held = await req.hooks?.planGate?.();
+        if (held) return yield { type: 'plan_paused', checkpoint: checkpointBatch(messages, results, r.calls.slice(i), step, held.paused) };
         try {
           await req.hooks?.beforeTool?.(stepIdx, call.toolName);
         } catch (err) {
@@ -131,7 +138,7 @@ export class AiSdkEngine implements AgentEngine {
         const outcome = await runTool(specs.get(call.toolName), call, stepIdx, specs);
         yield { type: 'tool_result', stepIdx, call, outcome, latencyMs: Date.now() - t0 };
         if (outcome.kind === 'needs_confirmation' || outcome.kind === 'needs_approval' || outcome.kind === 'waiting_child') {
-          const canonical = outcome.kind === 'needs_confirmation' && outcome.canonicalInput !== undefined ? { canonicalInput: outcome.canonicalInput } : {};
+          const canonical = outcome.kind === 'needs_confirmation' ? { ...(outcome.canonicalInput !== undefined ? { canonicalInput: outcome.canonicalInput } : {}), ...(outcome.binding !== undefined ? { binding: outcome.binding } : {}) } : {};
           return yield { type: 'paused', outcome, state: { messages: [...messages], results, pendingToolCall: call, skipped: r.calls.slice(i + 1), stepIdx: step, ...canonical } };
         }
         results.push(resultPart(call, outcome));

@@ -14,10 +14,12 @@ import { useAgentsUi } from '../agents-store';
 import { agentsQuery, metaQuery } from '../api';
 import { TemplateGallery } from '../components/TemplateGallery';
 import { AgentCard } from '../components/AgentCard';
-import { AgentAiDrawer } from '../components/AgentAiDrawer';
 import { VersionsDrawer } from '../components/VersionsDrawer';
 import { useAgentsUiCommands } from '../ui-commands';
 import { useAssistantContext } from '../hooks/useAssistantContext';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const AgentAiDrawer = lazyDrawer(() => import('../components/AgentAiDrawer').then((m) => m.AgentAiDrawer));
 
 export function AgentsScreen() {
   useAgentsUiCommands();
@@ -80,7 +82,9 @@ export function AgentsScreen() {
           )}
         </PageStates>
       </section>
-      {meta.data ? <AgentAiDrawer meta={meta.data} /> : null}
+      <Opened name="agent-ai" when={ui.aiOpen && !!meta.data} onClose={() => ui.set({ aiOpen: false })}>
+        {meta.data ? <AgentAiDrawer meta={meta.data} /> : null}
+      </Opened>
       <VersionsDrawer agents={agents} />
     </div>
   );
