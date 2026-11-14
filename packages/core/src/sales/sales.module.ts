@@ -49,6 +49,7 @@ import { OrderSyncNowHandler } from './orders/actions/order-sync.handler';
 import { OrderFromAppointmentHandler } from './orders/actions/order-from-appointment.handler';
 import { OrdersReadService } from './orders/services/orders-read.service';
 import { OrderSyncService } from './orders/services/order-sync';
+import { OrderSystemStockSyncHandler, verifyOrderStockSync } from './orders/services/stock-sync';
 import { OrderSystemImportHandler, verifyOrderImport } from './orders/system/import';
 import { InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler } from './payments/actions/invoice-write.handlers';
 import { InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler } from './payments/actions/invoice-pay.handlers';
@@ -74,7 +75,7 @@ const HANDLERS = [
   QuoteDraftFromContentHandler,
   OrderCreateHandler, OrderFromQuoteHandler, OrderFromContractHandler,
   OrderUpdateHandler, OrderSetDepositHandler, OrderShippingHandler,
-  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderSystemImportHandler, OrderFromAppointmentHandler,
+  OrderConfirmHandler, OrderCompleteHandler, OrderCancelHandler, OrderSyncNowHandler, OrderSystemImportHandler, OrderSystemStockSyncHandler, OrderFromAppointmentHandler,
   InvoiceCreateHandler, InvoiceSendHandler, InvoiceVoidHandler, InvoiceRecordPaymentHandler, InvoiceResolveBankMatchHandler,
   PaymentRefundHandler, PaymentRefundApproveHandler, PaymentRefundRejectHandler, PackageExtendHandler, PackageAdjustHandler, PackageSearchHandler,
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler, BankFeedIngestHandler,
@@ -148,6 +149,7 @@ export class SalesModule implements OnModuleInit {
     // TIP-003c: họ action riêng sales — biên nhận trigger bền (mặc định).
     for (const id of ['quote.system_transition', 'invoice.system_transition', 'package.system_transition']) registerSystemVerifier(id, verifySalesTrigger);
     registerSystemVerifier('order.system_import', verifyOrderImport);
+    registerSystemVerifier('order.system_stock_sync', verifyOrderStockSync);
     // TIP-003e: scope bản ghi gốc cho `action_log.add_correction`.
     registerSalesCorrectionScopes();
   }

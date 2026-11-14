@@ -101,7 +101,7 @@ export async function liveProduct(tx: TenantTx, id: string) {
 
 export interface Movement {
   productId: string;
-  kind: 'sale' | 'return' | 'adjust' | 'import';
+  kind: 'sale' | 'return' | 'adjust' | 'import' | 'sync_adjust';
   qty: number;
   refType: string;
   refId: string;

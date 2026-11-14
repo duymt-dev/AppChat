@@ -69,6 +69,9 @@ export interface Connector {
   /** Trường xác thực theo manifest.auth.fields. */
   fields: string[];
   interest: boolean;
+  /** Port năng lực (vd. `order_sync`) & bên giữ tồn chuẩn (TIP-031c). */
+  port?: string;
+  stock_master?: 'appchat' | 'external';
 }
 
 export type { RoleRow, RolesData, Team } from './roles.types';

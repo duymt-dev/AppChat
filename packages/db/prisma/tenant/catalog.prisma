@@ -26,6 +26,7 @@ enum StockMovementKind {
   return
   adjust
   import
+  sync_adjust
 
   @@map("stock_movement_kind")
 }

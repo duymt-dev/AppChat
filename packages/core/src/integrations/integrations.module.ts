@@ -13,6 +13,7 @@ import { sandboxAllowed } from './services/adapter-selection';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers';
 import { IntegrationConnectHandler } from './actions/integration-connect.handler';
 import { IntegrationDisconnectHandler } from './actions/integration-disconnect.handler';
+import { IntegrationUpdateSettingsHandler } from './actions/integration-update-settings.handler';
 import { IntegrationRegisterInterestHandler } from './actions/integration-register-interest.handler';
 import { IntegrationFormSchemaHandler } from './actions/integration-form-schema.handler';
 import { IntegrationTestHandler } from './actions/integration-test.handler';
@@ -41,6 +42,7 @@ const INTEGRATION_OPS_PRODUCER = Symbol('INTEGRATION_OPS_PRODUCER');
   providers: [
     IntegrationConnectHandler,
     IntegrationDisconnectHandler,
+    IntegrationUpdateSettingsHandler,
     IntegrationRegisterInterestHandler,
     // TIP-023c G3: metadata form + thăm dò connector (read, không đổi kết nối).
     IntegrationFormSchemaHandler,

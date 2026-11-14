@@ -792,6 +792,14 @@
       "webhook_token": "Token webhook (bearer — để nhận sự kiện giao thư)",
       "sender_confirmed": "Xác nhận đây là địa chỉ của doanh nghiệp (true)"
     },
+    "stockMaster": {
+      "label": "Bên giữ tồn chuẩn",
+      "appchat": "AppChat (mặc định)",
+      "external": "Sàn / POS ngoài",
+      "appchatHint": "AppChat giữ tồn gốc — đơn sàn vẫn trừ / hoàn kho theo trạng thái.",
+      "externalHint": "Kéo bản chụp tồn kho từ sàn / POS khi đồng bộ và ghi chênh lệch vào sổ kho.",
+      "pushSoon": "Đẩy tồn lên sàn — Sắp có"
+    },
     "modal": {
       "title": "Kết nối {n}",
       "sub": "Tích hợp & đồng bộ dữ liệu",

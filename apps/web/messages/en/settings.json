@@ -792,6 +792,14 @@
       "webhook_token": "Webhook token (bearer — for delivery events)",
       "sender_confirmed": "Confirm this address belongs to the business (true)"
     },
+    "stockMaster": {
+      "label": "Stock source of truth",
+      "appchat": "AppChat (default)",
+      "external": "External marketplace / POS",
+      "appchatHint": "AppChat is authoritative — imported orders still deduct / return local stock by status.",
+      "externalHint": "Pull external stock snapshots on sync and record deltas in the stock ledger.",
+      "pushSoon": "Push stock to marketplace — Coming soon"
+    },
     "modal": {
       "title": "Connect {n}",
       "sub": "Integration & data sync",

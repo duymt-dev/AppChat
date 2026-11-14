@@ -35,9 +35,29 @@ export interface MappedStatus {
   paid: boolean;
 }
 
+export type StockMaster = 'appchat' | 'external';
+
+/** Bên giữ tồn chuẩn của kết nối (`external` hoặc mặc định `appchat`). */
+export const stockMasterOf = (config?: Record<string, unknown> | null): StockMaster =>
+  config?.stock_master === 'external' ? 'external' : 'appchat';
+
+export interface StockSnapshotItem {
+  sku: string;
+  on_hand: number;
+  as_of: string;
+  snapshot_id: string;
+}
+
+export interface StockPullResult {
+  items: StockSnapshotItem[];
+  next_cursor?: string | null;
+}
+
 export interface OrderSyncProvider extends ConnectorAdapter {
   /** Đơn tạo / đổi từ `since` (poll — queue `order-sync`). */
   pull(conn: ConnectionCtx, since: Date | null): Promise<ExternalOrder[]>;
+  /** Bản chụp tồn kho từ hệ ngoài theo cursor (TIP-031c, chế độ `stock_master = external`). */
+  pullStock?(conn: ConnectionCtx, cursor: string | null): Promise<StockPullResult>;
   /** Payload webhook đã xác thực → đơn chuẩn hoá. */
   handleWebhook(conn: ConnectionCtx, payload: unknown): ExternalOrder[];
   mapStatus(o: Pick<ExternalOrder, 'platform_status' | 'paid'>): MappedStatus;

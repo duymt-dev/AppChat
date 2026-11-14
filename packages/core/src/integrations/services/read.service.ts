@@ -1,7 +1,7 @@
 // Đọc trang Nền tảng kết nối (GET /v1/settings/integrations — shape packages/shared/src/api/integrations.ts): thẻ `web_widget`
 // (lối tắt kênh webchat — DC-006) + mọi manifest; `connected` theo DB tenant, `interest` theo DB nền tảng.
 import type { ConnectorDto } from '@appchat/shared';
-import type { ConnectorRegistry } from '@appchat/integrations';
+import { stockMasterOf, type ConnectorRegistry } from '@appchat/integrations';
 import { formFields } from './form-schema';
 import type { PlatformDb, TenantDb } from '@appchat/db';
 
@@ -26,10 +26,11 @@ export class IntegrationsReadService {
 
   async list(db: Pick<TenantDb, 'integrationConnection'>, workspaceId: string): Promise<ConnectorDto[]> {
     const [rows, interests] = await Promise.all([
-      db.integrationConnection.findMany({ where: { status: 'connected' }, select: { connectorKey: true } }),
+      db.integrationConnection.findMany({ where: { status: 'connected' }, select: { connectorKey: true, config: true } }),
       this.platform.integrationInterest.findMany({ where: { workspaceId }, select: { connectorKey: true } }),
     ]);
     const on = new Set(rows.map((r) => r.connectorKey));
+    const cfgByKey = new Map(rows.map((r) => [r.connectorKey, (r.config ?? {}) as Record<string, unknown>]));
     const wanted = new Set(interests.map((r) => r.connectorKey));
     return [
       WEB_WIDGET,
@@ -37,9 +38,11 @@ export class IntegrationsReadService {
         key: m.key,
         name: m.name,
         group: m.group,
+        port: m.port,
         color: m.color,
         status: m.status,
         connected: on.has(m.key),
+        ...(m.port === 'order_sync' ? { stock_master: stockMasterOf(cfgByKey.get(m.key)) } : {}),
         // TIP-012c: Brevo / SMTP mở Cài đặt › Email Marketing (prototype L10856 `email_mkt`) — kết nối vẫn qua hộp kết nối chung.
         opens: m.port === 'mail' ? 'email_mkt' : null,
         fields: m.auth.fields.map((f) => f.key),

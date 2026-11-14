@@ -847,6 +847,9 @@
     "system_import": {
       "title": "Nhập bản đơn sàn đã kiểm (hệ thống)"
     },
+    "system_stock_sync": {
+      "title": "Đối soát tồn kho sàn đã kiểm (hệ thống)"
+    },
     "file_attach": {
       "title": "Đính kèm tệp vào đơn hàng",
       "desc": "Gắn tệp đã tải lên (PDF, DOCX, XLSX, ảnh, văn bản) vào đơn sau khi kiểm cấu trúc."
@@ -1355,6 +1358,9 @@
     },
     "list_calls": {
       "title": "Xem nhật ký gọi kết nối"
+    },
+    "update_settings": {
+      "title": "Cập nhật cấu hình kết nối"
     }
   },
   "profile_layout": {

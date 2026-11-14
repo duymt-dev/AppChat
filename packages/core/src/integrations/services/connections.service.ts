@@ -1,7 +1,7 @@
 // Kết nối connector của workspace (provider-ports §3, §4; TIP-012): kiểm trường theo manifest, tách bí mật → `secret_enc`
 // (AES-256-GCM), kiểm thông tin qua adapter trước khi lưu, upsert theo connector, ghi route webhook ở DB nền tảng.
 import { AppError } from '@appchat/shared';
-import type { ConnectionCtx, ConnectionMode, ConnectorEntry, ConnectorRegistry } from '@appchat/integrations';
+import { stockMasterOf, type ConnectionCtx, type ConnectionMode, type ConnectorEntry, type ConnectorRegistry, type StockMaster } from '@appchat/integrations';
 import type { PlatformDb } from '@appchat/db';
 import { openSecrets, sealSecrets } from '../../kernel/crypto';
 import { uuidv7 } from '../../kernel/ids';
@@ -43,6 +43,11 @@ export function splitFields(e: ConnectorEntry, fields: Record<string, string>) {
     if (!v && !f.optional) throw new AppError('VALIDATION_FAILED', 422, { [f.key]: 'required' });
     if (v) (f.secret ? secrets : config)[f.key] = v;
   }
+  if (e.manifest.port === 'order_sync' && fields.stock_master?.trim()) {
+    const sm = fields.stock_master.trim();
+    if (sm !== 'appchat' && sm !== 'external') throw new AppError('VALIDATION_FAILED', 422, { stock_master: 'invalid' });
+    config.stock_master = sm;
+  }
   const bad = e.manifest.validate?.({ config, secrets });
   if (bad) throw new AppError('VALIDATION_FAILED', 422, bad);
   return { config, secrets };
@@ -73,10 +78,25 @@ export class ConnectionsService {
     return pickMode(e, requested, saved, this.allowSandbox);
   }
 
+  /** Cập nhật cấu hình đồng bộ (vd. `stock_master`: appchat / external — TIP-031c). Chỉ áp từ lượt đồng bộ sau (không đụng `lastSyncAt`). */
+  async updateSettings(tx: TenantTx, provider: string, patch: { stock_master: StockMaster }) {
+    const existing = await tx.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE } });
+    if (!existing) throw new AppError('NOT_FOUND', 404, { provider: 'not_connected' });
+    if (existing.port !== 'order_sync') throw new AppError('VALIDATION_FAILED', 422, { provider: 'not_order_sync' });
+    const prevCfg = (existing.config ?? {}) as Record<string, unknown>;
+    const before = stockMasterOf(prevCfg);
+    const nextCfg = { ...prevCfg, stock_master: patch.stock_master };
+    await tx.integrationConnection.update({ where: { id: existing.id }, data: { config: nextCfg as object, updatedAt: this.now() } });
+    return { connection_id: existing.id, connector_key: existing.connectorKey, name: existing.name, before, stock_master: patch.stock_master };
+  }
+
   async connect(tx: TenantTx, ws: string, userId: string, provider: string, fields: Record<string, string>, requested?: ConnectionMode) {
     const e = this.entry(provider);
     const { config, secrets } = this.split(e, fields);
     const existing = await tx.integrationConnection.findFirst({ where: { connectorKey: provider, ...IN_USE } });
+    if (e.manifest.port === 'order_sync' && !config.stock_master && existing) {
+      config.stock_master = stockMasterOf(existing.config as Record<string, unknown>);
+    }
     const mode = this.mode(e, requested, existing?.mode);
     const id = existing?.id ?? uuidv7(this.now().getTime());
     const adapter = adapterOf(this.registry, provider, mode);

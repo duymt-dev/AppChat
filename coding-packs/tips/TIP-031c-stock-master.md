@@ -98,7 +98,7 @@ Mỗi kết nối OrderSync có cấu hình `stock_master`; cả hai chế độ
 - Manifest 9 path, header khai hai phía, 4 AC đo được. Viết 2026-11-02 trong đợt đóng lỗ hổng sổ phủ; rà độc lập ở `reports/coverage-closure-audit-2026-11-02.md`. Chưa code / chưa runtime.
 
 ## ⚠️ BUILDER-CHECKLIST
-- [ ] Rà trước khi làm xong; manifest khớp.
-- [ ] Mọi AC có test chạy thật, dán output.
-- [ ] Cập nhật COVERAGE (parts + merge.py) với bằng chứng file:dòng + test.
-- [ ] Commit, `git status --short` sạch, báo Git SHA; PR vào dev.
+- [x] Rà trước khi làm xong; manifest khớp (`DV-704`).
+- [x] Mọi AC có test chạy thật, dán output (`reports/TIP-031c-completion.md`).
+- [x] Cập nhật COVERAGE (parts + merge.py) với bằng chứng file:dòng + test (`COM-4b-5`, `REQ-F07b-3` → `ĐẠT`).
+- [x] Commit, `git status --short` sạch, báo Git SHA; PR vào dev.

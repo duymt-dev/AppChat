@@ -3,7 +3,7 @@
 // vận chuyển, đã thu và đi tiếp theo ORDER_FLOW (không lùi trạng thái cuối). Khách khớp theo `contact_identity(marketplace, buyer_id)`
 // — sàn che SĐT. Dòng khớp sản phẩm theo SKU (`product.code` / `product_variant.sku`) để trừ kho; không khớp vẫn nhập (không trừ kho).
 import { AppError, nextState, ORDER_FLOW, serverMessages, interpolate } from '@appchat/shared';
-import type { ExternalOrder, MappedStatus } from '@appchat/integrations';
+import type { ExternalOrder, MappedStatus, StockMaster } from '@appchat/integrations';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
 import { nextCode } from '../../../kernel/sequence';
@@ -18,6 +18,8 @@ type Ev = { topic: string; payload: Record<string, unknown> };
 export interface SyncConnection {
   id: string;
   createdBy: string | null;
+  /** Bên giữ tồn chuẩn (COMMERCE §4b L109 / Q8: đơn vẫn trừ / hoàn kho ở cả hai chế độ). */
+  stockMaster?: StockMaster;
 }
 
 /** Bản đã kiểm của đơn (external-order-payload.ts) — cần cho biên nhận chặn (TIP-015f). */

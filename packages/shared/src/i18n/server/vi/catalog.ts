@@ -9,6 +9,7 @@ export const catalog = {
     restore: 'Khôi phục sản phẩm',
     import: 'Tồn ban đầu: {qty}',
     adjust: 'Điều chỉnh tồn {delta} · {reason}',
+    sync_adjust: 'Đối soát tồn kho ngoài: {delta}',
     sale: 'Xuất kho theo đơn: {delta}',
     return: 'Hoàn kho theo đơn: {delta}',
     undo: 'Hoàn tác điều chỉnh tồn: {delta}',
