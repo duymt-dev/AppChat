@@ -6,6 +6,7 @@ import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { reminderCalendarOf } from '../../kernel/time/reminder-schedule';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
@@ -30,7 +31,7 @@ export interface BookingSweepDeps {
 }
 
 export async function sweepBooking(d: BookingSweepDeps) {
-  const wss = await d.platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true, timezone: true } });
+  const wss = await d.platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true, timezone: true, settings: true } });
   const total = { expired: 0, reminded: 0 };
   for (const w of wss) {
     try {
@@ -38,7 +39,7 @@ export async function sweepBooking(d: BookingSweepDeps) {
       const now = d.now();
       const sys = { executor: d.executor, tenants: d.tenants, onError: (_id: string, err: unknown) => d.onError?.(w.id, err) };
       total.expired += await expireHolds(db, w.id, now, sys);
-      total.reminded += await remindAppointments(db, w.id, now, sys);
+      total.reminded += await remindAppointments(db, w.id, now, sys, reminderCalendarOf(w));
     } catch (err) {
       d.onError?.(w.id, err);
     }

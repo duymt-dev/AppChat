@@ -8,6 +8,7 @@ import type { GroupCommandJob } from './group-command.processor';
 import type { Redis } from 'ioredis';
 import { ChannelNotRunningError, ChannelOperationError, type ChannelAdapter, type ProviderMessageRef, type ReactionEmoji } from '@appchat/channels';
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
+import { SystemClock } from '../../kernel/clock';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { markDirty, writeOutbox } from '../../kernel/outbox/outbox';
 import type { KeyValueStore } from '../../kernel/redis';
@@ -43,10 +44,15 @@ export interface OperationDeps {
 /** Trễ giữa hai job ảnh khi còn việc (nhường hàng đợi tài khoản cho thu hồi / gửi). */
 export const AVATAR_REQUEUE_MS = 60_000;
 
+const defaultClock = new SystemClock();
+
 /** Producer: một job mỗi lệnh (job id = id lệnh — đẩy lại không trùng). */
 export class OperationQueue {
   private readonly queues = new Map<string, Queue>();
-  constructor(private readonly redis: Redis) {}
+  constructor(
+    private readonly redis: Redis,
+    private readonly now: () => Date = () => defaultClock.now(),
+  ) {}
 
   async enqueue(accountId: string, j: OperationJob): Promise<void> {
     let q = this.queues.get(accountId);
@@ -65,7 +71,7 @@ export class OperationQueue {
   async enqueueFriend(accountId: string, j: FriendJob): Promise<void> {
     let q = this.queues.get(accountId);
     if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
-    await q.add('friend', j, { jobId: `friend-${j.external_id}-${Date.now()}`, attempts: 5, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 500, removeOnFail: 1000 });
+    await q.add('friend', j, { jobId: `friend-${j.external_id}-${this.now().getTime()}`, attempts: 5, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 500, removeOnFail: 1000 });
   }
 
   /** Tra SĐT (TIP-014b E) — job id = id lần tra. */
@@ -93,7 +99,7 @@ export class OperationQueue {
    * Đồng bộ ảnh đại diện — job id theo (tài khoản, khung thời gian đến hạn): mọi tin vào trong cùng khung gom thành một job; job hẹn lại
    * (còn việc / chạm trần) rơi vào khung sau nên không trùng id job đang chạy. Job xong / lỗi xoá ngay.
    */
-  async enqueueAvatars(accountId: string, j: AvatarJob, delayMs = 0, at = Date.now()): Promise<void> {
+  async enqueueAvatars(accountId: string, j: AvatarJob, delayMs = 0, at = this.now().getTime()): Promise<void> {
     let q = this.queues.get(accountId);
     if (!q) this.queues.set(accountId, (q = new Queue(operationQueueName(accountId), { connection: this.redis })));
     const slot = Math.floor((at + delayMs) / AVATAR_REQUEUE_MS);

@@ -6,6 +6,7 @@ import { Queue, Worker } from '../../kernel/jobs/with-job-context';
 import type { Redis } from 'ioredis';
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { CLOCK, type Clock } from '../../kernel/clock';
+import { reminderCalendarOf } from '../../kernel/time/reminder-schedule';
 import { registerEventConsumer, unregisterEventConsumer, type EventConsumer } from '../../kernel/events/consumer';
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
@@ -46,7 +47,7 @@ export const quoteOwnerConsumer = (log?: { info(o: object, m: string): void }): 
 
 /** Quét mọi workspace đang hoạt động: hết hạn + nhắc T-2. Lỗi một workspace (DB chưa nâng migration…) không chặn workspace khác. */
 export async function sweepQuotes(d: { platform: Pick<PlatformDb, 'workspace'>; tenants: TenantDbResolver; executor: Pick<ActionExecutor, 'execute'>; now: () => Date; onError?: (ws: string, err: unknown) => void }) {
-  const wss = await d.platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true, timezone: true } });
+  const wss = await d.platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true, timezone: true, settings: true } });
   let expired = 0;
   let reminded = 0;
   for (const w of wss) {
@@ -55,7 +56,7 @@ export async function sweepQuotes(d: { platform: Pick<PlatformDb, 'workspace'>; 
       const now = d.now();
       const sys = { executor: d.executor, tenants: d.tenants, onError: (_id: string, err: unknown) => d.onError?.(w.id, err) };
       expired += await expireDue(db, w.id, now, sys);
-      reminded += await remindExpiring(db, w.id, now, w.timezone, sys);
+      reminded += await remindExpiring(db, w.id, now, reminderCalendarOf(w), sys);
     } catch (err) {
       d.onError?.(w.id, err);
     }

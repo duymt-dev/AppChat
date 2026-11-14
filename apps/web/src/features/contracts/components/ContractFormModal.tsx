@@ -14,7 +14,7 @@ import { initialContractDraft, useContractForm } from '../hooks/useContractForm'
 import { sourceLinkOf } from '@/shared/crm-forms/source-link';
 import { contractQuery } from '../api';
 import type { Contract, ContractKind } from '../types';
-import { todayIso } from '@/shared/time/today';
+import { useToday } from '@/shared/time/today';
 import { useContractSource } from '../hooks/useContractSource';
 import { ContractFileInput, ContractSourceStep } from './files/ContractSourceStep';
 import { AiDraftPanel } from './draft/AiDraftPanel';
@@ -51,9 +51,6 @@ const ALL_CONTACTS = {
 const ALL_QUOTES = { status: 'all', owner_id: 'all', returning: 'all', q: '' } as const;
 const KINDS: ContractKind[] = ['service', 'sale', 'framework'];
 const DATES = ['signed_date', 'start_date', 'end_date'] as const;
-/** Hôm nay — mock: ngày cố định của parity (prototype-parity §4); http: ngày thật. */
-const TODAY = todayIso();
-
 export function ContractFormModal() {
   const ui = useContractsUi();
   if (!ui.form) return null;
@@ -87,10 +84,11 @@ function ContractForm({
   const t = useTranslations('contracts');
   const { styles, cx } = useContractFormStyles();
   const ui = useContractsUi();
+  const today = useToday();
   const contacts = useQuery(contactsQuery(ALL_CONTACTS)).data?.data ?? [];
   const members = useQuery(membersQuery()).data ?? [];
   const quotes = useQuery(quotesQuery(ALL_QUOTES)).data?.data ?? [];
-  const f = useContractForm(initialContractDraft(TODAY, mode === 'edit' ? editPrefill : ui.prefill));
+  const f = useContractForm(initialContractDraft(today, mode === 'edit' ? editPrefill : ui.prefill));
   const create = useAction<{ contract_id: string }>('contract.create');
   const fromQuote = useAction<{ contract_id: string }>('contract.create_from_quote');
   const update = useAction<{ contract_id: string }>('contract.update');

@@ -2,11 +2,12 @@
 // `if_version`; route = THAY CẢ NHÓM (tier, purpose) trong một transaction theo thứ tự gửi (priority 0..n-1 — không va priority), CAS
 // theo phiên bản nhóm `route:<tier>:<purpose>`. Mỗi thay đổi tăng thế hệ cấu hình `ai` cùng transaction → mọi tiến trình nạp lại.
 // Tắt giá đang được route dùng → 422 (route không giá = không chạy, không fallback 0 credit). Tên model chỉ ở đây (D29).
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import type { PlatformDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, adminModelPriceUpsert, adminModelRouteUpsert } from '@appchat/actions';
 import type { PlatformTx } from '../../kernel/actions/action-context';
+import { CLOCK, SystemClock, type Clock } from '../../kernel/clock';
 import { ActionHandler } from '../../kernel/actions/handler';
 import { uuidv7 } from '../../kernel/ids';
 import { PlatformActionHandler, type AdminOutcome, type PlatformContext } from '../../kernel/actions/platform-context';
@@ -29,13 +30,19 @@ async function usedByRoute(db: Pick<PlatformDb, 'modelRoute'>, providerKey: stri
   return db.modelRoute.count({ where: { providerKey, model } });
 }
 
+const defaultClock = new SystemClock();
+
 @Injectable()
 @ActionHandler('admin.model_price.upsert')
 export class AdminModelPriceUpsertHandler extends PlatformActionHandler<PriceIn, PriceOut> {
+  constructor(@Optional() @Inject(CLOCK) private readonly clock: Clock = defaultClock) {
+    super();
+  }
+
   async executePlatform(_ctx: PlatformContext, i: PriceIn, ptx: PlatformTx): Promise<AdminOutcome<PriceOut>> {
     const where = { providerKey_model: { providerKey: i.provider_key, model: i.model } };
     // Thế hệ trước (khoá dòng revision) — hai admin cùng sửa giá xếp hàng, CAS bên dưới quyết định ai thắng.
-    await bumpRevision(ptx, AI_CONFIG_SCOPE, new Date());
+    await bumpRevision(ptx, AI_CONFIG_SCOPE, this.clock.now());
     const cur = await ptx.modelPrice.findUnique({ where });
     const values = { tier: i.tier, creditsPer1kIn: i.credits_per_1k_in, creditsPer1kOut: i.credits_per_1k_out, active: i.active };
     if (!i.active && (await usedByRoute(ptx, i.provider_key, i.model))) throw new AppError('VALIDATION_FAILED', 422, { active: 'used_by_route' });
@@ -67,9 +74,13 @@ export class AdminModelPriceUpsertHandler extends PlatformActionHandler<PriceIn,
 @Injectable()
 @ActionHandler('admin.model_route.upsert')
 export class AdminModelRouteUpsertHandler extends PlatformActionHandler<RouteIn, RouteOut> {
+  constructor(@Optional() @Inject(CLOCK) private readonly clock: Clock = defaultClock) {
+    super();
+  }
+
   async executePlatform(_ctx: PlatformContext, i: RouteIn, ptx: PlatformTx): Promise<AdminOutcome<RouteOut>> {
     const scope = routeScope(i.tier, i.purpose);
-    const now = new Date();
+    const now = this.clock.now();
     // Tăng + khoá phiên bản nhóm trước khi đọc: hai admin sắp xếp cùng nhóm xếp hàng ở dòng này → bên sau thấy phiên bản đã đổi → 409.
     const next = await bumpRevision(ptx, scope, now);
     if (Number(next - 1n) !== i.if_version) throw casConflict(Number(next - 1n));

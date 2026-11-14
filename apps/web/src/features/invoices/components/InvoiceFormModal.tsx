@@ -14,7 +14,7 @@ import { useInvoiceFormStyles } from '../styles/form.styles';
 import { useInvoicesUi } from '../invoices-store';
 import { initialInvoiceDraft, useInvoiceForm, type OrderPick } from '../hooks/useInvoiceForm';
 import type { InvoiceKind } from '../types';
-import { todayIso } from '@/shared/time/today';
+import { useToday } from '@/shared/time/today';
 
 const ALL_CONTACTS = {
   stage: 'all',
@@ -29,9 +29,6 @@ const ALL_CONTACTS = {
 } as const;
 const ALL_ORDERS = { chip: 'all', owner_id: 'all', value: 'all', source: 'all', q: '' } as const;
 const KINDS: InvoiceKind[] = ['full', 'deposit', 'installment'];
-/** Hôm nay — mock: ngày cố định của parity (prototype-parity §4); http: ngày thật. */
-const TODAY = todayIso();
-
 export function InvoiceFormModal() {
   const ui = useInvoicesUi();
   const orders = useQuery(ordersQuery(ALL_ORDERS));
@@ -52,6 +49,7 @@ export function InvoiceFormModal() {
 
 function InvoiceForm({ orders }: { orders: OrderPick[] }) {
   const t = useTranslations('invoices');
+  const today = useToday();
   const fmt = useFmt();
   const { styles, cx } = useInvoiceFormStyles();
   const ui = useInvoicesUi();
@@ -66,7 +64,7 @@ function InvoiceForm({ orders }: { orders: OrderPick[] }) {
       )
       .map((o) => ({ id: o.contact_id, full_name: o.contact_name })),
   ];
-  const f = useInvoiceForm(initialInvoiceDraft(TODAY, ui.prefill, orders), orders);
+  const f = useInvoiceForm(initialInvoiceDraft(today, ui.prefill, orders), orders);
   const create = useAction<{ invoice_id: string }>('invoice.create');
   const [err, setErr] = useState('');
   const close = () => ui.set({ form: null, prefill: null });
@@ -152,7 +150,7 @@ function InvoiceForm({ orders }: { orders: OrderPick[] }) {
               ))}
             </select>,
           )}
-          {field(t('form.date'), <input type="date" className={styles.input} value={TODAY} disabled />)}
+          {field(t('form.date'), <input type="date" className={styles.input} value={today} disabled />)}
           {field(
             t('form.kind'),
             <select
@@ -191,7 +189,7 @@ function InvoiceForm({ orders }: { orders: OrderPick[] }) {
               type="date"
               className={styles.input}
               value={f.d.due_date}
-              min={TODAY}
+              min={today}
               title={t('form.dueHint')}
               onChange={(e) => f.set('due_date', e.target.value)}
               data-testid="iv-due"

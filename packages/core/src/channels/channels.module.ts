@@ -136,10 +136,10 @@ export function widgetUrlsFor(src: Record<string, string | undefined>): WidgetUr
     {
       // Hàng đợi thao tác kênh theo tài khoản + consumer outbox `channel.operation_requested` (TIP-014b).
       provide: OperationQueue,
-      inject: [opt(REDIS)],
-      useFactory: (r?: Redis) => {
+      inject: [opt(REDIS), opt(CLOCK)],
+      useFactory: (r?: Redis, clock?: Clock) => {
         if (!r) return null;
-        const q = new OperationQueue(r.duplicate());
+        const q = new OperationQueue(r.duplicate(), clock ? () => clock.now() : undefined);
         // Lịch sử (TIP-014b C) đi chung hàng đợi tài khoản.
         for (const c of [operationRequestConsumer(q), historyRequestConsumer(q), contactSyncRequestConsumer(q), friendRequestConsumer(q), groupCommandConsumer(q)]) {
           unregisterEventConsumer(c.name);

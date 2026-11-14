@@ -12,7 +12,7 @@ import { registerEventConsumer, unregisterEventConsumer } from '../../kernel/eve
 import { LOGGER } from '../../kernel/kernel.module';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { REDIS } from '../../kernel/redis';
-import { CLOCK, type Clock } from '../../kernel/clock';
+import { CLOCK, SystemClock, type Clock } from '../../kernel/clock';
 import { PLATFORM_DB, TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { BillingModule } from '../billing.module';
 import { trialConsumer } from '../events/billing.events';
@@ -34,6 +34,7 @@ export const LIFECYCLE_JOB = 'billing.lifecycle';
 const EVERY_MS = 10 * 60_000;
 const INVOICE_EVERY_MS = 60_000;
 const LIFECYCLE_EVERY_MS = 5 * 60_000;
+const defaultClock = new SystemClock();
 
 class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private queue?: Queue;
@@ -58,7 +59,7 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     // Hết Credit → hội thoại AI tự động sang người (bền qua outbox; kiểm lại số dư hiện tại — event trễ sau khi nạp không chuyển).
     const wallet = this.wallet;
     const executor = this.executor;
-    if (wallet && executor && this.tenants) registerEventConsumer(creditHandoffConsumer({ balance: async (ws) => (await wallet.balance(ws)).total, kv: this.redis, now: () => this.clock?.now() ?? new Date(), executor, tenants: this.tenants }));
+    if (wallet && executor && this.tenants) registerEventConsumer(creditHandoffConsumer({ balance: async (ws) => (await wallet.balance(ws)).total, kv: this.redis, now: () => (this.clock ?? defaultClock).now(), executor, tenants: this.tenants }));
     this.queue = new Queue(SCHEDULER_QUEUE, { connection: this.redis.duplicate() });
     await this.queue.upsertJobScheduler(TRIAL_EXPIRY_JOB, { every: EVERY_MS }, { name: TRIAL_EXPIRY_JOB });
     if (this.invoices) await this.queue.upsertJobScheduler(INVOICE_SWEEP_JOB, { every: INVOICE_EVERY_MS }, { name: INVOICE_SWEEP_JOB });
@@ -68,7 +69,7 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
     if (lifecycle) await this.queue.upsertJobScheduler(LIFECYCLE_JOB, { every: LIFECYCLE_EVERY_MS }, { name: LIFECYCLE_JOB });
     // Addon trả trước 039 không ảnh chụp → giữ đối soát một lần lúc boot (idempotent; không cấp, không đổi tiền).
     if (this.platform)
-      void backfillLegacyAddons({ platform: this.platform, now: () => this.clock?.now() ?? new Date() }, { dryRun: false })
+      void backfillLegacyAddons({ platform: this.platform, now: () => (this.clock ?? defaultClock).now() }, { dryRun: false })
         .then((r) => r.held && this.log.warn({ job: 'billing.addon-backfill', ...r }, 'addon cũ chờ đối soát'))
         .catch((err) => this.log.warn({ err, job: 'billing.addon-backfill' }, 'backfill addon lỗi'));
     const invoices = this.invoices;
@@ -77,7 +78,7 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
       SCHEDULER_QUEUE,
       async (job) => {
         if (job.name === LIFECYCLE_JOB && lifecycle) {
-          const r = await runLifecycle({ ...lifecycle, now: () => this.clock?.now() ?? new Date(), onError: (ws, err) => this.log.warn({ err, ws, job: LIFECYCLE_JOB }, 'vòng đời gói lỗi ở workspace') }, LIFECYCLE_BATCH);
+          const r = await runLifecycle({ ...lifecycle, now: () => (this.clock ?? defaultClock).now(), onError: (ws, err) => this.log.warn({ err, ws, job: LIFECYCLE_JOB }, 'vòng đời gói lỗi ở workspace') }, LIFECYCLE_BATCH);
           if (r.workspaces) this.log.info({ job: LIFECYCLE_JOB, ...r }, 'vòng đời gói');
           return;
         }
@@ -90,7 +91,7 @@ class BillingJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown
         if (job.name === RECONCILE_JOB && reconcile) {
           const r = await reconcileAll({
             ...reconcile,
-            now: () => this.clock?.now() ?? new Date(),
+            now: () => (this.clock ?? defaultClock).now(),
             // Chỉ id workspace + loại kiểm + số đếm (không PII); lỗi một workspace không chặn lượt.
             onFinding: (ws, f) => this.log.warn({ job: RECONCILE_JOB, ws, check: f.check, severity: f.severity, detail: f.detail }, 'đối soát phát hiện lệch'),
             onError: (ws, err) => this.log.warn({ err, ws, job: RECONCILE_JOB }, 'đối soát lỗi ở workspace'),

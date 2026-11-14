@@ -70,20 +70,20 @@ export async function runIntegrationCall(d: CallDeps, j: IntegrationCallJob, att
   });
   // Đã thành công ở lần trước (job bị enqueue lại sau khi dọn) → không gọi ra ngoài lần hai.
   if (log.status === 'succeeded') return 'skipped';
-  const started = Date.now();
+  const started = performance.now(); // perf
   try {
     const row = await db.integrationConnection.findUnique({ where: { id: j.connection_id } });
     if (!row || row.status === 'disconnected') throw new Error('connection không còn kết nối');
     const h = OPS.get(j.op);
     if (!h) throw new Error(`op chưa đăng ký: ${j.op}`);
     await h({ conn: connectionCtx(row, d.key), adapter: adapterOf(d.registry, row.connectorKey, row.mode), payload: j.payload, workspaceId: j.workspace_id });
-    await db.integrationCallLog.update({ where: { id: log.id }, data: { status: 'succeeded', latencyMs: Date.now() - started, error: null } });
+    await db.integrationCallLog.update({ where: { id: log.id }, data: { status: 'succeeded', latencyMs: Math.max(0, Math.round(performance.now() - started)), error: null } });
     await db.integrationConnection.update({ where: { id: j.connection_id }, data: { lastSyncAt: d.now(), lastError: null } });
     return 'succeeded';
   } catch (e) {
     const msg = (e instanceof Error ? e.message : String(e)).slice(0, 500);
     await inEventTransaction(db, j.workspace_id, async (tx) => {
-      await tx.integrationCallLog.update({ where: { id: log.id }, data: { status: final ? 'failed' : 'running', latencyMs: Date.now() - started, error: msg } });
+      await tx.integrationCallLog.update({ where: { id: log.id }, data: { status: final ? 'failed' : 'running', latencyMs: Math.max(0, Math.round(performance.now() - started)), error: msg } });
       if (!final) return;
       const conn = await tx.integrationConnection.findUnique({ where: { id: j.connection_id }, select: { connectorKey: true, status: true } });
       if (conn && conn.status !== 'disconnected') await tx.integrationConnection.update({ where: { id: j.connection_id }, data: { status: 'error', lastError: msg } });

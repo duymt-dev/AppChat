@@ -12,11 +12,9 @@ import { useInvoiceFormStyles } from '../styles/form.styles';
 import { useInvoicesUi } from '../invoices-store';
 import { invoiceQuery } from '../api';
 import type { Invoice, PayMethod } from '../types';
-import { todayIso } from '@/shared/time/today';
+import { useToday } from '@/shared/time/today';
 
 const METHODS: PayMethod[] = ['bank_transfer', 'cash', 'qr', 'card'];
-/** Hôm nay — mock: ngày cố định của parity (prototype-parity §4); http: ngày thật. */
-const TODAY = todayIso();
 const digits = (v: string) => v.replace(/\D/g, '');
 
 export function RecordPaymentModal() {
@@ -28,6 +26,7 @@ export function RecordPaymentModal() {
 
 function RecordPayment({ i }: { i: Invoice }) {
   const t = useTranslations('invoices.record');
+  const today = useToday();
   const tm = useTranslations('invoices.method');
   const fmt = useFmt();
   const { message } = App.useApp();
@@ -37,7 +36,7 @@ function RecordPayment({ i }: { i: Invoice }) {
   const [amount, setAmount] = useState(i.left);
   const [method, setMethod] = useState<PayMethod>('bank_transfer');
   const [ref, setRef] = useState('');
-  const [date, setDate] = useState(TODAY);
+  const [date, setDate] = useState(today);
   const [err, setErr] = useState('');
   const close = () => set({ recordFor: null });
   const save = async () => {
@@ -123,7 +122,7 @@ function RecordPayment({ i }: { i: Invoice }) {
             type="date"
             className={styles.input}
             value={date}
-            max={TODAY}
+            max={today}
             onChange={(e) => setDate(e.target.value)}
           />
         </div>

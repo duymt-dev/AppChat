@@ -3,7 +3,7 @@
 // queue `channel-inbound` (job id chống trùng); phiên hết hạn → `expired` + thông báo; lệnh từ API (dừng / chạy / đồng bộ) qua pub/sub.
 // TIP-014b C: mỗi lần giành phiên = thế hệ mới (`session_generation`); callback / đặt chỗ của phiên cũ bị fence. Nhịp lease so thế hệ DB —
 // lệch (tạm dừng / ngắt mà lệnh pub/sub bị lỡ) → dừng phiên. Tắt: ngừng nhận trước, đóng worker gửi / thao tác (chờ job đang chạy), dừng
-// listener, fence thế hệ rồi mới nhả lease. Quét route theo trang; thời gian theo Clock.
+// listener, fence thế hệ rồi mới nhả lease. Quét route theo trang; toàn bộ thời gian đi qua `this.d.now()` (Clock, đã kiểm TIP-003g).
 import type { Queue } from 'bullmq';
 import { ChannelAuthError, type ChannelAdapter, type ChannelRegistry, type HealthStatus, type InboundSink, type NormalizedInbound } from '@appchat/channels';
 import { TenantContexts, type PlatformDb, type TenantDb, type TenantDbResolver } from '@appchat/db';

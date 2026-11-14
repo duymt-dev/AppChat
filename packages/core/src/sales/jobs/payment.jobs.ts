@@ -11,6 +11,7 @@ import { remindPackages } from '../payments/services/package-reminders';
 import { markOverdue, remindDue } from '../payments/services/payment-system';
 import { paymentPackageTriggers } from '../system/dispatch';
 import { runTrigger } from '../../kernel/actions/system';
+import { reminderCalendarOf } from '../../kernel/time/reminder-schedule';
 
 export const PAYMENT_SWEEP_JOB = 'sales.payment-sweep';
 export const PAYMENT_SWEEP_EVERY_MS = 30 * 60_000;
@@ -25,7 +26,7 @@ export interface PaymentSweepDeps {
 }
 
 export async function sweepPayments(d: PaymentSweepDeps) {
-  const wss = await d.platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true, timezone: true } });
+  const wss = await d.platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true, timezone: true, settings: true } });
   const total = { overdue: 0, reminded: 0, expired: 0, packageReminders: 0 };
   for (const w of wss) {
     try {
@@ -33,7 +34,7 @@ export async function sweepPayments(d: PaymentSweepDeps) {
       const now = d.now();
       const sys = { executor: d.executor, tenants: d.tenants, onError: (_id: string, err: unknown) => d.onError?.(w.id, err) };
       total.overdue += await markOverdue(db, w.id, now, w.timezone, sys);
-      total.reminded += await remindDue(db, w.id, now, w.timezone, sys);
+      total.reminded += await remindDue(db, w.id, now, reminderCalendarOf(w), sys);
       total.expired += await expireDuePackages(db, w.id, now, sys);
       total.packageReminders += await remindPackages(db, w.id, now, w.timezone);
     } catch (err) {
