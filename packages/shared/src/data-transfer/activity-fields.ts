@@ -1,7 +1,8 @@
 // Trường nhập 3 tập dữ liệu hoạt động CRM dưới thực thể khách (TIP-026b §5): ghi chú / bình luận, việc chăm sóc, cơ hội. Khách tra bằng
 // mã khách / SĐT / email trong phạm vi GHI của người nhập (không tự tạo khách, không đoán khi trùng nhiều). Không có cột người phụ trách /
 // tác giả / thời điểm tạo (không ghi đè audit); `id` chỉ để nhận ra dòng xuất từ hệ thống khi nhập lại (bị loại, không cập nhật ngầm).
-// Trạng thái việc chỉ nhận `open` (việc nhập luôn mở); giai đoạn cơ hội chỉ open / qualified / proposal (won / lost bị từ chối ở adapter).
+// Trạng thái việc chỉ nhận `open` (việc nhập luôn mở). Cơ hội (TIP-026c): giai đoạn pipeline lead…negotiation (won / lost bị từ chối ở
+// adapter; khoá 026b open / proposal vẫn nhận qua alias); cột xác suất của tệp cũ chỉ được nhận ra để BỎ QUA kèm cảnh báo (xác suất cố định).
 import type { TransferField, TransferFieldType } from './field-types';
 
 const f = (key: string, type: TransferFieldType, aliases: string[], o: Partial<TransferField> = {}): TransferField => ({ key, type, aliases, ...o });
@@ -42,9 +43,17 @@ export const CONTACT_OPPORTUNITY_FIELDS: readonly TransferField[] = [
   f('need', 'text', ['nhu cau', 'need', 'mo ta'], { max: 5000 }),
   f('expected_amount', 'money', ['gia tri ky vong', 'gia tri du kien', 'gia tri', 'expected amount', 'expected value', 'amount']),
   f('stage', 'enum', ['giai doan', 'stage'], {
-    options: ['open', 'qualified', 'proposal', 'won', 'lost'],
-    optionAliases: { moi: 'open', 'da xac dinh': 'qualified', 'de xuat': 'proposal', thang: 'won', 'thanh cong': 'won', thua: 'lost', 'that bai': 'lost' },
+    options: ['lead', 'qualified', 'demo', 'quote', 'negotiation', 'won', 'lost'],
+    optionAliases: {
+      open: 'lead', proposal: 'quote', moi: 'lead', 'lead moi': 'lead', 'du dieu kien': 'qualified', 'da xac dinh': 'qualified', 'tu van': 'demo', 'tu van / demo': 'demo',
+      'bao gia': 'quote', 'de xuat': 'quote', 'dam phan': 'negotiation', 'da mua': 'won', thang: 'won', 'thanh cong': 'won', thua: 'lost', 'that bai': 'lost',
+    },
   }),
+  f('source_kind', 'enum', ['nguon', 'nguon co hoi', 'source'], {
+    options: ['manual', 'conversation', 'campaign', 'renewal', 'referral', 'call'],
+    optionAliases: { 'nhap tay': 'manual', 'hoi thoai': 'conversation', 'chien dich': 'campaign', 'gia han': 'renewal', 'gioi thieu': 'referral', 'cuoc goi': 'call' },
+  }),
+  /** Cột xác suất của tệp 026b — nhận ra để bỏ qua + cảnh báo `probability_warning: ignored` (không ghi). */
   f('probability', 'number', ['xac suat', 'ty le', 'kha nang', 'probability']),
   f('expected_close_date', 'date', ['ngay chot du kien', 'du kien chot', 'expected close', 'close date']),
   EXPORTED_ID,

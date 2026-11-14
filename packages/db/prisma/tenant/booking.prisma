@@ -94,6 +94,8 @@ model Appointment {
   source          String            @default("staff")
   conversationId  String?           @map("conversation_id") @db.Uuid
   packageId       String?           @map("package_id") @db.Uuid
+  /// Cơ hội của lịch hẹn (TIP-026c) — hoàn thành chỉ ghi gợi ý, không tự đổi giai đoạn.
+  opportunityId   String?           @map("opportunity_id") @db.Uuid
   orderId         String?           @map("order_id") @db.Uuid
   note            String            @default("")
   reminderMin     Int?              @map("reminder_min")

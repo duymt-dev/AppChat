@@ -5,6 +5,7 @@
 import { z } from 'zod';
 import { aiCitationsSchema } from './ai-citations';
 import { AGENT_INTENTS_CLOSED } from './agent-channel-behavior';
+import { openOpportunitySummarySchema } from './opportunities';
 
 export const INBOX_FOLDERS = ['all', 'mine', 'unread', 'mention', 'team', 'ai_running', 'ai_pending_approval', 'needs_human', 'archived', 'closed', 'vip', 'complaint'] as const;
 export type InboxFolder = (typeof INBOX_FOLDERS)[number];
@@ -44,6 +45,8 @@ export const conversationSchema = z.object({
   contact_id: z.string().nullable(),
   /** TIP-015f §4.3: khách gắn hội thoại đã xoá mềm — chỉ dấu vòng đời (không hồ sơ CRM / tên cũ làm tiêu đề). */
   contact_deleted: z.boolean().optional(),
+  /** Chip "Cơ hội · {giai đoạn} · {giá trị rút gọn}" (TIP-026c) — cơ hội mở của khách; tiền vắng + `amount_hidden` khi người xem thiếu quote.view. */
+  opportunity_chip: openOpportunitySummarySchema.optional(),
   presence: z.string().optional(),
   pinned_note: z.string().optional(),
   pinned: z.boolean(),

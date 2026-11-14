@@ -113,7 +113,8 @@ const BY_PREFIX: Record<string, string> = {
   lead_routing: '042b',
   transfer: '038b',
   contact_task: '026b',
-  contact_opportunity: '026b',
+  // TIP-026c: pipeline 7 giai đoạn thay mô hình 026b (create / update / archive cài lại + set_stage / mark_lost / reopen / set_owner / list / get).
+  contact_opportunity: '026c',
   contact_activity: '026b',
   contact_note: '026b',
   privacy: '015c',

@@ -13,6 +13,8 @@ export type Appointment = Omit<Fixed, 'status' | 'package_id' | 'order_id'> & {
   status: ApptStatus;
   package_id: string | null;
   order_id: string | null;
+  /** TIP-026c: thuộc cơ hội — hoàn thành → gợi ý chuyển giai đoạn (không tự đổi). */
+  opportunity_id?: string | null;
   version?: number;
   deleted?: boolean;
 };

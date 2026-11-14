@@ -132,7 +132,7 @@ export const contactOpportunityExport = defineAction({
   id: 'contact_opportunity.export',
   module: 'crm',
   title: 'actions.contact_opportunity.export.title',
-  description: `Export CRM opportunities of the customers visible to the caller (filters: contact_id, owner_id, stage = customer stage, q, opp_stage, archived). The amount column is the expected amount (estimate — NOT revenue) and is present only for users allowed to see quote money. ${activityNote} Example: {"opp_stage":"proposal"}`,
+  description: `Export CRM opportunities of the customers visible to the caller (filters: contact_id, owner_id, stage = customer stage, q, opp_stage, archived). The amount column is the expected amount (estimate — NOT revenue) and is present only for users allowed to see quote money. ${activityNote} Example: {"opp_stage":"quote"}`,
   input: contactOpportunityExportFilter,
   output: listExportResultSchema,
   permission: 'crm.export',

@@ -3,7 +3,7 @@
 // TẠI rồi nạp theo PK (deferred join). Cột id / thời điểm / trạng thái là cột chỉ đọc (nhập lại → loại). Giá trị kỳ vọng cơ hội chỉ có khi
 // người xuất đọc được tiền báo giá — thiếu quyền: cột vắng hẳn khỏi tệp (không 0 / trống giả). Thân ghi chú là chữ (không công thức).
 import { TenantSql as Prisma } from '@appchat/db';
-import { serverMessages, type AuthzContext, type ListExportKind } from '@appchat/shared';
+import { OPPORTUNITY_PROBABILITY, OPPORTUNITY_STAGES, serverMessages, type AuthzContext, type ListExportKind } from '@appchat/shared';
 import { contactWhereSql, crmScopeSql, type ContactFilter } from '../../crm/public';
 import { canReadAmount } from '../../crm/activities/authority';
 import { day, money, stamp } from './export-columns';
@@ -71,7 +71,7 @@ function base(kind: ListExportKind, table: Table, cond: (f: Filter) => Prisma.Sq
 
 const NOTE_KINDS = new Set(['note', 'comment']);
 const TASK_STATES = new Set(['open', 'done', 'cancelled']);
-const OPP_STAGES = new Set(['open', 'qualified', 'proposal', 'won', 'lost']);
+const OPP_STAGES = new Set<string>(OPPORTUNITY_STAGES);
 
 export const contactNoteReader: ListReader<Filter> = {
   ...base(
@@ -159,7 +159,10 @@ const oppColumns = (m: ExportLabels, withMoney: boolean): ExportColumn[] => [
   { key: 'need', header: m.col.need, width: 40 },
   ...(withMoney ? [{ key: 'expectedAmount', header: m.col.expectedAmount, width: 22 }] : []),
   { key: 'stage', header: m.col.status },
+  // TIP-026c: xác suất cố định theo giai đoạn (bảng hằng), không phải số người nhập.
   { key: 'probability', header: m.col.probability },
+  { key: 'owner', header: m.col.assignee, width: 20 },
+  { key: 'source', header: m.col.source },
   { key: 'expectedClose', header: m.col.expectedClose },
   { key: 'archived', header: m.col.archived },
   { key: 'updatedAt', header: m.col.updatedAt },
@@ -185,6 +188,8 @@ export const contactOpportunityReader: ListReader<Filter> = {
     const kept = ordered(xs, list.filter((o) => live.has(o.contactId)));
     const withMoney = canReadAmount(a);
     const m = labelsOf(place);
+    const names = await place.names(kept.map((o) => o.ownerUserId));
+    const src = serverMessages(place.locale).crm.opportunity.source;
     return {
       ids: kept.map((o) => o.id),
       rows: kept.map((o): Cell[] => {
@@ -197,7 +202,9 @@ export const contactOpportunityReader: ListReader<Filter> = {
           o.need,
           ...(withMoney ? [money(o.amountVnd)] : []),
           m.oppStage[o.stage],
-          o.probability === null ? null : o.probability.toString(),
+          String(OPPORTUNITY_PROBABILITY[o.stage]),
+          names.get(o.ownerUserId ?? '') ?? '',
+          src[o.sourceKind as keyof typeof src] ?? o.sourceKind,
           day(o.expectedCloseDate),
           o.archivedAt ? m.yes : null,
           stamp(o.updatedAt, place.timeZone),

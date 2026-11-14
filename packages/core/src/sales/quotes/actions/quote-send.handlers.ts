@@ -11,7 +11,7 @@ import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { ChannelSendQueue } from '../../../channels/public';
-import { CrmMembers, actorUserId, applyStageRule, lockStageFamilyOf, writeTimeline } from '../../../crm/public';
+import { CrmMembers, actorUserId, applyStageRule, lockStageFamilyOf, onQuoteSent, writeTimeline } from '../../../crm/public';
 import { enqueueOutgoing, senderOf } from '../../../inbox/public';
 import { requestRender } from '../../../documents/public';
 import { lockQuote } from '../quote-access';
@@ -62,7 +62,11 @@ export class QuoteSendHandler implements Handler<SendIn, SendOut> {
     const render = await requestRender(tx, { kind: QUOTE_RENDER_KIND, documentId: q.id, request: request as unknown as Record<string, unknown>, now });
     const total = createFmt({ locale, timeZone }).money(String(q.total));
     await writeTimeline(tx, { contactId: q.contactId, type: 'quote', key: 'quote_sent', params: { code: q.code, version: q.version, total }, actor: actorOf(ctx), ref: { type: 'quote', id: q.id }, at: now });
-    const stage = await applyStageRule(tx, { contactId: q.contactId, mode: 'raise', to: 'quote', actor: actorOf(ctx), now });
+    // TIP-026c: báo giá gắn cơ hội → cơ hội lên Báo giá (+ đồng bộ giá trị, việc theo dõi +2 ngày) và khách theo cơ hội; không gắn →
+    // luật nâng cũ của chứng từ (COMMERCE §8). Cơ hội khoá SAU họ khách + báo giá.
+    const stage = q.opportunityId
+      ? await onQuoteSent(tx, { id: q.id, code: q.code, contactId: q.contactId, opportunityId: q.opportunityId, total: q.total, opportunitySyncValue: q.opportunitySyncValue, opportunityFollowUp: q.opportunityFollowUp }, { actor: actorOf(ctx), now, locale })
+      : await applyStageRule(tx, { contactId: q.contactId, mode: 'raise', to: 'quote', actor: actorOf(ctx), now });
     return {
       result: { quote_id: q.id, valid_until: validUntil.toISOString() },
       events: [{ topic: 'quote.sent', payload: { quote_id: q.id, contact_id: q.contactId, code: q.code, version: q.version, channel: input.channel, format: input.format ?? 'pdf', valid_until: validUntil.toISOString() } }, ...render.events, ...stage],

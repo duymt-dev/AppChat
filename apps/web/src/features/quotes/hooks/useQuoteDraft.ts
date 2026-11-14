@@ -1,4 +1,5 @@
 // State form soạn báo giá: dòng hàng (catalog hoặc ngoài danh mục), chiết khấu dòng / tổng, tổng tiền + lý do cần duyệt (COMMERCE §3).
+// TIP-026c: "Thuộc cơ hội" (không bắt buộc — D60 #11; null = không gắn) + hai cờ áp lúc gửi (cập nhật giá trị, việc theo dõi +2 ngày).
 'use client';
 import { useMemo, useState } from 'react';
 import { approvalReasons, quoteTotals, QUOTE_VALID_DAYS, type ApprovalPolicy, type Discount } from '@appchat/shared';
@@ -15,6 +16,9 @@ export interface QuoteDraft {
   note: string;
   /** Nguồn Hộp thư (TIP-025b §D.3) — chỉ gửi kèm lệnh tạo. */
   source: SourceLink;
+  opportunity_id: string | null;
+  opportunity_sync_value: boolean;
+  opportunity_follow_up: boolean;
 }
 
 const digits = (v: unknown) => String(v ?? '').replace(/\D/g, '');
@@ -32,6 +36,9 @@ export function initialQuoteDraft(prefill?: Record<string, unknown> | null): Quo
     payment_terms: String(pre.payment_terms ?? ''),
     note: String(pre.note ?? ''),
     source: sourceLinkOf(pre),
+    opportunity_id: typeof pre.opportunity_id === 'string' && pre.opportunity_id ? pre.opportunity_id : null,
+    opportunity_sync_value: pre.opportunity_sync_value !== false,
+    opportunity_follow_up: pre.opportunity_follow_up !== false,
   };
 }
 
@@ -61,6 +68,9 @@ export function useQuoteDraft(init: QuoteDraft, policy?: ApprovalPolicy) {
     valid_days: d.valid_days,
     ...(d.payment_terms.trim() ? { payment_terms: d.payment_terms.trim() } : {}),
     ...(d.note.trim() ? { note: d.note.trim() } : {}),
+    opportunity_id: d.opportunity_id,
+    opportunity_sync_value: d.opportunity_sync_value,
+    opportunity_follow_up: d.opportunity_follow_up,
   };
   return { d, set, lines, totals, reasons, valid, input };
 }

@@ -9,6 +9,7 @@ import { SEED_INTENT, handoffSummaryRoute, hasHandoffSummary } from './inbox-han
 import { withActivities360 } from './customers';
 import { coAssigneeHandlers, withCoAssignees } from './inbox-co-assignees';
 import { checkDraftRef, suggestionWithRef, withDraftCitations, withDraftRef } from './inbox-draft-ref';
+import { withOpportunityChip } from './inbox-opportunity';
 
 export type InboxFixture = typeof fixture;
 type Conv = InboxFixture['conversations'][number];
@@ -120,7 +121,7 @@ export const inboxRoutes: Record<string, MockRoute> = {
     const from = Number(p.cursor ?? 0) || 0;
     const page = rows.slice(from, from + PAGE);
     const marked = deletedSeed() ? page.map((c) => (c.contact_id ? { ...c, contact_deleted: true } : c)) : page;
-    return { data: marked.map((c) => withDraftRef(db, withCoAssignees(db, c))), next_cursor: from + PAGE < rows.length ? String(from + PAGE) : null };
+    return { data: marked.map((c) => withOpportunityChip(db, withDraftRef(db, withCoAssignees(db, c)))), next_cursor: from + PAGE < rows.length ? String(from + PAGE) : null };
   },
   // Số liệu prototype; "Nhắc đến tôi" cộng các lần @nhắc mới trong phiên mock.
   '/conversations/counts': (db, p) => {
@@ -179,7 +180,7 @@ export const inboxParamRoute = (path: string): MockRoute | null => {
   if (sub) return (db) => ({ data: db.inbox.messages[id] ?? [], next_cursor: null, suggestion: suggestionWithRef(db, id, (fixture.suggestions as Record<string, unknown>)[id]) });
   return (db) => {
     const c = db.inbox.conversations.find((x) => x.id === id);
-    return c ? withDraftCitations(withDraftRef(db, withCoAssignees(db, c))) : null;
+    return c ? withOpportunityChip(db, withDraftCitations(withDraftRef(db, withCoAssignees(db, c)))) : null;
   };
 };
 

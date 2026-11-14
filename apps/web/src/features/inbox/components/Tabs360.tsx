@@ -1,4 +1,5 @@
-// Các tab CRM · AI · Tệp · Lịch sử của Hồ sơ 360° — prototype L2096–2207.
+// Các tab CRM · AI · Tệp · Lịch sử của Hồ sơ 360° — prototype L2096–2207. "Cơ hội đang mở" = cơ hội thật chưa đóng (TIP-026c), bấm mở
+// drawer Cơ hội 360°; không có → rỗng thật.
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
@@ -8,6 +9,7 @@ import { TAG_TONE } from '../tones';
 import { Rich } from './Rich';
 import { Timeline } from './Timeline';
 import { MemoryPanel } from '@/shared/contact-memory';
+import { OpenOpportunities } from './OpenOpportunities';
 import type { Contact360 } from '../types';
 import { HistoryCsvButton } from './HistoryCsvButton';
 
@@ -27,16 +29,7 @@ export function Crm360({ c }: { c: Contact360 }) {
           </div>
         ))}
       </div>
-      <div className={styles.card}>
-        <div className={styles.eyebrow}>{t('openDeal')}</div>
-        <div className={styles.kv}>
-          <span>
-            <b>{c.crm.open_deal.title}</b>
-            <div className={styles.small}>{c.crm.open_deal.meta}</div>
-          </span>
-          <b className={styles.ok}>{c.crm.open_deal.value}</b>
-        </div>
-      </div>
+      <OpenOpportunities items={c.opportunities ?? []} />
       {[
         [t('recentOrder'), c.crm.recent_order],
         [t('recentPayment'), c.crm.recent_payment],

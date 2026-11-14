@@ -56,8 +56,21 @@ export const crm = {
     opportunity_created: 'Tạo cơ hội',
     opportunity_updated: 'Cập nhật cơ hội',
     opportunity_archived: 'Lưu trữ cơ hội',
+    opportunity_stage: 'Cơ hội: {from} → {to}',
+    opportunity_lost: 'Cơ hội Thua',
+    opportunity_reopened: 'Mở lại cơ hội',
+    opportunity_owner: 'Đổi phụ trách cơ hội',
   },
-  stage: { lead: 'Lead mới', potential: 'Tiềm năng', consulting: 'Đang tư vấn', quote: 'Báo giá', contract: 'Hợp đồng', won: 'Đã mua', lost: 'Thất bại' },
+  // D60 (TIP-026c): khoá enum giữ — potential = Đủ điều kiện, consulting = Tư vấn / Demo, contract = Đàm phán.
+  stage: { lead: 'Lead mới', potential: 'Đủ điều kiện', consulting: 'Tư vấn / Demo', quote: 'Báo giá', contract: 'Đàm phán', won: 'Đã mua', lost: 'Thất bại' },
+  /** Cơ hội / Sales Pipeline (TIP-026c): nhãn giai đoạn cơ hội, lý do Thua, việc theo dõi tự tạo, bước tiếp theo theo luật. */
+  opportunity: {
+    stage: { lead: 'Lead mới', qualified: 'Đủ điều kiện', demo: 'Tư vấn / Demo', quote: 'Báo giá', negotiation: 'Đàm phán', won: 'Đã mua', lost: 'Thua' },
+    lostReason: { price: 'Giá cao', competitor: 'Chọn đối thủ', no_need: 'Hết nhu cầu', unreachable: 'Không liên lạc được' },
+    source: { manual: 'Nhập tay', conversation: 'Hội thoại', campaign: 'Chiến dịch', renewal: 'Gia hạn', referral: 'Giới thiệu', call: 'Cuộc gọi' },
+    followUp: 'Theo dõi phản hồi báo giá {code}',
+    summary: 'Cơ hội {title}: {stage} ({probability}%)',
+  },
   ai: {
     wait: 'Chờ xử lý',
     done: 'Không cần',

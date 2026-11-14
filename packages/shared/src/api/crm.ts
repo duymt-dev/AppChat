@@ -3,6 +3,7 @@
 // /settings/fields?entity=, /settings/profile-layouts. Mock transport (apps/web) và API thật parse cùng các schema này.
 import { z } from 'zod';
 import { activitySummarySchema } from './contact-activities';
+import { openOpportunitySummarySchema, opportunityCardSchema, opportunityItemSchema } from './opportunities';
 import { contactInsightsSchema } from './contact-memory';
 import { SYSTEM_ROLES } from '../authz/roles';
 import { CUSTOM_FIELD_PLACES } from '../custom-fields/values';
@@ -44,6 +45,8 @@ export const contactRowSchema = z.object({
   custom: customValues.optional(),
   /** Phiên bản khách (TIP-026b §4.3) — kéo thẻ / đổi giai đoạn gửi lại làm if_version. */
   version: z.number().int().optional(),
+  /** Cột "Cơ hội đang mở" (TIP-026c): tổng giá trị · số cơ hội · giai đoạn cao nhất — một truy vấn cho cả trang; vắng = không có cơ hội mở. */
+  open_opportunity: openOpportunitySummarySchema.optional(),
 });
 export type ContactRowDto = z.infer<typeof contactRowSchema>;
 
@@ -123,15 +126,18 @@ export const contact360Schema = z.object({
   points: z.string(),
   points_value: z.string(),
   journey: z.object({ stage: z.string(), hint: z.string() }),
-  ai_summary: z.object({ badge: z.string(), close_pct: z.number(), bullets: z.array(z.string()) }),
-  deal: z.object({ title: z.string(), value: z.string(), stage: z.string(), probability: z.number(), close_date: z.string(), need: z.string() }),
+  // TIP-026c: bỏ `close_pct` (vòng % giả) và ô `deal` — thẻ cơ hội đọc `opportunity` (pipeline thật, xác suất cố định theo giai đoạn).
+  ai_summary: z.object({ badge: z.string(), bullets: z.array(z.string()) }),
+  /** Cơ hội hiện hành (thẻ 360° — mở cập nhật mới nhất, không có thì mới nhất đã đóng); null = khách chưa có cơ hội. */
+  opportunity: opportunityCardSchema.nullable(),
+  /** Lịch sử mọi cơ hội chưa lưu trữ của khách (trang đầu, mới nhất trước). */
+  opportunities: z.array(opportunityItemSchema),
   history: z.array(timelineItem),
   tasks: z.array(z.object({ id: z.string(), title: z.string(), due: z.string(), done: z.boolean(), cal: z.boolean().optional() })),
   note: z.object({ body: z.string(), meta: z.string() }),
   comments: z.array(z.object({ author: z.string(), initial: z.string(), body: z.string(), at: z.string() })),
   crm: z.object({
     kpis: z.array(z.tuple([z.string(), z.string()])),
-    open_deal: z.object({ title: z.string(), meta: z.string(), value: z.string() }),
     recent_order: z.object({ title: z.string(), status: z.string() }),
     recent_payment: z.object({ title: z.string(), status: z.string() }),
     segments: z.array(z.tuple([z.string(), z.string()])),

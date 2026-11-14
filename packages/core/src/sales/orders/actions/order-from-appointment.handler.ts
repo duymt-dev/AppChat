@@ -9,7 +9,7 @@ import type { ActionInput, orderCreateFromAppointment } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
-import { CrmMembers } from '../../../crm/public';
+import { CrmMembers, lockStageFamily } from '../../../crm/public';
 import { conversionSource } from '../../../booking/order-suggestions/preview';
 import { assertBoundPreview } from '../../../kernel/actions/preview-binding';
 import { visibleOrder } from '../order-access';
@@ -30,6 +30,9 @@ export class OrderFromAppointmentHandler implements Handler<ActionInput<typeof o
 
   async execute(ctx: ActionContext, input: ActionInput<typeof orderCreateFromAppointment>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     // Nguồn đọc qua facade booking (booking không import sales — không vòng). TIP-015f §2.5: khách → lịch hẹn → đơn.
+    // TIP-026c: lịch hẹn gắn cơ hội → đơn kế thừa, cơ hội lên Đã mua → họ khách khoá trước (khách → lịch hẹn → đơn → cơ hội).
+    const pre = UUID_RE.test(input.appointment_id) ? await tx.appointment.findUnique({ where: { id: input.appointment_id }, select: { contactId: true } }) : null;
+    if (pre) await lockStageFamily(tx, pre.contactId);
     await lockRootOf(tx, 'appointment', input.appointment_id);
     if (UUID_RE.test(input.appointment_id)) await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${input.appointment_id}::uuid FOR UPDATE`;
     const src = await conversionSource(tx, ctx.authz, input.appointment_id);
@@ -53,6 +56,8 @@ export class OrderFromAppointmentHandler implements Handler<ActionInput<typeof o
         note: a.code,
         source: 'appointment',
         appointment_id: a.id,
+        // Nguồn chung (SuggestionSource) không mang cột này — đọc riêng dưới khoá lịch hẹn.
+        opportunity_id: (await tx.appointment.findUnique({ where: { id: a.id }, select: { opportunityId: true } }))?.opportunityId ?? null,
         conversation_id: a.conversationId,
       },
       now,

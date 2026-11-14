@@ -1,0 +1,11 @@
+{
+  "suite": "sales-pipeline",
+  "cases": [
+    { "id": "sp-create-quote-stage", "category": "create", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Chị Nguyễn Thị Hoa vừa nhắn xin báo giá gói triệt lông năm, khoảng 20 triệu. Tạo cơ hội cho chị ấy ở giai đoạn Báo giá.", "expect": { "action": "contact_opportunity.create", "input": { "contact_id": "$seed.contacts.Nguyễn Thị Hoa.id", "stage": "quote" }, "confirm": true } },
+    { "id": "sp-move-stage", "category": "update", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Chuyển cơ hội \"Liệu trình HIFU [ai-live]\" của chị Nguyễn Thị Hoa sang giai đoạn Đàm phán.", "expect": { "action": "contact_opportunity.set_stage", "input": { "opportunity_id": "$seed.pipeline.open.id", "stage": "negotiation" }, "confirm": true } },
+    { "id": "sp-lost-with-reason", "category": "update", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Cơ hội \"Liệu trình HIFU [ai-live]\" của chị Nguyễn Thị Hoa thua rồi, chị ấy chọn bên đối thủ.", "expect": { "action": "contact_opportunity.mark_lost", "input": { "opportunity_id": "$seed.pipeline.open.id", "lost_reason": "competitor" }, "confirm": true } },
+    { "id": "sp-lost-ask-reason", "category": "clarify", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Đánh dấu Thua cơ hội \"Liệu trình HIFU [ai-live]\" của chị Nguyễn Thị Hoa.", "expect": { "ask_back": true, "confirm": false } },
+    { "id": "sp-reopen", "category": "update", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Mở lại cơ hội \"Máy triệt lông [ai-live]\" của chị Nguyễn Thị Hoa, chị ấy quay lại hỏi.", "expect": { "action": "contact_opportunity.reopen", "input": { "opportunity_id": "$seed.pipeline.lost.id" }, "confirm": true } },
+    { "id": "sp-lookup-pipeline", "category": "lookup", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "chat", "input": "Chị Nguyễn Thị Hoa đang có những cơ hội nào, ở giai đoạn nào và xác suất bao nhiêu?", "expect": { "action_any": ["contact_opportunity.list", "contact_opportunity.get"], "confirm": false } }
+  ]
+}

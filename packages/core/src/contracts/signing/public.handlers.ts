@@ -9,7 +9,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { ChannelSendQueue } from '../../channels/public';
-import { CrmMembers, writeTimeline } from '../../crm/public';
+import { CrmMembers, lockStageFamilyOf, onDocumentUndone, opportunityOfQuote, writeTimeline } from '../../crm/public';
 import { enqueueOutgoing } from '../../inbox/public';
 import { postToCustomer } from '../../sales/public';
 import { ContractDeps } from '../services/contract-deps';
@@ -102,6 +102,8 @@ export class ContractPublicDeclineHandler implements Handler<ActionInput<typeof 
 
   async execute(ctx: ActionContext, input: ActionInput<typeof contractPublicDecline>, tx: TenantTx): Promise<HandlerOutcome<{ contract_id: string; status: string }>> {
     const cap = requireSigning(ctx, 'contract.public_decline', input.contract_id);
+    // TIP-026c: họ khách chuẩn trước hợp đồng (thứ tự khoá toàn cục) — từ chối có thể đưa cơ hội won về Đàm phán + tính lại giai đoạn khách.
+    await lockStageFamilyOf(tx, 'contract', cap.contractId);
     const now = this.clock.now();
     const { c, s, t } = await liveCustomer(tx, cap, now);
     const why = input.reason?.trim().slice(0, 500) || serverMessages((await this.d.place(ctx.workspaceId)).locale).sales.contract.declineDefault;
@@ -112,9 +114,10 @@ export class ContractPublicDeclineHandler implements Handler<ActionInput<typeof 
     await tx.$executeRaw`UPDATE contract_signer SET otp_generation = otp_generation + 1, otp_hash = NULL, otp_expires_at = NULL WHERE id = ${s.id}::uuid`;
     await logSignEvent(tx, { contractId: c.id, signerId: s.id, type: 'declined', actorName: s.name, ip: cap.client.ip, userAgent: cap.client.userAgent, meta: { reason: why }, at: now });
     await writeTimeline(tx, { contactId: c.contactId, type: 'contract', key: 'contract_declined', params: { code: c.code }, actor: SYSTEM, ref: { type: 'contract', id: c.id }, at: now });
+    const opp = await onDocumentUndone(tx, await opportunityOfQuote(tx, c.quoteId), { type: 'contract', id: c.id }, SYSTEM, now);
     return {
       result: { contract_id: c.id, status: to },
-      events: [{ topic: 'contract.declined', payload: { contract_id: c.id, contact_id: c.contactId, code: c.code, reason: why } }, ownerNotice(c, 'contract_declined', s.name, why)],
+      events: [{ topic: 'contract.declined', payload: { contract_id: c.id, contact_id: c.contactId, code: c.code, reason: why } }, ownerNotice(c, 'contract_declined', s.name, why), ...opp],
       noUndo: true,
     };
   }

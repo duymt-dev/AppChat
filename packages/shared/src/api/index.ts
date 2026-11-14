@@ -14,6 +14,7 @@ export * from './ai-citations';
 export * from './audit';
 export * from './crm';
 export * from './contact-activities';
+export * from './opportunities';
 export * from './contact-transfer';
 export * from './contact-lifecycle';
 export * from './contact-merge';

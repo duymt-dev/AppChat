@@ -1,5 +1,5 @@
 import type { AiCitations } from '@/shared/ai-citations/types';
-import type { ActivitySummaryDto, AgentIntent, ContactInsightsDto, CustomValues, HandoffSummaryDto } from '@appchat/shared';
+import type { ActivitySummaryDto, AgentIntent, ContactInsightsDto, CustomValues, HandoffSummaryDto, OpenOpportunitySummaryDto, OpportunityCardDto, OpportunityItemDto } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
 
 /** TIP-022b: tóm tắt bàn giao có cấu trúc (chiếu theo quyền người xem). */
@@ -74,6 +74,8 @@ export interface Conversation {
   frt_target_min?: number | null;
   sla_state?: 'breach' | 'risk' | 'ok';
   snoozed_until?: string | null;
+  /** TIP-026c: chip "Cơ hội · {giai đoạn} · {giá trị}" — tóm tắt cơ hội mở của khách (một truy vấn cho cả trang); vắng = không có. */
+  opportunity_chip?: OpenOpportunitySummaryDto;
 }
 
 export interface Message {
@@ -186,15 +188,18 @@ export interface Contact360 {
   points: string;
   points_value: string;
   journey: { stage: string; hint: string };
-  ai_summary: { badge: string; close_pct: number; bullets: string[] };
-  deal: { title: string; value: string; stage: string; probability: number; close_date: string; need: string };
+  /** TIP-026c: bỏ `close_pct` (vòng % giả) — xác suất đọc từ cơ hội (cố định theo giai đoạn). */
+  ai_summary: { badge: string; bullets: string[] };
+  /** Cơ hội hiện hành (thẻ Sales Pipeline 360°) — null = khách chưa có cơ hội; vắng ở mock / API cũ. */
+  opportunity?: OpportunityCardDto | null;
+  /** Lịch sử mọi cơ hội chưa lưu trữ của khách (trang đầu). */
+  opportunities?: OpportunityItemDto[];
   history: TimelineItem[];
   tasks: { id: string; title: string; due: string; done: boolean; cal?: boolean }[];
   note: { body: string; meta: string };
   comments: { author: string; initial: string; body: string; at: string }[];
   crm: {
     kpis: [string, string][];
-    open_deal: { title: string; meta: string; value: string };
     recent_order: { title: string; status: string };
     recent_payment: { title: string; status: string };
     segments: [string, TagTone][];

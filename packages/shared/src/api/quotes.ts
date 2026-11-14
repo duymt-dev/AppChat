@@ -62,6 +62,10 @@ export const quoteRowSchema = z.object({
   /** PDF đóng băng (TIP-028b, job doc-render): `pending_render` = đang tạo PDF; `render_failed` = lỗi, có Thử lại. null = chưa phát hành / bản cũ. */
   render: z.object({ status: z.enum(['pending_render', 'rendered', 'render_failed']), error: z.string().nullable() }).nullable().optional(),
   custom: customValuesSchema.optional(),
+  /** TIP-026c: thuộc cơ hội (null = không gắn — không tính vào pipeline / dự báo) + hai cờ áp lúc gửi. */
+  opportunity_id: z.string().nullable().optional(),
+  opportunity_sync_value: z.boolean().optional(),
+  opportunity_follow_up: z.boolean().optional(),
 });
 export type QuoteRow = z.infer<typeof quoteRowSchema>;
 

@@ -107,7 +107,7 @@
 | Q-910 | TikTok Business Messaging API + Accounts API form | QUESTIONS.md:87 | 048h | CHỜ-TK | Chủ nhà nộp; test bằng transport giả |
 | Q-911 | Hành vi gửi ra mới: nhắn riêng / trả lời công khai / HUMAN_AGENT / live | QUESTIONS.md:88 | 048f, 048g, 048h | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): agent là nhân viên, trả lời / nhắn riêng / tạo đơn thẳng — thi công ở 048f §6, 048g §5, 048h §5 |
 | Q-912 | Quyền cho bình luận / livestream | QUESTIONS.md:89 | 048f, 048g | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): không thêm permission, không luật quyền riêng cho agent (Tools ở Builder, D51) |
-| Q-918 | Luật cũ "AI chỉ gợi ý" (COMMERCE §5 giai đoạn cơ hội, đề xuất sau cuộc gọi, D61 #8) có theo Q-911 không | QUESTIONS.md:91 | 026c, 047c | CHƯA | Chủ nhà chốt "đổi luôn" → DC-922; thi công ở 026c / 047c / 047d |
+| Q-918 | Luật cũ "AI chỉ gợi ý" (COMMERCE §5 giai đoạn cơ hội, đề xuất sau cuộc gọi, D61 #8) có theo Q-911 không | QUESTIONS.md:91 | 026c, 047c | CHƯA | DC-922; 026c ĐẠT (set_stage / mark_lost / reopen agent chạy thẳng như người); còn 047c / 047d |
 | Q-919 | Áp DC-921 / 922 cho action cũ đang `agentGrantable: false` (143 write + 12 send) | QUESTIONS.md:92 | 050 | CHƯA | Chốt DC-923 (f): TIP-050 |
 | Q-054 | TOTP bắt buộc cho admin nền tảng | QUESTIONS.md:67 | 045 | CHƯA | Chốt DC-923 (e) — TIP-045 §3.7 |
 | Q-049 | Trợ lý / agent đọc lời mời bạn bè Zalo | QUESTIONS.md:62 | — | NGOÀI | Chốt DC-923 (b): không làm — bạn bè Zalo thủ công |

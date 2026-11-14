@@ -50,8 +50,8 @@ describe('contact.summarize', () => {
     expect(await (await m.db()).contactSummaryCache.count({ where: { contactId: lan } })).toBe(2);
   });
 
-  it('TIP-026b §3.6: cơ hội / việc mới → fingerprint đổi → sinh lại có hoạt động (nhãn người nhập); CS không thấy giá trị kỳ vọng', async () => {
-    await m.seed('contact_opportunity.create', { contact_id: lan, title: 'Gói HIFU 10 buổi', amount_vnd: '777000000', probability: 40 });
+  it('TIP-026b §3.6 / 026c: cơ hội / việc mới → fingerprint đổi → sinh lại có hoạt động (xác suất hằng theo giai đoạn); CS không thấy giá trị kỳ vọng', async () => {
+    await m.seed('contact_opportunity.create', { contact_id: lan, title: 'Gói HIFU 10 buổi', amount_vnd: '777000000' });
     await m.seed('contact_task.create', { contact_id: lan, title: 'Gọi lại tư vấn' });
     const db = await m.db();
     const sent = async () => JSON.stringify((await db.aiRun.findFirstOrThrow({ where: { title: 'contact.summarize' }, orderBy: { id: 'desc' } })).input);
@@ -59,7 +59,8 @@ describe('contact.summarize', () => {
     // Khối DỮ LIỆU gửi model (model giả chỉ chép 5 dòng đầu — kiểm đầu vào thật của run).
     const owner = await sent();
     expect(owner).toContain('Gói HIFU 10 buổi');
-    expect(owner).toContain('người nhập');
+    expect(owner).toContain('lead 10%');
+    expect(owner).not.toContain('người nhập');
     expect(owner).toContain('kỳ vọng 777000000');
     expect(owner).toContain('Gọi lại tư vấn');
     expect((await m.act({ contact_id: lan }, m.cs)).body.data.result.status).toBe('fresh');

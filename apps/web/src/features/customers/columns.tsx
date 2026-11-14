@@ -1,4 +1,5 @@
-// Cột DataTable Khách hàng — prototype L2516 (16 cột; độ rộng theo grid-template của prototype) + thẻ mobile (< md).
+// Cột DataTable Khách hàng — prototype L2981 (17 cột; độ rộng theo grid-template của prototype) + thẻ mobile (< md). TIP-026c: cột
+// "Cơ hội đang mở" (176) sau Tên khách hàng.
 'use client';
 import { useTranslations } from 'next-intl';
 import { ActionMenu, type TableColumnsType } from '@appchat/ui';
@@ -6,6 +7,7 @@ import { useCellStyles } from './styles/cells.styles';
 import { useCrmUi } from './crm-store';
 import { useRowMenu } from './hooks/useRowMenu';
 import { AiCell, ChannelCell, NameCell, OwnerCell, StatusCell } from './components/Cells';
+import { OpportunityCell } from './components/OpportunityCell';
 import { useCustomColumns } from '@/shared/custom-fields';
 import type { ContactRow } from './types';
 
@@ -34,6 +36,7 @@ export function useContactColumns(onAiDo: (c: ContactRow) => void): TableColumns
   return [
     { key: 'code', title: t('col.code'), width: 100, render: (_, c) => <span className={styles.code}>{c.code}</span> },
     { key: 'name', title: t('col.name'), width: 158, render: (_, c) => <NameCell c={c} /> },
+    { key: 'opportunity', title: <span className={styles.oppHead}>{t('col.opportunity')}</span>, width: 176, render: (_, c) => <OpportunityCell c={c} /> },
     {
       key: 'reg',
       title: t('col.reg'),

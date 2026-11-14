@@ -3,6 +3,7 @@
 // Mọi lần xuất là một việc `data_job` (TIP-045b annex D) — ≤ 50 dòng dựng tệp ngay trong action (200 + handle), > 50 dòng chạy nền (202
 // job_accepted). Tải qua `/v1/data-jobs/:id/download` có xác thực, chỉ người tạo, hết hạn 24 giờ — không URL storage thô.
 import { z } from 'zod';
+import { OPPORTUNITY_STAGES } from '../crm/opportunity-stages';
 
 export const LIST_EXPORT_KINDS = [
   'quote.export',
@@ -109,7 +110,8 @@ export const contactNoteExportFilter = z.object({ ...contactScope, kind: z.enum(
 export const contactTaskExportFilter = z.object({ ...contactScope, state: z.enum(['open', 'done', 'cancelled']).optional() });
 export const contactOpportunityExportFilter = z.object({
   ...contactScope,
-  opp_stage: z.enum(['open', 'qualified', 'proposal', 'won', 'lost']).optional(),
+  /** Giai đoạn cơ hội 7 bậc (TIP-026c). */
+  opp_stage: z.enum(OPPORTUNITY_STAGES).optional(),
   archived: z.boolean().optional(),
 });
 /** Xuất liệu trình (TIP-033b §5.1): bắt buộc MỘT khách (PackagesRead — CRM trước, scope đơn trong SQL), trạng thái tuỳ chọn, CSV / XLSX. */

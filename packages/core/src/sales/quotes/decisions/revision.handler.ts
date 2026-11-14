@@ -58,6 +58,10 @@ export class QuoteRevisionHandler implements Handler<ActionInput<typeof quoteReq
         gift: q.gift,
         paymentTerms: q.paymentTerms,
         offCatalog: q.offCatalog,
+        // TIP-026c: bản n+1 kế thừa cơ hội + cờ của bản trước.
+        opportunityId: q.opportunityId,
+        opportunitySyncValue: q.opportunitySyncValue,
+        opportunityFollowUp: q.opportunityFollowUp,
         createdByType: ctx.actor.type === 'agent' ? 'agent' : ctx.source === 'assistant' ? 'assistant' : 'user',
         createdById: ctx.actor.type === 'agent' ? ctx.actor.id : actorUserId(ctx),
         custom: (q.custom ?? {}) as object,

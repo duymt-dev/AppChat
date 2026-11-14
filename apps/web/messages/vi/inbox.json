@@ -100,10 +100,10 @@
     "stageCurrent": "Giai đoạn hiện tại",
     "stages": {
       "lead": "Lead mới",
-      "potential": "Tiềm năng",
-      "consulting": "Đang tư vấn",
+      "potential": "Đủ điều kiện",
+      "consulting": "Tư vấn / Demo",
       "quote": "Báo giá",
-      "contract": "Hợp đồng",
+      "contract": "Đàm phán",
       "won": "Đã mua",
       "lost": "Thất bại"
     },

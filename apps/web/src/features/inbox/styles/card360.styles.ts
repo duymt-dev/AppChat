@@ -1,26 +1,37 @@
-// Thẻ trong Hồ sơ 360° (AI tóm tắt / thông tin khách / hạng thành viên) — prototype L2031–2054.
+// Thẻ trong Hồ sơ 360° (AI tóm tắt / thông tin khách / hạng thành viên) — prototype L2031–2054; dòng "Cơ hội đang mở" tab CRM L2480.
+// TIP-026c: bỏ vòng "Khả năng chốt" (close_pct giả).
 import { createStyles } from 'antd-style';
 import { color, font, gradient, radius } from '@appchat/ui';
 
 export const useCardStyles = createStyles(({ css }) => ({
-  ring: css`
-    position: relative;
-    width: 84px;
-    height: 84px;
-  `,
-  ringNum: css`
-    position: absolute;
-    inset: 0;
+  oppRow: css`
+    width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    font-size: ${font.scale.s24}px;
-    font-weight: ${font.weight.heavy};
-    color: ${color.text};
+    gap: 8px;
+    padding: 8px;
+    margin-top: 8px;
+    border: 1px solid ${color.divider};
+    border-radius: ${radius.r10}px;
+    background: ${color.surface};
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    & b {
+      font-size: ${font.scale.s14}px;
+      color: ${color.text};
+    }
   `,
-  ringPct: css`
-    font-size: ${font.scale.s14}px;
-    margin-top: 4px;
+  oppDot: css`
+    width: 8px;
+    height: 8px;
+    border-radius: ${radius.r4}px;
+    flex-shrink: 0;
+  `,
+  oppMeta: css`
+    display: block;
+    font-size: ${font.scale.s12}px;
+    color: ${color.text4};
   `,
   bullets: css`
     list-style: none;

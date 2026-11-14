@@ -1,4 +1,5 @@
 // State form tạo / đổi giờ lịch hẹn: khách, dịch vụ, ngày, giờ (chỉ trong slot trống — appointment.find_slots), KTV, nhắc, trạng thái, ghi chú.
+// TIP-026c: "Thuộc cơ hội" (chỉ khi biết khách — điền sẵn contact_id từ Hồ sơ 360° / drawer cơ hội); null = không gắn.
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -15,6 +16,7 @@ export interface ApptDraft {
   reminder: number;
   status: 'pending' | 'confirmed';
   note: string;
+  opportunity_id: string | null;
 }
 
 const str = (v: unknown) => (typeof v === 'string' ? v : '');
@@ -33,6 +35,7 @@ export function initialDraft(meta: CalendarMeta, prefill: Record<string, unknown
       reminder: 1440,
       status: re.status === 'confirmed' ? 'confirmed' : 'pending',
       note: re.note,
+      opportunity_id: null,
     };
   const p = prefill ?? {};
   return {
@@ -46,6 +49,7 @@ export function initialDraft(meta: CalendarMeta, prefill: Record<string, unknown
     reminder: 30,
     status: 'pending',
     note: str(p.note),
+    opportunity_id: str(p.opportunity_id) || null,
   };
 }
 const nextDay = (d: string) => new Date(Date.parse(`${d}T00:00:00Z`) + 86_400_000).toISOString().slice(0, 10);

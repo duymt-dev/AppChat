@@ -1,6 +1,8 @@
 // tenant/crm-activities.prisma — sở hữu: TIP-026b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
 // Hoạt động CRM thủ công trên khách (DC253): việc chăm sóc (`contact_task`) + cơ hội (`contact_opportunity`). Việc chăm sóc KHÔNG phải
 // tác vụ AI (không chạy nền, không đặt lịch, không tính credit); cơ hội KHÔNG phải báo giá / doanh thu (giá trị kỳ vọng do người nhập).
+// TIP-026c (D60, DC-901): cơ hội = pipeline 7 giai đoạn xác suất cố định (bảng hằng @appchat/shared), sản phẩm ở `contact_opportunity_item`,
+// lịch sử append-only `contact_opportunity_event`; chứng từ trỏ TỚI cơ hội (`quote` / `order` / `appointment.opportunity_id`).
 // Bảng tenant không workspace_id; FK về contact (cùng domain crm).
 
 enum ContactNoteKind {
@@ -19,9 +21,11 @@ enum ContactTaskState {
 }
 
 enum ContactOpportunityStage {
-  open
+  lead
   qualified
-  proposal
+  demo
+  quote
+  negotiation
   won
   lost
 
@@ -53,15 +57,25 @@ model ContactTask {
 model ContactOpportunity {
   id                   String                  @id @db.Uuid
   contactId            String                  @map("contact_id") @db.Uuid
+  /// Tên cơ hội.
   title                String
   need                 String                  @default("")
   /// Giá trị KỲ VỌNG (VND nguyên) — không phải công nợ / doanh thu / đã thu. null = chưa biết.
   amountVnd            BigInt?                 @map("amount_vnd")
-  stage                ContactOpportunityStage @default(open)
-  /// Ước lượng người nhập (0–100, tối đa 2 chữ số thập phân) — không phải độ tin cậy của model.
-  probability          Decimal?                @db.Decimal(5, 2)
+  /// Xác suất KHÔNG lưu — lấy theo giai đoạn từ bảng hằng (TIP-026c).
+  stage                ContactOpportunityStage @default(lead)
   expectedCloseDate    DateTime?               @map("expected_close_date") @db.Date
-  quoteId              String?                 @map("quote_id") @db.Uuid
+  /// Phụ trách cơ hội: mặc định người tạo (agent tạo → người phụ trách khách). Không đổi doanh số chứng từ (COMMERCE §8b).
+  ownerUserId          String?                 @map("owner_user_id") @db.Uuid
+  /// Nhóm chụp lúc tạo / đổi phụ trách (DC-299).
+  teamId               String?                 @map("team_id") @db.Uuid
+  /// manual · conversation · campaign · renewal · referral · call (text + kiểm ở code — loại mở rộng được).
+  sourceKind           String                  @default("manual") @map("source_kind")
+  campaignId           String?                 @map("campaign_id") @db.Uuid
+  /// price · competitor · no_need · unreachable — bắt buộc khi Thua.
+  lostReason           String?                 @map("lost_reason")
+  closedAt             DateTime?               @map("closed_at") @db.Timestamptz(6)
+  stageChangedAt       DateTime                @default(now()) @map("stage_changed_at") @db.Timestamptz(6)
   sourceConversationId String?                 @map("source_conversation_id") @db.Uuid
   sourceMessageId      String?                 @map("source_message_id") @db.Uuid
   version              Int                     @default(1)
@@ -72,5 +86,42 @@ model ContactOpportunity {
   createdAt            DateTime                @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt            DateTime                @default(now()) @map("updated_at") @db.Timestamptz(6)
 
+  items  ContactOpportunityItem[]
+  events ContactOpportunityEvent[]
+
   @@map("contact_opportunity")
+}
+
+/// Sản phẩm của cơ hội (≤ 20 dòng, vị trí duy nhất) — hiển thị "HIFU × 1 · Combo da × 2".
+model ContactOpportunityItem {
+  id            String             @id @db.Uuid
+  opportunityId String             @map("opportunity_id") @db.Uuid
+  productId     String?            @map("product_id") @db.Uuid
+  name          String
+  qty           Int
+  position      Int
+  opportunity   ContactOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@unique([opportunityId, position])
+  @@map("contact_opportunity_item")
+}
+
+/// Lịch sử cơ hội — chỉ thêm (không UPDATE / DELETE ngoài gộp khách / Quên khách).
+model ContactOpportunityEvent {
+  id            String             @id @db.Uuid
+  opportunityId String             @map("opportunity_id") @db.Uuid
+  contactId     String             @map("contact_id") @db.Uuid
+  /// created · stage · value · owner · lost · reopened · linked · unlinked · ai_suggested · ai_applied
+  kind          String
+  fromStage     String?            @map("from_stage")
+  toStage       String?            @map("to_stage")
+  refType       String?            @map("ref_type")
+  refId         String?            @map("ref_id") @db.Uuid
+  params        Json               @default("{}")
+  actorType     String             @default("user") @map("actor_type")
+  actorId       String?            @map("actor_id")
+  createdAt     DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  opportunity   ContactOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+
+  @@map("contact_opportunity_event")
 }

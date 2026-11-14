@@ -7,7 +7,7 @@ import { quotePolicy } from '../../settings/policy';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import type { ActionContext } from '../../../kernel/actions/action-context';
 import { uuidv7 } from '../../../kernel/ids';
-import { actorUserId, editableContact, fieldDefs, type CrmMembers } from '../../../crm/public';
+import { actorUserId, checkOpportunityLink, editableContact, fieldDefs, type CrmMembers } from '../../../crm/public';
 import { UUID, type QuoteRecord } from '../quote-access';
 import { lockContactRow } from '../../../kernel/ownership/root-lock';
 
@@ -31,6 +31,19 @@ export interface QuoteFieldsIn {
   note?: string;
   gift?: string;
   custom?: CustomValues;
+  /** TIP-026c: thuộc cơ hội (null = không gắn) + hai cờ áp lúc gửi. */
+  opportunity_id?: string | null;
+  opportunity_sync_value?: boolean;
+  opportunity_follow_up?: boolean;
+}
+
+/** Cột cơ hội của báo giá (TIP-026c §1.2): kiểm liên kết cùng họ khách / chưa Thua / người gọi thấy — chỉ những ô input có. */
+export async function opportunityCols(tx: TenantTx, authz: AuthzContext, contactId: string, f: Pick<QuoteFieldsIn, 'opportunity_id' | 'opportunity_sync_value' | 'opportunity_follow_up'>) {
+  return {
+    ...(f.opportunity_id !== undefined ? { opportunityId: await checkOpportunityLink(tx, authz, contactId, f.opportunity_id) } : {}),
+    ...(f.opportunity_sync_value !== undefined ? { opportunitySyncValue: f.opportunity_sync_value } : {}),
+    ...(f.opportunity_follow_up !== undefined ? { opportunityFollowUp: f.opportunity_follow_up } : {}),
+  };
 }
 
 export type CreatorType = 'user' | 'agent' | 'assistant';

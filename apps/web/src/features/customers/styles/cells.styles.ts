@@ -3,6 +3,45 @@ import { createStyles } from 'antd-style';
 import { color, font, layout, radius } from '@appchat/ui';
 
 export const useCellStyles = createStyles(({ css }) => ({
+  oppHead: css`
+    color: ${color.brandInk};
+  `,
+  oppNone: css`
+    font-size: ${font.scale.s13}px;
+    color: ${color.text4};
+  `,
+  oppCell: css`
+    display: block;
+    min-width: 0;
+    border: none;
+    background: none;
+    padding: 0;
+    text-align: left;
+    font-family: inherit;
+    cursor: pointer;
+  `,
+  oppVal: css`
+    display: block;
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.heavy};
+    color: ${color.text};
+    text-decoration: underline;
+    text-decoration-color: ${color.checkLine};
+    text-underline-offset: 3px;
+    & span {
+      font-weight: ${font.weight.medium};
+      color: ${color.text4};
+    }
+  `,
+  oppStage: css`
+    display: inline-block;
+    margin-top: 2px;
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.bold};
+    border-radius: ${radius.r6}px;
+    padding: 2px 6px;
+    white-space: nowrap;
+  `,
   code: css`
     font-size: ${font.scale.s12}px;
     font-family: ${font.mono};

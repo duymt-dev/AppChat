@@ -1633,6 +1633,7 @@
       "crm_access": "Xin chia sẻ khách / kết quả duyệt",
       "quote_approval": "Báo giá chờ tôi duyệt",
       "quote_expiring": "Báo giá sắp hết hiệu lực",
+      "opportunity_lost_reason": "Báo giá của cơ hội bị từ chối",
       "contract_approval": "Hợp đồng chờ tôi duyệt & ký",
       "contract_signed": "Khách đã ký hợp đồng",
       "contract_declined": "Khách từ chối ký / link ký hết hạn",

@@ -10,7 +10,7 @@ import type { ActionInput, orderCancel, orderComplete, orderConfirm } from '@app
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
-import { applyStageRule, lockStageFamilyOf, writeTimeline } from '../../../crm/public';
+import { applyStageRule, lockStageFamilyOf, onDocumentUndone, writeTimeline } from '../../../crm/public';
 import { lockOrder, type OrderRecord } from '../order-access';
 import { actorOf, deductStock, logEvent, moveOrder, orderPayload, returnStock, type Actor } from '../services/order-write';
 import { refundCancelled } from '../../payments/services/order-refund';
@@ -31,7 +31,7 @@ export async function completeOrder(tx: TenantTx, o: OrderRecord, actor: Actor, 
   return { points, event, events: [{ topic: 'order.completed', payload: { ...orderPayload(o), points, net_before_vat: String(net), completion_id: event, basis } }, ...stage] };
 }
 
-/** Huỷ (dùng chung action + đồng bộ sàn). */
+/** Huỷ (dùng chung action + đồng bộ sàn + hoàn tác tạo). Người gọi đã khoá họ khách (TIP-026c: cơ hội won hết chứng từ sống → Đàm phán). */
 export async function cancelOrder(tx: TenantTx, o: OrderRecord, reason: string, actor: Actor, now: Date) {
   await returnStock(tx, o, actor, now);
   const paid = o.paidTotal - o.refundedTotal;
@@ -42,7 +42,8 @@ export async function cancelOrder(tx: TenantTx, o: OrderRecord, reason: string, 
   await writeTimeline(tx, { contactId: o.contactId, type: 'order', key: 'order_cancelled', params: { code: o.code, reason }, actor, ref: { type: 'order', id: o.id }, at: now });
   // Đã thu → yêu cầu hoàn tiền chờ duyệt (TIP-032 — COMMERCE §4), cùng transaction với huỷ.
   const refunds = refund ? await refundCancelled(tx, o, reason, actor, now) : [];
-  return { refund, events: [{ topic: 'order.cancelled', payload: { ...orderPayload(o), reason, paid_total: String(paid), refund_requested: refund } }, ...refunds] };
+  const opp = await onDocumentUndone(tx, o.opportunityId, { type: 'order', id: o.id }, actor, now);
+  return { refund, events: [{ topic: 'order.cancelled', payload: { ...orderPayload(o), reason, paid_total: String(paid), refund_requested: refund } }, ...refunds, ...opp] };
 }
 
 @Injectable()
@@ -118,6 +119,7 @@ export class OrderCancelHandler implements Handler<ActionInput<typeof orderCance
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof orderCancel>, tx: TenantTx): Promise<HandlerOutcome<St & { refund_requested: boolean }>> {
+    await lockStageFamilyOf(tx, 'order', input.order_id);
     const o = await lockOrder(tx, ctx.authz, input.order_id);
     const to = assertTransition(ORDER_FLOW, o.status, 'order.cancel');
     const r = await cancelOrder(tx, o, input.reason.trim(), actorOf(ctx), this.clock.now());

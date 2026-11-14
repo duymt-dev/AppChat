@@ -27,6 +27,8 @@ const fields = z.object({
   note: z.string().max(2000).optional(),
   /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
   custom: customValuesSchema.optional(),
+  /** Thuộc cơ hội (TIP-026c): đơn tạo xong đưa cơ hội lên Đã mua; cơ hội Thua → 422 `opportunity_lost`. */
+  opportunity_id: z.string().min(1).nullable().optional(),
 });
 const out = z.object({ order_id: z.string(), code: z.string() });
 const st = z.object({ order_id: z.string(), status: z.string() });

@@ -1,5 +1,6 @@
 // Đọc hoạt động CRM (TIP-026b §3.1) — dùng chung Hộp thư + Khách hàng (không import chéo feature). Key `crm` → mọi action hoạt động
-// (invalidates `crm`) làm mới cả Hồ sơ 360° lẫn danh sách đầy đủ.
+// (invalidates `crm`) làm mới cả Hồ sơ 360° lẫn danh sách đầy đủ. Danh sách cơ hội đầy đủ (kind `opportunities`) đọc cùng reader
+// `listForContact` với GET /contacts/:id/opportunities (TIP-026c).
 import { infiniteQueryOptions } from '@tanstack/react-query';
 import type { ActivityKind, NoteItemDto, OpportunityItemDto, TaskItemDto } from '@appchat/shared';
 import { transport } from '../api/client';

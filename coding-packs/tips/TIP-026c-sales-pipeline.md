@@ -358,11 +358,13 @@ Thay mô hình cơ hội tự do của 026b bằng pipeline 7 giai đoạn có x
   - Chưa chạy runtime; tài liệu ở pha docs.
 
 ## ⚠️ BUILDER-CHECKLIST (agent PHẢI hoàn thành trước khi báo DONE)
-- [ ] Implement đúng `Files touched` (manifest), không thêm file ngoài scope; file mới đúng giới hạn 200–400 (BE) / 150–250 (FE).
-- [ ] Mọi AC 1–10 có test PASS. Ghi kết quả từng AC, dán output thật (`pnpm …`), không "pass" chung chung.
-- [ ] **Action-first (BUILDER-HANDOFF):** mọi ghi cơ hội / liên kết / giai đoạn qua `ActionExecutor` (`POST /v1/actions/:id`). FE chỉ `useAction(id).run(input)`. Chuyển tự động chạy trong transaction của action producer, không đường ghi thứ hai.
-- [ ] **Tenant DB:** chỉ qua `TenantDbResolver`, bảng không `workspace_id`, mọi list / get áp scope; migration chạy CẢ `db:generate` → `db:migrate-tenants` → `db:setup`.
-- [ ] **COMMERCE không đổi ngoài D60:** ngưỡng duyệt, "Đề nghị thanh toán TT-", Owner ký trước, doanh số theo `owner_user_id` của chứng từ; khách Đã mua chỉ do `order.completed`.
-- [ ] **Quyền agent (D51, DC-922):** agent là nhân viên — `create` / `update` / `set_stage` / `mark_lost` / `reopen` / `set_owner` agentGrantable, cùng luật như người; delegate = quyền agent ∩ người ra lệnh, kiểm mỗi lần gọi.
-- [ ] Index theo indexing.md + EXPLAIN dán report; không N+1 ở cột / chip.
-- [ ] Không báo DONE nếu test chưa chạy. `git status --short` sạch, báo kèm Git SHA.
+- [x] Implement đúng `Files touched` (manifest), không thêm file ngoài scope; file mới đúng giới hạn 200–400 (BE) / 150–250 (FE).
+- [x] Mọi AC 1–10 có test PASS. Ghi kết quả từng AC, dán output thật (`pnpm …`), không "pass" chung chung.
+- [x] **Action-first (BUILDER-HANDOFF):** mọi ghi cơ hội / liên kết / giai đoạn qua `ActionExecutor` (`POST /v1/actions/:id`). FE chỉ `useAction(id).run(input)`. Chuyển tự động chạy trong transaction của action producer, không đường ghi thứ hai.
+- [x] **Tenant DB:** chỉ qua `TenantDbResolver`, bảng không `workspace_id`, mọi list / get áp scope; migration chạy CẢ `db:generate` → `db:migrate-tenants` → `db:setup`.
+- [x] **COMMERCE không đổi ngoài D60:** ngưỡng duyệt, "Đề nghị thanh toán TT-", Owner ký trước, doanh số theo `owner_user_id` của chứng từ; khách Đã mua chỉ do `order.completed`.
+- [x] **Quyền agent (D51, DC-922):** agent là nhân viên — `create` / `update` / `set_stage` / `mark_lost` / `reopen` / `set_owner` agentGrantable, cùng luật như người; delegate = quyền agent ∩ người ra lệnh, kiểm mỗi lần gọi.
+- [x] Index theo indexing.md + EXPLAIN dán report; không N+1 ở cột / chip.
+- [x] Không báo DONE nếu test chưa chạy. `git status --short` sạch, báo kèm Git SHA.
+
+> Tick 2026-11-15 (TIP-026c DONE, luồng B): file ngoài manifest ghi DV-801; giả định DC-801; chi tiết từng AC / output ở `reports/TIP-026c-completion.md`.

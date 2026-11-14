@@ -1,5 +1,6 @@
-// Tab "Tổng quan" của Hồ sơ 360° — prototype L2025–2093: hành trình · AI tóm tắt · thông tin khách · deal · lịch sử · việc · ghi chú · comment.
-// Deal / việc / ghi chú / comment = hoạt động CRM thật (TIP-026b, shared/contact-activities).
+// Tab "Tổng quan" của Hồ sơ 360° — prototype L2373–2470: hành trình · cơ hội / Sales Pipeline · AI tóm tắt · thông tin khách · lịch sử ·
+// việc · ghi chú · comment. Cơ hội = pipeline thật (TIP-026c, shared/opportunities — bỏ vòng "Khả năng chốt" giả); việc / ghi chú /
+// comment = hoạt động CRM thật (TIP-026b, shared/contact-activities).
 'use client';
 import { useTranslations } from 'next-intl';
 import { Icon, color, type IconName } from '@appchat/ui';
@@ -50,6 +51,7 @@ export function Overview360({ c, packages = true }: { c: Contact360; packages?: 
           </div>
         </div>
       </div>
+      <DealCard contactId={c.id} a={c.activities} history={c.opportunities} />
       <div className={styles.card} data-testid="p360-summary">
         <div className={styles.cardHead}>
           <span className={styles.eyebrow}>{t('aiSummary')}</span>
@@ -58,19 +60,6 @@ export function Overview360({ c, packages = true }: { c: Contact360; packages?: 
           </span>
         </div>
         <div className={styles.row}>
-          <div>
-            <div className={cs.ring}>
-              <svg viewBox="0 0 92 92" style={{ transform: 'rotate(-90deg)' }} aria-hidden="true">
-                <circle cx="46" cy="46" r="40" fill="none" stroke={color.divider} strokeWidth="7" />
-                <circle cx="46" cy="46" r="40" fill="none" stroke={color.brand} strokeWidth="7" strokeLinecap="round" strokeDasharray={`${c.ai_summary.close_pct} 100`} pathLength={100} />
-              </svg>
-              <div className={cs.ringNum}>
-                {c.ai_summary.close_pct}
-                <span className={cs.ringPct}>%</span>
-              </div>
-            </div>
-            <div className={styles.small}>{t('closeChance')}</div>
-          </div>
           <ul className={cs.bullets}>
             {c.ai_summary.bullets.map((b) => (
               <li key={b}>
@@ -128,7 +117,6 @@ export function Overview360({ c, packages = true }: { c: Contact360; packages?: 
           </div>
         </div>
       </div>
-      <DealCard contactId={c.id} a={c.activities} />
       {packages ? <CustomerPackagesCard contactId={c.id} /> : null}
       <div className={styles.card}>
         <div className={styles.cardHead}>

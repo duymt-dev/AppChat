@@ -14,6 +14,7 @@ import { REMINDERS, initialDraft, useApptForm } from '../hooks/useApptForm';
 import type { Appointment, CalendarMeta } from '../types';
 import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
 import { sourceLinkOf } from '@/shared/crm-forms/source-link';
+import { OpportunityPicker } from '@/shared/opportunities';
 
 const KEYS = { reminders: 'reminders' } as const;
 const TOOLS = [
@@ -43,6 +44,7 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
   const [err, setErr] = useState('');
   const cf = useCustomDraft('appointment');
   const close = () => set({ form: null, prefill: null });
+  const contactId = !re && typeof prefill?.contact_id === 'string' ? prefill.contact_id : '';
   const onError = (e: { error: { code: string } }) => {
     // TIP-033b (DC-261): trùng khung giờ là SLOT_TAKEN; CONFLICT cũ vẫn nhận trong lúc chuyển.
     if (e.error.code !== 'SLOT_TAKEN' && e.error.code !== 'CONFLICT') return false;
@@ -70,6 +72,7 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
         reminder_min: f.d.reminder,
         ...(f.d.note.trim() ? { note: f.d.note.trim() } : {}),
         ...(c.custom ? { custom: c.custom } : {}),
+        ...(contactId && f.d.opportunity_id ? { opportunity_id: f.d.opportunity_id } : {}),
         // TIP-025b §D.3: khách + hội thoại nguồn từ Hồ sơ 360° / Hộp thư (server kiểm khớp; không có → tạo / tìm theo SĐT như cũ).
         ...(typeof prefill?.contact_id === 'string' && prefill.contact_id ? { contact_id: prefill.contact_id } : {}),
         ...sourceLinkOf(prefill),
@@ -125,6 +128,7 @@ function ApptForm({ meta, re, prefill }: { meta: CalendarMeta; re?: Appointment;
             data-testid="cal-customer"
           />
         </div>
+        {contactId ? <OpportunityPicker variant="appointment" contactId={contactId} value={f.d.opportunity_id} onChange={(v) => f.set('opportunity_id', v)} /> : null}
         <div>
           <label className={styles.label}>{t('service')}</label>
           <select

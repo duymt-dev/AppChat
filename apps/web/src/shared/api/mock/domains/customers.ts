@@ -11,6 +11,8 @@ import { paginate } from '../paginate';
 import { memoryHandlers, memoryRoute, seedMemory, type MemoryStore } from './contact-memory';
 import { bump, versionOf } from './contact-edit';
 import { activityHandlers, activityRoute, activitySummary, seedActivities, type ActivityStore } from './contact-activities';
+import { opportunities360, withOpenOpportunity } from './contact-opportunities-360';
+import { opportunityHandlers, opportunityRoute } from './contact-opportunity-actions';
 import { markDeleted, type LifecycleFields } from './contact-lifecycle';
 import { groupOfMergeId } from './contact-merge';
 
@@ -81,11 +83,16 @@ const actCtx = {
   },
   nextId: (db: MockDb, p: string) => `${p}_${++db.customers.seq}`,
 };
+/** Cơ hội (TIP-026c) — cùng khách thấy / sửa được như hoạt động. */
+const oppCtx = { ...actCtx, store: (db: MockDb) => db.customers.activities.pipeline, canEdit: (db: MockDb, id: string) => {
+  const c = db.customers.contacts.find((x) => x.id === id);
+  return !!c && writable(db, c);
+} };
 /** Hồ sơ 360° + tóm tắt hoạt động thật (ô cũ note / comments / tasks / deal suy từ hoạt động — cùng withActivities server). */
 export const withActivities360 = (db: MockDb, p: Record<string, unknown> & { id: string }) => {
   const c = db.customers.contacts.find((x) => x.id === p.id);
   const a = activitySummary(db.customers.activities, db.role, p.id, !!c && writable(db, c));
-  return { ...p, activities: a };
+  return { ...p, activities: a, ...opportunities360(db.customers.activities.pipeline, db.role, p.id) };
 };
 
 export const TAG_DEFS = fixture.tag_defs.map((d, i) => ({ id: `tag_${i + 1}`, ...d }));
@@ -111,7 +118,7 @@ const filtered = (db: MockDb, p: Record<string, unknown>, o: { stage: boolean; c
   const defs = Object.keys(cf).length ? ((db.settingsData.fields.contact ?? []) as unknown as CustomFieldDef[]) : [];
   const kept = defs.length ? rows.filter((c) => matchCustomFilter(defs, (c as { custom?: CustomValues }).custom, cf)) : rows;
   const by = p.sort === 'name' ? (a: Contact, b: Contact) => a.full_name.localeCompare(b.full_name, 'vi') : p.sort === 'created' ? (a: Contact, b: Contact) => b.code.localeCompare(a.code) : null;
-  return (by ? [...kept].sort(by) : kept).map((c) => withAccess(db, c));
+  return (by ? [...kept].sort(by) : kept).map((c) => withOpenOpportunity(db.customers.activities.pipeline, db.role, withAccess(db, c)));
 };
 
 const BOARD_LIMIT = 50;
@@ -178,7 +185,7 @@ export const customersParamRoute = (path: string): MockRoute | null => {
     return c && visible(db, c) ? c : null;
   });
   if (mem) return mem;
-  const act = activityRoute(path, actCtx);
+  const act = activityRoute(path, actCtx) ?? opportunityRoute(path, oppCtx);
   if (act) return act;
   const col = path.match(/^\/contacts\/board\/([a-z]+)$/);
   if (col) return (db, p) => boardColumn(db, col[1]!, p);
@@ -211,6 +218,7 @@ const norm = (s?: string) => (s ?? '').replace(/\D/g, '').replace(/^84/, '0');
 export const customersHandlers: Record<string, MockHandler> = {
   ...(memoryHandlers((db: MockDb, id) => contact(db, id)) as Record<string, MockHandler>),
   ...(activityHandlers(actCtx) as unknown as Record<string, MockHandler>),
+  ...(opportunityHandlers(oppCtx) as unknown as Record<string, MockHandler>),
   'contact.create': {
     execute: (db, i: ContactInput) => {
       // chống giành khách (D32): trùng SĐT / email với khách đã có người phụ trách khác → CONTACT_OWNED, không trả dữ liệu khách

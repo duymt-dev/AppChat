@@ -52,6 +52,12 @@ model Quote {
   remindedAt         DateTime?   @map("reminded_at") @db.Timestamptz(6)
   viewedAt           DateTime?   @map("viewed_at") @db.Timestamptz(6)
   orderId            String?     @map("order_id") @db.Uuid
+  /// Cơ hội của báo giá (TIP-026c, không FK xuyên domain — handler kiểm cùng họ khách / chưa Thua). Bản n+1 kế thừa từ bản gốc.
+  opportunityId      String?     @map("opportunity_id") @db.Uuid
+  /// Áp lúc gửi: cập nhật giá trị cơ hội = tổng báo giá.
+  opportunitySyncValue Boolean   @default(true) @map("opportunity_sync_value")
+  /// Áp lúc gửi: tạo việc "Theo dõi phản hồi báo giá" hạn +2 ngày.
+  opportunityFollowUp Boolean    @default(true) @map("opportunity_follow_up")
   note               String      @default("")
   gift               String      @default("")
   paymentTerms       String      @default("") @map("payment_terms")

@@ -16,7 +16,7 @@ export async function seedActivities(c, base) {
   const nam = base.contacts[NAME];
   const page = await c.req('GET', `/contacts/${nam.id}/activities?kind=opportunities&limit=100`);
   const has = JSON.stringify(page.body?.data ?? {}).includes(OPP);
-  if (!has) await act(c, 'contact_opportunity.create', { contact_id: nam.id, title: OPP, amount_vnd: '48000000', stage: 'proposal', probability: 50 });
+  if (!has) await act(c, 'contact_opportunity.create', { contact_id: nam.id, title: OPP, amount_vnd: '48000000', stage: 'quote' });
   return { ...base, activity: { contact: nam.id, code: nam.code, amount: '48000000' } };
 }
 

@@ -1,5 +1,5 @@
 // TIP-026b P2 — E2E chế độ mock: Hồ sơ 360° ở Hộp thư (màn Khách hàng không mở) dùng hoạt động CRM thật — thêm ghi chú (thay "ghi chú
-// gần nhất"), bình luận nhanh, tạo việc rồi đánh dấu xong, cập nhật cơ hội. "Tạo báo giá" từ cơ hội chỉ mở form báo giá (không điền giá).
+// gần nhất"), bình luận nhanh, tạo việc rồi đánh dấu xong. Cơ hội (TIP-026c): thẻ Sales Pipeline — luồng đầy đủ ở sales-pipeline.spec.ts.
 // Mobile 390: mở hồ sơ, thẻ hoạt động không tràn ngang.
 import { expect, test } from '@playwright/test';
 import { expectNoHorizontalOverflow, isMobile } from './support/mobile';
@@ -7,7 +7,7 @@ import { expectNoHorizontalOverflow, isMobile } from './support/mobile';
 const URL = '/inbox?session=authed,declared,trialSeen';
 
 test.describe('hoạt động CRM ở Hồ sơ 360° (mock)', () => {
-  test('ghi chú + bình luận + việc + cơ hội', async ({ page }) => {
+  test('ghi chú + bình luận + việc; thẻ cơ hội hiện cơ hội thật', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(URL);
     await page.locator('[data-conv="c_lan"] button').first().click();
@@ -30,15 +30,6 @@ test.describe('hoạt động CRM ở Hồ sơ 360° (mock)', () => {
     await expect(row).toBeVisible();
     await row.getByTestId('task-check').click();
     await expect(row.getByTestId('task-check')).toHaveAttribute('aria-checked', 'true');
-
-    await page.getByTestId('opp-edit').click();
-    await page.getByTestId('opp-prob').fill('80');
-    await page.getByTestId('activity-save').click();
-    await expect(page.getByTestId('p360-opportunity')).toContainText('80%');
-
-    await page.getByTestId('opp-edit').click();
-    await page.getByTestId('opp-to-quote').click();
-    await expect(page.getByTestId('q-form')).toBeVisible();
   });
 
   test('mobile: thẻ hoạt động không tràn ngang', async ({ page }) => {

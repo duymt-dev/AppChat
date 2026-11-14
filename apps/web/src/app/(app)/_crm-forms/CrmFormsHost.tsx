@@ -14,6 +14,7 @@ import { useTicketsUi } from '@/features/tickets/tickets-store';
 import { calendarMetaQuery } from '@/features/calendar/api';
 import { useCalendarUi } from '@/features/calendar/calendar-store';
 import { useActivityUi } from '@/shared/contact-activities/activity-store';
+import { useOpportunityUi } from '@/shared/opportunities/opportunity-store';
 import { useEmailComposeUi } from '@/shared/crm-forms/email-compose-store';
 import { useContactEditUi } from '@/shared/crm-forms/contact-edit-command';
 import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
@@ -67,6 +68,8 @@ export function CrmFormsHost() {
   const email = useEmailComposeUi((s) => !!s.target);
   const contact = useContactEditUi((s) => !!s.target);
   const activity = useActivityUi((s) => !!s.form || !!s.list);
+  // TIP-026c: drawer Cơ hội 360° mount trong ActivityFormHost — mở khi có cơ hội (thẻ 360°, cột Khách hàng, lệnh Trợ lý).
+  const opportunity = useOpportunityUi((s) => !!s.drawer);
   return (
     <>
       <FormCommandHost />
@@ -91,7 +94,7 @@ export function CrmFormsHost() {
       <Opened name="email-compose" when={email} keep={false} onClose={() => useEmailComposeUi.getState().close()}>
         <EmailComposeModal />
       </Opened>
-      <Opened name="activity" when={activity} onClose={() => useActivityUi.setState({ form: null, list: null })}>
+      <Opened name="activity" when={activity || opportunity} onClose={() => (useActivityUi.setState({ form: null, list: null }), useOpportunityUi.getState().close())}>
         <ActivityFormHost />
       </Opened>
     </>

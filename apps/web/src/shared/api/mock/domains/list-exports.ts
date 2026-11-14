@@ -1,7 +1,7 @@
 // Mock xuất danh sách (TIP-038 pha 3 + 038b P3 sản phẩm / đề nghị thanh toán; server: packages/core/src/insights/exports/*). Tập dòng lấy từ CHÍNH route GET danh sách không phân
 // trang (cùng bộ lọc màn — không lặp điều kiện lọc); ≤ 50 dòng xong ngay kèm link tải, > 50 → 202 job_accepted, `/data-jobs/:id` báo tiến
 // độ rồi xong. Tệp mock là CSV có cùng cột mã / trạng thái (mock không dựng XLSX); ô bắt đầu = + - @ được chặn công thức như bản CSV cũ.
-import { ApiRequestError, LIST_EXPORT_MAX, LIST_EXPORT_SYNC_MAX } from '@appchat/shared';
+import { ApiRequestError, LIST_EXPORT_MAX, LIST_EXPORT_SYNC_MAX, OPPORTUNITY_PROBABILITY } from '@appchat/shared';
 import type { MockDb } from '../store';
 import type { MockRoute } from '../routes';
 import { quotesRoutes } from './quotes';
@@ -42,8 +42,9 @@ const LIST: Record<string, [MockRoute, string, (r: Row) => unknown[]]> = {
     (r) => [r.id, r.contact_id, r.title, r.due_at, r.state],
   ],
   'contact_opportunity.export': [
-    (db, q) => ({ data: db.customers.activities.opps.filter((o) => !!q.archived === o.archived && (!q.opp_stage || o.stage === q.opp_stage) && (!q.contact_id || o.contact_id === q.contact_id)).map((o) => ({ ...o, code: o.id, status: o.stage, money: can(authzForRole(db.role, 'u_tram'), 'quote.view' as PermissionKey) })) }),
+    (db, q) => ({ data: db.customers.activities.pipeline.opps.filter((o) => !!q.archived === o.archived && (!q.opp_stage || o.stage === q.opp_stage) && (!q.contact_id || o.contact_id === q.contact_id)).map((o) => ({ ...o, code: o.id, status: o.stage, probability: OPPORTUNITY_PROBABILITY[o.stage], money: can(authzForRole(db.role, 'u_tram'), 'quote.view' as PermissionKey) })) }),
     'co-hoi',
+    // TIP-026c: xác suất cố định theo giai đoạn (bảng hằng), không phải số người nhập.
     (r) => [r.id, r.contact_id, r.title, ...(r.money ? [r.amount_vnd] : []), r.stage, r.probability],
   ],
   // TIP-033b §5.1: liệu trình MỘT khách (chỉ xuất) — tổng / đã dùng / còn lại / trạng thái / hạn, không tiền.

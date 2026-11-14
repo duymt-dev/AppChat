@@ -1,10 +1,11 @@
 // Adapter nhập 3 tập hoạt động CRM (TIP-026b §5): mỗi dòng hợp lệ = MỘT lệnh action canonical qua ActionExecutor (contact.add_note /
 // add_comment theo `kind` cố định của dòng · contact_task.create · contact_opportunity.create) — người nhập là tác giả, giờ tạo là giờ ghi
 // (không ghi đè tác giả / thời điểm / audit), không giao việc cho người khác, không đổi phụ trách khách. Luật chặn ở bước kiểm (trước khi
-// xác nhận): việc nhập luôn `open` (done / cancelled → `state: readonly`); cơ hội won / lost → `stage: terminal`; giá trị kỳ vọng cần quyền
+// xác nhận): việc nhập luôn `open` (done / cancelled → `state: readonly`); cơ hội won / lost → `stage: terminal` (TIP-026c: cột xác suất
+// → cảnh báo `probability_warning: ignored`, không ghi — xác suất cố định theo giai đoạn); giá trị kỳ vọng cần quyền
 // ghi tiền (quote.create) → thiếu quyền mà có cột → `expected_amount: forbidden` (không âm thầm bỏ). Dòng có `id` (tệp xuất từ hệ thống)
 // → loại có lý do `exported_record`, không cập nhật ngầm. Hạn việc / ngày chốt là ngày lịch: hạn = 23:59 ngày đó giờ Việt Nam (+07:00).
-import { probabilityOk, type ActivityDataset } from '@appchat/shared';
+import type { ActivityDataset } from '@appchat/shared';
 import { canWriteAmount } from '../../crm/activities/authority';
 import type { CheckedRow } from '../services/validation';
 import { activityPartyResolver } from './activity-party';
@@ -18,7 +19,7 @@ function rowRules(dataset: ActivityDataset, r: CheckedRow, moneyOk: boolean) {
   if (dataset === 'contact_opportunities') {
     if (d.stage === 'won' || d.stage === 'lost') r.errors.stage = 'terminal';
     if (d.expected_amount && !moneyOk) r.errors.expected_amount = 'forbidden';
-    if (d.probability && !probabilityOk(Number(d.probability))) r.errors.probability = 'invalid';
+    if (d.probability) r.errors.probability_warning = 'ignored';
   }
 }
 
@@ -67,7 +68,7 @@ function unitOf(dataset: ActivityDataset, r: PendingRow): WriteUnit {
       ...(d.need ? { need: d.need } : {}),
       ...(d.expected_amount ? { amount_vnd: d.expected_amount } : {}),
       ...(d.stage ? { stage: d.stage } : {}),
-      ...(d.probability ? { probability: Number(d.probability) } : {}),
+      ...(d.source_kind ? { source_kind: d.source_kind } : {}),
       ...(d.expected_close_date ? { expected_close_date: d.expected_close_date } : {}),
     },
   };

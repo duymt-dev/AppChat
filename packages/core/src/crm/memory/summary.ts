@@ -5,7 +5,7 @@
 // đổi lúc model chạy) → không lưu, trả `retry` (tối đa một lần sinh / request). Model lỗi / không có → bộ luật từ chính ảnh chụp (`source:
 // rule`, ghi rõ), không giả model, không xoá cache hợp lệ của bản khác. Không bao giờ dùng `contact.ai_summary` cũ.
 import { createHash } from 'node:crypto';
-import { createFmt, utcToWall, type AuthzContext } from '@appchat/shared';
+import { OPPORTUNITY_PROBABILITY, createFmt, utcToWall, type AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { insights360 } from '../insights/read';
 import { recentFacts } from './read';
@@ -33,7 +33,8 @@ export interface Snapshot {
   facts: string[];
   events: string[];
   insights: Awaited<ReturnType<typeof insights360>>;
-  /** Hoạt động CRM thủ công (TIP-026b §3.6) — việc mở + cơ hội chưa lưu trữ; tiền chỉ khi người xem có quote.view. Ghi rõ "do người nhập". */
+  /** Hoạt động CRM thủ công (TIP-026b §3.6) — việc mở + cơ hội chưa lưu trữ; tiền chỉ khi người xem có quote.view. Xác suất cơ hội là hằng theo
+   *  giai đoạn (TIP-026c — không còn số người nhập). */
   activities: { tasks: string[]; opportunities: string[] };
 }
 
@@ -43,12 +44,12 @@ const OPPS = 3;
 async function activityLines(tx: TenantTx, a: AuthzContext, contactId: string) {
   const [tasks, opps] = await Promise.all([
     tx.contactTask.findMany({ where: { contactId, state: 'open' }, orderBy: [{ dueAt: { sort: 'asc', nulls: 'last' } }, { id: 'asc' }], take: TASKS, select: { title: true, dueAt: true, version: true } }),
-    tx.contactOpportunity.findMany({ where: { contactId, archivedAt: null }, orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }], take: OPPS, select: { title: true, stage: true, probability: true, amountVnd: true, version: true } }),
+    tx.contactOpportunity.findMany({ where: { contactId, archivedAt: null }, orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }], take: OPPS, select: { title: true, stage: true, amountVnd: true, version: true } }),
   ]);
   const money = canReadAmount(a);
   return {
     tasks: tasks.map((t) => `${t.title}${t.dueAt ? ` (hạn ${t.dueAt.toISOString().slice(0, 10)})` : ''} v${t.version}`),
-    opportunities: opps.map((o) => [o.title, o.stage, o.probability !== null ? `${String(o.probability)}% (người nhập)` : '', money && o.amountVnd !== null ? `kỳ vọng ${o.amountVnd.toString()}` : '', `v${o.version}`].filter(Boolean).join(' · ')),
+    opportunities: opps.map((o) => [o.title, `${o.stage} ${OPPORTUNITY_PROBABILITY[o.stage]}%`, money && o.amountVnd !== null ? `kỳ vọng ${o.amountVnd.toString()}` : '', `v${o.version}`].filter(Boolean).join(' · ')),
   };
 }
 

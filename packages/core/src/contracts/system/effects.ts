@@ -5,7 +5,7 @@ import { CONTRACT_FLOW, CONTRACT_RENEW_NOTICE_DAYS, nextState, serverMessages } 
 import type { SystemOutput } from '@appchat/actions';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { OutboxEventInput } from '../../kernel/outbox/outbox';
-import { writeTimeline } from '../../crm/public';
+import { lockStageFamilyOf, onDocumentUndone, opportunityOfQuote, writeTimeline } from '../../crm/public';
 import { logSignEvent } from '../services/contract-write';
 
 const SYSTEM = { type: 'system', id: null };
@@ -30,6 +30,8 @@ async function lock(tx: TenantTx, id: string) {
 
 /** Link ký hết hạn mà khách chưa ký → `declined` (+ thông báo). */
 export async function expireLink(tx: TenantTx, id: string, now: Date, locale: string): Promise<Effect> {
+  // TIP-026c: họ khách trước hợp đồng — link hết hạn có thể đưa cơ hội won về Đàm phán (tính lại giai đoạn khách cần họ đã khoá).
+  await lockStageFamilyOf(tx, 'contract', id);
   const c = await lock(tx, id);
   if (!c || c.deletedAt || !c.signLinkExpiresAt || c.signLinkExpiresAt >= now) return none(id, 'not_due');
   if (await tx.contractSignToken.findFirst({ where: { contractId: id, usedAt: null, expiresAt: { gte: now } }, select: { id: true } })) return none(id, 'live_token');
@@ -39,8 +41,9 @@ export async function expireLink(tx: TenantTx, id: string, now: Date, locale: st
   await tx.contract.update({ where: { id }, data: { status: to, declinedReason: why, decidedAt: now, updatedAt: now } });
   await logSignEvent(tx, { contractId: id, type: 'declined', actorName: 'system', meta: { reason: 'link_expired' }, at: now });
   await writeTimeline(tx, { contactId: c.contactId, type: 'contract', key: 'contract_declined', params: { code: c.code }, actor: SYSTEM, ref: { type: 'contract', id }, at: now });
+  const opp = await onDocumentUndone(tx, await opportunityOfQuote(tx, c.quoteId), { type: 'contract', id }, SYSTEM, now);
   const contact = await tx.contact.findUnique({ where: { id: c.contactId }, select: { name: true } });
-  return applied(id, [{ topic: 'contract.declined', payload: { contract_id: id, contact_id: c.contactId, code: c.code, reason: why } }, notify('contract_declined', c, { code: c.code, contact: cut(contact?.name ?? ''), reason: why })]);
+  return applied(id, [{ topic: 'contract.declined', payload: { contract_id: id, contact_id: c.contactId, code: c.code, reason: why } }, notify('contract_declined', c, { code: c.code, contact: cut(contact?.name ?? ''), reason: why }), ...opp]);
 }
 
 /** T-30: nhắc gia hạn một lần mỗi hợp đồng (ngày kết thúc hiện tại). */

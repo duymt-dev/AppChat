@@ -4,7 +4,7 @@ import { createFmt, interpolate, serverMessages } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 
-export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported' | 'order_confirmation_sent' | 'receipt_sent' | 'invoice_sent' | 'invoice_paid' | 'invoice_void' | 'refund_requested' | 'refund_approved' | 'refund_rejected' | 'package_granted' | 'package_extended' | 'package_adjusted' | 'appointment_booked' | 'appointment_rescheduled' | 'appointment_done' | 'appointment_no_show' | 'appointment_cancelled' | 'package_session_used' | 'ticket_opened' | 'ticket_closed' | 'ticket_reopened' | 'loyalty_earn' | 'loyalty_redeem' | 'loyalty_adjust' | 'loyalty_reverse' | 'loyalty_expire' | 'loyalty_tier' | 'note_added' | 'comment_added' | 'task_created' | 'task_updated' | 'task_state_changed' | 'opportunity_created' | 'opportunity_updated' | 'opportunity_archived';
+export type TimelineKey = 'created' | 'stage' | 'owner' | 'merge' | 'note' | 'email' | 'quote_sent' | 'quote_viewed' | 'quote_accepted' | 'quote_rejected' | 'quote_expired' | 'contract_sent' | 'contract_signed' | 'contract_declined' | 'contract_terminated' | 'contract_expired' | 'order_created' | 'order_confirmed' | 'order_completed' | 'order_cancelled' | 'order_imported' | 'order_confirmation_sent' | 'receipt_sent' | 'invoice_sent' | 'invoice_paid' | 'invoice_void' | 'refund_requested' | 'refund_approved' | 'refund_rejected' | 'package_granted' | 'package_extended' | 'package_adjusted' | 'appointment_booked' | 'appointment_rescheduled' | 'appointment_done' | 'appointment_no_show' | 'appointment_cancelled' | 'package_session_used' | 'ticket_opened' | 'ticket_closed' | 'ticket_reopened' | 'loyalty_earn' | 'loyalty_redeem' | 'loyalty_adjust' | 'loyalty_reverse' | 'loyalty_expire' | 'loyalty_tier' | 'note_added' | 'comment_added' | 'task_created' | 'task_updated' | 'task_state_changed' | 'opportunity_created' | 'opportunity_updated' | 'opportunity_archived' | 'opportunity_stage' | 'opportunity_lost' | 'opportunity_reopened' | 'opportunity_owner';
 type TimelineType = 'message' | 'quote' | 'contract' | 'order' | 'invoice' | 'payment' | 'appointment' | 'ticket' | 'note' | 'ai_action' | 'loyalty' | 'campaign' | 'stage' | 'owner' | 'merge' | 'comment' | 'contact_task' | 'contact_opportunity';
 
 export interface TimelineInput {
@@ -71,6 +71,10 @@ const STYLE: Record<string, { icon: string; tone: string }> = {
   opportunity_created: { icon: 'ic-trend', tone: 'violet' },
   opportunity_updated: { icon: 'ic-trend', tone: 'violet' },
   opportunity_archived: { icon: 'ic-x', tone: 'muted' },
+  opportunity_stage: { icon: 'ic-trend', tone: 'violet' },
+  opportunity_lost: { icon: 'ic-x', tone: 'muted' },
+  opportunity_reopened: { icon: 'ic-trend', tone: 'violet' },
+  opportunity_owner: { icon: 'ic-users', tone: 'violet' },
 };
 
 export async function writeTimeline(tx: TenantTx, e: TimelineInput): Promise<string> {
@@ -110,6 +114,8 @@ export function renderTimeline(rows: TimelineRow[], locale: string, timeZone: st
     const params = { ...(p.params ?? {}) };
     // Giai đoạn lưu dạng khoá → dịch theo locale người xem.
     for (const k of ['from', 'to'] as const) if (r.type === 'stage' && typeof params[k] === 'string') params[k] = m.stage[params[k] as keyof typeof m.stage] ?? params[k]!;
+    // TIP-026c: giai đoạn cơ hội (khoá khác bộ giai đoạn khách) dịch theo bảng của cơ hội.
+    for (const k of ['from', 'to'] as const) if (r.type === 'contact_opportunity' && typeof params[k] === 'string') params[k] = m.opportunity.stage[params[k] as keyof typeof m.opportunity.stage] ?? params[k]!;
     const tpl = p.key && p.key in m.timeline ? m.timeline[p.key as TimelineKey] : null;
     const style = STYLE[p.key ?? ''] ?? STYLE[r.type] ?? STYLE.note!;
     return {
