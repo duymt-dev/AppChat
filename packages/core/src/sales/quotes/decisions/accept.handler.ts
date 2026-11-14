@@ -6,7 +6,7 @@ import type { ActionInput, quoteMarkAccepted } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type ExecuteMeta, type HandlerOutcome } from '../../../kernel/actions/handler';
-import { writeTimeline } from '../../../crm/public';
+import { lockStageFamilyOf, onQuoteAccepted, writeTimeline } from '../../../crm/public';
 import { lockQuote } from '../quote-access';
 import { moveStatus } from '../services/quote-write';
 import { admitCustomerIntent } from '../services/customer-intent-guard';
@@ -19,6 +19,8 @@ export class QuoteAcceptHandler implements Handler<ActionInput<typeof quoteMarkA
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof quoteMarkAccepted>, tx: TenantTx, _ptx?: unknown, _prepared?: unknown, meta?: ExecuteMeta): Promise<HandlerOutcome<Out>> {
+    // TIP-026c (rà 015g): khoá họ khách TRƯỚC báo giá — chốt đưa cơ hội lên Đàm phán + kéo giai đoạn khách.
+    await lockStageFamilyOf(tx, 'quote', input.quote_id);
     const q = await lockQuote(tx, ctx.authz, input.quote_id);
     const intent = await admitCustomerIntent(tx, ctx, 'quote.mark_accepted', q);
     assertBoundDecision(ctx, q);
@@ -26,8 +28,9 @@ export class QuoteAcceptHandler implements Handler<ActionInput<typeof quoteMarkA
     const now = this.clock.now();
     await moveStatus(tx, q, to, { decidedAt: now }, now);
     await writeTimeline(tx, { contactId: q.contactId, type: 'quote', key: 'quote_accepted', params: { code: q.code }, actor: actorOf(ctx), ref: { type: 'quote', id: q.id }, at: now });
+    const opp = await onQuoteAccepted(tx, q, actorOf(ctx), now);
     if (intent) await intent.consume(meta!.actionLogId, now);
-    return { result: { quote_id: q.id, status: to }, before: { id: q.id, status: q.status }, events: [{ topic: 'quote.accepted', payload: payload(q) }] };
+    return { result: { quote_id: q.id, status: to }, before: { id: q.id, status: q.status }, events: [{ topic: 'quote.accepted', payload: payload(q) }, ...opp] };
   }
 
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {

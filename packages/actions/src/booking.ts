@@ -75,6 +75,8 @@ export const appointmentCreate = defineAction({
     source_message_id: z.string().optional(),
     /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
     custom: customValuesSchema.optional(),
+    /** Thuộc cơ hội (TIP-026c): demo / tư vấn hoàn thành → gợi ý chuyển giai đoạn (không tự đổi). */
+    opportunity_id: z.string().min(1).nullable().optional(),
   }),
   output: z.object({ appointment_id: z.string(), code: z.string(), package_id: z.string().nullable() }),
   permission: 'booking.manage',

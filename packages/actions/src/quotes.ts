@@ -17,6 +17,12 @@ const fields = z.object({
   gift: z.string().max(200).optional(),
   /** Trường tuỳ biến (D56) — validate theo định nghĩa ở Executor. */
   custom: customValuesSchema.optional(),
+  /** Thuộc cơ hội (TIP-026c, không bắt buộc — D60 #11): cùng họ khách, chưa Thua; null = không gắn (không tính vào pipeline / dự báo). */
+  opportunity_id: z.string().min(1).nullable().optional(),
+  /** Khi gửi: giá trị cơ hội = tổng báo giá (mặc định bật). */
+  opportunity_sync_value: z.boolean().optional(),
+  /** Khi gửi: tự tạo việc "Theo dõi phản hồi báo giá" sau 2 ngày cho người phụ trách cơ hội (mặc định bật). */
+  opportunity_follow_up: z.boolean().optional(),
 });
 const out = z.object({ quote_id: z.string(), code: z.string() });
 const opened = (o: { quote_id: string }) => ({

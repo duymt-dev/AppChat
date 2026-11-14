@@ -14,7 +14,7 @@ export { stageBinding } from './stage/types';
 export { recomputeContactStage } from './opportunities/stage-sync';
 export { onAppointmentDone, onDocumentUndone, onDocumentWon, onQuoteAccepted, onQuoteClosed, onQuoteSent, type QuoteFacts } from './opportunities/transitions';
 export { recordOpportunityEvent } from './opportunities/history';
-export { assertNotLost, checkOpportunityLink, soleOpenOpportunity } from './opportunities/links';
+export { assertNotLost, checkOpportunityLink, opportunityOfQuote, soleOpenOpportunity } from './opportunities/links';
 export { openSummary as openOpportunitySummary, listForContact as opportunitiesForContact, opportunityDetail } from './opportunities/read.service';
 export { CRM_SEED } from './seeds';
 export type { ContactFilter } from './repos/contacts.repo';

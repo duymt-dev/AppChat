@@ -11,7 +11,7 @@ import { CLOCK, type Clock } from '../../kernel/clock';
 import { lockContactRow } from '../../kernel/ownership/root-lock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
-import { CrmMembers, actorUserId, createContact, editableContact, fieldDefs } from '../../crm/public';
+import { CrmMembers, actorUserId, checkOpportunityLink, createContact, editableContact, fieldDefs } from '../../crm/public';
 import { linkConversation } from '../../inbox/public';
 import { BookingPlace } from '../services/booking-place';
 import { bookingScopeSql, lockAppointment } from '../booking-access';
@@ -114,6 +114,8 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
     await lockPackages(tx, contact.id);
     await lockStaffRows(tx, [input.staff_id]);
     await assertSlot(tx, { serviceId: svc.id, staffId: input.staff_id, date: input.date, start: input.start, timeZone, now });
+    // TIP-026c: "Thuộc cơ hội" — cùng họ khách, chưa Thua, người đặt thấy khách của cơ hội (422 chung khi sai).
+    const opportunityId = await checkOpportunityLink(tx, ctx.authz, contact.id, input.opportunity_id);
     const endAt = new Date(startAt.getTime() + svc.duration * 60_000);
     const status = input.status ?? 'pending';
     const pkg = await matchingPackage(tx, contact.id, svc.id, startAt);
@@ -139,6 +141,7 @@ export class AppointmentCreateHandler implements Handler<CreateIn, { appointment
           holdExpiresAt: status === 'pending' ? holdUntil(now, startAt) : null,
           source: sourceOf(ctx),
           conversationId: link.conversationId,
+          opportunityId,
           packageId: pkg?.id ?? null,
           note: input.note?.trim() ?? '',
           reminderMin: input.reminder_min ?? null,

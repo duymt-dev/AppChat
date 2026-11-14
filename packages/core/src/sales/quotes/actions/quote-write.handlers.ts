@@ -15,7 +15,7 @@ import { CrmMembers, actorUserId } from '../../../crm/public';
 import { linkConversation } from '../../../inbox/public';
 import { lockQuote, visibleQuote } from '../quote-access';
 import { commentPreview, createPreview, deletePreview, updatePreview } from '../previews/quote-write.handlers.preview';
-import { checkParties, checkQuoteCustom, creatorOf, linesOf, resolveLines, totalCols, writeLines, type LineIn, type QuoteFieldsIn } from '../services/quote-write';
+import { checkParties, checkQuoteCustom, creatorOf, linesOf, opportunityCols, resolveLines, totalCols, writeLines, type LineIn, type QuoteFieldsIn } from '../services/quote-write';
 import { snapshotTeam } from '../../../authz/data-access';
 
 type CreateIn = ActionInput<typeof quoteCreate>;
@@ -64,6 +64,8 @@ export async function insertQuote(ctx: ActionContext, tx: TenantTx, members: Crm
       createdByType: creator,
       createdById: ctx.actor.type === 'agent' ? ctx.actor.id : actorUserId(ctx),
       custom: (input.custom ?? {}) as object,
+      // TIP-026c: thuộc cơ hội (không bắt buộc) + cờ áp lúc gửi.
+      ...(await opportunityCols(tx, ctx.authz, input.contact_id, input)),
       createdAt: now,
       updatedAt: now,
     },
@@ -133,6 +135,7 @@ export class QuoteUpdateHandler implements Handler<UpdateIn, { quote_id: string 
         ...(p.gift !== undefined ? { gift: p.gift.trim() } : {}),
         ...(p.payment_terms !== undefined ? { paymentTerms: p.payment_terms.trim() } : {}),
         ...(p.custom !== undefined ? { custom: mergeCustomValues(q.custom as CustomValues, p.custom) as object } : {}),
+        ...(await opportunityCols(tx, ctx.authz, q.contactId, p)),
         updatedAt: now,
       },
     });

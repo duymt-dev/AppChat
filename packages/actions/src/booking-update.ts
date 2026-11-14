@@ -24,6 +24,8 @@ export const appointmentUpdate = defineAction({
         note: z.string().max(2000).optional(),
         reminder_min: z.number().int().min(0).max(10_080).nullable().optional(),
         custom: customValuesSchema.optional(),
+        /** Thuộc cơ hội (TIP-026c) — null = bỏ gắn. */
+        opportunity_id: z.string().min(1).nullable().optional(),
       })
       .refine((p) => Object.values(p).some((v) => v !== undefined), { message: 'nothing to change' }),
     if_version: z.number().int().optional(),

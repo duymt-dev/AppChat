@@ -8,7 +8,7 @@ import type { ActionInput, appointmentUpdate } from '@appchat/actions';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
-import { CrmMembers, actorUserId } from '../../crm/public';
+import { CrmMembers, actorUserId, checkOpportunityLink } from '../../crm/public';
 import { BookingPlace } from '../services/booking-place';
 import { lockAppointment } from '../booking-access';
 import { eventOf, guarded, timeline } from '../services/appointment-write';
@@ -37,6 +37,8 @@ export class AppointmentUpdateHandler implements Handler<In, Out> {
     const a = await lockAppointment(tx, ctx.authz, input.appointment_id, { staffIds: input.patch.staff_id ? [input.patch.staff_id] : [], contactPackages: input.patch.service_id !== undefined });
     const { timeZone } = await this.place.of(ctx.workspaceId);
     const plan = await planEdit(tx, a, input.patch, { timeZone, now, role: await this.role(ctx), ifVersion: input.if_version });
+    // TIP-026c: đổi / bỏ "Thuộc cơ hội" (null = bỏ gắn) — kiểm như lúc đặt.
+    const opp = input.patch.opportunity_id === undefined ? {} : { opportunityId: await checkOpportunityLink(tx, ctx.authz, a.contactId, input.patch.opportunity_id) };
     const row = await guarded(() =>
       tx.appointment.update({
         where: { id: a.id },
@@ -51,6 +53,7 @@ export class AppointmentUpdateHandler implements Handler<In, Out> {
           note: plan.note,
           reminderMin: plan.reminderMin,
           custom: plan.custom as object,
+          ...opp,
           ...(plan.moved ? { rescheduleCount: { increment: 1 }, remindersSent: [] } : {}),
           version: { increment: 1 },
           updatedAt: now,
@@ -61,13 +64,13 @@ export class AppointmentUpdateHandler implements Handler<In, Out> {
     if (plan.moved) await timeline(tx, row, 'appointment_rescheduled', { at: `${plan.date} ${plan.start}` }, actor, now);
     return {
       result: { appointment_id: row.id, status: row.status, version: row.version },
-      before: { ...snapshotOf(a), version: row.version },
+      before: { ...snapshotOf(a), opportunity_id: a.opportunityId, version: row.version },
       events: plan.moved ? [{ topic: 'appointment.rescheduled', payload: eventOf(row, timeZone) }] : [],
     };
   }
 
   async undo(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
-    const b = log.before as Snapshot & { version: number };
+    const b = log.before as Snapshot & { version: number; opportunity_id?: string | null };
     await lockAppointment(tx, ctx.authz, b.id, { staffIds: [b.staff_id], contactPackages: true });
     const a = await tx.appointment.findUnique({ where: { id: b.id } });
     if (!a || a.deletedAt || a.version !== b.version || (a.status !== 'pending' && a.status !== 'confirmed')) throw new AppError('CONFLICT', 409, { appointment_id: 'changed' });
@@ -87,6 +90,8 @@ export class AppointmentUpdateHandler implements Handler<In, Out> {
           note: b.note,
           reminderMin: b.reminder_min,
           custom: b.custom as object,
+          // Biên nhận cũ (trước TIP-026c) không có ô này → giữ nguyên liên kết hiện tại.
+          ...(b.opportunity_id !== undefined ? { opportunityId: b.opportunity_id } : {}),
           version: { increment: 1 },
           updatedAt: this.clock.now(),
         },

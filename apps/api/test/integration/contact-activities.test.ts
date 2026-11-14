@@ -1,7 +1,8 @@
 // TIP-026b P1 trên Postgres 16 + Memurai (AC1–AC4): hoạt động CRM thật. Ghi chú cũ giữ kind note; thêm ghi chú / bình luận → bản ghi +
 // timeline (không thân) + 360 đúng loại, không tin ra kênh. Việc: CAS (if_version lệch 409), done → completed_at do server, mở lại xoá,
 // done lặp không đổi version; người được giao phải đủ điều kiện. Cơ hội: tiền ẩn với CS (không quote.view) — VẮNG chứ không 0; CS ghi tiền
-// → 403; won không đổi giai đoạn khách. Nguồn hội thoại giả / khác khách → 422. Hoàn tác sau khi đã sửa → 409. GET phân trang > 30.
+// → 403; TIP-026c: update không đổi giai đoạn (`use_set_stage`), `probability` / `quote_id` → 422 `field_removed`. Nguồn hội thoại giả /
+// khác khách → 422. Hoàn tác sau khi đã sửa → 409. GET phân trang > 30.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import pg from 'pg';
@@ -101,11 +102,11 @@ describe('việc chăm sóc (AC2)', () => {
 });
 
 describe('cơ hội (AC3)', () => {
-  it('Owner ghi giá trị kỳ vọng; CS đọc → tiền VẮNG + amount_hidden; CS ghi tiền → 403; won không đổi giai đoạn khách', async () => {
+  it('Owner ghi giá trị kỳ vọng; CS đọc → tiền VẮNG + amount_hidden; CS ghi tiền → 403; update không đổi giai đoạn', async () => {
     const db = await tenant();
     // CS thấy khách (crm all) nhưng chỉ sửa khách mình — giao CS làm phụ trách để thử quyền ghi.
     await db.contact.update({ where: { id: contactId }, data: { ownerUserId: cs.id } });
-    const o = ok(await act('contact_opportunity.create', { contact_id: contactId, title: 'Gói 10 buổi', amount_vnd: '12000000', probability: 40 }));
+    const o = ok(await act('contact_opportunity.create', { contact_id: contactId, title: 'Gói 10 buổi', amount_vnd: '12000000' }));
     const r = await get(`/contacts/${contactId}/activities?kind=opportunities`, cs);
     const page = activityPageSchema.parse({ kind: 'opportunities', items: r.body.data, next_cursor: r.body.next_cursor });
     const it0 = page.items[0] as { amount_vnd?: unknown; amount_hidden?: boolean };
@@ -115,22 +116,22 @@ describe('cơ hội (AC3)', () => {
     expect(owner.amount_vnd).toBe('12000000');
     expect((await act('contact_opportunity.update', { opportunity_id: o.opportunity_id, patch: { amount_vnd: null } }, cs)).status).toBe(403);
     expect(ok(await act('contact_opportunity.update', { opportunity_id: o.opportunity_id, if_version: 1, patch: { need: 'Muốn bắt đầu tháng 12' } }, cs)).version).toBe(2);
-    const stage = (await db.contact.findUniqueOrThrow({ where: { id: contactId } })).stage;
-    ok(await act('contact_opportunity.update', { opportunity_id: o.opportunity_id, patch: { stage: 'won' } }));
-    expect((await db.contact.findUniqueOrThrow({ where: { id: contactId } })).stage).toBe(stage);
+    const won = await act('contact_opportunity.update', { opportunity_id: o.opportunity_id, patch: { stage: 'won' } });
+    expect([won.status, won.body.error.fields]).toEqual([422, { 'patch.stage': 'use_set_stage' }]);
     expect(await db.order.count({ where: { contactId } })).toBe(0);
-    // Tạo ở giai đoạn kết thúc → 422; xác suất 3 chữ số thập phân → 422.
+    // Tạo ở giai đoạn kết thúc → 422; xác suất (ô của 026b) → 422 field_removed.
     expect((await act('contact_opportunity.create', { contact_id: contactId, title: 'x', stage: 'won' })).status).toBe(422);
-    expect((await act('contact_opportunity.create', { contact_id: contactId, title: 'x', probability: 33.333 })).status).toBe(422);
+    const prob = await act('contact_opportunity.create', { contact_id: contactId, title: 'x', probability: 33 });
+    expect([prob.status, prob.body.error.fields]).toEqual([422, { probability: 'field_removed' }]);
     const ar = ok(await act('contact_opportunity.archive', { opportunity_id: o.opportunity_id }));
     expect(ar.archived).toBe(true);
     expect((await act('contact_opportunity.update', { opportunity_id: o.opportunity_id, patch: { need: 'y' } })).status).toBe(409);
     await db.contact.update({ where: { id: contactId }, data: { ownerUserId: h.user } });
   });
 
-  it('liên kết báo giá của khách khác → 422', async () => {
+  it('quote_id trên cơ hội (026b) → 422 field_removed — báo giá trỏ tới cơ hội, không ngược lại', async () => {
     const r = await act('contact_opportunity.create', { contact_id: contactId, title: 'x', quote_id: uuidv7() });
-    expect([r.status, r.body.error.fields]).toEqual([422, { quote_id: 'invalid' }]);
+    expect([r.status, r.body.error.fields]).toEqual([422, { quote_id: 'field_removed' }]);
   });
 });
 
@@ -173,7 +174,7 @@ describe('EXPLAIN 10k (§6)', () => {
     const tasks = await plan(`SELECT id FROM contact_task WHERE contact_id = '${k}'::uuid ORDER BY state ASC, due_at ASC NULLS LAST, id ASC LIMIT 31`);
     const opps = await plan(`SELECT id FROM contact_opportunity WHERE contact_id = '${k}'::uuid AND archived_at IS NULL ORDER BY updated_at DESC, id DESC LIMIT 31`);
     if (process.env.EXPLAIN_OUT) (await import('node:fs')).writeFileSync(process.env.EXPLAIN_OUT, ['## notes', notes, '## tasks', tasks, '## opportunities', opps].join(String.fromCharCode(10)));
-    for (const [p, idx] of [[notes, 'contact_note_kind_time_idx'], [tasks, 'contact_task_list_idx'], [opps, 'contact_opportunity_live_idx']] as const) {
+    for (const [p, idx] of [[notes, 'contact_note_kind_time_idx'], [tasks, 'contact_task_list_idx'], [opps, 'contact_opportunity_contact_idx']] as const) {
       expect(p).toContain(idx);
       expect(p).not.toMatch(/Seq Scan|Sort Method/);
     }

@@ -11,7 +11,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
 import { signedFileUrl } from '../../kernel/files/signed-url';
 import { ChannelSendQueue } from '../../channels/public';
-import { CrmMembers, applyStageRule, lockStageFamilyOf, writeTimeline } from '../../crm/public';
+import { CrmMembers, applyStageRule, lockStageFamilyOf, onDocumentWon, opportunityOfQuote, writeTimeline } from '../../crm/public';
 import { enqueueOutgoing, type Outgoing } from '../../inbox/public';
 import { postToCustomer } from '../../sales/public';
 import { ContractDeps } from '../services/contract-deps';
@@ -75,7 +75,9 @@ export class ContractPublicSignHandler implements Handler<ActionInput<typeof con
     await logSignEvent(tx, { contractId: c.id, signerId: s.id, type: 'signed', actorName: s.name, docSha256: sha, ip: cap.client.ip, userAgent: cap.client.userAgent, meta: { attempt: a.id, channel: s.otpChannel }, at: now });
     await writeTimeline(tx, { contactId: c.contactId, type: 'contract', key: 'contract_signed', params: { code: c.code }, actor: SYSTEM, ref: { type: 'contract', id: c.id }, at: now });
     const stage = await applyStageRule(tx, { contactId: c.contactId, mode: 'raise', to: 'contract', actor: SYSTEM, now });
-    const events = [{ topic: 'contract.signed', payload: { contract_id: c.id, contact_id: c.contactId, code: c.code, signed_sha256: sha } }, ownerNotice(c, 'contract_signed', s.name), ...stage];
+    // TIP-026c §3.1: hợp đồng từ báo giá gắn cơ hội → cơ hội Đã mua lúc KHÁCH ký (khách lên won vẫn chỉ do order.completed).
+    const won = await onDocumentWon(tx, await opportunityOfQuote(tx, c.quoteId), { type: 'contract', id: c.id }, SYSTEM, now);
+    const events = [{ topic: 'contract.signed', payload: { contract_id: c.id, contact_id: c.contactId, code: c.code, signed_sha256: sha } }, ownerNotice(c, 'contract_signed', s.name), ...stage, ...won];
     let out: Outgoing | null = null;
     const conv = c.conversationId ? await tx.conversation.findUnique({ where: { id: c.conversationId } }) : null;
     if (conv) {

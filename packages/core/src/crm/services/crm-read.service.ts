@@ -21,7 +21,7 @@ import { renderTimeline } from './timeline.service';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { contactEditContext } from './contact-edit';
 import { activityPage, activitySummary } from '../activities/read.service';
-import { listForContact, openSummary } from '../opportunities/read.service';
+import { listForContact, openSummary, opportunityDetail } from '../opportunities/read.service';
 import { transferStatus } from '../ownership/read';
 import { familyIds } from '../lifecycle/lock';
 
@@ -175,6 +175,14 @@ export class CrmReadService {
   async activities(v: Viewer, id: string, q: { kind: ActivityKind; cursor?: string; limit?: number; activityId?: string }) {
     const pl = await this.place(v);
     return this.tx(v, (tx) => activityPage(tx, id, q, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)) }));
+  }
+
+  /** `GET /v1/contacts/:id/opportunities` · `GET /v1/opportunities/:id` (TIP-026c §4.1) — cùng reader với contact_opportunity.list / .get. */
+  async opportunities(v: Viewer, id: string, q: { cursor?: string; limit?: number }) {
+    return this.tx(v, (tx) => listForContact(tx, id, q, { authz: v.authz, names: (ids) => this.members.names(ids), now: this.now() }));
+  }
+  async opportunity(v: Viewer, id: string) {
+    return this.tx(v, (tx) => opportunityDetail(tx, id, { authz: v.authz, names: (ids) => this.members.names(ids), now: this.now() }));
   }
 
   /** `GET /v1/contacts/:id/transfers/:transferId` (TIP-015d) — cùng reader với action contact.transfer_status. */

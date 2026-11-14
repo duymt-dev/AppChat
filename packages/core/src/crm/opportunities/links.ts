@@ -30,6 +30,12 @@ export async function assertNotLost(tx: TenantTx, opportunityId: string | null |
   if (o?.stage === 'lost') throw new AppError('VALIDATION_FAILED', 422, { opportunity_id: 'opportunity_lost' });
 }
 
+/** Cơ hội của hợp đồng — đi qua báo giá nguồn (`contract.quote_id → quote.opportunity_id`); hợp đồng không từ báo giá → null. */
+export async function opportunityOfQuote(tx: TenantTx, quoteId: string | null | undefined): Promise<string | null> {
+  if (!quoteId) return null;
+  return (await tx.quote.findUnique({ where: { id: quoteId }, select: { opportunityId: true } }))?.opportunityId ?? null;
+}
+
 /** Cơ hội mở DUY NHẤT của khách (null khi 0 hoặc ≥ 2) — gắn tự động cho nguồn ngoài (cuộc gọi, TIP Call Center sau). */
 export async function soleOpenOpportunity(tx: TenantTx, contactId: string): Promise<string | null> {
   const rows = await tx.contactOpportunity.findMany({ where: { contactId, archivedAt: null, stage: { notIn: ['won', 'lost'] } }, select: { id: true }, take: 2 });

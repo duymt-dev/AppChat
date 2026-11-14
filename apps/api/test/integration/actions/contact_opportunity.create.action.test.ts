@@ -1,5 +1,6 @@
-// Ma trận contact_opportunity.create (TIP-026b §1.3): crm.edit (+ quote.create cho tiền), write, agentGrantable=false, undo 24h —
-// giá trị kỳ vọng, không doanh thu. Tạo ở won → 422; CS (không quote.create) ghi tiền → 403; hoàn tác → lưu trữ.
+// Ma trận contact_opportunity.create (TIP-026b §1.3, TIP-026c §2): crm.edit (+ quote.create cho tiền), write, agentGrantable=true (DC-922),
+// undo 24h — giá trị kỳ vọng, không doanh thu. Tạo ở won → 422; probability → 422 field_removed; CS (không quote.create) ghi tiền → 403;
+// hoàn tác → lưu trữ.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
@@ -18,6 +19,8 @@ describe('contact_opportunity.create', () => {
     const r = await m.act({ contact_id: contact, title: 'Gói', amount_vnd: '5000000' });
     expect(r.status, JSON.stringify(r.body)).toBe(200);
     expect((await m.act({ contact_id: contact, title: 'x', stage: 'won' })).status).toBe(422);
+    const prob = await m.act({ contact_id: contact, title: 'x', probability: 40 });
+    expect([prob.status, prob.body.error.fields]).toEqual([422, { probability: 'field_removed' }]);
     expect((await m.undo(r.body.data.action_log_id)).status).toBe(200);
     expect((await (await m.db()).contactOpportunity.findUniqueOrThrow({ where: { id: r.body.data.result.opportunity_id } })).archivedAt).not.toBeNull();
   });

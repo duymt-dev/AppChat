@@ -136,17 +136,18 @@ describe('nhập 3 tập hoạt động — CSV / XLSX thật', () => {
     expect(t.dueAt!.toISOString()).toBe('2026-11-20T16:59:00.000Z');
   });
 
-  it('cơ hội: won → terminal; Sales không quote.create có cột giá trị kỳ vọng → forbidden; Owner ghi đúng chuỗi VND', async () => {
+  it('cơ hội: won → terminal; cột xác suất (026b) bỏ qua + cảnh báo; Sales không quote.create có cột giá trị kỳ vọng → forbidden; Owner ghi đúng chuỗi VND', async () => {
+    // TIP-026c: nhãn cũ "Đề xuất" nhận qua alias → Báo giá; xác suất cố định theo giai đoạn — cột tệp chỉ cảnh báo, không ghi.
     const rows = [['Mã khách', 'Cơ hội', 'Giá trị kỳ vọng', 'Giai đoạn', 'Xác suất'], [CODE, `Gói A ${TAG}`, '15.000.000', 'Đề xuất', '60'], [CODE, `Gói B ${TAG}`, '', 'Thắng', '']];
     const owner = await plan('contact_opportunities', await upload(`co-hoi-${TAG}.csv`, csv(rows), CSV));
     expect(owner.counts).toMatchObject({ valid: 1, invalid: 1 });
     const v2 = (await act('transfer.update_mapping', { plan_id: owner.id, if_version: owner.version, row_policy: 'only_valid' })).body.data.result;
     expect((await confirmed('transfer.commit', { plan_id: v2.id, if_version: v2.version })).status).toBe(200);
     const o = await db.contactOpportunity.findFirstOrThrow({ where: { contactId: lan, title: `Gói A ${TAG}` } });
-    expect([String(o.amountVnd), o.stage, Number(o.probability)]).toEqual(['15000000', 'proposal', 60]);
+    expect([String(o.amountVnd), o.stage, 'probability' in o]).toEqual(['15000000', 'quote', false]);
     // Người nhập không có quote.create: cột giá trị kỳ vọng → lỗi dòng `forbidden` (không âm thầm bỏ, không ghi).
     const ip = await plan('contact_opportunities', await upload(`co-hoi-i-${TAG}.csv`, csv(rows.slice(0, 2)), CSV, importer), importer);
-    expect((await rowsOf(ip.id, importer))[0].errors).toEqual({ expected_amount: 'forbidden' });
+    expect((await rowsOf(ip.id, importer))[0].errors).toEqual({ expected_amount: 'forbidden', probability_warning: 'ignored' });
     // Sales mặc định không có crm.import → 403 (nhập hàng loạt không suy từ quyền sửa).
     const sf = await upload(`co-hoi-s-${TAG}.csv`, csv(rows.slice(0, 2)), CSV, sales);
     expect((await act('transfer.plan', { entity: 'contact', dataset: 'contact_opportunities', file_id: sf }, sales)).status).toBe(403);

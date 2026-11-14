@@ -9,7 +9,7 @@ import type { ActionInput, appointmentCancel, appointmentCheckIn, appointmentCom
 import { CLOCK, type Clock } from '../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
-import { actorUserId } from '../../crm/public';
+import { actorUserId, onAppointmentDone } from '../../crm/public';
 import { BookingPlace } from '../services/booking-place';
 import { bookingSetting } from '../services/slots';
 import { lockAppointment, type AppointmentRecord } from '../booking-access';
@@ -74,6 +74,8 @@ export class AppointmentCompleteHandler extends FlowBase implements Handler<Acti
     const actor = actorOf(ctx);
     await timeline(tx, row, 'appointment_done', { service: svc?.name ?? '' }, actor, now);
     if (pkg) await timeline(tx, row, 'package_session_used', { name: pkg.name, used: pkg.used, total: pkg.total }, actor, now);
+    // TIP-026c §3.1: demo / tư vấn của cơ hội hoàn thành → chỉ GỢI Ý bước kế (event ai_suggested), không tự đổi giai đoạn.
+    await onAppointmentDone(tx, { id: row.id, opportunityId: row.opportunityId }, actor, now);
     return {
       result: { appointment_id: row.id, status: row.status, package: pkg ? { id: pkg.id, used: pkg.used, total: pkg.total } : null, suggest_order: !pkg && !row.orderId },
       before: snap(before, row),
