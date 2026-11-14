@@ -56,11 +56,11 @@
 - **Vì sao phụ thuộc:**
   - 048b: route `/hooks/channels/:type`, `ChannelWebhook`, biên nhận, `channel.oauth_select` + route nền tảng, cửa sổ gửi `send-window.ts` có sẵn tham số `tiktok_messaging` (48 giờ, `maxBeforeReply` 10, `graceAfterWindow` 3).
   - 048c: modal kết nối rẽ theo `connect.kind = 'oauth'` + chọn tài khoản (`useOAuthConnect`), khối Đồng bộ theo `capabilities.sync`.
-  - 048f: hội thoại `comment`, `social_post` / `social_comment.private_reply_eligible`, action `comment.*`, trần AI gợi ý, lệnh bền bình luận.
+  - 048f: hội thoại `comment`, `social_post` / `social_comment.private_reply_eligible`, action `comment.*`, agent trả lời bình luận như tin direct (DC-921), lệnh bền bình luận.
   - Qua 048b gián tiếp: OAuth + `TokenVault` + `registerOAuthProvider` (048).
   - 049 (nền sàn) đứng sau: chung `coming-soon.ts`, `registry.test.ts` (D63 bỏ `tiktok_shop` khỏi danh sách Sắp có).
 - **Files touched:** [exact M/C manifest](manifests/TIP-048h-files.md). Adapter mới `packages/channels/src/tiktok/`. Không đổi schema (dùng `social_post` / `social_comment` của 048f, `oauth_grant` của 048).
-- **Quyết định nguồn:** D62 (#1, #3, #5) · DC-916 · DC-910 · DC-914 · Q-910 · Q-911 · Q-912 · REQ-B08 · REQ-B13.
+- **Quyết định nguồn:** D62 (#1, #3, #5) · DC-916 · DC-910 · DC-914 · DC-921 · Q-910 · REQ-B08 · REQ-B13.
 - **Dòng COVERAGE nhận:** REQ-B08 (tiktok) · BP-6-tiktok · DC-916 · Q-910
 
 ## CONTEXT
@@ -97,7 +97,7 @@
 - [database/tenant-db](../standards/database/tenant-db.md) — không đổi schema; token mã hoá trong `oauth_grant`.
 - [authz/rbac-permissions](../standards/authz/rbac-permissions.md) — `channels.manage` kết nối; `inbox.reply` / `inbox.manage` theo 048f.
 - [domain/concurrency](../standards/domain/concurrency.md) — đếm hạn mức dưới khoá hội thoại; làm mới token có khoá.
-- [domain/gap-filling](../standards/domain/gap-filling.md) — hành vi gửi ra mới L2 (Q-911); không permission mới (Q-912).
+- [domain/gap-filling](../standards/domain/gap-filling.md) — hành vi gửi đã chốt (DC-921: agent là nhân viên); không permission mới (Q-912).
 - [ops/observability-security](../standards/ops/observability-security.md) — không log token / chữ ký / nội dung tin.
 - [i18n/i18n](../standards/i18n/i18n.md) · [code/testing](../standards/code/testing.md) · [workflow/git-flow-ci](../standards/workflow/git-flow-ci.md).
 
@@ -170,7 +170,7 @@ Bật kênh `tiktok_messaging` (Beta): kết nối bằng đăng nhập TikTok B
    - Bình luận thường (không có sự kiện high-intent) → nhắn riêng khoá (`manifest.comments.privateReply = false`), tooltip "TikTok chỉ cho nhắn riêng bình luận có ý định cao".
    - `comment.private_reply` (048f) → `POST /business/message/direct_reply/update/` với id bình luận; trả id hội thoại / người nhận → hội thoại direct cùng khách (048f §4). Một lần / bình luận (khoá của 048f). Hạn: theo tài liệu (kiểm ở Rà; mặc định 7 ngày như 048f).
    - Điều kiện tài khoản (VN / ID / TH, VBA / Advanced Access, đã chạy Messaging Ads 7 ngày) do TikTok kiểm; TikTok từ chối → `failed` mã `tiktok_not_eligible`, hiện lý do; không thử lại.
-3. AI chỉ gợi ý trên hội thoại bình luận TikTok (trần copilot của 048f). Không nhắn riêng hàng loạt.
+3. Agent trên hội thoại bình luận TikTok làm như 048f §6 (DC-921): `auto` trả lời công khai thẳng, nhắn riêng bình luận high-intent khi được cấp `comment.private_reply`. Không nhắn riêng hàng loạt (D06).
 
 ### 6. Env, i18n, test kênh
 - Env (`channels.env.ts` + `.env.example`): `TIKTOK_APP_ID`, `TIKTOK_APP_SECRET`, `TIKTOK_TRANSPORT=http|fake` (mặc định `http`; production cấm `fake` theo guard ~L29–34). `hooks.secrets.tiktok_messaging` = app secret.
@@ -199,7 +199,7 @@ Bật kênh `tiktok_messaging` (Beta): kết nối bằng đăng nhập TikTok B
 | 5 | Given khách nhắn một tin rồi im lặng, when shop gửi 10 tin trong 48 giờ, then tin thứ 11 → 409 `window_closed`; khách trả lời → gửi tiếp được; quá 48 giờ không trả lời → thêm đúng 3 tin rồi `window_closed`; job chờ khi cửa sổ đóng → `failed` `window_closed`, không thử lại | `tiktok-messaging.test.ts` (đồng hồ giả) |
 | 6 | Given webhook `comment.update` + đối soát `comment/list` trả cùng bình luận, when xử lý, then một hội thoại `comment` theo (video, người bình luận), một tin; `comment.reply` gọi `reply/create`; `comment.hide` / `comment.delete` qua lệnh bền, đổi trạng thái chỉ sau ACK; `comment.like` → 409 `comment_unsupported` | `tiktok-messaging.test.ts` + fixture `comment_update.json` |
 | 7 | Given bình luận thường, when `comment.private_reply`, then 409 `comment_unsupported`; given `im_receive_high_intent_comment`, then `private_reply_eligible = true`, nhắn riêng lần 1 gọi `direct_reply/update` → hội thoại direct cùng khách; lần 2 → 409 `private_reply_used`; TikTok từ chối → `failed` `tiktok_not_eligible`, không thử lại | `tiktok-messaging.test.ts` + fixture `im_receive_high_intent_comment.json` |
-| 8 | Given agent gán hội thoại TikTok, when khách bình luận / nhắn, then bình luận: agent chỉ gợi ý (048f); tin direct: agent trả lời theo `ai_mode` nhưng vẫn bị cửa sổ / hạn mức chặn như người; follow-up / chiến dịch không chọn kênh TikTok (`proactive: 'disallowed'`) | `tiktok-messaging.test.ts` |
+| 8 | Given agent gán hội thoại TikTok, when khách bình luận / nhắn, then bình luận: agent `auto` trả lời công khai qua `reply/create` (048f §6); tin direct: agent trả lời theo `ai_mode`, cửa sổ / hạn mức chặn như mọi người gửi; follow-up / chiến dịch không chọn kênh TikTok (`proactive: 'disallowed'`) | `tiktok-messaging.test.ts` |
 | 9 | Given registry, when chạy test kênh, then `tiktok_messaging` có adapter, `status: 'beta'`, không còn trong Sắp có; `tiktok_shop` vẫn Sắp có; contract test chung pass cho adapter mới; production với `TIKTOK_TRANSPORT=fake` → khởi động lỗi | `pnpm --filter @appchat/channels test` + `apps/api/test/integration/channels.test.ts` + test env |
 | 10 | Given web (transport `fake`), when mở Cài đặt → Kênh → TikTok Messaging, then luồng OAuth + chọn tài khoản chạy; gửi vượt hạn mức hiện lỗi `window_closed` theo i18n; tài khoản Business thật | `pnpm e2e:http channels` — TikTok thật: chưa nghiệm thu với provider thật (Q-910) |
 
@@ -214,7 +214,7 @@ Bật kênh `tiktok_messaging` (Beta): kết nối bằng đăng nhập TikTok B
 - **DO NOT:**
   - Gửi chủ động / chiến dịch / follow-up qua TikTok (`proactive: 'disallowed'`).
   - Vượt hạn mức 10 / +3 hoặc gửi ngoài 48 giờ; tự thử lại tin `window_closed`.
-  - Nhắn riêng bình luận không high-intent; nhắn riêng hàng loạt; AI tự trả lời bình luận (Q-911).
+  - Nhắn riêng bình luận không high-intent (luật TikTok); nhắn riêng hàng loạt; luật riêng cho agent (DC-921).
   - Thêm permission mới (Q-912); thêm bảng / cột (dùng schema 048 / 048f).
   - Lẫn tin TikTok Shop (hệ thống riêng — D63, chat sàn Sắp có) vào kênh này; bỏ `tiktok_shop` khỏi Sắp có (049 làm).
   - Adapter tự làm mới token hoặc lưu token ngoài `oauth_grant`.
@@ -223,7 +223,7 @@ Bật kênh `tiktok_messaging` (Beta): kết nối bằng đăng nhập TikTok B
 - **REUSE:**
   - `OAuthClient` / `TokenVault` / `registerOAuthProvider` / `useOAuthConnect` (048).
   - `ChannelWebhook`, ingress, biên nhận, `channel.oauth_select`, `send-window.ts` (048b); modal kết nối + khối Đồng bộ (048c).
-  - `ingestComment`, `comment.*`, `social_comment.private_reply_eligible`, `comment-ai-policy.ts`, lệnh bền bình luận (048f).
+  - `ingestComment`, `comment.*`, `social_comment.private_reply_eligible`, `comment-reply.ts`, lệnh bền bình luận (048f).
   - Mẫu adapter / `fake-transport.ts` / `provider-capabilities.md` của 048e.
 - **SKIP:**
   - Bình luận livestream TikTok (không có API — Sắp có).
@@ -234,7 +234,7 @@ Bật kênh `tiktok_messaging` (Beta): kết nối bằng đăng nhập TikTok B
 ## Quality Gate
 - [x] Manifest chính xác (file-level M/C). Giao file khai hai phía bằng `manifests.py --sync` khi Chủ thầu ghép dải 048 / 049.
 - [x] Khớp DC-916 + brief §4 (048h): chữ ký, hạn mức 48 giờ / 10 / +3 qua cửa sổ 048b, comment-to-message theo điều kiện, Accounts API, token 1 ngày qua TokenVault.
-- [x] Không schema mới; không permission mới (Q-912); hành vi gửi ra mới chỉ người bấm (Q-911).
+- [x] Không schema mới; không permission mới (Q-912); agent là nhân viên (DC-921).
 - [x] 10 AC có Given / When / Then + bằng chứng; ô cần TikTok thật ghi trung thực.
 - **Gap đã khai:**
   - BM API + Accounts API chưa duyệt (Q-910) → chỉ test transport `fake` + fixtures; đường dẫn / tên trường theo khảo sát 2026-11-13, kiểm lại ở Rà.
@@ -246,5 +246,5 @@ Bật kênh `tiktok_messaging` (Beta): kết nối bằng đăng nhập TikTok B
 - [ ] AC 1–10 có kết quả từng cái, dán output thật (`pnpm …`); ô cần TikTok thật ghi "chưa nghiệm thu với provider thật".
 - [ ] **Kênh qua adapter + manifest (BUILDER-HANDOFF, omnichannel-adapter):** core / UI không `switch (type)`; gửi qua outbox + limiter; cửa sổ chặn ở cả `outbound.ts` và `send.processor.ts`.
 - [ ] **Action-first:** kết nối qua `oauth.start` / `channel.oauth_select`; trả lời / nhắn riêng / ẩn / xoá qua `comment.*` (048f) chạy `ActionExecutor`; webhook chỉ ghi biên nhận rồi xử lý nền.
-- [ ] **AI gửi ra ngoài (D06 / D51, Q-911):** AI chỉ gợi ý trên bình luận; không gửi chủ động; agent tin direct vẫn bị cửa sổ / hạn mức chặn.
+- [ ] **Agent là nhân viên (DC-921, D51):** agent trả lời bình luận / tin direct như người; cửa sổ / hạn mức nền tảng chặn mọi người gửi; không gửi chủ động (`proactive: 'disallowed'`).
 - [ ] Không báo DONE nếu test chưa chạy. `git status --short` sạch, báo kèm Git SHA.

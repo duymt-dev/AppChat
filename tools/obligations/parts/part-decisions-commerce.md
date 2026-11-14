@@ -268,7 +268,7 @@ Ghi chú:
 | D62-oauth | OAuth + một kho token, một App Zalo cho kênh OA + ZCC (D62 #2) | 01-REQUIREMENTS-MATRIX.md:336 | 048 | CHƯA | TIP-048 |
 | D62-foundation | Nền kênh webhook + cửa sổ gửi + một Page / OA một workspace (D62 #2, #5) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b |
 | D62-channels | Zalo OA, Facebook Page / Messenger, Instagram, TikTok có adapter thật (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048d, 048e, 048h | CHƯA | TIP-048d · 048e · 048h |
-| D62-comments | Bình luận bài đăng vào Hộp thư, AI chỉ gợi ý (D62 #3) | 01-REQUIREMENTS-MATRIX.md:336 | 048f | CHƯA | TIP-048f |
+| D62-comments | Bình luận bài đăng vào Hộp thư, agent trả lời như nhân viên (D62 #3, DC-921) | 01-REQUIREMENTS-MATRIX.md:336 | 048f | CHƯA | TIP-048f |
 | D62-live | Livestream FB + IG; live TikTok / Shopee Sắp có (D62 #4) | 01-REQUIREMENTS-MATRIX.md:336 | 048g | CHƯA | TIP-048g |
 | D62-soon | Kênh còn lại "Sắp có" theo registry (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048c | CHƯA | TIP-048c (PD-903) |
 | D62-quota | Hạn mức kênh của gói cho kênh mới (D62 #6 — Q-907 mở, tạm theo đề xuất) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b §chọn tài khoản (`QuotaService.assert('channels')`) |
@@ -280,5 +280,6 @@ Ghi chú:
 | DC-912 | Kênh Zalo OA: tin tư vấn ≤ 7 ngày, chữ ký, limiter hai tầng, upload | DECISIONS.md:493 | 048d | CHƯA | TIP-048d |
 | DC-913 | Facebook Page / Messenger + Instagram: 24 giờ + HUMAN_AGENT người gửi, echo, data deletion | DECISIONS.md:494 | 048e | CHƯA | TIP-048e |
 | DC-914 | Bình luận bài đăng: hội thoại comment, social_post, công khai / riêng / ẩn / xoá / thích | DECISIONS.md:495 | 048f | CHƯA | TIP-048f |
-| DC-915 | Livestream FB / IG: phiên + cờ, SSE + poll, người bấm tạo khách / đơn | DECISIONS.md:496 | 048g | CHƯA | TIP-048g |
+| DC-915 | Livestream FB / IG: phiên + cờ, SSE + poll, người / agent tạo khách / đơn | DECISIONS.md:496 | 048g | CHƯA | TIP-048g |
 | DC-916 | TikTok Business Messaging + bình luận video, 48 giờ / 10 + 3 tin | DECISIONS.md:497 | 048h | CHƯA | TIP-048h |
+| DC-921 | AI agent là nhân viên trên kênh D62: không trần gợi ý / luật riêng; `comment.*` (trừ delete) + `live.flag_update` cấp được cho agent; giữ luật chung §3.3 / D06 + luật nền tảng | DECISIONS.md:498 | 048f, 048g, 048h | CHƯA | TIP-048f §3 / §6 · 048g §5–6 · 048h §5 |

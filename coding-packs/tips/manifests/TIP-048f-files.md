@@ -17,16 +17,15 @@ Không dùng wildcard thư mục; test liệt kê từng file.
 | C | `packages/core/src/inbox/comments/private-reply.ts` | Một lần / bình luận, hạn 7 ngày, hội thoại direct, đổi khoá thread theo `recipient_id` khi ACK |
 | C | `packages/core/src/inbox/comments/comment-ops.ts` | Tạo lệnh bền `comment_*`, áp kết quả ACK (`hidden_at`, `deleted_at`, thích) |
 | C | `packages/core/src/inbox/comments/post-read.ts` | Nạp thẻ bài theo lô cho list / chi tiết hội thoại |
-| C | `packages/core/src/inbox/comments/comment-ai-policy.ts` | Hàm thuần: trần `ai_mode` = copilot, chặn agent / nguồn không phải người, năng lực theo kênh ∩ cài đặt tài khoản |
-| C | `packages/core/test/comment-policy.test.ts` | Unit khoá thread, hạn 7 ngày, trần AI, năng lực |
+| C | `packages/core/src/inbox/comments/comment-reply.ts` | Đích trả lời công khai của `message.send` (bình luận khách mới nhất còn hiện), `commentContext()` cho lượt agent, năng lực theo kênh ∩ cài đặt tài khoản (DC-921) |
+| C | `packages/core/test/comment-policy.test.ts` | Unit khoá thread, hạn 7 ngày, đích trả lời công khai, năng lực |
 | M | `packages/core/src/inbox/services/pipeline.ts` | Rẽ `thread.kind = 'comment'` sang `comment-inbound.ts` (facade 1–2 dòng) |
-| M | `packages/core/src/inbox/services/agent-turn.ts` | `rejectAgentOnComment` — agent / task / system gửi ra trên hội thoại bình luận → 403 |
-| M | `packages/core/src/inbox/services/outbound.ts` | `OutgoingInput.comment` (`mode`, `targetExternalId`); `message.send` vào hội thoại `comment` → 409 |
+| M | `packages/core/src/inbox/services/outbound.ts` | `OutgoingInput.comment` (`mode`, `targetExternalId`); `message.send` vào hội thoại `comment` → `public_reply` bình luận mới nhất (gọi `comment-reply.ts`) |
 | M | `packages/core/src/inbox/services/view.ts` | DTO hội thoại có `post`; DTO tin có `comment` (ẩn, cha, nhắn riêng, thích) |
 | M | `packages/core/src/inbox/services/read.service.ts` | Tab `comments` + đếm |
 | M | `packages/core/src/inbox/repos/conversations.repo.ts` | Thư mục `comments`, lọc `post_id`, đếm tab |
-| M | `packages/core/src/inbox/actions/conversation-state.handlers.ts` | `conversation.set_ai_mode` `auto` trên hội thoại bình luận → 409 (1–2 dòng gọi policy) |
 | M | `packages/core/src/inbox/inbox.module.ts` | Đăng ký handler bình luận |
+| M | `packages/core/src/ai/reply/reply-context.ts` | Lượt agent trên hội thoại `comment`: thêm ngữ cảnh bình luận công khai (1–2 dòng gọi `commentContext()`) |
 | M | `packages/core/src/channels/operations/types.ts` | `OperationKind` thêm `comment_hide`, `comment_unhide`, `comment_delete`, `comment_like` |
 | M | `packages/core/src/channels/operations/provider-event.ts` | Áp ACK lệnh bình luận + sự kiện bình luận đổi phía kênh (facade sang `comment-ops.ts`) |
 | M | `packages/core/src/channels/jobs/provider-operations.processor.ts` | Gọi `ops.moderateComment` cho 4 loại lệnh mới |
@@ -47,10 +46,10 @@ Không dùng wildcard thư mục; test liệt kê từng file.
 | C | `packages/channels/test/fixtures/meta/feed_comment_remove.json` | Webhook `feed` `verb remove` |
 | C | `packages/channels/test/fixtures/meta/feed_comment_page_reply.json` | Bình luận do chính Page viết (echo) |
 | C | `packages/channels/test/fixtures/meta/ig_comments.json` | Webhook IG `comments` (bài + reel) |
-| C | `packages/actions/src/inbox-comments.ts` | 6 action `comment.*` (module inbox, `agentGrantable: false`) |
+| C | `packages/actions/src/inbox-comments.ts` | 6 action `comment.*` (module inbox; `agentGrantable: true` trừ `comment.delete` — DC-921) |
 | M | `packages/actions/src/index.ts` | Export `inbox-comments` |
 | M | `packages/shared/src/api/inbox.ts` | `INBOX_FOLDERS` thêm `comments`; kind `comment`; `post`; khối `comment` của tin |
-| M | `packages/shared/src/i18n/server/vi/inbox.ts` | Lỗi `comment_ai_suggest_only`, nhãn xem trước |
+| M | `packages/shared/src/i18n/server/vi/inbox.ts` | Nhãn xem trước, ngữ cảnh lượt agent trên bình luận |
 | M | `packages/shared/src/i18n/server/en/inbox.ts` | Như trên (en) |
 | M | `apps/api/src/http/inbox/conversations.controller.ts` | Tham số `post_id` |
 | C | `apps/api/test/integration/inbox-comments.test.ts` | AC1–AC10 (webhook giả + DB thật + EXPLAIN) |

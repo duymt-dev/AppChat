@@ -69,8 +69,8 @@
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | ĐẠT | TIP-014b D1 + C2: core/src/inbox/services/inbound-sync-policy.ts áp sync_messages / sync_auto_create_contact trước khi ghi (live + lịch sử chung chính sách); lịch sử 0/7/30/90 bền có giới hạn (operations/history-run.ts); test apps/api/test/integration/channel-sync-policy.test.ts, channel-history.test.ts |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
 | REQ-B12 | Nền kênh webhook: route mức App, chữ ký, biên nhận, cửa sổ gửi chặn lúc ghi + lúc gửi, tag chỉ người gửi | 01-REQUIREMENTS-MATRIX.md:60 | 048b | CHƯA | TIP-048b |
-| REQ-B13 | Bình luận bài đăng FB / IG / TikTok vào Hộp thư; trả lời công khai / nhắn riêng / ẩn / xoá / thích; AI chỉ gợi ý | 01-REQUIREMENTS-MATRIX.md:61 | 048f, 048h | CHƯA | TIP-048f · 048h (bình luận video TikTok) |
-| REQ-B14 | Livestream FB / IG: gom bình luận, cờ ý mua / SĐT, người bấm tạo khách + đơn | 01-REQUIREMENTS-MATRIX.md:62 | 048g | CHƯA | TIP-048g |
+| REQ-B13 | Bình luận bài đăng FB / IG / TikTok vào Hộp thư; trả lời công khai / nhắn riêng / ẩn / xoá / thích; agent làm như nhân viên (DC-921) | 01-REQUIREMENTS-MATRIX.md:61 | 048f, 048h | CHƯA | TIP-048f · 048h (bình luận video TikTok) |
+| REQ-B14 | Livestream FB / IG: gom bình luận, cờ ý mua / SĐT, người / agent tạo khách + đơn | 01-REQUIREMENTS-MATRIX.md:62 | 048g | CHƯA | TIP-048g |
 | REQ-B15 | Một nguồn danh sách kênh (Cài đặt, modal, Hộp thư, Agents, form); kênh chưa có adapter = Sắp có | 01-REQUIREMENTS-MATRIX.md:63 | 048c | CHƯA | TIP-048c |
 | REQ-B16 | Kết nối bằng đăng nhập nền tảng: chọn Page / OA / tài khoản, một Page / OA một workspace, hạn uỷ quyền + uỷ quyền lại | 01-REQUIREMENTS-MATRIX.md:64 | 048, 048b, 048c | CHƯA | TIP-048 (OAuth + kho token) · 048b (chọn tài khoản) · 048c (UI) |
 | REQ-B17 | Khối Đồng bộ theo năng lực kênh; "Đánh giá" ẩn | 01-REQUIREMENTS-MATRIX.md:65 | 048c | CHƯA | TIP-048c |

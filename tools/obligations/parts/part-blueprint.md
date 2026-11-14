@@ -406,7 +406,7 @@
 | BP-6-zalo-oa | Zalo OA: tin tư vấn ≤ 7 ngày, rate App 4.000 / phút chung + OA theo gói (D62) | plans/BLUEPRINT.md:1249 | 048d | CHƯA | TIP-048d (Zalo thật CHỜ-TK Q-909) |
 | BP-6-meta | Facebook Page / Instagram: 24 giờ + HUMAN_AGENT người gửi 7 ngày (D62) | plans/BLUEPRINT.md:1249 | 048e | CHƯA | TIP-048e (Meta thật CHỜ-TK Q-908) |
 | BP-6-tiktok | TikTok: 48 giờ, 10 tin trước khi khách trả lời, +3 sau 48 giờ (D62) | plans/BLUEPRINT.md:1249 | 048h | CHƯA | TIP-048h (TikTok thật CHỜ-TK Q-910) |
-| BP-6-comments-live | Bình luận = hội thoại comment; livestream FB SSE + poll / IG webhook; AI chỉ gợi ý (D62) | plans/BLUEPRINT.md:1249 | 048f, 048g | CHƯA | TIP-048f · 048g |
+| BP-6-comments-live | Bình luận = hội thoại comment; livestream FB SSE + poll / IG webhook; agent làm như nhân viên (D62, DC-921) | plans/BLUEPRINT.md:1249 | 048f, 048g | CHƯA | TIP-048f · 048g |
 | BP-6b-voice | VOICE: `packages/voice` (LiveKit phòng / SIP / webhook, ZCC, ghi track, VoiceAiEnginePort), một cuộc = một phòng | plans/BLUEPRINT.md:1243 | 047, 047c | CHƯA | TIP-047 · TIP-047c |
 | BP-8-a | VietQR tự sinh payload + render ảnh `qrcode` | plans/BLUEPRINT.md:1321 | 032b | ĐẠT | packages/core/src/sales/payments/services/invoice-qr.ts (qrcode 1.5.4, DV-025) — ảnh QR trong PDF đề nghị + endpoint; decode bằng jsqr trong commerce-delivery.test.ts |
 | BP-8-b | Brevo MailProvider + webhook bounce/complaint | plans/BLUEPRINT.md:1319 | 004, 004c | MỘT PHẦN | integrations/connectors/brevo (CHỜ-TK Q-004); webhook bounce không có; TIP-004c nhận (2026-11-02) |

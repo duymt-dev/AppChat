@@ -1,7 +1,7 @@
 # TIP-048g — exact file manifest
 
 M = sửa, C = tạo mới. M path tương lai do TIP trước tạo, cần đã tích hợp:
-- TIP-048f tạo `packages/db/prisma/tenant/social.prisma`.
+- TIP-048f tạo `packages/db/prisma/tenant/social.prisma`, `packages/core/src/inbox/comments/comment-reply.ts`.
 - TIP-048e tạo `packages/channels/src/facebook/manifest.ts`, `packages/channels/src/instagram/manifest.ts`, `packages/channels/src/meta/webhook.ts`.
 
 Không dùng wildcard thư mục; test liệt kê từng file.
@@ -23,7 +23,8 @@ Không dùng wildcard thư mục; test liệt kê từng file.
 | C | `packages/channels/test/fixtures/meta/ig_live_comments.json` | Webhook IG `live_comments` |
 | C | `packages/core/src/inbox/live/live-session.service.ts` | Mở / đóng phiên, nhận bình luận live vào hội thoại `comment`, đếm |
 | C | `packages/core/src/inbox/live/intent-detect.ts` | Hàm thuần: SĐT VN → E.164, từ khoá chốt đơn, "+1", mã SP, câu hỏi |
-| C | `packages/core/src/inbox/live/live-flags.ts` | Ghi cờ, bỏ trùng theo khách / phiên, AI phân loại theo lô (tuỳ chọn) |
+| C | `packages/core/src/inbox/live/live-flags.ts` | Ghi cờ, bỏ trùng theo khách / phiên, AI phân loại theo lô (tuỳ chọn), `liveContext()` cờ của khách cho lượt agent |
+| M | `packages/core/src/inbox/comments/comment-reply.ts` | Gọi `liveContext()` cho lượt agent trên bình luận live (1–2 dòng, file của 048f) |
 | C | `packages/core/src/inbox/live/live-actions.handlers.ts` | Handler `live.list` / `live.get` / `live.flag_update` / `live.update_settings` |
 | C | `packages/core/src/inbox/live/live-read.ts` | Danh sách phiên, luồng bình luận, bảng cờ (keyset) |
 | C | `packages/core/src/channels/jobs/live-stream.processor.ts` | Queue `live-comments`, lease `lease:live:<sessionId>`, SSE + poll, ghi bình luận |
@@ -31,7 +32,7 @@ Không dùng wildcard thư mục; test liệt kê từng file.
 | M | `packages/core/src/inbox/inbox.module.ts` | Đăng ký handler live |
 | M | `packages/core/test/assistant-coverage.test.ts` | Action `live.*` có preview, ô `message_id` có đường tra, không action bulk |
 | C | `packages/core/test/live-intent.test.ts` | Bảng ca SĐT / từ khoá / "+1" / mã SP / câu hỏi |
-| C | `packages/actions/src/live.ts` | 4 action `live.*` |
+| C | `packages/actions/src/live.ts` | 4 action `live.*` (`live.flag_update` `agentGrantable: true` — DC-921) |
 | M | `packages/actions/src/index.ts` | Export `live` |
 | C | `packages/shared/src/api/live.ts` | DTO phiên, bình luận live, cờ, cài đặt |
 | C | `apps/api/src/http/inbox/live.controller.ts` | `GET /v1/inbox/live-sessions`, `GET /v1/inbox/live-sessions/:id`, `GET /v1/inbox/live-sessions/:id/comments` |
@@ -44,7 +45,7 @@ Không dùng wildcard thư mục; test liệt kê từng file.
 | C | `apps/web/src/features/inbox/components/live/LiveSessionList.tsx` | Danh sách phiên (đang phát / đã kết thúc) |
 | C | `apps/web/src/features/inbox/components/live/LiveCommentFeed.tsx` | Luồng bình luận realtime, lọc chỉ cờ, ảo hoá |
 | C | `apps/web/src/features/inbox/components/live/LiveFlagPanel.tsx` | Bảng cờ: Tạo khách, Tạo đơn, Đã xử lý, Bỏ qua |
-| C | `apps/web/src/features/inbox/components/live/LiveFlagPanel.test.tsx` | Nút theo quyền, form điền sẵn, không tự tạo |
+| C | `apps/web/src/features/inbox/components/live/LiveFlagPanel.test.tsx` | Nút theo quyền, form điền sẵn, cờ đã xử lý bởi agent hiện người xử lý |
 | C | `apps/web/src/features/inbox/components/live/LiveSettingsModal.tsx` | Từ khoá chốt đơn, bật AI phân loại |
 | C | `apps/web/src/features/inbox/hooks/useLiveSession.ts` | Đọc phiên / bình luận / cờ, realtime, `useAction('live.*')` |
 | C | `apps/web/src/shared/api/mock/domains/live.ts` | Mock phiên, bình luận, cờ, action |

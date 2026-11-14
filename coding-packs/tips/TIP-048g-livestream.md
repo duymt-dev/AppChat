@@ -3,7 +3,7 @@
 ## HEADER
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/channels/jobs/channels.jobs.module.ts`; integrate 048b before048g.
 - **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `packages/channels/src/facebook/manifest.ts`, `packages/channels/src/instagram/manifest.ts`, `packages/channels/src/meta/webhook.ts`, `packages/core/src/channels/jobs/channels.jobs.module.ts`; integrate 048e before048g.
-- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `packages/channels/src/facebook/manifest.ts`, `packages/channels/src/instagram/manifest.ts`, `packages/channels/src/meta/webhook.ts`, `packages/core/src/channels/jobs/channels.jobs.module.ts`, `packages/core/src/inbox/inbox.module.ts`, `packages/core/test/assistant-coverage.test.ts`, `packages/db/prisma/tenant/social.prisma`, `packages/shared/src/i18n/server/en/inbox.ts`, `packages/shared/src/i18n/server/vi/inbox.ts`, `tools/parity/parity.manifest.ts`; integrate 048f before048g.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `packages/channels/src/facebook/manifest.ts`, `packages/channels/src/instagram/manifest.ts`, `packages/channels/src/meta/webhook.ts`, `packages/core/src/channels/jobs/channels.jobs.module.ts`, `packages/core/src/inbox/comments/comment-reply.ts`, `packages/core/src/inbox/inbox.module.ts`, `packages/core/test/assistant-coverage.test.ts`, `packages/db/prisma/tenant/social.prisma`, `packages/shared/src/i18n/server/en/inbox.ts`, `packages/shared/src/i18n/server/vi/inbox.ts`, `tools/parity/parity.manifest.ts`; integrate 048f before048g.
 - **Parallel-safe with TIP-045 (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/channels.jobs.module.ts`; integrate 048g before045.
 - **Parallel-safe with TIP-046 (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 048g before046.
 - **Parallel-safe with TIP-048h (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`; integrate 048g before048h.
@@ -73,17 +73,17 @@
 - **TIP-ID:** TIP-048g · **Project:** AppChat V2 · **Module:** Kênh — livestream (Hộp thư) · **Priority:** P1 · **Estimated:** L (2 pha: P1 phiên + nhận + cờ; P2 giao diện)
 - **Depends on:** 048f và mọi TIP chờ cũ có chung file (dòng khai hai phía ở trên) — trước 048h, 044, 045, 046.
 - **Vì sao phụ thuộc:**
-  - 048f tạo `social.prisma` + `social_post`, hội thoại `comment`, `comment-inbound.ts`, action `comment.*`, trần AI gợi ý. Bình luận live là bình luận của bài kind `live`.
+  - 048f tạo `social.prisma` + `social_post`, hội thoại `comment`, `comment-inbound.ts`, action `comment.*` (agent dùng như nhân viên — DC-921). Bình luận live là bình luận của bài kind `live`.
   - Qua 048f gián tiếp: ingress `/hooks/channels/:type` + biên nhận (048b), adapter Meta + `meta/graph.ts` + `fake-transport.ts` (048e).
   - 048h đứng sau vì chung `channels.jobs.module.ts`, `inbox.module.ts`, `actions/src/index.ts`.
 - **Files touched:** [exact M/C manifest](manifests/TIP-048g-files.md). Sửa có chủ đích `tenant/social.prisma` (chủ 048f) và `OrderFormModal.tsx` / `useOrderForm.ts` (form đơn — nhận điền sẵn). Màn mới `LiveSessionScreen.tsx` là orchestrator; component ở `components/live/`.
-- **Quyết định nguồn:** D62 (#4) · DC-915 · DC-914 · Q-911 · Q-912 · PD-905 · REQ-B14 · IP-3.6 (form điền sẵn).
-- **Dòng COVERAGE nhận:** REQ-B14 · D62-live · PD-905 · DC-915
+- **Quyết định nguồn:** D62 (#4) · DC-915 · DC-914 · **DC-921 (Q-911 / Q-912 chốt: AI agent là nhân viên)** · PD-905 · REQ-B14 · IP-3.6 (form điền sẵn).
+- **Dòng COVERAGE nhận:** REQ-B14 · D62-live · PD-905 · DC-915 · DC-921
 
 ## CONTEXT
 - **Working dir:** `D:/CODING/AppChat_Ver2`. DB tenant riêng mỗi workspace: không `workspace_id`, không RLS.
 - **Hiện trạng (rà 2026-11-13; số dòng `~` kiểm lại ở Rà):**
-  - **Sau 048f:** bình luận → hội thoại `kind = 'comment'` khoá `c:<post>:<author>`; `social_post.kind` có `live`; `comment-inbound.ts` bỏ bài live (chờ 048g); action `comment.*`; `comment-ai-policy.ts`.
+  - **Sau 048f:** bình luận → hội thoại `kind = 'comment'` khoá `c:<post>:<author>`; `social_post.kind` có `live`; `comment-inbound.ts` bỏ bài live (chờ 048g); action `comment.*`; `comment-reply.ts` (agent trả lời bình luận như tin direct).
   - **Worker kênh:** `channels.jobs.module.ts` (~184 dòng) mở worker gửi / thao tác theo lease hoặc `StatelessChannels` (~L151). Mẫu lease `lease.ts` (~53 dòng). Tin vào qua `inbound.processor.ts` concurrency 4 (~L60) — live cần hàng đợi riêng để không chậm tin thường.
   - **Đơn:** `OrderFormModal.tsx` (~235 dòng) mở bằng `ui.prefill` (~L42, ~L53), `useOrderForm.ts` `initialOrderDraft(prefill)`. Khách: `contact.create` có sẵn (form `CrmFormsHost.tsx` ở `app/(app)/_crm-forms/`). Kiểm ở Rà: prefill nhận được dòng sản phẩm chưa.
   - **Hộp thư FE:** `FolderRail.tsx` (~154 dòng) rail thư mục / kênh ~L138–148; `InboxScreen.tsx` (76).
@@ -109,7 +109,7 @@
 - [authz/rbac-permissions](../standards/authz/rbac-permissions.md) — `inbox.reply` / `inbox.manage`, scope `inbox`.
 - [domain/concurrency](../standards/domain/concurrency.md) — lease phiên, CAS `version`, bỏ trùng.
 - [domain/validation-defaults](../standards/domain/validation-defaults.md) — SĐT VN, độ dài từ khoá.
-- [domain/gap-filling](../standards/domain/gap-filling.md) — không tự tạo khách / đơn, không nhắn hàng loạt (Q-911).
+- [domain/gap-filling](../standards/domain/gap-filling.md) — hành vi đã chốt DC-921 (agent là nhân viên); không nhắn hàng loạt (D06).
 - [ui/frontend-structure](../standards/ui/frontend-structure.md) · [ui/prototype-parity](../standards/ui/prototype-parity.md) (§6b mức 2) · [ui/interaction-patterns](../standards/ui/interaction-patterns.md) · [i18n/i18n](../standards/i18n/i18n.md).
 - [ops/observability-security](../standards/ops/observability-security.md) — không log SĐT / nội dung bình luận; metric độ trễ live.
 - [code/testing](../standards/code/testing.md) · [workflow/git-flow-ci](../standards/workflow/git-flow-ci.md).
@@ -124,7 +124,7 @@
 5. Kiểm `contact.create` nhận `phone` + `source` + nguồn kênh; `contact_identity` gắn bằng cách nào (form khách từ hội thoại). Dùng đường có sẵn, không thêm action.
 
 ## TASK
-Gom bình luận livestream Facebook / Instagram theo phiên, đánh dấu bình luận có ý mua / SĐT / câu hỏi; người bấm tạo khách và đơn từ form điền sẵn.
+Gom bình luận livestream Facebook / Instagram theo phiên, đánh dấu bình luận có ý mua / SĐT / câu hỏi; người (form điền sẵn) hoặc AI agent trực kênh (gọi thẳng) tạo khách và đơn, trả lời / nhắn riêng người bình luận.
 - **Pha 1:** migration live; phiên mở / đóng từ webhook; FB SSE + poll đối soát, IG webhook; cờ ý mua / SĐT / câu hỏi; 4 action `live.*`; API đọc.
 - **Pha 2:** mục "Livestream" ở rail Hộp thư, danh sách phiên, màn phiên (luồng bình luận + bảng cờ), tạo khách / đơn điền sẵn, cài đặt từ khoá; mock, i18n, parity mask PD-905, e2e.
 
@@ -182,17 +182,25 @@ Gom bình luận livestream Facebook / Instagram theo phiên, đánh dấu bình
    - **Câu hỏi:** dấu `?` hoặc "bao nhiêu", "giá", "ship", "còn size".
 2. **Ghi cờ:** một bình luận một cờ (`message_id` pk, `ON CONFLICT DO NOTHING`). Khách đã có cờ `buy` / `phone` trạng thái `new` trong phiên → không thêm cờ trùng, chỉ cập nhật cờ đó (SĐT mới, mã SP mới).
 3. **AI phân loại theo lô (tuỳ chọn, mặc định tắt):** bình luận không khớp luật gom 20 cái / 10 giây → một lượt LLM qua Agent Gateway, trừ credit (`CreditMeter`, idempotent theo `live:<sessionId>:<batchNo>`). Hết credit → tắt AI phân loại cho phiên, giữ luật. AI chỉ gắn cờ, không gửi gì.
-4. Cờ không kích hành vi gửi ra: không tự trả lời, không tự nhắn riêng, không tự tạo khách / đơn (Q-911).
+4. Luật cờ / lượt phân loại chỉ gắn cờ, không gửi, không tạo đơn. Trả lời / chốt đơn là việc của nhân viên — người hoặc agent trực kênh (§5b).
+
+### 5b. AI agent chốt đơn từ live (DC-921 — agent là nhân viên)
+1. Bình luận live là bình luận thường của 048f → agent theo `ai_mode` của tài khoản: `auto` trả lời công khai ngay, gọi `comment.private_reply` khi cần (IG: khi phiên còn `live`).
+2. Agent được cấp `contact.create` / `order.create` / `live.flag_update` (Builder): tạo khách / đơn thẳng trong lượt, đơn mang `conversation_id` = hội thoại bình luận (đường `linkConversation` có sẵn); sau đó `live.flag_update` `handled` + id. Không cần người bấm.
+3. Lượt agent trên hội thoại bình luận live nhận thêm cờ đang `new` của chính khách trong phiên (intent, SĐT, mã SP) — 1–2 dòng gọi `liveContext()` của `live-flags.ts` từ `comment-reply.ts` (048f).
+4. **Hàng đợi:** lượt agent đi `agent-reply` có sẵn (gom 3 giây theo hội thoại). Live đông → nhiều hội thoại → ghi metric `live_agent_turns_total`; không thêm hàng đợi riêng.
+5. Mẫu agent "Livestream & Chốt đơn" (`tpl_27`, `catalog.ts` ~L48, prototype L10911): không đổi danh mục. Shop tự cấp Tools ở Builder như mọi agent.
+6. Luật chung giữ nguyên: không action bulk cho cờ; không nhắn hàng loạt người bình luận / người xem (D06); ngưỡng báo giá / giảm giá COMMERCE.
 
 ### 6. Action — `packages/actions/src/live.ts` (module `inbox`)
 | Action | Risk | Quyền | agentGrantable | Ghi chú |
 |---|---|---|---|---|
 | `live.list` | read | `inbox.view` + scope | read: true | Lọc `status`, `channel_account_id`; keyset `(started_at, id)` |
 | `live.get` | read | `inbox.view` + scope | read: true | Phiên + đếm + số cờ theo trạng thái |
-| `live.flag_update` | write | `inbox.reply` + scope | false | Input `{ message_id, status: handled · ignored · new, contact_id?, order_id?, if_version }`. CAS. Gắn `contact_id` / `order_id` sau khi người dùng tạo bằng form. Undo 24 giờ |
+| `live.flag_update` | write | `inbox.reply` + scope | true | Input `{ message_id, status: handled · ignored · new, contact_id?, order_id?, if_version }`. CAS. Gắn `contact_id` / `order_id` sau khi người dùng tạo bằng form. Undo 24 giờ |
 | `live.update_settings` | config | `inbox.manage` | false | Input `{ channel_account_id, keywords, ai_classify, if_version }` → `channel_account.settings.live` |
 
-- Không action tạo khách / đơn mới: FE mở form `contact.create` / `order.create` có sẵn, điền sẵn; tạo xong gọi `live.flag_update` gắn id (Q-911, Q-912).
+- Không action tạo khách / đơn mới: người dùng mở form `contact.create` / `order.create` có sẵn (điền sẵn), agent gọi thẳng hai action đó; tạo xong gọi `live.flag_update` gắn id (DC-921, Q-912).
 - Không action bulk cho cờ (không "xử lý tất cả", không "nhắn tất cả").
 - Action ghi có `preview()`. Nhãn `actions.live__*.title` vi + en. Ô `message_id` có đường tra (§7).
 
@@ -242,7 +250,7 @@ Gom bình luận livestream Facebook / Instagram theo phiên, đánh dấu bình
 | 3 | Given hai worker ROLE=channels, when cùng nhận job phiên, then chỉ một giữ `lease:live:<sessionId>` và mở SSE; worker giữ lease chết → worker kia nhận sau ≤ 30 giây | `live-sessions.test.ts` (2 runner, Redis thật) |
 | 4 | Given 2.000 bình luận live dồn vào `live-comments`, when đồng thời khách nhắn tin direct, then tin direct vào Hộp thư ≤ 3 giây (queue `channel-inbound` không xếp sau live) | `live-sessions.test.ts` (đo thời gian) |
 | 5 | Given bình luận "0912 345 678 chốt áo M", "+1", "giá bao nhiêu?", "100k ship ko", "mã AO12" và từ khoá cấu hình "gom", when phát hiện, then đúng intent / SĐT `+84912345678` / mã SP; "100k" không thành SĐT; cùng khách hai lần → một cờ | `packages/core/test/live-intent.test.ts` (bảng ca) + `live-sessions.test.ts` |
-| 6 | Given cờ `buy`, when người bấm "Tạo đơn", then form đơn điền sẵn khách + dòng SP; không có đơn / khách nào được tạo trước khi người bấm Lưu; sau Lưu `live.flag_update` gắn `order_id`, cờ `handled`; hai người xử lý cùng cờ → một người 409 `CONFLICT` | `LiveFlagPanel.test.tsx` + `live-sessions.test.ts` + `pnpm e2e inbox-live` |
+| 6 | Given cờ `buy`, when người bấm "Tạo đơn", then form đơn điền sẵn khách + dòng SP; sau Lưu `live.flag_update` gắn `order_id`, cờ `handled`; hai người xử lý cùng cờ → một người 409 `CONFLICT`. Given tài khoản `ai_mode = auto`, agent được cấp `contact.create` / `order.create` / `live.flag_update`, when khách bình luận "0912 345 678 chốt áo M", then agent trả lời công khai, tạo khách + đơn (đơn có `conversation_id`), cờ `handled` + id — không cần người bấm | `LiveFlagPanel.test.tsx` + `live-sessions.test.ts` + `pnpm e2e inbox-live` |
 | 7 | Given IG `live_comments` khi đang phát, when phiên kết thúc, then `comment.private_reply` bình luận live IG → 409 `live_session_ended`; trước đó gửi được (transport `fake`) | `live-sessions.test.ts` + fixture `ig_live_comments.json` |
 | 8 | Given vai trò không có `inbox.reply`, when `live.flag_update`, then 403; không có `inbox.manage` → `live.update_settings` 403; scope own → chỉ thấy bình luận hội thoại mình phụ trách; không có action bulk / nhắn hàng loạt | `live-sessions.test.ts` + `packages/core/test/assistant-coverage.test.ts` |
 | 9 | Given 50 phiên, 200k bình luận live, 20k cờ, when danh sách phiên, luồng cờ `new` LIMIT 50, luồng bình luận một phiên LIMIT 50, then Index Scan đúng index §1 / 048f, không Seq Scan | EXPLAIN (ANALYZE, BUFFERS) dán report |
@@ -260,17 +268,18 @@ Gom bình luận livestream Facebook / Instagram theo phiên, đánh dấu bình
 
 ## CONSTRAINTS
 - **DO NOT:**
-  - Tự tạo khách / đơn từ cờ; tự trả lời / tự nhắn riêng người bình luận live (Q-911).
+  - Luật cờ / lượt phân loại tự tạo khách / đơn hay tự gửi (chỉ nhân viên — người hoặc agent trực kênh — làm, §5b).
+  - Thêm luật / chặn riêng cho agent trên bình luận live (DC-921).
   - Nhắn riêng hàng loạt người bình luận / người xem live; action bulk cho cờ.
   - Thêm permission mới (Q-912).
   - Xử lý live trên hàng đợi `channel-inbound`; mở SSE khi không giữ lease.
   - Thêm thư viện SSE / EventSource (đọc stream bằng `fetch`).
-  - Bật AI phân loại mặc định; AI gửi bất cứ gì ra ngoài.
+  - Bật AI phân loại mặc định; lượt phân loại gửi bất cứ gì ra ngoài.
   - `switch (type)` ở core / UI — đọc `capabilities.live`.
   - Thêm `workspace_id` / RLS; FK sang contact / order.
   - Log SĐT / nội dung bình luận / token.
 - **REUSE:**
-  - `ingestComment`, hội thoại `comment`, `comment.*`, `CommentMenu`, `useCommentActions`, `comment-ai-policy.ts` (048f).
+  - `ingestComment`, hội thoại `comment`, `comment.*`, `CommentMenu`, `useCommentActions`, `comment-reply.ts` (048f).
   - `meta/graph.ts`, `meta/webhook.ts`, `fake-transport.ts` (048e); ingress + biên nhận (048b).
   - `lease.ts`, `with-job-context`, `CreditMeter`, fanout realtime.
   - `contact.create` / `order.create` + `OrderFormModal` / form khách có sẵn (điền sẵn, IP-3.6).
@@ -278,12 +287,11 @@ Gom bình luận livestream Facebook / Instagram theo phiên, đánh dấu bình
   - Live TikTok / Shopee (không có API — Sắp có, REQ-B08b).
   - Phát live, ghim bình luận, chặn người xem.
   - Thống kê / báo cáo phiên live (D19).
-  - Agent "Livestream & Chốt đơn" tự chốt (mẫu agent prototype L10911 chỉ là mẫu, không tự gửi).
 
 ## Quality Gate
 - [x] Manifest chính xác (file-level M/C). Giao file khai hai phía bằng `manifests.py --sync` khi Chủ thầu ghép dải 048.
 - [x] Bảng / action / path khớp DC-915 + brief §3.3; thêm `live_comment_flag.version` có lý do (CAS).
-- [x] Không tạo đơn / khách tự động, không nhắn hàng loạt (Q-911); không permission mới (Q-912).
+- [x] Agent là nhân viên (DC-921): trả lời / tạo khách + đơn như người; luật cờ không tự tạo; không nhắn hàng loạt; không permission mới (Q-912).
 - [x] Lease một phiên, hàng đợi riêng, SSE + poll không trùng; index theo indexing.md; EXPLAIN.
 - [x] 11 AC có Given / When / Then + bằng chứng; ô cần live thật ghi trung thực.
 - **Gap đã khai:**
@@ -294,7 +302,7 @@ Gom bình luận livestream Facebook / Instagram theo phiên, đánh dấu bình
 ## ⚠️ BUILDER-CHECKLIST (agent PHẢI hoàn thành trước khi báo DONE)
 - [ ] Implement đúng `Files touched` (manifest), không thêm file ngoài scope; BE 200–400 dòng (trần 600), FE 150–250 (trần 400); `LiveSessionScreen.tsx` ≤ 250, `page.tsx` ≤ 120.
 - [ ] AC 1–11 có kết quả từng cái, dán output thật (`pnpm …`, EXPLAIN); ô cần live thật ghi "chưa nghiệm thu với provider thật".
-- [ ] **Action-first (BUILDER-HANDOFF):** mọi ghi qua `ActionExecutor`; FE chỉ `useAction(id).run(input)`; tạo khách / đơn qua action có sẵn từ form người bấm.
-- [ ] **AI gửi ra ngoài (D06 / D51, Q-911):** AI chỉ gắn cờ; không tự trả lời / nhắn riêng / tạo đơn.
+- [ ] **Action-first (BUILDER-HANDOFF):** mọi ghi qua `ActionExecutor`; FE chỉ `useAction(id).run(input)`; tạo khách / đơn qua action có sẵn (form của người, tool của agent).
+- [ ] **Agent là nhân viên (DC-921, D51):** agent `auto` trả lời + tạo khách / đơn thẳng bằng Tools ở Builder; luật cờ / phân loại không gửi, không tạo; gửi hàng loạt vẫn duyệt (D06).
 - [ ] **Tenant DB:** không `workspace_id`; chạy CẢ `db:generate` → `db:migrate-tenants` → `db:setup`; template có `20261115130000_live_sessions`.
 - [ ] Không báo DONE nếu test chưa chạy. `git status --short` sạch, báo kèm Git SHA.

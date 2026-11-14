@@ -54,7 +54,7 @@
   - 048d ghép trước vì cùng sửa `registry.ts`, `coming-soon.ts`, `channels.env.ts`, `channels.module.ts`, `channels.test.ts`, `e2e/http/channels.spec.ts`, `.env.example`, chuỗi kênh.
   - 048f (bình luận) / 048g (live) xây trên `meta/graph.ts`, `meta/webhook.ts`, adapter `facebook` / `instagram` của TIP này.
 - **Files touched:** [exact M/C manifest](manifests/TIP-048e-files.md). Thư mục mới `packages/channels/src/meta/`, `facebook/`, `instagram/` và `packages/core/src/channels/meta/`. Không file prisma, không migration. Sửa có chủ đích file của TIP khác: `channel-hooks.controller.ts` (048b — route data deletion), `registry.ts` / `coming-soon.ts` / `index.ts`, `channels.module.ts` + `channels.env.ts`, `channels.jobs.module.ts` (lịch `token-check`), `channels.test.ts` + `e2e/http/channels.spec.ts`, `tools/scripts/e2e-http.mjs` (transport giả cho E2E http).
-- **Quyết định nguồn:** D62 (#1, #2, #5, #6) · DC-909 (kho token chung) · DC-910 (nền webhook) · DC-913 · Q-908 · Q-907 (hạn mức kênh — tạm: có) · Q-911 (tag chỉ người gửi) · Blueprint §6 (~L1249), §4.7 (~L1090), K13.
+- **Quyết định nguồn:** D62 (#1, #2, #5, #6) · DC-909 (kho token chung) · DC-910 (nền webhook) · DC-913 · Q-908 · Q-907 (hạn mức kênh — tạm: có) · DC-921 (agent là nhân viên; tag HUMAN_AGENT là chính sách Meta — người thật) · Blueprint §6 (~L1249), §4.7 (~L1090), K13.
 - **Dòng COVERAGE nhận:** REQ-B08 (facebook, instagram) · BP-6-meta · D62-channels · DC-913 · Q-908
 
 ## CONTEXT
@@ -223,7 +223,7 @@ Bật **Facebook Page (Messenger)** và **Instagram** (gắn Page) thật trên 
 
 ### 6. Cửa sổ 24 giờ + HUMAN_AGENT (dùng `send-window.ts` của 048b, không viết lại)
 - `last_inbound_at` ≤ 24 giờ → `open`: mọi nguồn gửi được (người, AI, agent, follow-up).
-- 24 giờ < t ≤ 7 ngày → `tag` chỉ khi người gửi là người (nguồn `ui`, actor người dùng); AI / agent / follow-up / chiến dịch → `window_closed` (409 ở `outbound.ts`; job đã chờ qua mốc → kết quả cuối `window_closed` ở `send.processor.ts`, không thử lại).
+- 24 giờ < t ≤ 7 ngày → `tag` chỉ khi người thật gửi (nguồn `ui`, actor người dùng) — chính sách HUMAN_AGENT của Meta, không phải luật riêng của AppChat cho agent (DC-921); agent / follow-up / chiến dịch → `window_closed` (409 ở `outbound.ts`; job đã chờ qua mốc → kết quả cuối `window_closed` ở `send.processor.ts`, không thử lại).
 - > 7 ngày → `closed` với mọi nguồn.
 - Cửa sổ quảng cáo Click-to-Messenger 7 ngày: không làm (hợp đồng `window` chưa có), ghi Gap.
 - Chiến dịch marketing không mở cho `facebook` / `instagram` (luật 048b).
@@ -308,7 +308,7 @@ Bật **Facebook Page (Messenger)** và **Instagram** (gắn Page) thật trên 
 ## CONSTRAINTS
 - **DO NOT:**
   - Lưu user token Facebook; đưa page token vào `credentials_enc`; đặt token trên URL; log token / PSID / IGSID / nội dung tin / `signed_request`.
-  - Tự đặt tag; dùng tag khác `HUMAN_AGENT`; cho AI / agent / follow-up / chiến dịch dùng tag; gửi ngoài 7 ngày.
+  - Tự đặt tag; dùng tag khác `HUMAN_AGENT`; gắn tag cho tin không do người thật gửi (vi phạm chính sách Meta); gửi ngoài 7 ngày.
   - Làm Instagram Login (`graph.instagram.com`, token 60 ngày) — DC-913 e.
   - Làm bình luận / feed / livestream (048f / 048g): `changes[]` chỉ bỏ qua.
   - Thêm bảng / cột / migration; thêm permission (Q-912).
@@ -328,7 +328,7 @@ Bật **Facebook Page (Messenger)** và **Instagram** (gắn Page) thật trên 
 
 ## Quality Gate
 - [x] Manifest chính xác (file-level M/C); M path tương lai do 048b tạo (`channel-hooks.controller.ts`) ghi rõ.
-- [x] Khớp DC-913 (a)–(e), D62 #1 / #2 / #5 / #6, Q-911 (tag chỉ người gửi), DC-910 (một POST nhiều route nhiều workspace).
+- [x] Khớp DC-913 (a)–(e), D62 #1 / #2 / #5 / #6, DC-921 (tag HUMAN_AGENT chỉ người thật — chính sách Meta), DC-910 (một POST nhiều route nhiều workspace).
 - [x] Theo checklist "Thêm một kênh mới" cho `facebook` + `instagram`; `messenger` chỉ là thẻ `via`.
 - [x] Webhook: verify mức App, idempotent theo `mid`, 200 nhanh, xử lý nền; data deletion đúng định dạng Meta.
 - **Gap đã khai:**

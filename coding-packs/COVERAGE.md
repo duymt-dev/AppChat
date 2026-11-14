@@ -14,12 +14,12 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 157 | 10 | 0 | 13 | 14 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 134 | 7 | 0 | 2 | 24 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 59 | 11 | 21 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 60 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 403 | 33 | 1 | 5 | 59 | 3 | 0 | 0 |
 | E. standards/* | 226 | 31 | 0 | 7 | 27 | 1 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 67 | 1 | 18 | 0 | 29 | 6 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 20 | 38 | 2 | 0 | 0 |
-| **Tổng** | **1227** | **100** | **20** | **56** | **250** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 20 | 39 | 2 | 0 | 0 |
+| **Tổng** | **1227** | **100** | **20** | **56** | **252** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -101,8 +101,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | ĐẠT | TIP-014b D1 + C2: core/src/inbox/services/inbound-sync-policy.ts áp sync_messages / sync_auto_create_contact trước khi ghi (live + lịch sử chung chính sách); lịch sử 0/7/30/90 bền có giới hạn (operations/history-run.ts); test apps/api/test/integration/channel-sync-policy.test.ts, channel-history.test.ts |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
 | REQ-B12 | Nền kênh webhook: route mức App, chữ ký, biên nhận, cửa sổ gửi chặn lúc ghi + lúc gửi, tag chỉ người gửi | 01-REQUIREMENTS-MATRIX.md:60 | 048b | CHƯA | TIP-048b |
-| REQ-B13 | Bình luận bài đăng FB / IG / TikTok vào Hộp thư; trả lời công khai / nhắn riêng / ẩn / xoá / thích; AI chỉ gợi ý | 01-REQUIREMENTS-MATRIX.md:61 | 048f, 048h | CHƯA | TIP-048f · 048h (bình luận video TikTok) |
-| REQ-B14 | Livestream FB / IG: gom bình luận, cờ ý mua / SĐT, người bấm tạo khách + đơn | 01-REQUIREMENTS-MATRIX.md:62 | 048g | CHƯA | TIP-048g |
+| REQ-B13 | Bình luận bài đăng FB / IG / TikTok vào Hộp thư; trả lời công khai / nhắn riêng / ẩn / xoá / thích; agent làm như nhân viên (DC-921) | 01-REQUIREMENTS-MATRIX.md:61 | 048f, 048h | CHƯA | TIP-048f · 048h (bình luận video TikTok) |
+| REQ-B14 | Livestream FB / IG: gom bình luận, cờ ý mua / SĐT, người / agent tạo khách + đơn | 01-REQUIREMENTS-MATRIX.md:62 | 048g | CHƯA | TIP-048g |
 | REQ-B15 | Một nguồn danh sách kênh (Cài đặt, modal, Hộp thư, Agents, form); kênh chưa có adapter = Sắp có | 01-REQUIREMENTS-MATRIX.md:63 | 048c | CHƯA | TIP-048c |
 | REQ-B16 | Kết nối bằng đăng nhập nền tảng: chọn Page / OA / tài khoản, một Page / OA một workspace, hạn uỷ quyền + uỷ quyền lại | 01-REQUIREMENTS-MATRIX.md:64 | 048, 048b, 048c | CHƯA | TIP-048 (OAuth + kho token) · 048b (chọn tài khoản) · 048c (UI) |
 | REQ-B17 | Khối Đồng bộ theo năng lực kênh; "Đánh giá" ẩn | 01-REQUIREMENTS-MATRIX.md:65 | 048c | CHƯA | TIP-048c |
@@ -700,7 +700,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D62-oauth | OAuth + một kho token, một App Zalo cho kênh OA + ZCC (D62 #2) | 01-REQUIREMENTS-MATRIX.md:336 | 048 | CHƯA | TIP-048 |
 | D62-foundation | Nền kênh webhook + cửa sổ gửi + một Page / OA một workspace (D62 #2, #5) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b |
 | D62-channels | Zalo OA, Facebook Page / Messenger, Instagram, TikTok có adapter thật (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048d, 048e, 048h | CHƯA | TIP-048d · 048e · 048h |
-| D62-comments | Bình luận bài đăng vào Hộp thư, AI chỉ gợi ý (D62 #3) | 01-REQUIREMENTS-MATRIX.md:336 | 048f | CHƯA | TIP-048f |
+| D62-comments | Bình luận bài đăng vào Hộp thư, agent trả lời như nhân viên (D62 #3, DC-921) | 01-REQUIREMENTS-MATRIX.md:336 | 048f | CHƯA | TIP-048f |
 | D62-live | Livestream FB + IG; live TikTok / Shopee Sắp có (D62 #4) | 01-REQUIREMENTS-MATRIX.md:336 | 048g | CHƯA | TIP-048g |
 | D62-soon | Kênh còn lại "Sắp có" theo registry (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048c | CHƯA | TIP-048c (PD-903) |
 | D62-quota | Hạn mức kênh của gói cho kênh mới (D62 #6 — Q-907 mở, tạm theo đề xuất) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b §chọn tài khoản (`QuotaService.assert('channels')`) |
@@ -712,8 +712,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-912 | Kênh Zalo OA: tin tư vấn ≤ 7 ngày, chữ ký, limiter hai tầng, upload | DECISIONS.md:493 | 048d | CHƯA | TIP-048d |
 | DC-913 | Facebook Page / Messenger + Instagram: 24 giờ + HUMAN_AGENT người gửi, echo, data deletion | DECISIONS.md:494 | 048e | CHƯA | TIP-048e |
 | DC-914 | Bình luận bài đăng: hội thoại comment, social_post, công khai / riêng / ẩn / xoá / thích | DECISIONS.md:495 | 048f | CHƯA | TIP-048f |
-| DC-915 | Livestream FB / IG: phiên + cờ, SSE + poll, người bấm tạo khách / đơn | DECISIONS.md:496 | 048g | CHƯA | TIP-048g |
+| DC-915 | Livestream FB / IG: phiên + cờ, SSE + poll, người / agent tạo khách / đơn | DECISIONS.md:496 | 048g | CHƯA | TIP-048g |
 | DC-916 | TikTok Business Messaging + bình luận video, 48 giờ / 10 + 3 tin | DECISIONS.md:497 | 048h | CHƯA | TIP-048h |
+| DC-921 | AI agent là nhân viên trên kênh D62: không trần gợi ý / luật riêng; `comment.*` (trừ delete) + `live.flag_update` cấp được cho agent; giữ luật chung §3.3 / D06 + luật nền tảng | DECISIONS.md:498 | 048f, 048g, 048h | CHƯA | TIP-048f §3 / §6 · 048g §5–6 · 048h §5 |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1133,7 +1134,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-6-zalo-oa | Zalo OA: tin tư vấn ≤ 7 ngày, rate App 4.000 / phút chung + OA theo gói (D62) | plans/BLUEPRINT.md:1249 | 048d | CHƯA | TIP-048d (Zalo thật CHỜ-TK Q-909) |
 | BP-6-meta | Facebook Page / Instagram: 24 giờ + HUMAN_AGENT người gửi 7 ngày (D62) | plans/BLUEPRINT.md:1249 | 048e | CHƯA | TIP-048e (Meta thật CHỜ-TK Q-908) |
 | BP-6-tiktok | TikTok: 48 giờ, 10 tin trước khi khách trả lời, +3 sau 48 giờ (D62) | plans/BLUEPRINT.md:1249 | 048h | CHƯA | TIP-048h (TikTok thật CHỜ-TK Q-910) |
-| BP-6-comments-live | Bình luận = hội thoại comment; livestream FB SSE + poll / IG webhook; AI chỉ gợi ý (D62) | plans/BLUEPRINT.md:1249 | 048f, 048g | CHƯA | TIP-048f · 048g |
+| BP-6-comments-live | Bình luận = hội thoại comment; livestream FB SSE + poll / IG webhook; agent làm như nhân viên (D62, DC-921) | plans/BLUEPRINT.md:1249 | 048f, 048g | CHƯA | TIP-048f · 048g |
 | BP-6b-voice | VOICE: `packages/voice` (LiveKit phòng / SIP / webhook, ZCC, ghi track, VoiceAiEnginePort), một cuộc = một phòng | plans/BLUEPRINT.md:1243 | 047, 047c | CHƯA | TIP-047 · TIP-047c |
 | BP-8-a | VietQR tự sinh payload + render ảnh `qrcode` | plans/BLUEPRINT.md:1321 | 032b | ĐẠT | packages/core/src/sales/payments/services/invoice-qr.ts (qrcode 1.5.4, DV-025) — ảnh QR trong PDF đề nghị + endpoint; decode bằng jsqr trong commerce-delivery.test.ts |
 | BP-8-b | Brevo MailProvider + webhook bounce/complaint | plans/BLUEPRINT.md:1319 | 004, 004c | MỘT PHẦN | integrations/connectors/brevo (CHỜ-TK Q-004); webhook bounce không có; TIP-004c nhận (2026-11-02) |
@@ -1830,8 +1831,9 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-908 | Meta Business Verification + App Review + domain HTTPS | QUESTIONS.md:85 | 048e | CHỜ-TK | Chủ nhà nộp; test bằng transport giả |
 | Q-909 | App Zalo quyền OA API + OA thử gói Tăng trưởng; gói OA khách tự mua | QUESTIONS.md:86 | 048d | CHỜ-TK | Dùng chung App ZCC (DC-909); test bằng transport giả |
 | Q-910 | TikTok Business Messaging API + Accounts API form | QUESTIONS.md:87 | 048h | CHỜ-TK | Chủ nhà nộp; test bằng transport giả |
-| Q-911 | Hành vi gửi ra mới: nhắn riêng / trả lời công khai / HUMAN_AGENT / live | QUESTIONS.md:88 | 048f | CHƯA | Tạm theo đề xuất: chỉ người bấm, AI chỉ gợi ý |
-| Q-912 | Quyền cho bình luận / livestream | QUESTIONS.md:89 | 048f | CHƯA | Tạm theo đề xuất: không thêm permission (inbox.reply / inbox.manage) |
+| Q-911 | Hành vi gửi ra mới: nhắn riêng / trả lời công khai / HUMAN_AGENT / live | QUESTIONS.md:88 | 048f, 048g, 048h | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): agent là nhân viên, trả lời / nhắn riêng / tạo đơn thẳng — thi công ở 048f §6, 048g §5, 048h §5 |
+| Q-912 | Quyền cho bình luận / livestream | QUESTIONS.md:89 | 048f, 048g | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): không thêm permission, không luật quyền riêng cho agent (Tools ở Builder, D51) |
+| Q-918 | Luật cũ "AI chỉ gợi ý" (COMMERCE §5 giai đoạn cơ hội, đề xuất sau cuộc gọi, D61 #8) có theo Q-911 không | QUESTIONS.md:91 | 026c, 047c | CHƯA | Mở — giữ luật đã chốt tới khi Chủ nhà nói |
 | Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | CHƯA | Tạm theo đề xuất: Memurai riêng; ALTER ROLE chỉ khi Chủ nhà `--apply` |
 | PD-903 | Danh sách kênh theo registry + Sắp có cho WA / Telegram / LINE / Viber / WeChat | docs/06-prototype/DEVIATIONS.md:49 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
 | PD-904 | Hộp thư bình luận (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:50 | 048f | CHƯA | TIP-048f (duyệt / từ chối lúc verify) |

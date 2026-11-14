@@ -270,7 +270,7 @@ Action ở file **mới** (`settings-apps.ts` đã 408 dòng). Export ở `packa
 4. **Hạn mức (Q-907, đang mở):**
    - Mỗi tài khoản (Page / OA / IG / TikTok) = 1 kênh, như 3 kênh cũ. Theo đề xuất, chưa có quyết định cuối.
    - Đảo ngược được bằng cờ `QUOTA_COUNT_OAUTH_CHANNELS` (mặc định `true`). `false` → bỏ bước 2.2 cho kênh có `connect.oauth`. Ghi "Giả định đã chọn" trong report.
-5. **Quyền:** không thêm permission (Q-912). Không agent nào được cấp `channel.oauth_select` / `channel.reauthorize` (D51 — chỉ người).
+5. **Quyền:** không thêm permission (Q-912). `channel.oauth_select` / `channel.reauthorize` risk `config` → `agentGrantable: false` theo bảng nguồn × rủi ro §3.3 có sẵn (cấu hình luôn do người; OAuth cần đăng nhập nền tảng trên trình duyệt) — luật chung, không phải luật riêng cho kênh mới (DC-921).
 
 ### 7. Cửa sổ gửi (`core/inbox/services/send-window.ts`)
 1. Hàm thuần `windowState({ manifest, lastInboundAt, outSinceInbound, now, sender }) → { state: 'open' | 'tag' | 'closed'; reason?: 'window_closed' | 'window_tag_required' }`:
@@ -285,7 +285,7 @@ Action ở file **mới** (`settings-apps.ts` đã 408 dòng). Export ở `packa
    - `now` lấy từ `Clock` (003g). `outSinceInbound` đếm tin `out` có `created_at > last_inbound_at` (index Rà #9).
 2. **Người gửi** (`sender`):
    - `human` = action nguồn `ui` do người bấm (`message.send` từ Hộp thư / 360°).
-   - Còn lại là `automation`: AI agent, Trợ lý thay người, follow-up, báo giá / đơn / phiếu thu tự gửi, chiến dịch, system. **Không bao giờ dùng tag.**
+   - Còn lại là `automation`: AI agent, Trợ lý thay người, follow-up, báo giá / đơn / phiếu thu tự gửi, chiến dịch, system. **Không bao giờ dùng tag** — tag HUMAN_AGENT của Meta chỉ cho người thật trả lời (chính sách nền tảng). Trong cửa sổ, agent gửi như người (DC-921).
    - `SendJob` thêm `sender` (thiếu = `automation`).
 3. **Tham số kênh** (adapter 048d / 048e / 048h khai, 048b chỉ hỗ trợ):
 

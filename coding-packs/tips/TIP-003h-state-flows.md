@@ -1,7 +1,6 @@
 # TIP-003h — Bảng defineFlow cho mọi entity có trạng thái còn thiếu
 
 ## HEADER
-- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/actions/conversation-state.handlers.ts`; integrate 003h before048f.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003h before047c.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003h before032e.
 - TIP-ID: TIP-003h; Project: AppChat V2; Module: shared state machines; Priority: P1; Estimated: M. TIP bổ sung cho TIP-003 (đã DONE, không sửa file gốc — DC-233).

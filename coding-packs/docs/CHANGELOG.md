@@ -860,8 +860,8 @@ Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon
 
 **Thay đổi:**
 - **Kênh mới có adapter thật:** Zalo OA (tin tư vấn ≤ 7 ngày), Facebook Page / Messenger, Instagram (gắn Page), TikTok Business Messaging (Beta). Kết nối bằng đăng nhập nền tảng (OAuth) + chọn Page / OA / tài khoản; một Page / OA chỉ thuộc một workspace.
-- **Bình luận bài đăng** (Facebook / Instagram / TikTok) vào Hộp thư: trả lời công khai, nhắn riêng, ẩn, xoá, thích; AI chỉ gợi ý.
-- **Livestream** Facebook / Instagram: gom bình luận theo phiên, cờ ý mua / SĐT; người bấm tạo khách + đơn.
+- **Bình luận bài đăng** (Facebook / Instagram / TikTok) vào Hộp thư: trả lời công khai, nhắn riêng, ẩn, xoá, thích; AI agent trả lời thẳng như nhân viên (Q-911 chốt 2026-11-14).
+- **Livestream** Facebook / Instagram: gom bình luận theo phiên, cờ ý mua / SĐT; người hoặc AI agent tạo khách + đơn, trả lời / nhắn riêng người bình luận.
 - **Vẫn "Sắp có":** ZNS, WhatsApp, WhatsApp Business API, Telegram, LINE, Viber, WeChat; bình luận bài Zalo OA; live TikTok / Shopee; chat người mua trên sàn. Danh sách kênh ở mọi màn lấy từ registry (PD-903).
 - **Hạ tầng thi công:** TIP-035d cô lập worktree (DB / cổng / Memurai / slot Postgres riêng) để ba luồng A (TIP cũ) / B (Gọi điện) / C (Kênh) chạy song song.
 - **Kho token OAuth chung** (`oauth_grant` + `TokenVault`): một App Zalo cho kênh OA và Zalo Cloud Connect; TIP-047 / 047b / 047c / 047d sửa theo (DC-909).
