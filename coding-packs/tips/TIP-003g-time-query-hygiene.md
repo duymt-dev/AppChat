@@ -1,6 +1,8 @@
 # TIP-003g — Đồng hồ qua Clock, nhắc trong giờ làm việc, ngày hôm nay ở FE, không SELECT *, test đếm query
 
 ## HEADER
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 003g before048b.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/src/features/orders/components/OrderFormModal.tsx`; integrate 003g before048g.
 - TIP-ID: TIP-003g; Project: AppChat V2; Module: kernel time + query budget; Priority: P0; Estimated: M. TIP bổ sung cho TIP-003 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 019b, 012c, 014b (channels jobs chung file) đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-003g-files.md) — 16 paths (5 C). M path tương lai phải do TIP tạo trước tích hợp xong.

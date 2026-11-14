@@ -145,7 +145,7 @@
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
 | D03 | Trợ lý = orchestrator điều phối agent + copilot điều khiển mọi action UI | 01-REQUIREMENTS-MATRIX.md:253 | 023c | ĐẠT | 023b: mọi action có handler qua call_action + preview; 023c: Trợ lý theo màn 7 drawer + Agents + Hộp thư + Dock (apps/web/src/shared/assistant/useScreenAssistant.ts), UiCommandBus highlight / filter / open, action GenUI qua intent server ký (apps/api/src/http/kernel/actions.controller.ts:72); test e2e screen-assistant (mock + http), genui-context.test.ts |
 | D16 | Action-first: một Action Registry cho UI, Trợ lý, agent | 01-REQUIREMENTS-MATRIX.md:254 | 003 | QUY-TẮC | kernel/actions/executor.ts · test packages/actions/src/registry.test.ts; còn 17 lời gọi `transport.post/put/patch` trong apps/web/src/features chưa rà |
-| D04 | Kênh Zalo cá nhân + Web widget + Email | 01-REQUIREMENTS-MATRIX.md:255 | 014, 017, 018 | CHỜ-TK | packages/channels/src/{zalo-personal,webchat,email} · test zalo-adapter.test.ts, webchat.test.ts, email.test.ts; Zalo thật Q-003 |
+| D04 | Kênh Zalo cá nhân + Web widget + Email (mở rộng D62) | 01-REQUIREMENTS-MATRIX.md:280 | 014, 017, 018 | CHỜ-TK | packages/channels/src/{zalo-personal,webchat,email} · test zalo-adapter.test.ts, webchat.test.ts, email.test.ts; Zalo thật Q-003 |
 | D05 | Zalo cá nhân adapter cô lập, throttle chống khoá | 01-REQUIREMENTS-MATRIX.md:256 | 014 | CHỜ-TK | manifest.ts:22 jitter 2–6s; channels/jobs/send.processor.ts:43 · test channels.test.ts; Q-003 |
 | D06 | Tự chủ theo spec, ép duyệt tiền / HĐ / gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:257 | 003, 021 | ĐẠT | kernel/actions/policy.ts:8-26 · test packages/core/test/actions-unit.test.ts "policy nguồn × rủi ro" (ngưỡng 20M/5% riêng cho agent: COM-3-3) |
 | D07 | Không làm Workflow engine (Call Center vào phạm vi từ 2026-11-13 — D61) | 01-REQUIREMENTS-MATRIX.md:276 | — | NGOÀI | D07 (phần Workflow); Call Center → D61-* |
@@ -264,3 +264,21 @@ Ghi chú:
 | DC-905 | Giao diện Gọi điện, WebPhone, màn prototype không vẽ | DECISIONS.md:486 | 047d | CHƯA | TIP-047d |
 | DC-906 | Hạ tầng thoại native + SIP edge, cấu hình qua env, script mặc định `plan` | DECISIONS.md:487 | 047 | CHƯA | TIP-047 |
 | DC-907 | Chốt Q-902…906 + Voice AI tự dựng (STT PhoWhisper, TTS VieNeu-TTS local, giấy phép thương mại, giá STT / TTS = 0, giới hạn phiên, Hộp SIM "Sắp có") | DECISIONS.md:488 | 047, 047b, 047c, 047d | CHƯA | TIP-047 §3 · 047b §5 · 047c §7 · 047d §6 |
+| D62-worktree | Ba worktree song song: DB / cổng / Memurai / slot Postgres riêng (D62 #7) | 01-REQUIREMENTS-MATRIX.md:336 | 035d | CHƯA | TIP-035d |
+| D62-oauth | OAuth + một kho token, một App Zalo cho kênh OA + ZCC (D62 #2) | 01-REQUIREMENTS-MATRIX.md:336 | 048 | CHƯA | TIP-048 |
+| D62-foundation | Nền kênh webhook + cửa sổ gửi + một Page / OA một workspace (D62 #2, #5) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b |
+| D62-channels | Zalo OA, Facebook Page / Messenger, Instagram, TikTok có adapter thật (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048d, 048e, 048h | CHƯA | TIP-048d · 048e · 048h |
+| D62-comments | Bình luận bài đăng vào Hộp thư, AI chỉ gợi ý (D62 #3) | 01-REQUIREMENTS-MATRIX.md:336 | 048f | CHƯA | TIP-048f |
+| D62-live | Livestream FB + IG; live TikTok / Shopee Sắp có (D62 #4) | 01-REQUIREMENTS-MATRIX.md:336 | 048g | CHƯA | TIP-048g |
+| D62-soon | Kênh còn lại "Sắp có" theo registry (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048c | CHƯA | TIP-048c (PD-903) |
+| D62-quota | Hạn mức kênh của gói cho kênh mới (D62 #6 — Q-907 mở, tạm theo đề xuất) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b §chọn tài khoản (`QuotaService.assert('channels')`) |
+| D62-order | Thứ tự: 035d sớm nhất (ngay sau TIP chờ đang mở PR — 016b / 034d lúc viết); 048 sau 047b trước 047c / 047d; 048b → 048h trước 044 / 045 / 046 (D62 #8) | 01-REQUIREMENTS-MATRIX.md:336 | 035d, 048 | QUY-TẮC | `python -X utf8 tools/obligations/order.py` + `manifests.py --order` |
+| DC-908 | Cô lập 3 worktree: env theo bảng, Memurai riêng, slot Postgres, cổng theo env | DECISIONS.md:489 | 035d | CHƯA | TIP-035d |
+| DC-909 | Kho token OAuth chung + một App Zalo cho OA + ZCC; sửa 047 / 047b / 047c / 047d | DECISIONS.md:490 | 048 | CHƯA | TIP-048 |
+| DC-910 | Nền kênh webhook: route mức App, biên nhận, chọn tài khoản, cửa sổ gửi, registry | DECISIONS.md:491 | 048b | CHƯA | TIP-048b |
+| DC-911 | Giao diện kết nối kênh theo registry, Sắp có, Đồng bộ theo năng lực | DECISIONS.md:492 | 048c | CHƯA | TIP-048c |
+| DC-912 | Kênh Zalo OA: tin tư vấn ≤ 7 ngày, chữ ký, limiter hai tầng, upload | DECISIONS.md:493 | 048d | CHƯA | TIP-048d |
+| DC-913 | Facebook Page / Messenger + Instagram: 24 giờ + HUMAN_AGENT người gửi, echo, data deletion | DECISIONS.md:494 | 048e | CHƯA | TIP-048e |
+| DC-914 | Bình luận bài đăng: hội thoại comment, social_post, công khai / riêng / ẩn / xoá / thích | DECISIONS.md:495 | 048f | CHƯA | TIP-048f |
+| DC-915 | Livestream FB / IG: phiên + cờ, SSE + poll, người bấm tạo khách / đơn | DECISIONS.md:496 | 048g | CHƯA | TIP-048g |
+| DC-916 | TikTok Business Messaging + bình luận video, 48 giờ / 10 + 3 tin | DECISIONS.md:497 | 048h | CHƯA | TIP-048h |

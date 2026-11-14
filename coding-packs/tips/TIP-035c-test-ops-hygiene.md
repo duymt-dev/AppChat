@@ -1,6 +1,8 @@
 # TIP-035c — Vệ sinh kiểm thử & job quét: generator fixture, db:cleanup-test, E2E chập chờn, tập workspace "armed"
 
 ## HEADER
+- **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `packages/db/package.json`; integrate 035d before035c.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/e2e/settings.spec.ts`; integrate 035c before048c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `tools/scripts/fixtures/gen-inbox.py`; integrate 035c before047d.
 - TIP-ID: TIP-035c; Project: AppChat V2; Module: test tooling + tenant sweeps; Priority: P1; Estimated: M. TIP bổ sung cho TIP-035 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 003c, 006b, 041 (lifecycle), 045b đã tích hợp; trước 044/045/046.

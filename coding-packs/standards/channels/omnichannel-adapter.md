@@ -1,7 +1,7 @@
 # Omnichannel — Channel Adapter
 
 > Mục tiêu: thêm một kênh mới (Zalo OA, Messenger, Instagram, Telegram, WhatsApp, TikTok, SMS…) = **thêm một adapter + một bản ghi manifest**. Không sửa Inbox, CRM, AI hay schema DB.
-> Kênh phát hành: `zalo_personal`, `webchat`, `email`. Các kênh khác dùng cùng khung, bật khi có adapter.
+> Kênh phát hành: `zalo_personal`, `webchat`, `email` + **D62:** `zalo_oa`, `facebook` (thẻ `messenger` mở luồng này), `instagram`, `tiktok_messaging` (Beta). Các kênh khác dùng cùng khung, "Sắp có" tới khi có adapter.
 
 ## Quy tắc
 
@@ -15,7 +15,9 @@
 6. **Gửi luôn qua outbox + rate limiter của kênh.** Không gửi đồng bộ trong request.
    - Limiter lấy từ `manifest.rateLimit`, được ghi đè bằng `channel_account.settings`.
 7. **Kiểu kết nối khai báo trong manifest:** `connect.kind = 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed'`. Modal kết nối dựng form từ kiểu này cộng `connect.fields` (zod schema).
-8. **Session dài (Zalo, IMAP) dùng lease** (`lease:channel:{id}`) trong `worker-channels`. Kênh webhook (OA, Meta…) không cần lease; route `/hooks/channels/:type/:accountKey` tra `tenant_channel_route` để biết DB đích.
+8. **Session dài (Zalo, IMAP) dùng lease** (`lease:channel:{id}`) trong `worker-channels`. Kênh webhook (OA, Meta, TikTok) không cần lease; **một route mức App** `GET|POST /hooks/channels/:type` (D62, DC-910 — bỏ `:accountKey` vì nền tảng gửi một URL cho mọi Page / OA): `adapter.webhook.verify` (chữ ký mức App) → `split` thành `HookItem { routeKey: '<type>:<external_id>', eventKey, kind, body }` → tra `tenant_channel_webhook_route` → biên nhận `channel_webhook_event` (trùng bỏ) → queue → `adapter.handleWebhook(item, account, sink)`. Trả 200 ngay, xử lý nền.
+8b. **Kết nối OAuth (D62, DC-909):** `connect.kind = 'oauth'` + `connect.oauth.provider`; token ở `oauth_grant` (một kho mỗi workspace) qua `TokenVault` — adapter KHÔNG tự làm mới token (refresh Zalo / Shopee dùng một lần). Một Page / OA chỉ thuộc một workspace (PK route nền tảng).
+8c. **Cửa sổ gửi (D62):** kênh có hạn nhắn khai `capabilities.window` (`hours`, `after: 'blocked' | 'tag_human_agent'`, `tagHours?`, `maxBeforeReply?`, `graceAfterWindow?`); core kiểm ở `outbound.ts` + `send.processor.ts`, không `switch(type)`. Tag chỉ khi người gửi; AI / follow-up / chiến dịch không dùng tag.
 9. **Health chuẩn hoá:** `probe()` trả `connected | degraded | error | expired`. Trạng thái này ghi vào `channel_account.status` và phát metric `channel_account_status{type}`.
 10. **Credential mã hoá** AES-256-GCM (`credentials_enc`). Không log, không trả về API.
 
@@ -29,7 +31,8 @@ export interface ChannelManifest {
   icon: string;                         // key icon trong packages/ui
   group: 'chat' | 'social' | 'email' | 'sms' | 'web' | 'commerce';  // commerce: sàn TMĐT (P2, D04)
   status: 'ga' | 'beta' | 'coming_soon';  // coming_soon: hiện thẻ "Sắp có", không cho kết nối
-  connect: { kind: 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed'; fields?: z.ZodObject<any>; riskNotice?: string };
+  connect: { kind: 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed'; fields?: z.ZodObject<any>; riskNotice?: string;
+             oauth?: { provider: string; picker: boolean; scopes: string[] }; via?: string };   // D62: OAuth + thẻ mở luồng type khác (messenger → facebook)
   capabilities: {
     direct: boolean; group: boolean; createGroup?: boolean; mentions: boolean;
     reactions: boolean;                 // chỉ hiện hàng cảm xúc ở menu — KHÔNG suy ra năng lực gọi kênh
@@ -39,6 +42,10 @@ export interface ChannelManifest {
     send: Array<'text' | 'image' | 'file' | 'sticker' | 'audio' | 'card' | 'template'>;
     maxTextLength: number; markdown: 'none' | 'rich' | 'html';
     proactive: 'allowed' | 'window_24h' | 'template_only' | 'disallowed';   // gửi chủ động (marketing / follow-up)
+    window?: { hours: number; after: 'blocked' | 'tag_human_agent'; tagHours?: number; maxBeforeReply?: number; graceAfterWindow?: number };  // D62
+    comments?: { publicReply: boolean; privateReply: boolean; hide: boolean; delete: boolean; like: boolean };                                 // D62 bình luận
+    live?: boolean;                                                                                                                           // D62 livestream
+    sync?: Array<'messages' | 'comments' | 'auto_contact' | 'history'>;                                                                       // khối Đồng bộ theo năng lực (REQ-B17)
   };
   rateLimit: { perMinute: number; perDayProactive?: number; jitterMs?: [number, number] };
   session: 'lease' | 'webhook' | 'poll';
@@ -81,7 +88,7 @@ export const channelRegistry = defineChannels([zaloPersonal, webchat, email /*, 
 1. Tạo `packages/channels/src/<type>/{manifest.ts, adapter.ts, normalize.ts, render.ts}` cùng test riêng (`*.test.ts`).
 2. Đăng ký vào `channelRegistry`.
 3. Thêm i18n `channels.<type>.*` (vi + en) và icon vào `packages/ui`.
-4. Nếu dùng webhook: thêm xác thực chữ ký trong `handleWebhook`, route dùng chung `/hooks/channels/:type/:accountKey`.
+4. Nếu dùng webhook: khai `adapter.webhook` (`challenge?` / `verify` / `split`) + `handleWebhook(item, account, sink)`; route dùng chung `/hooks/channels/:type` (D62). Nếu OAuth: khai `connect.oauth` + đăng ký `OAuthClient` (`packages/channels/src/oauth.ts`) — token qua `TokenVault`.
 5. Test contract dùng chung (`channels/contract.test.ts`) phải pass cho adapter mới: normalize, dedupe, send, probe, chặn gửi khi vượt rate limit.
 6. **Không** sửa `inbox/`, `crm/`, `ai/`. Nếu phải sửa thì manifest đang thiếu một capability → bổ sung capability vào manifest trước.
 
@@ -97,4 +104,4 @@ await outbox.enqueue({ accountId, message: { kind: 'text', text } });
 ## Lý do
 
 - RRI REQ-B08: các kênh P2 phải thêm được mà không đập lại.
-- Prototype có 16 kênh trong Cài đặt → Kênh và 13 kênh trong modal kết nối. Phát hành chỉ bật 3 kênh; số còn lại hiện theo `status` của manifest.
+- Prototype có 16 kênh trong Cài đặt → Kênh và 13 kênh trong modal kết nối. Phát hành bật 3 kênh + 4 kênh D62 (Zalo OA, Facebook Page / Messenger, Instagram, TikTok); số còn lại hiện theo `status` của manifest ("Sắp có" — PD-903).

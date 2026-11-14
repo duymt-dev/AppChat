@@ -1,6 +1,7 @@
 # TIP-006c — Sự kiện realtime còn thiếu (credits.changed, ui.command) và vô hiệu cache registry nhiều tiến trình
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `packages/shared/src/events.ts`; integrate 006c before048.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/shared/src/events.ts`; integrate 006c before047c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006c before047d.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006c before032e.

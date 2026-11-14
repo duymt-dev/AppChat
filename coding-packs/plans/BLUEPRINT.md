@@ -287,6 +287,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `tenant_widget_route` | public_key (pk), ws, allowed_domains text[] | widget kết nối → DB đích |
 | `tenant_bank_feed_route` | feed_id (pk), ws, provider | webhook SePay / Casso của DN → DB đích |
 | `tenant_integration_route` | connection_id (pk), ws, connector_key, status | webhook `/hooks/integrations/:connector/:connectionId` → DB đích (D28) |
+| `tenant_channel_webhook_route` | route_key (pk, `<type>:<external_id>` — `zalo_oa:<oa_id>`, `facebook:<page_id>`, `instagram:<ig_id>`, `tiktok_messaging:<business_id>`), ws, channel_account_id, type, status(active\|disabled), updated_at | webhook kênh mức App `/hooks/channels/:type` → DB đích; PK chặn một Page / OA thuộc hai workspace (D62, DC-910, TIP-048b) |
 | `integration_interest` | ws, connector_key, user_id, note?, created_at | unique(ws, connector_key); thẻ "Sắp có" → "Đăng ký quan tâm" |
 | `tenant_sign_route` | token_hash (pk), ws, expires_at | trang ký công khai `/sign/[token]` → DB đích |
 | `tenant_migration` | ws, version, status(pending\|running\|done\|failed), error?, started_at, finished_at | idx(status, version) |
@@ -314,6 +315,9 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `channel_account` | type(zalo_personal\|webchat\|email), name, external_id, status(pending\|connecting\|connected\|error\|disconnected\|expired), credentials_enc bytea (AES-256-GCM), settings jsonb (rate limit, cap/ngày, agent mặc định, ai_mode mặc định; ver2.1 REQ-B11: giờ + lời chào trả lời tự động, cách chia + SLA, đồng bộ `{auto_create_contact, history_days: 0\|7\|30\|90}`), paused_at?, health jsonb, last_event_at | unique(type, external_id) |
 | _ghi chú_ | **Một kênh nhiều tài khoản (REQ-B09):** mỗi `type` có nhiều `channel_account`. Trạng thái kênh tính ở service: sức khoẻ = tài khoản kém nhất, số hội thoại cộng dồn; hết tài khoản `connected` → kênh "Chưa kết nối". | |
 | `webchat_widget` | channel_account_id, public_key unique, theme jsonb, greeting, prechat_form jsonb, agent_id?, allowed_domains text[] | |
+| `channel_account.oauth_grant_id` (D62) | uuid? → `oauth_grant` | kênh OAuth (Zalo OA, Facebook, Instagram, TikTok) lấy token qua `TokenVault`, không lưu token trong `credentials_enc` (DC-909) |
+| `channel_webhook_event` (D62) | channel_account_id, event_key, kind, payload jsonb, received_at, processed_at?, outcome(applied\|ignored\|failed)?, attempts | unique(channel_account_id, event_key); partial (received_at) WHERE processed_at IS NULL; dọn > 7 ngày (TIP-048b) |
+| `oauth_grant` (D62, file `tenant/oauth-grants.prisma`) | provider, subject, access_enc, refresh_enc?, access_expires_at?, refresh_expires_at?, scopes text[], status(active\|refresh_failed\|revoked), version, refreshed_at?, last_error? | unique(provider, subject); partial (status, access_expires_at) WHERE status = 'active' — job làm mới trước hạn; dùng chung kênh OA + ZCC + sàn (DC-909, TIP-048) |
 
 **[T] tenant/inbox.prisma**
 
@@ -327,6 +331,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `conversation_assignee` | conversation_id, kind(user\|agent), assignee_id, added_by?, created_at | pk(conversation_id, kind, assignee_id); idx(kind, assignee_id, conversation_id). **Đồng phụ trách** (DC-423, mirror D32 `contact_collaborator`) — khác phụ trách CHÍNH ở `conversation.assignee_user_id`/`assignee_agent_id`; luôn thêm/gỡ bằng tay qua `conversation.add_assignee`/`remove_assignee`, auto-route không bao giờ ghi vào bảng này. `least_busy` đếm tải cho cả phụ trách chính và đồng phụ trách |
 | `canned_reply` | shortcut, title, body, attachments jsonb | unique(shortcut) |
 | `outbox_message` | message_id, channel_account_id, payload jsonb, status(pending\|sending\|sent\|failed\|dead), attempts, next_attempt_at, last_error | idx(status, next_attempt_at) |
+
+- **D62 (TIP-048b, 048f, 048g):** `conversation.last_inbound_at` (tin khách cuối — cửa sổ gửi); `conversation.kind` thêm `comment` (hội thoại bình luận theo bài + người bình luận, `external_thread_id = c:<post>:<author>`), `conversation.post_id` → `social_post`; `message.hidden_at`, `message.external_parent_id`; index `(kind, last_message_at DESC, id DESC) WHERE kind = 'comment'`. File mới `tenant/social.prisma` (chủ 048f): `social_post` (unique(channel_account_id, external_post_id)), `social_comment` (message_id pk — khoá nhắn riêng một lần `private_reply_at`, `liked_at`, `private_reply_eligible`), `live_session` (unique(channel_account_id, external_live_id), `version`), `live_comment_flag` (idx(live_session_id, status, created_at DESC), `version` — CAS khi hai người xử lý cùng cờ).
 
 **[T] tenant/crm.prisma**
 
@@ -622,6 +628,9 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `channel.pause` / `channel.resume` (config)
 - `channel.sync_history` (write; `history_days` 0 / 7 / 30 / 90 — REQ-B11)
 - Mọi action kênh nhận `channel_account_id` (một kênh nhiều tài khoản — REQ-B09); `channel.disconnect` tài khoản cuối → kênh thành Chưa kết nối.
+- **D62:** `oauth.start` (config; quyền theo mục đích: kênh `channels.manage` · ZCC `callcenter.manage` · connector `integrations.manage`) · `oauth.complete` (nội bộ, nguồn system, từ callback) · `oauth.pending_get` (read) · `oauth.cancel` — TIP-048, file `actions/src/oauth.ts`. `channel.oauth_select` (config; chọn Page / OA / tài khoản, kiểm hạn mức kênh) · `channel.reauthorize` (config) — TIP-048b, file `actions/src/channel-oauth.ts`.
+- **Bình luận (D62, TIP-048f, file `actions/src/inbox-comments.ts`):** `comment.reply` · `comment.private_reply` (send, `inbox.reply`, agent: không tự gửi) · `comment.hide` / `comment.unhide` / `comment.delete` (`inbox.manage`; lệnh bền `channel_operation`) · `comment.like` (`inbox.reply`).
+- **Livestream (D62, TIP-048g, file `actions/src/live.ts`):** `live.list` · `live.get` (read, `inbox.view`) · `live.flag_update` (write, `inbox.reply`) · `live.update_settings` (config, `inbox.manage`). Tạo khách / đơn từ cờ dùng `contact.create` / `order.create` có sẵn (người bấm).
 
 **inbox** (`inbox.view` đọc · `inbox.reply` gửi / ghi chú · `inbox.assign` gán · `inbox.manage` thẻ, câu trả lời mẫu)
 
@@ -1078,7 +1087,8 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 - `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ. — đã nối (TIP-010): provider = `PLATFORM_BANK_FEED` (`mock` HMAC dev / `sepay` header `Authorization: Apikey`), khớp mã `APPCHAT INV…` + số tiền ≥ hoá đơn, ghi nhận ngay trong request (idempotent) + scheduler `billing.invoice-sweep` quét lại (DC-055, DC-057, DC-058).
 - `POST /hooks/integrations/:connector/:connectionId`: webhook connector của DN (D28). Tra `tenant_integration_route` → DB tenant; adapter tự kiểm chữ ký; insert `integration_event` idempotent theo id của provider; trả 200 rồi xử lý trong queue `integrations`.
 - `POST /hooks/tenant-payments/:provider/:feedId`: tiền **khách của DN** (Q3). `feedId` tra `tenant_bank_feed_route` (DB nền tảng) rồi vào DB tenant; kiểm chữ ký bằng secret của feed; khớp mã `TT-xxxxxx` + số tiền thì `customer_payment(confirmed)`; lệch thì `needs_review`. Idempotent theo mã giao dịch của provider.
-- `POST /hooks/channels/:provider`: dành cho kênh dùng webhook về sau (Zalo OA, Meta). Hiện chưa dùng.
+- `GET|POST /hooks/channels/:type` (D62, TIP-048b): webhook kênh mức App (Zalo OA, Meta, TikTok). GET = xác minh (`hub.challenge`); POST giữ raw body ≤ 1MB, adapter kiểm chữ ký (`X-ZEvent-Signature` / `X-Hub-Signature-256` / `TikTok-Signature`), tách theo `<type>:<external_id>` → `tenant_channel_webhook_route` → `channel_webhook_event` idempotent → queue `channel-hooks`; luôn 200 nhanh (Zalo ≤ 2 giây). `POST /hooks/channels/facebook/data-deletion` (Meta data deletion callback — TIP-048e).
+- `GET /hooks/oauth/:provider/callback` (D62, TIP-048): callback OAuth chung (kênh, ZCC, sàn) — kiểm state ký + nonce một lần → `oauth.complete` → redirect về trang web công khai `/oauth/return?oauth=<pending>` (relay kết quả về cửa sổ gốc qua `BroadcastChannel`); lỗi → `?oauth_error=<code>`; thiếu cấu hình App → 503 `oauth_not_configured`.
 - `POST /hooks/livekit` · `POST /hooks/zalo-zcc/:appId` (D61): kiểm chữ ký (LiveKit JWT webhook / Zalo OA secret) → `call_webhook_receipt` idempotent theo `event_id` → action nội bộ `call.*` nguồn system qua system adapter (DC-904); trả 200 nhanh.
 
 ---
@@ -1236,6 +1246,7 @@ export interface NormalizedInbound {
   - **Chống khoá:** limiter theo account (1 tin / 2–6 giây), cap/ngày, không gửi chủ động cho người lạ chưa từng nhắn. Nếu lỗi bất thường liên tiếp (≥ 3 lần trong 10 phút) thì tự `pause` kênh và báo Owner. Lúc kết nối hiện cảnh báo rủi ro, Owner phải tick xác nhận đã đọc.
 - **Webchat:** widget JS (≤ 40KB gz) kết nối namespace `/widget`. Có prechat form tuỳ chọn để thu tên/SĐT, tạo contact hoặc lead. Chỉ chạy trên domain thuộc `allowed_domains`.
 - **Email:** kết nối IMAP (imapflow, poll 60 giây, IDLE nếu được) và SMTP (nodemailer). Gom thread theo `Message-ID`/`In-Reply-To`/`References`. Kiểm tra credential bằng cách login thật trước khi lưu.
+- **Kênh webhook (D62 — TIP-048 → 048h):** kết nối bằng OAuth (`oauth.start` → callback → chọn Page / OA / tài khoản), token ở `oauth_grant` qua `TokenVault` (làm mới có khoá — refresh Zalo dùng một lần); không lease, nhận qua `/hooks/channels/:type`. Cửa sổ gửi khai ở `manifest.capabilities.window`, kiểm ở `outbound.ts` (409 sớm) và `send.processor.ts` (chốt cuối): **Zalo OA** tin tư vấn ≤ 7 ngày rồi chặn (ZNS Sắp có), rate App 4.000 / phút chung + OA theo gói · **Facebook Page / Instagram** 24 giờ, ngoài đó chỉ người gửi với tag HUMAN_AGENT ≤ 7 ngày · **TikTok** 48 giờ, ≤ 10 tin trước khi khách trả lời, +3 sau 48 giờ. Bình luận bài đăng (FB / IG / TikTok) = hội thoại `comment`; livestream FB (SSE `live_comments` + poll đối soát) / IG (webhook `live_comments`) = `live_session` + cờ ý mua; AI chỉ gợi ý, người bấm gửi (Q-911).
 - **Inbound pipeline** (core/inbox, gọi từ worker): insert `message` với `ON CONFLICT (channel_account_id, external_msg_id) DO NOTHING` (chống trùng) → resolve contact (`contact_identity`, hoặc khớp `phone_norm`/email, hoặc tạo contact `lead`) → upsert conversation → cập nhật counters → outbox `message.received` → emit WS.
 
 ---
@@ -1410,6 +1421,9 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 | Thoại (D61) | LiveKit tự dựng (`livekit-server`, `livekit-sip`, systemd) + SIP edge Kamailio / rtpengine; SDK `livekit-server-sdk`, `@livekit/rtc-node`, `livekit-client` (DV-901) | TIP-047 |
 | Zalo Cloud Connect (D61) | SIP trunk `<AppID>.zcc.openapi.zaloapp.com` (IP tĩnh, PCMU / PCMA) + OA OpenAPI v4 (yêu cầu / kiểm quyền gọi) | Q-902 |
 | Voice AI (D61) | `VoiceAiEnginePort`: mặc định tự dựng PhoWhisper (STT) + VieNeu-TTS (TTS) chạy local (DC-907, DV-902); OpenAI Realtime / Gemini Live tuỳ chọn; test dùng `mock` | DC-907 (Q-905 chốt) |
+| Zalo OA (D62) | OAuth v4 + OpenAPI v3 (`message/cs`, upload, user detail) + webhook ký `X-ZEvent-Signature`; **một App Zalo** chung với ZCC (`ZALO_APP_ID` / `ZALO_APP_SECRET` — DC-909) | Q-909 |
+| Meta — Facebook Page / Messenger, Instagram (D62) | Graph API (`fetch`, `META_GRAPH_VERSION`), Facebook Login for Business, Webhooks `messages` / `feed` / `comments` / `live_comments`, data deletion callback | Q-908 (App Review + Business Verification) |
+| TikTok Business (D62) | Business Messaging API (Beta) + Accounts API (bình luận) + webhook `TikTok-Signature` | Q-910 |
 | Excel import/export | `exceljs` | |
 | Parse tài liệu RAG | `pdf-parse`, `mammoth` (docx), `exceljs`/csv, fetch URL + readability | |
 
@@ -1443,7 +1457,8 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 | # | Rủi ro | Xử lý |
 |---|---|---|
 | K1 | ~~pgvector trên Windows~~ **Đã xử lý 2026-10-28:** build pgvector 0.8.1 bằng MSVC và cài vào PG16 trên máy dev. Ghi lệnh cài vào `infra/dev/README.md` | TIP-002 kiểm `CREATE EXTENSION vector`. Nếu không cài được: dev tạm dùng `kb_chunk.embedding` kiểu `real[]` + tìm tuyến tính (chỉ cho dev). Prod chạy Linux có pgvector. Escalate nếu cả hai đều không được |
-| K2 | zca-js không chính thức, có thể bị Zalo đổi giao thức hoặc khoá tài khoản | Adapter cô lập; pin version; health probe; cảnh báo Owner; thiết kế sẵn chỗ cho Zalo OA (P2) |
+| K2 | zca-js không chính thức, có thể bị Zalo đổi giao thức hoặc khoá tài khoản | Adapter cô lập; pin version; health probe; cảnh báo Owner; Zalo OA chính thức vào phạm vi từ D62 (TIP-048d) |
+| K13 | Kênh webhook (Meta / Zalo OA / TikTok) cần **App được duyệt** (Meta App Review + Business Verification 2–6 tuần; Zalo quyền OA + gói OA trả phí; TikTok form) và **domain HTTPS** cho callback / webhook — tức VPS sớm hơn Q-006 | Chủ nhà nộp ngay (Q-908 / Q-909 / Q-910); code + test bằng transport `fake`; nghiệm thu thật sau khi duyệt |
 | K3 | DB-per-tenant: số kết nối, RAM của Prisma Client mỗi DB, autovacuum trên nhiều DB | PgBouncer transaction mode bắt buộc; driver adapter `@prisma/adapter-pg` pool nhỏ; LRU client; đo RAM/latency với 200 DB giả lập. Đo p95 ở TIP-002 |
 | K4 | Tên trường `usage` của AI SDK v7 khi stream nhiều bước chưa kiểm | Spike nửa ngày ở đầu TIP AI: kiểm `usage` + chạy tiếp sau restart worker; viết test hợp đồng cho `CreditMeter` |
 | K7 | Nhiều DB trên một cluster (mỗi DB rỗng ~8 MB, catalog + autovacuum tăng theo số DB) | Theo dõi số DB và tổng kích thước; khi > ~500 DB hoặc đĩa > 70% thì thêm cluster mới và đặt workspace mới lên đó qua `db_host`. Workspace gói Miễn phí không hoạt động 90 ngày được tự lưu trữ (dump + drop, khôi phục khi đăng nhập — §2.0 bước 5, D23) |
@@ -1595,6 +1610,7 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | B06 | §6 email |
 | B07 | §4.4 channels · §7.2 settings/channels |
 | B09, B10, B11 | §2.2 `channel_account` · §3.4 channels · §4.4 channels · §6 · §7.2 settings/channels |
+| B08, B12–B17 (D62) | §2.2 `tenant_channel_webhook_route` · `oauth_grant` · `channel_webhook_event` · `social.prisma` · §3.4 oauth / comment / live · §4.7 `/hooks/channels/:type` · `/hooks/oauth/:provider/callback` · §6 kênh webhook · §8 · §10 K13 |
 | C01–C04, C08 | §2.2 inbox · §3.4 inbox · §7.2 inbox |
 | C05 | §7.2 Composer · §5.3 copilot |
 | C06 | §6 inbound pipeline |

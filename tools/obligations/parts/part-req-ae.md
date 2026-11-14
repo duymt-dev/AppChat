@@ -55,7 +55,8 @@
 | REQ-B06b | Gmail OAuth | 01-REQUIREMENTS-MATRIX.md:53 | 018b | CHƯA | Không nhánh OAuth; Q-016 mở; TIP-018b nhận (2026-11-02) |
 | REQ-B06c | Gom email theo thread | 01-REQUIREMENTS-MATRIX.md:53 | 018 | ĐẠT | channels/email/threads.ts:19; test email.test.ts AC3/AC4 |
 | REQ-B07 | Trang Kênh kết nối: danh sách, sức khoẻ, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:54 | 014 | ĐẠT | channel-manage.handlers.ts:142; test channels.test.ts AC5/AC9/AC10, e2e http/channels.spec.ts |
-| REQ-B08 | Zalo OA / FB / IG / Telegram / WhatsApp / TikTok | 01-REQUIREMENTS-MATRIX.md:55 | — | NGOÀI | P2 theo ma trận, D04 |
+| REQ-B08 | Kênh webhook vào bản phát hành: Zalo OA, Facebook Page / Messenger, Instagram, TikTok (D62) | 01-REQUIREMENTS-MATRIX.md:55 | 048d, 048e, 048h | CHƯA | TIP-048d (Zalo OA) · 048e (Meta) · 048h (TikTok); nghiệm thu thật chờ Q-908 / Q-909 / Q-910 |
+| REQ-B08b | ZNS, WhatsApp, WA API, Telegram, LINE, Viber, WeChat; bình luận Zalo OA; live TikTok; chat sàn — vẫn "Sắp có" | 01-REQUIREMENTS-MATRIX.md:56 | — | NGOÀI | D62 (giữ "Sắp có", hiển thị ở TIP-048c PD-903) |
 | REQ-B09a | Một kênh nhiều tài khoản; sức khoẻ = tài khoản kém nhất | 01-REQUIREMENTS-MATRIX.md:56 | 014 | ĐẠT | channels/services/read.service.ts:50; test channels.test.ts AC5/AC10 |
 | REQ-B09b | Bộ lọc tài khoản Hộp thư cùng dữ liệu | 01-REQUIREMENTS-MATRIX.md:56 | 016, 025 | ĐẠT | GET /inbox/accounts; test inbox-ui.test.ts "lọc tài khoản" |
 | REQ-B10a | Kết nối 3 bước + cấu hình nhanh | 01-REQUIREMENTS-MATRIX.md:57 | 014, 018 | ĐẠT | features/settings/components/ConnectChannelModal.tsx; test email.test.ts AC2, e2e http/channels.spec.ts |
@@ -67,6 +68,12 @@
 | REQ-B11d | Phân công & SLA theo tài khoản | 01-REQUIREMENTS-MATRIX.md:58 | 014c | MỘT PHẦN | Phân công: XONG ở TIP-042b (rule chia lead canonical, drawer kênh hiện rule đang áp, assign_mode chỉ bản chiếu cũ, cần crm.reassign) — coding-packs/reports/TIP-042b-completion.md; SLA theo tài khoản (sla_policy chỉ lưu) vẫn thuộc TIP-014c |
 | REQ-B11e | Đồng bộ: tin nhắn, tự tạo liên hệ, lịch sử 0/7/30/90 | 01-REQUIREMENTS-MATRIX.md:58 | 014b | ĐẠT | TIP-014b D1 + C2: core/src/inbox/services/inbound-sync-policy.ts áp sync_messages / sync_auto_create_contact trước khi ghi (live + lịch sử chung chính sách); lịch sử 0/7/30/90 bền có giới hạn (operations/history-run.ts); test apps/api/test/integration/channel-sync-policy.test.ts, channel-history.test.ts |
 | REQ-B11f | Vùng nguy hiểm: tạm dừng / tiếp tục, kết nối lại, ngắt | 01-REQUIREMENTS-MATRIX.md:58 | 014 | ĐẠT | channel-manage.handlers.ts:50,68,142; test channels.test.ts AC6/AC9/AC10 |
+| REQ-B12 | Nền kênh webhook: route mức App, chữ ký, biên nhận, cửa sổ gửi chặn lúc ghi + lúc gửi, tag chỉ người gửi | 01-REQUIREMENTS-MATRIX.md:60 | 048b | CHƯA | TIP-048b |
+| REQ-B13 | Bình luận bài đăng FB / IG / TikTok vào Hộp thư; trả lời công khai / nhắn riêng / ẩn / xoá / thích; AI chỉ gợi ý | 01-REQUIREMENTS-MATRIX.md:61 | 048f, 048h | CHƯA | TIP-048f · 048h (bình luận video TikTok) |
+| REQ-B14 | Livestream FB / IG: gom bình luận, cờ ý mua / SĐT, người bấm tạo khách + đơn | 01-REQUIREMENTS-MATRIX.md:62 | 048g | CHƯA | TIP-048g |
+| REQ-B15 | Một nguồn danh sách kênh (Cài đặt, modal, Hộp thư, Agents, form); kênh chưa có adapter = Sắp có | 01-REQUIREMENTS-MATRIX.md:63 | 048c | CHƯA | TIP-048c |
+| REQ-B16 | Kết nối bằng đăng nhập nền tảng: chọn Page / OA / tài khoản, một Page / OA một workspace, hạn uỷ quyền + uỷ quyền lại | 01-REQUIREMENTS-MATRIX.md:64 | 048, 048b, 048c | CHƯA | TIP-048 (OAuth + kho token) · 048b (chọn tài khoản) · 048c (UI) |
+| REQ-B17 | Khối Đồng bộ theo năng lực kênh; "Đánh giá" ẩn | 01-REQUIREMENTS-MATRIX.md:65 | 048c | CHƯA | TIP-048c |
 | REQ-C01a | Inbox 3 cột chạy API thật | 01-REQUIREMENTS-MATRIX.md:63 | 016, 025 | ĐẠT | features/inbox/screens/InboxScreen.tsx; e2e http/inbox.spec.ts, http/inbox-live.spec.ts |
 | REQ-C01b | Realtime WebSocket | 01-REQUIREMENTS-MATRIX.md:63 | 006, 025 | ĐẠT | test inbox.test.ts AC9, inbox-ui.test.ts "realtime", e2e http/inbox-live.spec.ts |
 | REQ-C01c | Đo p95 < 1s | 01-REQUIREMENTS-MATRIX.md:63 | 046 | CHƯA | Chưa có phép đo |

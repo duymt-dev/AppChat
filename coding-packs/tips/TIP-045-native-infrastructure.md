@@ -1,6 +1,12 @@
 # TIP-045: Native production deployment, observability and verifiable recovery
 
 ## HEADER
+- **Parallel-safe with TIP-035d (coverage-closure manifest):** sequential, shares `package.json`, `packages/db/package.json`, `packages/db/src/lifecycle/restore.ts`; integrate 035d before045.
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/kernel.module.ts`; integrate 048 before045.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `apps/api/src/bootstrap.ts`, `packages/core/src/channels/jobs/channels.jobs.module.ts`; integrate 048b before045.
+- **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/channels.jobs.module.ts`; integrate 048e before045.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/channels.jobs.module.ts`; integrate 048f before045.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/channels.jobs.module.ts`; integrate 048g before045.
 - **Parallel-safe with TIP-047 (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047 before045.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `packages/core/src/index.ts`; integrate 047c before045.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047d before045.

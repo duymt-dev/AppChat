@@ -1,6 +1,7 @@
 # TIP-006b — Durable event delivery and AI task fanout
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/worker/src/roles/jobs.module.ts`; integrate 006b before048.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `apps/worker/src/roles/ai.module.ts`, `apps/worker/src/roles/jobs.module.ts`, `packages/core/src/index.ts`; integrate 006b before047c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-delivery.test.ts`, `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006b before047d.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`; integrate 006b before032e.

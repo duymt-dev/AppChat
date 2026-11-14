@@ -4,7 +4,7 @@
 
 ## 1. Dự án
 
-Nền tảng cho doanh nghiệp dịch vụ nhỏ theo mô hình **One-Person Company**: một người vận hành doanh nghiệp cùng đội AI Agents. **Trợ lý AI = orchestrator + copilot**: điều khiển được mọi thao tác trên UI với đúng quyền người ra lệnh và điều phối agent chuyên trách. Kênh: Zalo cá nhân, web widget, email; Gọi điện (tổng đài LiveKit tự dựng + Zalo Cloud Connect + hotline / SĐT cá nhân — D61). Sản phẩm thương mại hoàn chỉnh (không phải bản thử).
+Nền tảng cho doanh nghiệp dịch vụ nhỏ theo mô hình **One-Person Company**: một người vận hành doanh nghiệp cùng đội AI Agents. **Trợ lý AI = orchestrator + copilot**: điều khiển được mọi thao tác trên UI với đúng quyền người ra lệnh và điều phối agent chuyên trách. Kênh: Zalo cá nhân, web widget, email; Zalo OA, Facebook Page / Messenger, Instagram, TikTok (tin nhắn + bình luận bài đăng, livestream FB / IG — D62); Gọi điện (tổng đài LiveKit tự dựng + Zalo Cloud Connect + hotline / SĐT cá nhân — D61). Sản phẩm thương mại hoàn chỉnh (không phải bản thử).
 
 Stack: pnpm monorepo · Next.js App Router + Ant Design v6 + Ant Design X · NestJS (api + worker) · PostgreSQL 16 (DB nền tảng + **DB riêng mỗi workspace**) · Redis + BullMQ · Vercel AI SDK v7. **Không Docker.**
 
@@ -47,7 +47,7 @@ AppChat_Ver2/
 │   ├── actions/        Action Registry: defineAction (zod input/output, permission, risk, undo, invalidates) — dùng chung web/core/ai
 │   ├── db/             prisma/{platform,tenant}/<file>.prisma, PlatformDb, TenantDbResolver, provisioner, tenant-migrate
 │   ├── ai/             Agent Gateway, AiSdkEngine, LLM router, prompts/, meta-tools, eval/
-│   ├── channels/       ChannelAdapter + manifest + registry (zalo-personal, webchat, email)
+│   ├── channels/       ChannelAdapter + manifest + registry (zalo-personal, webchat, email; D62: zalo-oa, facebook, instagram, tiktok + OAuth)
 │   ├── integrations/   port theo năng lực + ConnectorManifest + registry (sepay, casso, brevo, …)
 │   ├── shared/         types, error codes, permissions, events, i18n locales, fmt helpers (không import gói nội bộ)
 │   └── ui/             theme.ts (token prototype), primitive: DataTable, KanbanBoard, FilterBar, EntityDrawer, PageHeader, icons
@@ -123,9 +123,9 @@ Kiểm nhanh nếu nghi ngờ: `psql ... -d appchat_tenant_template -c "SELECT n
 
 ## 8. Goal hiện tại
 
-**`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **90 TIP chưa DONE** (023b → … → 046; thêm 026c Cơ hội + 032e Tài chính — D60; thêm 047 → 047b → 047c → 047d Gọi điện — D61, trước 044) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.
+**`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **99 TIP chưa DONE** (023b → … → 046; thêm 026c Cơ hội + 032e Tài chính — D60; thêm 047 → 047b → 047c → 047d Gọi điện — D61, trước 044; thêm **035d cô lập worktree (làm trước tiên)** + 048 → 048h kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream — D62, ba luồng song song A / B / C) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.
 
-- Câu A (viết đủ TIP) đã khép 2026-11-03: sổ phủ `coding-packs/COVERAGE.md` 0 lỗ hổng, mọi câu hỏi chính sách đã duyệt (DC-296…303). Câu hỏi còn mở chỉ là tài nguyên (Q-004 SePay/Brevo, Q-006 VPS; Q-002 embed OpenAI đã có credit 2026-11-05; Gọi điện: Q-902…906 chốt tạm ở DC-907 — Chủ nhà đăng ký App Zalo ZCC, máy thoại chung VPS khi có VPS, thuê 1 số SIP thử, **Voice AI tự dựng** (PhoWhisper + VieNeu-TTS local), hộp SIM "Sắp có").
+- Câu A (viết đủ TIP) đã khép 2026-11-03: sổ phủ `coding-packs/COVERAGE.md` 0 lỗ hổng, mọi câu hỏi chính sách đã duyệt (DC-296…303). Câu hỏi còn mở chỉ là tài nguyên (Q-004 SePay/Brevo, Q-006 VPS; Q-002 embed OpenAI đã có credit 2026-11-05; Gọi điện: Q-902…906 chốt tạm ở DC-907 — Chủ nhà đăng ký App Zalo ZCC, máy thoại chung VPS khi có VPS, thuê 1 số SIP thử, **Voice AI tự dựng** (PhoWhisper + VieNeu-TTS local), hộp SIM "Sắp có"; Kênh D62: Q-908 Meta · Q-909 Zalo OA · Q-910 TikTok — test bằng transport `fake`; Q-907 hạn mức kênh, Q-911 / Q-912 hành vi gửi / quyền — tạm theo đề xuất).
 - Mỗi TIP: rà "Rà trước khi làm" với code thật → nhánh `tip/XXX-<slug>` → đúng manifest `tips/manifests/TIP-XXX-files.md` → 3 cổng D59 → commit → `gh pr create --base dev` (`gh` đã đăng nhập) → cập nhật `tools/obligations/parts/*.md` + `merge.py` + bảng tiến độ.
 - Ba sổ: `coding-packs/QUESTIONS.md` (câu hỏi + đề xuất, không đứng chờ) · `DECISIONS.md` (DC-xxx) · `DEVIATIONS.md` (DV-xxx). Lệch prototype ở `docs/06-prototype/DEVIATIONS.md`.
 - LLM chat qua 9router (`LLM_SEED_*`, đã kiểm); embed qua OpenAI (`EMBED_SEED_*`, DC-305 — đã kiểm 2026-11-05, 1536 chiều). `infra/` viết trước khi có VPS (DC-304), script mặc định `plan`.

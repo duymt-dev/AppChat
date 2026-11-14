@@ -1,6 +1,13 @@
 # TIP-023f — Actual Assistant file/image/email input, screenshot and dictation
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `packages/channels/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`; integrate 023f before048.
+- **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/channels/src/index.ts`; integrate 023f before048b.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/handlers.ts`, `tools/parity/parity.manifest.ts`; integrate 023f before048c.
+- **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `packages/channels/src/index.ts`; integrate 023f before048d.
+- **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `packages/channels/src/index.ts`; integrate 023f before048e.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023f before048f.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 023f before048g.
 - **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `packages/core/src/ai/router/provider.store.ts`, `packages/core/src/platform/actions/model.handlers.ts`, `packages/core/src/platform/services/config-read.ts`, `packages/shared/src/api/platform-admin.ts`; integrate 023f before047b.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`; integrate 023f before047c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/handlers.ts`, `apps/web/src/shared/api/mock/routes.ts`, `tools/parity/parity.manifest.ts`; integrate 023f before047d.

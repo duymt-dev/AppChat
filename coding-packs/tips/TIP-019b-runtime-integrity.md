@@ -1,6 +1,10 @@
 # TIP-019b: Runtime AI — ngân sách chung, usage bền vững và trạng thái thật
 
 ## HEADER
+- **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`; integrate 019b before048.
+- **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 019b before048c.
+- **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 019b before048f.
+- **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 019b before048g.
 - **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `packages/core/src/billing/services/usage-receipt.ts`; integrate 019b before047b.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/worker/src/roles/ai.module.ts`, `packages/core/src/billing/public.ts`, `packages/core/src/billing/services/credit-meter.ts`, `packages/core/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`, `packages/shared/src/index.ts`; integrate 019b before047c.
 - **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/src/shared/realtime/event-invalidation.ts`, `tools/parity/parity.manifest.ts`; integrate 019b before047d.
