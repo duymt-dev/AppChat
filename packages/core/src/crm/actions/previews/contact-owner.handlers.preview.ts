@@ -31,7 +31,7 @@ export async function removeCollaboratorPreview(tx: TenantTx, a: AuthzContext, m
  * Chuyển phụ trách (TIP-015d): đếm đúng tập ứng viên lúc xem (hội thoại mở chưa ẩn; báo giá mở bản mới nhất; lịch hẹn pending / confirmed
  * bắt đầu sau `now`) — chỉ số lượng, không nội dung / tiền. Số báo giá / lịch hẹn chỉ hiện khi người xem có quyền xem module đó.
  */
-export async function transferOwnerPreview(tx: TenantTx, a: AuthzContext, members: CrmMembers, i: ActionInput<typeof contactTransferOwner>, now: Date = new Date()): Promise<ActionPreview> {
+export async function transferOwnerPreview(tx: TenantTx, a: AuthzContext, members: CrmMembers, i: ActionInput<typeof contactTransferOwner>, now: Date): Promise<ActionPreview> {
   const { contact: c } = await editableContact(tx, a, i.contact_id);
   const [from, to] = [await nameOf(members, c.ownerUserId), await nameOf(members, i.to_user_id)];
   const n = (rows: { n: bigint }[]) => Number(rows[0]?.n ?? 0);

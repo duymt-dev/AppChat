@@ -120,7 +120,7 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
         await operators.close(id);
       },
     });
-    const groups = this.executor ? new GroupCreators({ redis, tenants, executor: this.executor, log: this.log }) : undefined;
+    const groups = this.executor ? new GroupCreators({ redis, tenants, executor: this.executor, log: this.log, now }) : undefined;
     this.groups = groups;
     // Tạm dừng workspace (TIP-040) chặn tin gửi ra ngay cả khi worker đã giữ client DB tenant.
     const access = new WorkspaceAccess(platform, () => now().getTime());

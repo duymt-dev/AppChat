@@ -34,8 +34,8 @@ export interface SendDeps {
    * đã tiếp quản) → không gọi kênh. Vắng → gửi như cũ.
    */
   reserve?: (ws: string, refId: string) => Promise<boolean>;
-  /** Clock (TIP-014b C) — mốc ngày của cap chủ động + cửa sổ lỗi bất thường. Vắng → giờ hệ thống. */
-  now?: () => Date;
+  /** Clock (TIP-014b C, TIP-003g) — bắt buộc truyền từ Clock, không rơi về new Date(). */
+  now: () => Date;
   /** Workspace còn hoạt động (TIP-040, DC-373) — tạm dừng → hoãn tin, không gọi kênh. Vắng → không kiểm. */
   isOpen?: (ws: string) => Promise<boolean>;
 }
@@ -181,7 +181,7 @@ export class ChannelSenders {
   }
 
   private now(): Date {
-    return this.d.now?.() ?? new Date();
+    return this.d.now();
   }
 
   private later(fn: () => Promise<void>): void {

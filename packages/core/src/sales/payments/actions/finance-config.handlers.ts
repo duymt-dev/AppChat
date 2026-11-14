@@ -3,10 +3,10 @@
 // kiểm thông tin qua adapter) + dòng `tenant_bank_feed` + route `tenant_bank_feed_route` ở DB nền tảng (action `db: 'platform'` —
 // nền tảng trước, Blueprint §2.0). Kết nối lại dùng lại feed cũ (giữ link webhook DN đã dán vào SePay / Casso).
 import { accountOrEmpty } from '@appchat/integrations';
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Optional } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, bankFeedConnect, bankFeedDisconnect, paymentAccountUpdate } from '@appchat/actions';
-import { CLOCK, type Clock } from '../../../kernel/clock';
+import { CLOCK, SystemClock, type Clock } from '../../../kernel/clock';
 import type { ActionContext, PlatformTx, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { uuidv7 } from '../../../kernel/ids';
@@ -92,7 +92,10 @@ export class BankFeedConnectHandler implements Handler<ActionInput<typeof bankFe
 @Injectable()
 @ActionHandler('bank_feed.disconnect')
 export class BankFeedDisconnectHandler implements Handler<ActionInput<typeof bankFeedDisconnect>, { ok: boolean }> {
-  constructor(@Inject(ConnectionsService) private readonly connections: ConnectionsService | null) {}
+  constructor(
+    @Inject(ConnectionsService) private readonly connections: ConnectionsService | null,
+    @Optional() @Inject(CLOCK) private readonly clock: Clock = new SystemClock(),
+  ) {}
 
   /** Pha nền tảng: chỉ kiểm có kết nối (tenant chỉ đọc); ngắt ở tenant, gỡ route ở `finalizePlatform`. */
   async execute(_ctx: ActionContext, input: ActionInput<typeof bankFeedDisconnect>, tx: TenantTx, ptx?: PlatformTx): Promise<HandlerOutcome<{ ok: boolean }>> {
@@ -101,15 +104,15 @@ export class BankFeedDisconnectHandler implements Handler<ActionInput<typeof ban
     const row = await tx.integrationConnection.findFirst({ where: { connectorKey: input.provider, status: { not: 'disconnected' } }, select: { id: true } });
     if (!row) throw new AppError('NOT_FOUND', 404, { provider: 'not_connected' });
     const feed = await tx.tenantBankFeed.findUnique({ where: { connectionId: row.id }, select: { id: true } });
-    return { result: { ok: true }, before: { provider: input.provider, feed_id: feed?.id ?? null }, tenantPlan: { provider: input.provider, connectionId: row.id, feedId: feed?.id ?? null } };
+    return { result: { ok: true }, before: { provider: input.provider, feed_id: feed?.id ?? null }, tenantPlan: { provider: input.provider, connectionId: row.id, feedId: feed?.id ?? null, at: this.clock.now().toISOString() } };
   }
 
   async applyTenant(_ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx) {
-    const p = plan as { provider: string; connectionId: string; feedId: string | null };
+    const p = plan as { provider: string; connectionId: string; feedId: string | null; at: string };
     const cur = await tx.integrationConnection.findUnique({ where: { id: p.connectionId } });
     if (cur && cur.status !== 'disconnected') {
       await tx.integrationConnection.update({ where: { id: cur.id }, data: { status: 'disconnected', secretEnc: null, credentialRev: { increment: 1 } } });
-      await rotated(tx, cur.id, new Date());
+      await rotated(tx, cur.id, new Date(p.at));
     }
     if (p.feedId) await tx.tenantBankFeed.updateMany({ where: { id: p.feedId }, data: { status: 'disconnected' } });
     return { events: [{ topic: 'integration.disconnected', payload: { connection_id: p.connectionId, connector_key: cur?.connectorKey ?? p.provider } }] };

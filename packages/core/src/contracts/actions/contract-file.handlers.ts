@@ -88,7 +88,7 @@ export class ContractAttachFileHandler implements Handler<AttachIn, { contract_i
   async undo(_ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void> {
     const a = log.after as { id: string; sourceVersion: number };
     const b = log.before as Record<string, unknown> & { sourceVersion: number };
-    const r = await tx.contract.updateMany({ where: { id: a.id, status: 'draft', sourceVersion: a.sourceVersion }, data: { ...b, sourceVersion: a.sourceVersion + 1, updatedAt: new Date() } as never });
+    const r = await tx.contract.updateMany({ where: { id: a.id, status: 'draft', sourceVersion: a.sourceVersion }, data: { ...b, sourceVersion: a.sourceVersion + 1, updatedAt: this.clock.now() } as never });
     if (!r.count) throw new AppError('INVALID_TRANSITION', 409, { source_version: 'changed' });
   }
 

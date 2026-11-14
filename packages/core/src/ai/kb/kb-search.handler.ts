@@ -10,7 +10,7 @@ import type { EmbedResult, Embedder } from '@appchat/ai';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { ActionInput, ActionPreview, kbSearch } from '@appchat/actions';
 import { CreditMeter } from '../../billing/services/credit-meter';
-import { CLOCK, type Clock } from '../../kernel/clock';
+import { CLOCK, SystemClock, type Clock } from '../../kernel/clock';
 import { TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import type { ActionContext, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
@@ -32,6 +32,8 @@ type Prepared = { denied: string } | { e: EmbedResult | null; retired?: boolean 
 const pick = (r: KbSearchResult): Out => ({ grounded: r.grounded, chunks: r.chunks, citations: r.citations });
 
 export { kbVisibility };
+
+const defaultClock = new SystemClock();
 
 @Injectable()
 @ActionHandler('kb.search')
@@ -57,7 +59,7 @@ export class KbSearchHandler implements Handler<ActionInput<typeof kbSearch>, Ou
         (err: unknown) => ((err as { code?: string })?.code === 'EMBED_SPACE_RETIRED' ? { e: null, retired: true } : Promise.reject(err)),
       );
     }
-    const e = await queryRunFor({ db, embedder: this.embedder, meter: this.meter, now: () => this.clock?.now() ?? new Date() }, ctx, input.query);
+    const e = await queryRunFor({ db, embedder: this.embedder, meter: this.meter, now: () => (this.clock ?? defaultClock).now() }, ctx, input.query);
     return e && 'retired' in e ? { e: null, retired: true } : { e };
   }
 

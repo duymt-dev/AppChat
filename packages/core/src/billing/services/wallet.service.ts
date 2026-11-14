@@ -5,7 +5,10 @@
 import { AppError, warnLevel } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
 import type { PlatformTx } from '../../kernel/actions/action-context';
+import { SystemClock } from '../../kernel/clock';
 import { uuidv7 } from '../../kernel/ids';
+
+const defaultClock = new SystemClock();
 
 export type CreditKindName = 'grant' | 'topup' | 'usage' | 'refund' | 'adjust' | 'expire';
 
@@ -62,7 +65,7 @@ export class WalletService {
 
   constructor(
     private readonly db: PlatformDb,
-    private readonly now: () => Date = () => new Date(),
+    private readonly now: () => Date = () => defaultClock.now(),
   ) {}
 
   onChange(l: WalletListener | null): void {

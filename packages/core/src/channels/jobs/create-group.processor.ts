@@ -9,6 +9,7 @@ import { ChannelNotRunningError, type ChannelAdapter } from '@appchat/channels';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import type { ActionExecutor } from '../../kernel/actions/executor';
 import type { ActionContext } from '../../kernel/actions/action-context';
+import { SystemClock } from '../../kernel/clock';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { GROUP_WORKER_ACTOR } from '../actions/group-result.handler';
 import type { Participant } from '../services/group-requests';
@@ -21,11 +22,14 @@ export interface GroupJob {
   request_id: string;
 }
 
+const defaultClock = new SystemClock();
+
 export interface GroupDeps {
   redis: Redis;
   tenants: TenantDbResolver;
   executor: Pick<ActionExecutor, 'execute'>;
   log: AppLogger;
+  now?: () => Date;
   timeoutMs?: number;
 }
 
@@ -86,7 +90,7 @@ export class GroupCreators {
     if (r.status !== 'queued') return r.status;
     // Phiên phải có trước khi ghi attempt — chưa có thì job thử lại (an toàn: chưa gọi nhà cung cấp).
     if (!(adapter as { isRunning?: (id: string) => boolean }).isRunning?.(accountId)) throw new ChannelNotRunningError(accountId);
-    const claimed = await db.conversationGroupRequest.updateMany({ where: { id: r.id, status: 'queued' }, data: { status: 'running', attemptedAt: new Date() } });
+    const claimed = await db.conversationGroupRequest.updateMany({ where: { id: r.id, status: 'queued' }, data: { status: 'running', attemptedAt: (this.d.now ?? (() => defaultClock.now()))() } });
     if (!claimed.count) return 'raced';
     const members = (r.participants as unknown as Participant[]).map((p) => p.external_id);
     try {

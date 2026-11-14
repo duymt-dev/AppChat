@@ -12,7 +12,10 @@ export function createPlatformDb(url: string, max = platformPoolMax()): Platform
 }
 
 export function createTenantDb(url: string, max = 3): TenantDb {
-  return new TenantClient({ adapter: new PrismaPg({ connectionString: url, max, idleTimeoutMillis: 30_000 }) });
+  return new TenantClient({
+    adapter: new PrismaPg({ connectionString: url, max, idleTimeoutMillis: 30_000 }),
+    log: [{ emit: 'event', level: 'query' }],
+  });
 }
 
 /** Dựng SQL tham số hoá cho `$queryRaw` trên DB tenant (`TenantSql.sql`, `TenantSql.join`) — không nối chuỗi tay. */

@@ -2,7 +2,10 @@
 // DC-056); null = không giới hạn. TIP tạo tài nguyên gọi `assert(ws, resource, current)` TRƯỚC khi thêm (013 thành viên · 014 kênh · 021 agent).
 import { AppError, FREE_PLAN_KEY, type QuotaResource } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
+import { SystemClock } from '../../kernel/clock';
 import { activeAddons, withAddons } from './addons.service';
+
+const defaultClock = new SystemClock();
 
 export interface PlanLimits {
   planKey: string;
@@ -14,7 +17,7 @@ export interface PlanLimits {
 export class QuotaService {
   constructor(
     private readonly db: Pick<PlatformDb, 'subscription' | 'plan' | 'subscriptionAddon'>,
-    private readonly now: () => Date = () => new Date(),
+    private readonly now: () => Date = () => defaultClock.now(),
   ) {}
 
   /** Workspace chưa có subscription (chưa khai báo) → hạn mức gói Miễn phí. */

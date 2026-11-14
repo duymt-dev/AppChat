@@ -242,10 +242,10 @@ async function decide(d: ReplyDeps, db: TenantDb, ws: string, c: Conv, run: RunR
 }
 
 /** Job `agent-reply`: một lượt cho hội thoại (sau debounce). */
-export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string, owner = `turn:${conversationId}:${Date.now()}`): Promise<TurnOutcome> {
+export async function replyTurn(d: ReplyDeps, ws: string, conversationId: string, owner?: string): Promise<TurnOutcome> {
   const db = await d.tenants.get(TenantContexts.system(ws, 'agent-reply'));
   // Một lượt mỗi hội thoại (lease bền, fence): job trùng / worker khác đang giữ → bỏ qua, không tạo run thứ hai.
-  const turn = await acquireTurn(db, conversationId, owner, d.now());
+  const turn = await acquireTurn(db, conversationId, owner ?? `turn:${conversationId}:${d.now().getTime()}`, d.now());
   if (!turn) return 'skipped';
   const beat = setInterval(() => void renewTurn(db, turn, d.now()).catch(() => undefined), Math.floor(TURN_LEASE_MS / 3));
   try {

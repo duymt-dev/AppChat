@@ -134,7 +134,7 @@ async function drawersOf(db: TenantDb, tasks: { id: string; agentId: string | nu
   const [runs, folders] = await Promise.all([
     db.$queryRaw<{ id: string; task_id: string; title: string; status: string; credits_used: number; started_at: Date; error: string | null }[]>`
       SELECT x.id, x.task_id, x.title, x.status::text, x.credits_used, x.started_at, x.error FROM (
-        SELECT r.*, row_number() OVER (PARTITION BY r.task_id ORDER BY r.started_at DESC) AS n
+        SELECT r.id, r.task_id, r.title, r.status, r.credits_used, r.started_at, r.error, row_number() OVER (PARTITION BY r.task_id ORDER BY r.started_at DESC) AS n
         FROM ai_run r WHERE r.task_id IN (${Prisma.join(tasks.map((t) => t.id))})) x
       WHERE x.n <= ${LOGS_PER_TASK} ORDER BY x.started_at DESC`,
     db.kbFolder.findMany({ select: { id: true, name: true, _count: { select: { sources: true } } } }).catch(() => [] as { id: string; name: string; _count: { sources: number } }[]),

@@ -14,7 +14,7 @@ import { useOrderFormStyles } from '../styles/form.styles';
 import { useOrdersUi } from '../orders-store';
 import { initialOrderDraft, useOrderForm } from '../hooks/useOrderForm';
 import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
-import { todayIso } from '@/shared/time/today';
+import { useToday } from '@/shared/time/today';
 
 const SHIP = [
   ['address', 'addr'],
@@ -33,9 +33,6 @@ const ALL_CONTACTS = {
   tag_id: '',
   sort: 'recent',
 } as const;
-/** Hôm nay — mock: ngày cố định của parity (prototype-parity §4); http: ngày thật. */
-const TODAY = todayIso();
-
 export function OrderFormModal() {
   const ui = useOrdersUi();
   if (ui.form !== 'create') return null;
@@ -44,6 +41,7 @@ export function OrderFormModal() {
 
 function OrderForm() {
   const t = useTranslations('orders');
+  const today = useToday();
   const fmt = useFmt();
   const { styles, cx } = useOrderFormStyles();
   const ui = useOrdersUi();
@@ -145,7 +143,7 @@ function OrderForm() {
             t('form.contract'),
             <input className={styles.input} placeholder={t('form.lookup')} disabled />,
           )}
-          {field(t('form.date'), <input type="date" className={styles.input} value={TODAY} disabled />)}
+          {field(t('form.date'), <input type="date" className={styles.input} value={today} disabled />)}
           {field(
             t('form.deposit'),
             <input
