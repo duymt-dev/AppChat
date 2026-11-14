@@ -26,4 +26,3 @@ export const RISK_TONE: Record<string, string> = {
 
 export const avColor = (name: string) => `hsl(${(name.length * 40) % 360} 55% 48%)`;
 export const initial = (name: string) => name.replace(/^(Chị|Anh) /, '').charAt(0);
-export const pts = (n: number) => n.toLocaleString('vi-VN');

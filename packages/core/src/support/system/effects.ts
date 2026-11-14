@@ -45,7 +45,7 @@ export async function customerMessage(tx: TenantTx, id: string, messageId: strin
     if (!t.closedAt || now.getTime() - t.closedAt.getTime() > TICKET_REOPEN_DAYS * 86_400_000) return none(id, 'closed');
     evs.push(evOf('ticket.reopened', await reopenTicket(tx, t, now, cal, SYSTEM_ACTOR)));
   } else if (t.status === 'waiting') {
-    const row = await tx.ticket.update({ where: { id }, data: { status: 'in_progress', pausedSince: null, ...resumeDue(t, now, cal), version: { increment: 1 }, updatedAt: now } });
+    const row = await tx.ticket.update({ where: { id }, data: { status: 'in_progress', pausedSince: null, ...resumeDue(t, now, cal), updatedAt: now } });
     await logEvent(tx, id, 'status', SYSTEM_ACTOR, now, { status: 'in_progress' });
     evs.push(evOf('ticket.updated', row));
   }

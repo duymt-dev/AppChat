@@ -11,6 +11,7 @@ import { postConfirm, type AssistantMode } from './assistant-client';
 import { streamTurn } from './turn-stream';
 import { currentScreen, toTurnContext } from './screen-context';
 import { dispatchUiCommand } from './ui-command-bus';
+import { claimUiCommand } from './ui-command-once';
 import { useMe } from '../shell/useShellData';
 
 export interface ScreenMsg {
@@ -110,7 +111,7 @@ export function useScreenAssistant(module: string, mode: AssistantMode = 'cowork
         const turn = await streamTurn({ text, mode, sessionId: t.sessionId, context, ...(o.recordIntent ? { recordIntent: o.recordIntent, requestId: o.requestId ?? o.recordIntent.request_id } : {}) });
         const { msgs, commands } = messagesOf(turn.events);
         patch(module, (cur) => ({ sessionId: turn.session_id, msgs: [...cur.msgs, ...msgs] }));
-        commands.forEach(runUi);
+        for (const c of commands) if (claimUiCommand('turn', turn.run_id, c)) runUi(c);
       } catch (e) {
         patch(module, (cur) => ({ msgs: [...cur.msgs, { id: mid(), role: 'ai', text: '', error: true, ...(errCode(e) ? { errorCode: errCode(e) } : {}) }] }));
       } finally {

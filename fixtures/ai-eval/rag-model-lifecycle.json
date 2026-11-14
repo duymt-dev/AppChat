@@ -1,0 +1,164 @@
+{
+ "suite": "rag-model-lifecycle",
+ "cases": [
+  {
+   "id": "rml-current",
+   "category": "rag_lifecycle",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Tra kho tri thức giúp mình: mã phiếu bảo dưỡng của gói {k1} là gì?",
+   "rag_lifecycle": {
+    "kind": "current",
+    "ask": "Tra kho tri thức giúp mình: mã phiếu bảo dưỡng của gói {k1} là gì?",
+    "want": "k1"
+   },
+   "expect": {
+    "confirm": false,
+    "rag_lifecycle": true
+   }
+  },
+  {
+   "id": "rml-stale-pinned",
+   "category": "rag_lifecycle",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Mã quà tặng sinh nhật của gói {k2} là gì vậy?",
+   "rag_lifecycle": {
+    "kind": "stale",
+    "ask": "Mã quà tặng sinh nhật của gói {k2} là gì vậy?",
+    "want": "k2"
+   },
+   "expect": {
+    "confirm": false,
+    "rag_lifecycle": true
+   }
+  },
+  {
+   "id": "rml-retired-keyword",
+   "category": "rag_lifecycle",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Cho mình hỏi mã giữ chỗ cuối tuần của gói {k3}.",
+   "rag_lifecycle": {
+    "kind": "retired",
+    "ask": "Cho mình hỏi mã giữ chỗ cuối tuần của gói {k3}.",
+    "want": "k3"
+   },
+   "expect": {
+    "confirm": false,
+    "rag_lifecycle": true
+   }
+  },
+  {
+   "id": "rml-reindex-publish",
+   "category": "rag_lifecycle",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Mã đổi lịch hẹn của gói {k4} là gì?",
+   "rag_lifecycle": {
+    "kind": "reindex",
+    "ask": "Mã đổi lịch hẹn của gói {k4} là gì?",
+    "want": "k4"
+   },
+   "expect": {
+    "confirm": false,
+    "rag_lifecycle": true
+   }
+  },
+  {
+   "id": "rml-after-publish",
+   "category": "rag_lifecycle",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Tra kho tri thức: mã phiếu bảo dưỡng của gói {k1} là gì?",
+   "rag_lifecycle": {
+    "kind": "after_publish",
+    "ask": "Tra kho tri thức: mã phiếu bảo dưỡng của gói {k1} là gì?",
+    "want": "k1"
+   },
+   "expect": {
+    "confirm": false,
+    "rag_lifecycle": true
+   }
+  },
+  {
+   "id": "rml-ungrounded",
+   "category": "rag_lifecycle",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Mã phiếu bảo dưỡng của gói Hồng Nhung {stamp} là gì? Nếu kho không có thì nói không có, đừng đoán.",
+   "rag_lifecycle": {
+    "kind": "ungrounded",
+    "ask": "Mã phiếu bảo dưỡng của gói Hồng Nhung {stamp} là gì? Nếu kho không có thì nói không có, đừng đoán."
+   },
+   "expect": {
+    "confirm": false,
+    "rag_lifecycle": true
+   }
+  },
+  {
+   "id": "rml-rerank-off",
+   "category": "rag_lifecycle",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Mã quà tặng sinh nhật của gói {k2} là gì?",
+   "rag_lifecycle": {
+    "kind": "rerank",
+    "ask": "Mã quà tặng sinh nhật của gói {k2} là gì?",
+    "want": "k2"
+   },
+   "expect": {
+    "confirm": false,
+    "rag_lifecycle": true
+   }
+  },
+  {
+   "id": "rml-reindex-back",
+   "category": "rag_lifecycle",
+   "seed": "live-seed",
+   "actor": {
+    "role": "owner"
+   },
+   "locale": "vi",
+   "mode": "chat",
+   "input": "Mã giữ chỗ cuối tuần của gói {k3} là gì?",
+   "rag_lifecycle": {
+    "kind": "reindex_back",
+    "ask": "Mã giữ chỗ cuối tuần của gói {k3} là gì?",
+    "want": "k3"
+   },
+   "expect": {
+    "confirm": false,
+    "rag_lifecycle": true
+   }
+  }
+ ]
+}

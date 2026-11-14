@@ -74,8 +74,6 @@
     "chanCount": "{n} kênh",
     "syncTitle": "Đồng bộ đa kênh",
     "edit": "Sửa sản phẩm",
-    "filesTitle": "Tệp đính kèm",
-    "open": "Mở",
     "perf": "Hiệu quả bán hàng",
     "crm": {
       "buyers": "Khách đã mua",
@@ -99,7 +97,6 @@
     "adjust": "Điều chỉnh tồn",
     "noSales": "Chưa có số liệu bán — hiện khi có báo giá / đơn chứa sản phẩm này.",
     "noBuyers": "Chưa có khách mua sản phẩm này.",
-    "noFiles": "Chưa có tệp đính kèm.",
     "noHistory": "Chưa có lịch sử.",
     "by": "{when} · {by}"
   },
@@ -206,7 +203,8 @@
       "list": "•",
       "olist": "1."
     },
-    "required": "Nhập tên và giá bán"
+    "required": "Nhập tên và giá bán",
+    "rtBar": "Định dạng mô tả"
   },
   "unit": "sản phẩm",
   "stockAdjust": {
@@ -250,6 +248,59 @@
       "completed": "Đã xong",
       "failed": "Có lỗi — xem dòng lỗi",
       "cancelled": "Đã huỷ"
+    }
+  },
+  "media": {
+    "title": "Tệp đính kèm",
+    "upload": "+ Tải tệp lên",
+    "full": "Đã đủ số ảnh và tài liệu",
+    "empty": "Chưa có ảnh hay tài liệu nào.",
+    "images": "Ảnh · {n}/{max}",
+    "documents": "Tài liệu · {n}/{max}",
+    "primary": "Ảnh chính",
+    "makePrimary": "Đặt {name} làm ảnh chính",
+    "moveUp": "Dời {name} lên trước",
+    "moveDown": "Dời {name} ra sau",
+    "open": "Mở",
+    "openName": "Mở {name}",
+    "openFail": "Không mở được tệp.",
+    "detach": "Gỡ",
+    "detachName": "Gỡ {name}",
+    "cancel": "Huỷ",
+    "retry": "Thử lại",
+    "meta": "{at} · {size}",
+    "missing": "không còn bản gốc",
+    "uploading": "Đang tải {name} lên…",
+    "attaching": "Đang kiểm tệp và đính kèm {name}…",
+    "failed": "Chưa đính kèm {name}: {reason}",
+    "stale": "Danh sách ảnh / tệp vừa thay đổi — đã tải lại. Bấm Thử lại để đính kèm {name}.",
+    "detachTitle": "Gỡ {name} khỏi sản phẩm?",
+    "detachBody": "Tệp sẽ không còn hiện ở sản phẩm. Tệp gốc vẫn được lưu theo chính sách lưu trữ, bản đã tải về không bị thu hồi.",
+    "reason": {
+      "failed": "có lỗi, thử lại sau",
+      "network": "mất kết nối",
+      "unavailable": "chưa kiểm được tệp lúc này (dịch vụ kiểm tệp tạm ngưng)",
+      "forbidden": "bạn không có quyền sửa sản phẩm",
+      "too_large": "tệp quá lớn",
+      "type_not_allowed": "loại tệp không hỗ trợ (ảnh PNG/JPEG/WEBP, PDF, DOCX, XLSX, TXT/CSV)",
+      "type_mismatch": "đuôi tệp không khớp nội dung",
+      "image_too_large": "ảnh quá lớn (tối đa 8000 px mỗi cạnh, 40 megapixel)",
+      "animated": "không nhận ảnh động",
+      "corrupt": "ảnh hỏng hoặc không đọc được",
+      "limit_reached": "đã đủ số lượng cho phép",
+      "other_target": "tệp đã tải cho nơi khác",
+      "claimed": "tệp đã gắn ở nơi khác",
+      "not_found": "tệp tạm đã hết hạn — chọn lại tệp",
+      "not_validated": "tệp chưa được kiểm",
+      "macro": "tệp Office có macro",
+      "executable": "không nhận tệp thực thi",
+      "detached": "mục này đã bị gỡ"
+    },
+    "glyph": {
+      "up": "‹",
+      "primary": "★",
+      "down": "›",
+      "remove": "✕"
     }
   }
 }

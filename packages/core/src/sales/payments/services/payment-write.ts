@@ -11,6 +11,7 @@ import { writeTimeline } from '../../../crm/public';
 import { logEvent, payCols, type Actor } from '../../orders/services/order-write';
 import type { InvoiceRecord } from '../invoice-access';
 import { grantPackages } from './packages';
+import { defaultTemplateOf } from './invoice-doc';
 
 type Ev = { topic: string; payload: Record<string, unknown> };
 type Method = 'qr' | 'bank_transfer' | 'cash' | 'card' | 'marketplace' | 'points';
@@ -60,6 +61,8 @@ export async function recordInvoicePayment(tx: TenantTx, inv: InvoiceRecord, p: 
   if (p.amount > left) throw new AppError('VALIDATION_FAILED', 422, { amount: 'invoice.amount_over' });
   const paymentId = uuidv7(now.getTime());
   const receiptCode = await nextCode(tx, 'receipt');
+  // Phiếu thu chụp mẫu mặc định lúc ghi khoản thu (templates.md §2, TIP-028b) — PDF render lần đầu dùng đúng mẫu này.
+  const tpl = await defaultTemplateOf(tx, 'receipt');
   await tx.customerPayment.create({
     data: {
       id: paymentId,
@@ -73,6 +76,8 @@ export async function recordInvoicePayment(tx: TenantTx, inv: InvoiceRecord, p: 
       bankTxId: p.bankTxId ?? null,
       status: 'confirmed',
       receiptCode,
+      templateId: tpl?.templateId ?? null,
+      templateVersion: tpl?.templateVersion ?? null,
       paidAt: p.paidAt,
       createdByType: p.actor.type,
       createdById: p.actor.id,

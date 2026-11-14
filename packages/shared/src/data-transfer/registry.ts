@@ -5,9 +5,13 @@
 import { foldText } from '../crm/phone';
 import type { TransferField, TransferFieldType } from './field-types';
 import { CONTRACT_FIELDS, INVOICE_FIELDS, ORDER_FIELDS, PRODUCT_FIELDS, QUOTE_FIELDS } from './fields';
-import { CONTACT_NOTE_FIELDS, CONTACT_OPPORTUNITY_FIELDS, CONTACT_TASK_FIELDS, CUSTOMER_PACKAGE_FIELDS } from './activity-fields';
+import { CONTACT_NOTE_FIELDS, CONTACT_OPPORTUNITY_FIELDS, CONTACT_TASK_FIELDS, CUSTOMER_PACKAGE_FIELDS, TICKET_BULK_RESULT_FIELDS } from './activity-fields';
 
-export const TRANSFER_ENTITIES = ['contact', 'product', 'quote', 'order', 'contract', 'invoice'] as const;
+/**
+ * `ticket_category_suggestions` (TIP-034b §4): từ điển GỢI Ý danh mục ticket — cấu hình, không phải bản ghi ticket; nhập = thay cả bộ.
+ * `ticket_bulk_results` (TIP-034c §4.4): kết quả từng id của MỘT thao tác sửa ticket hàng loạt — chỉ xuất, không phải bản ghi ticket.
+ */
+export const TRANSFER_ENTITIES = ['contact', 'product', 'quote', 'order', 'contract', 'invoice', 'ticket_category_suggestions', 'ticket_bulk_results'] as const;
 export type TransferEntity = (typeof TRANSFER_ENTITIES)[number];
 /**
  * Tập dữ liệu dưới một thực thể (TIP-026b §5): `base` = bản ghi chính của thực thể (038b); khách hàng có thêm 3 tập hoạt động CRM. Chọn
@@ -26,6 +30,8 @@ export const DATASETS_OF: Record<TransferEntity, readonly TransferDataset[]> = {
   order: ['base'],
   contract: ['base'],
   invoice: ['base'],
+  ticket_category_suggestions: ['base'],
+  ticket_bulk_results: ['base'],
 };
 export const datasetAllowed = (e: TransferEntity, d: TransferDataset) => DATASETS_OF[e].includes(d);
 export const targetOf = (e: TransferEntity, d: TransferDataset | null | undefined): TransferTarget =>
@@ -57,6 +63,11 @@ export interface TransferEntitySpec {
   importReady: boolean;
   /** Nhiều dòng tệp gom theo `group` thành MỘT bản ghi (header + dòng hàng — báo giá / đơn). */
   grouped?: boolean;
+  /**
+   * Cả tệp ghi bằng MỘT lệnh nghiệp vụ (sản phẩm: `product.import`; danh mục ticket: `ticket_categories.replace` thay cả bộ) — một dòng lỗi
+   * là cả kế hoạch không xác nhận được (không có "chỉ nhập dòng hợp lệ"), không chạy nền theo lô, không đánh dấu "đã nhập" theo dòng.
+   */
+  atomic?: boolean;
 }
 
 const f = (
@@ -65,6 +76,12 @@ const f = (
   aliases: string[],
   o: Partial<TransferField> = {},
 ): TransferField => ({ key, type, aliases, ...o });
+
+/** TIP-034b §4.1: cột của tệp danh mục gợi ý — vị trí (tuỳ chọn, 1..N liên tục) + nhãn (luật validator dùng chung, kiểm ở adapter). */
+const TICKET_CATEGORY_FIELDS: readonly TransferField[] = [
+  f('position', 'number', ['vi tri', 'thu tu', 'stt', 'position', 'order', 'no', '#']),
+  f('label', 'text', ['danh muc', 'ten danh muc', 'nhan', 'goi y', 'category', 'label', 'name'], { required: true, max: 400 }),
+];
 
 const CONTACT_FIELDS: readonly TransferField[] = [
   f(
@@ -118,12 +135,14 @@ export const TRANSFER_REGISTRY: Record<TransferTarget, TransferEntitySpec> = {
   product: {
     entity: 'product',
     dataset: 'base',
-    schemaVersion: 1,
+    // 2 = TIP-027b: thêm cột `description_doc` + cảnh báo `formatting_reset` (kế hoạch lập trước đó phải lập lại — 409 stale).
+    schemaVersion: 2,
     importPermission: 'catalog.manage',
     exportAction: 'product.export',
     writeAction: 'product.import',
     fields: PRODUCT_FIELDS,
     importReady: true,
+    atomic: true,
   },
   quote: {
     entity: 'quote',
@@ -200,6 +219,31 @@ export const TRANSFER_REGISTRY: Record<TransferTarget, TransferEntitySpec> = {
     writeAction: 'contact_opportunity.create',
     fields: CONTACT_OPPORTUNITY_FIELDS,
     importReady: true,
+  },
+  // TIP-034b §4 — từ điển gợi ý danh mục ticket: nhập = MỘT `ticket_categories.replace` thay cả bộ (≤ 100 nhãn, phiên bản cấu hình chụp lúc
+  // lập kế hoạch); xuất = `ticket_categories.export` (chỉ bộ cấu hình, không nhãn lấy từ ticket). Quyền: settings.manage cho cả hai.
+  ticket_category_suggestions: {
+    entity: 'ticket_category_suggestions',
+    dataset: 'base',
+    schemaVersion: 1,
+    importPermission: 'settings.manage',
+    exportAction: 'ticket_categories.export',
+    writeAction: 'ticket_categories.replace',
+    fields: TICKET_CATEGORY_FIELDS,
+    importReady: true,
+    atomic: true,
+  },
+  // TIP-034c §4.4 — kết quả của MỘT thao tác sửa ticket hàng loạt: CHỈ XUẤT (ticket.bulk_export — id / kết quả / mã lỗi an toàn / đã đổi /
+  // trạng thái hoàn tác; không tiêu đề / nội dung / ảnh chụp trước). Nhập tệp kết quả KHÔNG phải đường sửa ticket.
+  ticket_bulk_results: {
+    entity: 'ticket_bulk_results',
+    dataset: 'base',
+    schemaVersion: 1,
+    importPermission: 'ticket.manage',
+    exportAction: 'ticket.bulk_export',
+    fields: TICKET_BULK_RESULT_FIELDS,
+    importReady: false,
+    direction: 'export',
   },
   // TIP-033b §5.1 — liệu trình của khách: CHỈ XUẤT (CSV / XLSX qua package.export, cùng PackagesRead + quyền hiện tại).
   customer_packages: {

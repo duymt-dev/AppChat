@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { createStyles } from 'antd-style';
-import { Icon, color, font, radius } from '@appchat/ui';
+import { Icon, color, font, mq, radius } from '@appchat/ui';
 import type { AgentCard } from '../types';
 import { SectionCard } from './SectionCard';
 
@@ -27,13 +27,13 @@ const useStyles = createStyles(({ css }) => ({
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 12px;
     align-items: stretch;
-    @media (max-width: 1280px) {
+    ${mq.max1280} {
       grid-template-columns: repeat(3, minmax(0, 1fr));
     }
-    @media (max-width: 900px) {
+    ${mq.max900} {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
-    @media (max-width: 560px) {
+    ${mq.max560} {
       grid-template-columns: 1fr;
     }
   `,

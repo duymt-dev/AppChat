@@ -6,7 +6,8 @@ import type { TenantDb } from '@appchat/db';
 import { uuidv7 } from '../../kernel/ids';
 
 type Db = Pick<TenantDb, 'aiUsageGroup' | 'aiUsageReceipt' | '$executeRaw'>;
-export type UsageKind = 'chat' | 'query_embed' | 'ingest';
+/** `rerank` (TIP-020e): một lần gọi rerank đo được — migration `ai_usage_rerank_kind` mở CHECK. */
+export type UsageKind = 'chat' | 'query_embed' | 'ingest' | 'rerank';
 
 export const groupId = (runId: string, kind: UsageKind, step: number) => `${runId}:${kind}:${step}`;
 

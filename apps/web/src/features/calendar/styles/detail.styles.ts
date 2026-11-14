@@ -283,34 +283,4 @@ export const useCalDetailStyles = createStyles(({ css, responsive }) => ({
       flex-basis: ${layout.touch}px;
     }
   `,
-  suggest: css`
-    background: ${color.brandBg};
-    border: 1px solid ${color.activeLine};
-    border-radius: ${radius.r10}px;
-    padding: 12px;
-    margin-bottom: 16px;
-    font-size: ${font.scale.s13}px;
-    color: ${color.text2};
-    b {
-      display: block;
-      font-size: ${font.scale.s14}px;
-      color: ${color.text};
-      margin-bottom: 4px;
-    }
-  `,
-  sugBtn: css`
-    margin-top: 8px;
-    height: 32px;
-    padding: 0 12px;
-    border-radius: ${radius.r8}px;
-    border: none;
-    background: ${color.brand};
-    color: ${color.white};
-    font-weight: ${font.weight.bold};
-    font-family: inherit;
-    cursor: pointer;
-    ${responsive.md} {
-      height: ${layout.touch}px;
-    }
-  `,
 }));

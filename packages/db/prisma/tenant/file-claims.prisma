@@ -1,0 +1,49 @@
+// tenant/file-claims.prisma — sở hữu: TIP-032d (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Giành tệp một-chủ trung lập (TIP-032d §1.4, §2.6): một tệp `record_attachment` chỉ thuộc đúng MỘT bản ghi cha (loại + id) suốt đời —
+// unique(file_id) là chốt bền chống gắn chéo giữa hai loại cha (đơn / đề nghị), không chỉ unique theo từng bảng liên kết. Kernel không biết
+// domain: `parent_type` là chuỗi do adapter domain đăng ký. Không nội dung tệp, không đường dẫn lưu trữ. Gỡ liên kết KHÔNG xoá claim
+// (giữ lineage cho dọn tệp / quên khách); tệp chỉ được dọn khi không còn liên kết sống.
+// Index ở migration `20261112020000_commerce_record_files`.
+
+model FileClaim {
+  fileId        String   @id @map("file_id") @db.Uuid
+  parentType    String   @map("parent_type")
+  parentId      String   @map("parent_id") @db.Uuid
+  associationId String   @map("association_id") @db.Uuid
+  /// Phiên bản bộ tệp của cha lúc giành (để đối chiếu khi khôi phục).
+  revision      Int
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([parentType, parentId], map: "file_claim_parent_idx")
+  @@map("file_claim")
+}
+
+enum AttachmentValidation {
+  pending
+  validating
+  structurally_valid
+  rejected
+  unavailable
+
+  @@map("attachment_validation")
+}
+
+/// Tệp đính kèm bản ghi đang chờ gắn (TIP-032d §2.1–2.2): tải lên = staging riêng tư, CHƯA phải đã gắn. Kiểm cấu trúc (không phải quét virus)
+/// ghi trạng thái + validator_version + digest; gắn chỉ khi digest / version khớp. `parent_type` / `parent_id` là đích dự định lúc tải (gắn
+/// sang đích khác → 409). Staging không liên kết quá hạn → dọn theo chính sách tệp mồ côi hiện có.
+model AttachmentStaging {
+  fileId           String               @id @map("file_id") @db.Uuid
+  uploadedBy       String               @map("uploaded_by") @db.Uuid
+  parentType       String               @map("parent_type")
+  parentId         String               @map("parent_id") @db.Uuid
+  status           AttachmentValidation @default(pending)
+  validatorVersion Int                  @default(0) @map("validator_version")
+  digest           String
+  kind             String?
+  reason           String?
+  createdAt        DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status, createdAt], map: "attachment_staging_status_idx")
+  @@map("attachment_staging")
+}

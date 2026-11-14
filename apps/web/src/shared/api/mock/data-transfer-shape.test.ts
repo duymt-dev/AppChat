@@ -44,9 +44,11 @@ describe('mock nhập dữ liệu dùng chung', () => {
     expect(after).toMatchObject({ status: 'completed', counts: { applied: 1 } });
   });
 
-  it('năng lực đủ 6 thực thể + 3 tập hoạt động khách (TIP-026b) + liệu trình chỉ xuất (TIP-033b); kế hoạch không có → 404', async () => {
+  it('năng lực đủ 6 thực thể + 3 tập hoạt động khách (TIP-026b) + liệu trình chỉ xuất (TIP-033b) + danh mục ticket (TIP-034b) + kết quả sửa ticket hàng loạt chỉ xuất (TIP-034c); kế hoạch không có → 404', async () => {
     const caps = (await mockTransport.get('/data-transfer/capabilities')) as { entity: string; dataset: string; import: { supported: boolean }; export: { action_id: string } }[];
-    expect(caps).toHaveLength(10);
+    expect(caps).toHaveLength(12);
+    expect(caps.find((c) => c.entity === 'ticket_bulk_results')).toMatchObject({ dataset: 'base', import: { supported: false }, export: { action_id: 'ticket.bulk_export' } });
+    expect(caps.find((c) => c.entity === 'ticket_category_suggestions')).toMatchObject({ dataset: 'base', export: { action_id: 'ticket_categories.export' } });
     expect(caps.filter((c) => c.entity === 'contact').map((c) => c.dataset)).toEqual(['base', 'contact_notes', 'contact_tasks', 'contact_opportunities', 'customer_packages']);
     expect(caps.find((c) => c.dataset === 'customer_packages')).toMatchObject({ import: { supported: false }, export: { action_id: 'package.export' } });
     await expect(mockTransport.get('/data-transfer/plans/khong-co')).rejects.toMatchObject({ error: { code: 'NOT_FOUND' } });

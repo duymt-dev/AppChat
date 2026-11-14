@@ -2,10 +2,11 @@
 // chữ); gợi ý copilot đã mang `run_id`. Đọc (danh sách / thread), dùng / gửi và đặt chỗ gửi đều kiểm run đó còn dùng được nguồn —
 // nguồn bị xoá / chuyển / đổi quyền / nạp lại / agent tạm dừng → nháp / gợi ý ẩn (không chỉ ẩn trích dẫn). Nháp tay (không run) không bị
 // chặn; chữ tự gõ lại không bị dò bằng so chuỗi. `message.send.ai_draft_ref` chỉ là tham chiếu mờ server kiểm — KHÔNG cấp quyền.
-import { AppError } from '@appchat/shared';
+import { AppError, type AuthzContext } from '@appchat/shared';
 import type { TenantDb } from '@appchat/db';
 import type { TenantTx } from '../../../kernel/actions/action-context';
 import { knowledgeCurrent, staleRuns } from './provenance';
+import { assertDraftPublication } from '../../sales-behavior/publication';
 
 type Db = Pick<TenantDb, 'aiRun' | 'aiAgent' | 'aiAgentVersion' | '$queryRaw'>;
 
@@ -49,15 +50,18 @@ export const draftRefOf = (c: Pick<ConvLite, 'aiDraft' | 'aiDraftRunId' | 'aiDra
 /**
  * Gửi kèm `ai_draft_ref` (trong transaction `message.send`, sau khoá hội thoại): phải khớp nháp hiện tại của CHÍNH hội thoại này (run +
  * thế hệ) và nguồn còn hợp lệ. Lệch / của hội thoại khác / nguồn hết hiệu lực → 409 `ai_draft: stale` (lý do an toàn, không lộ nguồn).
- * Trả run để ghi lên outbox (đặt chỗ gửi kiểm lại trước khi gọi kênh). Không ref → null (tin tay, gửi như cũ).
+ * Trả run để ghi lên outbox (đặt chỗ gửi kiểm lại trước khi gọi kênh). Không ref → null (tin tay, gửi như cũ). TIP-022c: `sender` = người
+ * gửi hiện tại — nháp có câu tồn / giá thì kiểm lại tồn dưới quyền người đó (409 `ai_draft: stock_changed | stock_unverified | invalidated`).
  */
-export async function verifyDraftRef(tx: TenantTx, c: Pick<ConvLite, 'aiDraftRunId' | 'aiDraftGen' | 'aiSuggestion'>, ref: DraftRef | undefined): Promise<string | null> {
+export async function verifyDraftRef(tx: TenantTx, c: Pick<ConvLite, 'aiDraftRunId' | 'aiDraftGen' | 'aiSuggestion'>, ref: DraftRef | undefined, sender?: { authz: AuthzContext; now: Date }): Promise<string | null> {
   if (!ref) return null;
   const draft = !!c.aiDraftRunId && ref.id === c.aiDraftRunId && ref.generation === c.aiDraftGen;
   // Gợi ý copilot: thế hệ 0 + đúng run của gợi ý đang hiện.
   const suggestion = ref.generation === 0 && ref.id === suggestionRun(c.aiSuggestion);
   if (!draft && !suggestion) throw new AppError('INVALID_STATE', 409, { ai_draft: 'stale' });
   if (!(await knowledgeCurrent(tx as unknown as Db, ref.id))) throw new AppError('INVALID_STATE', 409, { ai_draft: 'knowledge_revoked' });
+  // TIP-022c §3.8: câu tồn / giá của nháp — quan sát lại dưới quyền người gửi HIỆN TẠI (không phải grant cũ của agent); đổi → 409, chữ giữ.
+  if (sender) await assertDraftPublication(tx, ref.id, sender.authz, sender.now);
   return ref.id;
 }
 

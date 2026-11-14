@@ -11,6 +11,7 @@ import { PrismaWorkspaceRegistry, TenantContexts, TenantDbResolver } from '@appc
 import { publicQuoteSchema, quoteRowSchema, quotesMetaSchema, quotesPageSchema } from '@appchat/shared';
 import { ActionExecutor, WalletService, quoteOwnerConsumer, sweepQuotes, uuidv7 } from '@appchat/core';
 import { call, env, startApi, type Harness } from './setup';
+import { drainRenders } from './helpers/doc-render';
 
 let h: Harness;
 let resolver: TenantDbResolver;
@@ -146,6 +147,9 @@ describe('ngưỡng duyệt + gửi', () => {
   it('gửi qua Zalo: PDF đóng băng (LibreOffice), tin + tệp vào hội thoại, valid_until = cuối ngày (gửi + 15) giờ VN, timeline + giai đoạn Báo giá', async () => {
     const conv = await zaloConversation(ids.vy!);
     const d = ok(await act('quote.send', { quote_id: ids.big, channel: 'zalo_personal' }, sales));
+    // TIP-028b: API trả ngay (PDF chưa có); job doc-render render + gửi tin.
+    expect((await (await tenant()).quote.findUniqueOrThrow({ where: { id: ids.big } })).fileId).toBeNull();
+    expect(await drainRenders(h, resolver)).toEqual([{ status: 'rendered', out: [expect.anything()] }]);
     // Đồng hồ test 2026-10-30T08:00Z (15:00 VN) → hết 14/11 23:59:59.999 VN = 16:59:59.999Z.
     expect(d.result.valid_until).toBe('2026-11-14T16:59:59.999Z');
     const db = await tenant();
@@ -170,6 +174,7 @@ describe('ngưỡng duyệt + gửi', () => {
 
   it('gửi email: khách có email, chưa có hội thoại email → mở chuỗi thư mới; báo giá dưới ngưỡng gửi thẳng từ nháp', async () => {
     const d = ok(await act('quote.send', { quote_id: ids.q1, channel: 'email' }));
+    await drainRenders(h, resolver);
     const db = await tenant();
     const q = await db.quote.findUniqueOrThrow({ where: { id: ids.q1 } });
     const conv = await db.conversation.findUniqueOrThrow({ where: { id: q.conversationId! } });
@@ -210,6 +215,7 @@ describe('link công khai + xin sửa + chốt', () => {
     expect((await act('quote.request_revision', { quote_id: ids.big }, sales)).status).toBe(409);
     ok(await act('quote.update', { quote_id: ids.big2, patch: { items: [{ product_id: ids.pkg, name: 'Liệu trình trẻ hoá 10 buổi', qty: 1, unit_price: '18000000', tax_rate: 8 }] } }, sales));
     ok(await act('quote.send', { quote_id: ids.big2, channel: 'zalo_personal' }, sales));
+    await drainRenders(h, resolver);
     expect((await db.quote.findUniqueOrThrow({ where: { id: ids.big } })).status).toBe('superseded');
     const list = quotesPageSchema.parse((await get('/quotes?page=1&limit=20')).body);
     expect(list.data.map((q) => q.id)).not.toContain(ids.big);

@@ -1,6 +1,6 @@
 // Mock Ticket (Blueprint §4.4 support; §2.2 ticket): GET /tickets?status=&priority=&team=&category=&assignee=&sla=&q=&sort=, /tickets/meta, /tickets/:id.
 // Dữ liệu = prototype TKDATA L8690 (fixture sinh bởi tools/scripts/fixtures/gen-tickets.py). Đồng hồ SLA tính theo giờ mock; "waiting" tạm dừng đồng hồ.
-import { ApiRequestError, DEFAULT_WORKING_DAYS, ROLE_DEFS, SLA_DEFAULT, addBusinessMinutes } from '@appchat/shared';
+import { ApiRequestError, DEFAULT_WORKING_DAYS, SLA_DEFAULT, addBusinessMinutes } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/tickets.json';
 import custFixture from '../../../../../../../fixtures/prototype-parity/customers.json';
 import type { MockRoute } from '../routes';
@@ -8,6 +8,9 @@ import type { MockDb } from '../store';
 import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import { paginate } from '../paginate';
+import { categoryMeta, type CategoryConfigState } from './ticket-categories';
+import { ticketVisible } from './ticket-scope';
+import { mockStockSummary } from './ticket-stock';
 
 type Fixed = (typeof fixture.tickets)[number];
 export type Comment = Fixed['comments'][number];
@@ -24,16 +27,21 @@ export type Ticket = Omit<Fixed, 'status' | 'assignee_user_id' | 'assignee_agent
   events: Event[];
   csat?: number | null;
   deleted?: boolean;
+  /** TIP-034c: như trigger DB — mỗi lần ghi +1 (fixture không có → 1). */
+  version?: number;
 };
 
 export interface TicketsState {
   tickets: Ticket[];
   seq: number;
+  /** TIP-034b: từ điển gợi ý danh mục — null = bản ảo version 0 (8 nhãn prototype). */
+  categoryConfig: CategoryConfigState | null;
 }
 
 export const createTicketsState = (): TicketsState => ({
   tickets: structuredClone(fixture.tickets) as Ticket[],
   seq: 2041,
+  categoryConfig: null,
 });
 
 export const NOW = Date.parse(MOCK_NOW);
@@ -60,11 +68,7 @@ export const slaOf = (t: Ticket) => {
   return { state: left < 0 ? 'breach' : left <= 60 ? 'risk' : 'ok', left_min: left };
 };
 
-const visible = (db: MockDb, t: Ticket) => {
-  if (t.deleted) return false;
-  const scope = ROLE_DEFS[db.role].scope.support;
-  return scope === 'all' || (scope === 'own' && t.assignee_user_id === ME);
-};
+const visible = ticketVisible;
 export const find = (db: MockDb, id: string) => {
   const t = db.tickets.tickets.find((x) => x.id === id && !x.deleted);
   if (!t) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: id });
@@ -72,6 +76,7 @@ export const find = (db: MockDb, id: string) => {
 };
 const view = (t: Ticket) => ({
   ...t,
+  version: t.version ?? 1,
   csat: t.csat ?? null,
   sla: slaOf(t),
   assignee_name: t.assignee_agent_id ? fixture.agent.name : nameOf(t.assignee_user_id),
@@ -79,6 +84,7 @@ const view = (t: Ticket) => ({
 });
 export const touch = (t: Ticket, e: Omit<Event, 'at' | 'by'> & { by?: string }) => {
   t.updated_at = MOCK_NOW;
+  t.version = (t.version ?? 1) + 1;
   t.events.push({ by: actor(), ...e, at: MOCK_NOW });
 };
 
@@ -109,25 +115,35 @@ export const ticketsRoutes: Record<string, MockRoute> = {
     return paginate(rows, p);
   },
   '/tickets/meta': (db) => {
-    const all = db.tickets.tickets.filter((t) => visible(db, t));
+    const counts = stockCountsOf(db);
+    const stock = mockStockSummary(counts);
     return {
       now: MOCK_NOW,
       teams: fixture.teams,
-      categories: fixture.categories,
+      // TIP-034b: cấu hình trước rồi nhãn đã dùng trong ticket người xem thấy (không lộ nhãn ngoài scope).
+      ...categoryMeta(db),
       agent: fixture.agent,
       members: custFixture.members,
-      trend: fixture.trend,
+      // Chuỗi xu hướng cũ rỗng (như server, TIP-034d); so với hôm qua ở `stock_summary` (kịch bản mock — ticket-stock.ts).
+      trend: { total: '', open: '', waiting: '', breach: '', closed: '' },
       ai: fixture.ai,
-      counts: {
-        total: all.length,
-        open: all.filter((t) => t.status === 'open').length,
-        waiting: all.filter((t) => t.status === 'waiting').length,
-        breach: all.filter((t) => slaOf(t).state === 'breach').length,
-        closed: all.filter((t) => t.status === 'closed').length,
-      },
+      counts,
+      ...(stock ? { stock_summary: stock } : {}),
     };
   },
 };
+
+/** Năm số KPI của tập ticket người xem thấy (dùng chung meta + action `ticket.stock_summary`). */
+export function stockCountsOf(db: MockDb) {
+  const all = db.tickets.tickets.filter((t) => visible(db, t));
+  return {
+    total: all.length,
+    open: all.filter((t) => t.status === 'open').length,
+    waiting: all.filter((t) => t.status === 'waiting').length,
+    breach: all.filter((t) => slaOf(t).state === 'breach').length,
+    closed: all.filter((t) => t.status === 'closed').length,
+  };
+}
 
 export const ticketsParamRoute = (path: string): MockRoute | undefined => {
   const m = path.match(/^\/tickets\/(tk_[^/]+)$/);
@@ -135,4 +151,3 @@ export const ticketsParamRoute = (path: string): MockRoute | undefined => {
   return (db) => view(find(db, m[1]!));
 };
 
-export { ticketsHandlers } from './tickets-actions';

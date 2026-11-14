@@ -83,7 +83,15 @@
     "aiDo": "Hand to AI Agent now",
     "aiPeek": "View AI hint"
   },
-  "dow": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+  "dow": [
+    "Mon",
+    "Tue",
+    "Wed",
+    "Thu",
+    "Fri",
+    "Sat",
+    "Sun"
+  ],
   "month": "{m}/{y}",
   "prev": "Previous",
   "next": "Next",
@@ -124,9 +132,6 @@
     "cancelReason": "Reason (required)",
     "cancelled": "Cancelled: {reason}",
     "undoCreate": "Booking was undone",
-    "suggest": "Create an order for this visit?",
-    "suggestHint": "This visit is not part of a package — create an order to collect payment (only after you confirm).",
-    "suggestBtn": "Create order",
     "pkgDone": "1 package session deducted ({used}/{total})"
   },
   "form": {
@@ -150,7 +155,12 @@
     "anyStaff": "Any free staff",
     "note": "Notes",
     "reminder": "Reminder",
-    "reminders": ["10 minutes before", "30 minutes before", "1 hour before", "1 day before"],
+    "reminders": [
+      "10 minutes before",
+      "30 minutes before",
+      "1 hour before",
+      "1 day before"
+    ],
     "status": "Status",
     "required": "Enter the customer name, pick a service and a start time",
     "conflict": "That slot was just taken — pick another time",
@@ -176,5 +186,22 @@
       "follow": "List follow-ups due today and suggest care messages by stage.",
       "report": "Report today's appointments: count, confirmed, utilised hours and expected revenue."
     }
+  },
+  "orderCard": {
+    "title": "Create an order for this session?",
+    "hint": "Session {code} ({time}) is not part of a package — create an order to collect payment (only after you confirm).",
+    "tax": "Tax {rate}%",
+    "total": "Total",
+    "create": "Create order",
+    "confirming": "Waiting for confirmation…",
+    "created": "Order {code} created.",
+    "reused": "This session already has order {code} — nothing new created.",
+    "open": "Open order",
+    "changed": "The price or appointment changed since you viewed it — the card was refreshed, check it and create again.",
+    "unavailable": "This session can no longer be turned into an order (deleted or out of your access).",
+    "noRight": "You do not have permission to create an order for this session — ask the sales owner.",
+    "loadError": "Could not load order suggestions.",
+    "retry": "Retry",
+    "more": "Show more"
   }
 }

@@ -15,7 +15,8 @@ import { useOrdersUi } from '../orders-store';
 import { orderQuery, ordersMetaQuery } from '../api';
 import { Avatar, SourceBadge, useTr } from '../columns';
 import { STATUS_TONE } from '../status';
-import { AiTab, CrmTab, FilesTab, HistoryTab, OverviewTab } from './DetailTabs';
+import { RecordFilesPanel } from '@/shared/commerce-files/RecordFilesPanel';
+import { AiTab, CrmTab, HistoryTab, OverviewTab } from './DetailTabs';
 import type { Order, OrdersMeta } from '../types';
 
 const TABS = ['overview', 'crm', 'ai', 'files', 'history'] as const;
@@ -202,7 +203,7 @@ export function OrderDrawer({ meta: base }: { meta: OrdersMeta }) {
         {o && ui.tab === 'overview' ? <OverviewTab key={o.id} o={o} /> : null}
         {o && ui.tab === 'crm' ? <CrmTab meta={meta} /> : null}
         {o && ui.tab === 'ai' ? <AiTab meta={meta} /> : null}
-        {o && ui.tab === 'files' ? <FilesTab meta={meta} /> : null}
+        {o && ui.tab === 'files' ? <RecordFilesPanel key={o.id} record={{ type: 'order', id: o.id }} /> : null}
         {o && ui.tab === 'history' ? <HistoryTab o={o} /> : null}
       </div>
     </EntityDrawer>

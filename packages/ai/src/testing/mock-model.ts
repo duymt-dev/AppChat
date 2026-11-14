@@ -7,6 +7,7 @@ import { mockKbSuggestion } from './mock-kb-suggestion';
 import { mockUtility } from './mock-utility';
 import { mockAgentDraft } from './mock-agent-draft';
 import { mockRecordProposal } from './mock-record-proposal';
+import { mockSales } from './mock-sales';
 
 export type MockTurn =
   | { text: string; tokensIn?: number; tokensOut?: number }
@@ -113,6 +114,8 @@ const ASSISTANT_MARKS = ['# TRỢ LÝ APPCHAT', '# APPCHAT ASSISTANT'];
 const CREATE_CONTACT = /tạo (?:khách hàng|liên hệ)\s+(.+?)\s+((?:\+?84|0)\d[\d ]{7,12}\d)\s*$/i;
 /** GenUI (TIP-023c): "kết nối email <địa chỉ>" → `render` form `channel.email.connect`, ô mật khẩu để trống (người dùng tự nhập). */
 const CONNECT_EMAIL = /kết nối email\s+(\S+@\S+)/i;
+/** Kế hoạch Cowork (TIP-023d): "lập kế hoạch tạo khách hàng <tên> <sđt>" → `plan` 2 bước (tạo khách → phân tích); xác nhận → tạo khách. */
+const PLAN_CONTACT = /^lập kế hoạch tạo khách hàng\s+(.+?)\s+((?:\+?84|0)\d[\d ]{7,12}\d)\s*$/i;
 
 const emailForm = (address: string): MockTurn => ({
   tool: 'render',
@@ -190,6 +193,11 @@ function assistantTurn(ctx: MockCtx): MockTurn {
   const screen = screenTurn(ctx);
   if (screen) return screen;
   const { lastUser, lastTool } = ctx;
+  const plan = PLAN_CONTACT.exec(lastUser.trim());
+  if (plan && (!lastTool || lastTool.tool === 'plan')) {
+    if (!lastTool) return { tool: 'plan', input: { steps: [{ kind: 'action', title: 'Tạo khách hàng', instructions: 'Tạo khách mới', action_or_agent_id: 'contact.create' }, { kind: 'analysis', title: 'Rà lại thông tin', instructions: 'Kiểm tra lại' }] } };
+    return { tool: 'call_action', input: { action_id: 'contact.create', input: { full_name: plan[1]!.trim(), phone: plan[2]!.replace(/\s/g, '') } } };
+  }
   if (lastTool) {
     const out = (lastTool.output ?? {}) as { cancelled?: boolean; error?: unknown };
     if (out.cancelled) return { text: 'Đã huỷ thao tác theo yêu cầu.' };
@@ -251,6 +259,9 @@ export const echoScript: MockScript = (ctx) => {
     const bullets = lastUser.split('\n').filter((l) => l.startsWith('- ')).map((l) => l.slice(2)).slice(0, 5);
     return { text: JSON.stringify({ bullets: bullets.length ? bullets : [lastUser.split('\n')[1] ?? ''] }) };
   }
+  // TIP-022c: lượt bán hàng (tồn kho / chốt báo giá / phân loại ý định / kiểm khẳng định).
+  const sales = mockSales(ctx);
+  if (sales) return sales;
   const echo = lastUser ? `Đã nhận: ${lastUser.slice(0, 200)}` : 'Xin chào, tôi có thể giúp gì?';
   if (!system.includes('"needs_human"')) return { text: echo };
   const qr = lastTool ? null : ASK_QR.exec(lastUser);

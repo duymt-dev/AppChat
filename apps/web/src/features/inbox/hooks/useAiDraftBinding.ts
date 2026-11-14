@@ -3,6 +3,8 @@
 // xoá (store `select`). Không phải trích dẫn / không cấp quyền — chỉ để nguồn bị thu hồi thì gửi bị từ chối an toàn (409).
 // TIP-020d: nguồn đã kiểm của nháp đi kèm dưới dạng "nguồn của bản nháp AI GỐC" (`original_draft`) — chữ trong ô soạn có thể đã khác,
 // không áp vị trí / băm cũ lên chữ mới; bỏ nháp / đổi hội thoại / gửi xong thì xoá cùng tham chiếu.
+// TIP-022c: nháp có câu tồn / giá — server kiểm lại tồn dưới quyền người gửi; tồn / giá đổi hoặc không kiểm được → 409 lý do riêng, chữ
+// giữ nguyên trong ô soạn (người sửa / soạn lại), không báo thành công, không tự sửa chữ.
 'use client';
 import { App } from 'antd';
 import { useTranslations } from 'next-intl';
@@ -10,6 +12,14 @@ import type { ApiRequestError } from '@appchat/shared';
 import { useInboxUi } from '../inbox-store';
 import type { AiDraftRef } from '../types';
 import type { AiCitations } from '@/shared/ai-citations/types';
+
+/** Lý do 409 `ai_draft` → khoá thông báo (lý do lạ → `stale`). */
+const REASON: Record<string, 'revoked' | 'stockChanged' | 'stockUnverified' | 'stale'> = {
+  knowledge_revoked: 'revoked',
+  stock_changed: 'stockChanged',
+  stock_unverified: 'stockUnverified',
+  invalidated: 'stale',
+};
 
 export function useAiDraftBinding() {
   const ref = useInboxUi((s) => s.draftRef);
@@ -30,7 +40,7 @@ export function useAiDraftBinding() {
       const why = e.error.fields?.ai_draft;
       if (!why) return false;
       useInboxUi.getState().set({ draftRef: null, draftCitations: null });
-      void message.error(t(why === 'knowledge_revoked' ? 'revoked' : 'stale'));
+      void message.error(t(REASON[why] ?? 'stale'));
       return true;
     },
   };

@@ -103,8 +103,9 @@ export async function markReimported(
   sheet: string | null,
   rows: PreparedPlan['rows'],
 ) {
-  if (entity === 'contact' || entity === 'product' || !rows.length) return rows;
   const spec = transferSpec(entity);
+  // Khách có luật trùng riêng; tập ghi cả tệp (sản phẩm theo SKU 032b, danh mục ticket thay cả bộ) không có "dòng đã nhập".
+  if (entity === 'contact' || spec.atomic || !rows.length) return rows;
   const keyOf = (r: CheckedRow) => rowKeyOf(file.sha256, sheet, r.rowNo);
   const keys = rows.map(keyOf);
   const hit = new Set(

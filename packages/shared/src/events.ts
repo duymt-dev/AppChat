@@ -4,12 +4,17 @@ import { z } from 'zod';
 import { LOYALTY_EVENT_SCHEMAS } from './loyalty/events';
 import { MARKETING_EVENT_SCHEMAS } from './marketing/events';
 import { KB_SUGGESTION_EVENT_SCHEMAS } from './kb/suggestion-events';
+import { KB_INDEX_EVENT_SCHEMAS } from './kb/index-events';
 import { INSIGHTS_EVENT_SCHEMAS } from './insights/events';
 import { ACTION_DISCOVERY_EVENT_SCHEMAS } from './events/action-discovery';
 import { ASSISTANT_INPUT_EVENT_SCHEMAS } from './events/assistant-input';
+import { COMMERCE_FILE_EVENT_SCHEMAS } from './events/commerce-files';
+import { DOCUMENT_RENDER_EVENT_SCHEMAS } from './events/document-render';
+import { TICKET_CATEGORY_EVENT_SCHEMAS } from './support/category-events';
 import { BASELINE_EVENT_SCHEMAS } from './events/protocol/baseline';
 import { PERMISSIONS } from './authz/permissions';
 import { NOTIFY_KIND_KEYS, type NotifyKind } from './notify/catalog';
+import { uiCommandSchema } from './genui/schema';
 
 const base = { ws: z.string().uuid(), occurred_at: z.string() };
 
@@ -40,6 +45,10 @@ export const workspaceDeclaredEvent = z.object({ ...base, workspace_id: z.string
 export const creditsLowEvent = z.object({ ...base, level: z.union([z.literal(80), z.literal(95)]), balance: z.number() });
 export const creditsExhaustedEvent = z.object({ ...base, balance: z.number() });
 export const creditsRestoredEvent = z.object({ ...base, balance: z.number() });
+/** Ví đổi số dư (TIP-006c): mỗi thay đổi đã ghi sổ — số dư sau khi đổi; realtime chỉ gửi số cho người có `billing.manage`. */
+export const creditsChangedEvent = z.object({ ...base, balance_plan: z.number(), balance_topup: z.number(), ledger_id: z.string() });
+/** Trợ lý ra lệnh UI (TIP-006c, Blueprint §4.6 `ui.command`): chỉ tới tab của người ra lệnh đã gửi lượt (`tab_id`), không phát rộng. */
+export const uiCommandIssuedEvent = z.object({ ...base, run_id: z.string().uuid(), user_id: z.string().uuid(), tab_id: z.string().regex(/^[A-Za-z0-9_-]{8,64}$/), command: uiCommandSchema });
 /** Đổi gói / trạng thái subscription (TIP-009 / 010). */
 export const subscriptionChangedEvent = z.object({ ...base, plan_key: z.string(), status: z.enum(['trialing', 'active', 'expired', 'cancelled']), from_plan_key: z.string().nullable() });
 /** Hoá đơn gói AppChat đã thanh toán + ghi nhận (TIP-010) — notify Owner, làm mới màn Gói & ví. */
@@ -208,7 +217,7 @@ export const packageReminderDueEvent = z.object({
 export const orderConfirmationSentEvent = z.object({ ...base, order_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string(), channel: z.string() });
 export const receiptSentEvent = z.object({ ...base, payment_id: z.string().uuid(), invoice_id: z.string().uuid(), contact_id: z.string().uuid(), code: z.string().nullable(), channel: z.string() });
 export const salesSettingsUpdatedEvent = z.object({ ...base, version: z.number().int(), approval_total_vnd: z.string(), approval_discount_pct: z.number().int() });
-export const appointmentEvent = z.object({ ...base, appointment_id: z.string().uuid(), contact_id: z.string().uuid(), service_id: z.string().uuid(), staff_id: z.string().uuid(), code: z.string(), start_at: z.string(), status: z.string(), package_id: uuidOrNull.optional() });
+export const appointmentEvent = z.object({ ...base, appointment_id: z.string().uuid(), contact_id: z.string().uuid(), service_id: z.string().uuid(), staff_id: z.string().uuid(), code: z.string(), start_at: z.string(), status: z.string(), package_id: uuidOrNull.optional(), owner_user_id: uuidOrNull.optional(), team_id: uuidOrNull.optional() });
 /** Ticket (TIP-034): tạo / đóng / mở lại / SLA sắp đến hạn / quá hạn — consumer notify (leo thang), timeline, CSAT. */
 export const ticketEvent = z.object({ ...base, ticket_id: z.string().uuid(), code: z.string(), title: z.string(), contact_id: uuidOrNull, conversation_id: uuidOrNull, assignee_user_id: uuidOrNull, assignee_agent_id: uuidOrNull, status: z.string(), priority: z.string(), sla: z.enum(['frt', 'ttr']).optional(), sla_result: z.string().nullable().optional(), by_user_id: uuidOrNull.optional(), team_id: z.string().nullable().optional(), created_by_user_id: uuidOrNull.optional() });
 
@@ -217,6 +226,8 @@ export const EVENT_SCHEMAS = {
   'credits.low': creditsLowEvent,
   'credits.exhausted': creditsExhaustedEvent,
   'credits.restored': creditsRestoredEvent,
+  'credits.changed': creditsChangedEvent,
+  'ui.command_issued': uiCommandIssuedEvent,
   'subscription.changed': subscriptionChangedEvent,
   'billing.invoice_paid': billingInvoicePaidEvent,
   'trial.expired': trialExpiredEvent,
@@ -303,8 +314,12 @@ export const EVENT_SCHEMAS = {
   ...LOYALTY_EVENT_SCHEMAS,
   ...MARKETING_EVENT_SCHEMAS,
   ...KB_SUGGESTION_EVENT_SCHEMAS,
+  ...KB_INDEX_EVENT_SCHEMAS,
   ...INSIGHTS_EVENT_SCHEMAS,
   ...ACTION_DISCOVERY_EVENT_SCHEMAS,
+  ...COMMERCE_FILE_EVENT_SCHEMAS,
+  ...DOCUMENT_RENDER_EVENT_SCHEMAS,
+  ...TICKET_CATEGORY_EVENT_SCHEMAS,
   ...ASSISTANT_INPUT_EVENT_SCHEMAS,
   /** Topic đang phát nhưng trước đây chưa khai (TIP-003b §1.3, DV-099). */
   ...BASELINE_EVENT_SCHEMAS,

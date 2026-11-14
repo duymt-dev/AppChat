@@ -7,9 +7,11 @@ import { XlsxTooComplexError, readTable } from '../../kernel/files/table';
 export const IMPORT_MAX_ROWS = 10_000;
 export const IMPORT_SYNC_ROWS = 500;
 const MAX_CELL = 4000;
+/** Ô JSON mô tả có định dạng (TIP-027b) dài hơn: trần schema 32 KiB + 1 (vượt trần → lỗi dòng, không cắt thành JSON hỏng âm thầm). */
+const MAX_DOC_CELL = 32 * 1024 + 1;
 const MAX_COLS = 60;
 
-export type ImportField = 'name' | 'price' | 'sku' | 'type' | 'category' | 'unit' | 'tax_rate' | 'description' | 'sessions' | 'valid_days';
+export type ImportField = 'name' | 'price' | 'sku' | 'type' | 'category' | 'unit' | 'tax_rate' | 'description' | 'description_doc' | 'sessions' | 'valid_days';
 export type Mapping = Partial<Record<ImportField, string>> & { name: string; price: string };
 export type RawRow = { rowNo: number; cells: Partial<Record<ImportField, string>> };
 
@@ -34,5 +36,5 @@ export async function parseImport(file: { name: string; mime: string; body: Buff
     if (i === undefined) throw new AppError('VALIDATION_FAILED', 422, { [`mapping.${field}`]: 'column_not_found' });
     cols.push([field, i]);
   }
-  return t.rows.map((r, k) => ({ rowNo: k + 1, cells: Object.fromEntries(cols.map(([f, i]) => [f, (r[i] ?? '').slice(0, MAX_CELL)])) }));
+  return t.rows.map((r, k) => ({ rowNo: k + 1, cells: Object.fromEntries(cols.map(([f, i]) => [f, (r[i] ?? '').slice(0, f === 'description_doc' ? MAX_DOC_CELL : MAX_CELL)])) }));
 }

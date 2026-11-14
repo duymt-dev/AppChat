@@ -12,9 +12,11 @@ import { DayView, WeekView } from '../components/WeekDayViews';
 import { MonthView } from '../components/MonthView';
 import { AppointmentDrawer } from '../components/AppointmentDrawer';
 import { CancelApptModal } from '../components/CancelApptModal';
-import { CalendarAiDrawer } from '../components/CalendarAiDrawer';
 import { useCalendarUiCommands } from '../ui-commands';
 import { useAssistantContext } from '../hooks/useAssistantContext';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const CalendarAiDrawer = lazyDrawer(() => import('../components/CalendarAiDrawer').then((m) => m.CalendarAiDrawer));
 
 export function CalendarScreen() {
   useCalendarUiCommands();
@@ -40,7 +42,9 @@ export function CalendarScreen() {
         ) : null}
       </PageStates>
       {meta ? <AppointmentDrawer meta={meta} /> : null}
-      {meta ? <CalendarAiDrawer meta={meta} /> : null}
+      <Opened name="calendar-ai" when={ui.aiOpen && !!meta} onClose={() => ui.set({ aiOpen: false })}>
+        {meta ? <CalendarAiDrawer meta={meta} /> : null}
+      </Opened>
       <CancelApptModal />
     </div>
   );

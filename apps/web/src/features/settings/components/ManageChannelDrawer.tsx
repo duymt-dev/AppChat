@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { EntityDrawer } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
-import { agentsQuery } from '@/features/agents';
+import { agentsQuery } from '@/features/agents/api';
 import { useSectionStyles } from '../styles/section.styles';
 import { useChannelManageStyles } from '../styles/channel-manage.styles';
 import { useSettingsUi } from '../settings-store';
@@ -19,6 +19,7 @@ import { ChannelRoutingFields } from './ChannelRoutingFields';
 import { ChannelRoutingSettings } from './ChannelRoutingSettings';
 import { ChannelRateFields } from './ChannelRateFields';
 import type { ChannelAccount, ChannelAiMode, ChannelHistoryDays } from '../types';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const MODES: ChannelAiMode[] = ['auto', 'suggest', 'off'];
 const SLAS = ['std', 'vip', 'soc'];
@@ -27,6 +28,7 @@ const HEALTH_GOOD: ChannelAccount['health'][] = ['good'];
 
 export function ManageChannelDrawer() {
   const t = useTranslations('settings.channels.drawer');
+  const fmt = useFmt();
   const { message } = App.useApp();
   const s = useSectionStyles().styles;
   const { styles, cx } = useChannelManageStyles();
@@ -135,7 +137,7 @@ export function ManageChannelDrawer() {
           <div className={styles.sumGrid}>
             <div className={styles.sumCard}>
               <div className={styles.sumL}>{t('sum.convs')}</div>
-              <div className={styles.sumV}>{c.accounts.reduce((n, a) => n + a.convs, 0).toLocaleString('vi-VN')}</div>
+              <div className={styles.sumV}>{fmt.number(c.accounts.reduce((n, a) => n + a.convs, 0))}</div>
             </div>
             <div className={styles.sumCard}>
               <div className={styles.sumL}>{t('sum.frt')}</div>
@@ -174,7 +176,7 @@ export function ManageChannelDrawer() {
                     </span>
                   </div>
                   <div className={styles.acctMeta}>
-                    <span>{a.convs.toLocaleString('vi-VN')}</span>
+                    <span>{fmt.number(a.convs)}</span>
                     {a.agent ? <span className={styles.acctAgent}>{a.agent}</span> : null}
                   </div>
                 </div>
@@ -196,7 +198,7 @@ export function ManageChannelDrawer() {
               <span className={styles.infoK}>{t('info.name')}</span>
               <span className={styles.infoV}>{cur?.name}</span>
               <span className={styles.infoK}>{t('info.convs')}</span>
-              <span className={styles.infoV}>{cur?.convs.toLocaleString('vi-VN')}</span>
+              <span className={styles.infoV}>{cur ? fmt.number(cur.convs) : null}</span>
               <span className={styles.infoK}>{t('info.frt')}</span>
               <span className={styles.infoV}>{cur?.frt}</span>
               <span className={styles.infoK}>{t('info.agent')}</span>

@@ -4,6 +4,10 @@
 // thể khác: mock chỉ đếm applied (không dựng chứng từ). Kiểu cấu trúc, không import store / handlers (tránh vòng).
 import {
   ApiRequestError,
+  CATEGORY_LABELS_MAX,
+  categoryKey,
+  labelError,
+  normalizeCategoryLabel,
   DATASETS_OF,
   exportOnly,
   TRANSFER_ENTITIES,
@@ -76,6 +80,13 @@ function check(entity: TransferTarget, columns: string[], cells: string[][], map
       if (entity === 'contact_opportunities' && (data.stage === 'won' || data.stage === 'lost')) errors.stage = 'terminal';
       if (data.id && !Object.keys(errors).length) errors.id_warning = 'exported_record';
     }
+    // TIP-034b §4: nhãn danh mục theo validator dùng chung (trùng không phân biệt hoa thường, ≤ 60 ký tự, ≤ 100 nhãn) — cả tệp một bộ.
+    if (entity === 'ticket_category_suggestions' && data.label !== undefined && !errors.label) {
+      data.label = normalizeCategoryLabel(data.label);
+      const e = labelError(data.label) ?? (seen.has(categoryKey(data.label)) ? 'duplicate' : i >= CATEGORY_LABELS_MAX ? 'too_many' : null);
+      if (e) errors.label = e;
+      seen.add(categoryKey(data.label));
+    }
     const key = entity === 'contact' ? (data.phone ?? data.email) : undefined;
     const dup = !Object.keys(errors).length && !!key && seen.has(key);
     if (key) seen.add(key);
@@ -125,7 +136,7 @@ export function dataTransferHandlers<D>(importContacts: ImportContacts<D>) {
           columns: t.columns,
           total_rows: t.rows.length,
           sample: t.rows.slice(0, 20),
-          fields: spec.fields.map((f) => ({ key: f.key, type: f.type, required: !!f.required })),
+          fields: spec.fields.map((f) => ({ key: f.key, type: f.type, required: !!f.required, ...(f.hint ? { hint: f.hint } : {}), ...(f.warnings ? { warnings: [...f.warnings] } : {}) })),
           mapping: guessTransferMapping(target, t.columns),
           import_supported: spec.importReady,
         };

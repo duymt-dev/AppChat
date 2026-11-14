@@ -16,6 +16,8 @@ export { emailOutboundExtras, openEmailThread } from './email/threads';
 export { planGroup, requestDto, type GroupPlan, type Participant as GroupParticipant } from './services/group-requests';
 export { GroupRead } from './services/group-read';
 export { ChannelOperationRead } from './operations/operation-read';
+// TIP-022c: người ghi kết quả lệnh / sự kiện kênh (thu hồi đi qua hàng rào nguồn khách) — worker kênh + bằng chứng native.
+export { applyOperationResult, applyProviderEvent } from './operations/provider-event';
 export { registerHistoryPipeline } from './jobs/provider-history.processor';
 export { OperationQueue } from './jobs/provider-operations.processor';
 export { avatarLinks, avatarKey, contactAvatarLink } from './operations/avatar-read';

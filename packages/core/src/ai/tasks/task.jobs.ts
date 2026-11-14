@@ -17,7 +17,8 @@ import { TENANT_RESOLVER } from '../../kernel/tenant/tenant.providers';
 import { taskEventsContract } from './event-fanout';
 import { installContract } from '../../notify/delivery/admission';
 import { KbIngestQueue } from '../kb/kb.queue';
-import { recoverAllIngest } from '../kb/ingest-recovery';
+import { recoverAllIngest, recoverReindex } from '../kb/ingest-recovery';
+import { KbReindexQueue } from '../kb/reindex/reindex.queue';
 
 export const TASK_SCHEDULER_QUEUE = 'ai-task-scheduler';
 export const TASK_SWEEP_JOB = 'ai-task.sweep';
@@ -39,6 +40,7 @@ export async function startTaskWorkers(redis: Redis, tenants: TenantDbResolver, 
   if ((await redis.set(ARMED_BUILT_KEY, '1', 'NX')) === 'OK') await rebuildArmed(platform, tenant, (ws) => queue.arm(ws), onError);
   const sched = new Queue(TASK_SCHEDULER_QUEUE, { connection: redis.duplicate() });
   const kb = new KbIngestQueue(redis);
+  const reindex = new KbReindexQueue(redis);
   await sched.upsertJobScheduler(TASK_SWEEP_JOB, { every: SWEEP_MS }, { name: TASK_SWEEP_JOB });
   const sweeper = new Worker(
     TASK_SCHEDULER_QUEUE,
@@ -47,6 +49,8 @@ export async function startTaskWorkers(redis: Redis, tenants: TenantDbResolver, 
       await redispatchAll(platform, tenant, queue, deps.now, onError);
       // TIP-006b AC5: nguồn kho tri thức chờ nạp quá hạn (đẩy job mất sau commit) → đẩy lại đúng lần nạp (mọi workspace active).
       await recoverAllIngest(platform, (ws) => tenants.get(TenantContexts.system(ws, 'kb-ingest')), (ws, s) => kb.push(ws, s), deps.now, onError);
+      // TIP-020e: generation tái tạo chỉ mục dở, lease hết hạn → đẩy lại từ cursor (mọi workspace active).
+      await recoverAllReindex(platform, tenant, reindex, deps.now, onError);
     },
     { connection: redis.duplicate(), concurrency: 1 },
   );
@@ -57,6 +61,7 @@ export async function startTaskWorkers(redis: Redis, tenants: TenantDbResolver, 
       await sweeper.close();
       await sched.close();
       await kb.onApplicationShutdown();
+      await reindex.onApplicationShutdown();
     },
   };
 }
@@ -70,6 +75,17 @@ async function redispatchAll(platform: PlatformDb, tenant: (ws: string) => Promi
   for (const w of list) {
     try {
       await recoverTasks(await tenant(w.id), queue, w.id, now, (err) => onError(w.id, err));
+    } catch (err) {
+      onError(w.id, err);
+    }
+  }
+}
+
+async function recoverAllReindex(platform: PlatformDb, tenant: (ws: string) => Promise<TenantDb>, q: KbReindexQueue, now: () => Date, onError: (ws: string, err: unknown) => void) {
+  const list = await platform.workspace.findMany({ where: { dbStatus: 'active', status: 'active' }, select: { id: true } });
+  for (const w of list) {
+    try {
+      await recoverReindex(await tenant(w.id), w.id, (ws, g, c) => q.push(ws, g, c), now());
     } catch (err) {
       onError(w.id, err);
     }

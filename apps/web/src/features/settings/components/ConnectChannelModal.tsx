@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
-import { agentsQuery } from '@/features/agents';
+import { agentsQuery } from '@/features/agents/api';
 import { useSectionStyles } from '../styles/section.styles';
 import { useChannelWizardStyles } from '../styles/channel-wizard.styles';
 import { useSettingsUi } from '../settings-store';

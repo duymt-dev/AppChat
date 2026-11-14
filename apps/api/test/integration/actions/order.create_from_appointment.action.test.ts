@@ -1,6 +1,7 @@
 // Ma trận order.create_from_appointment (TIP-023b): lịch đã hoàn thành ngoài liệu trình → preview khách + dịch vụ × giá hiện tại + mã lịch
 // → xác nhận → undo (TIP-032c: huỷ đơn giữ lịch sử, giữ liên kết lịch ↔ đơn); lịch đã có đơn → preview báo `existing:<mã>`; chưa hoàn thành → 409 ở preview.
 // 403 cs (không có order.manage) · sales: lịch của owner ngoài scope → 404 · id lạ 404. Lịch dựng ở DB (vòng đời lịch kiểm ở booking.test).
+// TIP-033c §3.2: xem trước bắt buộc cho MỌI nguồn (ui / api cũng 202, 0 ghi); thứ tự lỗi: quyền action → nguồn (404 / 409) → xác nhận.
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { uuidv7 } from '@appchat/core';
@@ -31,11 +32,16 @@ describe('order.create_from_appointment', () => {
     expect((await m.act({ appointment_id: appt.id }, m.sales)).status).toBe(404);
     expect((await m.act({ appointment_id: '0190f000-0000-7000-8000-00000000beef' })).status).toBe(404);
     expect((await m.act({ appointment_id: appt.id }, undefined, ASSIST)).body.error.code).toBe('INVALID_TRANSITION');
+    expect((await m.act({ appointment_id: appt.id })).body.error.code).toBe('INVALID_TRANSITION');
   });
 
   it('preview Trợ lý → xác nhận → lần hai báo đơn sẵn có → undo', async () => {
     const db = await m.db();
     await db.appointment.update({ where: { id: appt.id }, data: { status: 'done', doneAt: m.h.clock.now() } });
+    // UI / API thô không token → preview_required, chưa ghi.
+    const raw = await m.act({ appointment_id: appt.id });
+    expect([raw.status, raw.body.data.status]).toEqual([202, 'preview_required']);
+    expect((await db.appointment.findUniqueOrThrow({ where: { id: appt.id } })).orderId).toBeNull();
     const { preview, done } = await m.confirm({ appointment_id: appt.id });
     expect(preview).toEqual({
       summary: 'Chị Lan ĐH · 486.000₫',
@@ -43,6 +49,7 @@ describe('order.create_from_appointment', () => {
       changes: [{ entity: 'order', after: { contact: 'Chị Lan ĐH', owner: 'Chủ Spa', source: 'appointment', from: appt.code, items: 1, total: '486000' } }],
     });
     const code = done.body.data.result.code;
+    expect(done.body.data.result.reused).toBe(false);
     expect((await m.act({ appointment_id: appt.id }, undefined, ASSIST)).body.data.preview).toEqual({ summary: `${code} · Chị Lan ĐH`, risk: 'write', changes: [], warnings: [`existing:${code}`] });
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
     const oid = (await db.appointment.findUniqueOrThrow({ where: { id: appt.id } })).orderId!;

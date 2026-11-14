@@ -25,6 +25,8 @@ export interface AuthorityInput {
   commander?: (ws: string, userId: string) => Promise<AuthzContext | null>;
   /** Agent chat thử (dryRun) dùng cấu hình nháp: bỏ kiểm trạng thái / bản xuất bản, vẫn kiểm người ra lệnh. */
   draft?: boolean;
+  /** Bản xuất bản đã ghim (agent người dùng chọn — TIP-023d §5.4): xuất bản bản khác → chặn, cấu hình mới không thay bản đã ghim. */
+  version?: number;
 }
 
 const deny = (reason: AuthorityDenied['reason']): AuthorityDenied => ({ ok: false, code: 'FORBIDDEN', reason });
@@ -41,6 +43,7 @@ export async function currentAuthority(i: AuthorityInput): Promise<Authority> {
   const a = await i.db.aiAgent.findUnique({ where: { id: i.agentId }, select: { id: true, status: true, deletedAt: true, publishedVersion: true, toolIds: true } });
   if (!a || a.deletedAt) return deny('agent_inactive');
   if (!i.draft && a.status !== 'active') return deny('agent_inactive');
+  if (i.version !== undefined && a.publishedVersion !== i.version) return deny('agent_inactive');
   const granted = i.draft ? a.toolIds : await publishedTools(i.db, a);
   if (!granted) return deny('agent_inactive');
   const now = new Set(granted);

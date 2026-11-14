@@ -117,6 +117,22 @@ export const useDetailStyles = createStyles(({ css, responsive }) => ({
       max-width: 60%;
     }
   `,
+  /** Mô tả trong hàng kv (TIP-027b): giữ dáng `b` cũ cho chữ thuần, danh sách canh trái. */
+  kvDoc: css`
+    color: ${color.text};
+    font-weight: ${font.weight.semibold};
+    text-align: right;
+    max-width: 60%;
+    line-height: inherit;
+    p {
+      margin: 0;
+    }
+    ul,
+    ol {
+      text-align: left;
+      margin: 0;
+    }
+  `,
   bInk: css`
     b {
       color: ${color.brandInk};
@@ -174,24 +190,6 @@ export const useDetailStyles = createStyles(({ css, responsive }) => ({
     color: ${color.white};
     font-weight: ${font.weight.bold};
   `,
-  file: css`
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 16px;
-    border-top: 1px solid ${color.divider};
-  `,
-  ext: css`
-    width: 34px;
-    height: 40px;
-    border-radius: ${radius.r6}px;
-    display: grid;
-    place-items: center;
-    color: ${color.white};
-    font-size: ${font.scale.s10}px;
-    font-weight: ${font.weight.heavy};
-    flex-shrink: 0;
-  `,
   fName: css`
     font-size: ${font.scale.s14}px;
     font-weight: ${font.weight.bold};
@@ -204,24 +202,6 @@ export const useDetailStyles = createStyles(({ css, responsive }) => ({
     font-size: ${font.scale.s12}px;
     color: ${color.text4};
     margin-top: 2px;
-  `,
-  open: css`
-    display: inline-flex;
-    align-items: center;
-    height: 28px;
-    padding: 0 8px;
-    border-radius: ${radius.r6}px;
-    border: 1px solid ${color.border};
-    background: ${color.surface};
-    color: ${color.text2};
-    font-size: ${font.scale.s12}px;
-    font-weight: ${font.weight.bold};
-    cursor: pointer;
-    flex-shrink: 0;
-    font-family: inherit;
-    ${responsive.md} {
-      height: ${layout.touch}px;
-    }
   `,
   emptyRow: css`
     padding: 8px 16px 12px;

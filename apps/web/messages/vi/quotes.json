@@ -276,7 +276,12 @@
     "convertContract": "hợp đồng",
     "convertOrder": "đơn hàng",
     "convertSoon": "{kind} được tạo ở màn tương ứng — mở {route}",
-    "sendMore": "Gửi khác"
+    "sendMore": "Gửi khác",
+    "render": {
+      "pending": "Đang tạo PDF… PDF sẽ tự gửi cho khách khi xong.",
+      "failed": "Tạo PDF chưa được (đã thử 3 lần). Báo giá vẫn ở trạng thái đã gửi.",
+      "retry": "Thử lại"
+    }
   },
   "aiPanel": {
     "title": "Trợ lý AI · Báo giá",

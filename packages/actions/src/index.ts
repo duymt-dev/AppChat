@@ -12,6 +12,7 @@ import * as ai from './ai';
 import * as aiUtilities from './ai-utilities';
 import * as catalog from './catalog';
 import * as catalogOperations from './catalog-operations';
+import * as productMedia from './product-media';
 import * as contactMemory from './contact-memory';
 import * as quotes from './quotes';
 import * as systemSales from './system/sales';
@@ -30,6 +31,8 @@ import * as commerceSettings from './commerce-settings';
 import * as commerceDelivery from './commerce-delivery';
 import * as orders from './orders';
 import * as invoices from './invoices';
+import * as orderFiles from './order-files';
+import * as invoiceFiles from './invoice-files';
 import * as payments from './payments';
 import * as booking from './booking';
 import * as bookingConfig from './booking-config';
@@ -41,6 +44,9 @@ import * as groupResults from './group-results';
 import * as channelOperations from './channel-operations';
 import * as channelFriends from './channel-friends';
 import * as support from './support';
+import * as supportCategories from './support-categories';
+import * as supportBulk from './support-bulk';
+import * as supportStock from './support-stock';
 import * as marketing from './marketing';
 import * as marketingExtras from './marketing-extras';
 import * as tenantMail from './tenant-mail';
@@ -113,6 +119,7 @@ export { draftGenerationInfo, DRAFT_FALLBACK_REASONS, DRAFT_SCHEMA_VERSION, DRAF
 export * from './ai-utilities';
 export * from './catalog';
 export * from './catalog-operations';
+export * from './product-media';
 export * from './contact-memory';
 export * from './quotes';
 export * from './system/sales';
@@ -125,6 +132,9 @@ export * from './system/inbox';
 export * from './system/common';
 export * from './contracts';
 export * from './contract-files';
+export * from './order-files';
+export * from './invoice-files';
+export * from './commerce-file-schemas';
 export * from './contract-draft';
 export * from './contract-appendix';
 export * from './contract-signing';
@@ -143,6 +153,9 @@ export * from './group-results';
 export * from './channel-operations';
 export * from './channel-friends';
 export * from './support';
+export * from './support-categories';
+export * from './support-bulk';
+export * from './support-stock';
 export * from './marketing';
 export * from './marketing-extras';
 export * from './tenant-mail';
@@ -204,6 +217,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(aiUtilities),
   ...Object.values(catalog),
   ...Object.values(catalogOperations),
+  ...Object.values(productMedia),
   ...Object.values(contactMemory),
   ...Object.values(quotes),
   ...Object.values(systemSales),
@@ -222,6 +236,8 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(commerceDelivery),
   ...Object.values(orders),
   ...Object.values(invoices),
+  ...Object.values(orderFiles),
+  ...Object.values(invoiceFiles),
   ...Object.values(payments),
   ...Object.values(booking),
   ...Object.values(bookingConfig),
@@ -233,6 +249,9 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(channelOperations),
   ...Object.values(channelFriends),
   ...Object.values(support),
+  ...Object.values(supportCategories),
+  ...Object.values(supportBulk),
+  ...Object.values(supportStock),
   ...Object.values(marketing),
   ...Object.values(marketingExtras),
   ...Object.values(tenantMail),

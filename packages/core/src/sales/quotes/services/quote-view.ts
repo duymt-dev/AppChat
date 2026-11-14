@@ -81,7 +81,7 @@ export async function contactsOf(tx: TenantTx, ids: string[]): Promise<Map<strin
 
 export function toQuoteRow(
   q: QuoteRecord,
-  x: { items: LineIn[]; contact: Contact | undefined; comments: { authorId: string | null; body: string; at: Date }[] },
+  x: { items: LineIn[]; contact: Contact | undefined; comments: { authorId: string | null; body: string; at: Date }[]; render?: { status: 'pending_render' | 'rendered' | 'render_failed'; error: string | null } },
   ctx: ViewCtx,
 ): QuoteRow {
   const header = (q.headerDiscount as Discount | null) ?? null;
@@ -123,6 +123,7 @@ export function toQuoteRow(
     lines: t.lines,
     approval_reasons: reasons,
     converted: q.orderId ? 'order' : ctx.contracted?.has(q.id) ? 'contract' : null,
+    render: x.render ?? null,
     custom: (q.custom ?? {}) as CustomValues,
   };
 }

@@ -1,5 +1,6 @@
 // Ma trận doc_template.create (TIP-023b): tạo mẫu soạn (risk config) → mẫu mới (loại · nguồn · mặc định nếu loại chưa có) + cảnh báo checklist
 // pháp lý còn thiếu; biến lạ / không có biến → 422, mẫu .docx thiếu tệp → 422 ở preview. 403 sales (không có documents.manage).
+// TIP-028b: hoàn tác 24h = xoá mềm khi chưa chứng từ nào dùng (đã dùng → 409 HAS_DEPENDENCIES — doc-render.test.ts).
 import 'reflect-metadata';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { matrix, na, type Matrix } from '../helpers/action-matrix';
@@ -30,10 +31,12 @@ describe('doc_template.create', () => {
     const { done } = await m.confirm({ kind: 'quote', name: 'Báo giá ngắn', source: 'rich', body: '<p>Kính gửi {{customer.name}}</p>' });
     const t = await (await m.db()).docTemplate.findUniqueOrThrow({ where: { id: done.body.data.result.template_id } });
     expect([t.name, t.source]).toEqual(['Báo giá ngắn', 'rich']);
+    expect(done.body.data.undo_until).toBeTruthy();
+    expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);
+    expect((await (await m.db()).docTemplate.findUniqueOrThrow({ where: { id: t.id } })).deletedAt).not.toBeNull();
   });
 
   it('ô không áp dụng có lý do', () => {
-    expect(na(m.def, 'undo')).toMatch(/không khai undo/);
     expect(na(m.def, 'bulk')).toMatch(/không phải action hàng loạt/);
   });
 });

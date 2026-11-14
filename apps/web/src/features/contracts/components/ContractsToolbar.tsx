@@ -7,7 +7,7 @@ import { useTranslations } from 'next-intl';
 import { FilterPopover, Icon, color } from '@appchat/ui';
 import { useCan } from '@/shared/authz/useCan';
 import { useListExport } from '@/shared/actions/useListExport';
-import { membersQuery } from '@/features/customers';
+import { membersQuery } from '@/features/customers/api';
 import { useContractsStyles } from '../styles/contracts.styles';
 import { useContractsUi } from '../contracts-store';
 import { FILTERS } from '../status';

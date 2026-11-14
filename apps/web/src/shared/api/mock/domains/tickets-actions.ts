@@ -178,18 +178,4 @@ export const ticketsHandlers: Record<string, MockHandler> = {
       return { ticket_id: t.id, status: t.status };
     },
   },
-  'ticket.bulk_update': {
-    execute: (
-      db,
-      i: { ticket_ids: string[]; assignee_user_id?: string; assignee_agent_id?: string; priority?: 'high' | 'medium' | 'low' },
-    ) => {
-      const rows = i.ticket_ids.map((id) => find(db, id));
-      for (const t of rows) {
-        assign(t, i);
-        if (i.priority) t.priority = i.priority;
-        touch(t, { type: i.priority ? 'priority' : 'assigned' });
-      }
-      return { updated: rows.length };
-    },
-  },
 };

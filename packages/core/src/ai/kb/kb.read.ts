@@ -4,6 +4,8 @@
 import { TenantSql as Prisma, type TenantDb } from '@appchat/db';
 import type { z } from 'zod';
 import type { kbDataSchema } from '@appchat/shared';
+import type { Embedder } from '@appchat/ai';
+import { readIndexStatus } from './reindex/index-status';
 
 export type KbDataDto = z.infer<typeof kbDataSchema>;
 export const KB_NAV = ['all', 'learned', 'conv', 'upload', 'star', 'trash'] as const;
@@ -56,6 +58,12 @@ const navWhere: Record<KbNav, Prisma.Sql> = {
   star: Prisma.sql`s.deleted_at IS NULL AND s.starred`,
   trash: Prisma.sql`s.deleted_at IS NOT NULL`,
 };
+
+/** TIP-020e §4.1: `GET /v1/settings/kb` kèm trạng thái chỉ mục embedding (đọc cấu hình router + sổ generation — không gọi provider). */
+export async function readKbWithIndex(db: TenantDb, ws: string, f: { nav: string; folder: string | null; q: string }, names: (ids: string[]) => Promise<Map<string, string>>, embedder: Embedder | null, now: Date): Promise<KbDataDto> {
+  const [data, index] = await Promise.all([readKb(db, f, names), readIndexStatus(db, ws, embedder, now)]);
+  return { ...data, index };
+}
 
 export async function readKb(db: Db, f: { nav: string; folder: string | null; q: string }, names: (ids: string[]) => Promise<Map<string, string>>): Promise<KbDataDto> {
   const nav = (KB_NAV as readonly string[]).includes(f.nav) ? (f.nav as KbNav) : 'all';

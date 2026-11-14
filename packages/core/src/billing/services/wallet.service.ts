@@ -1,6 +1,7 @@
 // Ví credit (Blueprint §2.2, §2.0 "nền tảng trước"): mọi thay đổi số dư là một transaction ở DB nền tảng, khoá dòng ví
 // (`FOR UPDATE`), ghi `credit_ledger` với khoá idempotent `(workspace, ref_type, ref_id)`. Trừ plan_balance trước, topup sau.
-// Sau commit: cờ ngưỡng (80 / 95% hạn mức tháng, hết, có lại) → listener (billing.module phát event qua outbox tenant).
+// Sau commit: cờ ngưỡng (80 / 95% hạn mức tháng, hết, có lại) → listener (billing.module phát event qua outbox tenant). TIP-006c: mọi
+// thay đổi đã ghi sổ (`applied`) đều gọi listener (cờ `changed`) → `credits.changed` để UI số dư làm mới không F5.
 import { AppError, warnLevel } from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
 import type { PlatformTx } from '../../kernel/actions/action-context';
@@ -41,6 +42,8 @@ export interface WalletChange {
 
 export interface WalletFlags {
   lowAlert: boolean;
+  /** Số dư vừa đổi (ghi sổ thật, không phải ref trùng) — luôn true khi listener được gọi. */
+  changed: true;
   /** Vừa chạm mức (một lần mỗi kỳ). */
   warned: 80 | 95 | null;
   exhausted: boolean;
@@ -203,7 +206,8 @@ export class WalletService {
 
   /**
    * Sau commit: cờ ngưỡng → listener. Mỗi mốc ghi bằng update có điều kiện (mốc còn trống) → nhiều charge song song chỉ một
-   * lần phát `credits.low` / `exhausted` / `restored`. Gọi tay khi resetPlan chạy trong tx người gọi.
+   * lần phát `credits.low` / `exhausted` / `restored`. Gọi tay khi resetPlan chạy trong tx người gọi. Số dư đổi → listener luôn được gọi
+   * (`credits.changed`, TIP-006c) kể cả khi không chạm mốc nào.
    */
   async emit(c: WalletChange): Promise<void> {
     if (!c.applied) return;
@@ -212,15 +216,14 @@ export class WalletService {
     const claim = async (where: Record<string, unknown>, data: Record<string, unknown>) =>
       (await this.db.creditWallet.updateMany({ where: { workspaceId: ws, ...where }, data })).count === 1;
     const level = warnLevel(c.after.plan, c.creditsMonth);
-    const flags: WalletFlags = { lowAlert: true, warned: null, exhausted: false, restored: false };
+    const flags: WalletFlags = { lowAlert: true, changed: true, warned: null, exhausted: false, restored: false };
     if (level === 95 && (await claim({ warn95SentAt: null }, { warn95SentAt: now }))) {
       await claim({ warn80SentAt: null }, { warn80SentAt: now });
       flags.warned = 95;
     } else if (level === 80 && (await claim({ warn80SentAt: null }, { warn80SentAt: now }))) flags.warned = 80;
     if (c.after.total <= 0) flags.exhausted = await claim({ exhaustedAt: null }, { exhaustedAt: now });
     else flags.restored = await claim({ exhaustedAt: { not: null } }, { exhaustedAt: null });
-    if (!flags.warned && !flags.exhausted && !flags.restored) return;
-    flags.lowAlert = (await this.db.creditWallet.findUniqueOrThrow({ where: { workspaceId: ws }, select: { lowAlert: true } })).lowAlert;
+    if (flags.warned || flags.exhausted || flags.restored) flags.lowAlert = (await this.db.creditWallet.findUniqueOrThrow({ where: { workspaceId: ws }, select: { lowAlert: true } })).lowAlert;
     await this.listener?.(c, flags);
   }
 }

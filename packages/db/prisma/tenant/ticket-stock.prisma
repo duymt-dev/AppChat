@@ -1,0 +1,73 @@
+// tenant/ticket-stock.prisma — sở hữu: TIP-034d (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: ticket_stock_control, ticket_stock_batch, ticket_stock_observation, ticket_stock_result_contribution, ticket_stock_result_source —
+// quan sát tồn ticket theo ngày (projection kỹ thuật nội bộ, outbox §5 — KHÔNG phải lịch sử nghiệp vụ / lưu trữ pháp lý; cache 8 ngày).
+// Không FK tới ticket / contact / conversation (xoá nguồn luôn được, khoá FK sẽ đảo thứ tự khoá privacy); FK batch → observation và
+// contribution → source cascade. INCLUDE / partial index viết tay ở migration 20261102003430_ticket_stock.
+
+/// Singleton (id = 1): khoá điều phối chụp / dọn / "Quên khách" (FOR UPDATE) — luôn lấy SAU khoá họ khách của privacy.
+model TicketStockControl {
+  id        Int      @id @default(1)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("ticket_stock_control")
+}
+
+/// Một lần chụp hoàn tất của một ngày lịch (múi giờ workspace lúc chụp). Header + mọi dòng + completed_at cùng một transaction.
+model TicketStockBatch {
+  id            String                   @id @db.Uuid
+  timeZone      String                   @map("time_zone")
+  localDate     DateTime                 @map("local_date") @db.Date
+  metricVersion Int                      @map("metric_version")
+  observedAt    DateTime                 @map("observed_at") @db.Timestamptz(6)
+  completedAt   DateTime                 @map("completed_at") @db.Timestamptz(6)
+  observations  TicketStockObservation[]
+
+  @@map("ticket_stock_batch")
+}
+
+/// Một ticket trong lần chụp — chỉ cột hẹp (trạng thái, quá hạn, nguồn khách / hội thoại GỐC lúc chụp); không tiêu đề / nội dung / tên.
+model TicketStockObservation {
+  batchId              String           @map("batch_id") @db.Uuid
+  ticketId             String           @map("ticket_id") @db.Uuid
+  status               TicketStatus
+  breached             Boolean
+  sourceContactId      String?          @map("source_contact_id") @db.Uuid
+  sourceConversationId String?          @map("source_conversation_id") @db.Uuid
+  batch                TicketStockBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@id([batchId, ticketId])
+  @@map("ticket_stock_observation")
+}
+
+/// Tập đóng góp ĐÓNG BĂNG của một kết quả action (ứng viên công bố được bảo vệ) — số tổng chỉ tính từ đây; xoá sau khi gắn nguồn xong.
+model TicketStockResultContribution {
+  candidateId     String                    @map("candidate_id") @db.Uuid
+  ticketId        String                    @map("ticket_id") @db.Uuid
+  ticketVersion   Int                       @map("ticket_version")
+  currentStatus   TicketStatus              @map("current_status")
+  currentBreached Boolean                   @map("current_breached")
+  priorStatus     TicketStatus?             @map("prior_status")
+  priorBreached   Boolean?                  @map("prior_breached")
+  missingReason   String?                   @map("missing_reason")
+  /// Chỉ id + thế hệ nguồn vô hướng (không nội dung) — khớp đúng các dòng ticket_stock_result_source.
+  provenance      Json
+  createdAt       DateTime                  @default(now()) @map("created_at") @db.Timestamptz(6)
+  sources         TicketStockResultSource[]
+
+  @@id([candidateId, ticketId])
+  @@map("ticket_stock_result_contribution")
+}
+
+/// Khoá nguồn chuẩn hoá của tập đóng góp — privacy tìm theo (kind, id, thế hệ) bằng index, không quét JSON.
+model TicketStockResultSource {
+  candidateId      String                        @map("candidate_id") @db.Uuid
+  ticketId         String                        @map("ticket_id") @db.Uuid
+  sourceKind       String                        @map("source_kind")
+  sourceId         String                        @map("source_id") @db.Uuid
+  sourceGeneration Int                           @map("source_generation")
+  origin           String
+  contribution     TicketStockResultContribution @relation(fields: [candidateId, ticketId], references: [candidateId, ticketId], onDelete: Cascade)
+
+  @@id([candidateId, ticketId, sourceKind, sourceId, sourceGeneration, origin])
+  @@map("ticket_stock_result_source")
+}

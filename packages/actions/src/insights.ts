@@ -9,7 +9,7 @@ export const insightQuery = defineAction({
   module: 'insights',
   title: 'actions.insight.query.title',
   description:
-    'Read a predefined business metric (read-only, scoped to the caller). Metrics: sales.booked (orders not cancelled, by created date), sales.collected (confirmed payments minus confirmed refunds), customers.at_risk (customers with past orders and no order in the window), agents.performance, support.performance. Params: from / to as YYYY-MM-DD (to exclusive, default last 30 days, max 366), bucket day|week|month. Example: {"metric":"sales.collected","params":{"from":"2026-10-01","to":"2026-11-01","bucket":"week"}}',
+    'Read a predefined business metric (read-only, scoped to the caller). Metrics: sales.booked (orders not cancelled, by created date), sales.collected (confirmed payments minus confirmed refunds), customers.at_risk (customers with past orders and no order in the window), agents.performance, support.performance (SLA result + CSAT of support cases closed in the window — a flow, not the current open stock; to compare current counts with yesterday use the support stock_summary action). Params: from / to as YYYY-MM-DD (to exclusive, default last 30 days, max 366), bucket day|week|month. Example: {"metric":"sales.collected","params":{"from":"2026-10-01","to":"2026-11-01","bucket":"week"}}',
   input: z.object({ metric: z.enum(METRIC_KEYS), params: z.record(z.string(), z.unknown()).optional() }),
   output: insightResultSchema,
   permission: 'insights.view',

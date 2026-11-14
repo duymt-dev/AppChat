@@ -22,7 +22,7 @@ const HIDDEN = /^(admin\.|workspace\.(switch|request_transfer_otp|transfer_owner
  * Sổ điểm theo sự kiện / lịch (TIP-036 — loyalty.earn / reverse / expire / review_tier): chỉ consumer + job loyalty gọi.
  * Mở workspace (TIP-041 — workspace.open): chỉ cổng FE gọi qua nhánh vòng đời; executor thường từ chối.
  */
-export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline', 'loyalty.earn', 'loyalty.reverse', 'loyalty.expire', 'loyalty.review_tier', 'kb.suggestion.propose', 'lead_routing.apply', 'bank_feed.ingest', 'campaign.dispatch', 'campaign.record_delivery', 'campaign.record_metric', 'campaign.store_analysis', 'campaign.unsubscribe', 'follow_up.reconcile', 'digest.dispatch', 'billing.lifecycle_step', 'billing.apply_invoice', 'workspace.open', 'workspace.delete_challenge', 'workspace.delete', 'workspace.freeze_request', 'privacy.cleanup_step']);
+export const SYSTEM_ONLY = new Set(['channel.group_result', 'assistant.resume', 'assistant.plan_request_edit', 'assistant.plan_update', 'assistant.plan_resume', 'assistant.plan_reuse', 'contract.appendix_public_otp', 'contract.appendix_public_sign', 'contract.appendix_public_decline', 'loyalty.earn', 'loyalty.reverse', 'loyalty.expire', 'loyalty.review_tier', 'kb.suggestion.propose', 'lead_routing.apply', 'bank_feed.ingest', 'campaign.dispatch', 'campaign.record_delivery', 'campaign.record_metric', 'campaign.store_analysis', 'campaign.unsubscribe', 'follow_up.reconcile', 'digest.dispatch', 'billing.lifecycle_step', 'billing.apply_invoice', 'workspace.open', 'workspace.delete_challenge', 'workspace.delete', 'workspace.freeze_request', 'privacy.cleanup_step']);
 
 export const entityOf = (actionId: string) => actionId.split('.')[0]!;
 
@@ -62,6 +62,8 @@ const ACTION_VI: Record<string, string> = {
   // TIP-033b: "giờ mở cửa / giờ nhận lịch của tiệm" = giờ đặt lịch (business_hours); "giờ làm việc của nhân viên / SLA" = working_hours.
   'business_hours.update': 'gio mo cua gio nhan lich gio hoat dong cua tiem cua hang mo cua dong cua chu nhat ngay nghi lich hen',
   'working_hours.update': 'gio lam viec nhan vien tinh sla tra loi hoi thoai',
+  // TIP-034d: "ticket hôm nay so với hôm qua" = tồn ticket (5 thẻ KPI) so với quan sát hôm qua — KHÔNG phải support.performance (đóng / CSAT).
+  'ticket.stock_summary': 'ton ticket so voi hom qua xu huong so sanh',
 };
 
 /** Cách người dùng gọi đối tượng ngoài tên chuẩn (không dấu) — "dịch vụ", "gói", "liệu trình" đều là `product` (loại service / package). */

@@ -186,9 +186,18 @@ describe('vòng đời', () => {
     expect(err(await act('ticket.assign', { ticket_id: ids.t1 }))).toBe('422 VALIDATION_FAILED');
     ok(await act('ticket.assign', { ticket_id: ids.t1, assignee_user_id: cs.id }));
     expect((await tk(ids.t1)).assignee_user_id).toBe(cs.id);
-    const b = ok(await act('ticket.bulk_update', { ticket_ids: [ids.t1, ids.t2], priority: 'high' }));
+    // TIP-034c: hàng loạt luôn qua xem trước (bulk) + kết quả từng id; `updated` giữ nghĩa cũ. Hoàn tác thô → 409 UNDO_REQUIRES_ACTION,
+    // hoàn tác chuẩn = action ticket.bulk_undo (cũng qua xem trước).
+    const confirm = async (id: string, input: unknown) => {
+      const key = uuidv7();
+      const p = await call(h, `/actions/${id}`, { input }, { 'idempotency-key': key }).then(json);
+      expect(p.body.data.status).toBe('preview_required');
+      return ok(await call(h, `/actions/${id}`, { input, confirm_token: p.body.data.confirm_token }, { 'idempotency-key': key }).then(json));
+    };
+    const b = await confirm('ticket.bulk_update', { ticket_ids: [ids.t1, ids.t2], priority: 'high' });
     expect(b.result.updated).toBe(2);
-    expect((await undo(b.action_log_id)).status).toBe(200);
+    expect(err(await undo(b.action_log_id))).toBe('409 UNDO_REQUIRES_ACTION');
+    expect((await confirm('ticket.bulk_undo', { parent_action_log_id: b.action_log_id })).result).toMatchObject({ undone: 1 });
     expect((await tk(ids.t2)).priority).toBe('high');
     expect((await tk(ids.t1)).priority).toBe('medium');
   });

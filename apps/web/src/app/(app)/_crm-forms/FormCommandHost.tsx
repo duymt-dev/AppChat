@@ -1,15 +1,15 @@
 // Đăng ký toàn cục 6 (+3 hoạt động CRM TIP-026b) lệnh điền form của Trợ lý (TIP-025b §D.3) — mounted một lần trong CrmFormsHost: `prefill:contact|quote|contract|
 // order|ticket|appointment.form` chạy cả khi màn domain chưa mở (form mở qua host toàn cục). Lệnh mở / lọc vẫn theo màn. Không mount
-// màn domain, không import component nội bộ của feature (chỉ hàm công khai qua barrel).
+// màn domain, chỉ import module lá `ui-commands` (không kéo component / màn — TIP-001b).
 'use client';
-import { prefillContactForm } from '@/features/customers';
-import { prefillQuotesForm } from '@/features/quotes';
-import { prefillContractsForm } from '@/features/contracts';
-import { prefillOrdersForm } from '@/features/orders';
-import { prefillTicketsForm } from '@/features/tickets';
-import { prefillCalendarForm } from '@/features/calendar';
+import { prefillContactForm } from '@/features/customers/ui-commands';
+import { prefillQuotesForm } from '@/features/quotes/ui-commands';
+import { prefillContractsForm } from '@/features/contracts/ui-commands';
+import { prefillOrdersForm } from '@/features/orders/ui-commands';
+import { prefillTicketsForm } from '@/features/tickets/ui-commands';
+import { prefillCalendarForm } from '@/features/calendar/ui-commands';
 import { useUiCommand } from '@/shared/assistant/ui-command-bus';
-import { ACTIVITY_PREFILL } from '@/shared/contact-activities';
+import { ACTIVITY_PREFILL } from '@/shared/contact-activities/commands';
 
 export function FormCommandHost() {
   useUiCommand('prefill:contact.form', prefillContactForm);

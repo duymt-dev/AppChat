@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { ConfirmActionHost } from '../actions/ConfirmActionHost';
 import { AssistantDock } from '../assistant/AssistantDock';
+import { useRealtimeUiCommands } from '../assistant/useRealtimeUiCommands';
 import { BillingNoticeHost } from '../billing/BillingNoticeHost';
 import { PlanExpiredNotice } from '../billing/PlanExpiredNotice';
 import { useEventInvalidation } from '../realtime/event-invalidation';
@@ -24,6 +25,7 @@ export function AppShell({ children }: AppShellProps) {
   const setPopover = useShellStore((s) => s.setPopover);
   const popover = useShellStore((s) => s.popover);
   useEventInvalidation();
+  useRealtimeUiCommands();
 
   // Ctrl/⌘+K mở Trợ lý (Blueprint §7.1)
   useEffect(() => {

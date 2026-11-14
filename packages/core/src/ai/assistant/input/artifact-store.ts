@@ -13,7 +13,7 @@ export type ArtifactRow = NonNullable<Awaited<ReturnType<TenantTx['assistantInpu
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const LEASE_MS = 60_000;
 
-export async function ownArtifact(db: Db, userId: string, id: string): Promise<ArtifactRow> {
+export async function ownArtifact(db: Pick<Db, 'assistantInputArtifact'>, userId: string, id: string): Promise<ArtifactRow> {
   const a = UUID.test(id) ? await db.assistantInputArtifact.findUnique({ where: { id } }) : null;
   if (!a || a.ownerUserId !== userId) throw new AppError('NOT_FOUND', 404, { artifact_id: 'not_found' });
   return a;
@@ -81,4 +81,24 @@ export async function failArtifact(db: Db, a: { id: string; revision: number; fe
   const phase = a.reason === 'unsupported_type' ? 'unsupported' : 'failed';
   const n = await db.assistantInputArtifact.updateMany({ where: { id: a.id, revision: a.revision, fence: a.fence, phase: 'preparing' }, data: { phase, errorReason: a.reason, partCount: 0, leaseOwner: null, leaseUntil: null, updatedAt: a.now } });
   return n.count > 0;
+}
+
+/**
+ * Bộ định vị bytes GỐC của artifact cho sao chép có đồng ý (TIP-032d §3.3): đúng chủ, đúng revision, đã sẵn sàng, phiên khớp run đang gọi
+ * (artifact đã buộc phiên khác → 409), tệp nguồn còn (chủ, purpose attachment, digest khớp). Không trả phần đã trích, không đường dẫn.
+ */
+export async function sourceLocator(
+  db: Pick<TenantTx, 'assistantInputArtifact' | 'aiRun' | 'file'>,
+  a: { userId: string; runId?: string; artifactId: string; revision: number },
+): Promise<{ fileId: string; digest: string; name: string; kind: string | null }> {
+  const art = await ownArtifact(db, a.userId, a.artifactId);
+  if (art.revision !== a.revision) throw new AppError('CONFLICT', 409, { source: 'stale_revision' });
+  if (art.phase !== 'ready') throw new AppError('CONFLICT', 409, { source: art.phase });
+  if (a.runId && art.sessionId) {
+    const run = await db.aiRun.findUnique({ where: { id: a.runId }, select: { assistantSessionId: true, initiatedByUserId: true } });
+    if (!run || run.initiatedByUserId !== a.userId || run.assistantSessionId !== art.sessionId) throw new AppError('CONFLICT', 409, { source: 'other_session' });
+  }
+  const f = await db.file.findUnique({ where: { id: art.fileId }, select: { uploadedBy: true, purpose: true, sha256: true } });
+  if (!f || f.uploadedBy !== a.userId || f.purpose !== 'attachment' || f.sha256 !== art.fileDigest) throw new AppError('NOT_FOUND', 404, { source: 'unavailable' });
+  return { fileId: art.fileId, digest: art.fileDigest, name: art.name, kind: art.kind };
 }

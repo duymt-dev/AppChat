@@ -32,7 +32,7 @@ describe('quote.mark_rejected', () => {
 
   it('preview Trợ lý → xác nhận → undo', async () => {
     const { preview, done } = await m.confirm({ quote_id: Q(), reason: 'Giá cao' });
-    expect(preview).toEqual({ summary: `${q.code} · L1 · Chị Lan BG · 3.240.000₫`, risk: 'write', changes: [{ entity: 'quote', id: Q(), before: { status: 'sent', reason: null }, after: { status: 'rejected', reason: 'Giá cao' } }], warnings: ['stage_fallback:consulting'] });
+    expect(preview).toEqual({ summary: `${q.code} · L1 · Chị Lan BG · 3.240.000₫`, risk: 'write', changes: [{ entity: 'quote', id: Q(), before: { status: 'sent', reason: null }, after: { status: 'rejected', reason: 'Giá cao' } }], warnings: ['operator_decision', 'stage_fallback:consulting'] });
     expect(done.status, JSON.stringify(done.body)).toBe(200);
     expect((await row()).status).toBe('rejected');
     expect((await m.undo(done.body.data.action_log_id)).status).toBe(200);

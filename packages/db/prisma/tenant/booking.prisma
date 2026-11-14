@@ -109,5 +109,7 @@ model Appointment {
   updatedAt       DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
   deletedAt       DateTime?         @map("deleted_at") @db.Timestamptz(6)
 
+  // Index một phần ở SQL migration (Prisma không biểu diễn WHERE / INCLUDE): appointment_order_suggest_idx (TIP-033c — gợi ý tạo đơn
+  // theo hội thoại: conversation_id, end_at DESC, id DESC WHERE done ∧ ngoài liệu trình ∧ chưa có đơn ∧ chưa xoá).
   @@map("appointment")
 }

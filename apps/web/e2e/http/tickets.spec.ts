@@ -19,7 +19,7 @@ test.describe('ticket (http)', () => {
     await f.getByTestId('tk-title').fill('Khách báo lỗi thanh toán');
     await f.getByTestId('tk-company').fill('Cty Hoà Bình');
     await f.getByTestId('tk-channel').selectOption('email');
-    await f.getByTestId('tk-category').selectOption('Billing');
+    await f.getByTestId('tk-category').fill('Billing');
     await f.getByTestId('tk-priority').selectOption('medium');
     await f.getByTestId('tk-desc').fill('Chuyển khoản không nhận được');
     await f.getByTestId('tk-save').click();

@@ -43,6 +43,8 @@ const env = {
   TENANT_MAIL_TRANSPORT: 'fake',
   // Model giả (TIP-019, Q-001 chưa có key 9router): engine AI SDK thật, câu trả lời theo kịch bản.
   AI_ENGINE: 'mock',
+  // Không seed provider embed thật (TIP-020e) — E2E chạy embedding giả.
+  EMBED_SEED_PROVIDER_KEY: '',
   FILES_DIR: filesDir,
   // Mỗi spec onboarding một workspace mới (DB tenant riêng) trên 4 tiến trình: pool tenant nhỏ + đóng client rảnh sau 20 giây để
   // Postgres dev (max_connections 100) không cạn slot khi chạy toàn bộ song song.

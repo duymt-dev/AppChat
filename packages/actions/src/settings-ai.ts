@@ -205,3 +205,33 @@ export const walletUpdateAlerts = defineAction({
   invalidates: ['billing'],
   db: 'platform',
 });
+
+// Tái tạo chỉ mục kho tri thức khi đổi model embedding (TIP-020e §2.2, DC-288 / DC-302): không bao giờ tự chạy — người có `kb.manage`
+// xem trước ước tính (số đoạn, token, Credit theo đơn giá model đích, dung lượng) rồi xác nhận. Trừ Credit nguồn ví `kb` như nạp nguồn.
+// Huỷ giữ khe đang phục vụ, dọn khe đích theo lô. Agent không được cấp; Trợ lý gọi được qua xem trước chung (023b).
+export const kbReindex = defineAction({
+  id: 'kb.reindex',
+  module: 'ai',
+  title: 'actions.kb.reindex.title',
+  description:
+    'Rebuild the knowledge-base embedding index with the currently configured embedding model (after the model changed). Costs Credit like ingesting the sources; always previews the estimate (chunks, tokens, Credit) first. Running twice returns the generation already in progress. Example: {}',
+  input: z.object({}).strict(),
+  output: z.object({ generation_id: z.string().uuid(), phase: z.enum(['building', 'catching_up']), expected: z.number().int(), reused: z.boolean() }),
+  permission: 'kb.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['kb'],
+});
+
+export const kbReindexCancel = defineAction({
+  id: 'kb.reindex_cancel',
+  module: 'ai',
+  title: 'actions.kb.reindex_cancel.title',
+  description: 'Cancel the knowledge-base re-index in progress; search keeps using the current index. Example: {}',
+  input: z.object({}).strict(),
+  output: z.object({ cancelled: z.boolean(), generation_id: z.string().uuid().nullable() }),
+  permission: 'kb.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['kb'],
+});

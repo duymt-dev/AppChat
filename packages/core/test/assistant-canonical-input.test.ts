@@ -35,6 +35,8 @@ const contactDb = (owner: string) =>
       findUnique: async ({ where }: { where: { id: string } }) => (where.id === ID_A ? { id: ID_A, ownerUserId: owner, deletedAt: null } : null),
     },
     contactCollaborator: { findUnique: async () => null },
+    // TIP-023d §2.1: lời gọi ghi tra kế hoạch gắn run — không có kế hoạch → chạy như thường.
+    assistantPlan: { findUnique: async () => null },
   }) as unknown as TenantDb;
 
 describe('call_action → preview mang input chuẩn hoá', () => {

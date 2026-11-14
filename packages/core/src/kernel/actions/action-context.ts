@@ -16,6 +16,12 @@ export interface ActionContext {
   stepId?: string;
   idempotencyKey?: string;
   confirmToken?: string;
+  /**
+   * Người dùng XIN xem trước (TIP-028b, DC-444 — header `x-action-preview: 1` của UI): action thuộc `REQUESTABLE_PREVIEW_ACTIONS` đi qua
+   * 202 preview → ConfirmActionHost (bảng kiểm chứng từ) như nguồn assistant. Chỉ THÊM bước xác nhận cho chính người gọi — không nới
+   * quyền / policy, nguồn bị cấm / phải duyệt vẫn giữ nguyên.
+   */
+  previewRequested?: boolean;
   /** Chạy action đã được duyệt (job `ai-resume` — TIP-021): executor bỏ bước policy `approval`, gateway kiểm + đánh dấu đã chạy. */
   approvalId?: string;
   /**
@@ -43,6 +49,13 @@ export interface ActionContext {
    * phản ánh quyền đọc module gốc của nguồn. Không phải input công khai (HTTP / model không đặt được).
    */
   knowledgeAuthz?: AuthzContext;
+  /**
+   * TIP-023d §2.1-2.3: ràng buộc bước kế hoạch Cowork đang chạy — server cấp (meta-tools / xác nhận thẻ đọc lại từ DB), KHÔNG phải input
+   * công khai (HTTP / model không đặt được). Không cấp quyền: chỉ để executor claim hiệu ứng chính một lần + gắn biên nhận thật.
+   */
+  planBinding?: { planId: string; stepId: string; generation: number; epoch: number };
+  /** TIP-033c §3.1: dữ kiện nguồn đã ràng vào confirm_token lúc xem trước — executor đặt sau khi tiêu token; không phải input công khai. */
+  previewFacts?: Record<string, string | number>;
   /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
   authz: AuthzContext;
 }
@@ -68,6 +81,8 @@ export interface ActionPolicyInput {
   autoSend?: boolean;
   /** Id action — FORCE_APPROVAL theo action (policy.ts). */
   actionId?: string;
+  /** Người gọi xin xem trước (ActionContext.previewRequested). */
+  previewRequested?: boolean;
 }
 
 export const AUTHORIZER = Symbol('AUTHORIZER');

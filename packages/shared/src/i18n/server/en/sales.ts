@@ -1,11 +1,13 @@
 // Server-side quote texts — English.
 import type { sales as vi } from '../vi/sales';
 import { salesDelivery } from './sales-delivery';
+import { salesAdvice } from './sales-advice';
 
 type Shape<T> = { [K in keyof T]: T[K] extends string ? string : Shape<T[K]> };
 
 export const sales: Shape<typeof vi> = {
   delivery: salesDelivery,
+  advice: salesAdvice,
   quote: {
     message: 'Dear {customer}, {business} sends you quote {code} (version {version}) — total {total}, valid until {valid_until}. View: {link}',
     extended: 'Quote {code} has been extended until {valid_until}. View: {link}',

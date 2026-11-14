@@ -9,6 +9,7 @@ import { useAction } from '@/shared/actions/useAction';
 import { useDrawerStyles } from '../styles/drawer.styles';
 import { useAssistantUi } from '../assistant-store';
 import type { AiTasksPayload } from '../types';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const TABS = ['prompt', 'knowledge', 'tools', 'logs'] as const;
 type Tab = (typeof TABS)[number];
@@ -26,6 +27,7 @@ function Switch({ on, label }: { on: boolean; label: string }) {
 
 export function TaskDrawer({ data }: { data: AiTasksPayload }) {
   const t = useTranslations('assistant.cw.drawer');
+  const fmt = useFmt();
   const tt = useTranslations('assistant');
   const router = useRouter();
   const { styles, cx } = useDrawerStyles();
@@ -158,7 +160,7 @@ export function TaskDrawer({ data }: { data: AiTasksPayload }) {
                 </div>
               </div>
               <div className={styles.label}>{t('log')}</div>
-              {task.next_run_at ? <div className={styles.hint}>{t('next', { at: new Date(task.next_run_at).toLocaleString() })}</div> : null}
+              {task.next_run_at ? <div className={styles.hint}>{t('next', { at: fmt.dateTime(task.next_run_at) })}</div> : null}
               {d.logs.length ? null : <div className={styles.hint}>{t('noLogs')}</div>}
               <div className={styles.logs}>
                 {d.logs.map((g) => (

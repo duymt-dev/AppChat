@@ -48,8 +48,12 @@ test.describe('calendar', () => {
     await expect(d.getByTestId('cal-status')).toHaveText('Đã đến');
     await d.getByTestId('cal-complete').click();
     await expect(d.getByTestId('cal-status')).toHaveText('Hoàn thành');
-    await expect(d.getByTestId('cal-suggest')).toContainText('Tạo đơn cho buổi này?');
-    await d.getByTestId('cal-suggest-order').click();
+    // TIP-033c: thẻ gợi ý từ phép chiếu hiện hành → xem trước bắt buộc → biên nhận → mở đơn.
+    await expect(d.getByTestId('appt-order-card')).toContainText('Tạo đơn cho buổi này?');
+    await d.getByTestId('appt-order-create').click();
+    await page.getByRole('button', { name: 'Xác nhận', exact: true }).click();
+    await expect(d.getByTestId('appt-order-created')).toContainText('Đã tạo đơn');
+    await d.getByTestId('appt-order-open').click();
     await expect(page.getByTestId('od-drawer')).toContainText('Mai Trâm');
   });
 
@@ -63,7 +67,7 @@ test.describe('calendar', () => {
     await d.getByTestId('cal-complete').click();
     await expect(page.getByText('Đã trừ 1 buổi liệu trình (6/10)')).toBeVisible();
     await expect(d.getByTestId('cal-package')).toContainText('6/10');
-    await expect(d.getByTestId('cal-suggest')).toHaveCount(0);
+    await expect(d.getByTestId('appt-order-card')).toHaveCount(0);
   });
 
   test('Không đến / Huỷ (bắt buộc lý do) qua menu ⋯', async ({ page }) => {

@@ -75,6 +75,9 @@ export function legalChecklist(kind: DocKind, text: string, vars: readonly strin
   });
 }
 
+/** Biến của một mục bảng kiểm (mục đạt theo biến khi mẫu dùng một trong các biến) — preview gửi kiểm thêm giá trị thật của biến (TIP-028b). */
+export const checklistVars = (key: string): readonly string[] => RULES[key]?.vars ?? [];
+
 /** Mẫu đề nghị thanh toán / phiếu thu đã có dòng "không thay thế hoá đơn GTGT" (vi hoặc en). */
 export const hasNotVatLine = (kind: DocKind, text: string) =>
   !NOT_VAT_KINDS.includes(kind) || /khong thay the hoa don|does not replace a vat invoice/.test(foldText(text));
