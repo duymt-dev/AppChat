@@ -1,6 +1,7 @@
 # TIP-051b — Kênh theo phòng ban nhận, chia hội thoại trong phòng, agent vào phòng, vai trò mẫu Nhân sự / Marketing / Vận hành / Chỉ xem (D64)
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 051b before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/shared/src/authz/index.ts`; integrate 051 before051b.
 - **Parallel-safe with TIP-042b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/channel-types.ts`, `apps/web/src/features/settings/components/ConnectChannelModal.tsx`, `apps/web/src/features/settings/components/ManageChannelDrawer.tsx`, `apps/web/src/shared/api/mock/domains/settings-apps.ts`, `packages/actions/src/settings-apps.ts`, `packages/core/src/channels/actions/channel-manage.handlers.ts`, `packages/core/src/channels/services/accounts.service.ts`, `packages/core/src/crm/routing/routing.repo.ts`, `packages/core/src/inbox/services/pipeline.ts`, `packages/core/test/lead-routing.test.ts`, `packages/shared/src/api/channels.ts`; integrate 042b before051b.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/api/test/integration/actions/lead_routing.apply.action.test.ts`, `packages/core/src/crm/routing/routing-apply.handler.ts`; integrate 051b before051c.
@@ -177,7 +178,8 @@
   - loại liên hệ (051c);
   - phân ca / KPI (P3);
   - chia theo kỹ năng;
-  - gỡ agent khi đổi phòng.
+  - gỡ agent khi đổi phòng;
+  - dòng agent ở Thành viên, đơn vị cho bản ghi agent tạo (TIP-051d).
 
 ## Quality Gate
 - [x] Dựa trên code `origin/dev` 2026-11-14; prototype có ô "Phòng ban nhận" (không phải lệch mới).

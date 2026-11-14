@@ -1,6 +1,7 @@
 # TIP-047c — Backend Gọi điện: action, webhook, vòng đời cuộc gọi, định tuyến, ghi âm, Voice AI, ZCC (D61)
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/booking/services/calendar-read.service.ts`; integrate 047c before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/insights/exports/export-runner.ts`, `packages/shared/src/api/index.ts`; integrate 047c before051.
 - **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `packages/actions/src/settings-apps.ts`; integrate 047c before051b.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/crm/public.ts`; integrate 047c before051c.

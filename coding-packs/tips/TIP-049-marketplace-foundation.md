@@ -1,6 +1,7 @@
 # TIP-049 — Nền đồng bộ sàn: kết nối OAuth nhiều shop, webhook mức App, pull theo cursor, sửa năm lỗi đồng bộ đơn (Sàn, D63)
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 049 before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 049 before051.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 049 before051c.
 - **Parallel-safe with TIP-027b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/catalog/services/catalog-write.ts`, `packages/db/prisma/tenant/catalog.prisma`, `packages/shared/src/api/index.ts`; integrate 027b before049.

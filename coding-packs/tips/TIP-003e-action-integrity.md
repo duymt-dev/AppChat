@@ -1,6 +1,7 @@
 # TIP-003e — if_version cho mọi entity còn thiếu, bảng chỉ thêm, đính chính hành động đã gửi
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 003e before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 003e before051.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 003e before051c.
 - **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/support.ts`; integrate 003e before050.

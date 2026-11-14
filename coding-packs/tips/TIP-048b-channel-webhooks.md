@@ -1,6 +1,7 @@
 # TIP-048b — Nền kênh webhook: route mức App, biên nhận, chọn tài khoản OAuth, cửa sổ gửi, danh sách kênh theo registry (Kênh, D62)
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 048b before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 048b before051.
 - **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `packages/core/src/channels/services/accounts.service.ts`, `packages/core/src/channels/services/read.service.ts`, `packages/core/src/inbox/services/pipeline.ts`, `packages/shared/src/api/channels.ts`; integrate 048b before051b.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/customers.json`, `apps/web/messages/vi/customers.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/inbox.ts`; integrate 048b before051c.

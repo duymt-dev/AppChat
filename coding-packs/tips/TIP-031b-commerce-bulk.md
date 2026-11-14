@@ -1,6 +1,7 @@
 # TIP-031b — Thanh chọn nhiều Khách / Báo giá / Hợp đồng / Đơn: Gán phụ trách hàng loạt + Chuyển tiếp (DC-296)
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 031b before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 031b before051.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/features/customers/components/CrmToolbar.tsx`, `packages/actions/src/index.ts`; integrate 031b before051c.
 - **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/contracts.ts`, `packages/actions/src/quotes.ts`; integrate 031b before050.

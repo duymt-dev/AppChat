@@ -1,6 +1,7 @@
 # TIP-019b: Runtime AI — ngân sách chung, usage bền vững và trạng thái thật
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 019b before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `packages/core/src/crm/memory/summary.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 019b before051.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 019b before051c.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`; integrate 019b before049.

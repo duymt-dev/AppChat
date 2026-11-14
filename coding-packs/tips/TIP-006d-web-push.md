@@ -1,6 +1,7 @@
 # TIP-006d — Thông báo đẩy web (Web Push + PWA) cho kênh `mobile`
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/settings.ts`; integrate 006d before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before051.
 - **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 006d before051b.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 006d before049.

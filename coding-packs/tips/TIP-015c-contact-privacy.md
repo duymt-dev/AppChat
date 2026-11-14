@@ -1,6 +1,7 @@
 # TIP-015c — Quên khách xuyên Zalo, CRM, Commerce và AI
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/booking/services/calendar-read.service.ts`, `packages/core/src/crm/services/contacts.service.ts`, `packages/core/src/support/services/tickets-read.service.ts`, `tools/parity/parity.manifest.ts`; integrate 015c before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/handlers.ts`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 015c before051.
 - **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `packages/core/src/crm/services/identity.service.ts`, `packages/core/src/inbox/services/pipeline.ts`; integrate 015c before051b.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/crm/actions/contact-write.handlers.ts`, `packages/core/src/crm/services/contacts.service.ts`, `packages/core/src/inbox/services/view.ts`, `tools/parity/parity.manifest.ts`; integrate 015c before051c.

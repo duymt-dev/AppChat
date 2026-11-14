@@ -864,9 +864,10 @@ Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon
 - **Kênh theo phòng ban nhận**: hội thoại vào tài khoản kênh của phòng nào thì phòng đó thấy và chia trong phòng (vd. kênh tuyển dụng chỉ Nhân sự thấy).
 - **Vai trò mẫu** Nhân sự · Marketing · Vận hành / Kỹ thuật · Chỉ xem (tạo vai trò tuỳ biến nhanh; 5 vai trò hệ thống giữ nguyên).
 - **Loại liên hệ** Khách hàng · Ứng viên · Đối tác · Nhà cung cấp; phễu bán hàng, doanh số, báo giá / hợp đồng / đơn chỉ cho Khách hàng.
+- **AI agent là thành viên:** hiện ở Cài đặt › Thành viên cùng người (vai trò "AI Agent", phòng ban, trạng thái), tính vào số thành viên; hạn mức gói vẫn tách "ghế người dùng" và "AI Agent" như bảng gói. Việc agent làm (khách, báo giá, đơn, lịch hẹn) thuộc phòng ban của agent.
 - **Không làm:** chấm công, lương, nghỉ phép, hồ sơ nhân sự, phễu tuyển dụng riêng; KPI / phân ca vẫn P3.
 
-**Ảnh hưởng:** 3 TIP mới (051 → 051c) sau 050, GOAL-RELEASE 107 TIP.
+**Ảnh hưởng:** 4 TIP mới (051 → 051d) sau 050, GOAL-RELEASE 108 TIP.
 
 ---
 

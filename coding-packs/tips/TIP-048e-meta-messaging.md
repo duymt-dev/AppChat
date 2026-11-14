@@ -1,6 +1,7 @@
 # TIP-048e — Facebook Page (Messenger) + Instagram: adapter Graph, cửa sổ 24 giờ + HUMAN_AGENT, data deletion (Kênh, D62)
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 048e before051d.
 - **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 048e before051.
 - **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `apps/web/e2e/http/channels.spec.ts`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 048e before051b.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`, `packages/channels/src/coming-soon.ts`, `packages/channels/test/registry.test.ts`; integrate 048e before049.

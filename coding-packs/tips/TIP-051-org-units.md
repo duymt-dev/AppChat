@@ -1,6 +1,7 @@
 # TIP-051 — Cây đơn vị tổ chức: Phòng ban + Sơ đồ tổ chức, phạm vi dữ liệu "Phòng ban", AI agent là thành viên (D64)
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/actions.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/index.ts`, `packages/core/src/authz/authz-management.providers.ts`, `packages/core/src/authz/data-access/team-snapshot.ts`, `packages/shared/src/api/settings.ts`, `tools/parity/parity.manifest.ts`; integrate 051 before051d.
 - **Parallel-safe with TIP-046 (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 051 before046.
 - **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/shared/src/authz/index.ts`; integrate 051 before051b.
 - **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 051 before051c.
@@ -286,7 +287,7 @@ Tất cả `module: 'settings'`, quyền `members.manage`, `agentGrantable: fals
   - kênh theo phòng ban, vai trò mẫu (051b);
   - loại liên hệ (051c);
   - KPI / phân ca (P3);
-  - hiện agent ở mục Thành viên — seat / billing không đổi; agent hiện ở Phòng ban › Danh sách nhân sự và Sơ đồ tổ chức.
+  - dòng agent ở mục Thành viên, ô Phòng ban ở form thành viên, đơn vị cho bản ghi agent tạo, lọc Phòng ban ở Lịch hẹn → TIP-051d (DC-927).
 
 ## Quality Gate
 - [x] Dựa trên code `origin/dev` 2026-11-14 (đường dẫn + dòng `~` ở CONTEXT); người thi công kiểm lại ở Rà #1–2.
@@ -294,7 +295,7 @@ Tất cả `module: 'settings'`, quyền `members.manage`, `agentGrantable: fals
 - [x] Bảng chân trị scope một nguồn (`scopeUnitIds`) cho Prisma / SQL / bản ghi đơn.
 - **Gap:**
   - Gốc không lưu thành dòng nên "Tập đoàn nhiều công ty" không làm (PD-909).
-  - Agent không mang `team_id` khi tự tạo bản ghi (051b SKIP).
+  - Bản ghi agent tự tạo mang đơn vị của agent → TIP-051d.
 
 ## ⚠️ BUILDER-CHECKLIST (agent PHẢI hoàn thành trước khi báo DONE)
 - [ ] Đúng manifest; không thêm file ngoài danh sách.

@@ -282,6 +282,7 @@ Ghi chú:
 | D64-org | Cây đơn vị + agent thành viên + scope `dept` + Sơ đồ tổ chức / Phòng ban (D64 #1–#3) | 01-REQUIREMENTS-MATRIX.md:340 | 051 | CHƯA | TIP-051 |
 | D64-channels-roles | Kênh theo phòng ban nhận + vai trò mẫu (D64 #4–#5) | 01-REQUIREMENTS-MATRIX.md:340 | 051b | CHƯA | TIP-051b |
 | D64-relation | Loại liên hệ, chỉ Khách hàng vào phễu / chứng từ (D64 #6) | 01-REQUIREMENTS-MATRIX.md:340 | 051c | CHƯA | TIP-051c |
+| D64-members | AI agent là một dòng thành viên, có phòng ban; ghế người dùng / AI Agent tách như gói (D64 #9) | 01-REQUIREMENTS-MATRIX.md:340 | 051d | CHƯA | TIP-051d |
 | D64-scope | Không làm chấm công / lương / nghỉ phép / hồ sơ nhân sự / phễu tuyển dụng / KPI / phân ca (D64 #7) | 01-REQUIREMENTS-MATRIX.md:340 | — | NGOÀI | D64 #7; KPI / phân ca giữ REQ-M04 P3 |
 | DC-917 | Nền đồng bộ sàn: OAuth connector, shop route, pull cursor, sửa 5 lỗi | DECISIONS.md:498 | 049 | CHƯA | TIP-049 |
 | DC-918 | Connector Shopee | DECISIONS.md:499 | 049b | CHƯA | TIP-049b |
@@ -302,3 +303,4 @@ Ghi chú:
 | DC-924 | Cây đơn vị trên bảng `team`, `team_agent`, scope `dept`, `org_unit.*` | DECISIONS.md:505 | 051 | CHƯA | TIP-051 §1–§4 |
 | DC-925 | `channel_account.settings.unit_id`, chia trong phòng, agent vào phòng, vai trò mẫu | DECISIONS.md:506 | 051b | CHƯA | TIP-051b §1–§4 |
 | DC-926 | `contact.relation`, chỉ Khách hàng vào phễu / chứng từ (422 `contact_not_customer`) | DECISIONS.md:507 | 051c | CHƯA | TIP-051c §1–§3 |
+| DC-927 | Agent tính là thành viên (dòng Thành viên, phòng ban, đơn vị bản ghi agent tạo; không chiếm ghế người dùng) | DECISIONS.md:508 | 051, 051d | CHƯA | TIP-051d §1–§6 |
