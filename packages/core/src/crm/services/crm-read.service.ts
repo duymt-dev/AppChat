@@ -5,7 +5,7 @@ import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { boardCounts, listContactIds, stageCounts, type ContactFilter } from '../repos/contacts.repo';
 import { BOARD_DEFAULT, BOARD_MAX, boardColumnIds, decodeBoardCursor } from '../repos/board-page';
-import { UUID, visibleContact } from './access';
+import { UUID, scopeSql, visibleContact } from './access';
 import { contact360, withActivities } from './contact360';
 import { ROW_SELECT, loadRowExtras, toRow, type ContactRecord } from './contact-view';
 import { nextActions } from '../insights/next-action';
@@ -21,6 +21,7 @@ import { renderTimeline } from './timeline.service';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { contactEditContext } from './contact-edit';
 import { activityPage, activitySummary } from '../activities/read.service';
+import { listForContact, openSummary } from '../opportunities/read.service';
 import { transferStatus } from '../ownership/read';
 import { familyIds } from '../lifecycle/lock';
 
@@ -64,14 +65,20 @@ export class CrmReadService {
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
     const now = this.now();
-    const [extras, names, next, fv] = await Promise.all([
+    const [extras, names, next, fv, opps] = await Promise.all([
       loadRowExtras(tx, ids),
       this.members.names(rows.map((r) => r.ownerUserId)),
       nextActions(tx, v.authz, rows, utcToWall(now, pl.timeZone).date, now),
       fieldView(tx, 'contact', v.authz),
+      // TIP-026c: cột "Cơ hội đang mở" — MỘT truy vấn cho cả trang (contact_opportunity_open_idx), không N+1.
+      openSummary(tx, v.authz, ids),
     ]);
     // Quyền theo trường (TIP-045b annex C): chỉ key tuỳ biến được thấy — dữ liệu lưu giữ nguyên.
-    return rows.map((r) => toRow({ ...(r as ContactRecord), custom: projectCustom(fv, r.custom) }, { authz: v.authz, ...pl, names }, { ...extras, next }));
+    return rows.map((r) => {
+      const row = toRow({ ...(r as ContactRecord), custom: projectCustom(fv, r.custom) }, { authz: v.authz, ...pl, names }, { ...extras, next });
+      const o = opps.get(r.id);
+      return o ? { ...row, open_opportunity: o } : row;
+    });
   }
 
   async list(v: Viewer, f: ContactFilter, page?: number, limit?: number) {
@@ -123,7 +130,9 @@ export class CrmReadService {
     return this.tx(v, async (tx) => {
       const counts = await stageCounts(tx, v.authz);
       const total = Object.values(counts).reduce((a, b) => a + b, 0);
-      const open = (counts.consulting ?? 0) + (counts.quote ?? 0) + (counts.contract ?? 0);
+      // TIP-026c §3.4: "Cơ hội đang mở" = số CƠ HỘI mở của khách trong scope (không còn đếm khách theo giai đoạn).
+      const [{ n: open } = { n: 0 }] = await tx.$queryRaw<{ n: number }[]>`SELECT count(*)::int AS n FROM contact_opportunity o JOIN contact c ON c.id = o.contact_id
+        WHERE o.archived_at IS NULL AND o.stage NOT IN ('won', 'lost') AND c.deleted_at IS NULL AND c.merged_into_id IS NULL AND ${scopeSql(v.authz)}`;
       const tags = await tx.tag.findMany({ where: { scope: { in: ['all', 'contact'] } }, orderBy: { createdAt: 'asc' }, take: 20, select: { id: true, name: true, color: true } });
       return {
         stats: [
@@ -149,14 +158,16 @@ export class CrmReadService {
     const role = await this.members.roleOf(v.workspaceId, v.userId);
     return this.tx(v, async (tx) => {
       const { writable } = await visibleContact(tx, v.authz, id);
-      const [p360, ins, fv, acts] = await Promise.all([
+      const [p360, ins, fv, acts, opps] = await Promise.all([
         contact360(tx, id, { ...pl, names: (ids) => this.members.names(ids), layout: await layoutForRole(tx, role), links: { files: this.links, ws: v.workspaceId } }),
         insights360(tx, v.authz, id, { ...pl, now: this.now() }),
         fieldView(tx, 'contact', v.authz),
         // TIP-026b: hoạt động CRM thật theo quyền người xem (cùng reader với GET /contacts/:id/activities).
-        activitySummary(tx, id, writable, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)) }),
+        activitySummary(tx, id, writable, { authz: v.authz, locale: pl.locale, names: (ids) => this.members.names(ids), activeMembers: async () => new Set((await this.members.list(v.workspaceId)).map((m) => m.id)), now: this.now() }),
+        // TIP-026c: lịch sử cơ hội của khách (trang đầu) cho thẻ 360° + tab CRM "Cơ hội đang mở".
+        listForContact(tx, id, {}, { authz: v.authz, names: (ids) => this.members.names(ids), now: this.now() }),
       ]);
-      return { ...withActivities(p360, acts, pl), custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
+      return { ...withActivities(p360, acts, pl, opps.items), custom: projectCustom(fv, p360.custom), crm: { ...p360.crm, kpis: ins.kpis, recent_order: ins.recent_order, recent_payment: ins.recent_payment }, insights: ins.insights };
     });
   }
 

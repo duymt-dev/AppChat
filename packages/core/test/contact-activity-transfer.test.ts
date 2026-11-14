@@ -105,16 +105,18 @@ describe('ánh xạ + luật dòng', () => {
     expect(r[3]!.errors.state).toBe('readonly');
   });
 
-  it('cơ hội: won → terminal; có giá trị kỳ vọng mà không quyền ghi tiền → forbidden; xác suất > 100 → invalid', async () => {
+  // TIP-026c: xác suất cố định theo giai đoạn — cột xác suất của tệp cũ chỉ cảnh báo `probability_warning: ignored` (không chặn dòng).
+  it('cơ hội: won → terminal; có giá trị kỳ vọng mà không quyền ghi tiền → forbidden; cột xác suất → cảnh báo bỏ qua', async () => {
     const r = rows('contact_opportunities', ['Mã khách', 'Cơ hội', 'Giá trị kỳ vọng', 'Giai đoạn', 'Xác suất'], [
       ['KH001', 'Gói A', '15.000.000', 'Đề xuất', '60'],
       ['KH001', 'Gói B', '', 'Thắng', ''],
       ['KH001', 'Gói C', '', '', '120'],
     ]);
     await adapterFor('contact_opportunities').classify(tx, { userId: 'u1', authz: authz(['crm.import', 'crm.edit']) }, r);
-    expect(r[0]!.errors).toEqual({ expected_amount: 'forbidden' });
+    expect(r[0]!.errors).toEqual({ expected_amount: 'forbidden', probability_warning: 'ignored' });
+    expect(r[0]!.data.stage).toBe('quote');
     expect(r[1]!.errors.stage).toBe('terminal');
-    expect(r[2]!.errors.probability).toBe('invalid');
+    expect(r[2]!.errors).toEqual({ probability_warning: 'ignored' });
     const ok = rows('contact_opportunities', ['Mã khách', 'Cơ hội', 'Giá trị kỳ vọng'], [['KH001', 'Gói A', '15.000.000']]);
     await adapterFor('contact_opportunities').classify(tx, { userId: 'u1', authz: authz(['crm.import', 'crm.edit', 'quote.create']) }, ok);
     expect(ok[0]!.errors).toEqual({});
@@ -148,14 +150,14 @@ describe('đơn vị ghi — mỗi dòng một action canonical', () => {
     expect(a.units!([pending({ contact_id: 'w1', kind: 'note', body: 'y' })], { userId: 'u1' })[0]!.action).toBe('contact.add_note');
   });
 
-  it('việc: hạn = 23:59 giờ VN, không assignee (người nhập tự nhận); cơ hội: amount_vnd chuỗi, probability số', () => {
+  it('việc: hạn = 23:59 giờ VN, không assignee (người nhập tự nhận); cơ hội: amount_vnd chuỗi, không gửi probability (TIP-026c)', () => {
     const t = adapterFor('contact_tasks').units!([pending({ contact_id: 'w1', title: 'Gọi', due: '2026-11-20' })], { userId: 'u1' })[0]!;
     expect(t.input).toEqual({ contact_id: 'w1', title: 'Gọi', due_at: '2026-11-20T23:59:00+07:00' });
     const o = adapterFor('contact_opportunities').units!(
-      [pending({ contact_id: 'w1', title: 'Gói', expected_amount: '15000000', probability: '60', stage: 'proposal' })],
+      [pending({ contact_id: 'w1', title: 'Gói', expected_amount: '15000000', probability: '60', stage: 'quote', source_kind: 'referral' })],
       { userId: 'u1' },
     )[0]!;
-    expect(o.input).toEqual({ contact_id: 'w1', title: 'Gói', amount_vnd: '15000000', probability: 60, stage: 'proposal' });
+    expect(o.input).toEqual({ contact_id: 'w1', title: 'Gói', amount_vnd: '15000000', stage: 'quote', source_kind: 'referral' });
   });
 
   it('ghép kết quả theo id action trả về', async () => {

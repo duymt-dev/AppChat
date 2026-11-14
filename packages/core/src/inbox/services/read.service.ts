@@ -15,6 +15,7 @@ import { avatarKey, avatarLinks } from '../../channels/operations/avatar-read';
 import type { FileLinks } from '../../kernel/files/file-links';
 import { staleAiContent, suggestionCurrent, suggestionRefOf } from '../../ai/kb/scope/draft-binding';
 import { citationsOf } from '../../ai/citations/projection';
+import { openOpportunitySummary } from '../../crm/public';
 
 export interface Viewer {
   workspaceId: string;
@@ -66,7 +67,7 @@ export class InboxReadService {
     const p = await this.place(v);
     return this.tx(v, async (tx) => {
       const { ids, next } = await listConversationIds(tx, v.authz, f, p.now, cursor, Math.min(MAX_LIMIT, Math.max(1, limit ?? 50)));
-      return { data: await this.rows(tx, ids, p, v.workspaceId), next_cursor: next };
+      return { data: await this.rows(tx, ids, p, v.workspaceId, v.authz), next_cursor: next };
     });
   }
 
@@ -74,7 +75,7 @@ export class InboxReadService {
     const p = await this.place(v);
     return this.tx(v, async (tx) => {
       const c = await visibleConversation(tx, v.authz, id);
-      const dto = (await this.rows(tx, [c.id], p, v.workspaceId))[0]!;
+      const dto = (await this.rows(tx, [c.id], p, v.workspaceId, v.authz))[0]!;
       // TIP-020d: nguồn của nháp AI (chỉ ở chi tiết một hội thoại, không ở danh sách) — đúng run / thế hệ của nháp đang chiếu.
       const cites = dto.ai_draft_ref ? await citationsOf(tx as never, dto.ai_draft_ref.id, v.authz) : null;
       return cites ? { ...dto, ai_draft_citations: cites } : dto;
@@ -153,7 +154,7 @@ export class InboxReadService {
   }
 
   /** Bước 2 deferred join: đủ cột cho các id của trang (giữ thứ tự bước 1) + tên khách / tài khoản / thẻ / số thành viên. */
-  private async rows(tx: TenantTx, ids: string[], p: Place, ws: string): Promise<ConversationDto[]> {
+  private async rows(tx: TenantTx, ids: string[], p: Place, ws: string, authz: AuthzContext): Promise<ConversationDto[]> {
     if (!ids.length) return [];
     const convs = await tx.conversation.findMany({ where: { id: { in: ids } } });
     const order = new Map(ids.map((id, i) => [id, i]));
@@ -203,6 +204,8 @@ export class InboxReadService {
       coAssignees,
       staleDrafts: (await staleAiContent(tx, convs)).drafts,
       slaByConv,
+      // TIP-026c: chip cơ hội — một truy vấn cho cả trang (không N+1).
+      opportunities: await openOpportunitySummary(tx, authz, contactIds),
     };
     return convs.map((c) => toConversation(c, x, p));
   }

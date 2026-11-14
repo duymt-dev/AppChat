@@ -21,6 +21,7 @@ export const notify = {
     },
     quote_approval: { title: '{actor} gửi duyệt báo giá {code} · {contact}', label: 'Báo giá chờ tôi duyệt' },
     quote_expiring: { title: 'Báo giá {code} · {contact} còn {n} ngày hiệu lực', label: 'Báo giá sắp hết hiệu lực' },
+    opportunity_lost_reason: { title: 'Khách từ chối báo giá {code} của cơ hội {title} — ghi lý do Thua nếu cơ hội đã mất', label: 'Báo giá của cơ hội bị từ chối' },
     contract_approval: { title: '{actor} trình duyệt hợp đồng {code} · {contact}', label: 'Hợp đồng chờ tôi duyệt & ký' },
     contract_signed: { title: '{contact} đã ký hợp đồng {code}', label: 'Khách đã ký hợp đồng' },
     contract_declined: { title: 'Hợp đồng {code} · {contact} không được ký: {reason}', label: 'Khách từ chối ký / link ký hết hạn' },

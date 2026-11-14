@@ -1,4 +1,5 @@
-// Hoạt động CRM (TIP-026b): ghi chú / bình luận, việc chăm sóc, cơ hội — handler action + quyền thành viên (người được giao việc).
+// Hoạt động CRM (TIP-026b): ghi chú / bình luận, việc chăm sóc — handler action + quyền thành viên (người được giao việc). Cơ hội dời sang
+// crm/opportunities (TIP-026c — CrmModule đăng ký OPPORTUNITY_HANDLERS).
 // CrmModule nhập module này (ROLE=ai nhận cùng đăng ký qua CrmModule). contact_activity.list cần CrmMembers → đăng ký ở CrmModule.
 import { Module } from '@nestjs/common';
 import type { PlatformDb } from '@appchat/db';
@@ -8,7 +9,6 @@ import { AuthzResolver } from '../../authz/services/authz-resolver';
 import { MemberAuthz } from './member-authz';
 import { ContactAddCommentHandler, ContactAddNoteHandler } from './notes.handlers';
 import { ContactTaskCreateHandler, ContactTaskSetStateHandler, ContactTaskUpdateHandler } from './tasks.handlers';
-import { ContactOpportunityArchiveHandler, ContactOpportunityCreateHandler, ContactOpportunityUpdateHandler } from './opportunities.handlers';
 
 @Module({
   imports: [AuthzModule],
@@ -23,9 +23,6 @@ import { ContactOpportunityArchiveHandler, ContactOpportunityCreateHandler, Cont
     ContactTaskCreateHandler,
     ContactTaskUpdateHandler,
     ContactTaskSetStateHandler,
-    ContactOpportunityCreateHandler,
-    ContactOpportunityUpdateHandler,
-    ContactOpportunityArchiveHandler,
   ],
   exports: [MemberAuthz],
 })

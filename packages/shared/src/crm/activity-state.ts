@@ -1,4 +1,5 @@
 // Luật trạng thái hoạt động CRM (TIP-026b DC253) — dùng chung core (kiểm) + web (nút hợp lệ). Việc chăm sóc ≠ tác vụ AI; cơ hội ≠ báo giá.
+// Xác suất cơ hội cố định theo giai đoạn (TIP-026c) — không còn ô nhập tay.
 
 export const CONTACT_NOTE_KINDS = ['note', 'comment'] as const;
 export type ContactNoteKind = (typeof CONTACT_NOTE_KINDS)[number];
@@ -6,9 +7,8 @@ export type ContactNoteKind = (typeof CONTACT_NOTE_KINDS)[number];
 export const CONTACT_TASK_STATES = ['open', 'done', 'cancelled'] as const;
 export type ContactTaskState = (typeof CONTACT_TASK_STATES)[number];
 
-export const CONTACT_OPPORTUNITY_STAGES = ['open', 'qualified', 'proposal', 'won', 'lost'] as const;
-export type ContactOpportunityStage = (typeof CONTACT_OPPORTUNITY_STAGES)[number];
-export const OPPORTUNITY_TERMINAL: readonly ContactOpportunityStage[] = ['won', 'lost'];
+// TIP-026c (D60): giai đoạn cơ hội = bảng hằng 7 giai đoạn xác suất cố định ở `opportunity-stages.ts` (thay open / qualified / proposal).
+export { OPPORTUNITY_STAGES as CONTACT_OPPORTUNITY_STAGES, OPPORTUNITY_CLOSED as OPPORTUNITY_TERMINAL, type OpportunityStage as ContactOpportunityStage } from './opportunity-stages';
 
 export const ACTIVITY_KINDS = ['notes', 'comments', 'tasks', 'opportunities'] as const;
 export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
@@ -19,5 +19,3 @@ export const taskMoveAllowed = (from: ContactTaskState, to: ContactTaskState) =>
 
 /** Giá trị kỳ vọng: số nguyên VND 0…999.999.999.999 dạng chuỗi. */
 export const OPPORTUNITY_AMOUNT_RE = /^(0|[1-9]\d{0,11})$/;
-/** Xác suất người nhập: 0–100, tối đa 2 chữ số thập phân. */
-export const probabilityOk = (n: number) => Number.isFinite(n) && n >= 0 && n <= 100 && Math.round(n * 100) === n * 100;

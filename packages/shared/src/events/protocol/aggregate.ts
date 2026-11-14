@@ -76,6 +76,11 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'contact_opportunity.created': contact,
   'contact_opportunity.updated': contact,
   'contact_opportunity.archived': contact,
+  // TIP-026c: pipeline — đổi giai đoạn / Thua / Mở lại / đổi phụ trách (chỉ id + khách + version).
+  'contact_opportunity.stage_changed': contact,
+  'contact_opportunity.lost': contact,
+  'contact_opportunity.reopened': contact,
+  'contact_opportunity.owner_changed': contact,
   // hộp thư
   'message.received': conv,
   'message.sent': conv,

@@ -5,7 +5,8 @@
 import { AppError } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 
-const EXCLUSIVE_DELETE_BY_ID = new Set(['contact_identity', 'contact_access_request', 'timeline_event', 'contact_task', 'contact_opportunity']);
+// TIP-026c: Quên khách xoá đủ ba bảng cơ hội (item / event cũng cascade khi xoá cơ hội — xoá theo id vẫn idempotent).
+const EXCLUSIVE_DELETE_BY_ID = new Set(['contact_identity', 'contact_access_request', 'timeline_event', 'contact_task', 'contact_opportunity', 'contact_opportunity_item', 'contact_opportunity_event']);
 const EXCLUSIVE_DELETE_BY_CONTACT = new Set(['contact_tag', 'contact_collaborator']);
 
 export async function crmErase(tx: TenantTx, artifact: { kind: string; recordId: string }, disposition: 'erase_exclusive' | 'redact_shared'): Promise<void> {

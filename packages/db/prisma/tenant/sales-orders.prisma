@@ -62,6 +62,8 @@ model Order {
   /// Hợp đồng nguồn — một hợp đồng sinh được nhiều đơn.
   contractId           String?     @map("contract_id") @db.Uuid
   appointmentId        String?     @map("appointment_id") @db.Uuid
+  /// Cơ hội của đơn — chụp lúc tạo (báo giá nguồn / hợp đồng → báo giá / lịch hẹn / người chọn) — TIP-026c.
+  opportunityId        String?     @map("opportunity_id") @db.Uuid
   conversationId       String?     @map("conversation_id") @db.Uuid
   status               OrderStatus @default(new)
   payStatus            PayStatus   @default(unpaid) @map("pay_status")

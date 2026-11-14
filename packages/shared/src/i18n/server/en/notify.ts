@@ -23,6 +23,7 @@ export const notify: Shape<typeof vi> = {
     },
     quote_approval: { title: '{actor} submitted quote {code} · {contact} for approval', label: 'Quotes waiting for my approval' },
     quote_expiring: { title: 'Quote {code} · {contact} expires in {n} days', label: 'Quotes about to expire' },
+    opportunity_lost_reason: { title: 'Customer declined quote {code} of opportunity {title} — record a lost reason if the deal is gone', label: 'Opportunity quote declined' },
     contract_approval: { title: '{actor} submitted contract {code} · {contact} for approval', label: 'Contracts waiting for my approval & signature' },
     contract_signed: { title: '{contact} signed contract {code}', label: 'Customer signed a contract' },
     contract_declined: { title: 'Contract {code} · {contact} was not signed: {reason}', label: 'Customer declined / signing link expired' },

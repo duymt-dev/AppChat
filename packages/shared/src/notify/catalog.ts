@@ -24,6 +24,8 @@ export const NOTIFY_KINDS = {
   // Báo giá (TIP-029): có báo giá chờ tôi duyệt · báo giá tôi phụ trách sắp hết hiệu lực (T-2).
   quote_approval: { group: 'msg', icon: 'ic-doc', tone: 'warn', defaults: ch(true, true, true) },
   quote_expiring: { group: 'msg', icon: 'ic-clock', tone: 'warn', defaults: ch(true, false, true) },
+  // Cơ hội (TIP-026c §3.1): khách từ chối báo giá của cơ hội tôi phụ trách — nhắc ghi lý do Thua (không tự đặt Thua).
+  opportunity_lost_reason: { group: 'msg', icon: 'ic-trend', tone: 'warn', defaults: ch(true, false, true) },
   // Hợp đồng (TIP-030): chờ tôi duyệt & ký · khách đã ký / từ chối ký · sắp hết hạn (T-30).
   contract_approval: { group: 'msg', icon: 'ic-doc', tone: 'warn', defaults: ch(true, true, true) },
   contract_signed: { group: 'msg', icon: 'ic-check', tone: 'teal', defaults: ch(true, true, true) },

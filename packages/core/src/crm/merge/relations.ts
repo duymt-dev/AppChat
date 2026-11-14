@@ -1,4 +1,6 @@
 // Dời quan hệ CRM khi gộp (TIP-015e §3.2): identity / ghi chú / việc / cơ hội của bản phụ sang bản chính, thẻ chưa có thì thêm vào bản chính.
+// TIP-026c: sản phẩm (`contact_opportunity_item`) đi theo cơ hội qua khoá ngoại (không có contact_id); lịch sử cơ hội
+// (`contact_opportunity_event`) GIỮ contact_id lúc ghi như timeline (đọc theo cơ hội / họ khách) — không dời, hoàn tác không phải đụng.
 // Ghi lại từng bản ghi đã dời (liên kết gốc) vào biên nhận. Timeline KHÔNG dời (bất biến, giữ id gốc — đọc theo họ, lifecycle/family-sql.ts);
 // biên nhận cũ (P2) có mục 'timeline' vẫn hoàn tác được. KHÔNG dời: hội thoại, báo giá / đơn / đề nghị / hợp đồng / gói / sổ điểm / lịch hẹn / ticket
 // (giữ id khách gốc — lineage, P4 chiếu theo họ). Không chép collaborator / ACL.

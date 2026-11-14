@@ -1,5 +1,5 @@
 // Bản ghi hội thoại / tin → shape đọc FE (packages/shared/src/api/inbox.ts). Chữ theo locale người xem, giờ theo múi giờ workspace.
-import { AGENT_INTENTS_CLOSED, CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type AgentIntent, type BusinessCalendar, type ConversationDto, type MessageDto } from '@appchat/shared';
+import { AGENT_INTENTS_CLOSED, CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type AgentIntent, type BusinessCalendar, type ConversationDto, type MessageDto, type OpenOpportunitySummaryDto } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 
 export interface Place {
@@ -54,6 +54,8 @@ export interface ConvExtras {
   staleDrafts?: Set<string>;
   /** TIP-014c: hạn phản hồi đầu + mục tiêu + trạng thái SLA theo chính sách của tài khoản kênh. */
   slaByConv?: Map<string, { frt_due_at: string; frt_target_min: number; sla_state: 'breach' | 'risk' | 'ok' }>;
+  /** TIP-026c: cơ hội mở theo khách (openSummary — một truy vấn cho cả trang, đã áp quyền crm). */
+  opportunities?: Map<string, OpenOpportunitySummaryDto>;
 }
 
 export function toConversation(c: ConvRow, x: ConvExtras, p: Place): ConversationDto {
@@ -78,6 +80,7 @@ export function toConversation(c: ConvRow, x: ConvExtras, p: Place): Conversatio
     ...(group ? { members: x.members.get(c.id) ?? 0 } : {}),
     contact_id: c.contactId,
     ...(c.contactId && x.deletedContacts?.has(c.contactId) ? { contact_deleted: true } : {}),
+    ...(c.contactId && x.opportunities?.get(c.contactId) ? { opportunity_chip: x.opportunities.get(c.contactId) } : {}),
     pinned: c.pinned,
     ai_state: c.aiState,
     ai_mode: c.aiMode,

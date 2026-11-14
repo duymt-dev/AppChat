@@ -376,7 +376,8 @@
       "new_contact": "Creates a new customer",
       "low_stock": "Low stock",
       "negative_stock": "Stock will go negative",
-      "operator_decision": "Operator decision — not a confirmation from the customer"
+      "operator_decision": "Operator decision — not a confirmation from the customer",
+      "lost_rejects_quotes": "Sent quotes will be declined — undo does not reopen them"
     },
     "unset": "Not set"
   },

@@ -1,5 +1,6 @@
 // Kiểm kê CRM cho "Quên khách" (TIP-015c §2.3 bảng disposition — hàng 1): identity/custom/tags/collaborators/access request/
-// timeline/note/activity đều "scrub exclusive operational PII" — exclusive theo contact (không chia sẻ nhóm/người khác).
+// timeline/note/activity đều "scrub exclusive operational PII" — exclusive theo contact (không chia sẻ nhóm/người khác). TIP-026c: sản phẩm +
+// lịch sử cơ hội (event giữ contact_id lúc ghi — kê theo chính nó, kể cả sau khi cơ hội dời sang bản chính lúc gộp).
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { idsSql, toInventory, type InvRow } from '../../kernel/privacy/sql';
 
@@ -13,6 +14,8 @@ export async function crmInventory(tx: TenantTx, contactIds: readonly string[]) 
     UNION ALL SELECT 'timeline_event', id, 1, 'exclusive' FROM timeline_event WHERE contact_id = ANY(${ids})
     UNION ALL SELECT 'contact_note', id, version, 'exclusive' FROM contact_note WHERE contact_id = ANY(${ids}) AND deleted_at IS NULL
     UNION ALL SELECT 'contact_task', id, 1, 'exclusive' FROM contact_task WHERE contact_id = ANY(${ids})
-    UNION ALL SELECT 'contact_opportunity', id, 1, 'exclusive' FROM contact_opportunity WHERE contact_id = ANY(${ids})`;
+    UNION ALL SELECT 'contact_opportunity', id, 1, 'exclusive' FROM contact_opportunity WHERE contact_id = ANY(${ids})
+    UNION ALL SELECT 'contact_opportunity_item', i.id, 1, 'exclusive' FROM contact_opportunity_item i JOIN contact_opportunity o ON o.id = i.opportunity_id WHERE o.contact_id = ANY(${ids})
+    UNION ALL SELECT 'contact_opportunity_event', id, 1, 'exclusive' FROM contact_opportunity_event WHERE contact_id = ANY(${ids})`;
   return toInventory(rows);
 }

@@ -376,7 +376,8 @@
       "new_contact": "Tạo khách hàng mới",
       "low_stock": "Tồn kho thấp",
       "negative_stock": "Tồn kho sẽ âm",
-      "operator_decision": "Quyết định của người vận hành — không phải khách tự xác nhận"
+      "operator_decision": "Quyết định của người vận hành — không phải khách tự xác nhận",
+      "lost_rejects_quotes": "Báo giá đã gửi sẽ bị từ chối — hoàn tác không mở lại báo giá"
     },
     "unset": "Không chọn"
   },

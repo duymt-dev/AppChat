@@ -1633,6 +1633,7 @@
       "crm_access": "Customer share requests / decisions",
       "quote_approval": "Quotes waiting for my approval",
       "quote_expiring": "Quotes about to expire",
+      "opportunity_lost_reason": "Opportunity quote declined",
       "contract_approval": "Contracts awaiting my approval & signature",
       "contract_signed": "Customer signed a contract",
       "contract_declined": "Customer declined / sign link expired",

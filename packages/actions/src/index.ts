@@ -87,6 +87,7 @@ import * as contactLifecycle from './contact-lifecycle';
 import * as contactMergeReads from './contact-merge';
 import * as contactTasks from './contact-tasks';
 import * as contactOpportunities from './contact-opportunities';
+import * as contactOpportunityFlow from './contact-opportunity-flow';
 import * as dataJobs from './data-jobs';
 import * as dataTransfer from './data-transfer';
 import * as crmBulk from './crm-bulk';
@@ -195,6 +196,7 @@ export * from './contact-notes';
 export * from './contact-transfer';
 export * from './contact-tasks';
 export * from './contact-opportunities';
+export * from './contact-opportunity-flow';
 export * from './data-jobs';
 export * from './data-transfer';
 export * from './crm-bulk';
@@ -301,6 +303,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(contactMergeReads),
   ...Object.values(contactTasks),
   ...Object.values(contactOpportunities),
+  ...Object.values(contactOpportunityFlow),
   ...Object.values(privacy),
   ...Object.values(assistantPlans),
   ...Object.values(assistantDiscovery),

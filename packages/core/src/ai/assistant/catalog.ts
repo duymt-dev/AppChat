@@ -76,7 +76,9 @@ const ENTITY_VI: Record<string, string> = {
   transfer: 'nhap du lieu tep file excel csv bang tinh nhap khach nhap san pham nhap bao gia nhap don nhap hop dong nhap de nghi thanh toan nhap ghi chu nhap viec cham soc nhap co hoi',
   // TIP-026b: hoạt động CRM — việc chăm sóc (≠ tác vụ AI / lịch hẹn), cơ hội (giá trị kỳ vọng ≠ doanh thu), xem hoạt động của khách.
   contact_task: 'viec cham soc viec can lam nhac viec goi lai theo doi follow up han viec',
-  contact_opportunity: 'co hoi co hoi ban hang nhu cau gia tri ky vong xac suat chot deal',
+  // TIP-026c: pipeline — giai đoạn / xác suất cố định / thua + lý do / mở lại. Không thêm từ "bao" (dự báo / báo giá) — khớp tách từ làm
+  // "bao gia" kéo cơ hội lên trước quote.*.
+  contact_opportunity: 'co hoi co hoi ban hang pipeline giai doan du dieu kien dam phan thua ly do gia tri ky vong xac suat chot deal mo lai',
   contact_activity: 'hoat dong ghi chu binh luan viec cham soc co hoi gia tri ky vong cua khach xem co hoi',
   contact_note: 'ghi chu binh luan cua khach',
   // TIP-033b: liệu trình của khách — xem / xuất (chỉ xuất, không nhập số buổi).

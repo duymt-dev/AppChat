@@ -29,6 +29,7 @@ import { ProfileLayoutAssignRoleHandler, ProfileLayoutCreateHandler, ProfileLayo
 import { ContactMemoryModule } from './memory/memory.module';
 import { ContactActivitiesModule } from './activities/activities.module';
 import { ContactActivityListHandler } from './activities/notes.handlers';
+import { OPPORTUNITY_HANDLERS, OpportunitiesModule } from './opportunities/opportunities.module';
 import { DataJobActionsModule } from '../kernel/jobs/data-jobs/data-jobs.module';
 import { ContactBulkUpdateHandler } from './actions/contact-bulk.handler';
 import { CrmReadService } from './services/crm-read.service';
@@ -52,12 +53,14 @@ const HANDLERS = [
   ContactBulkUpdateHandler,
   // TIP-026b: đọc hoạt động CRM (cần CrmMembers).
   ContactActivityListHandler,
+  // TIP-026c: cơ hội / Sales Pipeline (cần CrmMembers).
+  ...OPPORTUNITY_HANDLERS,
   CustomFieldDefineHandler, CustomFieldUpdateHandler, CustomFieldDeleteHandler,
   ProfileLayoutSearchHandler, ProfileLayoutCreateHandler, ProfileLayoutUpdateHandler, ProfileLayoutDuplicateHandler, ProfileLayoutDeleteHandler, ProfileLayoutAssignRoleHandler,
 ];
 
 @Module({
-  imports: [ContactMemoryModule, DataJobActionsModule, ContactActivitiesModule],
+  imports: [ContactMemoryModule, DataJobActionsModule, ContactActivitiesModule, OpportunitiesModule],
   providers: [
     ...HANDLERS,
     { provide: CrmMembers, inject: [opt(PLATFORM_DB)], useFactory: (p?: PlatformDb) => (p ? new CrmMembers(p) : null) },
