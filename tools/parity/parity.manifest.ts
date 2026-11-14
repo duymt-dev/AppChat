@@ -368,6 +368,15 @@ export const MANIFEST: ParityEntry[] = [
     },
     app: (p) => p.click('[data-testid="inbox-connect"]'),
     clipTo: { proto: 'div[style*="width: min(900px"]', app: '[data-testid="connect-modal"] [role="dialog"]' },
+    mask: [
+      {
+        x: 205,
+        y: 82,
+        width: 690,
+        height: 390,
+        reason: 'prototype-parity §6 Kênh (D28, DC-295) — lưới thẻ kênh render từ ChannelManifest',
+      },
+    ],
   },
   {
     id: 'inbox:account-switch',

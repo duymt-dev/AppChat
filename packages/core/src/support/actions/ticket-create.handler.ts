@@ -14,7 +14,8 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { CrmMembers, actorUserId, fieldDefs, visibleContact } from '../../crm/public';
 import { UUID, inSupportScope } from '../ticket-access';
 import { linkConversation } from '../../inbox/public';
-import { SlaCalendar, defaultPolicy, targetsFor } from '../services/sla-clock';
+import { settingsOf } from '../../channels/public';
+import { SlaCalendar, defaultPolicy, resolveAccountSlaPolicy, targetsFor } from '../services/sla-clock';
 import { actorOf, evOf, logEvent, timeline } from '../services/ticket-write';
 import { createPreview } from './previews/ticket-create.handler.preview';
 import { soleTeamOf } from '../../authz/data-access';
@@ -95,7 +96,13 @@ export class TicketCreateHandler implements Handler<In, Out> {
       }
     }
 
-    const policy = await defaultPolicy(tx, now);
+    const convAccount = src.conversationId
+      ? await tx.conversation.findUnique({ where: { id: src.conversationId }, select: { channelAccountId: true } })
+      : null;
+    const channelRow = convAccount?.channelAccountId
+      ? await tx.channelAccount.findUnique({ where: { id: convAccount.channelAccountId }, select: { settings: true } })
+      : null;
+    const policy = channelRow ? await resolveAccountSlaPolicy(tx, settingsOf(channelRow), now) : await defaultPolicy(tx, now);
     const ai = !!input.assignee_agent_id;
     const sla = targetsFor(policy, ai, now, await this.cal.of(ctx.workspaceId));
     const status = input.status ?? 'open';

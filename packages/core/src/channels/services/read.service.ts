@@ -60,6 +60,9 @@ export class ChannelsReadService {
       const accounts = rows.filter((r) => r.type === m.type).map((r) => ({ ...this.account(r, stats.get(r.id), names), routing: routingOf(rules, r.id) }));
       const on = accounts.filter((a) => a.connected);
       const worst = on.reduce<ChannelAccountDto | null>((w, a) => (!w || RANK[a.health] < RANK[w.health] ? a : w), null);
+      const ops = Object.entries(m.capabilities.operations ?? {})
+        .filter(([, mode]) => mode && mode !== 'unsupported')
+        .map(([k]) => k);
       return {
         type: m.type,
         name: m.display.name,
@@ -75,6 +78,14 @@ export class ChannelsReadService {
         frt: worst?.frt ?? '—',
         account: accounts[0]?.name ?? '',
         agent: accounts[0]?.agent ?? '',
+        connect: { kind: m.connect.kind, risk_notice: m.connect.riskNotice ?? null },
+        capabilities: {
+          inbound: m.capabilities.direct || m.capabilities.group,
+          outbound: m.capabilities.send.length > 0,
+          groups: m.capabilities.group,
+          reactions: m.capabilities.reactions,
+          operations: ops,
+        },
       };
     });
     return out.filter((c) => filter === 'all' || (filter === 'on' ? c.connected : !c.connected));
@@ -125,6 +136,7 @@ export class ChannelsReadService {
       greeting: st.greeting,
       assign_mode: st.assign_mode,
       sla_policy: st.sla_policy,
+      ...(st.sla_override ? { sla_override: st.sla_override } : {}),
       sync_messages: st.sync_messages,
       sync_auto_create_contact: st.sync_auto_create_contact,
       history_days: st.history_days,

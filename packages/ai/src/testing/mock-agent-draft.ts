@@ -12,12 +12,30 @@ const ROLES: [RegExp, string, string][] = [
   [/bán hàng|tư vấn|báo giá|chốt đơn|sales/i, 'sales', '🛍️'],
 ];
 
+const CHANNELS_LINE = /channels \([^:]+:\s*([^)]+)\)/;
+
+function matchChannels(system: string, desc: string): string[] {
+  const avail =
+    CHANNELS_LINE.exec(system)?.[1]
+      ?.split('|')
+      .map((s) => s.trim())
+      .filter(Boolean) ?? [];
+  const hit = avail.filter((id) => {
+    const stem = id.split('_')[0]!;
+    if (new RegExp(stem, 'i').test(desc)) return true;
+    if (stem.startsWith('web') && /web|website|widget/i.test(desc)) return true;
+    if (stem.endsWith('mail') && /mail/i.test(desc)) return true;
+    return false;
+  });
+  return hit.length ? hit : avail.slice(0, 1);
+}
+
 export function mockAgentDraft(system: string, user: string): string | null {
   if (!MARK.test(system)) return null;
   const desc = DESC.exec(user)?.[1]?.trim() ?? '';
   const ids = [...user.matchAll(CAND)].map((m) => m[1]!);
   const role = ROLES.find(([re]) => re.test(desc));
-  const channels = [/zalo/i.test(desc) && 'zalo_personal', /web|widget/i.test(desc) && 'webchat', /email|mail/i.test(desc) && 'email'].filter((c): c is string => !!c);
+  const channels = matchChannels(system, desc);
   return JSON.stringify({
     name: desc.split(/[.,;\n]/)[0]!.slice(0, 60).trim() || 'Agent',
     emoji: role?.[2] ?? '🤖',
@@ -28,7 +46,7 @@ export function mockAgentDraft(system: string, user: string): string | null {
     intents: [2],
     model_tier: 'standard',
     tools: ids.slice(0, 6),
-    channels: channels.length ? channels : ['zalo_personal'],
+    channels,
     threshold: 75,
   });
 }

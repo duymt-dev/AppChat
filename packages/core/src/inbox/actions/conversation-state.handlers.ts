@@ -55,9 +55,22 @@ export class ConversationSetStatusHandler implements Handler<ActionInput<typeof 
 
   async execute(ctx: ActionContext, input: ActionInput<typeof conversationSetStatus>, tx: TenantTx): Promise<HandlerOutcome<{ status: string }>> {
     const c = await writableConversation(tx, ctx.authz, input.conversation_id);
+    const now = this.clock.now();
     // Tạm ẩn bắt buộc thời hạn (Blueprint §3.4 ghi chú ver2.1: 1 giờ / 3 giờ / sáng mai / tuỳ chọn).
-    if (input.status === 'snoozed' && !input.snooze_hours) throw new AppError('VALIDATION_FAILED', 422, { snooze_hours: 'required' });
-    const until = input.status === 'snoozed' ? new Date(this.clock.now().getTime() + input.snooze_hours! * 3_600_000) : null;
+    let until: Date | null = null;
+    if (input.status === 'snoozed') {
+      if (input.snoozed_until) {
+        const parsed = new Date(input.snoozed_until);
+        if (Number.isNaN(parsed.getTime()) || parsed.getTime() <= now.getTime()) {
+          throw new AppError('VALIDATION_FAILED', 422, { snoozed_until: 'must_be_future' });
+        }
+        until = parsed;
+      } else if (input.snooze_hours) {
+        until = new Date(now.getTime() + input.snooze_hours * 3_600_000);
+      } else {
+        throw new AppError('VALIDATION_FAILED', 422, { snooze_hours: 'required', snoozed_until: 'required' });
+      }
+    }
     // Đóng hội thoại: lượt agent đang chạy mất quyền gửi (TIP-045b annex D).
     if (input.status === 'closed') await bumpAiEpoch(tx, c.id);
     await tx.conversation.update({ where: { id: c.id }, data: { status: input.status, snoozedUntil: until } });

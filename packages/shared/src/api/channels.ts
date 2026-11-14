@@ -48,8 +48,45 @@ export const channelAccountSchema = z.object({
   /** Mặc định của manifest kênh — FE hiện gợi ý + cảnh báo khi vượt (D35). */
   rate_default: z.number().int().optional(),
   daily_cap_default: z.number().int().nullable().optional(),
+  /** TIP-014c: ghi đè SLA riêng theo tài khoản kênh (phút phản hồi đầu / xử lý). */
+  sla_override: z
+    .object({
+      first_response_min: z.number().int().min(1).max(10_080),
+      resolution_min: z.number().int().min(1).max(43_200).optional(),
+    })
+    .nullable()
+    .optional(),
 });
 export type ChannelAccountDto = z.infer<typeof channelAccountSchema>;
+export type SlaOverrideDto = NonNullable<ChannelAccountDto['sla_override']>;
+
+export const channelConnectSchema = z.object({
+  kind: z.enum(['qr', 'oauth', 'credentials', 'webhook', 'embed']),
+  risk_notice: z.string().nullable().optional(),
+});
+export type ChannelConnectDto = z.infer<typeof channelConnectSchema>;
+
+export const channelCapabilitiesSchema = z.object({
+  inbound: z.boolean(),
+  outbound: z.boolean(),
+  groups: z.boolean(),
+  reactions: z.boolean(),
+  operations: z.array(z.string()),
+});
+export type ChannelCapabilitiesDto = z.infer<typeof channelCapabilitiesSchema>;
+
+export const slaPolicyItemSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  is_default: z.boolean(),
+  frt_ai: z.number().int(),
+  frt_human: z.number().int(),
+  ttr_ai: z.number().int(),
+  ttr_human: z.number().int(),
+  active: z.boolean(),
+});
+export type SlaPolicyItemDto = z.infer<typeof slaPolicyItemSchema>;
+export const slaPolicyListSchema = z.array(slaPolicyItemSchema);
 
 export const settingsChannelSchema = z.object({
   type: z.string(),
@@ -66,6 +103,8 @@ export const settingsChannelSchema = z.object({
   frt: z.string(),
   account: z.string(),
   agent: z.string(),
+  connect: channelConnectSchema.optional(),
+  capabilities: channelCapabilitiesSchema.optional(),
 });
 export type SettingsChannelDto = z.infer<typeof settingsChannelSchema>;
 export const settingsChannelListSchema = z.array(settingsChannelSchema);

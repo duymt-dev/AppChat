@@ -43,7 +43,7 @@ export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof 
     // TIP-042b: `assign_mode` chỉ là bản chiếu cũ (chia lead thật = `lead_routing.update`) nhưng vẫn là cấu hình phân công → cần crm.reassign.
     if (input.patch.assign_mode !== undefined && !can(ctx.authz, 'crm.reassign')) throw new AppError('FORBIDDEN', 403, { permission: 'crm.reassign' });
     const row = await need(this.accounts).live(tx, input.channel_account_id);
-    const { name, agent_id, schedule, routing, ...rest } = input.patch;
+    const { name, agent_id, schedule, routing, sla_override, ...rest } = input.patch;
     await assertAgentAssignable(tx, agent_id);
     // TIP-022b: gán / phân luồng đổi đồng thời kể từ lúc xem → 409; lịch + ứng viên phân luồng kiểm ở server.
     assertBindingVersion(row.settings, input.expected_version);
@@ -57,7 +57,9 @@ export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof 
       ...(agent_id !== undefined ? { agent_id: agent_id || null } : {}),
       ...(sched !== undefined ? { schedule: sched } : {}),
       ...(route ? { routing: route } : {}),
+      ...(sla_override ? { sla_override } : {}),
     };
+    if (sla_override === null) delete next.sla_override;
     await tx.channelAccount.update({ where: { id: row.id }, data: { settings: JSON.parse(JSON.stringify(next)) as object, ...(name ? { name } : {}), updatedAt: this.clock.now() } });
     return { result: { ok: true }, before: { id: row.id, name: row.name, settings: prev }, after: { id: row.id, name: name ?? row.name, settings: next } };
   }

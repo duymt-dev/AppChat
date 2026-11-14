@@ -2,7 +2,17 @@
 // giờ làm việc của workspace (DB nền tảng `workspace.settings.working_hours` — DC-049) + múi giờ. Hạn người = phút làm việc (tắt "tạm dừng
 // SLA ngoài giờ" → tuyệt đối), hạn AI = tuyệt đối. Thiếu DB nền tảng (test đơn vị) → lịch mặc định, giờ VN.
 import { Inject, Injectable, Optional } from '@nestjs/common';
-import { DEFAULT_WORKING_DAYS, SLA_DEFAULT, addBusinessMinutes, businessMinutesBetween, type BusinessCalendar } from '@appchat/shared';
+import {
+  DEFAULT_SLA_POLICY_ID,
+  DEFAULT_WORKING_DAYS,
+  SLA_DEFAULT,
+  SLA_PRESETS,
+  SOCIAL_SLA_POLICY_ID,
+  VIP_SLA_POLICY_ID,
+  addBusinessMinutes,
+  businessMinutesBetween,
+  type BusinessCalendar,
+} from '@appchat/shared';
 import type { PlatformDb } from '@appchat/db';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { PLATFORM_DB } from '../../kernel/tenant/tenant.providers';
@@ -11,8 +21,7 @@ import { workingHoursOf } from '../../identity/public';
 export type SlaPolicyRecord = NonNullable<Awaited<ReturnType<TenantTx['slaPolicy']['findFirst']>>>;
 type Db = Pick<TenantTx, 'slaPolicy'>;
 
-/** Id cố định của chính sách mặc định — seed + tự bù idempotent. */
-export const DEFAULT_SLA_POLICY_ID = '00000000-0000-7000-8000-000000000034';
+export { DEFAULT_SLA_POLICY_ID };
 export const DEFAULT_ESCALATION = Object.fromEntries(SLA_DEFAULT.escalation.map((e) => [e.key, e.on])) as Record<string, boolean>;
 
 /** Chính sách mặc định — chưa có (workspace tạo trước TIP-034) thì tạo từ SLA_DEFAULT. */
@@ -35,6 +44,76 @@ export async function defaultPolicy(tx: Db, now: Date): Promise<SlaPolicyRecord>
       updatedAt: now,
     },
   });
+}
+
+/** Đủ mọi gói SLA cài sẵn (Mặc định + VIP + Mạng xã hội) — idempotent, mỗi lần đọc chỉ 1 truy vấn khi đã đủ. */
+export async function ensureSlaPolicies(tx: Db, now: Date): Promise<SlaPolicyRecord[]> {
+  const existing = await tx.slaPolicy.findMany({ orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }, { id: 'asc' }] });
+  const byId = new Set(existing.map((p) => p.id));
+  const hasDefault = existing.some((p) => p.isDefault);
+  let added = false;
+  for (const preset of SLA_PRESETS) {
+    if (preset.isDefault && hasDefault) continue;
+    if (byId.has(preset.id)) continue;
+    await tx.slaPolicy.upsert({
+      where: { id: preset.id },
+      update: {},
+      create: {
+        id: preset.id,
+        name: preset.name,
+        isDefault: preset.isDefault,
+        frtAiMin: preset.frt_ai,
+        frtHumanMin: preset.frt_human,
+        ttrAiMin: preset.ttr_ai,
+        ttrHumanMin: preset.ttr_human,
+        escalation: DEFAULT_ESCALATION,
+        createdAt: now,
+        updatedAt: now,
+      },
+    });
+    added = true;
+  }
+  if (!added) return existing;
+  return tx.slaPolicy.findMany({ orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }, { id: 'asc' }] });
+}
+
+/** Chọn chính sách áp cho tài khoản kênh (id / mã preset cũ / tên; kèm `sla_override` nếu có). */
+export function resolveSlaPolicyFromList(
+  policies: SlaPolicyRecord[],
+  rawPolicy?: string | null,
+  override?: { first_response_min: number; resolution_min?: number } | null,
+): SlaPolicyRecord {
+  const fallback = policies.find((p) => p.isDefault) ?? policies[0]!;
+  const q = (rawPolicy ?? '').trim();
+  const ql = q.toLowerCase();
+  let base = fallback;
+  if (q) {
+    const exactId = policies.find((p) => p.id === q);
+    if (exactId) base = exactId;
+    else if (ql === 'vip' || ql === 'khách vip') base = policies.find((p) => p.id === VIP_SLA_POLICY_ID || p.name.toLowerCase().includes('vip')) ?? fallback;
+    else if (ql === 'soc' || ql === 'social' || ql === 'mạng xã hội') {
+      base = policies.find((p) => p.id === SOCIAL_SLA_POLICY_ID || p.name.toLowerCase().includes('xã hội') || p.name.toLowerCase().includes('social')) ?? fallback;
+    } else if (ql !== 'std' && ql !== 'default' && ql !== 'mặc định') {
+      base = policies.find((p) => p.name.toLowerCase() === ql) ?? fallback;
+    }
+  }
+  if (override && override.first_response_min > 0) {
+    return {
+      ...base,
+      frtHumanMin: override.first_response_min,
+      ...(override.resolution_min && override.resolution_min > 0 ? { ttrHumanMin: override.resolution_min } : {}),
+    };
+  }
+  return base;
+}
+
+export async function resolveAccountSlaPolicy(
+  tx: Db,
+  settings: { sla_policy?: string | null; sla_override?: { first_response_min: number; resolution_min?: number } | null } | null | undefined,
+  now: Date,
+): Promise<SlaPolicyRecord> {
+  const policies = await ensureSlaPolicies(tx, now);
+  return resolveSlaPolicyFromList(policies, settings?.sla_policy, settings?.sla_override);
 }
 
 export const escalationOf = (p: SlaPolicyRecord): Record<string, boolean> => ({ ...DEFAULT_ESCALATION, ...((p.escalation ?? {}) as Record<string, boolean>) });

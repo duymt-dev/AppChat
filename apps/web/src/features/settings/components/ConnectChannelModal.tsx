@@ -23,7 +23,6 @@ import { ChannelRoutingFields } from './ChannelRoutingFields';
 const WIDGET = '/settings/web_widget';
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MODES: ChannelAiMode[] = ['auto', 'suggest', 'off'];
-const PICKABLE = ['zalo_personal', 'email', 'webchat'];
 
 export function ConnectChannelModal() {
   const t = useTranslations('settings.channels.wizard');
@@ -45,10 +44,12 @@ export function ConnectChannelModal() {
   const [testError, setTestError] = useState<string | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [cfgName, setCfgName] = useState('');
+  const [ackForType, setAckForType] = useState<string | null>(null);
   const zalo = useZaloLogin(
     useCallback((id: string) => {
       setAccountId(id);
-      useSettingsUi.getState().set({ channelWizard: { type: 'zalo_personal', step: 3 } });
+      const curType = useSettingsUi.getState().channelWizard?.type ?? null;
+      useSettingsUi.getState().set({ channelWizard: { type: curType, step: 3 } });
     }, []),
     wizard?.accountId,
   );
@@ -57,6 +58,9 @@ export function ConnectChannelModal() {
 
   if (!wizard) return null;
   const c = wizard.type ? channels.find((x) => x.type === wizard.type) : null;
+  const kind = c?.connect?.kind;
+  const riskNotice = c?.connect?.risk_notice ?? null;
+  const riskAcked = !riskNotice || (!!c && ackForType === c.type);
   const step = wizard.step;
   const stepLabels = t.raw('steps') as string[];
 
@@ -67,6 +71,7 @@ export function ConnectChannelModal() {
     setTested(false);
     setTestError(null);
     setAccountId(null);
+    setAckForType(null);
     zalo.reset();
     setCfgName('');
     setAgentId('');
@@ -76,7 +81,8 @@ export function ConnectChannelModal() {
   const pickChannel = (type: string) => {
     const target = channels.find((x) => x.type === type);
     if (!target?.available) return;
-    if (type === 'webchat') {
+    setAckForType(null);
+    if (target.connect?.kind === 'embed') {
       close();
       router.push(WIDGET);
       return;
@@ -93,9 +99,10 @@ export function ConnectChannelModal() {
   };
 
   const runTest = async () => {
+    if (!c) return;
     if (!EMAIL.test(mail.address.trim())) return void message.error(t('errEmail'));
     if (!mail.imap_host.trim() || !mail.password) return void message.error(t('errTest'));
-    const r = await test.run({ type: 'email', fields: emailFields(mail) });
+    const r = await test.run({ type: c.type, fields: emailFields(mail) });
     if (!r) return;
     setTested(r.result.ok);
     setTestError(r.result.ok ? null : (r.result.message ?? t('testFail')));
@@ -103,7 +110,7 @@ export function ConnectChannelModal() {
 
   const toStep3 = async () => {
     if (!c) return;
-    if (c.type === 'email') {
+    if (kind === 'credentials') {
       if (!EMAIL.test(mail.address.trim())) return void message.error(t('errEmail'));
       if (!tested) return void message.error(t('errTest'));
       const { address, ...fields } = emailFields(mail);
@@ -114,9 +121,12 @@ export function ConnectChannelModal() {
       set({ channelWizard: { type: c.type, step: 3 } });
       return;
     }
-    // Zalo: tạo tài khoản + chờ quét QR; quét xong hook tự sang bước 3 (tên hiển thị lấy từ backend nếu không đặt).
-    setCfgName(label.trim());
-    await zalo.begin(label.trim());
+    if (kind === 'qr') {
+      if (!riskAcked) return;
+      // Tạo tài khoản + chờ quét QR; quét xong hook tự sang bước 3 (tên hiển thị lấy từ backend nếu không đặt).
+      setCfgName(label.trim());
+      await zalo.begin(label.trim());
+    }
   };
 
   const finish = async () => {
@@ -131,7 +141,7 @@ export function ConnectChannelModal() {
   };
 
   const next = step === 2 ? () => void toStep3() : step === 3 ? () => void finish() : undefined;
-  const nextDisabled = step === 2 && c?.type === 'email' && !tested;
+  const nextDisabled = step === 2 && ((kind === 'credentials' && !tested) || (kind === 'qr' && (!riskAcked || zalo.busy)));
 
   return (
     <div className={styles.veil} onClick={close} data-testid="st-ch-wizard">
@@ -170,20 +180,27 @@ export function ConnectChannelModal() {
         <div className={styles.body}>
           {step === 1 ? (
             <div className={styles.pickGrid}>
-              {channels
-                .filter((x) => PICKABLE.includes(x.type) || !x.available)
-                .map((x) => (
-                  <button key={x.type} type="button" disabled={!x.available} onClick={() => pickChannel(x.type)} data-testid={`st-ch-wizard-pick-${x.type}`} className={styles.pickItem}>
-                    <span className={styles.pickLogo} style={{ background: x.color }}>
-                      {x.short}
-                    </span>
-                    <span className={styles.pickName}>{x.name}</span>
-                  </button>
-                ))}
+              {channels.map((x) => (
+                <button key={x.type} type="button" disabled={!x.available} onClick={() => pickChannel(x.type)} data-testid={`st-ch-wizard-pick-${x.type}`} className={styles.pickItem}>
+                  <span className={styles.pickLogo} style={{ background: x.color }}>
+                    {x.short}
+                  </span>
+                  <span className={styles.pickName}>{x.name}</span>
+                </button>
+              ))}
             </div>
-          ) : step === 2 && c?.type === 'zalo_personal' ? (
-            <ZaloQrStep label={label} onLabel={setLabel} qr={zalo.qr} status={zalo.status} failed={zalo.failed} />
-          ) : step === 2 && c?.type === 'email' ? (
+          ) : step === 2 && kind === 'qr' ? (
+            <ZaloQrStep
+              label={label}
+              onLabel={setLabel}
+              qr={zalo.qr}
+              status={zalo.status}
+              failed={zalo.failed}
+              riskNotice={riskNotice}
+              riskAcked={riskAcked}
+              onRiskAck={(v) => setAckForType(v && c ? c.type : null)}
+            />
+          ) : step === 2 && kind === 'credentials' ? (
             <EmailConnectStep form={mail} onChange={editMail} onTest={() => void runTest()} testing={test.isPending} tested={tested} error={testError} />
           ) : step === 3 ? (
             <div className={styles.form}>
@@ -233,7 +250,7 @@ export function ConnectChannelModal() {
               type="button"
               className={s.primary}
               onClick={next}
-              disabled={nextDisabled || (step === 2 && c?.type === 'zalo_personal' && zalo.busy) || email.isPending || updateSettings.isPending}
+              disabled={nextDisabled || email.isPending || updateSettings.isPending}
               data-testid="st-ch-wizard-next"
             >
               {step === 3 ? t('finish') : t('next')}

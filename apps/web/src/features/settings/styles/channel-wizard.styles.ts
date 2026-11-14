@@ -188,6 +188,26 @@ export const useChannelWizardStyles = createStyles(({ css, responsive }) => ({
     height: 168px;
     image-rendering: pixelated;
   `,
+  riskBox: css`
+    padding: 12px 16px;
+    border-radius: ${radius.r8}px;
+    background: ${color.amberBg};
+    border: 1px solid ${color.warn};
+    color: ${color.amberText};
+    font-size: ${font.scale.s13}px;
+    line-height: 1.5;
+    margin-bottom: 12px;
+  `,
+  riskAck: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+    font-size: ${font.scale.s13}px;
+    font-weight: ${font.weight.bold};
+    color: ${color.text};
+    cursor: pointer;
+  `,
   qrTitle: css`
     font-size: ${font.scale.s15}px;
     font-weight: ${font.weight.bold};

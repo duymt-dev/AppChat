@@ -1,7 +1,13 @@
 // Mock Cài đặt › Ứng dụng (Blueprint §4.4 channels / integrations): GET /settings/channels — nhóm theo `type`, mỗi nhóm có
 // `accounts[]` (REQ-B09 một kênh nhiều tài khoản); GET /settings/channels/:accountId/stats?days=7 (REQ-B11 khối hiệu suất).
 // Chỉ kênh có manifest (zalo_personal / webchat / email) thêm tài khoản được; còn lại "Sắp có" (omnichannel-adapter, D28).
-import { ApiRequestError, ROLE_DEFS, type ChannelAgentBehaviorDto } from '@appchat/shared';
+import {
+  ApiRequestError,
+  ROLE_DEFS,
+  type ChannelAgentBehaviorDto,
+  type ChannelCapabilitiesDto,
+  type ChannelConnectDto,
+} from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/settings.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -39,6 +45,22 @@ export const MOCK_QR = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4
 
 const HEALTH_RANK: Record<string, number> = { down: 0, off: 1, slow: 2, good: 3 };
 
+const ZALO_PERSONAL_OPS = ['recall', 'react', 'group_info', 'group_members', 'group_link', 'group_add_members', 'group_settings', 'group_mute', 'profiles', 'friends', 'friend_requests', 'find_user'];
+const META_BY_TYPE: Record<string, { connect: ChannelConnectDto; capabilities: ChannelCapabilitiesDto }> = {
+  zalo_personal: {
+    connect: { kind: 'qr', risk_notice: 'channels.zalo_personal.risk' },
+    capabilities: { inbound: true, outbound: true, groups: true, reactions: true, operations: ZALO_PERSONAL_OPS },
+  },
+  email: {
+    connect: { kind: 'credentials', risk_notice: null },
+    capabilities: { inbound: true, outbound: true, groups: false, reactions: false, operations: ['reply'] },
+  },
+  webchat: {
+    connect: { kind: 'embed', risk_notice: null },
+    capabilities: { inbound: true, outbound: true, groups: false, reactions: false, operations: [] },
+  },
+};
+
 /** Trạng thái gộp của một loại kênh từ các tài khoản (Blueprint §4.4 L973). */
 const summarize = (c: SettingsChannel) => {
   const on = c.accounts.filter((a) => a.connected);
@@ -46,8 +68,13 @@ const summarize = (c: SettingsChannel) => {
     (w, a) => (!w || (HEALTH_RANK[a.health] ?? 0) < (HEALTH_RANK[w.health] ?? 0) ? a : w),
     null,
   );
+  const meta = META_BY_TYPE[c.type] ?? {
+    connect: { kind: 'oauth' as const, risk_notice: null },
+    capabilities: { inbound: true, outbound: true, groups: false, reactions: false, operations: [] },
+  };
   return {
     ...c,
+    ...meta,
     connected: on.length > 0,
     health: worst?.health ?? ('off' as const),
     convs: on.reduce((n, a) => n + a.convs, 0),
@@ -183,11 +210,12 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
   },
   'channel.test': {
     execute: (_db, i: { channel_account_id?: string; type?: string; fields?: Record<string, string> }) => {
-      if (i.type === 'email' && i.fields && !i.fields.imap_host?.trim()) {
+      const isCredentials = !!i.type && META_BY_TYPE[i.type]?.connect.kind === 'credentials';
+      if (isCredentials && i.fields && !i.fields.imap_host?.trim()) {
         throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'imap_host', fields: { imap_host: 'required' } });
       }
-      // Mock: mật khẩu "sai" mô phỏng đăng nhập IMAP thất bại (backend: lý do imap_auth — TIP-018).
-      if (i.type === 'email' && i.fields?.password === 'sai') return { ok: false, message: 'Sai email hoặc mật khẩu ứng dụng (IMAP)' };
+      // Mock: mật khẩu "sai" mô phỏng đăng nhập thất bại (backend: lý do imap_auth — TIP-018).
+      if (isCredentials && i.fields?.password === 'sai') return { ok: false, message: 'Sai email hoặc mật khẩu ứng dụng (IMAP)' };
       return { ok: true, message: 'Kết nối thành công' };
     },
   },
@@ -202,8 +230,9 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
       const { agent_id, schedule, routing, greeting_enabled, ...rest } = i.patch;
       // TIP-022b: hành vi agent kiểm + ghi trước (lỗi 409 / 422 không để lại thay đổi nửa vời).
       applyBehavior(db, account.id, (account as { agent_id?: string }).agent_id, { schedule, routing, greeting_enabled }, i.expected_version);
-      // Trường bỏ trống (undefined) = không đổi — như server.
+      // Trường bỏ trống (undefined) = không đổi — như server; riêng sla_override: null = xoá ghi đè.
       Object.assign(account, Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== undefined)));
+      if ((rest as { sla_override?: unknown }).sla_override === null) delete (account as { sla_override?: unknown }).sla_override;
       // Bản ghi agent_id + tên hiển thị (backend: settings.agent_id; tên từ bảng ai_agent — TIP-021).
       if (agent_id !== undefined) {
         const a = agent_id ? db.agents.agents.find((x) => x.id === agent_id) : null;

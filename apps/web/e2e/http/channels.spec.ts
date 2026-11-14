@@ -17,6 +17,11 @@ test.describe('kênh kết nối (http)', () => {
 
     await page.getByTestId('st-ch-zalo_personal').click();
     const w = page.getByTestId('st-ch-wizard');
+    await expect(w.getByTestId('st-ch-wizard-risk')).toBeVisible();
+    await expect(w.getByTestId('st-ch-wizard-qr')).toHaveCount(0);
+    await expect(w.getByTestId('st-ch-wizard-next')).toBeDisabled();
+    await w.getByTestId('st-ch-wizard-risk-ack').check();
+    await expect(w.getByTestId('st-ch-wizard-qr')).toBeVisible();
     await w.getByTestId('st-ch-wizard-label').fill('Zalo E2E');
     await w.getByTestId('st-ch-wizard-next').click();
     // QR từ worker (zca-js giả) rồi tự "quét" → sang bước 3.

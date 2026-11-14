@@ -2,13 +2,13 @@
 // `ticket_recent_idx`, lọc trạng thái / ưu tiên / nhóm / danh mục / người phụ trách / SLA / tìm không dấu / trường tuỳ biến, sắp xếp mới
 // nhất hoặc ưu tiên), chi tiết (bình luận + lịch sử), meta (nhóm, danh mục, agent, thành viên, KPI 5 ô, gợi ý AI theo luật), cài đặt SLA.
 import { TenantContexts, TenantSql as Prisma, type TenantDbResolver } from '@appchat/db';
-import { SLA_DEFAULT, interpolate, serverMessages, slaStateOf, utcToWall, type AuthzContext, type TicketRow } from '@appchat/shared';
+import { SLA_DEFAULT, interpolate, serverMessages, slaStateOf, utcToWall, type AuthzContext, type SlaPolicyItemDto, type TicketRow } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import type { CrmMembers } from '../../crm/public';
 import { assertQueryFields, fieldView, projectCustom } from '../../authz/public';
 import { UUID, supportScopeSql, visibleTicket, type TicketRecord } from '../ticket-access';
 import { searchSql } from '../actions/sla-config.handlers';
-import { defaultPolicy, escalationOf, type SlaCalendar } from './sla-clock';
+import { defaultPolicy, ensureSlaPolicies, escalationOf, type SlaCalendar } from './sla-clock';
 import { categoryMeta } from '../categories/read';
 import type { SettingsReadService } from '../../identity/public';
 import { readStockSummary } from '../trends/read';
@@ -223,6 +223,24 @@ export class TicketsReadService {
         escalation: SLA_DEFAULT.escalation.map((e) => ({ key: e.key, color: e.color, on: esc[e.key] ?? e.on })),
         risk: { at_risk: at, ai, human: at - ai },
       };
+    });
+  }
+
+  /** Danh sách chính sách SLA khả dụng của workspace (TIP-014c: dùng cho Cài đặt › Kênh › drawer SLA). */
+  async listSlaPolicies(v: TicketViewer): Promise<SlaPolicyItemDto[]> {
+    const now = this.now();
+    return this.tx(v, async (tx) => {
+      const rows = await ensureSlaPolicies(tx, now);
+      return rows.map((p) => ({
+        id: p.id,
+        name: p.name,
+        is_default: p.isDefault,
+        frt_ai: p.frtAiMin,
+        frt_human: p.frtHumanMin,
+        ttr_ai: p.ttrAiMin,
+        ttr_human: p.ttrHumanMin,
+        active: p.active,
+      }));
     });
   }
 }

@@ -81,6 +81,18 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
                 {`${channel?.label ?? ''} · ${conv.account}`}
               </>
             )}
+            {conv.frt_due_at && conv.frt_target_min ? (
+              <span
+                className={cx(
+                  styles.frtPill,
+                  conv.sla_state === 'breach' ? styles.frtBreach : conv.sla_state === 'risk' ? styles.frtRisk : styles.frtOk,
+                )}
+                title={conv.frt_due_at}
+                data-testid="conv-frt-sla"
+              >
+                {conv.sla_state === 'breach' ? t('frtBreached') : t('frtSla', { min: conv.frt_target_min })}
+              </span>
+            ) : null}
           </div>
         </div>
         <div className={styles.icons}>

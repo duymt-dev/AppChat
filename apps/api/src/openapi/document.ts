@@ -3,7 +3,7 @@
 // `{ data }` / `{ data, next_cursor }` / `{ error: { code, message, fields? } }`. Bảo mật: bearer JWT + `x-workspace-id`; route công khai
 // (auth, trang ký / xem báo giá công khai, health, widget) khai `security: []`. Không chứa secret / URL nội bộ.
 import type { ActionDef } from '@appchat/actions';
-import { approvalRowSchema, assigneeCandidatesSchema, groupBoardSchema, channelContactSyncSchema, channelFriendSchema, channelHistoryRunSchema, channelLookupSchema, channelOperationSchema, contactEditContextSchema, groupCandidatesSchema, groupCommandSchema, groupStateSchema, navBadgesSchema, threadAroundSchema, threadSearchPageSchema, utilityEnvelope } from '@appchat/shared';
+import { approvalRowSchema, assigneeCandidatesSchema, groupBoardSchema, channelContactSyncSchema, channelFriendSchema, channelHistoryRunSchema, channelLookupSchema, channelOperationSchema, contactEditContextSchema, groupCandidatesSchema, groupCommandSchema, groupStateSchema, navBadgesSchema, slaPolicyListSchema, threadAroundSchema, threadSearchPageSchema, utilityEnvelope } from '@appchat/shared';
 import { z } from 'zod';
 import type { ScannedRoute } from './route-scan';
 import { ACTION_COMPONENTS, actionOperation, jsonSchemaOf } from './action-ops';
@@ -53,6 +53,8 @@ const TYPED: Record<string, () => Schema> = {
   'get /v1/contacts/{id}/edit-context': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(contactEditContextSchema, 'output') } }),
   // TIP-016b
   'get /v1/nav/badges': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(navBadgesSchema, 'output') } }),
+  // TIP-014c
+  'get /v1/sla-policies': () => ({ type: 'object', required: ['data'], properties: { data: jsonSchemaOf(slaPolicyListSchema, 'output') } }),
 };
 
 function routeOperation(r: ScannedRoute): Schema {

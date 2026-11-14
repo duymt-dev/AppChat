@@ -162,6 +162,23 @@ test.describe('settings', () => {
     await expect(page.locator('[data-channel]')).toHaveCount(3);
   });
 
+  test('kênh: kết nối Zalo bắt tick "Tôi hiểu" mới hiện QR và mở nút Tiếp tục', async ({ page }) => {
+    test.skip(isMobile(page), 'luồng desktop');
+    await page.goto(go('channels'));
+    await page.getByTestId('st-ch-zalo_personal').click();
+    const drawer = page.getByTestId('st-ch-drawer');
+    await expect(drawer).toBeVisible();
+    await drawer.getByTestId('st-ch-drawer-add-inline').click();
+    const w = page.getByTestId('st-ch-wizard');
+    await expect(w).toBeVisible();
+    await expect(w.getByTestId('st-ch-wizard-risk')).toBeVisible();
+    await expect(w.getByTestId('st-ch-wizard-qr')).toHaveCount(0);
+    await expect(w.getByTestId('st-ch-wizard-next')).toBeDisabled();
+    await w.getByTestId('st-ch-wizard-risk-ack').check();
+    await expect(w.getByTestId('st-ch-wizard-qr')).toBeVisible();
+    await expect(w.getByTestId('st-ch-wizard-next')).toBeEnabled();
+  });
+
   test('tích hợp: lọc nhóm, kết nối Casso (thiếu trường bị chặn), Đăng ký quan tâm thẻ "Sắp có"', async ({ page }) => {
     test.skip(isMobile(page), 'luồng desktop');
     await page.goto(go('integrations'));

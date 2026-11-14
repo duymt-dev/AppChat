@@ -1,6 +1,7 @@
 // Danh mục tĩnh của AI Agents (TIP-021) — sinh MỘT LẦN từ fixtures/prototype-parity/agents.json (prototype L2227–2450), như
 // catalog gói (TIP-009). Mẫu agent là seed của bảng `agent_template` (DB nền tảng, idempotent theo key — Quản trị nền tảng sửa ở
 // TIP-040); taxonomy / emoji / ý định / mẫu prompt / gợi ý là cấu hình hiển thị của Builder (`GET /v1/agents/meta`).
+import { channelRegistry } from '@appchat/channels';
 
 export type AgentRole = 'sales' | 'cs' | 'booking' | 'marketing' | 'accounting' | 'ops' | 'custom';
 
@@ -70,8 +71,13 @@ export const AGENT_TAXONOMY: { group: string; industries: string[] }[] = [{"grou
 export const AGENT_EMOJIS: string[] = ["🤖","💬","✨","🎧","🛍️","📞","🧑‍💼","📅","💡","🛟","🌸","⚡"];
 /** Nhóm ý định (index lưu ở `ai_agent.intents`). */
 export const AGENT_INTENTS: string[] = ["Hỏi giá","Tư vấn sản phẩm","Hỗ trợ / CSKH","Khiếu nại","Đổi / Trả","Đặt lịch hẹn","Theo dõi đơn","Chăm sóc sau bán"];
-/** Màu chip kênh trong Builder (loại kênh — channel registry). */
-export const CHANNEL_COLORS: Record<string, string> = {"zalo_personal":"#0068FF","webchat":"#2DC56A","email":"#1F8A4D"};
+/** Màu chip kênh trong Builder — đọc trực tiếp từ channelRegistry manifest (STD-channels-adapter-2). */
+export const CHANNEL_COLORS: Record<string, string> = Object.fromEntries(
+  channelRegistry
+    .manifests()
+    .filter((m) => channelRegistry.isConnectable(m.type))
+    .map((m) => [m.type, m.display.color]),
+);
 export const PROMPT_TEMPLATES: { label: string; text: string }[] = [{"label":"CSKH đa kênh","text":"# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."},{"label":"Tư vấn bán hàng","text":"# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."},{"label":"Đặt lịch hẹn","text":"# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."},{"label":"Hỗ trợ kỹ thuật","text":"# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."}];
 /** Khối định dạng "Tối ưu prompt" thêm khi model không trả được bản viết lại (model giả / lỗi định dạng). */
 export const OPTIMIZE_SUFFIX = "\n\n# ĐỊNH DẠNG TRẢ LỜI\n- Câu ngắn, xuống dòng rõ ràng, dùng bullet khi liệt kê.\n- Mỗi tin tối đa 3–4 câu; chủ động hỏi lại để làm rõ.\n- Kết thúc bằng một câu hỏi mở hoặc đề xuất bước tiếp theo.";

@@ -355,4 +355,40 @@ export const useRowStyles = createStyles(({ css, responsive }) => ({
     width: 100%;
     font-family: inherit;
   `,
+  snoozeCustom: css`
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    border-top: 1px solid ${color.divider};
+    margin-top: 4px;
+  `,
+  snoozeField: css`
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  `,
+  snoozeLabel: css`
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.semibold};
+    color: ${color.text3};
+  `,
+  snoozeInput: css`
+    width: 100%;
+    box-sizing: border-box;
+    height: 32px;
+    padding: 0 8px;
+    border: 1px solid ${color.border};
+    border-radius: ${radius.r8}px;
+    font-size: ${font.scale.s13}px;
+    font-family: inherit;
+    background: ${color.surface};
+    color: ${color.text};
+    outline: none;
+  `,
+  snoozeError: css`
+    font-size: ${font.scale.s12}px;
+    font-weight: ${font.weight.semibold};
+    color: ${color.danger};
+  `,
 }));

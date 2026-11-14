@@ -1,6 +1,6 @@
 // Mock Hộp thư (Blueprint §4.4 inbox): GET /conversations, /conversations/:id, /conversations/:id/messages, /conversations/counts,
 // /inbox/accounts, /inbox/connect-channels, /contacts/:id (360). Dữ liệu = prototype L1505–2226, kênh map về zalo_personal / webchat / email.
-import { foldText, type AgentIntent } from '@appchat/shared';
+import { ApiRequestError, foldText, type AgentIntent } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/inbox.json';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
@@ -25,6 +25,7 @@ export interface InboxState {
     pinned_message_id: string | null;
     intent?: AgentIntent;
     has_handoff_summary: boolean;
+    snoozed_until?: string | null;
   })[];
   messages: Record<string, Msg[]>;
   /** Hội thoại có ghi chú @nhắc người dùng hiện tại chưa đọc (TIP-025 thư mục "Nhắc đến tôi"). */
@@ -197,12 +198,22 @@ export const inboxHandlers: Record<string, MockHandler> = {
     },
   },
   'conversation.set_status': {
-    execute: (db, i: Ci & { status: string }) => {
-      conv(db, i.conversation_id).status = i.status;
-      return { status: i.status };
+    execute: (db, i: Ci & { status: string; snoozed_until?: string }) => {
+      if (i.snoozed_until !== undefined) {
+        const ms = Date.parse(i.snoozed_until);
+        if (!Number.isFinite(ms) || ms <= Date.now()) {
+          throw new ApiRequestError(400, { code: 'VALIDATION_FAILED', message: 'snoozed_until must be in the future' });
+        }
+      }
+      const c = conv(db, i.conversation_id);
+      c.status = i.status;
+      c.snoozed_until = i.status === 'snoozed' ? (i.snoozed_until ?? null) : null;
+      return { status: i.status, ...(c.snoozed_until ? { snoozed_until: c.snoozed_until } : {}) };
     },
     undo: (db, i: Ci) => {
-      conv(db, i.conversation_id).status = 'open';
+      const c = conv(db, i.conversation_id);
+      c.status = 'open';
+      c.snoozed_until = null;
     },
   },
   'conversation.assign': {

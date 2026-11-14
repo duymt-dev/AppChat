@@ -14,6 +14,7 @@ test.describe('thao tác kênh (http)', () => {
     await page.goto('/settings/channels');
     await page.getByTestId('st-ch-zalo_personal').click();
     const w = page.getByTestId('st-ch-wizard');
+    await w.getByTestId('st-ch-wizard-risk-ack').check();
     await w.getByTestId('st-ch-wizard-label').fill('Zalo Thao tác');
     await w.getByTestId('st-ch-wizard-next').click();
     await expect(w.getByTestId('st-ch-wizard-cfg-name')).toBeVisible({ timeout: 30_000 });

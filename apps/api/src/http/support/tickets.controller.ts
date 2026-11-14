@@ -9,6 +9,8 @@ import { ACTOR_RESOLVER, type ActorResolver } from '../kernel/request-actor';
 
 const int = (v?: string) => (v && /^\d{1,5}$/.test(v) ? Number(v) : undefined);
 
+type SupportPerm = 'ticket.view' | 'sla.manage' | 'channels.manage';
+
 @Controller()
 export class TicketsController {
   constructor(
@@ -16,9 +18,13 @@ export class TicketsController {
     @Inject(TicketsReadService) private readonly read: TicketsReadService,
   ) {}
 
-  private async viewer(req: IncomingMessage, perm: 'ticket.view' | 'sla.manage' = 'ticket.view') {
+  private async viewer(req: IncomingMessage, perm: SupportPerm = 'ticket.view') {
+    return this.viewerAny(req, [perm]);
+  }
+
+  private async viewerAny(req: IncomingMessage, perms: [SupportPerm, ...SupportPerm[]]) {
     const a = await this.actors.resolve(req);
-    if (!a.authz.isOwner && !a.authz.permissions.has(perm)) throw new AppError('FORBIDDEN', 403, { permission: perm });
+    if (!a.authz.isOwner && !perms.some((p) => a.authz.permissions.has(p))) throw new AppError('FORBIDDEN', 403, { permission: perms[0] });
     return a;
   }
 
@@ -43,5 +49,11 @@ export class TicketsController {
   @Get('settings/sla')
   async sla(@Req() req: IncomingMessage) {
     return { data: await this.read.slaSettings(await this.viewer(req, 'sla.manage')) };
+  }
+
+  /** Danh sách chính sách SLA của workspace (TIP-014c: chọn SLA cho từng tài khoản kênh). */
+  @Get('sla-policies')
+  async slaPolicies(@Req() req: IncomingMessage) {
+    return { data: await this.read.listSlaPolicies(await this.viewerAny(req, ['channels.manage', 'sla.manage', 'ticket.view'])) };
   }
 }

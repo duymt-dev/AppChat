@@ -36,7 +36,10 @@ export async function convPreview(tx: TenantTx, a: AuthzContext, id: string, ris
 export const markReadPreview = (tx: TenantTx, a: AuthzContext, i: ActionInput<typeof conversationMarkRead>) => convPreview(tx, a, i.conversation_id, 'write', (c) => ({ unread: c.unreadCount }), { unread: 0 });
 
 export const setStatusPreview = (tx: TenantTx, a: AuthzContext, i: ActionInput<typeof conversationSetStatus>) =>
-  convPreview(tx, a, i.conversation_id, 'write', (c) => ({ status: c.status }), { status: i.status, ...(i.snooze_hours ? { snooze_hours: i.snooze_hours } : {}) });
+  convPreview(tx, a, i.conversation_id, 'write', (c) => ({ status: c.status }), {
+    status: i.status,
+    ...(i.snoozed_until ? { snoozed_until: i.snoozed_until } : i.snooze_hours ? { snooze_hours: i.snooze_hours } : {}),
+  });
 
 export const pinPreview = (tx: TenantTx, a: AuthzContext, i: ActionInput<typeof conversationPin>) => convPreview(tx, a, i.conversation_id, 'write', (c) => ({ pinned: c.pinned }), { pinned: i.pinned });
 

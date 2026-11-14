@@ -3,6 +3,11 @@
 export const SLA_ESCALATIONS = ['warn_80', 'frt_breach', 'ttr_breach', 'ai_low', 'vip_wait'] as const;
 export type SlaEscalation = (typeof SLA_ESCALATIONS)[number];
 
+/** Id cố định của các gói SLA cài sẵn (Mặc định giữ 0000...0034 để tương thích TIP-034). */
+export const DEFAULT_SLA_POLICY_ID = '00000000-0000-7000-8000-000000000034';
+export const VIP_SLA_POLICY_ID = '00000000-0000-7000-8000-000000000035';
+export const SOCIAL_SLA_POLICY_ID = '00000000-0000-7000-8000-000000000036';
+
 export const SLA_DEFAULT = {
   name: 'Mặc định',
   color: '#2563EB',
@@ -18,6 +23,55 @@ export const SLA_DEFAULT = {
     { key: 'vip_wait', color: '#2563EB', on: false },
   ] satisfies { key: SlaEscalation; color: string; on: boolean }[],
 } as const;
+
+export interface SlaPreset {
+  readonly id: string;
+  readonly key: 'std' | 'vip' | 'soc';
+  readonly name: string;
+  readonly isDefault: boolean;
+  readonly color: string;
+  readonly frt_ai: number;
+  readonly frt_human: number;
+  readonly ttr_ai: number;
+  readonly ttr_human: number;
+}
+
+/** Các gói SLA seed sẵn theo workspace (TIP-014c): Mặc định + VIP + Mạng xã hội. */
+export const SLA_PRESETS: readonly SlaPreset[] = [
+  {
+    id: DEFAULT_SLA_POLICY_ID,
+    key: 'std',
+    name: SLA_DEFAULT.name,
+    isDefault: true,
+    color: SLA_DEFAULT.color,
+    frt_ai: SLA_DEFAULT.frt_ai,
+    frt_human: SLA_DEFAULT.frt_human,
+    ttr_ai: SLA_DEFAULT.ttr_ai,
+    ttr_human: SLA_DEFAULT.ttr_human,
+  },
+  {
+    id: VIP_SLA_POLICY_ID,
+    key: 'vip',
+    name: 'VIP',
+    isDefault: false,
+    color: '#C9820B',
+    frt_ai: 0,
+    frt_human: 2,
+    ttr_ai: 15,
+    ttr_human: 60,
+  },
+  {
+    id: SOCIAL_SLA_POLICY_ID,
+    key: 'soc',
+    name: 'Mạng xã hội',
+    isDefault: false,
+    color: '#0E9B7E',
+    frt_ai: 0,
+    frt_human: 15,
+    ttr_ai: 30,
+    ttr_human: 120,
+  },
+];
 
 export interface WorkingDay {
   /** 0 = Thứ Hai … 6 = Chủ nhật. */

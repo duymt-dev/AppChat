@@ -11,7 +11,7 @@ import { agentsQuery } from '@/features/agents/api';
 import { useSectionStyles } from '../styles/section.styles';
 import { useChannelManageStyles } from '../styles/channel-manage.styles';
 import { useSettingsUi } from '../settings-store';
-import { channelAccountStatsQuery, channelsQuery } from '../api';
+import { channelAccountStatsQuery, channelsQuery, resolveSlaPolicyId, slaPoliciesQuery } from '../api';
 import { Switch } from './Switch';
 import { ContactSyncPanel } from './ContactSyncPanel';
 import { FriendsPanel } from './FriendsPanel';
@@ -22,9 +22,11 @@ import type { ChannelAccount, ChannelAiMode, ChannelHistoryDays } from '../types
 import { useFmt } from '@/shared/i18n/useFmt';
 
 const MODES: ChannelAiMode[] = ['auto', 'suggest', 'off'];
-const SLAS = ['std', 'vip', 'soc'];
 const HISTORIES: ChannelHistoryDays[] = [0, 7, 30, 90];
 const HEALTH_GOOD: ChannelAccount['health'][] = ['good'];
+const OP_PROFILES = 'profiles';
+const OP_FRIEND_REQUESTS = 'friend_requests';
+const hasOp = (ops: string[] | undefined, op: string) => (ops ?? []).includes(op);
 
 export function ManageChannelDrawer() {
   const t = useTranslations('settings.channels.drawer');
@@ -39,6 +41,7 @@ export function ManageChannelDrawer() {
   const c = drawer ? channels.find((x) => x.type === drawer.type) : null;
   const account = c && drawer?.accountId ? c.accounts.find((a) => a.id === drawer.accountId) : null;
   const stats = useQuery({ ...channelAccountStatsQuery(account?.id ?? ''), enabled: !!account }).data;
+  const slaPolicies = useQuery({ ...slaPoliciesQuery(), enabled: !!account }).data ?? [];
 
   const [draft, setDraft] = useState<Partial<ChannelAccount> | null>(null);
   const cur = { ...account, ...draft } as ChannelAccount | undefined;
@@ -278,10 +281,10 @@ export function ManageChannelDrawer() {
               <ChannelRoutingFields routing={account?.routing} legacy={account?.assign_mode} testId="st-ch-drawer-routing" />
               <div>
                 <div className={s.label}>{t('slaPolicy')}</div>
-                <select className={s.select} value={cur?.sla_policy} onChange={(e) => patch({ sla_policy: e.target.value })} data-testid="st-ch-drawer-sla">
-                  {SLAS.map((k) => (
-                    <option key={k} value={t(`sla.${k}` as never)}>
-                      {t(`sla.${k}` as never)}
+                <select className={s.select} value={resolveSlaPolicyId(cur?.sla_policy, slaPolicies)} onChange={(e) => patch({ sla_policy: e.target.value })} data-testid="st-ch-drawer-sla">
+                  {slaPolicies.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.is_default ? t('slaDefaultFmt', { frt: p.frt_human, ttr: p.ttr_human }) : t('slaFmt', { n: p.name, frt: p.frt_human, ttr: p.ttr_human })}
                     </option>
                   ))}
                 </select>
@@ -320,11 +323,10 @@ export function ManageChannelDrawer() {
                 ))}
               </select>
             </div>
-            <ChannelRateFields type={c.type} value={cur ?? {}} onChange={patch} />
-            {/* Danh bạ (TIP-014b D3) — kênh có danh bạ phía nhà cung cấp (Zalo cá nhân), tài khoản đang chạy. */}
-            {c.type === 'zalo_personal' && account.connected && !account.paused ? <ContactSyncPanel accountId={account.id} /> : null}
-            {/* Bạn bè Zalo (TIP-014b E) — chỉ người bấm; lời mời tới + tra một SĐT. */}
-            {c.type === 'zalo_personal' && account.connected && !account.paused ? <FriendsPanel accountId={account.id} /> : null}
+            <ChannelRateFields value={cur ?? {}} onChange={patch} />
+            {/* Danh bạ / bạn bè theo capability của kênh (TIP-014c — không rẽ nhánh cứng theo loại kênh). */}
+            {hasOp(c.capabilities?.operations, OP_PROFILES) && account.connected && !account.paused ? <ContactSyncPanel accountId={account.id} /> : null}
+            {hasOp(c.capabilities?.operations, OP_FRIEND_REQUESTS) && account.connected && !account.paused ? <FriendsPanel accountId={account.id} /> : null}
           </div>
 
           <div className={cx(styles.block, styles.blockDanger)}>
