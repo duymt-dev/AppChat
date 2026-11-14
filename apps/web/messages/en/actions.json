@@ -228,15 +228,39 @@
     },
     "create": {
       "title": "Create opportunity",
-      "desc": "Record a sales opportunity: need, expected value (not revenue), your own probability estimate."
+      "desc": "Record a sales opportunity: need, expected value (not revenue), stage — probability follows the stage."
     },
     "update": {
       "title": "Update opportunity",
-      "desc": "Edit the opportunity, including won / lost or reopen."
+      "desc": "Edit the opportunity's title, need, expected value, expected close date and products."
     },
     "archive": {
       "title": "Archive opportunity",
       "desc": "Archive the opportunity (no deletion; undo within 24 hours)."
+    },
+    "set_stage": {
+      "title": "Move opportunity stage",
+      "desc": "Move the opportunity to another stage; probability follows the stage. Won needs a signed contract or an order."
+    },
+    "mark_lost": {
+      "title": "Mark opportunity lost",
+      "desc": "Mark the opportunity lost with a required reason; its sent quotes become rejected."
+    },
+    "reopen": {
+      "title": "Reopen opportunity",
+      "desc": "Reopen a lost opportunity at its previous stage."
+    },
+    "set_owner": {
+      "title": "Change opportunity owner",
+      "desc": "Assign the opportunity to another owner."
+    },
+    "list": {
+      "title": "View customer opportunities",
+      "desc": "Read one customer's opportunities: stage, probability, value (when you may see money)."
+    },
+    "get": {
+      "title": "View opportunity details",
+      "desc": "Read one opportunity: stage, document chain, history."
     }
   },
   "contact": {
