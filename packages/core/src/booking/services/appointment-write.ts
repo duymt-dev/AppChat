@@ -36,6 +36,9 @@ export const eventOf = (a: AppointmentRecord, timeZone: string) => ({
   start_at: utcToWall(a.startAt, timeZone).iso,
   status: a.status,
   package_id: a.packageId,
+  // TIP-016b: cột scope booking → luật WS `appointment.updated` lọc người nhận theo policy đọc (không lộ lịch ngoài scope).
+  owner_user_id: a.ownerUserId,
+  team_id: a.teamId,
 });
 
 /** Liệu trình còn dùng được cho dịch vụ: gói của khách còn buổi, còn hạn, sản phẩm gói có dịch vụ này là thành phần (hoặc không ghi thành phần). */

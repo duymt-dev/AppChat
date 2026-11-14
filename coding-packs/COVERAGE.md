@@ -15,11 +15,11 @@
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 5 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 136 | 6 | 0 | 2 | 9 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 170 | 6 | 0 | 9 | 9 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 415 | 31 | 1 | 4 | 13 | 3 | 0 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 416 | 31 | 0 | 4 | 13 | 3 | 0 | 0 |
 | E. standards/* | 232 | 27 | 0 | 7 | 22 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 0 | 14 | 0 | 2 | 5 | 0 | 0 |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 73 | 0 | 13 | 0 | 2 | 5 | 0 | 0 |
 | G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 82 | 5 | 1 | 14 | 21 | 2 | 0 | 0 |
-| **Tổng** | **1270** | **81** | **16** | **49** | **81** | **35** | **69** | **0** |
+| **Tổng** | **1272** | **81** | **14** | **49** | **81** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -988,7 +988,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.4-integrations | /integrations/connectors · /integrations/connections/:id · /…/logs | plans/BLUEPRINT.md:974 | 012b | ĐẠT | TIP-012b P3 (DC-384): apps/api/src/http/integrations/connection-detail.controller.ts — GET /v1/integrations/connectors · /connections/:id · /connections/:id/logs (cursor, deferred join, EXPLAIN Index Only Scan) · /calls/:callId; apps/api/test/integration/integration-detail.test.ts 7/7 |
 | BP-4.4-misc | POST /files, GET /files/:id, /notifications, /settings/:section | plans/BLUEPRINT.md:975 | 006/013/020 | ĐẠT | files.controller.ts; notify.controller.ts; identity/settings.controller.ts; test kb.test.ts, notify.test.ts, settings.test.ts |
 | BP-4.4-admin | /admin/workspaces, /admin/plans, /admin/model-prices, /admin/transfers | plans/BLUEPRINT.md:976 | 040 | ĐẠT | GET /v1/admin/session · workspaces · config/{plans,providers,routes,prices,templates} · transfers · bank-transactions · sales-inquiries (apps/api/src/http/platform/*, admin-transfers.controller.ts) — tên route đổi theo nhóm config (BLUEPRINT §4.4 cập nhật); test apps/api/test/integration/platform-*.test.ts (TIP-040) |
-| BP-4.4-fe-nav | GET /nav/badges (FE shell) | apps/web/src/shared/shell/useShellData.ts:34 | 016b | GIẢ | không route API, không TIP nào nhận; TIP-016b nhận (2026-11-02) |
+| BP-4.4-fe-nav | GET /nav/badges (FE shell) | apps/web/src/shared/shell/useShellData.ts:34 | 016b | ĐẠT | apps/api/src/http/inbox/inbox-meta.controller.ts (GET nav/badges) → packages/core/src/inbox/services/nav-badges.ts (3 COUNT theo scope + cache 15s bỏ theo event — DC-450); index tenant 20261114010000_nav_badges; apps/api/test/integration/nav-badges.test.ts 5/5 (AC1–AC3 + cache + EXPLAIN tải 4.000 dòng); E2E http apps/web/e2e/http/nav-badges.spec.ts 1/1 |
 | BP-4.4-fe-audit | GET /settings/audit · /settings/ai-audit (FE Cài đặt) | apps/web/src/features/settings/api.ts:104 | 045b | ĐẠT | apps/api/src/http/kernel/audit.controller.ts GET /v1/settings/audit + /ai-audit (audit.view, trang 50, cursor, lọc); packages/core/src/kernel/audit/audit-read.service.ts; hardening-audit.test.ts; e2e settings-ai.spec.ts lọc |
 | BP-4.5-a | POST /assistant/messages SSE (session/delta/plan/step/confirm/ui_command/result/error/done) | plans/BLUEPRINT.md:987 | 023c | ĐẠT | SSE POST /assistant/messages + GET /assistant/runs/:id/stream (apps/api/src/http/ai/assistant.controller.ts); sổ sự kiện bền packages/core/src/ai/assistant/genui/event-store.ts; test genui-stream.test.ts (cursor, replay, reset_required, ui_skeleton trước ui); DV-006 đóng |
 | BP-4.5-b | POST /assistant/confirm | plans/BLUEPRINT.md:998 | 023 | ĐẠT | assistant.controller.ts:57; test assistant.test.ts |
@@ -1551,7 +1551,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-assistant-quick | Trợ lý: nút ⚡ lệnh nhanh | docs/06-prototype/AppChat.dc.html:1496 | 019c | ĐẠT | P3: nút ⚡ (`asst-quick`, Composer.tsx) mở UtilityMenu (4 kỹ năng tiện ích AI, DC-421) — không còn là nút tĩnh không onClick |
 | PRO-assistant-sessions | Màn "Nội dung trò chuyện" (lịch sử phiên, lọc, Xem lại) | docs/06-prototype/AppChat.dc.html:1729 | 023c | ĐẠT | apps/web/src/features/assistant/components/SessionBrowser.tsx (tìm, mở lại → tin + cây dựng lại không gọi model); test e2e screen-assistant.spec.ts lịch sử trò chuyện, assistant-sessions.test.ts (PD-009) |
 | PRO-assistant-taskspark | Thẻ tác vụ Cowork: sparkline hiệu suất từ số liệu thật | docs/06-prototype/AppChat.dc.html:1361 | 035b | GIẢ | apps/web/src/features/assistant/components/TaskCard.tsx:8 `SPARK=[42,55,48,68,60,80,72]` cứng; TIP-035b nhận (2026-11-02) |
-| PRO-shell-navbadges | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | docs/06-prototype/AppChat.dc.html:1089 | 016b | GIẢ | apps/web/src/shared/shell/useShellData.ts:34; routes.json `missing`; TIP-016b nhận (2026-11-02) |
+| PRO-shell-navbadges | Badge đếm trên rail (Hộp thư / Ticket / Lịch) đọc `GET /nav/badges` | docs/06-prototype/AppChat.dc.html:1089 | 016b | ĐẠT | apps/web/src/shared/shell/useShellData.ts:36 đọc API thật; realtime làm mới apps/web/src/shared/realtime/event-invalidation.ts (`ticket.updated`, `appointment.updated` + message / conversation); WS lịch hẹn packages/core/src/booking/events/appointment.rules.ts; E2E http nav-badges 1/1 (3 chưa đọc → 3, đọc một → 2 không F5); parity shell:default 1.09% |
 | PRO-settings-audit | Cài đặt › Audit log đọc `GET /settings/audit` | docs/06-prototype/AppChat.dc.html:7410 | 045b | ĐẠT | GET /v1/settings/audit thật (audit.controller.ts); FE AuditSection + AuditTable / AuditFilters; e2e settings-ai.spec.ts; parity settings:audit 1,80% · hardening:audit-filters 1,80% (PD-014) |
 | PRO-settings-aiaudit | Cài đặt › AI Audit log đọc `GET /settings/ai-audit` | docs/06-prototype/AppChat.dc.html:7035 | 045b | ĐẠT | GET /v1/settings/ai-audit thật (chỉ mức AI + credit + token, không tên model D29); FE AiAuditTable; parity settings:ai-audit 2,24% |
 | PRO-settings-walletalerts | Ví: cảnh báo credit 80/95% lưu `wallet.update_alerts` | docs/06-prototype/AppChat.dc.html:6463 | 039 | ĐẠT | WalletSection.tsx:30 useAction(`wallet.update_alerts`) → handler thật (persist `credit_wallet.low_alert`); test apps/api/test/integration/billing-alerts.test.ts AC06 (đọc lại /billing/wallet sau khi đổi), E2E settings-billing.spec.ts "Ví: … nhắc credit" |

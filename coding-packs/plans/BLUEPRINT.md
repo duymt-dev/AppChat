@@ -1034,13 +1034,14 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 
 - **Namespace `/ws`:**
   - Auth bằng access JWT + workspace. Tự join room `ws:{id}` và `user:{id}` (+ `tab:{user}:{tab}` khi handshake có `tab_id` — TIP-006c). Join `conv:{id}` khi mở hội thoại.
-  - Server → client: `message.new`, `message.updated`, `conversation.updated`, `conversation.counts`, `typing`, `run.step`, `run.done`, `approval.requested`, `approval.decided`, `ui.command` (chỉ gửi user ra lệnh), `channel.status`, `channel.zalo.qr` ({ account_id, qr_png_base64, expires_at }), `notification.new`, `credits.changed`.
+  - Server → client: `message.new`, `message.updated`, `conversation.updated`, `conversation.counts`, `typing`, `run.step`, `run.done`, `approval.requested`, `approval.decided`, `ui.command` (chỉ gửi user ra lệnh), `channel.status`, `channel.zalo.qr` ({ account_id, qr_png_base64, expires_at }), `notification.new`, `credits.changed`, `ticket.updated`, `appointment.updated` (TIP-016b — chỉ id + loại thay đổi, lọc theo scope).
   - Client → server: `conv.join`, `conv.leave`, `typing`.
 - **Namespace `/widget`:**
   - Auth bằng `public_key` + `visitor_token` (JWT riêng, 30 ngày).
   - Client → server: `visitor.hello` ({ name?, phone?, email?, page_url }), `message.send` ({ text, attachments? }).
   - Server → client: `message.new`, `typing`, `agent.status`.
 - **Fan-out:** Redis adapter; worker phát qua `@socket.io/redis-emitter`.
+- **Số đếm rail (TIP-016b, DC-450):** `GET /v1/nav/badges` → `{ inbox?, tickets?, calendar? }` (khoá vắng khi thiếu quyền module) — hội thoại đang hiện chưa đọc / ticket `open`+`in_progress` / lịch hôm nay (múi giờ workspace) trong data scope người xem; cache 15s mỗi người, bỏ ngay khi gateway nhận event đổi số.
 - **Cache registry workspace (TIP-006c):** `TenantDbResolver.invalidate` publish kênh Redis `tenant-registry:invalidate`; mọi api / worker subscribe → xoá cache cục bộ; mất Redis → TTL 60s + thế hệ trạng thái 2s.
 
 ### 4.7 Webhooks

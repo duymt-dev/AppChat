@@ -48,6 +48,9 @@ const EVENT_KEYS: Record<string, readonly Key[]> = {
   'ticket_categories.suggestions': [['tickets', 'meta'], ['tickets', 'category-suggestions']],
   // ví đổi số dư (TIP-006c — người có billing.manage nhận số, người khác chỉ tín hiệu) → màn Gói / Ví, thẻ Ví ở Tổng quan, số dư menu người dùng
   'credits.changed': [['billing'], ['dashboard'], qk.me()],
+  // ticket / lịch hẹn đổi (TIP-016b — chỉ id + loại thay đổi, người còn đọc được bản ghi) → số đếm trên rail đọc lại
+  'ticket.updated': [qk.navBadges()],
+  'appointment.updated': [qk.navBadges()],
 };
 
 /** Khoá cần làm mới của một sự kiện (sự kiện hội thoại → theo `conversation_id`). */
