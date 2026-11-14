@@ -157,7 +157,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 59 | [003e](../tips/TIP-003e-action-integrity.md) | W8 | chờ | `tip/003e-action-integrity` | | |
 | 60 | [001c](../tips/TIP-001c-ui-states-mobile.md) | W8 | chờ | `tip/001c-ui-states-mobile` | | |
 | 61 | [003f](../tips/TIP-003f-validation-forms.md) | W8 | chờ | `tip/003f-validation-forms` | | |
-| 62 | [003g](../tips/TIP-003g-time-query-hygiene.md) | W8 | DONE | `tip/003g-time-query-hygiene` | `994a7a2f` | (đang mở PR) |
+| 62 | [003g](../tips/TIP-003g-time-query-hygiene.md) | W8 | DONE | `tip/003g-time-query-hygiene` | `81c518a9` (code `994a7a2f`) | #229 |
 | 63 | [003h](../tips/TIP-003h-state-flows.md) | W8 | chờ | `tip/003h-state-flows` | | |
 | 64 | [003i](../tips/TIP-003i-api-contract-gaps.md) | W8 | chờ | `tip/003i-api-contract-gaps` | | |
 | 65 | [004b](../tips/TIP-004b-auth-security.md) | W8 | chờ | `tip/004b-auth-security` | | |
