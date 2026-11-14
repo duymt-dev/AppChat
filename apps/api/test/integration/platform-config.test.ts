@@ -107,29 +107,40 @@ describe('admin.model_price.upsert + admin.model_route.upsert (AC03 / AC05)', ()
 
     // Cache tiến trình "khác" nạp trước khi đổi route.
     const other = new ProviderStore(h.platform, Buffer.alloc(32));
-    const routesOf = async () => (await other.routes('max', 'rerank')).map((r) => r.model);
+    // TIP-020e: CAS / thứ tự kiểm trên nhóm chat (nhóm rerank bị chặn tới khi có đơn vị giá rerank — ca riêng bên dưới).
+    const routesOf = async () => (await other.routes('max', 'chat')).map((r) => r.model);
     const groups = await get(admin.token, '/admin/config/routes');
-    const g = groups.body.data.find((x: { tier: string; purpose: string }) => x.tier === 'max' && x.purpose === 'rerank');
+    const g = groups.body.data.find((x: { tier: string; purpose: string }) => x.tier === 'max' && x.purpose === 'chat');
+    const prior = await h.platform.modelRoute.findMany({ where: { tier: 'max', purpose: 'chat' }, orderBy: { priority: 'asc' }, select: { providerKey: true, model: true } });
     const before = await routesOf();
-    const body = { tier: 'max', purpose: 'rerank', if_version: g.version, routes: [{ provider_key: PROV, model: 'm-b' }, { provider_key: PROV, model: 'm-a' }] };
+    const body = { tier: 'max', purpose: 'chat', if_version: g.version, routes: [{ provider_key: PROV, model: 'm-b' }, { provider_key: PROV, model: 'm-a' }] };
     const r = await act('admin.model_route.upsert', body);
     expect(r.status, JSON.stringify(r.body)).toBe(200);
     expect((await act('admin.model_route.upsert', body)).status).toBe(409);
-    const rows = await h.platform.modelRoute.findMany({ where: { tier: 'max', purpose: 'rerank' }, orderBy: { priority: 'asc' } });
+    const rows = await h.platform.modelRoute.findMany({ where: { tier: 'max', purpose: 'chat' }, orderBy: { priority: 'asc' } });
     expect(rows.map((x) => [x.priority, x.model])).toEqual([[0, 'm-b'], [1, 'm-a']]);
     await new Promise((res) => setTimeout(res, 2_100));
     expect(await routesOf()).not.toEqual(before);
     expect(await routesOf()).toEqual(['m-b', 'm-a']);
 
     const v = r.body.data.result.version;
-    const bad = await act('admin.model_route.upsert', { tier: 'max', purpose: 'rerank', if_version: v, routes: [{ provider_key: PROV, model: 'no-price' }, { provider_key: `q${tag}`, model: 'm-a' }] });
+    const bad = await act('admin.model_route.upsert', { tier: 'max', purpose: 'chat', if_version: v, routes: [{ provider_key: PROV, model: 'no-price' }, { provider_key: `q${tag}`, model: 'm-a' }] });
     expect(bad.body.error.fields).toEqual({ 'routes.0.model': 'no_price', 'routes.1.provider_key': 'not_found' });
+    // TIP-020e §3.3 (DC-303): provider không khai rerank → no_rerank; khai rerank nhưng pricebook chưa có đơn vị rerank → no_rerank_price.
+    const rg = groups.body.data.find((x: { tier: string; purpose: string }) => x.tier === 'max' && x.purpose === 'rerank');
+    const rr = await act('admin.model_route.upsert', { tier: 'max', purpose: 'rerank', if_version: rg.version, routes: [{ provider_key: PROV, model: 'm-a' }] });
+    expect([rr.status, rr.body.error.fields]).toEqual([422, { 'routes.0.provider_key': 'no_rerank' }]);
+    await h.platform.llmProvider.update({ where: { key: PROV }, data: { capabilities: { tools: true, rerank: true } } });
+    const rp = await act('admin.model_route.upsert', { tier: 'max', purpose: 'rerank', if_version: rg.version, routes: [{ provider_key: PROV, model: 'm-a' }] });
+    expect([rp.status, rp.body.error.fields]).toEqual([422, { 'routes.0.model': 'no_rerank_price' }]);
+    await h.platform.llmProvider.update({ where: { key: PROV }, data: { capabilities: { tools: true } } });
     const emb = await act('admin.model_route.upsert', { tier: 'max', purpose: 'embed', if_version: groups.body.data.find((x: { tier: string; purpose: string }) => x.tier === 'max' && x.purpose === 'embed').version, routes: [{ provider_key: PROV, model: 'm-a' }] });
     expect(emb.body.error.fields).toEqual({ 'routes.0.provider_key': 'no_embeddings' });
     // Giá đang được route dùng không tắt được (route không giá = không chạy).
     const pa = await h.platform.modelPrice.findUniqueOrThrow({ where: { providerKey_model: { providerKey: PROV, model: 'm-a' } } });
     expect((await act('admin.model_price.upsert', pr('m-a', { active: false, if_version: pa.version }))).body.error.fields).toEqual({ active: 'used_by_route' });
-    expect((await act('admin.model_route.upsert', { tier: 'max', purpose: 'rerank', if_version: v, routes: [] })).status).toBe(200);
+    // Trả nhóm chat về như cũ (route của test khác dùng chung DB nền tảng test).
+    expect((await act('admin.model_route.upsert', { tier: 'max', purpose: 'chat', if_version: v, routes: prior.map((x) => ({ provider_key: x.providerKey, model: x.model })) })).status).toBe(200);
   }, 60_000);
 });
 

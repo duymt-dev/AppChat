@@ -15,7 +15,7 @@ export interface MeteredEmbedTarget {
   ws: string;
   runId: string;
   rootRunId: string;
-  kind: Exclude<UsageKind, 'chat'>;
+  kind: Exclude<UsageKind, 'chat' | 'rerank'>;
   /** Bước logic của nhóm (lần embed thứ mấy trong run / lần nạp của nguồn) — gọi lại cùng bước dùng lại biên nhận. */
   logicalStep: number;
   source: string;

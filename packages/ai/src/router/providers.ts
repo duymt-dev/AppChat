@@ -6,6 +6,8 @@ import { createGoogle } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import type { ModelPurpose } from '../gateway/types';
+import { compatibleReranker } from '../rerank/compatible-reranker';
+import { RerankUnsupportedError } from '../rerank/types';
 
 export type ProviderKind = 'anthropic' | 'openai' | 'google' | 'deepseek' | 'openai_compatible';
 
@@ -16,6 +18,8 @@ export interface ProviderCapabilities {
   embeddings?: boolean;
   vision?: boolean;
   reasoning?: boolean;
+  /** Có reranking model thật (TIP-020e §3.1) — chỉ `openai_compatible` có `POST /rerank` đã kiểm; vắng = không (fail closed). */
+  rerank?: boolean;
 }
 
 /** Provider đã giải mã key (core đọc `llm_provider` + giải `api_key_enc`). */
@@ -34,6 +38,7 @@ export interface ProviderConfig {
 interface Factory {
   languageModel(id: string): unknown;
   embeddingModel?(id: string): unknown;
+  rerankingModel?(id: string): unknown;
 }
 
 function factoryOf(p: ProviderConfig): Factory {
@@ -50,16 +55,25 @@ function factoryOf(p: ProviderConfig): Factory {
     case 'openai_compatible':
       if (!p.baseUrl) throw new Error(`provider ${p.key}: openai_compatible cần base_url`);
       // Đã khai `json_schema` → gửi `response_format: json_schema` thật (TIP-021b); thiếu cờ này SDK bỏ schema, model trả tự do.
-      return createOpenAICompatible({ name: p.key, baseURL: p.baseUrl, apiKey: p.apiKey, ...(p.headers ? { headers: p.headers } : {}), includeUsage: true, supportsStructuredOutputs: p.capabilities.json_schema === true });
+      return {
+        ...createOpenAICompatible({ name: p.key, baseURL: p.baseUrl, apiKey: p.apiKey, ...(p.headers ? { headers: p.headers } : {}), includeUsage: true, supportsStructuredOutputs: p.capabilities.json_schema === true }),
+        // SDK openai-compatible không có rerank: chỉ dựng adapter `/rerank` khi provider đã khai khả năng (spike / probe).
+        ...(p.capabilities.rerank ? { rerankingModel: (id: string) => compatibleReranker({ provider: p.key, baseUrl: p.baseUrl!, apiKey: p.apiKey, headers: p.headers ?? null }, id) } : {}),
+      };
   }
 }
 
-/** Model của AI SDK cho một route (chat → LanguageModel, embed → EmbeddingModel). Kiểu mờ với bên ngoài gói. */
+/** Model của AI SDK cho một route (chat → LanguageModel, embed → EmbeddingModel, rerank → RerankingModel). Kiểu mờ với bên ngoài gói.
+ *  Rerank không bao giờ rơi về LanguageModel: provider thiếu reranking model → RERANK_UNSUPPORTED (router bỏ ứng viên). */
 export function buildModel(p: ProviderConfig, model: string, purpose: ModelPurpose): unknown {
   const f = factoryOf(p);
   if (purpose === 'embed') {
     if (!f.embeddingModel) throw new Error(`provider ${p.key} không có embedding`);
     return f.embeddingModel(model);
+  }
+  if (purpose === 'rerank') {
+    if (!f.rerankingModel) throw new RerankUnsupportedError(p.key);
+    return f.rerankingModel(model);
   }
   return f.languageModel(model);
 }

@@ -40,7 +40,8 @@ export const UI_ONLY_ACTIONS: ReadonlySet<string> = new Set(['workspace.request_
  * (identity-token anti-recreation chưa cài).
  */
 // TIP-033c §3.2: tạo đơn từ lịch hẹn — xác nhận ràng giá / version lúc xem trước (UI / API thô không có token → preview_required, 0 ghi).
-export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation', 'order.create_from_appointment']);
+// TIP-020e §2.2: tái tạo chỉ mục kho tri thức trừ Credit — luôn xem ước tính (đoạn / token / Credit / dung lượng) rồi mới xác nhận.
+export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation', 'order.create_from_appointment', 'kb.reindex']);
 
 export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId, previewRequested }: ActionPolicyInput): PolicyDecision {
   if (actionId && UI_ONLY_ACTIONS.has(actionId) && source !== 'ui') return 'forbidden';

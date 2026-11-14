@@ -2,6 +2,8 @@
 // → embed theo lô (router purpose `embed`, trừ credit theo `model_price` — nguồn ví `kb`) NGOÀI transaction → action riêng `kb.system_publish`
 // thay toàn bộ đoạn cũ trong MỘT transaction → `ready` + `kb.source_ready`. Lỗi → `failed` + lý do + `kb.source_failed`. Idempotent: nguồn đã xoá / không ở `pending` |
 // `processing` thì bỏ; `learn=false` → `ready`, 0 đoạn, không gọi model. Không giữ gì trong RAM giữa các lần.
+// TIP-020e: embed GHIM space của khe đang phục vụ (đổi route → vẫn nạp theo model của kho tới khi tạo lại chỉ mục; route của khe đã gỡ →
+// nguồn `failed` có lý do, không âm thầm embed bằng model khác). Lần tái tạo đang chạy không bị ghi — catch-up bù khe đích.
 import { chunkDocument, type Embedder } from '@appchat/ai';
 import type { TenantDb, TenantDbResolver } from '@appchat/db';
 import type { SystemOutput } from '@appchat/actions';
@@ -15,6 +17,7 @@ import type { AppLogger } from '../../kernel/logger/logger';
 import { FetchLimitError, safeFetch, UrlRefusedError } from '../../kernel/http/safe-fetch';
 import { ParseError, parseDocument } from './parse';
 import { embedChunks } from './ingest-usage';
+import { kbSpaceEmbedder, spaceOf } from './reindex/space';
 
 export const KB_INGEST_QUEUE = 'kb-ingest';
 /** Tải URL tối đa (byte) + thời gian chờ. */
@@ -41,7 +44,7 @@ export interface IngestDeps {
 
 export type IngestOutcome = { status: 'ready'; chunks: number } | { status: 'failed'; error: string } | { status: 'skipped' };
 
-type Db = Pick<TenantDb, 'kbSource' | 'file'>;
+type Db = Pick<TenantDb, 'kbSource' | 'file' | 'kbSetting'>;
 
 /** Tải trang nguồn URL qua safeFetch (TIP-045b — chặn SSRF: địa chỉ nội bộ / metadata, redirect, DNS rebinding; cắt thân > 5MB). */
 export async function fetchUrlDefault(url: string): Promise<{ body: Buffer; mime: string }> {
@@ -102,12 +105,14 @@ async function candidateOf(db: Db, ws: string, s: { id: string; kind: string; fi
     const chunks = chunkDocument(await parseDocument(src.kind, src.body));
     if (!d.embedder) return failed('Chưa cấu hình model embedding');
     await d.meter?.assertBalance(ws);
-    const e = await embedChunks(db, ws, { id: s.id, seq: s.ingestSeq, name: s.name }, chunks.map((c) => c.content), { embedder: d.embedder, meter: d.meter, now: d.now });
-    return { kind: 'ready', model: `${e.provider}:${e.model}`, chunks: chunks.map((c, i) => ({ content: c.content, tokens: c.tokens, meta: c.meta, vector: e.vectors[i]! })) };
+    const embedder = await kbSpaceEmbedder(db, d.embedder);
+    const e = await embedChunks(db, ws, { id: s.id, seq: s.ingestSeq, name: s.name }, chunks.map((c) => c.content), { embedder, meter: d.meter, now: d.now });
+    return { kind: 'ready', model: `${e.provider}:${e.model}`, space: spaceOf(e), chunks: chunks.map((c, i) => ({ content: c.content, tokens: c.tokens, meta: c.meta, vector: e.vectors[i]! })) };
   } catch (err) {
     if (err instanceof ParseError) return failed(err.message);
     if ((err as { code?: string })?.code === 'CREDIT_EXHAUSTED') return failed('Hết credit — nạp thêm rồi bấm Học lại');
     if ((err as { code?: string })?.code === 'USAGE_UNKNOWN') return failed('Lời gọi embedding chưa rõ kết quả — chờ đối soát rồi bấm Học lại');
+    if ((err as { code?: string })?.code === 'EMBED_SPACE_RETIRED') return failed('Model embedding của kho đã gỡ — tạo lại chỉ mục rồi bấm Học lại');
     d.log.warn({ err, source: s.id }, 'kb ingest failed');
     return failed(err instanceof Error ? `Lỗi nạp: ${err.message.slice(0, 200)}` : 'Lỗi nạp');
   }

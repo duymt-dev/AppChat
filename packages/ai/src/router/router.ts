@@ -40,6 +40,8 @@ export class LlmRouter implements ModelSource {
       // Sinh theo schema (TIP-021b): chỉ provider đã khai / probe `json_schema` — vắng = chưa kiểm → không chọn (fail closed).
       if (purpose === 'chat' && needs.structured && !p.capabilities.json_schema) continue;
       if (purpose === 'embed' && !p.capabilities.embeddings) continue;
+      // Rerank (TIP-020e §3.1): chỉ provider khai `rerank`; dựng lỗi RERANK_UNSUPPORTED (kind không có reranking model) → bỏ ứng viên.
+      if (purpose === 'rerank' && !p.capabilities.rerank) continue;
       // Ảnh trong tin: chỉ route khai vision cho đúng model (provider vision=true chưa đủ — cùng provider có model chỉ đọc chữ).
       if (needs.vision && (!r.vision || p.capabilities.vision === false)) continue;
       // Khoá cache theo thế hệ cấu hình opaque (TIP-023e §1.2) — xoay khoá cùng độ dài / đổi route params vẫn dựng lại handle;
@@ -47,13 +49,18 @@ export class LlmRouter implements ModelSource {
       const k = `${p.key}\u0000${r.model}\u0000${purpose}\u0000${p.configRevision ?? ''}\u0000${r.configRevision ?? p.apiKey.length}`;
       let handle = this.built.get(k);
       if (!handle) {
-        handle = this.build(p, r.model, purpose);
+        try {
+          handle = this.build(p, r.model, purpose);
+        } catch (err) {
+          if ((err as { code?: string })?.code === 'RERANK_UNSUPPORTED') continue;
+          throw err;
+        }
         this.built.set(k, handle);
       }
       // Thế hệ cấu hình đưa ra ngoài cho người gọi ghim không gian embedding (TIP-023e §1.6) — opaque, chỉ ghép khi có ít nhất
       // một nửa (provider hoặc route); vắng cả hai (test/mock cũ) → undefined, người gọi tự quyết không ghim được.
       const configRevision = p.configRevision || r.configRevision ? `${p.configRevision ?? ''}:${r.configRevision ?? ''}` : undefined;
-      out.push({ provider: p.key, model: r.model, handle, ...(configRevision ? { configRevision } : {}) });
+      out.push({ provider: p.key, model: r.model, handle, ...(configRevision ? { configRevision } : {}), ...(r.configRevision ? { routeRevision: r.configRevision } : {}) });
     }
     return out;
   }

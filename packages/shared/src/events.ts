@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { LOYALTY_EVENT_SCHEMAS } from './loyalty/events';
 import { MARKETING_EVENT_SCHEMAS } from './marketing/events';
 import { KB_SUGGESTION_EVENT_SCHEMAS } from './kb/suggestion-events';
+import { KB_INDEX_EVENT_SCHEMAS } from './kb/index-events';
 import { INSIGHTS_EVENT_SCHEMAS } from './insights/events';
 import { ACTION_DISCOVERY_EVENT_SCHEMAS } from './events/action-discovery';
 import { ASSISTANT_INPUT_EVENT_SCHEMAS } from './events/assistant-input';
@@ -313,6 +314,7 @@ export const EVENT_SCHEMAS = {
   ...LOYALTY_EVENT_SCHEMAS,
   ...MARKETING_EVENT_SCHEMAS,
   ...KB_SUGGESTION_EVENT_SCHEMAS,
+  ...KB_INDEX_EVENT_SCHEMAS,
   ...INSIGHTS_EVENT_SCHEMAS,
   ...ACTION_DISCOVERY_EVENT_SCHEMAS,
   ...COMMERCE_FILE_EVENT_SCHEMAS,

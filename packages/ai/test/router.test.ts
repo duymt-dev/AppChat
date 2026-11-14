@@ -64,4 +64,16 @@ describe('LlmRouter', () => {
     for (const kind of ['anthropic', 'openai', 'google', 'deepseek'] as const) expect(buildModel(prov(kind, { kind, baseUrl: null }), 'model-x', 'chat')).toMatchObject({ modelId: 'model-x' });
     expect(buildModel(prov('o', { kind: 'openai', baseUrl: null }), 'emb-x', 'embed')).toMatchObject({ modelId: 'emb-x' });
   });
+
+  it('TIP-020e: rerank lọc theo capability `rerank`; ứng viên mang nửa route của thế hệ cấu hình (ghim không gian embed)', async () => {
+    const rr: RouteRow[] = [
+      { tier: 'standard', purpose: 'rerank', priority: 0, providerKey: 'a', model: 'ra', configRevision: 'route-a' },
+      { tier: 'standard', purpose: 'rerank', priority: 1, providerKey: 'b', model: 'rb', configRevision: 'route-b' },
+      { tier: 'standard', purpose: 'embed', priority: 0, providerKey: 'b', model: 'eb', configRevision: 'route-e' },
+    ];
+    const r = router(rr, { a: prov('a'), b: prov('b', { capabilities: { rerank: true, embeddings: true }, configRevision: 'prov-b' }) });
+    expect((await r.candidates('standard', 'rerank', { tools: false })).map((c) => c.model)).toEqual(['rb']);
+    const [e] = await r.candidates('standard', 'embed', { tools: false });
+    expect(e).toMatchObject({ provider: 'b', model: 'eb', routeRevision: 'route-e', configRevision: 'prov-b:route-e' });
+  });
 });

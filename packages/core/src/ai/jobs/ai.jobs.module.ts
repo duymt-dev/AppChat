@@ -1,6 +1,6 @@
 // BullMQ processor của domain `ai` (worker ROLE=ai). TIP-020: `kb-ingest` (nạp tài liệu kho tri thức). TIP-021: `ai-resume` (chạy
 // action đã duyệt + chạy tiếp run, hết hạn duyệt) — cần handler của mọi domain mà agent gọi được → nạp module domain có action
-// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP-023c: `assistant-turn` (lượt Trợ lý) + prune / recover. TIP-035: `ai-task` + lịch tác vụ (ai/tasks/task.jobs). TIP-043: `kb-suggest` (đề xuất tri thức từ hội thoại đã đóng). Thiếu DB / Redis → không chạy.
+// `agentGrantable`. TIP-022: `agent-reply` (agent trực kênh). TIP-023: spec chạy tiếp run `assistant`. TIP-023c: `assistant-turn` (lượt Trợ lý) + prune / recover. TIP-035: `ai-task` + lịch tác vụ (ai/tasks/task.jobs). TIP-043: `kb-suggest` (đề xuất tri thức từ hội thoại đã đóng). TIP-020e: `kb-reindex` (tái tạo chỉ mục embedding). Thiếu DB / Redis → không chạy.
 import { Inject, Module, Optional, type OnApplicationBootstrap, type OnApplicationShutdown } from '@nestjs/common';
 import type { Worker } from 'bullmq';
 import type { Redis } from 'ioredis';
@@ -34,6 +34,8 @@ import { AiModule } from '../ai.module';
 import { KB_EMBEDDER } from '../kb/kb-search.handler';
 import type { KbIngestJob } from '../kb/ingest';
 import { startKbIngestWorker } from './kb-ingest.processor';
+import { startKbReindexWorker, type KbReindexWorker } from './kb-reindex.processor';
+import { WorkspaceAccess } from '../../platform/public';
 import { startAssistantEventsPrune } from './assistant-events.processor';
 import { startAssistantTurnWorker } from './assistant-turn.processor';
 import type { TurnJob } from '../assistant/genui/turn-request.consumer';
@@ -59,6 +61,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   private suggest?: { close(): Promise<void> };
   private analyze?: { close(): Promise<void> };
   private discovery?: Worker<{ ws: string; generation_id: string }>;
+  private reindex?: KbReindexWorker;
 
   constructor(
     @Optional() @Inject(REDIS) private readonly redis: Redis | undefined,
@@ -91,6 +94,9 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
     if (!redis || !tenants || !files) return;
     // TIP-003c: công bố kết quả nạp qua action riêng — không có executor thì không chạy worker nạp (không có đường ghi thứ hai).
     if (this.executor) this.kb = startKbIngestWorker(redis, tenants, { files, executor: this.executor, embedder: this.embedder, meter: this.meter, log: this.log, now: () => this.clock.now() }, this.log);
+    // TIP-020e: tái tạo chỉ mục embedding (lô theo cursor dưới lease; drain = ngừng nhận lô mới, giữ cursor).
+    const access = this.platform ? new WorkspaceAccess(this.platform, () => this.clock.now().getTime()) : null;
+    this.reindex = startKbReindexWorker(redis, { tenants, embedder: this.embedder, meter: this.meter, now: () => this.clock.now(), log: this.log, ...(access ? { isOpen: (ws: string) => access.isOpen(ws) } : {}) });
     // TIP-023c: dọn sổ sự kiện stream Trợ lý quá 24h (chỉ workspace đã đánh dấu).
     this.events = await startAssistantEventsPrune(redis, tenants, () => this.clock.now(), this.log);
     // TIP-023e §1.4: dựng vector kho mô tả action (generation đã được assistant.discovery_prepare xác nhận) — cần executor để
@@ -137,6 +143,7 @@ class AiJobsRunner implements OnApplicationBootstrap, OnApplicationShutdown {
   }
 
   async onApplicationShutdown(): Promise<void> {
+    await this.reindex?.close();
     await this.kb?.close();
     await this.resume?.close();
     await this.reply?.close();
