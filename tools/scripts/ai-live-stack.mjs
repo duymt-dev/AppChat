@@ -19,7 +19,7 @@ const base = existsSync(envFile)
   ? Object.fromEntries(
       readFileSync(envFile, 'utf8')
         .split(/\r?\n/)
-        .filter((l) => /^[A-Z_]+=/.test(l))
+        .filter((l) => /^[A-Z_][A-Z0-9_]*=/.test(l))
         .map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]),
     )
   : {};

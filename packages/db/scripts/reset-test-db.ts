@@ -15,7 +15,7 @@ const readEnv = (f: string): Record<string, string> =>
     ? Object.fromEntries(
         readFileSync(f, 'utf8')
           .split(/\r?\n/)
-          .filter((l) => /^[A-Z_]+=/.test(l))
+          .filter((l) => /^[A-Z_][A-Z0-9_]*=/.test(l))
           .map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]),
       )
     : {};
@@ -25,13 +25,14 @@ if (!admin) throw new Error('Thiếu PG_ADMIN_URL (.env.local-admin)');
 for (const k of ['PG_PW_PLATFORM_APP', 'PG_PW_TENANT_APP', 'PG_PW_PROVISIONER', 'PG_PW_MIGRATOR', 'PROVISIONER_DATABASE_URL'])
   if (!env[k]) throw new Error(`Thiếu ${k} — chạy \`pnpm --filter @appchat/db db:setup\` trước`);
 
-const t = testDbEnv(env);
-const name = t.TEST_PLATFORM_DB!;
+const want = env.TEST_PLATFORM_DB || 'appchat_platform_test';
 const devDb = decodeURIComponent(new URL(env.PLATFORM_DATABASE_URL!).pathname.replace(/^\//, ''));
-if (!/^appchat_platform_test(_wt[1-3])?$/.test(name) || name === devDb) {
-  process.stderr.write(`db:test-reset từ chối: TEST_PLATFORM_DB "${name}" phải khớp appchat_platform_test(_wt1..3) và khác DB nền tảng dev "${devDb}"\n`);
+if (!/^appchat_platform_test(_wt[1-3])?$/.test(want) || want === devDb) {
+  process.stderr.write(`db:test-reset từ chối: TEST_PLATFORM_DB "${want}" phải khớp appchat_platform_test(_wt1..3) và khác DB nền tảng dev "${devDb}"\n`);
   process.exit(2);
 }
+const t = testDbEnv(env);
+const name = t.TEST_PLATFORM_DB!;
 const templateDb = env.TENANT_TEMPLATE_DB ?? 'appchat_tenant_template';
 const say = (s: string) => process.stdout.write(`${s}\n`);
 const q = async <T extends pg.QueryResultRow>(url: string, sql: string, params: unknown[] = []) => {

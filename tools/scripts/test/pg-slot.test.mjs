@@ -12,7 +12,7 @@ import { NS, slotUrl } from '../pg-slot.mjs';
 
 const ROOT = join(import.meta.dirname, '..', '..', '..');
 const SCRIPT = join(ROOT, 'tools', 'scripts', 'pg-slot.mjs');
-const dotenv = existsSync(join(ROOT, '.env')) ? Object.fromEntries(readFileSync(join(ROOT, '.env'), 'utf8').split(/\r?\n/).filter((l) => /^[A-Z_]+=/.test(l)).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)])) : {};
+const dotenv = existsSync(join(ROOT, '.env')) ? Object.fromEntries(readFileSync(join(ROOT, '.env'), 'utf8').split(/\r?\n/).filter((l) => /^[A-Z_][A-Z0-9_]*=/.test(l)).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)])) : {};
 const { Client } = createRequire(join(ROOT, 'packages', 'db', 'package.json'))('pg');
 const swap = (u, db) => Object.assign(new URL(u), { pathname: `/${db}` }).toString();
 const baseEnv = (o = {}) => {

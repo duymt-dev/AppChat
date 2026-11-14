@@ -152,7 +152,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 54 | [006c](../tips/TIP-006c-realtime-events.md) | W8 | DONE | `tip/006c-realtime-events` | `8c43594c` | #222 |
 | 55 | [016b](../tips/TIP-016b-nav-badges.md) | W8 | DONE | `tip/016b-nav-badges` | `342d1a84` | #223 |
 | 56 | [034d](../tips/TIP-034d-ticket-stock-trends.md) | W8 | DONE | `tip/034d-ticket-stock-trends` | `cc9c77ad` | #224 |
-| 57 | [035d](../tips/TIP-035d-worktree-isolation.md) | W8 | chờ — D62 / DC-908 (cô lập worktree) — **làm trước tiên** rồi mới chia 3 luồng A / B / C | `tip/035d-worktree-isolation` | | |
+| 57 | [035d](../tips/TIP-035d-worktree-isolation.md) | W8 | DONE | `tip/035d-worktree-isolation` | `__SHA__` | __PR__ |
 | 58 | [020e](../tips/TIP-020e-rag-model-lifecycle.md) | W8 | DONE | `tip/020e-rag-model-lifecycle` | `bcc52d2e` | #226 |
 | 59 | [003e](../tips/TIP-003e-action-integrity.md) | W8 | chờ | `tip/003e-action-integrity` | | |
 | 60 | [001c](../tips/TIP-001c-ui-states-mobile.md) | W8 | chờ | `tip/001c-ui-states-mobile` | | |

@@ -265,7 +265,7 @@ Ghi chú:
 | DC-905 | Giao diện Gọi điện, WebPhone, màn prototype không vẽ | DECISIONS.md:486 | 047d | CHƯA | TIP-047d |
 | DC-906 | Hạ tầng thoại native + SIP edge, cấu hình qua env, script mặc định `plan` | DECISIONS.md:487 | 047 | CHƯA | TIP-047 |
 | DC-907 | Chốt Q-902…906 + Voice AI tự dựng (STT PhoWhisper, TTS VieNeu-TTS local, giấy phép thương mại, giá STT / TTS = 0, giới hạn phiên, Hộp SIM "Sắp có") | DECISIONS.md:488 | 047, 047b, 047c, 047d | CHƯA | TIP-047 §3 · 047b §5 · 047c §7 · 047d §6 |
-| D62-worktree | Ba worktree song song: DB / cổng / Memurai / slot Postgres riêng (D62 #7) | 01-REQUIREMENTS-MATRIX.md:336 | 035d | CHƯA | TIP-035d |
+| D62-worktree | Ba worktree song song: DB / cổng / Memurai / slot Postgres riêng (D62 #7) | 01-REQUIREMENTS-MATRIX.md:336 | 035d | ĐẠT | tools/scripts/worktree-env.mjs (planEnv / --check), worktree-redis.mjs, pg-slot.mjs; health `instance`; e2e-http / ai-live-stack kiểm cổng + instance · test tools/scripts/test/{worktree-env,pg-slot}.test.mjs · reports/TIP-035d-completion.md (AC1–12) |
 | D62-oauth | OAuth + một kho token, một App Zalo cho kênh OA + ZCC (D62 #2) | 01-REQUIREMENTS-MATRIX.md:336 | 048 | CHƯA | TIP-048 |
 | D62-foundation | Nền kênh webhook + cửa sổ gửi + một Page / OA một workspace (D62 #2, #5) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b |
 | D62-channels | Zalo OA, Facebook Page / Messenger, Instagram, TikTok có adapter thật (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048d, 048e, 048h | CHƯA | TIP-048d · 048e · 048h |
@@ -288,7 +288,7 @@ Ghi chú:
 | DC-918 | Connector Shopee | DECISIONS.md:499 | 049b | CHƯA | TIP-049b |
 | DC-919 | Connector TikTok Shop | DECISIONS.md:500 | 049c | CHƯA | TIP-049c |
 | DC-920 | Giao diện sàn | DECISIONS.md:501 | 049d | CHƯA | TIP-049d |
-| DC-908 | Cô lập 3 worktree: env theo bảng, Memurai riêng, slot Postgres, cổng theo env | DECISIONS.md:489 | 035d | CHƯA | TIP-035d |
+| DC-908 | Cô lập 3 worktree: env theo bảng, Memurai riêng, slot Postgres, cổng theo env | DECISIONS.md:489 | 035d | ĐẠT | tools/scripts/worktree-env.mjs `portsFor` / `planEnv`; worktree-redis.mjs (638k); pg-slot.mjs (NS 735035 trên DB `postgres`); next-port.mjs / parity cli / e2e.mjs theo `.env` · DC-453 · reports/TIP-035d-completion.md |
 | DC-909 | Kho token OAuth chung + một App Zalo cho OA + ZCC; sửa 047 / 047b / 047c / 047d | DECISIONS.md:490 | 048 | CHƯA | TIP-048 |
 | DC-910 | Nền kênh webhook: route mức App, biên nhận, chọn tài khoản, cửa sổ gửi, registry | DECISIONS.md:491 | 048b | CHƯA | TIP-048b |
 | DC-911 | Giao diện kết nối kênh theo registry, Sắp có, Đồng bộ theo năng lực | DECISIONS.md:492 | 048c | CHƯA | TIP-048c |

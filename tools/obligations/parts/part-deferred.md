@@ -111,7 +111,7 @@
 | Q-919 | Áp DC-921 / 922 cho action cũ đang `agentGrantable: false` (143 write + 12 send) | QUESTIONS.md:92 | 050 | CHƯA | Chốt DC-923 (f): TIP-050 |
 | Q-054 | TOTP bắt buộc cho admin nền tảng | QUESTIONS.md:67 | 045 | CHƯA | Chốt DC-923 (e) — TIP-045 §3.7 |
 | Q-049 | Trợ lý / agent đọc lời mời bạn bè Zalo | QUESTIONS.md:62 | — | NGOÀI | Chốt DC-923 (b): không làm — bạn bè Zalo thủ công |
-| Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | CHƯA | Chốt DC-923 (d): role limit chỉ in lệnh — TIP-035d §4.2 |
+| Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | ĐẠT | DC-923 (d): tools/scripts/worktree-redis.mjs (Memurai 638k riêng); `pnpm slot -- --role-limits` chỉ in `ALTER ROLE … CONNECTION LIMIT` (Chủ nhà tự `--apply`) |
 | PD-903 | Danh sách kênh theo registry + Sắp có cho WA / Telegram / LINE / Viber / WeChat | docs/06-prototype/DEVIATIONS.md:49 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
 | PD-904 | Hộp thư bình luận (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:50 | 048f | CHƯA | TIP-048f (duyệt / từ chối lúc verify) |
 | PD-905 | Livestream (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:51 | 048g | CHƯA | TIP-048g (duyệt / từ chối lúc verify) |

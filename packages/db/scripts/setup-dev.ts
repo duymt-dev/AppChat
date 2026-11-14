@@ -14,7 +14,7 @@ function readEnv(file: string): Record<string, string> {
   return Object.fromEntries(
     readFileSync(file, 'utf8')
       .split(/\r?\n/)
-      .filter((l) => /^[A-Z_]+=/.test(l))
+      .filter((l) => /^[A-Z_][A-Z0-9_]*=/.test(l))
       .map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]),
   );
 }
