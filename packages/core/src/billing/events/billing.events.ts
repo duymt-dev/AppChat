@@ -1,6 +1,7 @@
 // Nối billing (DB nền tảng) với event của workspace (outbox DB tenant — standards/events/outbox.md §1): ghi outbox SAU khi
 // transaction nền tảng commit ("nền tảng trước" — Blueprint §2.0); relay đẩy sang queue `events`. Ngưỡng ví → event
-// `credits.*` + thông báo Owner (`ai_budget`). Consumer `billing.trial`: `workspace.declared` → bắt đầu trial.
+// `credits.*` + thông báo Owner (`ai_budget`); mọi thay đổi số dư → `credits.changed` (TIP-006c — realtime làm mới số dư).
+// Consumer `billing.trial`: `workspace.declared` → bắt đầu trial.
 import { TenantContexts, type PlatformDb, type TenantDbResolver } from '@appchat/db';
 import { workspaceDeclaredEvent } from '@appchat/shared';
 import type { EventConsumer } from '../../kernel/events/consumer';
@@ -25,10 +26,11 @@ export class OutboxBillingSink implements BillingEventSink {
   }
 }
 
-/** Ngưỡng ví → event + thông báo Owner (chỉ khi bật cảnh báo — `credit_wallet.low_alert`). */
+/** Ngưỡng ví → event + thông báo Owner (chỉ khi bật cảnh báo — `credit_wallet.low_alert`); số dư đổi → `credits.changed`. */
 export function walletThresholdListener(platform: Pick<PlatformDb, 'workspace'>, sink: BillingEventSink): WalletListener {
   return async (c, f) => {
     const events: { topic: string; payload: Record<string, unknown> }[] = [];
+    if (f.changed) events.push({ topic: 'credits.changed', payload: { balance_plan: c.after.plan, balance_topup: c.after.topup, ledger_id: c.ledgerId } });
     if (f.warned) events.push({ topic: 'credits.low', payload: { level: f.warned, balance: c.after.total } });
     if (f.exhausted) events.push({ topic: 'credits.exhausted', payload: { balance: c.after.total } });
     if (f.restored) events.push({ topic: 'credits.restored', payload: { balance: c.after.total } });

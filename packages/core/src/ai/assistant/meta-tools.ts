@@ -2,7 +2,8 @@
 //   find_actions(query, module?)   — action trong quyền người dùng + chế độ (catalog.ts).
 //   call_action(action_id, input)  — ActionExecutor `source='assistant'`, `onBehalfOfUserId` = người dùng: read chạy ngay, còn lại
 //                                    executor trả preview + confirm_token → `needs_confirmation` → run dừng, FE hiện thẻ xác nhận.
-//   ui(command)                    — UiCommand (zod) → sự kiện `ui_command` (kết quả tool, turn.service đọc lại từ bước run).
+//   ui(command)                    — UiCommand (zod) → sự kiện `ui_command` (kết quả tool, turn.service đọc lại từ bước run) + realtime
+//                                    `ui.command` tới tab người ra lệnh (TIP-006c, ui-command.ts).
 //   plan(steps)                    — TIP-023d §1.4: alias mỏng gọi canonical `assistant.plan_propose` qua Executor (cùng đường
 //                                    callAction — preview/confirm giữ nguyên); update_step (§1.5) đổi thành chỉ đọc tiến độ thật.
 //   query_data(metric, params)     — = call_action `insight.query` (TIP-038): metric allowlist, chỉ đọc, qua ActionExecutor với quyền người dùng.
@@ -23,9 +24,14 @@ import { pinVersion } from './version-pin';
 import { aiCustomErrors, withCustomSchema } from './custom-schema';
 import { delegateTool, type DelegateDeps } from './delegate';
 import { renderTool } from './genui/render';
+import { orderCardCheck } from './genui/appointment-order';
 import { planOfRoot } from './plans/repo';
+import { decideStep } from './plans/driver';
+import { rootAuthority } from './plans/selected-agent';
 import { dispatchOutcome } from './read-dispatch';
 import type { AssistantTurnCtx } from './types';
+import { issueUiCommand } from './ui-command';
+import type { KeyValueStore } from '../../kernel/redis';
 
 export type { AssistantTurnCtx } from './types';
 
@@ -68,6 +74,8 @@ export interface MetaDeps extends DelegateDeps {
   executor: ToolExecutor;
   /** TIP-023e: route embed + ví — vắng thì find_actions luôn keyword fallback (no_model_route). */
   discovery?: DiscoveryRuntime | null;
+  /** TIP-006c: đánh dấu outbox bẩn sau khi ghi `ui.command_issued` (relay ngay, không đợi quét). */
+  kv?: Pick<KeyValueStore, 'sadd'> | null;
 }
 
 /** Ngữ cảnh action của Trợ lý: quyền = quyền người dùng (§3.3b), run / bước để log nối về run. */
@@ -112,7 +120,15 @@ async function callAction(d: MetaDeps, t: AssistantTurnCtx, raw: unknown, stepId
     if (Object.keys(notAi).length) throw new AppError('VALIDATION_FAILED', 422, notAi);
     // Lệnh tạo / gửi / tiền cần Idempotency-Key: gắn theo run + bước + lời gọi (chạy lại cùng lời gọi không tạo hai lần).
     const idem = def.risk === 'read' ? {} : { idempotencyKey: assistantIdemKey(t.runId, stepIdx, toolCallId) };
-    return dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, idem), def.id, input), stripSecrets(def, input), maxRows);
+    // TIP-023d §2.1-2.2: lời gọi ghi khi run có kế hoạch đang chạy → server ràng với bước hiện hành (hoặc từ chối ghi ngoài kế hoạch).
+    const step = def.risk === 'read' || def.id.startsWith('assistant.plan_') ? null : await decideStep(d.db, t.runId, def.id);
+    if (step?.kind === 'reject') return err(step.code, step.message);
+    const binding = step?.kind === 'bound' ? { planBinding: step.binding } : {};
+    // TIP-023d §5.3: đã chọn agent → run gốc chỉ tra cứu trong quyền agent ∩ người dùng; ghi nghiệp vụ phải giao cho agent đó.
+    const sel = t.selected ? await rootAuthority(d.db, t.selected, t.authz, def) : null;
+    if (sel && !sel.ok) return err(sel.code, sel.message);
+    const out = dispatchOutcome(await d.executor.execute(assistantActionCtx(t, stepIdx, { ...idem, ...binding, ...(sel ? { authz: sel.authz } : {}) }), def.id, input), stripSecrets(def, input), maxRows);
+    return out.kind === 'needs_confirmation' && step?.kind === 'bound' ? { ...out, binding: step.binding } : out;
   } catch (e) {
     if (e instanceof AppError && e.code === 'VALIDATION_FAILED') {
       // Sai khuôn input → kèm khuôn đúng + ví dụ để model tự gọi lại (không bỏ cuộc, không bắt người dùng tự sửa).
@@ -178,7 +194,10 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       origin: 'meta',
       execute: async (input) => {
         const p = uiCommandSchema.safeParse((input as { command?: unknown } | null)?.command);
-        return p.success ? ok({ ui_command: p.data }) : err('VALIDATION_FAILED', 'UiCommand không hợp lệ');
+        if (!p.success) return err('VALIDATION_FAILED', 'UiCommand không hợp lệ');
+        // TIP-006c: realtime `ui.command` tới đúng tab người ra lệnh (outbox); lỗi ghi không làm hỏng lượt — sự kiện lượt vẫn mang lệnh.
+        await issueUiCommand({ db: d.db, kv: d.kv ?? null, now: d.now }, t, p.data).catch(() => false);
+        return ok({ ui_command: p.data });
       },
     },
     {
@@ -189,7 +208,7 @@ export function assistantTools(d: MetaDeps, t: AssistantTurnCtx): ToolSpec[] {
       // Cùng đường call_action (executor, quyền người dùng / Cowork ∩ agent, log nối run) — không SQL, không bỏ actor.
       execute: (input, meta) => callAction(d, t, { action_id: 'insight.query', input: queryInput(input) }, meta.stepIdx, meta.toolCallId, INSIGHT_LIMITS.maxRows),
     },
-    renderTool({ db: d.db, implemented: implementedBy(d.executor) }, t),
+    renderTool({ db: d.db, implemented: implementedBy(d.executor), orderCard: orderCardCheck(d.db) }, t),
   ];
   if (t.mode === 'chat') return tools;
   return [

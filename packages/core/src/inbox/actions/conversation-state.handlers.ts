@@ -18,6 +18,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { writableConversation } from '../services/access';
 import { bumpAiEpoch } from '../services/human-takeover';
+import { fenceCustomerSource } from '../services/customer-source-fence';
 import { readMentions } from '../services/mentions';
 import { me, restore, snap, updatedEvent, type ConvSnap } from './kit';
 import * as pv from './previews/conversation-state.handlers.preview';
@@ -174,6 +175,7 @@ export class ConversationClearHistoryHandler implements Handler<ActionInput<type
     const now = this.clock.now();
     const mark = last && last.createdAt > now ? last.createdAt : now;
     const cleared = await tx.message.count({ where: { conversationId: c.id, ...(c.clearedAt ? { createdAt: { gt: c.clearedAt } } : {}) } });
+    await fenceCustomerSource(tx, c.id, null, 'history_cleared', now);
     await tx.conversation.update({ where: { id: c.id }, data: { clearedAt: mark, pinnedMessageId: null } });
     return { result: { cleared }, before: snap(c, ['clearedAt', 'pinnedMessageId']), events: [await updatedEvent(tx, c, 'cleared')] };
   }

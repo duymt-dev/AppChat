@@ -1,0 +1,30 @@
+// Đăng ký của sửa ticket hàng loạt (TIP-034c): verifier nguồn cho hai con riêng (003c), map hoàn tác ticket.bulk_update → ticket.bulk_undo
+// (kernel trung lập), kind việc dữ liệu 045b (runner `dispatch` — con qua Executor, biên nhận trong transaction của con). Cùng một runner
+// cho đợt ≤ 50 chạy ngay (API) và việc nền 51–200 (ROLE=jobs) — không có scheduler / engine thứ hai.
+import { BULK_SYNC_MAX } from '@appchat/shared';
+import { registerSystemVerifier } from '../../kernel/actions/system';
+import { registerUndoAction } from '../../kernel/actions/undo-action-registry';
+import { registerDataJobKind } from '../../kernel/jobs/bulk-dispatch';
+import { dataJobUrl } from '../../kernel/jobs/data-jobs/handlers';
+import { registerJobResult } from '../../kernel/jobs/bulk-status';
+import { registerRefSource } from '../../ai/assistant/genui/refs';
+import { itemDispatch, verifyBulkItem } from './item';
+import { markForwardUndo } from './undo';
+import { TICKET_BULK_KIND, TICKET_BULK_UNDO_KIND, bulkRefSource, bulkResultOf, undoResultOf } from './results';
+import type { TicketBulkDeps } from './providers';
+
+export function registerTicketBulk(d: TicketBulkDeps): void {
+  registerSystemVerifier('ticket.bulk_item', verifyBulkItem);
+  registerSystemVerifier('ticket.bulk_item_undo', verifyBulkItem);
+  registerUndoAction('ticket.bulk_update', 'ticket.bulk_undo');
+  // Đợt ≤ 50 chạy ngay trong yêu cầu (người gọi đã thấy kết quả) — không gửi thông báo xong việc.
+  const silent = (j: { total: number }) => j.total <= BULK_SYNC_MAX;
+  registerDataJobKind(TICKET_BULK_KIND, { label: 'Cập nhật hàng loạt ticket', link: dataJobUrl, silent, dispatch: itemDispatch(d, 'ticket.bulk_item') });
+  // Kết quả từng id qua GET /v1/data-jobs/:id/result (người tạo + quyền hiện tại — DataJobStatusService).
+  registerJobResult(TICKET_BULK_KIND, bulkResultOf);
+  registerJobResult(TICKET_BULK_UNDO_KIND, undoResultOf);
+  // Thẻ GenUI của Trợ lý trỏ kết quả qua `$ref` → đọc lại biên nhận theo quyền hiện hành (không bản lưu, không gọi model).
+  registerRefSource('ticket.bulk_update', bulkRefSource);
+  registerRefSource('ticket.bulk_undo', bulkRefSource);
+  registerDataJobKind(TICKET_BULK_UNDO_KIND, { label: 'Hoàn tác cập nhật hàng loạt ticket', link: dataJobUrl, silent, dispatch: itemDispatch(d, 'ticket.bulk_item_undo', markForwardUndo) });
+}

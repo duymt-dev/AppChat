@@ -30,6 +30,12 @@ afterAll(async () => {
 const json = async (r: Response) => ({ status: r.status, body: (await r.json()) as any }); // eslint-disable-line @typescript-eslint/no-explicit-any
 const as = (u: { id: string }) => ({ authorization: `Bearer ${h.tokenFor(u.id)}` });
 const act = (id: string, input: unknown, who?: { id: string }) => call(h, `/actions/${id}`, { input }, { 'idempotency-key': uuidv7(), ...(who ? as(who) : {}) }).then(json);
+/** TIP-033c: action xem trước bắt buộc — lần đầu 202 preview_required (0 ghi), gửi lại kèm confirm_token mới chạy. */
+const confirmed = async (id: string, input: unknown) => {
+  const pv = await act(id, input);
+  expect(pv.body.data?.status, JSON.stringify(pv.body)).toBe('preview_required');
+  return call(h, `/actions/${id}`, { input, confirm_token: pv.body.data.confirm_token }, { 'idempotency-key': uuidv7() }).then(json);
+};
 const get = (path: string, who?: { id: string }) => call(h, path, undefined, who ? as(who) : {}).then(json);
 const tenant = () => resolver.get(TenantContexts.system(h.ws, 't'));
 const ok = (r: { status: number; body: unknown }) => {
@@ -135,9 +141,13 @@ describe('đặt lịch', () => {
     ok(await act('appointment.check_in', { appointment_id: a1 }));
     const done = ok(await act('appointment.complete', { appointment_id: a1 }));
     expect([done.result.status, done.result.package, done.result.suggest_order]).toEqual(['done', null, true]);
-    const o = ok(await act('order.create_from_appointment', { appointment_id: a1 }));
-    expect(o.result.code).toMatch(/^DH-/);
-    expect(ok(await act('order.create_from_appointment', { appointment_id: a1 })).result.order_id).toBe(o.result.order_id);
+    // Gọi thẳng không token → xác nhận bắt buộc, chưa có đơn (TIP-033c §3.2).
+    expect((await act('order.create_from_appointment', { appointment_id: a1 })).status).toBe(202);
+    expect((await appt(a1)).order_id).toBeNull();
+    const o = ok(await confirmed('order.create_from_appointment', { appointment_id: a1 }));
+    expect([o.result.code.slice(0, 3), o.result.reused]).toEqual(['DH-', false]);
+    const again = ok(await confirmed('order.create_from_appointment', { appointment_id: a1 }));
+    expect([again.result.order_id, again.result.reused]).toEqual([o.result.order_id, true]);
     const db = await tenant();
     const ord = await db.order.findUniqueOrThrow({ where: { id: o.result.order_id } });
     expect([ord.source, ord.appointmentId, String(ord.total)]).toEqual(['appointment', a1, '450000']);
@@ -162,6 +172,7 @@ describe('đặt lịch', () => {
     const d = ok(await act('appointment.complete', { appointment_id: id }));
     expect([d.result.package?.used, d.result.package?.total, d.result.suggest_order]).toEqual([1, 5, false]);
     expect(await db.packageUsage.count({ where: { appointmentId: id, revertedAt: null } })).toBe(1);
+    // Buổi thuộc liệu trình: 409 trước cả bước xác nhận (thứ tự lỗi §3.2 — nguồn trước token).
     expect(err(await act('order.create_from_appointment', { appointment_id: id }))).toBe('409 INVALID_STATE');
     expect((await undo(d.action_log_id)).status).toBe(200);
     expect((await db.customerPackage.findUniqueOrThrow({ where: { id: pk.id } })).usedSessions).toBe(0);

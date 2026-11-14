@@ -39,6 +39,8 @@ describe('quote.request_revision', () => {
         { entity: 'quote', id: Q(), before: { status: 'sent' }, after: { status: 'revision_requested' } },
         { entity: 'quote', after: { code: q.code, version: 2, status: 'draft', total: '3240000', reason: 'Bớt 1 buổi' } },
       ],
+      // TIP-022c: thẻ Trợ lý là quyết định của người vận hành, không phải ý định khách phát hiện.
+      warnings: ['operator_decision'],
     });
     expect(done.body.data.result).toMatchObject({ code: q.code, version: 2 });
     expect((await row()).status).toBe('revision_requested');

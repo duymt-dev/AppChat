@@ -5,10 +5,13 @@
 //  - Người commit trước: epoch đã tăng / chế độ copilot → từ chối, KHÔNG gọi kênh, nội dung giữ làm nháp (takeover đã huỷ tin).
 //  - Đặt chỗ commit trước: tin coi như đang gửi (dù chưa gọi mạng); người tiếp quản thấy "đang gửi", không giả là đã chặn.
 // Gọi kênh MỘT lần ngoài transaction; không giữ khoá qua I/O mạng. Tin người (không fence) đi thẳng như cũ.
+// TIP-022c §3.7: câu bán hàng (run có `ai_sales_publication`) quan sát lại tồn / giá HIỆN TẠI trong transaction đặt chỗ — sự thật hiển
+// thị đổi / agent mất grant / chữ không đúng câu đã dựng / khách bị quên → không gửi (tin agent: nội dung giữ làm nháp chuyển người).
 import type { TenantDb } from '@appchat/db';
 import { AppError } from '@appchat/shared';
 import type { TenantTx } from '../../kernel/actions/action-context';
 import { dispatchKnowledgeOk } from '../kb/scope/draft-binding';
+import { dispatchSalesReason } from '../sales-behavior/publication';
 
 export type ReserveOutcome = 'reserved' | 'not_agent' | 'rejected' | 'missing' | 'already';
 
@@ -17,10 +20,15 @@ type Db = Pick<TenantDb, '$transaction'>;
 /** Đặt chỗ một outbox gửi (ref_id = outbox id). `not_agent` = tin người → gửi bình thường. */
 export async function reserveDispatch(db: Db, outboxId: string, now: Date): Promise<ReserveOutcome> {
   return db.$transaction(async (tx) => {
-    const ob = await tx.outboxMessage.findUnique({ where: { id: outboxId }, select: { id: true, status: true, messageId: true, turnFence: true, aiEpoch: true, knowledgeRunId: true } });
+    const ob = await tx.outboxMessage.findUnique({ where: { id: outboxId }, select: { id: true, status: true, messageId: true, turnFence: true, aiEpoch: true, knowledgeRunId: true, payload: true } });
     if (!ob) return 'missing';
     // TIP-020c: nội dung phụ thuộc nguồn tri thức (tin agent / nháp AI người gửi) — nguồn hết hiệu lực trước khi gọi kênh → không gửi.
     if (ob.status === 'pending' && !(await dispatchKnowledgeOk(tx, ob.knowledgeRunId))) return reject(tx, ob, 'knowledge_revoked');
+    if (ob.status === 'pending' && ob.knowledgeRunId) {
+      const m = await tx.message.findUnique({ where: { id: ob.messageId }, select: { purpose: true } });
+      const why = await dispatchSalesReason(tx, ob, m?.purpose ?? null, now);
+      if (why) return reject(tx, ob, why);
+    }
     if (ob.turnFence === null) return 'not_agent';
     if (ob.status === 'dispatch_reserved' || ob.status === 'sending' || ob.status === 'sent') return 'already';
     if (ob.status !== 'pending') return 'rejected';

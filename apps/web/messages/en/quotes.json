@@ -276,7 +276,12 @@
     "convertContract": "contract",
     "convertOrder": "order",
     "convertSoon": "The {kind} is created on its own screen — open {route}",
-    "sendMore": "More options"
+    "sendMore": "More options",
+    "render": {
+      "pending": "Creating PDF… it will be sent to the customer once ready.",
+      "failed": "Could not create the PDF (tried 3 times). The quote stays sent.",
+      "retry": "Retry"
+    }
   },
   "aiPanel": {
     "title": "AI Assistant · Quotes",

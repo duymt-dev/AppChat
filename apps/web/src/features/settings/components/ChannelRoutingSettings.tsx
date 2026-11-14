@@ -7,7 +7,7 @@ import { App } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { ROUTING_MAX_CANDIDATES, emptySchedule } from '@appchat/shared';
-import { agentsQuery } from '@/features/agents';
+import { agentsQuery } from '@/features/agents/api';
 import { useAction } from '@/shared/actions/useAction';
 import { useCan } from '@/shared/authz/useCan';
 import { WeeklyScheduleFields } from '@/shared/forms/WeeklyScheduleFields';

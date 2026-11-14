@@ -11,7 +11,6 @@
     "breach": "Quá hạn SLA",
     "closed": "Đã đóng"
   },
-  "trend": "↑ {v}",
   "listTitle": "Tất cả ticket",
   "listCount": "{n} ticket",
   "filter": {
@@ -86,7 +85,39 @@
     "ai": "AI xử lý",
     "priority": "Đổi ưu tiên",
     "clear": "Bỏ chọn",
-    "done": "Đã cập nhật {n} ticket"
+    "done": "Đã cập nhật {n} ticket",
+    "result": {
+      "title": "Kết quả sửa hàng loạt",
+      "running": "Đang chạy nền: còn {n}/{total} ticket — có thể rời màn, kết quả cập nhật khi xong",
+      "summary": "{changed} ticket đã đổi · {same} đã đúng sẵn · {failed} chưa áp dụng",
+      "duplicates": "Đã gộp {n} id trùng",
+      "agentNotRun": "Giao cho AI Agent chỉ là phân công — agent chưa chạy / xử lý ticket nào.",
+      "keptSelected": "Các ticket chưa áp dụng được vẫn đang được chọn để xử lý tiếp.",
+      "undoRunning": "Đang hoàn tác: còn {n} ticket",
+      "undoSummary": "Đã hoàn tác {undone} ticket · {conflicts} xung đột giữ nguyên · {failed} không hoàn tác được",
+      "undo": "Hoàn tác",
+      "cancel": "Dừng",
+      "retry": "Thử lại ticket lỗi",
+      "close": "Đóng",
+      "status": {
+        "cancelled": "Đã dừng",
+        "failed": "Lỗi",
+        "completed": "Xong"
+      },
+      "code": {
+        "NOT_FOUND": "Không tìm thấy hoặc không có quyền xem",
+        "SCOPE_FORBIDDEN": "Ngoài phạm vi được sửa",
+        "INVALID_TRANSITION": "Ticket đã đóng",
+        "STALE_VERSION": "Đã bị sửa sau khi bạn chọn — tải lại rồi chọn lại",
+        "VALIDATION_FAILED": "Người nhận không còn hợp lệ",
+        "FORBIDDEN": "Không còn quyền",
+        "CONFLICT": "Đã bị sửa sau thao tác này — giữ nguyên",
+        "UNDO_EXPIRED": "Đã hết hạn hoàn tác",
+        "NOT_APPLIED": "Chưa áp dụng (thao tác đã dừng)",
+        "INTERNAL": "Lỗi hệ thống"
+      },
+      "download": "Tải kết quả (Excel)"
+    }
   },
   "detail": {
     "close": "Đóng",
@@ -214,7 +245,8 @@
       "underline": "Gạch chân",
       "ul": "Danh sách",
       "ol": "Danh sách số"
-    }
+    },
+    "categoryRequired": "Nhập danh mục"
   },
   "channel": {
     "zalo_personal": "Zalo cá nhân",
@@ -237,5 +269,32 @@
     }
   },
   "agent": "AI Agent",
-  "unit": "ticket"
+  "unit": "ticket",
+  "categoryInput": {
+    "suggested": "Gợi ý",
+    "used": "Đã dùng trong ticket",
+    "more": "Tải thêm nhãn đã dùng",
+    "free": "Dùng \"{q}\" làm danh mục mới"
+  },
+  "stock": {
+    "title": "So với hôm qua",
+    "vsYesterday": "So với hôm qua lúc {at}",
+    "noBaselineShort": "Chưa có số hôm qua để so",
+    "unknownShort": "Chưa rõ xu hướng",
+    "srUp": "tăng {n} so với hôm qua",
+    "srDown": "giảm {n} so với hôm qua",
+    "srFlat": "không đổi so với hôm qua",
+    "srUnknown": "chưa so được với hôm qua",
+    "measuredAt": "Số hiện tại đo lúc {at} ({tz}).",
+    "observedAt": "Mốc so sánh: quan sát thật lúc {at} hôm qua.",
+    "row": "{label}: {prior} → {now} ({delta})",
+    "cohort": "Chỉ so trên các ticket bạn còn thấy hiện nay; ticket đã xoá hoặc ngoài quyền không tính ở cả hai phía — đây không phải tăng trưởng ròng và không cho biết nguyên nhân.",
+    "unsupported": "Máy chủ chưa hỗ trợ so sánh với hôm qua.",
+    "reason": {
+      "baseline_missing": "Chưa có lần quan sát nào của hôm qua — chưa thể so sánh.",
+      "source_unavailable": "Một phần dữ liệu hôm qua không còn được dùng — chưa thể so sánh.",
+      "capture_unavailable": "Lần quan sát hôm qua không đầy đủ — chưa thể so sánh.",
+      "schema_unavailable": "Hệ thống đang cập nhật — chưa thể so sánh."
+    }
+  }
 }

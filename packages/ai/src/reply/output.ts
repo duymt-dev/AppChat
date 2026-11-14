@@ -5,6 +5,7 @@
 // điểm mã Unicode trên chuỗi `reply` THÔ (trước trim / khôi phục PII) hoặc `quote` = đoạn nguyên văn của `reply` (server tự tính vị trí
 // chính xác). `raw_reply` giữ chuỗi thô cho bước ánh xạ; chữ thường (không JSON) không có trích dẫn.
 import { z } from 'zod';
+import { parseSalesPlan, type SalesPlan } from './sales-plan';
 
 export const MAX_ANSWER_CITATIONS = 12;
 
@@ -27,15 +28,19 @@ export const agentReplySchema = z.object({
   needs_human: z.string().max(300).nullish().catch(null),
   /** Sai khuôn → `invalid` (không âm thầm bỏ — ứng viên mang trích dẫn hỏng không được công bố là có căn cứ). */
   citations: z.array(z.unknown()).max(MAX_ANSWER_CITATIONS * 2).optional().catch(['__invalid__']),
+  /** TIP-022c: kế hoạch bán hàng có kiểu — server kiểm + dựng câu tồn / giá (sales-plan.ts). */
+  sales_plan: z.unknown().optional(),
 });
-export type AgentReply = Omit<z.infer<typeof agentReplySchema>, 'citations'> & {
+export type AgentReply = Omit<z.infer<typeof agentReplySchema>, 'citations' | 'sales_plan'> & {
+  /** TIP-022c: null = không có kế hoạch bán hàng; `invalid` = có nhưng sai khuôn (chặn tự gửi). */
+  sales_plan: SalesPlan | 'invalid' | null;
   /** null = model không trích dẫn; `invalid` = có khối trích dẫn nhưng sai khuôn / quá số lượng. */
   citations: AnswerCitation[] | 'invalid' | null;
   /** Chuỗi `reply` thô của model (chưa trim / chưa khôi phục PII) — gốc toạ độ của trích dẫn. */
   raw_reply: string | null;
 };
 
-const UNREADABLE: AgentReply = { reply: null, confidence: 0, intent: '', sentiment: 'neutral', needs_human: null, citations: null, raw_reply: null };
+const UNREADABLE: AgentReply = { reply: null, confidence: 0, intent: '', sentiment: 'neutral', needs_human: null, citations: null, raw_reply: null, sales_plan: null };
 
 function citationsOf(v: unknown[] | undefined): AgentReply['citations'] {
   if (v === undefined || v.length === 0) return null;
@@ -82,6 +87,6 @@ export function parseAgentReply(text: string): AgentReply & { ok: boolean } {
   }
   const r = agentReplySchema.safeParse(obj);
   if (!r.success) return { ...UNREADABLE, ok: false };
-  const { citations, ...rest } = r.data;
-  return { ...rest, reply: rest.reply?.trim() || null, raw_reply: rest.reply ?? null, citations: citationsOf(citations), ok: true };
+  const { citations, sales_plan, ...rest } = r.data;
+  return { ...rest, reply: rest.reply?.trim() || null, raw_reply: rest.reply ?? null, citations: citationsOf(citations), sales_plan: parseSalesPlan(sales_plan), ok: true };
 }

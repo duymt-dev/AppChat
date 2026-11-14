@@ -33,3 +33,5 @@ export { redactLink } from './documents/public-token';
 export { listPackages, packagesFor, packageExportIds, packageExportRows, PACKAGE_LIMIT, PACKAGE_MAX, type PackageListInput } from './payments/packages/read.service';
 export type { PackageDto } from './payments/packages/projection';
 export { quoteExpireTrigger, quoteRemindTrigger, quoteViewTrigger, invoiceOverdueTrigger, invoiceRemindTrigger, packageExpireTrigger, packageGrantTrigger, verifySalesTrigger, SALES_SYSTEM_ACTOR } from './system/sources';
+export { uploadRecordAttachment, type StagedUpload } from './files/staging';
+export { setValidatorEntry } from './files/validation';

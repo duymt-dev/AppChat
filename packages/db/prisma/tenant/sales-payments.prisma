@@ -151,6 +151,10 @@ model Invoice {
   sentById       String?       @map("sent_by_id")
   conversationId String?       @map("conversation_id") @db.Uuid
   fileId         String?       @map("file_id") @db.Uuid
+  /// Mẫu đã dùng cho PDF đóng băng (templates.md §2 — TIP-028b): chụp lúc tạo theo mẫu mặc định, render dùng đúng mẫu này kể cả khi
+  /// mặc định đổi sau đó. Null = bản ghi trước 028b (render theo mặc định hiện hành rồi ghi lại).
+  templateId      String?       @map("template_id") @db.Uuid
+  templateVersion Int?          @map("template_version")
   voidReason     String        @default("") @map("void_reason")
   voidedAt       DateTime?     @map("voided_at") @db.Timestamptz(6)
   voidedById     String?       @map("voided_by_id")
@@ -181,6 +185,9 @@ model CustomerPayment {
   status        PaymentStatus
   receiptCode   String?       @unique @map("receipt_code")
   receiptFileId String?       @map("receipt_file_id") @db.Uuid
+  /// Mẫu phiếu thu đã dùng (TIP-028b) — chụp lúc ghi khoản thu dương có mã phiếu; null = bản ghi cũ / khoản không có phiếu.
+  templateId      String?     @map("template_id") @db.Uuid
+  templateVersion Int?        @map("template_version")
   paidAt        DateTime      @map("paid_at") @db.Timestamptz(6)
   /// Hoàn tiền: lý do yêu cầu · liệu trình được hoàn (nếu có) · người duyệt / từ chối + ghi chú.
   reason        String        @default("")

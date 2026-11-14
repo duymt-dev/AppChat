@@ -127,6 +127,20 @@ export const quoteSend = defineAction({
   invalidates: ['quotes', 'crm'],
 });
 
+/** TIP-028b: PDF báo giá đã gửi render lỗi hết 3 lần (`render_failed`) → người gửi bấm "Thử lại" — đẩy lại job doc-render. */
+export const quoteRetryRender = defineAction({
+  id: 'quote.retry_render',
+  module: 'sales',
+  title: 'actions.quote.retry_render.title',
+  description: 'Retry rendering the frozen PDF of a sent quote after the render job failed (render_failed). Example: {"quote_id":"q_2041"}',
+  input: z.object({ quote_id: quoteId }),
+  output: z.object({ quote_id: z.string(), render: z.literal('pending_render') }),
+  permission: 'quote.send',
+  risk: 'write',
+  agentGrantable: false,
+  invalidates: ['quotes'],
+});
+
 export const quoteRequestRevision = defineAction({
   id: 'quote.request_revision',
   module: 'sales',

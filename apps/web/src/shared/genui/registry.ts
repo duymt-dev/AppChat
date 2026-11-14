@@ -2,6 +2,7 @@
 // (schema đã chặn) → renderer bỏ qua, không bao giờ dựng HTML tuỳ ý. Khối bố cục dựng con qua `renderBlock` của context (không import ngược).
 import { createElement, type ComponentType } from 'react';
 import type { UiBlock, UiBlockType } from '@appchat/shared';
+import { AppointmentOrderBlock } from './blocks/AppointmentOrderBlock';
 import { BadgeBlock } from './blocks/BadgeBlock';
 import { ButtonBlock } from './blocks/ButtonBlock';
 import { ButtonGroupBlock } from './blocks/ButtonGroupBlock';
@@ -37,6 +38,8 @@ export const BLOCKS: Registry = {
   button_group: ButtonGroupBlock,
   form: FormBlock,
   qr: QrBlock,
+  // TIP-033c: thẻ gợi ý tạo đơn từ lịch hẹn — dữ liệu đọc lại theo quyền hiện hành, không lấy từ cây.
+  appointment_order: AppointmentOrderBlock,
 };
 
 /** Dựng một khối theo registry (khối bố cục gọi lại qua `ctx.renderBlock`). */

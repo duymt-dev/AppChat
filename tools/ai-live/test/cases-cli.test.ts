@@ -95,6 +95,24 @@ describe('--cases suite bổ sung', () => {
     expect(loadDefault().cases).toHaveLength(DEFAULT_COUNT);
   });
 
+  it('suite appointment-order (TIP-033c AC8): 6 ca, cổng 6/6; đủ 6 loại ca (đủ điều kiện, liệu trình, đã có đơn, quyền hẹp, đổi giá, agent đã chọn)', () => {
+    const p = plan(parseArgs(['--cases', 'fixtures/ai-eval/appointment-order.json']));
+    expect([p.suite.suite, p.suite.cases.length, p.gate]).toEqual(['appointment-order', 6, 6]);
+    expect(new Set(p.suite.cases.map((c) => c.appointment_order?.kind)).size).toBe(6);
+  });
+
+  it('suite support-categories (TIP-034b): 6 ca, cổng 6/6; đủ 6 loại ca (sửa, nhập CSV, xuất XLSX, thiếu quyền, agent đã chọn, tiêm nhãn + kế hoạch cũ)', () => {
+    const p = plan(parseArgs(['--cases', 'fixtures/ai-eval/support-categories.json']));
+    expect([p.suite.suite, p.suite.cases.length, p.gate]).toEqual(['support-categories', 6, 6]);
+    expect(new Set(p.suite.cases.map((c) => c.support_categories?.kind)).size).toBe(6);
+  });
+
+  it('suite ticket-bulk (TIP-034c AC7): 6 ca, cổng 6/6; đủ 6 loại ca (patch kết hợp, lỗi lẫn, việc nền > 50, hoàn tác một phần, agent hạn chế, xuất kết quả)', () => {
+    const p = plan(parseArgs(['--cases', 'fixtures/ai-eval/ticket-bulk.json']));
+    expect([p.suite.suite, p.suite.cases.length, p.gate]).toEqual(['ticket-bulk', 6, 6]);
+    expect(new Set(p.suite.cases.map((c) => c.ticket_bulk?.kind)).size).toBe(6);
+  });
+
   it('suite booking-operations (TIP-033b AC8): 8 ca, cổng 7/8; đủ 8 loại ca', () => {
     const p = plan(parseArgs(['--cases', 'fixtures/ai-eval/booking-operations/cases.json']));
     expect([p.suite.suite, p.suite.cases.length, p.gate]).toEqual(['booking-operations', 8, 7]);

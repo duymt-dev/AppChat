@@ -84,7 +84,7 @@ export class ContractSendHandler implements Handler<SendIn, SendOut> {
   }
 
   async preview(ctx: ActionContext, input: SendIn, tx: TenantTx) {
-    return sendPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone);
+    return sendPreview(ctx, tx, input, this.clock.now(), (await this.d.place(ctx.workspaceId)).timeZone, this.d);
   }
 }
 

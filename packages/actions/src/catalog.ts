@@ -1,6 +1,6 @@
 // Sản phẩm & dịch vụ (Blueprint §3.4 catalog; COMMERCE-DECISIONS §2). Prototype L5624–5753, L4069–4160.
 import { z } from 'zod';
-import { customValuesSchema } from '@appchat/shared';
+import { customValuesSchema, descriptionDocSchema } from '@appchat/shared';
 import { defineAction } from './define';
 
 const productId = z.string().min(1);
@@ -17,6 +17,8 @@ const productFields = z.object({
   tax_rate: z.union([z.literal(0), z.literal(5), z.literal(8), z.literal(10)]).optional(),
   status: z.enum(['active', 'draft']).optional(),
   description: z.string().max(4000).optional(),
+  /** Mô tả có định dạng (TIP-027b): đoạn / danh sách chấm / số + đậm / nghiêng / gạch chân. Gửi kèm `description` thì phải bằng phép chiếu chữ thuần. null = xoá. */
+  description_doc: descriptionDocSchema.nullable().optional(),
   sku: z.string().max(40).optional(),
   stock: z.number().int().optional(),
   duration_min: z.number().int().min(0).optional(),
@@ -148,6 +150,8 @@ export const productGet = defineAction({
   input: z.object({ product_id: z.string().optional(), code: z.string().max(40).optional() }).refine((v) => !!(v.product_id || v.code), { message: 'product_id_or_code', path: ['product_id'] }),
   output: productHit.extend({
     description: z.string(),
+    /** Mô tả có định dạng (TIP-027b) — vắng = sản phẩm chỉ có chữ thuần. */
+    description_doc: descriptionDocSchema.optional(),
     attrs: z.array(z.object({ name: z.string(), values: z.array(z.string()) })),
     components: z.array(z.object({ product_id: z.string(), name: z.string(), qty: z.number() })),
     duration_min: z.number().nullable(),

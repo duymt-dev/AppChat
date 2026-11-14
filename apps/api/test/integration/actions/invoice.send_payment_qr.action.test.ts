@@ -39,6 +39,8 @@ describe('invoice.send_payment_qr', () => {
         { entity: 'invoice', id: inv.invoice_id, before: { status: 'draft' }, after: { status: 'sent' } },
       ],
       warnings: ['first_send'],
+      // TIP-028b: dòng "không thay thế hoá đơn GTGT" luôn đạt (render tự chèn).
+      checklist: [{ code: 'not_vat', ok: true }],
     });
   });
 

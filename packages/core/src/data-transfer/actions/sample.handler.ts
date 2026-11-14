@@ -56,6 +56,8 @@ export class TransferSampleHandler implements Handler<In, TransferSampleDto> {
         required: !!x.required,
         ...(x.options ? { options: [...x.options] } : {}),
         ...(x.scope === 'item' ? { item: true } : {}),
+        ...(x.hint ? { hint: x.hint } : {}),
+        ...(x.warnings ? { warnings: [...x.warnings] } : {}),
       })),
       mapping: guessTransferMapping(target, t.columns),
       import_supported: spec.importReady && canImport(ctx.authz, target),

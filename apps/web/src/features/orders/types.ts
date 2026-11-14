@@ -95,6 +95,5 @@ export interface OrdersMeta {
   stats: { total: number; paid: number; pending: number; revenue: string };
   crm: { ltv: string; total: number; tier: string; points: number };
   insight: string;
-  files: { name: string; ext: string; by: string; at: string; size: string }[];
   ai_runs: Record<string, string>;
 }

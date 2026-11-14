@@ -64,11 +64,17 @@ async function teamPlan(c, api) {
   if (r.status !== 200) throw new Error(`webhook ngân hàng giả → ${r.status}`);
 }
 
-/** Sales scope own: mời → đăng ký bằng OTP (hộp thư console) → nhận lời mời. Trả client đã đăng nhập workspace. */
+/** Sales scope own: mời → đăng ký bằng OTP (hộp thư console) → nhận lời mời. Trả client đã đăng nhập workspace. Tài khoản đã có (suite
+ *  khác, workspace fixture khác) nhưng chưa là thành viên workspace này → vẫn mời + nhận lời mời bằng phiên đang có. */
 async function salesClient(c, o) {
   const { client: mk, mailDir, password } = o;
   const sales = mk(CV_SALES_EMAIL);
   let r = await sales.req('POST', '/auth/password/login', { email: CV_SALES_EMAIL, password, remember: true });
+  if (r.status === 200) {
+    sales.s.token = r.body.data.access_token;
+    const me = (await sales.req('GET', '/me')).body?.data;
+    if (!(me?.workspaces ?? []).some((w) => w.id === c.s.ws)) r = { status: 0, body: null };
+  }
   if (r.status !== 200) {
     const invite = () => c.req('POST', '/actions/member.invite', { input: { email: CV_SALES_EMAIL, name: 'Sales ai-live', role: 'sales' } }, { 'idempotency-key': randomUUID() });
     let iv = await invite();
@@ -85,11 +91,13 @@ async function salesClient(c, o) {
       return existsSync(f) ? (/token=([A-Za-z0-9_%-]{20,})/.exec(readFileSync(f, 'utf8'))?.[1] ?? null) : null;
     }, 15_000);
     if (!link) throw new Error('không thấy thư mời Sales');
-    await sales.req('POST', '/auth/otp/request', { email: CV_SALES_EMAIL, purpose: 'register', locale: 'vi' });
-    r = await sales.req('POST', '/auth/otp/verify', { email: CV_SALES_EMAIL, code: await otpFrom(mailDir, CV_SALES_EMAIL), purpose: 'register', locale: 'vi' });
-    if (r.status !== 200) throw new Error(`Sales đăng ký lỗi ${r.status}`);
-    sales.s.token = r.body.data.access_token;
-    if (r.body.data.needs_password) await sales.req('POST', '/auth/password/set', { password });
+    if (!sales.s.token) {
+      await sales.req('POST', '/auth/otp/request', { email: CV_SALES_EMAIL, purpose: 'register', locale: 'vi' });
+      r = await sales.req('POST', '/auth/otp/verify', { email: CV_SALES_EMAIL, code: await otpFrom(mailDir, CV_SALES_EMAIL), purpose: 'register', locale: 'vi' });
+      if (r.status !== 200) throw new Error(`Sales đăng ký lỗi ${r.status}`);
+      sales.s.token = r.body.data.access_token;
+      if (r.body.data.needs_password) await sales.req('POST', '/auth/password/set', { password });
+    }
     const a = await sales.req('POST', '/auth/invite/accept', { token: decodeURIComponent(link) });
     if (a.status >= 300) throw new Error(`Sales nhận lời mời lỗi ${a.status}`);
   } else sales.s.token = r.body.data.access_token;

@@ -17,7 +17,6 @@ import { RowMenu } from './RowMenu';
 import { TagModal } from './TagModal';
 
 const DASH = '-';
-const PARTS = new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'numeric', year: 'numeric', timeZone: 'Asia/Ho_Chi_Minh' });
 const CHIP_ALPHA = '22';
 const COLS = ['name', 'desc', 'by', 'src', 'created', 'editBy', 'updated'] as const;
 
@@ -28,10 +27,7 @@ function Row({ tag, can }: { tag: Tag; can: boolean }) {
   const { styles, cx } = useTagsStyles();
   const set = useSettingsUi((u) => u.set);
   const del = useAction('tag.delete');
-  const when = (iso: string) => {
-    const p = Object.fromEntries(PARTS.formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
-    return t('at', { d: Number(p.day), m: Number(p.month), y: p.year ?? '', h: fmt.time(iso) });
-  };
+  const when = (iso: string) => t('at', { ...fmt.dateParts(iso), h: fmt.time(iso) });
   return (
     <div className={cx(s.tr, styles.grid)} data-tag={tag.id}>
       <span>

@@ -4,7 +4,9 @@
 import { AppError, TRANSFER_MAX_COLS, TRANSFER_MAX_ROWS } from '@appchat/shared';
 import { XlsxTooComplexError, csvRows, xlsxSheets } from '../../kernel/files/table';
 
-const MAX_CELL = 4000;
+// Trần ô thô = trần cột dài nhất registry (JSON mô tả định dạng 32 KiB, TIP-027b) + 1: vượt `max` của trường → lỗi `too_long` theo trường
+// (không cắt ngầm thành chữ / JSON hỏng); tổng kích thước vẫn chặn bởi luật tệp tải lên.
+const MAX_CELL = 32 * 1024 + 1;
 
 export interface ParsedTable {
   sheets: string[];

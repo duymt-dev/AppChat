@@ -1,7 +1,6 @@
 // 5 tab drawer đơn hàng — prototype L5589–5617: Tổng quan · CRM · AI · Tệp · Lịch sử.
 // Tổng quan thêm theo COMMERCE §4: 2 trục (tiến độ + thanh toán), nguồn / chứng từ gốc, cọc, điểm, vận chuyển nhập tay; đơn sàn khoá dòng (D31).
 'use client';
-import { App } from 'antd';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
@@ -14,7 +13,6 @@ import { useOrdersUi } from '../orders-store';
 import type { Order, OrdersMeta } from '../types';
 import { CustomFieldList } from '@/shared/custom-fields';
 
-const EXT_BG: Record<string, string> = { pdf: color.dangerStrong, xlsx: color.okGreen, jpg: color.violet };
 const EV_DOT: Record<string, string> = {
   created: color.blue,
   imported: color.blue,
@@ -189,44 +187,6 @@ export function AiTab({ meta }: { meta: OrdersMeta }) {
         <Icon name="ic-spark" size={14} color={color.brandInk} />
         <div>{meta.insight}</div>
       </div>
-    </div>
-  );
-}
-
-export function FilesTab({ meta }: { meta: OrdersMeta }) {
-  const t = useTranslations('orders.detail');
-  const fmt = useFmt();
-  const { message } = App.useApp();
-  const { styles, cx } = useOrderTabStyles();
-  const by = (b: string) => (b === 'system' || b === 'customer' ? t(`fileBy.${b}`) : b);
-  return (
-    <div className={cx(styles.card, styles.flush)}>
-      <div className={cx(styles.h, styles.hFiles)}>{t('files')}</div>
-      {meta.files.map((f) => (
-        <div key={f.name} className={styles.file}>
-          <div className={styles.ext} style={{ background: EXT_BG[f.ext] ?? color.text3 }}>
-            {f.ext.toUpperCase()}
-          </div>
-          <div className={styles.grow}>
-            <div className={styles.fName}>{f.name}</div>
-            <div className={styles.fMeta}>
-              {f.size
-                ? t('fileMetaSize', { by: by(f.by), at: fmt.date(f.at).slice(0, 5), size: f.size })
-                : t('fileMeta', { by: by(f.by), at: fmt.date(f.at).slice(0, 5) })}
-            </div>
-          </div>
-          <button
-            type="button"
-            className={styles.open}
-            onClick={() => void message.info(t('opening', { name: f.name }))}
-          >
-            {t('open')}
-          </button>
-        </div>
-      ))}
-      <button type="button" className={styles.upload} onClick={() => void message.info(t('uploading'))}>
-        {t('upload')}
-      </button>
     </div>
   );
 }

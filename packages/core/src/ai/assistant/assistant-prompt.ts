@@ -3,7 +3,7 @@
 // Dựng lại được từ `ai_run.input` (chạy tiếp sau xác nhận / duyệt ở process khác).
 import { prompt } from '@appchat/ai';
 import type { TenantDb } from '@appchat/db';
-import { serverMessages, type AuthzContext } from '@appchat/shared';
+import { interpolate, serverMessages, type AuthzContext } from '@appchat/shared';
 import type { AssistantMode } from './catalog';
 import { RECORD_ENTITY_DEFS } from './record-intent/registry';
 
@@ -27,6 +27,10 @@ export interface AssistantRunInput {
   context?: AssistantContext;
   /** Tệp đã qua guard server (genui/attachments.ts) — chỉ metadata, không nội dung / URL. */
   attachments?: { id: string; name: string; mime?: string; size?: number; handlers?: string[]; hints?: string[] }[];
+  /** TIP-023d §5.1: agent đã chọn — id + bản đã xuất bản + mức AI hiệu lực, ghim lúc nhận lượt (server ghi; mọi đường chạy tiếp đọc lại). */
+  selected_agent?: { id: string; version: number; tier: string };
+  /** TIP-006c: tab đã gửi lượt (định tuyến `ui.command` realtime) — không vào prompt, không phải quyền. */
+  tab_id?: string;
 }
 
 const AGENTS_IN_PROMPT = 12;
@@ -80,8 +84,12 @@ export async function assistantSystem(db: Pick<TenantDb, 'aiAgent'>, input: Assi
     context: contextLine(input.context, input.attachments, m.noContext),
     agents: await agentsLine(db, m.noAgents),
   }).text;
+  const sel = input.selected_agent ? await db.aiAgent.findUnique({ where: { id: input.selected_agent.id }, select: { name: true } }) : null;
+  const pick = sel ? `
+
+${interpolate(m.selectedAgent, { name: sel.name, id: input.selected_agent!.id })}` : '';
   const ui = prompt('genui', input.locale, { surface: input.context?.surface ?? 'assistant', screen: screenOf(input.context?.route) }).text;
-  return `${base}
+  return `${base}${pick}
 
 ${ui}`;
 }

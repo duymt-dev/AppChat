@@ -8,7 +8,9 @@ import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 import { createTasksState, type MockTask } from './ai-tasks';
 import { genUiReply } from './assistant-genui';
+import { orderSuggestions } from './calendar';
 import { recordTurn } from './assistant-sessions';
+import { planForTurn } from './assistant-plans';
 import { bindTurnInputs } from './assistant-input';
 import { assertRecordIntent, recordAssistantPosts } from './record-assistant';
 
@@ -180,6 +182,13 @@ export const scriptReply = (db: MockDb, text: string, route?: string) => {
   const low = text.toLowerCase();
   const ui = genUiReply(low, route);
   if (ui) return ui;
+  // TIP-033c: "tạo đơn cho buổi …" → khối `appointment_order` (chỉ id lịch; thẻ tự đọc giá hiện hành) cho lịch đầu tiên còn gợi ý.
+  if (/tạo đơn cho buổi|create an order for (the|this) session/.test(low)) {
+    const hit = db.calendar.appointments.filter((a) => !a.deleted).map((a) => orderSuggestions(db, { appointment_id: a.id }).data[0]).find(Boolean);
+    if (!hit) return [{ type: 'delta' as const, text: fixture.fallback }];
+    const tree = { version: 1 as const, root: { type: 'appointment_order' as const, appointment_id: hit.appointment_id } };
+    return [{ type: 'delta' as const, text: `Buổi ${hit.code} chưa có đơn:` }, { type: 'ui' as const, tree, run_id: `run_mock_ao_${++db.assistant.seq}`, refs: {}, intents: {} }];
+  }
   const intent = fixture.intents.find((i) => new RegExp(i.re).test(low));
   if (intent) {
     const token = `cf_${++db.assistant.seq}`;
@@ -209,13 +218,14 @@ export const assistantPosts: Record<string, (db: MockDb, body: Record<string, un
     // Chỉ gửi tệp (TIP-023f §4.1): như server — câu hỏi trung tính, không bịa việc.
     const text = String(body.text ?? '').trim() || (hasInputs ? 'Tệp đính kèm nói gì?' : '');
     if (!text) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'text' });
-    const session = String(body.session_id ?? `as_${++db.assistant.seq}`);
+    const session = String(body.session_id ?? `0190f0a5-0000-7000-8000-${String(++db.assistant.seq).padStart(12, '0')}`);
     const files = hasInputs ? bindTurnInputs(body.inputs, session) : null;
     // Mock không gọi model: tệp đã chuẩn bị → trả đoạn trích tất định (hợp đồng), không phải chứng minh hiểu nội dung.
     // TIP-023g: lối vào theo bản ghi — kiểm cặp / bản ghi như server (422 / 404), mock không gọi model.
     if (body.record_intent !== undefined) assertRecordIntent(db, body.record_intent);
     const events = files ? [{ type: 'delta' as const, text: `[mock] Đã nhận ${files.names.map((f) => f.name).join(', ')}${files.excerpt ? `: ${files.excerpt}` : ''}` }] : scriptReply(db, text, (body.context as { route?: string } | undefined)?.route);
     recordTurn(session, String(body.mode ?? 'chat'), text, events as never, files?.names);
+    planForTurn(session, String(body.mode ?? 'chat'), text, body.plan_draft as { plan_id: string } | undefined);
     return { session_id: session, run_id: null, events };
   },
   ...recordAssistantPosts,

@@ -6,7 +6,10 @@
   "done": "Xong",
   "commit": "Nhập {n} dòng",
   "entityTitle": "Nhập vào",
-  "hint": "Chọn tệp CSV hoặc Excel (.xlsx) — dòng đầu là tên cột.",
+  "hint": {
+    "plain_projection": "Chữ thuần — không mang định dạng; đổi chữ của sản phẩm đã định dạng sẽ bỏ định dạng cũ",
+    "structured_json": "JSON mô tả định dạng (đậm / nghiêng / gạch chân / danh sách) — xuất từ hệ thống để giữ định dạng"
+  },
   "pick": "Chọn tệp",
   "reading": "Đang đọc tệp…",
   "uploadFailed": "Không đọc được tệp. Kiểm tra định dạng CSV / XLSX rồi thử lại.",
@@ -30,7 +33,9 @@
     "quote": "Báo giá",
     "order": "Đơn hàng",
     "contract": "Hợp đồng",
-    "invoice": "Đề nghị thanh toán"
+    "invoice": "Đề nghị thanh toán",
+    "ticket_category_suggestions": "Danh mục ticket",
+    "ticket_bulk_results": "Kết quả sửa ticket hàng loạt (chỉ xuất)"
   },
   "dataset": {
     "base": "Khách hàng",
@@ -79,11 +84,18 @@
     "duplicate": "Trùng",
     "unit_price_warning": "Giá khác giá danh mục",
     "sku_warning": "Cập nhật sản phẩm có sẵn theo SKU",
+    "invalid_doc": "Mô tả định dạng không hợp lệ (JSON sai cấu trúc)",
+    "mismatch_doc": "Chữ mô tả khác nội dung mô tả định dạng",
+    "description_warning": "Mô tả đổi — định dạng cũ (đậm, nghiêng, danh sách) sẽ bỏ",
     "readonly": "Chỉ nhập việc đang mở — đổi trạng thái bằng thao tác trên việc",
     "terminal": "Không nhập cơ hội đã thắng / thua",
     "forbidden": "Bạn không có quyền ghi giá trị kỳ vọng",
     "id_warning": "Dòng xuất từ hệ thống — bỏ qua, không cập nhật",
-    "unsupported": "Tập dữ liệu không hỗ trợ"
+    "unsupported": "Tập dữ liệu không hỗ trợ",
+    "out_of_range": "Vị trí ngoài 1..N",
+    "too_many": "Quá 100 danh mục",
+    "control": "Có ký tự điều khiển / xuống dòng",
+    "empty": "Trống"
   },
   "errorFile": {
     "row": "Dòng",
@@ -110,6 +122,7 @@
     "unit": "Đơn vị",
     "tax_rate": "Thuế suất (%)",
     "description": "Mô tả",
+    "description_doc": "Mô tả định dạng (JSON)",
     "sessions": "Số buổi",
     "valid_days": "Hiệu lực (ngày)",
     "group": "Mã nhóm chứng từ",
@@ -139,6 +152,14 @@
     "stage": "Giai đoạn",
     "probability": "Xác suất (%)",
     "expected_close_date": "Ngày chốt dự kiến",
-    "id": "ID bản ghi (chỉ đọc)"
-  }
+    "id": "ID bản ghi (chỉ đọc)",
+    "position": "Vị trí",
+    "label": "Danh mục",
+    "ticket_id": "Ticket ID",
+    "outcome": "Kết quả",
+    "error_code": "Mã lỗi",
+    "changed": "Đã đổi",
+    "undo_state": "Hoàn tác"
+  },
+  "atomicInvalid": "Tệp có dòng lỗi — sửa tệp rồi tải lại (tập này nhập nguyên bộ, không bỏ riêng dòng lỗi)."
 }

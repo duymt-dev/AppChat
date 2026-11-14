@@ -2,7 +2,7 @@
 // theo (workspace, nguồn, lần nạp) đúng trong lúc gọi action riêng (cùng tiến trình với Executor) — đoạn / vector / lỗi không bao giờ đi
 // qua input, action log hay Redis. Handler lấy một lần (take); thiếu ứng viên → no_effect, không công bố rỗng.
 export type KbCandidate =
-  | { kind: 'ready'; model: string; chunks: { content: string; tokens: number; meta: unknown; vector: number[] }[] }
+  | { kind: 'ready'; model: string; /** Space đã embed (TIP-020e) — publish chỉ ghi khe hoạt động khi khớp. */ space: string; chunks: { content: string; tokens: number; meta: unknown; vector: number[] }[] }
   | { kind: 'failed'; error: string }
   | { kind: 'unlearned' };
 

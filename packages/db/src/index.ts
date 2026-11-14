@@ -11,6 +11,7 @@ export * from './env';
 export * from './tenant-context';
 export * from './clients';
 export * from './tenant-resolver';
+export * from './registry-pubsub';
 export * from './provisioner';
 export * from './migrations';
 export * from './tenant-migrate';

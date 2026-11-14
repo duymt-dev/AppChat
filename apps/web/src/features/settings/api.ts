@@ -1,6 +1,8 @@
 // Đọc Cài đặt (Blueprint §4.4 settings). Query key đầu = tên trong `invalidates` của action (workspace / members / …). Ghi qua useAction.
 import { infiniteQueryOptions, queryOptions } from '@tanstack/react-query';
 import { transport } from '@/shared/api/client';
+import { sessionAuth } from '@/shared/api/http-transport';
+import { apiMode } from '@/shared/api/transport';
 import type { BillQuoteDto as BillQuote, BookingSettingsDto, SalesPolicyDto, WorkspaceDeletePreviewDto, WorkspaceLifecycleDto } from '@appchat/shared';
 import type {
   DocTemplate,
@@ -105,6 +107,15 @@ export const kbQuery = (p: { nav: string; folder: string | null; q: string }) =>
     placeholderData: (prev) => prev,
     // Tài liệu đang nạp ở worker (http) → hỏi lại tới khi xong (FE chưa có kênh realtime `kb.source`).
     refetchInterval: (q) => (q.state.data?.data.some((d) => d.status === 'pending' || d.status === 'processing') ? 2000 : false),
+  });
+
+/** TIP-020e: trạng thái chỉ mục embedding (phần `index` của GET /settings/kb). Khoá gắn workspace hiện tại — đổi workspace bỏ kết quả
+ *  cũ; hỏi lại mỗi 5 giây khi một lần tạo lại đang chạy (tiến độ thật `done / expected`). */
+export const kbIndexQuery = () =>
+  queryOptions({
+    queryKey: ['kb', 'index', apiMode() === 'mock' ? 'mock' : sessionAuth().workspace_id],
+    queryFn: async () => (await transport.get<KbData>('/settings/kb', { nav: 'all' })).index ?? null,
+    refetchInterval: (q) => (q.state.data?.phase === 'building' || q.state.data?.phase === 'catching_up' ? 5000 : false),
   });
 
 export const governanceQuery = () => queryOptions({ queryKey: ['ai', 'governance'], queryFn: () => transport.get<Governance>('/settings/governance') });

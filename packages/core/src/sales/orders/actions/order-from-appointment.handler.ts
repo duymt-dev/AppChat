@@ -1,6 +1,8 @@
 // order.create_from_appointment (Blueprint §3.4 sales, COMMERCE 8b): lịch hẹn đã hoàn thành NGOÀI liệu trình → người / agent xác nhận
 // gợi ý "Tạo đơn cho buổi này?" → đơn `new` một dòng dịch vụ × giá hiện tại, nguồn `appointment`; mỗi lịch một đơn (gọi lại trả đơn cũ),
 // ghi `appointment.order_id`. Buổi thuộc liệu trình đã thu qua đơn gói → 409. Hoàn tác khi đơn còn `new`.
+// TIP-033c §3: xem trước BẮT BUỘC (policy MANDATORY_PREVIEW_ACTIONS) — token ràng version lịch + version / giá / thuế dịch vụ + khách gốc;
+// thực thi khoá khách → lịch rồi đọc lại qua nguồn chung của booking (conversionSource), lệch → 409 xem trước lại, 0 ghi.
 import { Inject, Injectable } from '@nestjs/common';
 import { AppError } from '@appchat/shared';
 import type { ActionInput, orderCreateFromAppointment } from '@appchat/actions';
@@ -8,13 +10,15 @@ import { CLOCK, type Clock } from '../../../kernel/clock';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { CrmMembers } from '../../../crm/public';
-import { inSalesScope } from '../../payments/invoice-access';
-import { UUID } from '../order-access';
+import { conversionSource } from '../../../booking/order-suggestions/preview';
+import { assertBoundPreview } from '../../../kernel/actions/preview-binding';
+import { visibleOrder } from '../order-access';
 import { createdAfter, insertOrder, undoCreate } from './order-create.handlers';
 import { fromAppointmentPreview } from '../previews/order-from-appointment.handler.preview';
 import { lockRootOf } from '../../../kernel/ownership/root-lock';
 
-type Out = { order_id: string; code: string };
+type Out = { order_id: string; code: string; reused: boolean };
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 @Injectable()
 @ActionHandler('order.create_from_appointment')
@@ -25,19 +29,18 @@ export class OrderFromAppointmentHandler implements Handler<ActionInput<typeof o
   ) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof orderCreateFromAppointment>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
-    // Đọc lịch trực tiếp (không import domain booking — tránh vòng sales ↔ booking); quyền theo scope sales của người phụ trách.
-    // TIP-015f §2.5: khách → lịch hẹn → đơn.
+    // Nguồn đọc qua facade booking (booking không import sales — không vòng). TIP-015f §2.5: khách → lịch hẹn → đơn.
     await lockRootOf(tx, 'appointment', input.appointment_id);
-    if (UUID.test(input.appointment_id)) await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${input.appointment_id}::uuid FOR UPDATE`;
-    const a = UUID.test(input.appointment_id) ? await tx.appointment.findUnique({ where: { id: input.appointment_id } }) : null;
-    if (!a || a.deletedAt || !(await inSalesScope(tx, ctx.authz, { owner: a.ownerUserId, team: a.teamId, contact: a.contactId }, 'write'))) throw new AppError('NOT_FOUND', 404, { appointment_id: 'not_found' });
-    if (a.orderId) {
-      const o = await tx.order.findUnique({ where: { id: a.orderId }, select: { id: true, code: true } });
-      if (o) return { result: { order_id: o.id, code: o.code } };
+    if (UUID_RE.test(input.appointment_id)) await tx.$queryRaw`SELECT 1 FROM appointment WHERE id = ${input.appointment_id}::uuid FOR UPDATE`;
+    const src = await conversionSource(tx, ctx.authz, input.appointment_id);
+    if (src.kind === 'linked') {
+      // Đơn đã có (client khác / gửi lại): trả biên nhận "đã có" chỉ khi người gọi còn thấy đơn đó — không lộ mã đơn ngoài scope.
+      const o = await visibleOrder(tx, ctx.authz, src.orderId).catch(() => null);
+      if (!o) throw new AppError('CONFLICT', 409, { appointment_id: 'linked' });
+      return { result: { order_id: o.id, code: o.code, reused: true }, noUndo: true };
     }
-    if (a.status !== 'done') throw new AppError('INVALID_TRANSITION', 409, { status: a.status });
-    if (a.packageId) throw new AppError('INVALID_STATE', 409, { appointment_id: 'package' });
-    const svc = await tx.product.findUniqueOrThrow({ where: { id: a.serviceId }, select: { id: true, name: true, price: true, taxRate: true } });
+    assertBoundPreview(ctx.previewFacts, src.facts);
+    const { appointment: a, service: svc } = src;
     const now = this.clock.now();
     const { row, events } = await insertOrder(
       ctx,
@@ -55,7 +58,7 @@ export class OrderFromAppointmentHandler implements Handler<ActionInput<typeof o
       now,
     );
     await tx.appointment.update({ where: { id: a.id }, data: { orderId: row.id, updatedAt: now } });
-    return { result: { order_id: row.id, code: row.code }, after: { ...(await createdAfter(tx, row.id)), appointment_id: a.id }, events };
+    return { result: { order_id: row.id, code: row.code, reused: false }, after: { ...(await createdAfter(tx, row.id)), appointment_id: a.id }, events };
   }
 
   /** TIP-032c: huỷ giữ lịch sử — liên kết lịch hẹn ↔ đơn giữ nguyên (không thành lần chuyển đổi thứ hai âm thầm). */
@@ -65,5 +68,11 @@ export class OrderFromAppointmentHandler implements Handler<ActionInput<typeof o
 
   async preview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromAppointment>, tx: TenantTx) {
     return fromAppointmentPreview(ctx, tx, this.members, input);
+  }
+
+  /** Dữ kiện ràng vào confirm_token (§3.1) — lịch đã có đơn thì không ràng gì (thực thi trả biên nhận đơn sẵn có). */
+  async bindPreview(ctx: ActionContext, input: ActionInput<typeof orderCreateFromAppointment>, tx: TenantTx) {
+    const src = await conversionSource(tx, ctx.authz, input.appointment_id);
+    return src.kind === 'new' ? src.facts : {};
   }
 }

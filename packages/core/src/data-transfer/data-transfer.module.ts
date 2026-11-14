@@ -1,5 +1,6 @@
 // Domain `data-transfer` (TIP-038b, DC-374): nhập dữ liệu dùng chung cho CRM / commerce — kế hoạch + dòng + biên nhận, ghi qua action
-// domain bằng ActionExecutor; đọc cho `/v1/data-transfer/*`. Xuất dùng action xuất có sẵn của từng danh sách (038, contact.export).
+// domain bằng ActionExecutor; đọc cho `/v1/data-transfer/*`. Xuất dùng action xuất có sẵn của từng danh sách (038, contact.export); tập chỉ
+// xuất `ticket_bulk_results` (TIP-034c) có handler `ticket.bulk_export` ở đây.
 // Thiếu DB / executor → handler 501 (không giả thành công).
 import { Module } from '@nestjs/common';
 import { ModuleRef } from '@nestjs/core';
@@ -13,6 +14,7 @@ import { PLATFORM_DB, TENANT_RESOLVER } from '../kernel/tenant/tenant.providers'
 import { TransferCancelHandler, TransferCommitHandler } from './actions/commit.handlers';
 import { TransferPlanHandler, TransferUpdateMappingHandler } from './actions/plan.handlers';
 import { TransferSampleHandler } from './actions/sample.handler';
+import { TicketBulkExportHandler } from './adapters/ticket-bulk-results';
 import { registerDataImportExtension } from './assistant-extension';
 import { TransferDeps } from './data-transfer.providers';
 import { TransferReadService } from './services/transfer-read';
@@ -27,6 +29,8 @@ const opt = (token: symbol) => ({ token, optional: true });
     TransferCommitHandler,
     TransferCancelHandler,
     TransferSampleHandler,
+    // TIP-034c §4.4: tập chỉ xuất `ticket_bulk_results` (kết quả một thao tác sửa ticket hàng loạt).
+    TicketBulkExportHandler,
     {
       provide: TransferDeps,
       inject: [

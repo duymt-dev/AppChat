@@ -15,12 +15,14 @@ import { ordersMetaQuery, ordersQuery } from '../api';
 import { OrderCard, OrderKanbanCard, useOrderColumns, useTr } from '../columns';
 import { BulkBar, OrdersToolbar } from '../components/OrdersToolbar';
 import { CancelOrderModal, OrderDrawer } from '../components/OrderDrawer';
-import { OrderAiDrawer } from '../components/OrderAiDrawer';
 import { KANBAN, laneOf } from '../status';
 import type { Order } from '../types';
 import { useOrdersUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
 import { useAssistantContext } from '../hooks/useAssistantContext';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const OrderAiDrawer = lazyDrawer(() => import('../components/OrderAiDrawer').then((m) => m.OrderAiDrawer));
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -148,7 +150,9 @@ export function OrdersScreen() {
         )}
       </PageStates>
       {meta ? <OrderDrawer meta={meta} /> : null}
-      {meta ? <OrderAiDrawer meta={meta} /> : null}
+      <Opened name="order-ai" when={ui.aiOpen && !!meta} onClose={() => ui.set({ aiOpen: false })}>
+        {meta ? <OrderAiDrawer meta={meta} /> : null}
+      </Opened>
       <CancelOrderModal />
     </div>
   );

@@ -32,7 +32,7 @@ export function AppointmentFooter({ a }: { a: Appointment }) {
     const r = await complete.run({ appointment_id: a.id });
     if (!r) return;
     if (r.result.package) void message.success(t('pkgDone', r.result.package));
-    if (r.result.suggest_order) ui.set({ suggestFor: a.id });
+    // Ngoài liệu trình: thẻ gợi ý tạo đơn tự hiện từ phép chiếu hiện hành (TIP-033c) — không cờ tạm phía client.
   };
   const open = a.status === 'pending' || a.status === 'confirmed';
   const primary =

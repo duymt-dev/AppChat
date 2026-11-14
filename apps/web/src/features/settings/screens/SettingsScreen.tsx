@@ -31,6 +31,7 @@ import { SalesPolicySection } from '../components/SalesPolicySection';
 import { LeadRoutingSection } from '../components/LeadRoutingSection';
 import { EmailMarketingSection } from '../components/EmailMarketingSection';
 import { BookingSection } from '../components/BookingSection';
+import { TicketCategoriesSection } from '../components/TicketCategoriesSection';
 import { resolveSection, type NavItem, type SectionKey } from '../registry';
 import { useSettingsUiCommands } from '../ui-commands';
 
@@ -62,6 +63,7 @@ const SECTIONS: Partial<Record<SectionKey, ComponentType>> = {
   routing: LeadRoutingSection,
   email_mkt: EmailMarketingSection,
   booking: BookingSection,
+  ticket_categories: TicketCategoriesSection,
 };
 
 /** Mục có phụ đề dưới tiêu đề (prototype L5775). */

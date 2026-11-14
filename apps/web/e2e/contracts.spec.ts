@@ -1,5 +1,6 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { expectNoHorizontalOverflow, expectTouchTargets, isMobile } from './support/mobile';
+import { confirmPreview } from './support/confirm';
 
 const URL = '/contracts?session=authed,declared,trialSeen';
 
@@ -73,6 +74,7 @@ test.describe('contracts', () => {
     await expect(drawer).toContainText('HĐ-1183');
     await expect(drawer.getByTestId('ct-status')).toHaveText('Nháp');
     await drawer.getByTestId('ct-submit').click();
+    await confirmPreview(page);
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
 
     // Duyệt & ký: gửi OTP email (mock hiện mã thử); thiếu chữ ký thì chặn; OTP sai báo lỗi; đủ thì sang Chờ ký.
@@ -85,14 +87,18 @@ test.describe('contracts', () => {
     await expect(page.getByText('Vui lòng ký tay trước khi duyệt')).toBeVisible();
     await scribble(page, box.getByTestId('ct-sig'));
     await box.getByTestId('ct-approve-ok').click();
+    // Xem trước (bảng kiểm) không kiểm OTP — như server; OTP sai báo sau khi xác nhận.
+    await confirmPreview(page);
     await expect(page.getByText('Mã OTP không đúng')).toBeVisible();
     await box.getByTestId('ct-otp').fill('135790');
     await box.getByTestId('ct-approve-ok').click();
+    await confirmPreview(page);
     await expect(box).toHaveCount(0);
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ ký');
 
     await drawer.getByTestId('ct-send-sign').click();
     await page.getByTestId('ct-send-zalo').click();
+    await confirmPreview(page);
     await expect(drawer.getByTestId('ct-sign-link')).toContainText('/sign/');
     await drawer.getByTestId('ct-sign-href').click();
 
@@ -137,6 +143,7 @@ test.describe('contracts', () => {
     await page.locator('[data-quote="q_2041"]').click();
     // BG-2041 đã duyệt, chưa gửi → gửi khách trước (QUOTE_FLOW: approved chỉ có quote.send), rồi ghi nhận chốt khi chuyển.
     await page.getByTestId('q-drawer').getByTestId('q-send-zalo').click();
+    await confirmPreview(page);
     await expect(page.getByTestId('q-drawer')).toContainText('Đã gửi');
     await page.getByTestId('q-drawer').getByTestId('q-to-contract').click();
     await expect(page).toHaveURL(/\/contracts$/);

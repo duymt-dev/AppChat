@@ -43,6 +43,9 @@
   "jobAccepted": "Đã nhận: {title} — đang chạy nền, kết quả cập nhật khi xong",
   "operationPending": "Đang hoàn tất: {title} — hệ thống tự hoàn tất phần còn lại, không cần thao tác lại",
   "previewTitle": "Xác nhận thao tác",
+  "undone": "Đã hoàn tác: {title}",
+  "undoAccepted": "Đang hoàn tác: {title} — chạy nền, kết quả cập nhật khi xong",
+  "undoPartial": "Hoàn tác một phần: {title} — {undone} đã hoàn tác, {failed} giữ nguyên (đã bị sửa sau đó hoặc lỗi)",
   "business_profile": {
     "update": {
       "title": "Cập nhật thông tin doanh nghiệp"
@@ -518,6 +521,22 @@
     },
     "import_retry": {
       "title": "Chạy lại nhập sản phẩm"
+    },
+    "media_attach": {
+      "title": "Gắn ảnh / tài liệu sản phẩm"
+    },
+    "media_detach": {
+      "title": "Gỡ ảnh / tài liệu sản phẩm"
+    },
+    "media_reorder": {
+      "title": "Sắp xếp ảnh / tài liệu sản phẩm"
+    },
+    "media_set_primary": {
+      "title": "Đặt ảnh chính sản phẩm"
+    },
+    "media_list": {
+      "title": "Xem ảnh / tài liệu sản phẩm",
+      "desc": "Xem danh sách ảnh và tài liệu của một sản phẩm (ảnh chính, thứ tự) — chỉ đọc"
     }
   },
   "category": {
@@ -606,6 +625,10 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái báo giá (hệ thống)"
+    },
+    "retry_render": {
+      "title": "Thử tạo lại PDF báo giá",
+      "desc": "Tạo lại PDF đóng băng của báo giá đã gửi khi lần tạo trước bị lỗi; PDF xong sẽ tự gửi vào hội thoại của khách."
     }
   },
   "contract": {
@@ -823,6 +846,18 @@
     },
     "system_import": {
       "title": "Nhập bản đơn sàn đã kiểm (hệ thống)"
+    },
+    "file_attach": {
+      "title": "Đính kèm tệp vào đơn hàng",
+      "desc": "Gắn tệp đã tải lên (PDF, DOCX, XLSX, ảnh, văn bản) vào đơn sau khi kiểm cấu trúc."
+    },
+    "file_detach": {
+      "title": "Gỡ tệp đính kèm khỏi đơn hàng",
+      "desc": "Gỡ liên kết tệp khỏi đơn; tệp gốc vẫn được giữ."
+    },
+    "files_list": {
+      "title": "Xem tệp đính kèm của đơn hàng",
+      "desc": "Liệt kê tệp đang đính kèm đơn (mới nhất trước)."
     }
   },
   "invoice": {
@@ -856,6 +891,18 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái đề nghị thanh toán (hệ thống)"
+    },
+    "file_attach": {
+      "title": "Đính kèm tệp vào đề nghị thanh toán",
+      "desc": "Gắn tệp đã tải lên (uỷ nhiệm chi, chứng từ…) vào đề nghị sau khi kiểm cấu trúc."
+    },
+    "file_detach": {
+      "title": "Gỡ tệp đính kèm khỏi đề nghị thanh toán",
+      "desc": "Gỡ liên kết tệp khỏi đề nghị; tệp gốc vẫn được giữ. Chứng từ đã sinh không gỡ được."
+    },
+    "files_list": {
+      "title": "Xem tệp của đề nghị thanh toán",
+      "desc": "Liệt kê chứng từ đã sinh và tệp đính kèm của đề nghị."
     }
   },
   "booking": {
@@ -932,6 +979,10 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái lịch hẹn (hệ thống)"
+    },
+    "order_suggestions": {
+      "title": "Xem gợi ý tạo đơn từ lịch hẹn",
+      "desc": "Liệt kê buổi dịch vụ đã hoàn thành ngoài liệu trình, chưa có đơn, kèm giá hiện tại."
     }
   },
   "ticket": {
@@ -971,7 +1022,8 @@
       "title": "Mở lại ticket"
     },
     "bulk_update": {
-      "title": "Cập nhật hàng loạt ticket"
+      "title": "Cập nhật hàng loạt ticket",
+      "desc": "Giao người phụ trách hoặc AI Agent (chỉ là phân công — agent không tự chạy) và / hoặc đổi ưu tiên cho nhiều ticket; mỗi ticket có kết quả riêng."
     },
     "get": {
       "title": "Xem ticket",
@@ -979,6 +1031,28 @@
     },
     "system_transition": {
       "title": "Chuyển trạng thái ticket (hệ thống)"
+    },
+    "category_suggestions": {
+      "title": "Gợi ý danh mục ticket",
+      "desc": "Đọc danh mục gợi ý đã cấu hình và danh mục đã dùng trong ticket bạn xem được."
+    },
+    "stock_summary": {
+      "title": "Xem tồn ticket so với hôm qua",
+      "desc": "Năm số tồn ticket bạn đang xem được, so với lần quan sát thật của hôm qua (chỉ ticket còn tồn tại và còn trong quyền)."
+    },
+    "bulk_undo": {
+      "title": "Hoàn tác cập nhật hàng loạt ticket",
+      "desc": "Trả lại đúng các trường đã đổi trên những ticket chưa ai sửa sau đó; ticket đã đổi tiếp được giữ nguyên và báo xung đột."
+    },
+    "bulk_item": {
+      "title": "Cập nhật một ticket của thao tác hàng loạt (hệ thống)"
+    },
+    "bulk_item_undo": {
+      "title": "Hoàn tác một ticket của thao tác hàng loạt (hệ thống)"
+    },
+    "bulk_export": {
+      "title": "Tải kết quả cập nhật hàng loạt ticket",
+      "desc": "Tệp CSV / Excel kết quả từng ticket của một lần cập nhật hàng loạt (chỉ mã, kết quả, mã lỗi, đã đổi, hoàn tác — không nội dung ticket)."
     }
   },
   "segment": {
@@ -1358,6 +1432,12 @@
     },
     "system_publish": {
       "title": "Công bố kết quả nạp nguồn tri thức (hệ thống)"
+    },
+    "reindex": {
+      "title": "Tạo lại chỉ mục kho tri thức"
+    },
+    "reindex_cancel": {
+      "title": "Huỷ tạo lại chỉ mục"
     }
   },
   "governance": {
@@ -1543,6 +1623,22 @@
       "title": "Xem tiến độ kế hoạch Cowork",
       "desc": "Đọc trạng thái thật của một kế hoạch (bước nào đã xong, đang chờ, lỗi) — không phải lời model."
     },
+    "plan_request_edit": {
+      "title": "Dừng kế hoạch để sửa",
+      "desc": "Dừng nhận việc mới của kế hoạch, đợi việc đang chạy xong rồi chuyển sang đã dừng."
+    },
+    "plan_update": {
+      "title": "Sửa kế hoạch",
+      "desc": "Sửa, thêm, bỏ, dời các bước chưa bắt đầu; bước đã chạy giữ nguyên."
+    },
+    "plan_resume": {
+      "title": "Tiếp tục kế hoạch",
+      "desc": "Chạy tiếp kế hoạch đã sửa từ điểm dừng, cùng ngân sách và quyền hiện hành."
+    },
+    "plan_reuse": {
+      "title": "Dùng lại kế hoạch",
+      "desc": "Tạo bản nháp kế hoạch mới từ cấu trúc cũ của chính bạn — chỉ loại bước, không mang dữ liệu, giá trị hay kết quả cũ."
+    },
     "plan_reusable": {
       "title": "Gợi ý kế hoạch tái dùng",
       "desc": "Danh sách cấu trúc kế hoạch cũ của chính bạn có thể dùng lại — chỉ tên action/bước, không giá trị/kết quả cũ."
@@ -1639,5 +1735,88 @@
     "system_agent_transition": {
       "title": "Chuyển agent / chuyển người hội thoại (hệ thống)"
     }
+  },
+  "checklist": {
+    "title": "Bảng kiểm pháp lý",
+    "missing": "{n} mục cần xem lại",
+    "allOk": "Đủ các mục",
+    "note": "Chỉ là cảnh báo — các bên được tự thoả thuận, bạn vẫn gửi được.",
+    "hint": {
+      "template": "Mẫu chứng từ chưa có mục này",
+      "empty": "Mẫu có mục này nhưng {field} đang trống"
+    },
+    "item": {
+      "parties": "Thông tin hai bên",
+      "subject": "Đối tượng của hợp đồng",
+      "quantity": "Số lượng, chất lượng",
+      "price_payment": "Giá, phương thức thanh toán",
+      "term_place": "Thời hạn, địa điểm, phương thức thực hiện",
+      "rights": "Quyền và nghĩa vụ các bên",
+      "breach": "Trách nhiệm do vi phạm",
+      "dispute": "Phương thức giải quyết tranh chấp",
+      "effective": "Ngày hiệu lực",
+      "seller_tax": "Thông tin bên bán + MST",
+      "date": "Ngày lập",
+      "validity": "Thời hạn hiệu lực báo giá",
+      "vat_note": "Giá đã gồm / chưa gồm VAT",
+      "not_vat": "Dòng \"không thay thế hoá đơn GTGT\" (tự chèn)"
+    },
+    "field": {
+      "business_legal_name": "Tên pháp lý DN",
+      "business_tax_code": "MST DN",
+      "business_address": "Địa chỉ DN",
+      "business_representative": "Người đại diện DN",
+      "business_logo": "Logo",
+      "business_bank_account": "Tài khoản nhận tiền",
+      "customer_name": "Tên khách hàng",
+      "customer_tax_code": "MST khách hàng",
+      "customer_address": "Địa chỉ khách hàng",
+      "customer_phone": "SĐT khách hàng",
+      "customer_email": "Email khách hàng",
+      "customer_representative": "Đại diện khách hàng",
+      "doc_code": "Số chứng từ",
+      "doc_date": "Ngày lập",
+      "doc_valid_until": "Hiệu lực đến",
+      "doc_owner": "Người phụ trách",
+      "items": "Bảng hàng hoá / dịch vụ",
+      "totals_subtotal": "Tạm tính",
+      "totals_discount": "Chiết khấu",
+      "totals_vat": "Thuế GTGT",
+      "totals_total": "Tổng cộng",
+      "totals_total_words": "Số tiền bằng chữ",
+      "contract_kind": "Loại hợp đồng",
+      "contract_value": "Giá trị hợp đồng",
+      "contract_start": "Ngày bắt đầu",
+      "contract_end": "Ngày kết thúc",
+      "payment_vietqr": "Mã VietQR",
+      "payment_transfer_note": "Nội dung chuyển khoản",
+      "signatures_seller": "Chữ ký bên bán",
+      "signatures_buyer": "Chữ ký bên mua"
+    }
+  },
+  "ticket_categories": {
+    "get": {
+      "title": "Xem danh mục gợi ý ticket",
+      "desc": "Đọc bộ danh mục gợi ý của workspace (thứ tự, mặc định, phiên bản)."
+    },
+    "replace": {
+      "title": "Thay danh mục gợi ý ticket",
+      "desc": "Thay cả bộ danh mục gợi ý; ticket cũ giữ nguyên danh mục."
+    },
+    "export": {
+      "title": "Xuất danh mục gợi ý ticket",
+      "desc": "Xuất bộ danh mục gợi ý (vị trí + tên) ra tệp CSV / Excel."
+    }
+  },
+  "warn": {
+    "kb_reindex_old_slot_serves": "Trong lúc tạo lại, tìm kiếm vẫn dùng chỉ mục hiện tại; chuyển sang chỉ mục mới khi xong.",
+    "kb_reindex_price_missing": "Model đích chưa có đơn giá — chưa ước tính được Credit.",
+    "kb_reindex_supersedes": "Lần tạo lại đang chạy với model khác sẽ bị thay thế.",
+    "kb_reindex_in_progress": "Đang có lần tạo lại với model này — xác nhận sẽ tiếp tục lần đó.",
+    "kb_reindex_nothing_open": "Không có lần tạo lại nào đang chạy.",
+    "existing_tickets_unchanged": "Ticket cũ giữ nguyên danh mục — chỉ bộ gợi ý thay đổi.",
+    "agent_assignment_not_run": "Giao cho AI Agent chỉ là phân công — agent không tự chạy hay xử lý ticket.",
+    "bulk_background": "Hơn 50 ticket — chạy nền; theo dõi tiến độ, kết quả từng ticket hiện khi xong.",
+    "undo_conflicts_kept": "Ticket đã bị sửa sau thao tác này sẽ được giữ nguyên (báo xung đột)."
   }
 }

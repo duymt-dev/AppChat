@@ -42,6 +42,9 @@
   "approvalSent": "Sent for approval: {title} — nothing runs until it is approved",
   "jobAccepted": "Accepted: {title} — running in the background, results update when done",
   "operationPending": "Finishing: {title} — the system completes the rest automatically, no need to retry",
+  "undone": "Undone: {title}",
+  "undoAccepted": "Undoing: {title} — running in the background, results update when done",
+  "undoPartial": "Partially undone: {title} — {undone} undone, {failed} kept (edited afterwards or failed)",
   "previewTitle": "Confirm action",
   "business_profile": {
     "update": {
@@ -518,6 +521,22 @@
     },
     "import_retry": {
       "title": "Retry product import"
+    },
+    "media_attach": {
+      "title": "Attach product image / document"
+    },
+    "media_detach": {
+      "title": "Remove product image / document"
+    },
+    "media_reorder": {
+      "title": "Reorder product images / documents"
+    },
+    "media_set_primary": {
+      "title": "Set product primary image"
+    },
+    "media_list": {
+      "title": "View product images / documents",
+      "desc": "List the images and documents of one product (primary image, order) — read only"
     }
   },
   "category": {
@@ -606,6 +625,10 @@
     },
     "system_transition": {
       "title": "Quote system transition"
+    },
+    "retry_render": {
+      "title": "Retry quote PDF",
+      "desc": "Re-render the frozen PDF of a sent quote after the previous attempt failed; once ready it is sent to the customer conversation."
     }
   },
   "contract": {
@@ -823,6 +846,18 @@
     },
     "system_import": {
       "title": "Import verified marketplace order revision (system)"
+    },
+    "file_attach": {
+      "title": "Attach a file to an order",
+      "desc": "Attach an uploaded file (PDF, DOCX, XLSX, image, text) to the order after a structural check."
+    },
+    "file_detach": {
+      "title": "Remove an attachment from an order",
+      "desc": "Unlink a file from the order; the original file is kept."
+    },
+    "files_list": {
+      "title": "View order attachments",
+      "desc": "List files attached to the order (newest first)."
     }
   },
   "invoice": {
@@ -856,6 +891,18 @@
     },
     "system_transition": {
       "title": "Payment request system transition"
+    },
+    "file_attach": {
+      "title": "Attach a file to a payment request",
+      "desc": "Attach an uploaded file (transfer slip, voucher…) to the payment request after a structural check."
+    },
+    "file_detach": {
+      "title": "Remove an attachment from a payment request",
+      "desc": "Unlink a file from the payment request; the original file is kept. Generated documents cannot be removed."
+    },
+    "files_list": {
+      "title": "View payment request files",
+      "desc": "List generated documents and attachments of the payment request."
     }
   },
   "booking": {
@@ -932,6 +979,10 @@
     },
     "system_transition": {
       "title": "Appointment system transition"
+    },
+    "order_suggestions": {
+      "title": "View order suggestions from appointments",
+      "desc": "List finished non-package appointments without an order, with the current price."
     }
   },
   "ticket": {
@@ -971,7 +1022,8 @@
       "title": "Reopen ticket"
     },
     "bulk_update": {
-      "title": "Bulk update tickets"
+      "title": "Bulk update tickets",
+      "desc": "Assign a member or an AI agent (assignment only — the agent does not run) and / or change priority on many tickets; each ticket gets its own result."
     },
     "get": {
       "title": "View ticket",
@@ -979,6 +1031,28 @@
     },
     "system_transition": {
       "title": "Ticket system transition"
+    },
+    "category_suggestions": {
+      "title": "Ticket category suggestions",
+      "desc": "Read the configured category suggestions and categories used on tickets you can see."
+    },
+    "stock_summary": {
+      "title": "View ticket stock vs. yesterday",
+      "desc": "The five ticket stock counts you can currently see, compared with yesterday's real observation (only tickets that still exist and are still visible)."
+    },
+    "bulk_undo": {
+      "title": "Undo ticket bulk update",
+      "desc": "Restores only the changed fields on tickets nobody edited since; tickets changed later are kept and reported as conflicts."
+    },
+    "bulk_item": {
+      "title": "Update one ticket of a bulk operation (system)"
+    },
+    "bulk_item_undo": {
+      "title": "Undo one ticket of a bulk operation (system)"
+    },
+    "bulk_export": {
+      "title": "Download ticket bulk update results",
+      "desc": "CSV / Excel file with the per-ticket results of one bulk update (id, outcome, error code, changed, undo only — no ticket content)."
     }
   },
   "segment": {
@@ -1358,6 +1432,12 @@
     },
     "system_publish": {
       "title": "Publish knowledge source ingest result (system)"
+    },
+    "reindex": {
+      "title": "Rebuild knowledge base index"
+    },
+    "reindex_cancel": {
+      "title": "Cancel index rebuild"
     }
   },
   "governance": {
@@ -1543,6 +1623,22 @@
       "title": "View Cowork plan progress",
       "desc": "Read the real status of a plan (which steps are done, waiting, failed) — not the model's claim."
     },
+    "plan_request_edit": {
+      "title": "Pause plan to edit",
+      "desc": "Stop new work on the plan, let running work finish, then mark it paused."
+    },
+    "plan_update": {
+      "title": "Edit plan",
+      "desc": "Update, add, remove or reorder steps that have not started; started steps stay as they are."
+    },
+    "plan_resume": {
+      "title": "Resume plan",
+      "desc": "Continue the edited plan from where it paused, with the same budget and current permissions."
+    },
+    "plan_reuse": {
+      "title": "Reuse plan",
+      "desc": "Create a new draft plan from one of your own earlier structures — step types only, no old data, values or results."
+    },
     "plan_reusable": {
       "title": "Reusable plan suggestions",
       "desc": "List your own prior plan structures you can reuse — action/step names only, no old values or results."
@@ -1639,5 +1735,88 @@
     "system_agent_transition": {
       "title": "Conversation agent transition (system)"
     }
+  },
+  "checklist": {
+    "title": "Legal checklist",
+    "missing": "{n} items to review",
+    "allOk": "All items present",
+    "note": "Warning only — the parties may agree otherwise, you can still send.",
+    "hint": {
+      "template": "The document template lacks this item",
+      "empty": "The template has this item but {field} is empty"
+    },
+    "item": {
+      "parties": "Details of both parties",
+      "subject": "Subject matter",
+      "quantity": "Quantity and quality",
+      "price_payment": "Price and payment method",
+      "term_place": "Term, place and method of performance",
+      "rights": "Rights and obligations",
+      "breach": "Liability for breach",
+      "dispute": "Dispute resolution",
+      "effective": "Effective date",
+      "seller_tax": "Seller details + tax code",
+      "date": "Issue date",
+      "validity": "Quote validity",
+      "vat_note": "Price incl. / excl. VAT",
+      "not_vat": "\"Does not replace a VAT invoice\" line (auto-inserted)"
+    },
+    "field": {
+      "business_legal_name": "Business legal name",
+      "business_tax_code": "Business tax code",
+      "business_address": "Business address",
+      "business_representative": "Business representative",
+      "business_logo": "Logo",
+      "business_bank_account": "Receiving account",
+      "customer_name": "Customer name",
+      "customer_tax_code": "Customer tax code",
+      "customer_address": "Customer address",
+      "customer_phone": "Customer phone",
+      "customer_email": "Customer email",
+      "customer_representative": "Customer representative",
+      "doc_code": "Document no.",
+      "doc_date": "Issue date",
+      "doc_valid_until": "Valid until",
+      "doc_owner": "Owner",
+      "items": "Line items table",
+      "totals_subtotal": "Subtotal",
+      "totals_discount": "Discount",
+      "totals_vat": "VAT",
+      "totals_total": "Total",
+      "totals_total_words": "Amount in words",
+      "contract_kind": "Contract type",
+      "contract_value": "Contract value",
+      "contract_start": "Start date",
+      "contract_end": "End date",
+      "payment_vietqr": "VietQR code",
+      "payment_transfer_note": "Transfer note",
+      "signatures_seller": "Seller signature",
+      "signatures_buyer": "Buyer signature"
+    }
+  },
+  "ticket_categories": {
+    "get": {
+      "title": "View ticket category suggestions",
+      "desc": "Read the workspace category suggestions (order, default, version)."
+    },
+    "replace": {
+      "title": "Replace ticket category suggestions",
+      "desc": "Replace the whole suggestion list; existing tickets keep their category."
+    },
+    "export": {
+      "title": "Export ticket category suggestions",
+      "desc": "Export the suggestion list (position + label) as a CSV / Excel file."
+    }
+  },
+  "warn": {
+    "kb_reindex_old_slot_serves": "While rebuilding, search keeps using the current index; it switches when done.",
+    "kb_reindex_price_missing": "The target model has no price — Credit cannot be estimated.",
+    "kb_reindex_supersedes": "The rebuild in progress with another model will be replaced.",
+    "kb_reindex_in_progress": "A rebuild with this model is already running — confirming continues it.",
+    "kb_reindex_nothing_open": "No rebuild is running.",
+    "existing_tickets_unchanged": "Existing tickets keep their category — only the suggestions change.",
+    "agent_assignment_not_run": "Assigning to an AI agent is assignment only — the agent will not run or resolve the ticket.",
+    "bulk_background": "More than 50 tickets — runs in the background; per-ticket results appear when done.",
+    "undo_conflicts_kept": "Tickets edited after this operation are kept as they are (reported as conflicts)."
   }
 }

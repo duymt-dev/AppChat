@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useFmt } from '@/shared/i18n/useFmt';
-import { productsQuery } from '@/features/products';
+import { productsQuery } from '@/features/products/api';
 import { useQuoteFormStyles } from '../styles/form.styles';
 import type { QuoteDraftApi } from '../hooks/useQuoteDraft';
 

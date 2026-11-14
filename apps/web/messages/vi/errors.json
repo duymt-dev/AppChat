@@ -26,5 +26,7 @@
   "UNDO_EXPIRED": "Đã quá thời hạn hoàn tác",
   "UNDO_NOT_SUPPORTED": "Thao tác này không hoàn tác được",
   "NOT_IMPLEMENTED": "Tính năng này chưa sẵn sàng",
-  "ATTACHMENT_NOT_PREPARED": "Tệp đính kèm chưa chuẩn bị xong — chờ tệp sẵn sàng rồi gửi lại"
+  "ATTACHMENT_NOT_PREPARED": "Tệp đính kèm chưa chuẩn bị xong — chờ tệp sẵn sàng rồi gửi lại",
+  "UNDO_REQUIRES_ACTION": "Thao tác này hoàn tác bằng bước riêng — mở lại để xem trước phần sẽ hoàn tác",
+  "OPERATION_BUSY": "Thao tác hàng loạt còn đang chạy — chờ xong rồi thử lại"
 }

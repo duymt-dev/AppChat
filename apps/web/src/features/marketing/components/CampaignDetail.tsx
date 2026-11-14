@@ -16,6 +16,7 @@ import { CHANNEL_LOOK } from '../status';
 import { StatusText } from '../columns';
 import type { CampaignDetail as Detail } from '../types';
 import { ContentTab, HistoryTab, RecipientsTab } from './DetailTabs';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const TABS: DetailTab[] = ['recipients', 'content', 'history'];
 const BACK = '←';
@@ -33,6 +34,7 @@ const saveBlob = (blob: Blob, name: string) => {
 
 function ApprovalBar({ c }: { c: Detail }) {
   const t = useTranslations('marketing');
+  const fmt = useFmt();
   const { message } = App.useApp();
   const { styles } = useDetailStyles();
   const [reason, setReason] = useState('');
@@ -55,7 +57,7 @@ function ApprovalBar({ c }: { c: Detail }) {
     return (
       <div className={styles.bar} data-testid="mk-approval">
         <Icon name="ic-clock" size={16} color={color.noticeText} />
-        {t('detail.approvalBar', { n: (c.stats.eligible || c.est_recipients).toLocaleString('vi-VN') })}
+        {t('detail.approvalBar', { n: fmt.number(c.stats.eligible || c.est_recipients) })}
         <span className={styles.grow} />
         {testBtn}
         {can(A.reject) ? (

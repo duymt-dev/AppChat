@@ -3,6 +3,7 @@
 // màn bằng router phía client (không nạp lại trang giữa các bước).
 import { expect, test, type Page } from '@playwright/test';
 import { isMobile } from './support/mobile';
+import { confirmPreview } from './support/confirm';
 
 const S = '?session=authed,declared,trialSeen';
 
@@ -59,6 +60,7 @@ test.describe('commerce-gaps — chính sách bán hàng (TIP-032b P1)', () => {
     await page.locator('[data-quote="q_2041"]').click();
     const drawer = page.getByTestId('q-drawer');
     await drawer.getByTestId('q-send-zalo').click();
+    await confirmPreview(page);
     await expect(drawer).toContainText('Đã gửi');
     await drawer.getByTestId('q-to-order').click();
     await expect(page).toHaveURL(/\/orders/);
@@ -83,6 +85,7 @@ test.describe('commerce-gaps — gửi chứng từ (TIP-032b P2)', () => {
     await dlg.getByTestId('q-delivery-image').click();
     await expect(dlg).toContainText('đủ trang');
     await dlg.getByTestId('q-delivery-send').click();
+    await confirmPreview(page);
     await expect(dlg).toHaveCount(0);
     await expect(page.getByTestId('q-drawer')).toContainText('Đã gửi');
     await page.keyboard.press('Escape');

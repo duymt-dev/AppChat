@@ -9,12 +9,14 @@ import type { PageMeta } from '@/shared/list/paged';
 import { useLoyaltyStyles } from '../styles/loyalty.styles';
 import { useTableStyles } from '../styles/tables.styles';
 import { useLoyaltyUi } from '../loyalty-store';
-import { STATUS_TONE, TIERS, TIER_TONE, avColor, initial, pts } from '../status';
+import {STATUS_TONE, TIERS, TIER_TONE, avColor, initial } from '../status';
 import type { Member, TierKey } from '../types';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const COLS = ['points', 'earned', 'used', 'spent'] as const;
 
 function Row({ m, i }: { m: Member; i: number }) {
+  const fmt = useFmt();
   const t = useTranslations('loyalty');
   const { styles, cx } = useTableStyles();
   const ui = useLoyaltyUi();
@@ -45,11 +47,11 @@ function Row({ m, i }: { m: Member; i: number }) {
         </span>
       </span>
       <span className={cx(styles.pts, styles.hideM)} data-testid="ly-points">
-        {pts(m.points)}
+        {fmt.number(m.points)}
       </span>
-      <span className={cx(styles.num, styles.hideM)}>{pts(m.earned)}</span>
-      <span className={cx(styles.numMuted, styles.hideM)}>{pts(m.used)}</span>
-      <span className={cx(styles.money, styles.hideM)}>{t('mem.vnd', { v: Number(m.spent).toLocaleString('vi-VN') })}</span>
+      <span className={cx(styles.num, styles.hideM)}>{fmt.number(m.earned)}</span>
+      <span className={cx(styles.numMuted, styles.hideM)}>{fmt.number(m.used)}</span>
+      <span className={cx(styles.money, styles.hideM)}>{t('mem.vnd', { v: fmt.number(m.spent) })}</span>
       <span className={styles.hideM}>
         <span className={styles.st} style={{ background: `${st}18`, color: st }}>
           {t(`mem.status.${m.status}`)}

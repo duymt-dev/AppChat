@@ -1,6 +1,7 @@
 // Khung chat (mount lại theo key = conversation id để bản nháp / gợi ý reset): header · ghim · luồng tin · banner "Cần người" + bản nháp AI · thẻ gợi ý trả lời · ô soạn — prototype L1736–1902.
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { Icon, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
@@ -18,6 +19,8 @@ import { AiDraftCard } from './AiDraftCard';
 import { Rich } from './Rich';
 import { CitationList } from '@/shared/ai-citations/CitationList';
 import { ThreadSearchBar } from './ThreadSearchBar';
+import { AppointmentOrderCards } from '@/shared/appointment-order/AppointmentOrderCard';
+import { useOrdersUi } from '@/features/orders/orders-store';
 import { useInboxUi } from '../inbox-store';
 import type { ChannelMeta, Conversation } from '../types';
 
@@ -44,6 +47,8 @@ export function ChatPanel({
   const [hideSuggest, setHideSuggest] = useState(false);
   const suggestion = w.suggestion;
   const plain = (s: string) => s.replace(/<\/?b>/g, '');
+  const router = useRouter();
+  const openOrder = (id: string) => (useOrdersUi.getState().set({ detail: id, tab: 'overview' }), router.push('/orders'));
 
   return (
     <div className={cx(styles.col, className)} data-testid="chat-panel">
@@ -51,6 +56,8 @@ export function ChatPanel({
       {searchOpen ? <ThreadSearchBar conv={conv} onJump={w.jumpTo} /> : null}
       <ThreadViewport conv={conv} w={w}>
         <InboxApprovals conversationId={conv.id} />
+        {/* TIP-033c: gợi ý tạo đơn của lịch đã hoàn thành gắn hội thoại — tách khỏi bản nháp AI, phân trang riêng. */}
+        {conv.contact_id ? <AppointmentOrderCards source={{ conversationId: conv.id }} onOpenOrder={openOrder} /> : null}
         {conv.ai_state === 'handoff' ? (
           <>
             <AiDraftCard

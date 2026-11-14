@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { expectNoHorizontalOverflow, expectTouchTargets, isMobile } from './support/mobile';
+import { confirmPreview } from './support/confirm';
 
 const URL = '/invoices?session=authed,declared,trialSeen';
 
@@ -102,6 +103,7 @@ test.describe('invoices', () => {
     await expect(drawer.getByTestId('iv-status')).toHaveText('Nháp');
     await expect(drawer.getByTestId('iv-qr')).toHaveCount(0);
     await drawer.getByTestId('iv-send').click();
+    await confirmPreview(page);
     await expect(drawer.getByTestId('iv-status')).toHaveText('Đã gửi');
     await expect(drawer.getByTestId('iv-qr-content')).toHaveText('TT002042');
     await drawer.getByTestId('iv-record').click();

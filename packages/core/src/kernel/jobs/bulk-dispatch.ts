@@ -1,7 +1,7 @@
 // Chạy một việc dữ liệu (TIP-045b annex D): giành lease → kiểm lại quyền người tạo (thành viên còn hoạt động + quyền action gốc) → xử lý
 // lô bản ghi pending theo keyset, mỗi lô gia hạn lease + kiểm `cancelling` (huỷ hợp tác ở ranh giới bản ghi, phần đã ghi giữ nguyên) →
 // kết thúc theo biên nhận. Domain đăng ký runner theo `kind` (sửa từng bản ghi qua executor — không gọi thẳng handler; hoặc chạy toàn bộ
-// cho xuất tệp). Mất lease giữa chừng → dừng, worker đang giữ làm tiếp.
+// cho xuất tệp; hoặc `dispatch` — action riêng tự ghi biên nhận, TIP-034c). Mất lease giữa chừng → dừng, worker đang giữ làm tiếp.
 import type { TenantDb } from '@appchat/db';
 import type { AuthzContext } from '@appchat/shared';
 import type { TenantTx } from '../actions/action-context';
@@ -32,11 +32,19 @@ export interface KindContext {
 export interface KindRunner {
   /** Một bản ghi (sửa hàng loạt) trong transaction riêng CÙNG biên nhận — chạy lại / hai worker không ghi lần hai. Lỗi ném ra = failed. */
   item?: (c: KindContext, tx: TenantTx, targetId: string, seq: number) => Promise<'done' | 'skipped'>;
+  /**
+   * Một bản ghi qua ActionExecutor bằng action riêng (TIP-034c): action TỰ ghi biên nhận trong transaction của nó (cùng commit với hiệu
+   * ứng) — runner không mở transaction ngoài. `taken` = biên nhận đã có (lần trước / worker khác); `cancelled` / `lost` / `forbidden` =
+   * dừng (huỷ hợp tác / mất lease / người tạo mất quyền). Lỗi ném ra = biên nhận failed với mã an toàn.
+   */
+  dispatch?: (c: KindContext, l: JobLease, targetId: string, seq: number) => Promise<'done' | 'taken' | 'cancelled' | 'lost' | 'forbidden'>;
   /** Toàn bộ việc (xuất tệp) — tự đọc biên nhận / ghi tệp; `shouldStop` để huỷ hợp tác. */
   whole?: (c: KindContext, l: JobLease, shouldStop: () => Promise<boolean>) => Promise<{ status: 'completed' | 'cancelled'; fileKey?: string; fileName?: string; expiresAt?: Date }>;
   /** Nhãn ngắn trong thông báo xong việc + đường dẫn trong app (mặc định không link). */
   label: string;
   link?: (jobId: string) => string;
+  /** Không gửi thông báo xong việc (TIP-034c: đợt ≤ 50 chạy ngay trong yêu cầu — người gọi đã thấy kết quả). */
+  silent?: (job: JobRow & { total: number }) => boolean;
 }
 
 const KINDS = new Map<string, KindRunner>();
@@ -90,6 +98,16 @@ export async function runDataJob(db: TenantDb, ws: string, jobId: string, d: Run
     const batch = await nextItems(db, jobId, after, ITEM_BATCH);
     if (!batch.length) break;
     for (const it of batch) {
+      if (kind.dispatch) {
+        const r = await kind.dispatch(ctx, lease, it.targetId, it.seq).catch(async (err) => {
+          await markItem(db, jobId, it.seq, 'failed', errorCode(err), d.now());
+          return 'done' as const;
+        });
+        if (r === 'forbidden') return finish('failed', 'forbidden');
+        if (r === 'cancelled' || r === 'lost') return r === 'cancelled' && (await stillMine(db, lease)) ? finish('cancelled') : 'lost';
+        after = it.seq;
+        continue;
+      }
       try {
         await inEventTransaction(db, ctx.ws, async (tx) => {
           const st = await kind.item!(ctx, tx as TenantTx, it.targetId, it.seq);
@@ -123,8 +141,8 @@ async function end(db: TenantDb, ws: string, l: JobLease, job: JobRow, kind: Kin
   const now = d.now();
   const ok = await inEventTransaction(db, ws, async (tx) => {
     if (!(await finishJob(tx as never, l, status, now, { error, ...file }))) return false;
-    if (job.actorId) {
-      const t = await tx.dataJob.findUnique({ where: { id: l.id }, select: { done: true, total: true } });
+    const t = await tx.dataJob.findUnique({ where: { id: l.id }, select: { done: true, total: true } });
+    if (job.actorId && !kind?.silent?.({ ...job, total: t?.total ?? 0 })) {
       const link = kind?.link?.(l.id);
       await writeOutbox(tx, ws, [{ topic: 'notify.requested', payload: { kind: 'data_job_done', to: { user_ids: [job.actorId] }, params: { job: kind?.label ?? job.kind, status, done: t?.done ?? 0, total: t?.total ?? 0 }, ...(link ? { link } : {}) } }], now);
     }

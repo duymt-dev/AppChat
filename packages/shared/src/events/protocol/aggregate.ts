@@ -23,6 +23,8 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'credits.low': ws,
   'credits.exhausted': ws,
   'credits.restored': ws,
+  // TIP-006c: số dư ví đổi — theo workspace (thứ tự đổi giữ nguyên trong stream ws).
+  'credits.changed': ws,
   'subscription.changed': ws,
   'trial.expired': ws,
   'billing.invoice_paid': by('billing_invoice', 'invoice_id'),
@@ -87,11 +89,16 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'run.cancelled': by('ai_run', 'run_id'),
   'run.step': by('ai_run', 'run_id'),
   'run.done': by('ai_run', 'run_id'),
+  // TIP-006c: lệnh UI của lượt Trợ lý — cùng stream run (thứ tự với run.step).
+  'ui.command_issued': by('ai_run', 'run_id'),
   'kb.source_ready': by('kb_source', 'source_id'),
   'kb.source_failed': by('kb_source', 'source_id'),
   'kb.suggestion_created': conv,
   'kb.suggestion_approved': by('kb_suggestion', 'suggestion_id'),
   'kb.suggestion_rejected': by('kb_suggestion', 'suggestion_id'),
+  // TIP-020e: chỉ mục embedding — một dòng setting mỗi workspace (khoá cố định), cùng luồng thứ tự với generation đang phục vụ.
+  'kb.index_stale': ws,
+  'kb.index_published': ws,
   'agent.published': by('agent', 'agent_id'),
   'agent.paused': by('agent', 'agent_id'),
   'agent.deleted': by('agent', 'agent_id'),
@@ -101,10 +108,12 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'assistant.plan_proposed': by('assistant_plan', 'plan_id'),
   'assistant.plan_progressed': by('assistant_plan', 'plan_id'),
   'assistant.plan_edit_requested': by('assistant_plan', 'plan_id'),
+  'assistant.plan_resumed': by('assistant_plan', 'plan_id'),
   'assistant.discovery_requested': by('discovery_generation', 'generation_id'),
   'assistant.input_prepare_requested': by('assistant_input', 'artifact_id'),
   // sản phẩm
   'product.changed': by('product', 'product_id'),
+  'product.media_changed': by('product', 'product_id'),
   'product.import_requested': by('product_import', 'import_id'),
   // thương mại
   'quote.sent': by('quote', 'quote_id'),
@@ -126,10 +135,18 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'order.imported': by('order', 'order_id'),
   'order.external_updated': by('order', 'order_id'),
   'order.confirmation_sent': by('order', 'order_id'),
+  'order.file_attached': by('order', 'order_id'),
+  'order.file_detached': by('order', 'order_id'),
   'invoice.created': by('invoice', 'invoice_id'),
   'invoice.sent': by('invoice', 'invoice_id'),
   'invoice.overdue': by('invoice', 'invoice_id'),
   'invoice.voided': by('invoice', 'invoice_id'),
+  'invoice.file_attached': by('invoice', 'invoice_id'),
+  'invoice.file_detached': by('invoice', 'invoice_id'),
+  // TIP-028b: render chứng từ — thứ tự theo dòng render (một dòng mỗi chứng từ).
+  'document.render_requested': by('document_render', 'render_id'),
+  'document.rendered': by('document_render', 'render_id'),
+  'document.render_failed': by('document_render', 'render_id'),
   'receipt.sent': by('payment', 'payment_id'),
   'sales_settings.updated': ws,
   'payment.confirmed': by('payment', 'payment_id'),
@@ -175,6 +192,8 @@ export const AGGREGATE_RULES: Record<string, AggregateRule> = {
   'ticket.updated': by('ticket', 'ticket_id'),
   'ticket.closed': by('ticket', 'ticket_id'),
   'ticket.reopened': by('ticket', 'ticket_id'),
+  // TIP-034b: từ điển gợi ý danh mục — một dòng mỗi workspace (khoá cố định).
+  'ticket_categories.changed': by('ticket_category_config', 'key'),
   'ticket.sla_warning': by('ticket', 'ticket_id'),
   'ticket.sla_breached': by('ticket', 'ticket_id'),
 };

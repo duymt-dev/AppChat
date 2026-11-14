@@ -83,7 +83,15 @@
     "aiDo": "Giao AI Agent xử lý ngay",
     "aiPeek": "Xem gợi ý AI"
   },
-  "dow": ["T2", "T3", "T4", "T5", "T6", "T7", "CN"],
+  "dow": [
+    "T2",
+    "T3",
+    "T4",
+    "T5",
+    "T6",
+    "T7",
+    "CN"
+  ],
   "month": "Tháng {m} · {y}",
   "prev": "Trước",
   "next": "Sau",
@@ -124,9 +132,6 @@
     "cancelReason": "Lý do huỷ (bắt buộc)",
     "cancelled": "Đã huỷ: {reason}",
     "undoCreate": "Hoàn tác thao tác đặt lịch",
-    "suggest": "Tạo đơn cho buổi này?",
-    "suggestHint": "Buổi hẹn không thuộc liệu trình — tạo đơn để thu tiền (chỉ tạo khi bạn xác nhận).",
-    "suggestBtn": "Tạo đơn",
     "pkgDone": "Đã trừ 1 buổi liệu trình ({used}/{total})"
   },
   "form": {
@@ -150,7 +155,12 @@
     "anyStaff": "Bất kỳ KTV trống",
     "note": "Ghi chú",
     "reminder": "Nhắc lịch",
-    "reminders": ["Trước 10 phút", "Trước 30 phút", "Trước 1 giờ", "Trước 1 ngày"],
+    "reminders": [
+      "Trước 10 phút",
+      "Trước 30 phút",
+      "Trước 1 giờ",
+      "Trước 1 ngày"
+    ],
     "status": "Trạng thái",
     "required": "Nhập tên khách, chọn dịch vụ và giờ bắt đầu",
     "conflict": "Khung giờ vừa có người đặt — chọn giờ khác",
@@ -176,5 +186,22 @@
       "follow": "Liệt kê follow-up đến hạn hôm nay và đề xuất tin chăm sóc theo giai đoạn.",
       "report": "Báo cáo lịch hẹn hôm nay: số lịch, đã xác nhận, giờ dùng và doanh thu dự kiến."
     }
+  },
+  "orderCard": {
+    "title": "Tạo đơn cho buổi này?",
+    "hint": "Buổi {code} ({time}) không thuộc liệu trình — tạo đơn để thu tiền (chỉ tạo khi bạn xác nhận).",
+    "tax": "Thuế {rate}%",
+    "total": "Tổng",
+    "create": "Tạo đơn",
+    "confirming": "Đang chờ xác nhận…",
+    "created": "Đã tạo đơn {code}.",
+    "reused": "Buổi này đã có đơn {code} — không tạo thêm.",
+    "open": "Mở đơn",
+    "changed": "Giá hoặc lịch đã đổi kể từ lúc xem — thẻ đã được làm mới, kiểm tra lại rồi tạo đơn.",
+    "unavailable": "Buổi này không còn tạo đơn được (đã xoá hoặc ngoài quyền).",
+    "noRight": "Bạn không có quyền tạo đơn cho buổi này — nhờ người phụ trách bán hàng.",
+    "loadError": "Không tải được gợi ý tạo đơn.",
+    "retry": "Thử lại",
+    "more": "Xem thêm"
   }
 }

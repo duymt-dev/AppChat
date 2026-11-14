@@ -8,6 +8,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { searchProductIds } from '../repos/products.repo';
 import { UUID, lowOf } from '../services/catalog-write';
 import { attrsOf, categoryMap, PRODUCT_SELECT, type ProductRecord } from '../services/product-view';
+import { docOf } from '../description/view';
 import { getPreview, searchPreview, stockPreview } from './previews/read.handlers.preview';
 
 type SearchOut = ActionOutput<typeof productSearch>;
@@ -51,7 +52,7 @@ export class ProductSearchHandler implements Handler<ActionInput<typeof productS
 export class ProductGetHandler implements Handler<ActionInput<typeof productGet>, GetOut> {
   async execute(_ctx: ActionContext, input: ActionInput<typeof productGet>, tx: TenantTx): Promise<HandlerOutcome<GetOut>> {
     const where = input.product_id ? (UUID.test(input.product_id) ? { id: input.product_id } : null) : { code: input.code! };
-    const p = where ? await tx.product.findFirst({ where: { ...where, deletedAt: null }, select: PRODUCT_SELECT }) : null;
+    const p = where ? await tx.product.findFirst({ where: { ...where, deletedAt: null }, select: { ...PRODUCT_SELECT, descriptionDoc: true } }) : null;
     if (!p) throw new AppError('NOT_FOUND', 404, { product_id: 'not_found' });
     const [cats, parts, variants] = await Promise.all([
       categoryMap(tx),
@@ -63,6 +64,7 @@ export class ProductGetHandler implements Handler<ActionInput<typeof productGet>
       result: {
         ...hit(r, cats.map),
         description: r.description,
+        ...docOf(p.descriptionDoc),
         attrs: attrsOf(r.attrs),
         components: parts.map((c) => ({ product_id: c.childId, name: c.child.name, qty: c.qty })),
         duration_min: r.durationMin,

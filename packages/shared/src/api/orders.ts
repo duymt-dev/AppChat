@@ -84,6 +84,5 @@ export const ordersMetaSchema = z.object({
   stats: z.object({ total: z.number().int(), paid: z.number().int(), pending: z.number().int(), revenue: z.string() }),
   crm: z.object({ ltv: z.string(), total: z.number().int(), tier: z.string(), points: z.number().int() }),
   insight: z.string(),
-  files: z.array(z.object({ name: z.string(), ext: z.string(), by: z.string(), at: z.string(), size: z.string() })),
   ai_runs: z.record(z.string(), z.string()),
 });

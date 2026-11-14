@@ -4,6 +4,7 @@
 import { expect, test, type Locator, type Page } from '@playwright/test';
 import { pdf } from '../../../fixtures/contracts/files/build-fixtures';
 import { isMobile } from './support/mobile';
+import { confirmPreview } from './support/confirm';
 
 const URL = '/contracts?session=authed,declared,trialSeen';
 const PDF = { name: 'Hop dong dich vu.pdf', mimeType: 'application/pdf', buffer: pdf() };
@@ -102,6 +103,7 @@ test.describe('AI soạn hợp đồng (mock)', () => {
     await expect(sug.getByTestId('ct-sug-state-s1')).toHaveText('Đã giữ');
     await expect(sug.getByTestId('ct-sug-state-s2')).toHaveText('Đã bỏ');
     await drawer.getByTestId('ct-submit').click();
+    await confirmPreview(page, { checklist: false });
     await expect(drawer.getByTestId('ct-status')).toHaveText('Chờ duyệt');
   });
 });

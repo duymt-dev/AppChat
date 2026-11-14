@@ -28,6 +28,12 @@ export interface HandlerOutcome<O> {
    */
   afterCommit?: () => Promise<void>;
   /**
+   * Kết quả trả về người gọi SAU `afterCommit` (TIP-034c — đợt hàng loạt ≤ 50 chạy con sau commit cha, đọc lại từ biên nhận). Chỉ thay
+   * phản hồi lần này; action_log / idempotency giữ kết quả lúc nhận (gửi lại cùng khoá thấy trạng thái đã nhận + tham chiếu thao tác, tự
+   * đối chiếu biên nhận). Lỗi → giữ kết quả lúc nhận.
+   */
+  settled?: () => Promise<O>;
+  /**
    * Việc nền đã ghi bền (bản ghi job + outbox cùng transaction) — executor trả 202 `job_accepted` thay 200 (TIP-032b, job-accepted.ts).
    * `result` vẫn qua output schema + action_log (yêu cầu đã nhận); trạng thái hoàn tất là của bản ghi job.
    */
@@ -49,6 +55,11 @@ export interface TenantApplied<O> {
   events?: { topic: string; payload: Record<string, unknown> }[];
 }
 
+/** Dữ kiện của lần chạy (executor dựng): id action_log sẽ ghi cùng transaction — thao tác cha bền trỏ về nó (TIP-034c). */
+export interface ExecuteMeta {
+  actionLogId: string;
+}
+
 export interface ActionHandler<I = unknown, O = unknown> {
   /**
    * Việc chậm chạy NGOÀI transaction, trước `execute` (vd. gọi LLM — TIP-021 `agent.test` / `draft_from_description`): kết quả
@@ -59,12 +70,14 @@ export interface ActionHandler<I = unknown, O = unknown> {
    * `ptx` chỉ có với action `db: 'platform'` — khi đó ghi nghiệp vụ vào ptx; `tx` là bản tenant CHỈ ĐỌC (ghi → lỗi): ghi tenant đi qua
    * `tenantPlan` + `applyTenant` (TIP-045b — không còn transaction tenant lồng trong transaction nền tảng).
    */
-  execute(ctx: ActionContext, input: I, tx: TenantTx, ptx?: PlatformTx, prepared?: unknown): Promise<HandlerOutcome<O>>;
+  execute(ctx: ActionContext, input: I, tx: TenantTx, ptx?: PlatformTx, prepared?: unknown, meta?: ExecuteMeta): Promise<HandlerOutcome<O>>;
   /** Action nền tảng có ghi tenant: áp `tenantPlan` trong transaction tenant (cùng action_log + outbox + biên nhận). Không dựa vào `ctx.authz`. */
   applyTenant?(ctx: ActionContext, plan: Record<string, unknown>, tx: TenantTx): Promise<TenantApplied<O>>;
   /** Action nền tảng: ghi nền tảng SAU khi tenant đã áp (route kênh / widget / ngân hàng) — idempotent, khôi phục chạy lại. */
   finalizePlatform?(ctx: ActionContext, plan: Record<string, unknown>, ptx: PlatformTx, read: TenantTx): Promise<void>;
   preview?(ctx: ActionContext, input: I, tx: TenantTx): Promise<ActionPreview>;
+  /** Dữ kiện nguồn ràng vào confirm_token cùng transaction xem trước (TIP-033c §3.1) — execute so lại qua `ctx.previewFacts`. */
+  bindPreview?(ctx: ActionContext, input: I, tx: TenantTx): Promise<Record<string, string | number>>;
   undo?(ctx: ActionContext, log: ActionLogRow, tx: TenantTx): Promise<void>;
   /** Hoàn tác action nền tảng = thao tác MỚI có điều kiện (kernel/consistency/undo-operation) — ghi ptx, event ghi outbox tenant. */
   undoPlatform?(ctx: ActionContext, log: ActionLogRow, ptx: PlatformTx): Promise<{ events?: { topic: string; payload: Record<string, unknown> }[] }>;

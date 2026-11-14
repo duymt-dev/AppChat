@@ -43,10 +43,30 @@ export default [
           patterns: [
             { group: ['@appchat/core', '@appchat/core/*', '@appchat/db', '@appchat/db/*'], message: 'web chỉ dùng actions / shared / ui' },
             { group: ['axios'], message: 'Ghi qua useAction; đọc qua shared/api/transport' },
-            // features/a không import features/b/components/* — chỉ qua index.ts
-            { group: ['@/features/*/*', '**/features/*/components/*'], message: 'Import module khác qua @/features/<module> (index.ts)' },
+            // features/a không import features/b/components/* — qua index.ts, hoặc thẳng tới module LÁ công khai của b (api / *-store /
+            // types / ui-commands: query key, store UI, type, lệnh Trợ lý) để không kéo cả Screen của b vào đồ thị (TIP-001b — gỡ vòng
+            // phụ thuộc thật, tách chunk). Component của module khác chỉ nạp ĐỘNG (`import()` qua shared/dynamic/lazy-drawers — DC-446).
+            {
+              group: ['@/features/*/*', '!@/features/*/api', '!@/features/*/*-store', '!@/features/*/types', '!@/features/*/ui-commands', '**/features/*/components/*'],
+              message: 'Import module khác qua @/features/<module> (index.ts) hoặc @/features/<module>/{api,*-store,types,ui-commands}',
+            },
           ],
         },
+      ],
+    },
+  },
+  {
+    // Định dạng số / ngày / tiền qua fmt.* (packages/shared/src/fmt, useFmt) theo locale + timezone workspace (i18n §4, TIP-001b §3.3);
+    // breakpoint qua token `mq` / `responsive.*`, không viết media query tay (frontend-structure §11, TIP-001b §3.2).
+    // `Intl.Segmenter` (tách ký tự, không định dạng) không bị chặn.
+    files: ['src/features/**/*.{ts,tsx}'],
+    ignores: ['src/**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': [
+        2,
+        { selector: "CallExpression[callee.property.name=/^toLocale(String|DateString|TimeString)$/]", message: 'Định dạng qua fmt.* (useFmt), không toLocale*String' },
+        { selector: "MemberExpression[object.name='Intl'][property.name=/^(NumberFormat|DateTimeFormat|RelativeTimeFormat|PluralRules|ListFormat|DisplayNames)$/]", message: 'Định dạng qua fmt.* (useFmt), không Intl.* trực tiếp' },
+        { selector: "TemplateElement[value.raw=/@media/]", message: 'Breakpoint qua token mq.* / responsive.* (antd-style), không viết @media tay' },
       ],
     },
   },

@@ -11,13 +11,15 @@ import { quotesMetaQuery, quotesQuery } from '../api';
 import { QuoteCard, QuoteKanbanCard, useQuoteColumns } from '../columns';
 import { BulkBar, QuotesToolbar } from '../components/QuotesToolbar';
 import { QuoteDrawer } from '../components/QuoteDrawer';
-import { QuoteAiDrawer } from '../components/QuoteAiDrawer';
 import { DraftFromContentModal } from '../components/DraftFromContentModal';
 import { KANBAN } from '../status';
 import type { Quote } from '../types';
 import { useQuotesUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
 import { useAssistantContext } from '../hooks/useAssistantContext';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const QuoteAiDrawer = lazyDrawer(() => import('../components/QuoteAiDrawer').then((m) => m.QuoteAiDrawer));
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -116,7 +118,9 @@ export function QuotesScreen() {
         )}
       </PageStates>
       {meta ? <QuoteDrawer meta={meta} /> : null}
-      {meta ? <QuoteAiDrawer meta={meta} /> : null}
+      <Opened name="quote-ai" when={ui.aiOpen && !!meta} onClose={() => ui.set({ aiOpen: false })}>
+        {meta ? <QuoteAiDrawer meta={meta} /> : null}
+      </Opened>
       <DraftFromContentModal />
     </div>
   );

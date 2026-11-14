@@ -11,9 +11,11 @@ import { agentSystem, agentToolSpecs } from '../agents/agent.runtime';
 import { publishedAgent } from '../reply/reply-context';
 import { MAX_DEPTH } from '../reply/reply-tools';
 import { DEFAULT_RUN_BUDGET, MAX_STEPS, type AiRunner } from '../runs/runner';
-import { RunStore } from '../runs/run.store';
+import { RunStore, TERMINAL } from '../runs/run.store';
+import { existingChild, isChildRace, reuseChild } from '../runs/run-lineage';
 import type { AssistantTurnCtx } from './types';
 import { agentKnowledge } from '../kb/scope/context';
+import { childPlanGuard, pinnedAgent, selectedChildKey } from './plans/selected-agent';
 
 export interface DelegateDeps {
   db: TenantDb;
@@ -26,6 +28,10 @@ const ROLES = ['sales', 'cs', 'booking', 'marketing', 'accounting', 'ops', 'cust
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const ok = (output: unknown): ToolOutcome => ({ kind: 'ok', output });
 const err = (code: string, message: string): ToolOutcome => ({ kind: 'error', code, message });
+
+/** Kết quả run con đã có của agent đã chọn (giao lại cùng epoch) — không chạy lại. */
+const settled = (agent: string, r: { runId: string; status: string; text: string }): ToolOutcome =>
+  r.status === 'completed' ? ok({ agent, run_id: r.runId, status: 'completed', summary: r.text.slice(0, 2000) }) : err('DELEGATE_FAILED', r.status);
 
 /** Agent đích: theo id, hoặc agent đang chạy theo vai trò (sửa gần nhất trước). */
 async function target(db: TenantDb, ref: { agent_id?: unknown; role?: unknown }) {
@@ -41,8 +47,16 @@ export async function runDelegate(d: DelegateDeps, t: AssistantTurnCtx, input: {
   const store = new RunStore(d.db, d.now);
   const parent = await store.get(t.runId);
   if (!parent || parent.depth + 1 > MAX_DEPTH) return err('DEPTH_LIMIT', 'Quá độ sâu giao việc');
-  const a = await target(d.db, input);
-  if (!a) return err('NOT_FOUND', 'Không có agent đang chạy phù hợp');
+  // TIP-023d §5.3: đã chọn agent → chỉ giao đúng agent + bản đã ghim (bỏ qua agent_id / role model gửi), không rơi về agent khác.
+  const s = t.selected;
+  if (s && typeof input.agent_id === 'string' && input.agent_id !== s.id) return err('SELECTED_AGENT_ONLY', 'Người dùng đã chọn agent khác — chỉ giao việc cho agent đã chọn');
+  const a = s ? await pinnedAgent(d.db, s) : await target(d.db, input);
+  if (!a) return err(s ? 'AGENT_UNAVAILABLE' : 'NOT_FOUND', s ? 'Agent đã chọn không còn chạy đúng phiên bản đã chọn — báo người dùng bỏ chọn hoặc chọn agent khác' : 'Không có agent đang chạy phù hợp');
+  // Một run con của agent đã chọn mỗi (gốc, plan_epoch): giao lại → kết quả của run con đó, không sinh con thứ hai.
+  const childKey = s ? await selectedChildKey(d.db, parent.rootRunId) : null;
+  const prior = childKey ? await existingChild(d.db, { parentRunId: t.runId, childKey }) : null;
+  if (prior && !(TERMINAL as readonly string[]).includes(prior.status)) return { kind: 'waiting_child', runId: prior.id };
+  if (prior) return settled(a.agent.name, (await reuseChild(d.db, { parentRunId: t.runId, childKey: childKey! }))!);
   const root = parent.rootRunId === parent.id ? parent : await store.get(parent.rootRunId);
   // TIP-019b: phần còn lại theo usage đã định giá của cả cây (kể cả phần ví không đủ); run con chỉ là hạn mức nhỏ hơn trong ví gốc.
   const budget = await d.db.aiRootBudget.findUnique({ where: { rootRunId: parent.rootRunId }, select: { maxCredits: true, observed: true } });
@@ -51,10 +65,12 @@ export async function runDelegate(d: DelegateDeps, t: AssistantTurnCtx, input: {
   const allowed = (x: { permission: string }) => x.permission === 'self' || can(t.authz, x.permission as PermissionKey);
   const ids = runToolIds(a.cfg.tools, await connectedKeys(d.db), allowed);
   const context = typeof input.context === 'string' ? input.context.slice(0, 2000) : input.context ? JSON.stringify(input.context).slice(0, 2000) : '';
-  const row = await store.create({
+  const create = () => store.create({
     kind: 'delegate',
     title: task.slice(0, 200),
-    tier: a.cfg.model_tier,
+    // Agent đã chọn: mức cấu hình đã xuất bản hạ theo gói lúc nhận lượt (§5.5) — không lấy mức người dùng chọn cho Trợ lý.
+    tier: s?.tier ?? a.cfg.model_tier,
+    ...(childKey ? { childKey } : {}),
     input: { task, context },
     parentRunId: t.runId,
     initiatedByUserId: t.userId,
@@ -64,7 +80,21 @@ export async function runDelegate(d: DelegateDeps, t: AssistantTurnCtx, input: {
     // TIP-020c: phạm vi agent đích ∧ quyền người ra lệnh hiện hành — không thừa hưởng phạm vi rộng của Trợ lý.
     knowledge: agentKnowledge({ agentId: a.agent.id, version: a.version, cfg: a.cfg }, { commanderId: t.userId, parentRunId: t.runId }),
   });
-  const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, { workspaceId: t.ws, agent: { id: a.agent.id, toolIds: a.cfg.tools }, commander: t.authz, runId: row.id, source: 'agent', db: d.db });
+  let row;
+  try {
+    row = await create();
+  } catch (e) {
+    // Hai lời gọi delegate cùng lúc: unique (cha, khoá) chặn một — bên thua dùng kết quả run con đã có.
+    const again = childKey && isChildRace(e) ? await reuseChild(d.db, { parentRunId: t.runId, childKey }) : null;
+    if (!again) throw e;
+    return settled(a.agent.name, again);
+  }
+  // §5.4: lời gọi ghi của run con qua cùng cổng bước kế hoạch của gốc (claim một lần ở executor); agent đã chọn → khoá đúng bản đã ghim.
+  const tools: ToolSpec[] = agentToolSpecs(d.executor, ids, {
+    workspaceId: t.ws, agent: { id: a.agent.id, toolIds: a.cfg.tools }, commander: t.authz, runId: row.id, source: 'agent', db: d.db,
+    bindStep: childPlanGuard(d.db, parent.rootRunId),
+    ...(s ? { authority: { commanderId: t.userId, commander: async () => t.authz, version: s.version } } : {}),
+  });
   const system = `${agentSystem(a.cfg)}\n\nTrợ lý AI của doanh nghiệp giao việc cho bạn thay mặt người dùng. Làm đúng việc được giao, trả lời bằng bản tóm tắt ngắn kết quả.`;
   const prompt = context ? `${task}\n\nNgữ cảnh: ${context}` : task;
   const r = await d.runner.start(t.ws, store, row, { system, messages: [{ role: 'user', content: prompt }], tools, maxSteps: MAX_STEPS.agent, source: 'assistant' });

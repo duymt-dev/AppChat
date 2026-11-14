@@ -1,0 +1,58 @@
+// tenant/product-media.prisma — sở hữu: TIP-027b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Ảnh / tài liệu riêng tư của sản phẩm (TIP-027b §1.1–1.5): liên kết riêng của catalog (không dùng bảng đơn / đề nghị), một tệp mới tải chỉ
+// thuộc đúng một cha (chốt bền ở `file_claim`, parent_type `product`). Gỡ = `detached_at` (giữ lineage cho dọn tệp / quên khách), không xoá
+// blob. Bộ media có version riêng (`product_media_state`) — KHÔNG đổi version / giá / tồn của sản phẩm. Ảnh chính duy nhất mỗi sản phẩm
+// (unique một phần). `product_media_intent` = ý định đang chuẩn bị (sao chép / kiểm) ghi TRƯỚC khi chép bytes — hoàn tác tạo sản phẩm thấy
+// được và từ chối. Không URL công khai / hotlink ngoài.
+// Unique sống + index danh sách (partial, INCLUDE) ở migration `20261112040000_product_media`.
+
+enum ProductMediaKind {
+  image
+  document
+
+  @@map("product_media_kind")
+}
+
+model ProductMedia {
+  id         String           @id @db.Uuid
+  productId  String           @map("product_id") @db.Uuid
+  fileId     String           @map("file_id") @db.Uuid
+  kind       ProductMediaKind
+  position   Int
+  isPrimary  Boolean          @default(false) @map("is_primary")
+  version    Int              @default(1)
+  /// Nguồn: `upload` (tải cho đúng sản phẩm) hoặc `assistant_copy` (sao chép có đồng ý từ tệp Trợ lý) — lineage cho quyền riêng tư.
+  source     String           @default("upload")
+  sourceRef  String?          @map("source_ref")
+  createdBy  String?          @map("created_by") @db.Uuid
+  createdAt  DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+  detachedAt DateTime?        @map("detached_at") @db.Timestamptz(6)
+  detachedBy String?          @map("detached_by") @db.Uuid
+
+  @@index([fileId], map: "product_media_file_idx")
+  @@map("product_media")
+}
+
+/// Version bộ media của sản phẩm (khoá FOR UPDATE khi gắn / gỡ / sắp xếp / đổi ảnh chính). `touched` = đã từng có thao tác media (kể cả
+/// gỡ hết) — hoàn tác tạo sản phẩm chỉ được khi chưa từng chạm.
+model ProductMediaState {
+  productId String   @id @map("product_id") @db.Uuid
+  version   Int      @default(0)
+  touched   Boolean  @default(false)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("product_media_state")
+}
+
+/// Ý định gắn đang chuẩn bị (TIP-027b §2.3): ghi dưới khoá sản phẩm TRƯỚC khi chép bytes / kiểm cấu trúc, xoá khi gắn xong. Khoá thao tác
+/// = Idempotency-Key / thẻ xác nhận (045b), không sổ thực thi mới.
+model ProductMediaIntent {
+  operationId String   @map("operation_id")
+  productId   String   @map("product_id") @db.Uuid
+  fileId      String?  @map("file_id") @db.Uuid
+  createdBy   String?  @map("created_by") @db.Uuid
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([productId, operationId])
+  @@map("product_media_intent")
+}

@@ -21,7 +21,7 @@ export interface InvoiceDelivery {
 
 export async function prepareInvoiceDelivery(ctx: ActionContext, db: TenantDb, d: QuoteDeps, i: InvoiceRecord, channel: InvoiceChannel, now: Date): Promise<InvoiceDelivery> {
   const doc = await invoiceDocData(db, d.doc(), ctx.workspaceId, { ...i, sentAt: now });
-  const pdf = await renderDocPdf(db, d.doc(), 'payment_request', doc.data, doc.locale);
+  const pdf = await renderDocPdf(db, d.doc(), 'payment_request', doc.data, doc.locale, i.templateId);
   const name = interpolate(serverMessages(doc.locale).sales.invoice.pdfName, { code: i.code });
   const file = await savePdf(db, d.doc(), ctx.workspaceId, name, pdf, actorUserId(ctx));
   let qrFileId: string | null = null;

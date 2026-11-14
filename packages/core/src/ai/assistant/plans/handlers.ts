@@ -36,7 +36,10 @@ export class AssistantPlanProposeHandler implements Handler<ActionInput<typeof a
     };
   }
 
-  async preview(_ctx: ActionContext, i: ActionInput<typeof assistantPlanPropose>): Promise<ActionPreview> {
+  // Kiểm bước TRƯỚC khi hiện thẻ (cùng luật execute): kế hoạch trỏ action không có / agent không chạy được → 422 ngay ở lời gọi `plan`
+  // (model nhận khuôn + gợi ý và tự sửa), không để người dùng bấm Xác nhận một thẻ chắc chắn hỏng.
+  async preview(_ctx: ActionContext, i: ActionInput<typeof assistantPlanPropose>, tx: TenantTx): Promise<ActionPreview> {
+    if (this.executor) await validatePlanSteps(tx, (id) => this.executor!.isImplemented(id), i.steps);
     return planProposePreview(i);
   }
 }

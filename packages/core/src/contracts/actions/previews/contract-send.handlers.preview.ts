@@ -1,20 +1,24 @@
 // Preview gửi ký / nhắc / gia hạn link / chấm dứt (TIP-023b R2.8): gửi ký → khách + kênh + nơi nhận (hội thoại sẵn có / địa chỉ email mở
 // chuỗi mới) + hạn link dự tính (SIGN_LINK_DAYS); nhắc → hội thoại đã gửi + hạn link còn hiệu lực (hết hạn / chưa gửi → 409 như execute);
 // gia hạn → hạn link trước / sau; chấm dứt (risk money) → trạng thái + lý do, đơn đã tạo giữ nguyên. Chỉ đọc — không phát link, không gửi tin.
+// TIP-028b: gửi ký kèm bảng kiểm Điều 398 (cảnh báo, không chặn — DC-444).
 import type { ActionInput, ActionPreview, contractExtendSignLink, contractRemindSigner, contractSendForSignature, contractTerminate } from '@appchat/actions';
 import { AppError, SIGN_LINK_DAYS, dayEndAfter } from '@appchat/shared';
 import type { ActionContext, TenantTx } from '../../../kernel/actions/action-context';
 import { line, preview, updated } from '../../../kernel/actions/preview-kit';
 import { reachCustomer } from '../../../sales/public';
 import { flowOf, label, money } from './contract-write.handlers.preview';
+import { contractChecklist } from './contract-checklist';
+import type { ContractDeps } from '../../services/contract-deps';
 
-export async function sendPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof contractSendForSignature>, now: Date, timeZone: string): Promise<ActionPreview> {
+export async function sendPreview(ctx: ActionContext, tx: TenantTx, i: ActionInput<typeof contractSendForSignature>, now: Date, timeZone: string, d: ContractDeps): Promise<ActionPreview> {
   const { c, contact } = await flowOf(tx, ctx, i.contract_id, 'contract.send_for_signature');
   const reach = await reachCustomer(tx, await tx.contact.findUniqueOrThrow({ where: { id: c.contactId }, select: { id: true, email: true } }), i.channel);
   const expires = dayEndAfter(now, SIGN_LINK_DAYS, timeZone).toISOString();
   return preview('send', line(label(c), contact, money(c.value)), {
     changes: updated('contract', c.id, { sign_link_expires_at: c.signLinkExpiresAt?.toISOString() ?? null }, { channel: i.channel, to: reach.conv ? (reach.conv.title ?? contact) : reach.to, sign_link_expires_at: expires }),
     ...(reach.conv ? {} : { warnings: ['new_email_thread'] }),
+    checklist: await contractChecklist(tx, d, ctx.workspaceId, c),
   });
 }
 

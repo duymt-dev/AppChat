@@ -3,6 +3,8 @@
 // sửa giá trị: sai → mã lỗi theo trường, không tự điền / đoán. Ô bắt đầu `= + - @` giữ nguyên chữ (không công thức).
 import {
   AppError,
+  canonicalDoc,
+  descriptionDocSchema,
   foldText,
   normalizePhone,
   transferSpec,
@@ -10,7 +12,7 @@ import {
   type TransferField,
 } from '@appchat/shared';
 
-export type FieldError = 'required' | 'too_long' | 'invalid' | 'option';
+export type FieldError = 'required' | 'too_long' | 'invalid' | 'option' | 'invalid_doc';
 export interface CheckedRow {
   rowNo: number;
   data: Record<string, string>;
@@ -57,6 +59,17 @@ export function normalizeCell(
     case 'date': {
       const d = date(v);
       return d ? { value: d } : { error: 'invalid' };
+    }
+    case 'description_doc': {
+      // JSON theo schema đóng (TIP-027b) — chuỗi HTML / Markdown / JSON sai cấu trúc → lỗi dòng, không chuyển đổi đoán mò.
+      let raw: unknown;
+      try {
+        raw = JSON.parse(v);
+      } catch {
+        return { error: 'invalid_doc' };
+      }
+      const d = descriptionDocSchema.safeParse(raw);
+      return d.success ? { value: JSON.stringify(canonicalDoc(d.data)) } : { error: 'invalid_doc' };
     }
     case 'enum': {
       // Giá trị chuẩn (không phân biệt hoa thường) hoặc alias viết kiểu người dùng ("Dịch vụ" → service) — ngoài tập → lỗi, không đoán.

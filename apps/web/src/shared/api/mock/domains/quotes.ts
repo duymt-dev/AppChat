@@ -48,6 +48,8 @@ export type Quote = Omit<
   /** Hạn đã chốt lúc gửi / gia hạn (ISO); chưa gửi → dự kiến nếu gửi hôm nay. */
   valid_until_at?: string;
   viewed_at?: string | null;
+  /** TIP-028b: trạng thái job render PDF (mô phỏng — quote-render.ts). */
+  render?: { status: 'pending_render' | 'rendered' | 'render_failed'; error: string | null } | null;
 };
 
 export interface QuotesState {
@@ -86,6 +88,7 @@ export const enrich = (q: Quote, policy?: ApprovalPolicy): QuoteRow => {
     assigned_name: q.assigned_name ?? q.owner_name,
     ...totals,
     converted: converted?.kind ?? null,
+    render: q.render ?? null,
     valid_until: valid_until_at ?? validUntilOf(q.sent_at ?? MOCK_NOW, q.valid_days),
     approval_reasons: approvalReasons(totals, { offCatalog: q.off_catalog, policy }),
   };

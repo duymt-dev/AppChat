@@ -121,6 +121,11 @@ Windows 10 · Node 24 · pnpm 11 · PostgreSQL 16 native (service `postgresql-x6
 
 Kiểm nhanh nếu nghi ngờ: `psql ... -d appchat_tenant_template -c "SELECT name FROM _appchat_migrations ORDER BY name DESC LIMIT 3;"` phải thấy migration vừa tạo.
 
+**Ngắt kết nối ngay khi dùng xong** (Postgres 100 slot dùng chung với dự án khác — cạn slot là lỗi 53300 / "Too many database connections"):
+- Script node + pg: luôn `await client.end()` trong `finally`; xoá script tạm sau khi chạy.
+- Server / stack tự dựng (`next start`, API, worker, `ai-live-stack`, E2E): tắt ngay khi xong. Chỉ tắt tiến trình mình tạo (kiểm PID + dòng lệnh).
+- E2E http / ai:live: giới hạn client tenant — `TENANT_CLIENT_CACHE=10 pnpm e2e:http …`, `AI_LIVE_TENANT_CACHE=5 node tools/scripts/ai-live-stack.mjs …`.
+
 ## 8. Goal hiện tại
 
 **`coding-packs/goals/GOAL-RELEASE.md`** — làm tuần tự **90 TIP chưa DONE** (023b → … → 046; thêm 026c Cơ hội + 032e Tài chính — D60; thêm 047 → 047b → 047c → 047d Gọi điện — D61, trước 044) tới khi **TIP-046 (cổng phát hành) đạt**. Bảng thứ tự + tiến độ và câu `/goal` dán sẵn nằm trong file đó; thứ tự sinh bằng `python -X utf8 tools/obligations/order.py --table`. Trạng thái lúc dừng / việc kế tiếp: `coding-packs/HANDOFF-NEXT.md`.

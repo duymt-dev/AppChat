@@ -1,4 +1,4 @@
-// Đọc việc dữ liệu (TIP-045b annex D) cho GET /v1/data-jobs/:id, /:id/items và /:id/download. Chỉ NGƯỜI TẠO việc (không phải Owner xem
+// Đọc việc dữ liệu (TIP-045b annex D) cho GET /v1/data-jobs/:id, /:id/items, /:id/result (TIP-034c — kết quả theo loại) và /:id/download. Chỉ NGƯỜI TẠO việc (không phải Owner xem
 // hộ — tệp xuất mang dữ liệu theo quyền của người tạo) và còn quyền của action gốc; khác → 404 như không có. Tệp xuất chỉ tải qua route
 // có xác thực này (không URL storage thô): hết 24 giờ / quyền bị thu / chính sách trường hoặc scope (xuất danh sách — TIP-038) đã đổi so
 // với lúc xuất → 410, phải xuất lại.
@@ -23,6 +23,11 @@ export const registerExportStamp = (kind: string, s: ExportStamp) => void STAMPS
 
 /** Dấu chính sách trường của tệp xuất: vai trò trường + phiên bản định nghĩa — đổi một trong hai → tệp cũ không tải nữa. */
 export const policyStamp = (v: Pick<FieldView, 'role' | 'version'>) => `${v.role}|${v.version}`;
+
+/** Kết quả theo loại việc (TIP-034c: kết quả từng id của sửa ticket hàng loạt) — domain đăng ký; chỉ id + mã an toàn, đọc từ biên nhận. */
+type JobResult = (db: TenantDb, job: { id: string; status: string; total: number; input: unknown }) => Promise<unknown>;
+const RESULTS = new Map<string, JobResult>();
+export const registerJobResult = (kind: string, r: JobResult) => void RESULTS.set(kind, r);
 
 export const allowedAction = (a: AuthzContext, actionId: string) => {
   const p = getAction(actionId)?.permission;
@@ -78,6 +83,14 @@ export class DataJobStatusService {
     const rows = await db.dataJobItem.findMany({ where: { jobId: id, seq: { gt: after }, ...(q.only ? { status: q.only } : {}) }, orderBy: { seq: 'asc' }, take: limit + 1, select: { seq: true, targetId: true, status: true, error: true } });
     const page = rows.slice(0, limit);
     return { data: page.map((r) => ({ seq: r.seq, target_id: r.targetId, status: r.status as DataJobItemDto['status'], error: r.error })), next_cursor: rows.length > limit ? String(page.at(-1)!.seq) : null };
+  }
+
+  /** GET /v1/data-jobs/:id/result — người tạo + quyền hiện tại (như status); loại việc không đăng ký kết quả → 404. */
+  async result(v: Viewer, id: string): Promise<unknown> {
+    const { db, job } = await this.own(v, id);
+    const r = RESULTS.get(job.kind);
+    if (!r) throw new AppError('NOT_FOUND', 404, { result: 'not_supported' });
+    return r(db, job);
   }
 
   async download(v: Viewer, id: string): Promise<{ name: string; mime: string; body: Buffer }> {

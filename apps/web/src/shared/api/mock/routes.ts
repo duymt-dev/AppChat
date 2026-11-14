@@ -10,6 +10,7 @@ import { contactLifecycleRoutes } from './domains/contact-lifecycle';
 import { contactMergeRoutes } from './domains/contact-merge';
 import { assistantRoutes } from './domains/assistant';
 import { assistantSessionRoutes } from './domains/assistant-sessions';
+import { assistantPlanRoutes } from './domains/assistant-plans';
 import { aiTasksRoutes } from './domains/ai-tasks';
 import { agentsRoutes } from './domains/agents';
 import { productsRoutes } from './domains/products';
@@ -36,6 +37,7 @@ import { settingsOpsRoutes } from './domains/settings-ops';
 import { settingsBillingRoutes } from './domains/settings-billing';
 import { platformAdminRoutes } from './domains/platform-admin';
 import { docTemplatesRoutes } from './domains/doc-templates';
+import { ticketCategoryRoutes } from './domains/ticket-categories';
 import { withCustomFilters } from './domains/custom-values';
 
 export type MockRoute = (db: MockDb, params: Record<string, unknown>) => unknown;
@@ -78,6 +80,7 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...contactMergeRoutes,
   ...assistantRoutes,
   ...assistantSessionRoutes,
+  ...assistantPlanRoutes,
   ...aiTasksRoutes,
   ...agentsRoutes,
   ...productsRoutes,
@@ -104,4 +107,5 @@ export const mockRoutes: Record<string, MockRoute> = withCustomFilters({
   ...settingsBillingRoutes,
   ...platformAdminRoutes,
   ...docTemplatesRoutes,
+  ...ticketCategoryRoutes,
 });

@@ -6,15 +6,17 @@ import { EntityDrawer, color, layout } from '@appchat/ui';
 import { useDrawerStyles } from '../styles/drawer.styles';
 import { useLoyaltyUi, type MemberTab } from '../loyalty-store';
 import { memberQuery } from '../api';
-import { TIER_TONE, avColor, initial, pts } from '../status';
+import {TIER_TONE, avColor, initial } from '../status';
 import type { Member } from '../types';
 import { HistoryTab, LadderTab, OverviewTab } from './MemberTabs';
 import { AiTab } from './MemberAiTab';
 import { FilesTab } from './MemberFilesTab';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const TABS: MemberTab[] = ['overview', 'crm', 'ai', 'files', 'history'];
 
 function Head({ m }: { m: Member }) {
+  const fmt = useFmt();
   const t = useTranslations('loyalty.dr');
   const tt = useTranslations('loyalty.tier');
   const { styles } = useDrawerStyles();
@@ -38,11 +40,11 @@ function Head({ m }: { m: Member }) {
       <div className={styles.boxes}>
         <div className={styles.curBox}>
           <div>{t('cur')}</div>
-          <div data-testid="ly-dr-points">{pts(m.points)}</div>
+          <div data-testid="ly-dr-points">{fmt.number(m.points)}</div>
         </div>
         <div className={styles.accBox}>
           <div>{t('earned')}</div>
-          <div>{pts(m.earned)}</div>
+          <div>{fmt.number(m.earned)}</div>
         </div>
       </div>
     </div>
