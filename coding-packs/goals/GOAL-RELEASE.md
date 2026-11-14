@@ -166,7 +166,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 68 | [012d](../tips/TIP-012d-storage-connector.md) | W8 | chờ | `tip/012d-storage-connector` | | |
 | 69 | [013b](../tips/TIP-013b-settings-workspace.md) | W8 | chờ | `tip/013b-settings-workspace` | | |
 | 70 | [013c](../tips/TIP-013c-owner-availability.md) | W8 | chờ | `tip/013c-owner-availability` | | |
-| 71 | [014c](../tips/TIP-014c-channel-consistency.md) | W8 | DONE | `tip/014c-channel-consistency` | đang cập nhật | #tbd |
+| 71 | [014c](../tips/TIP-014c-channel-consistency.md) | W8 | DONE | `tip/014c-channel-consistency` | `4edfc933` | #230 |
 | 72 | [017b](../tips/TIP-017b-web-widget.md) | W8 | chờ | `tip/017b-web-widget` | | |
 | 73 | [018b](../tips/TIP-018b-email-oauth.md) | W8 | chờ | `tip/018b-email-oauth` | | |
 | 74 | [019d](../tips/TIP-019d-agent-authority.md) | W8 | chờ | `tip/019d-agent-authority` | | |

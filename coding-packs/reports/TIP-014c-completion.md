@@ -2,7 +2,7 @@
 
 **STATUS:** DONE (chưa nghiệm thu với provider thật — Zalo cá nhân chạy qua `ZALO_TRANSPORT=fake` / mock QR)
 **BRANCH:** `tip/014c-channel-consistency` (trên nền `origin/dev` `5d431488`, sau PR #229)
-**COMMIT / PR:** sẽ cập nhật sau khi commit & mở PR vào `dev`
+**COMMIT / PR:** `4edfc933` · PR #230 vào `dev` (`https://github.com/duymt-dev/AppChat/pull/230`)
 
 ---
 
