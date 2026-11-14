@@ -25,11 +25,11 @@
    - Đưa vào token antd (`packages/ui/theme.ts`) hoặc `antd-style`.
    - **Cấm hard-code màu/px trong component.** Giá trị chưa có token thì thêm token.
 6. **Ngoại lệ có chủ đích** chỉ được khi có mã quyết định (D/V/REQ) hoặc `PD` theo §6b. Danh sách hiện hành:
-   - **Module ẩn:** Gọi điện, Quy trình, Báo cáo (D07, D19).
-   - **Mục Cài đặt ẩn:** Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API / Playground / Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO / Compliance. "Vai trò & phân quyền" chỉ đọc ở P0 (D27).
+   - **Module ẩn:** Quy trình, Báo cáo (D07, D19). Gọi điện vào phạm vi từ 2026-11-13 (D61, TIP-047d): giữ "Gọi điện" trong `OUT_LABELS` tới commit dựng mục rail, gỡ cùng commit.
+   - **Mục Cài đặt ẩn:** Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API / Playground / Developer, SMS, ZBS, ~~Tổng đài~~ (vào phạm vi — D61), Cloud, Branding, Affiliate, SSO / Compliance. "Vai trò & phân quyền" chỉ đọc ở P0 (D27).
    - **Kênh:** chỉ kênh có manifest (`standards/channels/omnichannel-adapter.md`). **Connector:** chỉ connector có manifest, thẻ "Sắp có" (D28).
    - **Nội dung theo quyết định:** trial 15 ngày; OTP Email; ẩn social login; bỏ "tự nạp" và "tự chuyển model tiết kiệm"; "Ký số" → "Ký điện tử"; "Hóa đơn" → "Đề nghị thanh toán"; marketing chỉ Zalo cá nhân + Email.
-   - **AI Agents (D29):** chọn model hiện mức AI (tiêu chuẩn / nâng cao / tối đa), không hiện tên Claude; danh sách kênh theo channel registry; danh sách hành động ẩn mục OUT (Xử lý cuộc gọi, Kích hoạt workflow, HTTP request, ZNS / SMS); nút "Mở Workflow" ẩn.
+   - **AI Agents (D29):** chọn model hiện mức AI (tiêu chuẩn / nâng cao / tối đa), không hiện tên Claude; danh sách kênh theo channel registry; danh sách hành động ẩn mục OUT (Kích hoạt workflow, HTTP request, ZNS / SMS; "Xử lý cuộc gọi" mở từ TIP-047d — D61); nút "Mở Workflow" ẩn.
    - **Màn danh sách (D42, giữ qua mọi bản prototype — D43):** màn lấp đúng chiều cao vùng nội dung; chỉ thân bảng cuộn (header bảng dính), footer phân trang có số trang (`Pager`, 20 / 50 / 100 dòng) nằm đáy khung bảng; đổi lọc → về trang 1. Prototype cuộn cả màn — ảnh 1440×900 vẫn đo như cũ.
      - Áp cho 9 bảng: Khách hàng, Sản phẩm, Báo giá, Đơn hàng, Đề nghị thanh toán, Hợp đồng, Hỗ trợ, Marketing, thành viên Khách thân thiết; bảng danh sách mới thêm sau này cũng dùng `DataTable` + `ListPager`.
      - Khi chép prototype mới (ver2.1 trở đi) vào `docs/06-prototype/`: chỉ cập nhật **nội dung** bảng (cột, nhãn, màu, dữ liệu mẫu); **không** gỡ cuộn trong khung / header dính / `Pager` dù prototype mới vẫn vẽ cuộn cả màn hoặc footer khác. Muốn đổi phải có quyết định mới của Chủ nhà.
@@ -38,7 +38,7 @@
      - Menu ＋ khung nhập: Research / Web search khoá + "Sắp có" (D48); "Quyền của agent" chỉ xem, link sang Builder (D51).
      - Menu ⋯ hội thoại: submenu Vòng đời = enum `contact.stage` hiện có (D49); Tạo nhóm Zalo khoá "Sắp có" (D50).
      - AI Agent: quyền chỉ cấu hình ở tab Tools của Builder (nhóm theo module + Kỹ năng AI); danh mục Skills / Connectors / Plugins riêng của prototype không dựng (D51).
-     - Header hội thoại: không có nút video / gọi điện (D07, REQ-C13).
+     - Header hội thoại: không có nút video / gọi điện (D07, REQ-C13 — giữ sau D61).
      - Drawer "Trợ lý AI · [module]" và màn Trợ lý: kết quả hiện bằng cây giao diện do LLM ghép (thẻ số liệu, bảng, biểu đồ, form) thay bong bóng chữ + 1 nút của prototype (D55, `ai/generative-ui.md`). Parity đo khung drawer + danh sách Phân tích nhanh; vùng kết quả mask theo D55.
      - Builder AI Agents: cột Cấu hình (max 680) căn giữa trong vùng trái, không bám lề trái như prototype L2659 (D53, PD-004).
      - Trường dữ liệu tuỳ biến (D56, `domain/custom-fields.md`): cột / ô lọc / phần "Thông tin thêm" / khối chi tiết dựng từ định nghĩa của workspace, gắn `data-custom-field`. Prototype không có các trường này (trừ form Sản phẩm L4487) → khi đo (`?parity=1`) app không dựng chúng, chỉ giữ khối form Sản phẩm (`shared/custom-fields/api.ts`). Cài đặt › Trường dữ liệu thêm tab Báo giá, Lịch hẹn sau 4 tab của prototype.

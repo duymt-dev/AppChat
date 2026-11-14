@@ -1,6 +1,8 @@
 # TIP-018b — Email: kết nối Gmail / Outlook bằng OAuth (XOAUTH2)
 
 ## HEADER
+- **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 018b before047b.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 018b before047d.
 - **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 018b before006d.
 - TIP-ID: TIP-018b; Project: AppChat V2; Module: email channel; Priority: P1; Estimated: M. TIP bổ sung cho TIP-018 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 012c (tenant mail), 014b đã tích hợp; trước 044/045/046.

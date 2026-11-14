@@ -1,6 +1,8 @@
 # TIP-003e — if_version cho mọi entity còn thiếu, bảng chỉ thêm, đính chính hành động đã gửi
 
 ## HEADER
+- **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `packages/actions/src/support.ts`; integrate 003e before047b.
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 003e before047c.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 003e before026c.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 003e before032e.
 - TIP-ID: TIP-003e; Project: AppChat V2; Module: kernel + domain concurrency; Priority: P0; Estimated: L. TIP bổ sung cho TIP-003 (đã DONE, không sửa file gốc — DC-233).

@@ -1,6 +1,9 @@
 # TIP-003f — Chuẩn hoá validate dùng chung, zodRule, MoneyInput/PhoneInput, hỏi khi bỏ form đang sửa
 
 ## HEADER
+- **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `packages/actions/src/crm.ts`; integrate 003f before047b.
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003f before047c.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/common.json`, `apps/web/messages/vi/common.json`; integrate 003f before047d.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/common.json`, `apps/web/messages/vi/common.json`, `apps/web/src/features/calendar/components/AppointmentFormModal.tsx`, `apps/web/src/features/quotes/components/QuoteFormModal.tsx`; integrate 003f before026c.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003f before032e.
 - TIP-ID: TIP-003f; Project: AppChat V2; Module: shared validate + web forms; Priority: P0; Estimated: L. TIP bổ sung cho TIP-003 (đã DONE, không sửa file gốc — DC-233).

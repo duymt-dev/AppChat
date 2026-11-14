@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 5 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 7 | 0 | 2 | 11 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 167 | 9 | 0 | 9 | 19 | 11 | 20 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 415 | 32 | 0 | 4 | 13 | 3 | 0 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 7 | 0 | 2 | 23 | 10 | 5 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 167 | 9 | 0 | 9 | 41 | 11 | 20 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 415 | 32 | 0 | 4 | 48 | 3 | 0 | 0 |
 | E. standards/* | 234 | 28 | 0 | 6 | 20 | 2 | 43 | 0 |
-| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 1 | 13 | 0 | 18 | 7 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 83 | 5 | 0 | 14 | 21 | 2 | 0 | 0 |
-| **Tổng** | **1269** | **88** | **13** | **48** | **107** | **37** | **68** | **0** |
+| F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 1 | 13 | 0 | 29 | 6 | 0 | 0 |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 83 | 5 | 0 | 17 | 26 | 2 | 0 | 0 |
+| **Tổng** | **1269** | **88** | **13** | **51** | **192** | **36** | **68** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -136,7 +136,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-C11b | Quyền của agent chỉ xem, nhóm module + Kỹ năng AI, badge, link Builder | 01-REQUIREMENTS-MATRIX.md:73 | 021, 025 | ĐẠT | AgentToolsMenu.tsx:36-64; test agents.test.ts AC5 |
 | REQ-C11c | Research / Web search "Sắp có" (D48) | 01-REQUIREMENTS-MATRIX.md:73 | 025 | ĐẠT | AgentToolsMenu.tsx:56-59 |
 | REQ-C12 | Tìm trong hội thoại không dấu, N/M, lọc người gửi | 01-REQUIREMENTS-MATRIX.md:74 | 025b | ĐẠT | TIP-025b P2: GET /v1/conversations/:id/messages/search-page (ảnh chụp, total đúng, cursor mờ) + /messages/around/:messageId (≤ 51) — core/inbox/services/thread-window.ts; shared foldRanges (vị trí gốc UTF-16); web hooks/useThreadSearch + useThreadWindow, ThreadSearchBar (↑/↓, Enter, Esc, N/M), ThreadViewport (Về tin mới nhất); test apps/api/test/integration/inbox-thread-window.test.ts (5.000 tin / 300 khớp + EXPLAIN), packages/shared/test/inbox-thread-fold.test.ts, e2e inbox-thread.spec.ts |
-| REQ-C13 | Header + khung nhập ver2.1 | 01-REQUIREMENTS-MATRIX.md:75 | 025 | ĐẠT | ChatHeader.tsx:27; Composer.tsx:147; MessageBubble.tsx:139; e2e inbox.spec.ts |
+| REQ-C13 | Header + khung nhập ver2.1 (header chat không nút gọi — giữ sau D61) | 01-REQUIREMENTS-MATRIX.md:75 | 025 | ĐẠT | ChatHeader.tsx:27; Composer.tsx:147; MessageBubble.tsx:139; e2e inbox.spec.ts; 047d giữ (CONSTRAINTS) |
 | REQ-D01a | Agent runtime sau Agent Gateway | 01-REQUIREMENTS-MATRIX.md:80 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:35; test packages/ai/test/engine.test.ts |
 | REQ-D01b | Ngữ cảnh → RAG → tools → trả lời, bất đồng bộ trong worker | 01-REQUIREMENTS-MATRIX.md:80 | 022 | ĐẠT | ai/reply/reply.service.ts; test agent-reply.test.ts "worker ROLE=ai" |
 | REQ-D01c | Stream kết quả | 01-REQUIREMENTS-MATRIX.md:80 | 023c | ĐẠT | Chữ hiện dần qua SSE + khung xương cây từ tool-input delta (packages/ai/src/genui/structured-stream.ts, apps/web/src/shared/genui/GenUiSkeleton.tsx); test genui-structured-stream.test.ts, genui-stream.test.ts, GenUiSkeleton.test.tsx |
@@ -318,6 +318,18 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F12 | Bố cục Hồ sơ 360°: ⚙ Tuỳ chỉnh tab / khối (12 khối), ≥ 1 tab, mẫu gán 5 vai trò, 3 mẫu có sẵn | 01-REQUIREMENTS-MATRIX.md:138 | 015, 026 | ĐẠT | packages/core/src/crm/actions/profile-layout.handlers.ts:27–82; services/layouts.service.ts; test crm-settings.test.ts AC9b, apps/web/e2e/inbox.spec.ts "(REQ-F12)", e2e/http/customers-ui.spec.ts |
 | REQ-F13 | Cơ hội / Sales Pipeline: 7 giai đoạn xác suất cố định, chuỗi chứng từ, Thua / Mở lại, thẻ 360° + drawer + chip + cột + form "Thuộc cơ hội" | 01-REQUIREMENTS-MATRIX.md:139 | 026c | CHƯA | TIP-026c |
 | REQ-F14 | Tài chính: dòng đơn + đề nghị lẻ, 4 trạng thái, 3 hoạt động, lọc Nhóm / kỳ, KPI, badge, drawer 360°, nhắc hàng loạt | 01-REQUIREMENTS-MATRIX.md:140 | 032e | CHƯA | TIP-032e |
+| REQ-O01 | Hạ tầng thoại tự dựng: `packages/voice` + `infra/livekit` systemd, không Docker | 01-REQUIREMENTS-MATRIX.md:230 | 047 | CHƯA | TIP-047 |
+| REQ-O02 | Dữ liệu tổng đài: số / trunk 4 loại, máy nhánh, nhóm, IVR, cuộc gọi + người tham gia, ghi âm / transcript / tóm tắt | 01-REQUIREMENTS-MATRIX.md:231 | 047b | CHƯA | TIP-047b §1 |
+| REQ-O03 | Cuộc gọi vào: lời chào → AI nghe trước → phím IVR → nhóm 4 cách → tràn; giờ làm việc | 01-REQUIREMENTS-MATRIX.md:232 | 047c | CHƯA | TIP-047c §4 |
+| REQ-O04 | Gọi ra: WebPhone, Caller ID theo nhóm, bấm số ở Khách hàng / 360° / Tài chính, ZCC cửa sổ 30 ngày + yêu cầu gọi | 01-REQUIREMENTS-MATRIX.md:233 | 047c, 047d | CHƯA | TIP-047c §4 · TIP-047d §4, §7 |
+| REQ-O05 | Nhật ký + KPI: 6 tab, kỳ, 6 KPI, biểu đồ theo giờ, bảng máy nhánh realtime, D42 | 01-REQUIREMENTS-MATRIX.md:234 | 047c, 047d | CHƯA | TIP-047c §9 · TIP-047d §2 |
+| REQ-O06 | Chi tiết cuộc gọi: nghe lại, tóm tắt, transcript + dịch, gán khách / cơ hội / ticket / ghi chú | 01-REQUIREMENTS-MATRIX.md:235 | 047c, 047d | CHƯA | TIP-047c §2 · TIP-047d §3 |
+| REQ-O07 | Gọi nhỡ tự tạo việc gọi lại + modal Hẹn gọi lại dùng chung, hiện ở Lịch hẹn | 01-REQUIREMENTS-MATRIX.md:236 | 047c, 047d | CHƯA | TIP-047c §5 · TIP-047d §5 |
+| REQ-O08 | Voice AI: agent bật "Xử lý cuộc gọi", Realtime hoặc STT → LLM → TTS, chuyển người, credit theo lượt | 01-REQUIREMENTS-MATRIX.md:237 | 047, 047c | CHƯA | TIP-047 §2 · TIP-047c §7 |
+| REQ-O09 | Giám sát Manager: nghe cùng / nhắc nhỏ / tham gia, audit | 01-REQUIREMENTS-MATRIX.md:238 | 047c, 047d | CHƯA | TIP-047c §2 · TIP-047d §4 |
+| REQ-O10 | Cài đặt → Tổng đài: 4 tab, 7 khối, form máy nhánh / nhóm / phím / Caller ID | 01-REQUIREMENTS-MATRIX.md:239 | 047c, 047d | CHƯA | TIP-047c §2 (config) · TIP-047d §6 |
+| REQ-O11 | Ghi âm & riêng tư: ghi mặc định + thông báo, 12 tháng, quên khách xoá ngay | 01-REQUIREMENTS-MATRIX.md:240 | 047b, 047c | CHƯA | TIP-047b §1 · TIP-047c §6 |
+| REQ-O12 | Rail "Gọi điện" + gói / addon + widget nút gọi WebRTC mặc định tắt | 01-REQUIREMENTS-MATRIX.md:241 | 047b, 047d | CHƯA | TIP-047b §4 · TIP-047d §1, §8 |
 | REQ-G01 | Lịch ngày / tuần / tháng / danh sách; dịch vụ (thời lượng, giá, đệm); nhân sự; giờ mở cửa | 01-REQUIREMENTS-MATRIX.md:143 | 033b | ĐẠT | Lịch có sẵn (033); TIP-033b P2–P3 (DC-415, DC-416): Cài đặt › Lịch hẹn (`apps/web/src/features/settings/components/BookingSection.tsx`), giờ mở cửa / nhân sự ca riêng tri-state + if_version, slot theo block_end; test booking-settings 6/6, booking.settings_get 5/5, e2e mock + http booking-operations, ai:live ca đổi giờ Chủ nhật |
 | REQ-G02 | Trạng thái lịch: Chờ xác nhận (giữ chỗ 2 giờ) → Xác nhận → Hoàn tất / Không đến (ân hạn 20′) / Dời / Huỷ (bắt buộc lý do) | 01-REQUIREMENTS-MATRIX.md:144 | 033 | ĐẠT | packages/shared/src/booking/appointment-state.ts:6, :24; appointment-flow.handlers.ts:115, :136; test appointment-state.test.ts, booking.test.ts "không đến chỉ sau ân hạn 20 phút", "hết giữ chỗ 2 giờ → expired" |
 | REQ-G03a | Chống trùng lịch theo nhân sự (EXCLUDE ở DB) | 01-REQUIREMENTS-MATRIX.md:145 | 033 | ĐẠT | packages/db/prisma/tenant/migrations/20261101900000_033_booking/migration.sql:115; test booking.test.ts "ràng buộc DB: hai lịch chồng nhau … EXCLUDE" |
@@ -556,6 +568,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-10-5 | Bỏ tự nạp; nhắc khi dùng 80% và 95% | plans/COMMERCE-DECISIONS.md:247 | 009 | ĐẠT | wallet.service.ts:198-200 · test billing.test.ts AC6 |
 | COM-10-6 | Chỉ VietQR + chuyển khoản (VNPAY / MoMo / ZaloPay P2) | plans/COMMERCE-DECISIONS.md:248 | 010 | ĐẠT | test billing-payments.test.ts AC2 "QR VietQR (CRC đúng)" |
 | COM-10-7 | Hết credit: chặn AI + popup nạp | plans/COMMERCE-DECISIONS.md:249 | 039 | ĐẠT | Chặn: wallet.service.ts assertBalance / charge (CREDIT_EXHAUSTED); popup: apps/web/src/shared/billing/BillingNoticeHost.tsx (realtime `billing.notice` + 402 từ useAction, nút Nạp chỉ khi billing.manage); test apps/api/test/integration/billing-alerts.test.ts + BillingNoticeHost.test.tsx |
+| COM-10-voice-plan | Gói có Gọi điện: Cá nhân Max 1 máy · Business 5 · Ultimate không giới hạn · Enterprise tuỳ chỉnh; gói thấp hơn không có | plans/COMMERCE-DECISIONS.md:295 | 047b | CHƯA | TIP-047b §4 |
+| COM-10-voice-addon | Mua thêm "User tổng đài" 200.000đ / máy / tháng (khác "Thêm người dùng" 150.000đ) | plans/COMMERCE-DECISIONS.md:296 | 047b | CHƯA | TIP-047b §4 · TIP-047d §8 (thẻ ví) |
+| COM-10-voice-carrier | Shop trả cước nhà mạng; "Phút gọi Voice" / "Số hotline riêng" = Sắp có | plans/COMMERCE-DECISIONS.md:297 | 047d | CHƯA | TIP-047d §8 |
+| COM-10-voice-credit | Voice AI trừ credit theo lượt `voice_turn` (local: chỉ phần LLM, STT / TTS = 0 — DC-907); hết credit theo D09; yêu cầu gọi Zalo tính theo người trả | plans/COMMERCE-DECISIONS.md:298 | 047c | CHƯA | TIP-047c §7–8 |
 | COM-11 | Bảng mâu thuẫn đã giải quyết áp như luật §1–§10 | plans/COMMERCE-DECISIONS.md:253-266 | — | QUY-TẮC | Kiểm qua các dòng COM-2…COM-10 ở trên |
 | D01 | Sản phẩm thương mại hoàn chỉnh, không MVP | 01-REQUIREMENTS-MATRIX.md:251 | — | QUY-TẮC | Phạm vi; kiểm bằng sổ COVERAGE |
 | D02 | Mô hình OPC 1 chủ + đội AI | 01-REQUIREMENTS-MATRIX.md:252 | — | QUY-TẮC | Định hướng sản phẩm |
@@ -564,7 +580,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D04 | Kênh Zalo cá nhân + Web widget + Email | 01-REQUIREMENTS-MATRIX.md:255 | 014, 017, 018 | CHỜ-TK | packages/channels/src/{zalo-personal,webchat,email} · test zalo-adapter.test.ts, webchat.test.ts, email.test.ts; Zalo thật Q-003 |
 | D05 | Zalo cá nhân adapter cô lập, throttle chống khoá | 01-REQUIREMENTS-MATRIX.md:256 | 014 | CHỜ-TK | manifest.ts:22 jitter 2–6s; channels/jobs/send.processor.ts:43 · test channels.test.ts; Q-003 |
 | D06 | Tự chủ theo spec, ép duyệt tiền / HĐ / gửi hàng loạt | 01-REQUIREMENTS-MATRIX.md:257 | 003, 021 | ĐẠT | kernel/actions/policy.ts:8-26 · test packages/core/test/actions-unit.test.ts "policy nguồn × rủi ro" (ngưỡng 20M/5% riêng cho agent: COM-3-3) |
-| D07 | Không làm Call Center, Workflow engine | 01-REQUIREMENTS-MATRIX.md:258 | — | NGOÀI | D07 |
+| D07 | Không làm Workflow engine (Call Center vào phạm vi từ 2026-11-13 — D61) | 01-REQUIREMENTS-MATRIX.md:276 | — | NGOÀI | D07 (phần Workflow); Call Center → D61-* |
 | D08a | Ticket / SLA | 01-REQUIREMENTS-MATRIX.md:259 | 034 | ĐẠT | packages/core/src/support · test support.test.ts |
 | D08b | Marketing broadcast | 01-REQUIREMENTS-MATRIX.md:259 | 037 | ĐẠT | packages/core/src/marketing/* (phân khúc, duyệt + snapshot, gửi theo lô qua hàng kênh, số đo, AI); integration marketing*.test.ts 31 ca + E2E mock / http marketing |
 | D08c | Loyalty | 01-REQUIREMENTS-MATRIX.md:259 | 036 | ĐẠT | module loyalty đủ: packages/core/src/loyalty/*, /v1/loyalty/*, màn apps/web/src/features/loyalty; reports/TIP-036-completion.md |
@@ -636,8 +652,21 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D57 | Goal backend một mạch, ba sổ | 01-REQUIREMENTS-MATRIX.md:306 | — | QUY-TẮC | Quy trình |
 | D58 | Phạm vi test TIP backend (đã thay) | 01-REQUIREMENTS-MATRIX.md:307 | — | NGOÀI | Thay bằng D59 |
 | D59 | Ba cổng test TIP backend | 01-REQUIREMENTS-MATRIX.md:308 | — | QUY-TẮC | `pnpm lint typecheck test depcheck` |
-| D60-deal | Cơ hội / Sales Pipeline vào phạm vi (D60 #1–3, #8–12) | 01-REQUIREMENTS-MATRIX.md:311 | 026c | CHƯA | TIP-026c; kanban (#8) + Hẹn gọi lại (#9) làm sau |
-| D60-finance | Màn Tài chính vào phạm vi (D60 #4–7) | 01-REQUIREMENTS-MATRIX.md:311 | 032e | CHƯA | TIP-032e |
+| D60-deal | Cơ hội / Sales Pipeline vào phạm vi (D60 #1–3, #8–12) | 01-REQUIREMENTS-MATRIX.md:327 | 026c | CHƯA | TIP-026c; kanban (#8) + Hẹn gọi lại (#9) làm sau |
+| D60-finance | Màn Tài chính vào phạm vi (D60 #4–7) | 01-REQUIREMENTS-MATRIX.md:327 | 032e | CHƯA | TIP-032e |
+| D61-voice-infra | Hạ tầng thoại tự dựng không Docker: LiveKit server + SIP, SIP edge Kamailio + rtpengine, ghi track qua FilesService (D61 #1) | 01-REQUIREMENTS-MATRIX.md:328 | 047 | CHƯA | TIP-047 |
+| D61-channels | Bốn kênh thoại, mỗi cuộc một phòng LiveKit: ZCC · SĐT cá nhân (chuyển tiếp / hộp SIM) · hotline SIP · WebRTC widget (D61 #2) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §4 |
+| D61-plans | Gói có Gọi điện + hạn mức máy nhánh + addon "User tổng đài" 200.000đ; máy AI không tính license (D61 #3) | 01-REQUIREMENTS-MATRIX.md:328 | 047b | CHƯA | TIP-047b §4 |
+| D61-numbers | Shop mang số, trả cước nhà mạng; "Phút gọi Voice" / "Số hotline riêng" = Sắp có (D61 #4) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d §8 |
+| D61-perms | Quyền `call.use` / `call.view` (scope own) / `call.listen` / `call.monitor` / `callcenter.manage` theo 5 vai trò (D61 #5) | 01-REQUIREMENTS-MATRIX.md:328 | 047b | CHƯA | TIP-047b §3 |
+| D61-missed | Gọi nhỡ → việc gọi lại cho người phụ trách (không có → chưa giao, ai bấm thì nhận); hạn +30 phút / đầu giờ ngày kế; nhỡ lặp tăng đếm; số lạ → khách nháp (D61 #6) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §5 |
+| D61-ai | AI nghe máy cuộc vào; gọi ra chỉ từ Hẹn gọi lại một khách qua hotline / OA, không qua SIM; gọi hàng loạt / auto-dialer = Sắp có (D61 #7) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §7 |
+| D61-zcc-consent | Yêu cầu gọi Zalo do người bấm, xem trước phí; ví OA trả thì AppChat không thu, App trả thì trừ credit (D61 #8) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §8 |
+| D61-no-retry | Không tự gọi lần hai; hiện nút một chạm hotline / SIM hoặc gửi yêu cầu gọi Zalo (D61 #9) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d §3 |
+| D61-recording | Ghi âm mặc định + thông báo; 12 tháng xoá file + transcript, giữ tóm tắt; `contact.forget` xoá ngay (D61 #10) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §6 |
+| D61-zcc-scope | ZCC chỉ thoại — không ZNS, không chat OA (D61 #11) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §4 (ZNS / chat OA vẫn NGOÀI theo D04) |
+| D61-voice-ai-engine | Voice AI qua port: mặc định tự dựng pipeline local (PhoWhisper + VieNeu-TTS), Realtime tuỳ chọn, credit theo lượt (D61 #12 sửa — DC-907) | 01-REQUIREMENTS-MATRIX.md:328 | 047 | CHƯA | TIP-047 §2–3 (port + bộ cài local, AC9–10 đo) · TIP-047c §7 (phiên) |
+| D61-ui | Giao diện Gọi điện theo prototype + phần không vẽ theo SRS; rail giữa Lịch hẹn và AI Agents; chat header không nút gọi (D61 #13) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d |
 | DC-029 | Kênh thông báo `mobile` mới lưu tuỳ chọn, chưa gửi | DECISIONS.md:38 | 006d | CHƯA | DC-381 (2026-11-08) đảo DC-029: kênh `mobile` gửi Web Push + PWA trong bản phát hành — TIP-006d nhận; app native / push widget vẫn P2 |
 | DC-030 | Job gửi email digest | DECISIONS.md:39 | 038 | ĐẠT | DC-366; packages/core/src/insights/jobs/digest.service.ts + digest.consumer.ts (ROLE=jobs `insights.digest`); test apps/api/test/integration/digest.test.ts; Brevo thật chưa nghiệm thu (Q-004) |
 | DC-056 | Addon người dùng / kênh đã trả cộng vào quota | DECISIONS.md:65 | 039 | ĐẠT | Bảng `subscription_addon` (billing-lifecycle.prisma, unique invoice_id), addons.service.ts withAddons trong QuotaService.limits; test apps/api/test/integration/billing-lifecycle.test.ts AC04 |
@@ -655,6 +684,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-226 | Bộ `pnpm ai:live` 30 câu | DECISIONS.md:235 | 023b | ĐẠT | tools/ai-live (30 ca cố định cases.yaml, --cases, chấm an toàn trước); pnpm ai:live 2026-11-03 model thật 9router cc/claude-haiku-4-5: 27/30, 0 vi phạm an toàn — coding-packs/reports/ai-live-2026-11-03.md |
 | DC-901 | Mô hình cơ hội + giai đoạn khách suy từ cơ hội | DECISIONS.md:482 | 026c | CHƯA | TIP-026c |
 | DC-902 | Định nghĩa dòng / trạng thái / hoạt động / kỳ / nhắc hàng loạt của Tài chính | DECISIONS.md:483 | 032e | CHƯA | TIP-032e |
+| DC-903 | Ranh giới + mô hình dữ liệu Gọi điện (13 bảng tenant, `tenant_call_route`, `contact_task` callback, quyền, gói, giá voice) | DECISIONS.md:484 | 047b | CHƯA | TIP-047b |
+| DC-904 | Luồng cuộc gọi, webhook LiveKit / ZCC, realtime, gọi nhỡ, ghi âm, Voice AI, consent ZCC | DECISIONS.md:485 | 047c | CHƯA | TIP-047c |
+| DC-905 | Giao diện Gọi điện, WebPhone, màn prototype không vẽ | DECISIONS.md:486 | 047d | CHƯA | TIP-047d |
+| DC-906 | Hạ tầng thoại native + SIP edge, cấu hình qua env, script mặc định `plan` | DECISIONS.md:487 | 047 | CHƯA | TIP-047 |
+| DC-907 | Chốt Q-902…906 + Voice AI tự dựng (STT PhoWhisper, TTS VieNeu-TTS local, giấy phép thương mại, giá STT / TTS = 0, giới hạn phiên, Hộp SIM "Sắp có") | DECISIONS.md:488 | 047, 047b, 047c, 047d | CHƯA | TIP-047 §3 · 047b §5 · 047c §7 · 047d §6 |
 
 **Ghi chú / chưa rà hết:**
 
@@ -938,6 +972,33 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | ACT-team.update | `team.update` có trong registry + handler | plans/BLUEPRINT.md:582 | 042 | ĐẠT | team.handlers.ts (CAS, undo); team.update.action.test.ts |
 | ACT-contact.get_360 | `contact.get_360` có trong registry + handler | plans/BLUEPRINT.md:? | 023b | ĐẠT | handler + preview (PREVIEW_DEBT rỗng); ma trận apps/api/test/integration/actions/contact.get_360.action.test.ts |
 | ACT-workspace.transfer_ownership | `workspace.transfer_ownership` có trong registry + handler | plans/BLUEPRINT.md:583 | 045b | ĐẠT | packages/actions/src/identity.ts (request_transfer_otp + transfer_ownership, agentGrantable false, secret otp); identity/services/ownership-transfer.ts; matrix actions/workspace.transfer_ownership.action.test.ts; hardening-owner.test.ts |
+| ACT-call.list | `call.list` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.get | `call.get` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.kpis | `call.kpis` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.dial | `call.dial` (send) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.answer | `call.answer` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.hangup | `call.hangup` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.hold | `call.hold` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.mute | `call.mute` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.dtmf | `call.dtmf` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.transfer | `call.transfer` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.monitor | `call.monitor` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.assign_contact | `call.assign_contact` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.link_opportunity | `call.link_opportunity` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.save_note | `call.save_note` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.create_ticket | `call.create_ticket` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.schedule_callback | `call.schedule_callback` (write) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.zcc_request_consent | `call.zcc_request_consent` (send) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.recording_url | `call.recording_url` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.export | `call.export` (read) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_line.* | `call_line.*` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_extension.* | `call_extension.*` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_queue.* | `call_queue.*` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_ivr.update | `call_ivr.update` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call_settings.update | `call_settings.update` (config) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.ingest_event | `call.ingest_event` (internal) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.finalize | `call.finalize` (internal) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
+| ACT-call.record_missed | `call.record_missed` (internal) — handler qua ActionExecutor | plans/BLUEPRINT.md:779 | 047c | CHƯA | TIP-047c §2 |
 | BP-3.2-a | Executor đúng thứ tự registry → zod → permission → policy → idempotency → transaction (handler + action_log + outbox) | plans/BLUEPRINT.md:525 | 003 | ĐẠT | packages/core/src/kernel/actions/executor.ts:73-179; test actions.test.ts (AC1–AC8), actions-unit.test.ts |
 | BP-3.2-b | confirm_token Redis 10 phút gắn hash input, dùng một lần | plans/BLUEPRINT.md:530 | 003 | ĐẠT | packages/core/src/kernel/actions/confirm-token.ts:6; test actions-unit.test.ts ("đúng input → dùng được một lần"), actions.test.ts AC4 |
 | BP-3.2-c | Boot fail nếu action thiếu handler (chưa cài → NOT_IMPLEMENTED kèm TIP chủ) | plans/BLUEPRINT.md:522 | 003 | ĐẠT | packages/core/src/kernel/actions/handler-registry.ts:1-26, tip-owners.ts; test actions-unit.test.ts ("mọi action có TIP chủ", "boot fail") |
@@ -963,6 +1024,10 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-3.5-d | Quản lý "uỷ quyền" contract.sign / payment.refund_approve qua membership.delegations | plans/BLUEPRINT.md:875 | 005, 042 | ĐẠT | P1: uỷ quyền D35 là vai trò tuỳ biến bật rõ contract.sign / payment.refund_approve; job authz.legacy-delegations chuyển membership.delegations P0 (custom-roles.test.ts AC8); coding-packs/reports/TIP-042-completion.md |
 | BP-3.5-e | own = phụ trách / được gán + khách mình là collaborator / watcher (D32) | plans/BLUEPRINT.md:874 | 015, 042c | ĐẠT | own = phụ trách / được gán + khách collaborator / watcher ở mọi chứng từ + lịch hẹn (watcher chỉ đọc); CSKH crm đọc all / ghi own qua writeScope; coding-packs/reports/TIP-042c-completion.md |
 | BP-3.5-f | catalog.cost_view ẩn giá vốn | plans/BLUEPRINT.md:836 | 027 | ĐẠT | catalog/services/product-view.ts:49; test catalog.test.ts |
+| BP-3.5-calls | Quyền Gọi điện (`call.use` · `call.view` S · `call.listen` · `call.monitor` · `callcenter.manage`) + scope `callcenter` | plans/BLUEPRINT.md:908 | 047b | CHƯA | TIP-047b §3 |
+| BP-2.2-calls | `tenant/callcenter.prisma` (13 bảng) + `contact_task` callback + platform `tenant_call_route` / `plan.max_call_extensions` / giá voice | plans/BLUEPRINT.md:395 | 047b | CHƯA | TIP-047b §1–5 |
+| BP-3.4-callcenter | Domain `callcenter` (số, máy nhánh, nhóm, IVR, cuộc gọi, ghi âm, consent, webhook, phiên Voice AI) | plans/BLUEPRINT.md:66 | 047c | CHƯA | TIP-047c |
+| BP-7.2-calls | Màn `callcenter/` · host `(app)/_webphone` · `settings/callcenter` | plans/BLUEPRINT.md:1341 | 047d | CHƯA | TIP-047d |
 | BP-4.1-a | Envelope `{data}` / lỗi `{error:{code,message,fields}}` + bảng mã HTTP | plans/BLUEPRINT.md:882 | 003 | ĐẠT | apps/api/src/http/kernel/error.filter.ts; bootstrap.ts:18; test actions.test.ts |
 | BP-4.1-b | Header Bearer JWT + X-Workspace-Id, sai → 401/403 trước khi mở DB tenant | plans/BLUEPRINT.md:885 | 004 | ĐẠT | apps/api/src/http/kernel/request-actor.ts:45; test actions.test.ts AC11 |
 | BP-4.1-c | Cursor base64(sortKey,id), limit ≤100 mặc định 30 cho mọi list | plans/BLUEPRINT.md:887 | 003, 003i | MỘT PHẦN | chỉ billing-read.service.ts:22 có cursor base64url; nhiều list trả `next_cursor:null` (action-logs.read.ts:135); TIP-003i nhận (2026-11-02) |
@@ -1010,6 +1075,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.7-a | POST /hooks/payments/:provider (gói AppChat) | plans/BLUEPRINT.md:1017 | 010 | CHỜ-TK | billing/payments-hook.controller.ts; test billing-payments.test.ts (mock HMAC) — Q-004 SePay thật |
 | BP-4.7-b | POST /hooks/integrations/:connector/:connectionId | plans/BLUEPRINT.md:1018 | 012 | ĐẠT | integrations/hooks.controller.ts; test integrations.test.ts, orders.test.ts |
 | BP-4.7-c | POST /hooks/tenant-payments/:provider/:feedId | plans/BLUEPRINT.md:1019 | 032 | CHỜ-TK | sales/tenant-payments-hook.controller.ts; test payments.test.ts — Q-004 |
+| BP-4.7-calls | POST /hooks/livekit · POST /hooks/zalo-zcc/:appId (chữ ký, biên nhận idempotent, action nội bộ) | plans/BLUEPRINT.md:1082 | 047c | CHƯA | TIP-047c §3 (ZCC thật CHỜ-TK Q-902) |
+| BP-4.6-calls | Realtime `call.*` / `callcenter.extension_status` theo scope; media không đi Socket.IO | plans/BLUEPRINT.md:1073 | 047c | CHƯA | TIP-047c §9 · TIP-047d §8b |
 | BP-5.1-a | AiSdkEngine (streamText) chạy tool qua ToolSpec → ActionExecutor | plans/BLUEPRINT.md:1052 | 019 | ĐẠT | packages/ai/src/gateway/engine.ts:5; agent.runtime.ts:73; test engine.test.ts |
 | BP-5.1-b | Dừng run khi needs_* → lưu state jsonb, chạy tiếp bằng job ai-resume, idempotent | plans/BLUEPRINT.md:1054 | 021 | ĐẠT | engine.ts:94-95; core/ai/approvals/resume.ts:85-120, resume.queue.ts:22; test agents.test.ts, agent-reply.test.ts |
 | BP-5.1-c | Approval quá 72h → expired, run handoff, BÁO OWNER | plans/BLUEPRINT.md:1061 | 019b | ĐẠT | resume.ts expire CAS + handoff; agents.rules.ts `ai.approval_expired` → `ai_review` biến thể expired cho Owner hiện tại (`to.ownerOnly`, recipients.ts), một lần (`onceKey` + `ai_expiry_delivery`); test core ai-expiry-notification + api ai-runtime-lineage (TIP-019b P2) |
@@ -1041,6 +1108,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-6-c | Webchat widget ≤ 40KB gz, prechat, allowed_domains | plans/BLUEPRINT.md:1173 | 017 | ĐẠT | apps/widget/dist/widget.js (16.9KB gz), visitor.service.ts:11; test webchat.test.ts, apps/widget/test |
 | BP-6-d | Email IMAP poll 60s + SMTP, gom thread Message-ID/In-Reply-To | plans/BLUEPRINT.md:1174 | 018 | ĐẠT | packages/channels/src/email/{adapter,normalize}.ts; test email-adapter.test.ts, email.test.ts |
 | BP-6-e | Inbound pipeline ON CONFLICT dedupe → resolve contact → outbox message.received | plans/BLUEPRINT.md:1175 | 016 | ĐẠT | core/inbox/services/pipeline.ts:2,60,122; test inbox.test.ts |
+| BP-6b-voice | VOICE: `packages/voice` (LiveKit phòng / SIP / webhook, ZCC, ghi track, VoiceAiEnginePort), một cuộc = một phòng | plans/BLUEPRINT.md:1243 | 047, 047c | CHƯA | TIP-047 · TIP-047c |
 | BP-8-a | VietQR tự sinh payload + render ảnh `qrcode` | plans/BLUEPRINT.md:1321 | 032b | ĐẠT | packages/core/src/sales/payments/services/invoice-qr.ts (qrcode 1.5.4, DV-025) — ảnh QR trong PDF đề nghị + endpoint; decode bằng jsqr trong commerce-delivery.test.ts |
 | BP-8-b | Brevo MailProvider + webhook bounce/complaint | plans/BLUEPRINT.md:1319 | 004, 004c | MỘT PHẦN | integrations/connectors/brevo (CHỜ-TK Q-004); webhook bounce không có; TIP-004c nhận (2026-11-02) |
 | BP-8-c | Storage `s3` qua env | plans/BLUEPRINT.md:1324 | 045b | ĐẠT | packages/core/src/kernel/files/s3-storage.ts + storage-config.ts (STORAGE=s3 qua env, local mặc định — DV-019); core/test/s3-storage.test.ts (chưa nghiệm thu với bucket thật) |
@@ -1073,6 +1141,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-10-K11 | Scope own + collaborator làm chậm list lớn: EXPLAIN, denormalize khi p95 > 300ms | plans/BLUEPRINT.md:1369 | 042c, 046 | MỘT PHẦN | 042c scope SQL + EXPLAIN; đo p95 1M dòng → 046 |
 | BP-10-K12 | HNSW kèm filter giảm recall: iterative_scan, eval rag | plans/BLUEPRINT.md:1370 | 020, 044 | MỘT PHẦN | packages/core/src/ai/kb/search.ts:91 `hnsw.iterative_scan = relaxed_order`; eval rag → 044 |
 | BP-11-a | infra/ (provision, nginx, systemd, PG, prometheus, loki, grafana) + deploy releases/<sha> + rollback | plans/BLUEPRINT.md:1406 | 045 | CHƯA | thư mục infra/ không tồn tại — Q-006 |
+| BP-11-voice | Thoại native trên VPS: `livekit-server`, `livekit-sip`, Kamailio + rtpengine systemd, firewall riêng, script mặc định `plan` | plans/BLUEPRINT.md:1489 | 047 | CHƯA | TIP-047 §3 (máy thật CHỜ-TK Q-903) |
 | BP-11-a-1 | Six provisioned Grafana dashboards use real bounded metric/log sources | plans/BLUEPRINT.md §11.4 | 045 | CHƯA | TIP045 SPEC3.3–4/AC7; exact six JSON files and native query evidence required |
 | BP-11-a-2 | Exact alert thresholds, independent uptime and email+Telegram delivery | plans/BLUEPRINT.md §11.4 | 045 | CHƯA | TIP045 SPEC3.5–6/AC8; rule edge tests plus actual approved delivery, not config-only proof |
 | BP-11-a-3 | Native host/private listeners/SSH/TLS/least privilege and operator MFA hardening | plans/BLUEPRINT.md §11.5 | 045 | CHƯA | TIP045 SPEC1/3.6,AC1/2/6/12; no native Grafana local-user2FA assumption |
@@ -1557,7 +1626,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-customers-deal-col | Bảng Khách hàng cột "Cơ hội đang mở" (giá trị · số cơ hội · giai đoạn) | docs/06-prototype/AppChat.dc.html:2987 | 026c | CHƯA | TIP-026c §5.2 |
 | PRO-quotes-deal-link | Form Báo giá "Thuộc cơ hội" + tạo cơ hội mới + 2 cờ (giá trị theo tổng, việc theo dõi 2 ngày) | docs/06-prototype/AppChat.dc.html:5993 | 026c | CHƯA | TIP-026c §5.2 (không bắt buộc — D60 #11) |
 | PRO-calendar-deal-link | Form Lịch hẹn "Thuộc cơ hội" + ghi chú demo hoàn thành → gợi ý | docs/06-prototype/AppChat.dc.html:4532 | 026c | CHƯA | TIP-026c §5.2 |
-| PRO-deal-callback | Modal "Hẹn gọi lại" (thời điểm · người gọi · ghi chú) | docs/06-prototype/AppChat.dc.html:2835 | — | NGOÀI | D60 #9 + D07 (làm cùng Gọi điện) |
+| PRO-deal-callback | Modal "Hẹn gọi lại" (thời điểm · người gọi · ghi chú) | docs/06-prototype/AppChat.dc.html:2835 | 047d | CHƯA | TIP-047d §5 (D60 #9 làm cùng Gọi điện — D61) |
 | PRO-deal-kanban | Màn Pipeline kanban / danh sách cơ hội (logic `dealVals()` có, template không vẽ) | docs/06-prototype/AppChat.dc.html:9242 | — | NGOÀI | D60 #8 (làm sau, một pipeline) |
 | PRO-finance-screen | Màn Tài chính: bảng dòng đơn + đề nghị lẻ (11 cột, D42), chọn nhiều, menu ⋯ | docs/06-prototype/AppChat.dc.html:5473 | 032e | CHƯA | TIP-032e §2, §4 |
 | PRO-finance-kpi | 4 KPI Doanh số · Đã thu · Còn nợ · Quá hạn (kỳ — D60 #7) | docs/06-prototype/AppChat.dc.html:5482 | 032e | CHƯA | TIP-032e §2.5 |
@@ -1565,6 +1634,16 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | PRO-finance-remind | Nhắc thanh toán hàng loạt (email; ZBS Coming soon) + modal xem trước | docs/06-prototype/AppChat.dc.html:5600 | 032e | CHƯA | TIP-032e §3 (`invoice.bulk_remind`) |
 | PRO-finance-drawer | Drawer "Hồ sơ khách hàng 360° · Tài chính" (Tổng quan · Giao dịch · Nhắc nợ, gợi ý AI) | docs/06-prototype/AppChat.dc.html:5533 | 032e | CHƯA | TIP-032e §2.9 |
 | PRO-finance-badge | Rail "Tài chính" sau Khách hàng, badge số quá hạn | docs/06-prototype/AppChat.dc.html:1134 | 032e | CHƯA | TIP-032e §2.10, §4.1 |
+| PRO-callcenter-rail | Rail "Gọi điện" giữa Lịch hẹn và AI Agents; gỡ khỏi `OUT_LABELS` cùng commit | docs/06-prototype/AppChat.dc.html:1138 | 047d | CHƯA | TIP-047d §1 |
+| PRO-callcenter-screen | Màn Call Center: topbar (kỳ · Export · Gọi đi), 6 KPI, biểu đồ theo giờ, bảng máy nhánh, nhật ký 6 tab (D42) | docs/06-prototype/AppChat.dc.html:4775 | 047d | CHƯA | TIP-047d §2 (bỏ nút demo — PD-902) |
+| PRO-callcenter-dialer | Dialer: Caller ID, bàn phím, Gọi | docs/06-prototype/AppChat.dc.html:4844 | 047d | CHƯA | TIP-047d §4 |
+| PRO-callcenter-detail | Chi tiết cuộc gọi: player, tóm tắt AI, khối cơ hội + đề xuất AI, transcript + dịch, gán | docs/06-prototype/AppChat.dc.html:4873 | 047d | CHƯA | TIP-047d §3 |
+| PRO-callcenter-ai | Drawer "Trợ lý AI · Gọi điện" (4 gợi ý) | docs/06-prototype/AppChat.dc.html:4947 | 047d | CHƯA | TIP-047d §2.7 |
+| PRO-callcenter-settings | Cài đặt → Tổng đài: 4 tab, 7 khối, form máy nhánh / nhóm / phím / Caller ID | docs/06-prototype/AppChat.dc.html:8173 | 047d | CHƯA | TIP-047d §6 (codec thật, thiết bị Sắp có — PD-902) |
+| PRO-callcenter-integration-card | Thẻ "Tổng đài (Call Center)" ở Nền tảng kết nối + chip "Tổng đài / Call Center" ở Kết nối kênh | docs/06-prototype/AppChat.dc.html:12035 | 047d | CHƯA | TIP-047d §6 (gỡ 2 mask parity) |
+| PRO-callcenter-wallet | Ví: "User Tổng đài · thêm 1 máy nhánh 200.000₫/tháng"; so sánh gói nhóm Gọi điện | docs/06-prototype/AppChat.dc.html:11541 | 047d | CHƯA | TIP-047d §8 ("Phút gọi Voice" = Sắp có — D61 #4) |
+| PRO-callcenter-agent-toggle | Builder "Xử lý cuộc gọi — Nâng cấp" | docs/06-prototype/AppChat.dc.html:12873 | 047d | CHƯA | TIP-047d §8 (kênh `call`, D51) |
+| PRO-callcenter-finance-call | Nút "Gọi điện" ở drawer Tài chính + số điện thoại 360° | docs/06-prototype/AppChat.dc.html:5552 | 047d | CHƯA | TIP-047d §7 |
 | PRO-360-debt-card | Thẻ "⚠ Công nợ · Tài chính" Hồ sơ 360° (Gửi email nhắc · Xem ở Tài chính) | docs/06-prototype/AppChat.dc.html:2378 | 032e | CHƯA | TIP-032e §4.3 |
 | PRO-inbox-debt-chip | Chip Hộp thư "⚠ Nợ 8,5tr" | docs/06-prototype/AppChat.dc.html:2064 | 032e | CHƯA | TIP-032e §4.3 |
 | PRO-invoices-debt-btn | Nút "Công nợ" màn Đề nghị thanh toán → Tài chính lọc Quá hạn | docs/06-prototype/AppChat.dc.html:6063 | 032e | CHƯA | TIP-032e §4.3 |
@@ -1610,7 +1689,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 
 - Ghi chú:
 - Trạng thái "GIẢ" cho route `missing` / handler null: FE chạy được chỉ ở chế độ mock (`NEXT_PUBLIC_API_MODE=mock`).
-- Màn có module FE đầy đủ cho mọi màn in-scope trong CLAUDE.md §6; màn ẩn (workflow, callcenter, reports) không có FE — đúng D07/D19.
+- Màn có module FE đầy đủ cho mọi màn in-scope trong CLAUDE.md §6; màn ẩn (workflow, reports) không có FE — đúng D07/D19. Gọi điện (callcenter) vào phạm vi từ 2026-11-13 (D61) → PRO-callcenter-* nhận TIP-047d.
 - Đã rà nốt 2026-11-02 bằng quét tự động `message.info|success|warning(` + nút không onClick trên agents/calendar/tickets/quotes/orders/invoices/settings/shell/dashboard/customers/products/contracts/assistant: mọi điều khiển giả tìm thấy đều đã có dòng PRO-* có TIP nhận (023c/023g/030b/031b/032d/027b/036/038/041/013b/016b/017b). `t.raw()` 12 chỗ chỉ đọc mảng nhãn i18n (thứ trong tuần, bước wizard, mẫu nhắc) — không dùng i18n làm dữ liệu nghiệp vụ, không vi phạm.
 
 ## G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở
@@ -1710,6 +1789,14 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-003 | Spike `zca-js` với tài khoản Zalo phụ | QUESTIONS.md:11 | — | CHỜ-TK | Q-003 mở |
 | Q-004 | SePay + Brevo (domain SPF / DKIM / DMARC) thật | QUESTIONS.md:12 | — | CHỜ-TK | Q-004 mở |
 | Q-006 | VPS + domain để deploy / nghiệm thu 045, 046 | QUESTIONS.md:14 | 045 | CHỜ-TK | Q-006 mở |
+| Q-902 | App Zalo của AppChat cho Zalo Cloud Connect (quyền gọi thoại được duyệt, OA Doanh nghiệp xác thực, ai trả phí yêu cầu gọi) | QUESTIONS.md:79 | 047c | CHỜ-TK | Tạm theo đề xuất (DC-907 e): Chủ nhà đăng ký App + OA công ty, `ZCC_BILLING=oa`; chờ App được duyệt — ZCC dựng bằng mock |
+| Q-903 | Máy Linux IP public tĩnh cho SIP edge + `livekit-sip` | QUESTIONS.md:80 | 047 | CHỜ-TK | Tạm theo đề xuất (DC-907 f): chung VPS-APP khi có VPS (Q-006), tách bằng env; chờ VPS — `infra/livekit` viết đủ, dev chạy `livekit-server --dev` |
+| Q-904 | Số SIP / hotline thử cho kênh hotline + số đích chuyển tiếp | QUESTIONS.md:81 | 047c | CHỜ-TK | Tạm theo đề xuất (DC-907 g): thuê 1 số SIP REGISTER rẻ nhất; tới lúc đó trunk giả lập SIPp |
+| Q-905 | Voice AI: key nhà cung cấp hay tự dựng | QUESTIONS.md:82 | 047 | CHƯA | Chốt DC-907 a–d: tự dựng PhoWhisper + VieNeu-TTS local, không cần key; Realtime tuỳ chọn — thi công + đo ở TIP-047 AC9–10 |
+| Q-906 | Hộp SIM 4G VoLTE gateway (tuỳ chọn) | QUESTIONS.md:83 | 047d | CHƯA | Chốt DC-907 h: không mua, form Thêm số hiện "Sắp có"; backend giữ, test REGISTER TLS bằng SIPp |
+| DV-901 | Duyệt thư viện / phần mềm ngoài stack cho Gọi điện: livekit-server-sdk, @livekit/rtc-node, livekit-client, livekit-server / livekit-sip, Kamailio + rtpengine | DEVIATIONS.md:129 | 047, 047c, 047d | CHƯA | DV-901 duyệt (D61); thi công ở TIP-047 / 047c / 047d |
+| DV-902 | Duyệt runtime Voice AI tự dựng: sherpa-onnx-node, whisper.cpp (tuỳ chọn), dịch vụ Python `vieneu`; model PhoWhisper / VieNeu-TTS / Piper ghim sha256 | DEVIATIONS.md:130 | 047, 047c | CHƯA | DV-902 duyệt (DC-907); thi công ở TIP-047 |
+| PD-902 | Lệch prototype Gọi điện: dữ liệu thật, bỏ nút demo, codec thật, thiết bị khác Web phone Sắp có, màn không vẽ theo SRS | docs/06-prototype/DEVIATIONS.md:48 | 047d | CHƯA | TIP-047d (duyệt / từ chối lúc verify) |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |
 | Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | 035c | CHƯA | Không có commit fix flaky trong git log; TIP-035c nhận (2026-11-02) |

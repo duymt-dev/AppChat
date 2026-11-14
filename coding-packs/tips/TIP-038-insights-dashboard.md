@@ -1,6 +1,8 @@
 # TIP-038 — Tổng quan, scoped insights, agent statistics, list export và digest
 
 ## HEADER
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/booking/services/calendar-read.service.ts`, `packages/core/src/index.ts`, `packages/core/src/insights/exports/export-runner.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/api/list-exports.ts`, `packages/shared/src/index.ts`; integrate 038 before047c.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/agents.json`, `apps/web/messages/vi/agents.json`, `apps/web/src/shared/api/mock/domains/calendar.ts`, `packages/core/src/ai/agents/agents.read.ts`, `packages/shared/src/i18n/server/en/insights.ts`, `packages/shared/src/i18n/server/vi/insights.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before047d.
 - **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `coding-packs/docs/06-prototype/DEVIATIONS.md`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before026c.
 - **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 038 before032e.
 - **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 038 before014c.

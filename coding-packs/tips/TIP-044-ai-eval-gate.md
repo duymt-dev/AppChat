@@ -1,6 +1,8 @@
 # TIP-044 — Evidence-based AI release eval: ten suites, replay and live
 
 ## HEADER
+- **Parallel-safe with TIP-047 (coverage-closure manifest):** sequential, shares `.dependency-cruiser.cjs`, `pnpm-lock.yaml`; integrate 047 before044.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `pnpm-lock.yaml`; integrate 047d before044.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `.github/workflows/ci.yml`, `coding-packs/standards/workflow/git-flow-ci.md`, `package.json`, `pnpm-lock.yaml`; integrate 044 before046.
 - **Parallel-safe with TIP-001b (coverage-closure manifest):** sequential, shares `.dependency-cruiser.cjs`; integrate 001b before044.
 - **Parallel-safe with TIP-045 (Native infrastructure manifest):** sequential, shares `.github/workflows/ci.yml`, `coding-packs/standards/workflow/git-flow-ci.md`, `package.json`, `pnpm-lock.yaml`; integrate 044 before045.

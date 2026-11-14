@@ -1,6 +1,8 @@
 # TIP-021b — Agent drafting discovers authorized tools before generation
 
 ## HEADER
+- **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/core/src/ai/agents/agent-tools.ts`; integrate 021b before047c.
+- **Parallel-safe with TIP-047d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/agents.json`, `apps/web/messages/vi/agents.json`; integrate 021b before047d.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/actions/src/ai.ts`; integrate 021b before003e.
 - **Parallel-safe with TIP-003h (coverage-closure manifest):** sequential, shares `packages/core/src/ai/agents/agent.handlers.ts`; integrate 021b before003h.
 - **Parallel-safe with TIP-020e (RAG model lifecycle manifest):** sequential, shares `packages/ai/src/gateway/types.ts`, `packages/core/src/ai/ai.module.ts`, `packages/core/src/ai/privacy/cleanup.ts`, `packages/core/src/ai/privacy/inventory.ts`; integrate 021b before020e.
