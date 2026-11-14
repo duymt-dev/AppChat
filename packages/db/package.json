@@ -13,10 +13,10 @@
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
     "db:generate": "prisma generate --config prisma.platform.config.ts && prisma generate --config prisma.tenant.config.ts",
-    "db:setup": "tsx scripts/setup-dev.ts",
+    "db:setup": "node ../../tools/scripts/pg-slot.mjs --wait -- tsx scripts/setup-dev.ts",
     "db:cleanup-test": "tsx scripts/cleanup-test-workspaces.ts",
-    "db:test-reset": "tsx scripts/reset-test-db.ts",
-    "db:migrate-tenants": "tsx scripts/migrate-tenants.ts",
+    "db:test-reset": "node ../../tools/scripts/pg-slot.mjs --wait -- tsx scripts/reset-test-db.ts",
+    "db:migrate-tenants": "node ../../tools/scripts/pg-slot.mjs --wait -- tsx scripts/migrate-tenants.ts",
     "db:grant-platform-admin": "tsx scripts/grant-platform-admin.ts",
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "postinstall": "pnpm db:generate"

@@ -40,7 +40,7 @@ describe('api', () => {
   it('GET /v1/health → 200 envelope { data }, X-Request-Id sinh mới là uuidv7', async () => {
     const res = await fetch(`${base}/v1/health`);
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ data: { status: 'ok', service: 'api', time: '2026-10-30T07:00:00.000Z' } });
+    expect(await res.json()).toEqual({ data: { status: 'ok', service: 'api', instance: process.env.WORKTREE_ID ?? 'main', time: '2026-10-30T07:00:00.000Z' } });
     expect(res.headers.get('x-request-id')).toMatch(UUID_V7);
   });
 

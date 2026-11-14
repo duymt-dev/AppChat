@@ -8,6 +8,7 @@ export class HealthController {
 
   @Get()
   health() {
-    return { data: { status: 'ok', service: 'api', time: this.clock.now().toISOString() } };
+    // `instance` (TIP-035d): harness E2E / AI live kiểm đúng worktree đang trả lời cổng — không bao giờ chạy test vào backend lạ.
+    return { data: { status: 'ok', service: 'api', instance: process.env.WORKTREE_ID ?? 'main', time: this.clock.now().toISOString() } };
   }
 }

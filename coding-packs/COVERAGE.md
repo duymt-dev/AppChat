@@ -14,12 +14,12 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 12 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 7 | 0 | 2 | 25 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 167 | 9 | 0 | 9 | 78 | 13 | 21 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 169 | 9 | 0 | 9 | 76 | 13 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 415 | 32 | 0 | 6 | 58 | 2 | 0 | 0 |
 | E. standards/* | 234 | 28 | 0 | 6 | 24 | 1 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 1 | 13 | 0 | 29 | 6 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 83 | 5 | 0 | 22 | 45 | 2 | 0 | 0 |
-| **Tổng** | **1269** | **88** | **13** | **58** | **271** | **36** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 84 | 5 | 0 | 22 | 44 | 2 | 0 | 0 |
+| **Tổng** | **1272** | **88** | **13** | **58** | **268** | **36** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -699,7 +699,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-905 | Giao diện Gọi điện, WebPhone, màn prototype không vẽ | DECISIONS.md:486 | 047d | CHƯA | TIP-047d |
 | DC-906 | Hạ tầng thoại native + SIP edge, cấu hình qua env, script mặc định `plan` | DECISIONS.md:487 | 047 | CHƯA | TIP-047 |
 | DC-907 | Chốt Q-902…906 + Voice AI tự dựng (STT PhoWhisper, TTS VieNeu-TTS local, giấy phép thương mại, giá STT / TTS = 0, giới hạn phiên, Hộp SIM "Sắp có") | DECISIONS.md:488 | 047, 047b, 047c, 047d | CHƯA | TIP-047 §3 · 047b §5 · 047c §7 · 047d §6 |
-| D62-worktree | Ba worktree song song: DB / cổng / Memurai / slot Postgres riêng (D62 #7) | 01-REQUIREMENTS-MATRIX.md:336 | 035d | CHƯA | TIP-035d |
+| D62-worktree | Ba worktree song song: DB / cổng / Memurai / slot Postgres riêng (D62 #7) | 01-REQUIREMENTS-MATRIX.md:336 | 035d | ĐẠT | tools/scripts/worktree-env.mjs (planEnv / --check), worktree-redis.mjs, pg-slot.mjs; health `instance`; e2e-http / ai-live-stack kiểm cổng + instance · test tools/scripts/test/{worktree-env,pg-slot}.test.mjs · reports/TIP-035d-completion.md (AC1–12) |
 | D62-oauth | OAuth + một kho token, một App Zalo cho kênh OA + ZCC (D62 #2) | 01-REQUIREMENTS-MATRIX.md:336 | 048 | CHƯA | TIP-048 |
 | D62-foundation | Nền kênh webhook + cửa sổ gửi + một Page / OA một workspace (D62 #2, #5) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b |
 | D62-channels | Zalo OA, Facebook Page / Messenger, Instagram, TikTok có adapter thật (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048d, 048e, 048h | CHƯA | TIP-048d · 048e · 048h |
@@ -722,7 +722,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-918 | Connector Shopee | DECISIONS.md:499 | 049b | CHƯA | TIP-049b |
 | DC-919 | Connector TikTok Shop | DECISIONS.md:500 | 049c | CHƯA | TIP-049c |
 | DC-920 | Giao diện sàn | DECISIONS.md:501 | 049d | CHƯA | TIP-049d |
-| DC-908 | Cô lập 3 worktree: env theo bảng, Memurai riêng, slot Postgres, cổng theo env | DECISIONS.md:489 | 035d | CHƯA | TIP-035d |
+| DC-908 | Cô lập 3 worktree: env theo bảng, Memurai riêng, slot Postgres, cổng theo env | DECISIONS.md:489 | 035d | ĐẠT | tools/scripts/worktree-env.mjs `portsFor` / `planEnv`; worktree-redis.mjs (638k); pg-slot.mjs (NS 735035 trên DB `postgres`); next-port.mjs / parity cli / e2e.mjs theo `.env` · DC-453 · reports/TIP-035d-completion.md |
 | DC-909 | Kho token OAuth chung + một App Zalo cho OA + ZCC; sửa 047 / 047b / 047c / 047d | DECISIONS.md:490 | 048 | CHƯA | TIP-048 |
 | DC-910 | Nền kênh webhook: route mức App, biên nhận, chọn tài khoản, cửa sổ gửi, registry | DECISIONS.md:491 | 048b | CHƯA | TIP-048b |
 | DC-911 | Giao diện kết nối kênh theo registry, Sắp có, Đồng bộ theo năng lực | DECISIONS.md:492 | 048c | CHƯA | TIP-048c |
@@ -1870,7 +1870,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-919 | Áp DC-921 / 922 cho action cũ đang `agentGrantable: false` (143 write + 12 send) | QUESTIONS.md:92 | 050 | CHƯA | Chốt DC-923 (f): TIP-050 |
 | Q-054 | TOTP bắt buộc cho admin nền tảng | QUESTIONS.md:67 | 045 | CHƯA | Chốt DC-923 (e) — TIP-045 §3.7 |
 | Q-049 | Trợ lý / agent đọc lời mời bạn bè Zalo | QUESTIONS.md:62 | — | NGOÀI | Chốt DC-923 (b): không làm — bạn bè Zalo thủ công |
-| Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | CHƯA | Chốt DC-923 (d): role limit chỉ in lệnh — TIP-035d §4.2 |
+| Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | ĐẠT | DC-923 (d): tools/scripts/worktree-redis.mjs (Memurai 638k riêng); `pnpm slot -- --role-limits` chỉ in `ALTER ROLE … CONNECTION LIMIT` (Chủ nhà tự `--apply`) |
 | PD-903 | Danh sách kênh theo registry + Sắp có cho WA / Telegram / LINE / Viber / WeChat | docs/06-prototype/DEVIATIONS.md:49 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
 | PD-904 | Hộp thư bình luận (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:50 | 048f | CHƯA | TIP-048f (duyệt / từ chối lúc verify) |
 | PD-905 | Livestream (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:51 | 048g | CHƯA | TIP-048g (duyệt / từ chối lúc verify) |

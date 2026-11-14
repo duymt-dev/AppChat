@@ -80,7 +80,8 @@ export async function restoreDatabase(
   if (await targetMarked(lock, d.adminUrl, dbName, job.id)) return { schemaVersion: latestVersion(files), metrics };
 
   const temp = restoreTempDbName(dbName, job.generation);
-  const base = d.baseTemplate ?? TENANT_BASE_TEMPLATE;
+  // Worktree (TIP-035d): template nền riêng `TENANT_BASE_DB`; checkout chính không đặt → tên cũ.
+  const base = d.baseTemplate ?? (process.env.TENANT_BASE_DB || TENANT_BASE_TEMPLATE);
   if (!(await lock.exists(base))) throw new RestoreError('base_template_missing');
   await lock.dropDatabase(temp, 'temp');
   await lock.exec(`CREATE DATABASE ${quoteIdent(temp)} TEMPLATE ${quoteIdent(base)} OWNER ${quoteIdent(d.ownerRole)}`);

@@ -20,7 +20,8 @@ export default defineConfig({
     // build + start (ổn định, không đụng dev server đang chạy). E2E_REUSE=1 để dùng server có sẵn.
     command: `pnpm exec next build && pnpm exec next start -p ${PORT}`,
     url: `http://localhost:${PORT}/dashboard`,
-    reuseExistingServer: process.env.E2E_REUSE === '1',
+    // Worktree (TIP-035d): cổng bị chiếm → Playwright báo lỗi, không bao giờ chạy test vào server của worktree khác.
+    reuseExistingServer: !process.env.WORKTREE_ID && process.env.E2E_REUSE === '1',
     timeout: 300_000,
     env: { NEXT_PUBLIC_API_MODE: 'mock' },
   },

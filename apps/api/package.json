@@ -9,7 +9,7 @@
     "lint": "eslint src test",
     "typecheck": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "test:integration": "vitest run --config vitest.integration.config.ts"
+    "test:integration": "node ../../tools/scripts/pg-slot.mjs --wait -- vitest run --config vitest.integration.config.ts"
   },
   "dependencies": {
     "@ai-sdk/anthropic": "4.0.87",
