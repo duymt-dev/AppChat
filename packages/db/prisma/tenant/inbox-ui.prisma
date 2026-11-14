@@ -1,0 +1,75 @@
+// tenant/inbox-ui.prisma — sở hữu: TIP-025b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: conversation_group_state (trạng thái nhóm theo hội thoại nhóm: revision chính sách AI nhóm cho CAS + ảnh chụp nhóm phía kênh
+// đọc gần nhất — tên / tổng / vai trò của tài khoản / link bật / tắt thông báo / phiên bản nhà cung cấp, kèm `fetched_at` + `complete`),
+// group_command (lệnh quản lý nhóm bền: thêm thành viên / đổi tên / bật-tắt link / tắt thông báo — trạng thái thật theo ACK nhà cung
+// cấp, kết quả từng thành viên). Không lưu URL link tham gia (nhạy cảm — chỉ đọc khi người có quyền bấm sao chép). Chính sách AI nhóm vẫn
+// ở `conversation.group_ai_policy` (đường đọc pipeline giữ nguyên). Partial index viết tay ở migration 025b.
+
+/// Trạng thái nhóm (1-1 với hội thoại nhóm, tạo khi đọc / ghi lần đầu). `policy_revision` tăng mỗi lần đổi chính sách AI (CAS if_version).
+model ConversationGroupState {
+  conversationId  String    @id @map("conversation_id") @db.Uuid
+  policyRevision  Int       @default(0) @map("policy_revision")
+  /// Ảnh chụp nhóm phía kênh (lần đọc gần nhất qua worker): null = chưa từng đọc.
+  providerName    String?   @map("provider_name")
+  providerTotal   Int?      @map("provider_total")
+  /// `owner` | `admin` | `member` | null (chưa biết) — vai trò của TÀI KHOẢN kênh trong nhóm.
+  accountRole     String?   @map("account_role")
+  linkEnabled     Boolean?  @map("link_enabled")
+  /// Tắt thông báo của TÀI KHOẢN Zalo đang kết nối (không phải tắt cho mọi người dùng AppChat).
+  muted           Boolean?
+  providerVersion String?   @map("provider_version")
+  complete        Boolean   @default(false)
+  fetchedAt       DateTime? @map("fetched_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("conversation_group_state")
+}
+
+/// Lệnh quản lý nhóm phía kênh. Ghi cùng transaction action_log + outbox `channel.group_command_requested`; worker giữ phiên gọi kênh.
+/// Đã đặt chỗ (`dispatch_reserved`) rồi sập / hết giờ → `unknown`, không gọi lại.
+model GroupCommand {
+  id               String                 @id @db.Uuid
+  /// `add_members` | `update` | `set_mute` | `refresh` | `link` (đọc link tham gia — kết quả chỉ URL mã hoá, TIP-025b §A.6).
+  kind             String
+  channelAccountId String                 @map("channel_account_id") @db.Uuid
+  conversationId   String                 @map("conversation_id") @db.Uuid
+  actorId          String?                @map("actor_id") @db.Uuid
+  /// `add_members`: `{ member_ids }` · `update`: `{ name?, invite_link_enabled? }` · `set_mute`: `{ muted }` · `refresh`: `{}`.
+  desired          Json                   @default("{}")
+  /// Phiên bản nhóm phía kênh lúc xem trước (update) — lệch khi chạy → failed `stale_snapshot`.
+  expectedVersion  String?                @map("expected_version")
+  status           ChannelOperationStatus @default(queued)
+  /// `add_members`: `{ members: [{ id, status: confirmed|failed|unknown, error? }] }`.
+  result           Json                   @default("{}")
+  error            String?
+  attemptedAt      DateTime?              @map("attempted_at") @db.Timestamptz(6)
+  finishedAt       DateTime?              @map("finished_at") @db.Timestamptz(6)
+  createdAt        DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime               @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([conversationId, createdAt(sort: Desc), id(sort: Desc)], map: "group_command_conversation_idx")
+  @@map("group_command")
+}
+
+/// Cache bản dịch theo NGƯỜI (TIP-025b §F, §H): khoá người gọi + epoch quyền + hội thoại + băm nội dung + đích + phiên bản prompt —
+/// người khác / quyền đổi / nội dung đổi không dùng lại. `pending` = đang có một lượt model chạy (mount lặp / kết nối lại chờ cùng
+/// lượt, không trừ credit hai lần); quá hạn giữ chỗ thì lượt sau nhận lại. Hết hạn 24 giờ, job ROLE=jobs dọn. Không lưu nguyên văn nguồn.
+model TranslationCache {
+  id             String   @id @db.Uuid
+  actorId        String   @map("actor_id") @db.Uuid
+  conversationId String   @map("conversation_id") @db.Uuid
+  sourceHash     String   @map("source_hash")
+  target         String
+  promptVersion  String   @map("prompt_version")
+  authzEpoch     Int      @map("authz_epoch")
+  /// `pending` | `done`.
+  status         String   @default("pending")
+  text           String?
+  runId          String?  @map("run_id") @db.Uuid
+  claimedAt      DateTime @default(now()) @map("claimed_at") @db.Timestamptz(6)
+  expiresAt      DateTime @map("expires_at") @db.Timestamptz(6)
+
+  @@unique([actorId, conversationId, sourceHash, target, promptVersion, authzEpoch], map: "translation_cache_key")
+  @@index([expiresAt], map: "translation_cache_expires_idx")
+  @@map("translation_cache")
+}

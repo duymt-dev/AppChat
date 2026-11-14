@@ -1,0 +1,238 @@
+{
+  "suite": "inbox-vertical",
+  "cases": [
+    {
+      "id": "iv-group-policy-denied",
+      "category": "clarify",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Đặt chính sách AI tự trả lời cho nhóm Zalo 'Khách VIP Đà Nẵng'",
+      "expect": {
+        "ask_back": true,
+        "confirm": false
+      }
+    },
+    {
+      "id": "iv-bulk-mixed",
+      "category": "update",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Gắn thẻ 'cần gọi lại' cho hội thoại này và hội thoại 0190f000-0000-7000-8000-00000000beef",
+      "context": {
+        "route": "/inbox",
+        "entity": "conversation",
+        "id": "$seed.conversation.id",
+        "surface": "drawer"
+      },
+      "expect": {
+        "action_any": [
+          "conversation.bulk_update",
+          "conversation.tag"
+        ],
+        "input": {
+          "add_tags.0": "cần gọi lại"
+        },
+        "confirm": true
+      }
+    },
+    {
+      "id": "iv-quote-from-chat",
+      "category": "create",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Lập báo giá cho Nguyễn Thị Hoa: 1 Gói chăm sóc da cơ bản, khách hỏi trong hội thoại này",
+      "context": {
+        "route": "/inbox",
+        "entity": "conversation",
+        "id": "$seed.conversation.id",
+        "surface": "drawer"
+      },
+      "expect": {
+        "action": "quote.create",
+        "input": {
+          "contact_id": "$seed.contacts.Nguyễn Thị Hoa.id",
+          "items.0.product_id": "$seed.products.Gói chăm sóc da cơ bản.id"
+        },
+        "confirm": true
+      }
+    },
+    {
+      "id": "iv-booking-slots",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Khách hỏi làm Gói chăm sóc da cơ bản cuối tuần — tìm giúp các khung giờ còn trống thứ Bảy tới",
+      "context": {
+        "route": "/inbox",
+        "entity": "conversation",
+        "id": "$seed.conversation.id",
+        "surface": "drawer"
+      },
+      "expect": {
+        "action": "appointment.find_slots",
+        "input": {
+          "service_id": "$seed.products.Gói chăm sóc da cơ bản.id"
+        },
+        "confirm": false
+      }
+    },
+    {
+      "id": "iv-history-export",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Xuất lịch sử tương tác của khách Nguyễn Thị Hoa ra file CSV",
+      "expect": {
+        "action": "contact.history_export",
+        "input": {
+          "contact_id": "$seed.contacts.Nguyễn Thị Hoa.id"
+        },
+        "confirm": false
+      }
+    },
+    {
+      "id": "iv-translate-en",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Dịch tin nhắn mới nhất của khách trong hội thoại này sang tiếng Anh",
+      "context": {
+        "route": "/inbox",
+        "entity": "conversation",
+        "id": "$seed.conversation.id",
+        "surface": "drawer"
+      },
+      "expect": {
+        "action": "ai.translate",
+        "input": {
+          "conversation_id": "$seed.conversation.id",
+          "to": "en"
+        },
+        "confirm": false
+      }
+    },
+    {
+      "id": "iv-translate-zh",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Dịch tin mới nhất của khách sang tiếng Trung",
+      "context": {
+        "route": "/inbox",
+        "entity": "conversation",
+        "id": "$seed.conversation.id",
+        "surface": "drawer"
+      },
+      "expect": {
+        "action": "ai.translate",
+        "input": {
+          "conversation_id": "$seed.conversation.id",
+          "to": "zh"
+        },
+        "confirm": false
+      }
+    },
+    {
+      "id": "iv-translate-ko",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Dịch tin mới nhất của khách sang tiếng Hàn",
+      "context": {
+        "route": "/inbox",
+        "entity": "conversation",
+        "id": "$seed.conversation.id",
+        "surface": "drawer"
+      },
+      "expect": {
+        "action": "ai.translate",
+        "input": {
+          "conversation_id": "$seed.conversation.id",
+          "to": "ko"
+        },
+        "confirm": false
+      }
+    },
+    {
+      "id": "iv-translate-ja",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Dịch tin mới nhất của khách sang tiếng Nhật",
+      "context": {
+        "route": "/inbox",
+        "entity": "conversation",
+        "id": "$seed.conversation.id",
+        "surface": "drawer"
+      },
+      "expect": {
+        "action": "ai.translate",
+        "input": {
+          "conversation_id": "$seed.conversation.id",
+          "to": "ja"
+        },
+        "confirm": false
+      }
+    },
+    {
+      "id": "iv-approvals-pending",
+      "category": "lookup",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "chat",
+      "input": "Hội thoại này có yêu cầu nào của AI đang chờ duyệt không?",
+      "context": {
+        "route": "/inbox",
+        "entity": "conversation",
+        "id": "$seed.conversation.id",
+        "surface": "drawer"
+      },
+      "expect": {
+        "action": "conversation.approvals",
+        "input": {
+          "conversation_id": "$seed.conversation.id"
+        },
+        "confirm": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+// platform/identity.prisma — sở hữu: TIP-004 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: user, otp_code, refresh_token, workspace, membership (+ delegations), invite, business_profile.
+// Không Prisma relation xuyên domain (Blueprint §2.1). Chỉ truy cập qua service identity.
+// Index viết tay ở migration (partial / INCLUDE): membership_user_active, invite_pending, refresh_token_family_active.
+
+enum OtpPurpose {
+  register
+  login
+  reset
+
+  @@map("otp_purpose")
+}
+
+enum WorkspaceStatus {
+  active
+  suspended
+
+  @@map("workspace_status")
+}
+
+enum WorkspaceDbStatus {
+  provisioning
+  active
+  suspended
+  archiving
+  archived
+  restoring
+  deleting
+  /// Tombstone sau khi xoá (TIP-041 pha 3): DB đã DROP, chỉ giữ registry tối thiểu + manifest để purge / khôi phục trong hạn.
+  deleted
+
+  @@map("workspace_db_status")
+}
+
+enum MembershipStatus {
+  active
+  invited
+  removed
+
+  @@map("membership_status")
+}
+
+enum BusinessKind {
+  enterprise
+  household
+  individual
+
+  @@map("business_kind")
+}
+
+/// Email luôn lưu chữ thường đã trim (DC-014) — unique trên cột thường, không cần citext.
+model User {
+  id              String    @id @db.Uuid
+  email           String    @unique
+  passwordHash    String?   @map("password_hash")
+  name            String
+  phone           String?
+  avatarUrl       String?   @map("avatar_url")
+  locale          String    @default("vi")
+  isPlatformAdmin Boolean   @default(false) @map("is_platform_admin")
+  emailVerifiedAt DateTime? @map("email_verified_at") @db.Timestamptz(6)
+  lastLoginAt     DateTime? @map("last_login_at") @db.Timestamptz(6)
+  /// Workspace đang dùng gần nhất (`workspace.switch`) → `GET /v1/me.current_workspace_id` (DC-020).
+  lastWorkspaceId String?   @map("last_workspace_id") @db.Uuid
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("user")
+}
+
+/// Mã OTP 6 số (register / login) hoặc token link đặt lại mật khẩu (reset) — chỉ lưu sha256.
+model OtpCode {
+  id         String     @id @db.Uuid
+  email      String
+  purpose    OtpPurpose
+  codeHash   String     @map("code_hash")
+  attempts   Int        @default(0)
+  expiresAt  DateTime   @map("expires_at") @db.Timestamptz(6)
+  consumedAt DateTime?  @map("consumed_at") @db.Timestamptz(6)
+  createdAt  DateTime   @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([email, purpose, createdAt(sort: Desc)])
+  @@map("otp_code")
+}
+
+/// Refresh token xoay vòng theo family; dùng lại token đã xoay → thu hồi cả family (Blueprint §4.2).
+model RefreshToken {
+  id         String    @id @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  tokenHash  String    @unique @map("token_hash")
+  familyId   String    @map("family_id") @db.Uuid
+  expiresAt  DateTime  @map("expires_at") @db.Timestamptz(6)
+  revokedAt  DateTime? @map("revoked_at") @db.Timestamptz(6)
+  rotatedAt  DateTime? @map("rotated_at") @db.Timestamptz(6)
+  userAgent  String?   @map("user_agent")
+  ip         String?
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([userId])
+  @@map("refresh_token")
+}
+
+/// Workspace = tenant; cột db_* là registry DB tenant (Blueprint §2.0, port WorkspaceRegistry — DC-008).
+model Workspace {
+  id            String            @id @db.Uuid
+  name          String
+  slug          String            @unique
+  ownerUserId   String            @map("owner_user_id") @db.Uuid
+  /// Phiên bản quyền (TIP-045b): tăng CÙNG transaction mỗi khi vai trò / thành viên / chủ đổi — cache quyền khoá theo số này.
+  authzEpoch    Int               @default(0) @map("authz_epoch")
+  timezone      String            @default("Asia/Ho_Chi_Minh")
+  locale        String            @default("vi")
+  status        WorkspaceStatus   @default(active)
+  /// Phiên bản trạng thái vận hành (TIP-040): admin tạm dừng / mở lại gửi `if_version` — CAS, không ghi đè lẫn nhau.
+  statusVersion Int               @default(0) @map("status_version")
+  suspendedAt   DateTime?         @map("suspended_at") @db.Timestamptz(6)
+  /// Lý do tạm dừng do admin nền tảng nhập (không PII khách).
+  suspendReason String?           @map("suspend_reason")
+  settings      Json              @default("{}")
+  dbName        String            @unique @map("db_name")
+  dbHost        String?           @map("db_host")
+  dbStatus      WorkspaceDbStatus @default(provisioning) @map("db_status")
+  schemaVersion String?           @map("schema_version")
+  provisionedAt DateTime?         @map("provisioned_at") @db.Timestamptz(6)
+  archivedAt    DateTime?         @map("archived_at") @db.Timestamptz(6)
+  archiveKey    String?           @map("archive_key")
+  /// Thế hệ thao tác vòng đời (TIP-041): archive / restore / delete nhận số kế tiếp bằng CAS — worker cũ không ghi đè lệnh mới.
+  lifecycleGeneration Int         @default(0) @map("lifecycle_generation")
+  /// Owner xoá workspace (TIP-041 pha 3) — tombstone; tệp trong kho dọn khi mọi bản sao lưu xoá đã purge (`files_purged_at`).
+  deletedAt     DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  filesPurgedAt DateTime?         @map("files_purged_at") @db.Timestamptz(6)
+  createdAt     DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([dbStatus])
+  @@map("workspace")
+}
+
+/// User ↔ workspace (N–N). role_key = khoá vai trò trong DB tenant (D27); delegations = cờ uỷ quyền P0 (§3.5).
+model Membership {
+  workspaceId String           @map("workspace_id") @db.Uuid
+  userId      String           @map("user_id") @db.Uuid
+  roleKey     String           @map("role_key")
+  status      MembershipStatus @default(active)
+  delegations String[]         @default([])
+  /// Thông báo onboarding đã xem theo người × workspace (`trial_welcome`, `trial_expired`) — `POST /v1/session/ack` (TIP-011).
+  noticesSeen String[]         @default([]) @map("notices_seen")
+  joinedAt    DateTime?        @map("joined_at") @db.Timestamptz(6)
+  createdAt   DateTime         @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([workspaceId, userId])
+  @@map("membership")
+}
+
+/// Lời mời thành viên — token 32 byte, chỉ lưu sha256, hạn 7 ngày (DC-017).
+model Invite {
+  id              String    @id @db.Uuid
+  workspaceId     String    @map("workspace_id") @db.Uuid
+  email           String
+  name            String?
+  roleKey         String    @map("role_key")
+  tokenHash       String    @unique @map("token_hash")
+  invitedByUserId String    @map("invited_by_user_id") @db.Uuid
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(6)
+  acceptedAt      DateTime? @map("accepted_at") @db.Timestamptz(6)
+  revokedAt       DateTime? @map("revoked_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("invite")
+}
+
+/// Khai báo DN / hộ KD / cá nhân (REQ-A02) — 1-1 workspace.
+model BusinessProfile {
+  workspaceId         String       @id @map("workspace_id") @db.Uuid
+  kind                BusinessKind
+  taxCode             String?      @map("tax_code")
+  nationalId          String?      @map("national_id")
+  legalName           String       @map("legal_name")
+  address             String
+  representative      String?
+  phone               String?
+  foundedOn           String?      @map("founded_on")
+  legalStatus         String?      @map("legal_status")
+  industryGroup       String?      @map("industry_group")
+  industry            String?
+  businessDescription String       @map("business_description")
+  declaredAt          DateTime     @map("declared_at") @db.Timestamptz(6)
+  updatedAt           DateTime     @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("business_profile")
+}

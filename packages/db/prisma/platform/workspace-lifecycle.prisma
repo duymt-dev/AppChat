@@ -1,0 +1,141 @@
+// platform/workspace-lifecycle.prisma — sở hữu: TIP-041 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Vòng đời DB tenant (Blueprint §2.0 bước 3 / 5, DC-245): lệnh archive / restore / delete bền ở DB nền tảng (không chỉ job Redis) +
+// manifest bản lưu trữ mã hoá. Không Prisma relation xuyên domain (Blueprint §2.1). Index partial / INCLUDE viết tay ở migration
+// 20261102004100_workspace_lifecycle.
+
+/// Một thao tác vòng đời của một workspace. `generation` tăng đơn điệu theo workspace (= workspace.lifecycle_generation lúc tạo) —
+/// worker cũ (lease hết, generation cũ) không ghi đè thao tác mới. Mỗi workspace tối đa một thao tác `pending | running` (partial unique).
+model WorkspaceLifecycleJob {
+  id              String    @id @db.Uuid
+  workspaceId     String    @map("workspace_id") @db.Uuid
+  /// archive | restore | delete
+  operation       String
+  generation      Int
+  /// pending | running | succeeded | failed | recovery_needed | cancelled
+  status          String    @default("pending")
+  /// Bước đang / vừa chạy (queued, quiesce, dump, verify, catalog, drop, registry, create, restore, migrate, seed, checks, activate).
+  step            String    @default("queued")
+  /// workspace.status_version lúc tạo — CAS khi chuyển trạng thái workspace.
+  expectedVersion Int       @map("expected_version")
+  /// admin | scan | member | owner | recovery
+  source          String
+  requestedBy     String?   @map("requested_by") @db.Uuid
+  leaseOwner      String?   @map("lease_owner")
+  leaseExpiresAt  DateTime? @map("lease_expires_at") @db.Timestamptz(6)
+  attempts        Int       @default(0)
+  nextAttemptAt   DateTime  @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  /// Mã lỗi đã che (không đường dẫn / mật khẩu / lệnh) — trả qua API trạng thái.
+  error           String?
+  /// Manifest bản lưu trữ dùng / tạo bởi thao tác này.
+  manifestId      String?   @map("manifest_id") @db.Uuid
+  /// Lệnh của lượt quét: mốc hoạt động đã dựa vào — sau quiesce thấy hoạt động mới hơn → huỷ (không lưu trữ).
+  basisAt         DateTime? @map("basis_at") @db.Timestamptz(6)
+  /// Lệnh xoá: db_status trước khi xoá (active | suspended | archived) — lỗi trước DROP trả về đúng trạng thái này.
+  fromDbStatus    String?   @map("from_db_status")
+  /// Thời gian từng pha (ms) — benchmark khôi phục tách queue / dump / restore / migrate.
+  metrics         Json      @default("{}")
+  startedAt       DateTime? @map("started_at") @db.Timestamptz(6)
+  finishedAt      DateTime? @map("finished_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, generation])
+  @@map("workspace_lifecycle_job")
+}
+
+/// Bản lưu trữ DB tenant (pg_dump -Fc, mã hoá AES-256-GCM theo khối). Ghi SAU khi đọc lại + kiểm checksum + danh mục, TRƯỚC khi DROP.
+/// Bản archive giữ vô hạn (`indefinite`); khi xoá workspace mọi bản chuyển `deletion` + `expires_at` = xoá + 30 ngày (trừ legal hold).
+model ArchiveManifest {
+  id              String    @id @db.Uuid
+  workspaceId     String    @map("workspace_id") @db.Uuid
+  jobId           String    @map("job_id") @db.Uuid
+  generation      Int
+  /// Khoá trong kho lưu trữ (tương đối với gốc archive) — không bao giờ nhận từ client.
+  storageKey      String    @unique @map("storage_key")
+  dbName          String    @map("db_name")
+  dbHost          String?   @map("db_host")
+  schemaVersion   String?   @map("schema_version")
+  /// pg_custom
+  format          String    @default("pg_custom")
+  envelopeVersion Int       @map("envelope_version")
+  /// Khoá mã hoá trong key ring (không lưu khoá) — giữ khoá cũ tới khi không còn manifest tham chiếu.
+  encryptionKeyId String    @map("encryption_key_id")
+  /// sha256 + kích thước bản rõ (dump) / bản mã (tệp trong kho).
+  checksum        String
+  sizeBytes       BigInt    @map("size_bytes")
+  cipherChecksum  String    @map("cipher_checksum")
+  cipherBytes     BigInt    @map("cipher_bytes")
+  /// Số mục TOC (`pg_restore -l`) + số bảng nguồn lúc dump — kiểm lại khi khôi phục.
+  tocEntries      Int       @map("toc_entries")
+  tableCount      Int       @map("table_count")
+  /// indefinite (archive) | deletion (xoá workspace — hết hạn rồi purge)
+  retentionKind   String    @default("indefinite") @map("retention_kind")
+  expiresAt       DateTime? @map("expires_at") @db.Timestamptz(6)
+  holdReason      String?   @map("hold_reason")
+  purgedAt        DateTime? @map("purged_at") @db.Timestamptz(6)
+  verifiedAt      DateTime  @map("verified_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("archive_manifest")
+}
+
+/// Biên nhận giao cảnh báo lưu trữ (gói Miễn phí không hoạt động, 14 ngày trước): một dòng mỗi (workspace, cửa sổ, kênh). `sent` = provider
+/// mail đã nhận / thông báo trong app đã ghi; chưa giao được thì không lưu trữ theo lịch (admin thấy cảnh báo).
+model WorkspaceLifecycleNotice {
+  id            String    @id @db.Uuid
+  workspaceId   String    @map("workspace_id") @db.Uuid
+  /// Ngày dự kiến lưu trữ (YYYY-MM-DD) — hoạt động mới đẩy ngày → cửa sổ mới.
+  windowKey     String    @map("window_key")
+  /// email | in_app
+  channel       String
+  /// pending | sent | failed
+  status        String    @default("pending")
+  attempts      Int       @default(0)
+  lastError     String?   @map("last_error")
+  nextAttemptAt DateTime  @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  archiveOn     DateTime  @map("archive_on") @db.Timestamptz(6)
+  sentAt        DateTime? @map("sent_at") @db.Timestamptz(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, windowKey, channel])
+  @@map("workspace_lifecycle_notice")
+}
+
+/// Thử thách xác thực bước hai cho thao tác nguy hiểm của Owner (TIP-041 pha 3 — xoá workspace): OTP email riêng mục đích, chỉ lưu băm
+/// có khoá máy chủ, hạn 5 phút, sai 5 lần khoá; gắn người / workspace / thao tác / băm bản xem trước / status_version. Tiêu một lần.
+model WorkspaceStepUp {
+  id              String    @id @db.Uuid
+  workspaceId     String    @map("workspace_id") @db.Uuid
+  userId          String    @map("user_id") @db.Uuid
+  /// delete_workspace
+  operation       String
+  previewHash     String    @map("preview_hash")
+  expectedVersion Int       @map("expected_version")
+  codeHash        String    @map("code_hash")
+  attempts        Int       @default(0)
+  expiresAt       DateTime  @map("expires_at") @db.Timestamptz(6)
+  consumedAt      DateTime? @map("consumed_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("workspace_step_up")
+}
+
+/// Yêu cầu đóng băng của Owner (DC-245: Owner không tự tạm dừng) — admin nền tảng duyệt (tạm dừng qua luồng TIP-040) / từ chối.
+/// Một yêu cầu `pending` mỗi workspace (partial unique ở migration 20261102024100).
+model WorkspaceFreezeRequest {
+  id             String    @id @db.Uuid
+  workspaceId    String    @map("workspace_id") @db.Uuid
+  requestedBy    String    @map("requested_by") @db.Uuid
+  reason         String
+  /// pending | approved | rejected | cancelled
+  status         String    @default("pending")
+  /// CAS quyết định của admin.
+  version        Int       @default(1)
+  decidedBy      String?   @map("decided_by") @db.Uuid
+  decisionReason String?   @map("decision_reason")
+  decidedAt      DateTime? @map("decided_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("workspace_freeze_request")
+}

@@ -1,0 +1,45 @@
+// tenant/catalog-import.prisma — sở hữu: TIP-032b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: product_import (một lần nhập sản phẩm CSV / XLSX — tệp + hash + ánh xạ cột + người gọi + trạng thái việc nền), product_import_row
+// (biên nhận từng dòng, PK (import_id, row_no) — chạy lại không nhập lại). CHECK + partial index viết tay ở migration 032b.
+
+model ProductImport {
+  id            String    @id @db.Uuid
+  fileId        String    @map("file_id") @db.Uuid
+  fileSha256    String    @map("file_sha256")
+  fileName      String    @map("file_name")
+  /// Cột tệp → trường sản phẩm `{ name: 'Tên', price: 'Giá', … }`.
+  mapping       Json      @default("{}")
+  actorId       String?   @map("actor_id") @db.Uuid
+  actionLogId   String?   @map("action_log_id") @db.Uuid
+  /// queued | running | cancelling | cancelled | completed | failed
+  status        String    @default("queued")
+  total         Int       @default(0)
+  created       Int       @default(0)
+  updated       Int       @default(0)
+  failed        Int       @default(0)
+  error         String?
+  nextAttemptAt DateTime? @map("next_attempt_at") @db.Timestamptz(6)
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  finishedAt    DateTime? @map("finished_at") @db.Timestamptz(6)
+
+  rows ProductImportRow[]
+
+  @@map("product_import")
+}
+
+model ProductImportRow {
+  importId    String   @map("import_id") @db.Uuid
+  rowNo       Int      @map("row_no")
+  payloadHash String   @map("payload_hash")
+  /// created | updated | failed
+  status      String
+  productId   String?  @map("product_id") @db.Uuid
+  error       String?
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  import ProductImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  @@id([importId, rowNo])
+  @@map("product_import_row")
+}

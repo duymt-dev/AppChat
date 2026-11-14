@@ -1,0 +1,91 @@
+// tenant/contract-signing.prisma — sở hữu: TIP-030c (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Biên nhận ký hợp đồng cha (TIP-030c §2, §4): mỗi lần thử ký (request) một dòng bền — kiểm OTP, render, đóng băng ứng viên, chốt —
+// gắn đúng thế hệ OTP + version / nguồn tài liệu; ý định gửi OTP của Owner (email nền tảng) có claim / fence / lần thử. Không lưu OTP thô
+// hay ảnh chữ ký; mã OTP chờ gửi chỉ ở dạng mã hoá, xoá khi xong. Không workspace_id / RLS. Index viết tay ở migration (partial / INCLUDE).
+
+enum SigningAttemptPhase {
+  rejected
+  verified
+  rendering
+  staged
+  finalized
+  stale
+  expired
+
+  @@map("signing_attempt_phase")
+}
+
+enum SigningDeliveryPhase {
+  pending
+  dispatching
+  accepted
+  unknown
+  suppressed
+  failed
+
+  @@map("signing_delivery_phase")
+}
+
+model ContractSigningAttempt {
+  id                 String              @id @db.Uuid
+  /// sha256(miền thao tác + token / người dùng + request_id) — khoá chống lặp theo phạm vi.
+  requestKeyHash     String              @unique @map("request_key_hash")
+  /// Digest input ngữ nghĩa (HMAC) — cùng request khác nội dung → 409.
+  inputDigest        String              @map("input_digest")
+  contractId         String              @map("contract_id") @db.Uuid
+  signerId           String              @map("signer_id") @db.Uuid
+  party              String
+  actorUserId        String?             @map("actor_user_id") @db.Uuid
+  tokenId            String?             @map("token_id") @db.Uuid
+  contractVersion    Int                 @map("contract_version")
+  sourceVersion      Int                 @map("source_version")
+  sourceSha256       String?             @map("source_sha256")
+  templateId         String?             @map("template_id") @db.Uuid
+  templateVersion    Int?                @map("template_version")
+  signatureDigest    String              @map("signature_digest")
+  otpGeneration      Int                 @map("otp_generation")
+  verificationDigest String?             @map("verification_digest")
+  phase              SigningAttemptPhase
+  rejectionCode      String?             @map("rejection_code")
+  remainingAttempts  Int?                @map("remaining_attempts")
+  renderToken        String?             @map("render_token")
+  renderGeneration   Int                 @default(0) @map("render_generation")
+  leaseUntil         DateTime?           @map("lease_until") @db.Timestamptz(6)
+  candidateFileId    String?             @map("candidate_file_id") @db.Uuid
+  signatureFileId    String?             @map("signature_file_id") @db.Uuid
+  candidateSha256    String?             @map("candidate_sha256")
+  /// Bản chụp mẫu / nguồn lúc render (id mẫu, version, có render lại DOCX) — chốt dùng đúng bản này, không đọc lại hiện hành.
+  templateFrozen     Json?               @map("template_frozen")
+  finalActionLogId   String?             @map("final_action_log_id") @db.Uuid
+  effectRef          String?             @map("effect_ref")
+  createdAt          DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime            @default(now()) @map("updated_at") @db.Timestamptz(6)
+  expiresAt          DateTime            @map("expires_at") @db.Timestamptz(6)
+
+  @@map("contract_signing_attempt")
+}
+
+model ContractSigningDelivery {
+  id              String               @id @db.Uuid
+  requestRef      String               @map("request_ref")
+  signerId        String               @map("signer_id") @db.Uuid
+  otpGeneration   Int                  @map("otp_generation")
+  /// owner_otp
+  purpose         String
+  recipientUserId String               @map("recipient_user_id") @db.Uuid
+  phase           SigningDeliveryPhase @default(pending)
+  claimToken      String?              @map("claim_token")
+  claimGeneration Int                  @default(0) @map("claim_generation")
+  claimUntil      DateTime?            @map("claim_until") @db.Timestamptz(6)
+  attempts        Int                  @default(0)
+  nextDue         DateTime             @map("next_due") @db.Timestamptz(6)
+  expiresAt       DateTime             @map("expires_at") @db.Timestamptz(6)
+  /// Mã OTP chờ gửi, mã hoá AES-GCM bằng khoá ứng dụng — xoá khi accepted / hết hạn / bị thay.
+  encryptedSecret Bytes?               @map("encrypted_secret")
+  safeCode        String?              @map("safe_code")
+  createdAt       DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime             @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([signerId, otpGeneration, purpose])
+  @@map("contract_signing_delivery")
+}

@@ -1,0 +1,300 @@
+{
+  "title": "Tickets",
+  "sub": "Hỗ trợ · SLA · Escalation",
+  "search": "Tìm ticket, khách, mã…",
+  "create": "Tạo ticket mới",
+  "ai": "Trợ lý AI · Tickets",
+  "kpi": {
+    "total": "Tất cả tickets",
+    "open": "Đang mở",
+    "waiting": "Đang chờ phản hồi",
+    "breach": "Quá hạn SLA",
+    "closed": "Đã đóng"
+  },
+  "listTitle": "Tất cả ticket",
+  "listCount": "{n} ticket",
+  "filter": {
+    "priority": "Ưu tiên",
+    "status": "Trạng thái",
+    "team": "Nhóm xử lý",
+    "category": "Danh mục",
+    "assignee": "Người xử lý",
+    "sla": "SLA"
+  },
+  "sort": {
+    "recent": "Mới nhất",
+    "priority": "Ưu tiên cao trước"
+  },
+  "export": "Xuất",
+  "exporting": "Đang xuất danh sách ticket…",
+  "view": {
+    "list": "Danh sách",
+    "kanban": "Kanban"
+  },
+  "status": {
+    "open": "Đang mở",
+    "in_progress": "Đang xử lý",
+    "waiting": "Đang chờ",
+    "closed": "Đã đóng"
+  },
+  "priority": {
+    "high": "Cao",
+    "medium": "Trung bình",
+    "low": "Thấp"
+  },
+  "slaState": {
+    "breach": "Quá hạn",
+    "risk": "Sắp đến hạn",
+    "ok": "Trong hạn"
+  },
+  "slaLeft": "Còn {t}",
+  "slaOver": "Quá hạn {t}",
+  "slaClosed": "Đã đóng",
+  "slaPaused": "Tạm dừng",
+  "dur": {
+    "hm": "{h}h {m}m",
+    "h": "{h}h",
+    "m": "{m}m"
+  },
+  "col": {
+    "title": "Tiêu đề",
+    "cust": "Khách hàng",
+    "status": "Trạng thái",
+    "owner": "Người phụ trách",
+    "sla": "SLA",
+    "updated": "Cập nhật cuối",
+    "ai": "AI gợi ý",
+    "act": "Thao tác"
+  },
+  "aiHint": {
+    "agent": "AI đang xử lý ticket theo SLA",
+    "user": "{name} đang xử lý — phản hồi theo SLA"
+  },
+  "aiPeek": "Xem gợi ý AI",
+  "empty": "Không có ticket phù hợp",
+  "menu": {
+    "open": "Thao tác",
+    "view": "Xem chi tiết",
+    "pause": "Tạm dừng",
+    "close": "Hoàn thành",
+    "reopen": "Mở lại"
+  },
+  "bulk": {
+    "selected": "Đã chọn {n} ticket",
+    "assign": "Gán người phụ trách",
+    "ai": "AI xử lý",
+    "priority": "Đổi ưu tiên",
+    "clear": "Bỏ chọn",
+    "done": "Đã cập nhật {n} ticket",
+    "result": {
+      "title": "Kết quả sửa hàng loạt",
+      "running": "Đang chạy nền: còn {n}/{total} ticket — có thể rời màn, kết quả cập nhật khi xong",
+      "summary": "{changed} ticket đã đổi · {same} đã đúng sẵn · {failed} chưa áp dụng",
+      "duplicates": "Đã gộp {n} id trùng",
+      "agentNotRun": "Giao cho AI Agent chỉ là phân công — agent chưa chạy / xử lý ticket nào.",
+      "keptSelected": "Các ticket chưa áp dụng được vẫn đang được chọn để xử lý tiếp.",
+      "undoRunning": "Đang hoàn tác: còn {n} ticket",
+      "undoSummary": "Đã hoàn tác {undone} ticket · {conflicts} xung đột giữ nguyên · {failed} không hoàn tác được",
+      "undo": "Hoàn tác",
+      "cancel": "Dừng",
+      "retry": "Thử lại ticket lỗi",
+      "close": "Đóng",
+      "status": {
+        "cancelled": "Đã dừng",
+        "failed": "Lỗi",
+        "completed": "Xong"
+      },
+      "code": {
+        "NOT_FOUND": "Không tìm thấy hoặc không có quyền xem",
+        "SCOPE_FORBIDDEN": "Ngoài phạm vi được sửa",
+        "INVALID_TRANSITION": "Ticket đã đóng",
+        "STALE_VERSION": "Đã bị sửa sau khi bạn chọn — tải lại rồi chọn lại",
+        "VALIDATION_FAILED": "Người nhận không còn hợp lệ",
+        "FORBIDDEN": "Không còn quyền",
+        "CONFLICT": "Đã bị sửa sau thao tác này — giữ nguyên",
+        "UNDO_EXPIRED": "Đã hết hạn hoàn tác",
+        "NOT_APPLIED": "Chưa áp dụng (thao tác đã dừng)",
+        "INTERNAL": "Lỗi hệ thống"
+      },
+      "download": "Tải kết quả (Excel)"
+    }
+  },
+  "detail": {
+    "close": "Đóng",
+    "created": "Tạo: {t}",
+    "updated": "Cập nhật: {t}",
+    "copy": "Sao chép mã",
+    "copied": "Đã sao chép {code}",
+    "tab": {
+      "detail": "Chi tiết",
+      "thread": "Trao đổi",
+      "history": "Lịch sử",
+      "sla": "SLA"
+    },
+    "aiOn": "AI đang tự xử lý",
+    "aiOnSub": "Bạn có thể can thiệp bất cứ lúc nào",
+    "aiOff": "AI tự xử lý đang tắt",
+    "aiOffSub": "Nhân viên đang phụ trách trực tiếp",
+    "takeOver": "Can thiệp",
+    "handAi": "Giao AI",
+    "slaLeft": "SLA còn lại",
+    "slaCountdown": "Đếm ngược SLA",
+    "due": "Hạn xử lý: {h}h kể từ khi tạo",
+    "paused": "SLA đang tạm dừng (chờ khách)",
+    "info": "Thông tin chung",
+    "cust": "Khách hàng",
+    "status": "Trạng thái",
+    "owner": "Người phụ trách",
+    "team": "Nhóm xử lý",
+    "category": "Danh mục",
+    "priority": "Ưu tiên",
+    "desc": "Mô tả vấn đề",
+    "noDesc": "Chưa có mô tả.",
+    "macros": "Macro xử lý nhanh",
+    "macro": {
+      "ack": "Xác nhận đã tiếp nhận",
+      "guide": "Gửi hướng dẫn xử lý",
+      "info": "Yêu cầu thêm thông tin",
+      "tech": "Chuyển bộ phận kỹ thuật",
+      "resolve": "Đánh dấu đã giải quyết"
+    },
+    "macroText": {
+      "ack": "Dạ em đã tiếp nhận yêu cầu của anh/chị, em kiểm tra và phản hồi ngay ạ.",
+      "guide": "Em gửi anh/chị hướng dẫn xử lý chi tiết, anh/chị làm theo giúp em nhé.",
+      "info": "Anh/chị cho em xin thêm thông tin (mã lịch hẹn / ảnh chụp) để em kiểm tra ạ.",
+      "tech": "Chuyển bộ phận kỹ thuật kiểm tra."
+    },
+    "internal": "Nội bộ",
+    "ev": {
+      "created": "Tạo ticket",
+      "assigned": "Phân công cho {name}",
+      "status": "Đổi trạng thái → {status}",
+      "note": "Thêm ghi chú nội bộ",
+      "reply": "Trả lời khách",
+      "closed": "Đóng ticket ({reason})",
+      "reopened": "Mở lại ticket",
+      "priority": "Đổi ưu tiên"
+    },
+    "by": {
+      "system": "Hệ thống",
+      "routing": "Quy tắc định tuyến"
+    },
+    "slaRow": {
+      "frt": "Phản hồi đầu (FRT)",
+      "ttr": "Thời gian xử lý",
+      "esc": "Số lần escalation"
+    },
+    "target": "Mục tiêu {v}",
+    "le": "≤ {v}",
+    "policy": "Chính sách SLA: {name}",
+    "result": {
+      "met": "Đạt SLA",
+      "breached": "Vi phạm SLA"
+    },
+    "note": "Ghi chú nội bộ",
+    "reply": "Trả lời khách",
+    "notePh": "Ghi chú cho đồng đội…",
+    "replyPh": "Trả lời khách…",
+    "send": "Gửi",
+    "closeBtn": "Đóng ticket",
+    "reopen": "Mở lại",
+    "closedAs": "Đã đóng · {reason}"
+  },
+  "closeBox": {
+    "title": "Đóng ticket {code}",
+    "sub": "Chọn lý do đóng — kết quả SLA được ghi lại.",
+    "reason": "Lý do",
+    "note": "Ghi chú (không bắt buộc)",
+    "cancel": "Huỷ",
+    "ok": "Đóng ticket",
+    "reasons": {
+      "resolved": "Đã giải quyết",
+      "duplicate": "Trùng ticket",
+      "withdrawn": "Khách rút yêu cầu",
+      "out_of_scope": "Ngoài phạm vi hỗ trợ"
+    }
+  },
+  "form": {
+    "title": "Tạo ticket mới",
+    "titleL": "Tiêu đề *",
+    "titlePh": "VD: Khách yêu cầu hoàn tiền…",
+    "company": "Khách hàng / Công ty",
+    "companyPh": "Cty ABC",
+    "email": "Email",
+    "emailPh": "lien.he@cty.vn",
+    "channel": "Kênh",
+    "category": "Danh mục",
+    "priority": "Ưu tiên",
+    "status": "Trạng thái",
+    "team": "Nhóm xử lý",
+    "owner": "Người phụ trách",
+    "desc": "Mô tả vấn đề",
+    "descHint": "Dùng thanh công cụ để in đậm, nghiêng, gạch chân hoặc tạo danh sách.",
+    "cancel": "Huỷ",
+    "save": "Tạo ticket",
+    "close": "Đóng",
+    "required": "Nhập tiêu đề ticket",
+    "emailBad": "Email không hợp lệ",
+    "dupTitle": "Khách đã có ticket {code} đang mở cùng danh mục",
+    "dupHint": "Ticket này tạo trong 24 giờ qua. Gộp nội dung vào ticket cũ để tránh xử lý trùng?",
+    "dupMerge": "Gộp vào ticket cũ",
+    "dupNew": "Vẫn tạo mới",
+    "tools": {
+      "bold": "In đậm",
+      "italic": "In nghiêng",
+      "underline": "Gạch chân",
+      "ul": "Danh sách",
+      "ol": "Danh sách số"
+    },
+    "categoryRequired": "Nhập danh mục"
+  },
+  "channel": {
+    "zalo_personal": "Zalo cá nhân",
+    "webchat": "Web chat",
+    "email": "Email"
+  },
+  "aiPanel": {
+    "title": "Trợ lý AI · Hỗ trợ",
+    "sub": "Xử lý ticket & SLA bằng AI",
+    "close": "Đóng",
+    "hello": "Chào {name} 👋 Mình giúp gì cho bạn về ticket hôm nay? Chọn nhanh bên dưới hoặc nhập yêu cầu.",
+    "ph": "Hỏi trợ lý về ticket…",
+    "send": "Gửi",
+    "full": "Mở Trợ lý AI đầy đủ →",
+    "prompts": {
+      "overdue": "Tóm tắt các ticket quá hạn SLA và sắp đến hạn hôm nay, gợi ý thứ tự xử lý.",
+      "reply": "Gợi ý phản hồi cho ticket khiếu nại đang mở (đồng cảm + hướng xử lý).",
+      "route": "Phân loại và đề xuất nhóm xử lý cho các ticket tồn theo danh mục và độ ưu tiên.",
+      "report": "Báo cáo SLA tuần này: tỉ lệ AI tự xử, thời gian xử lý trung bình, số vi phạm."
+    }
+  },
+  "agent": "AI Agent",
+  "unit": "ticket",
+  "categoryInput": {
+    "suggested": "Gợi ý",
+    "used": "Đã dùng trong ticket",
+    "more": "Tải thêm nhãn đã dùng",
+    "free": "Dùng \"{q}\" làm danh mục mới"
+  },
+  "stock": {
+    "title": "So với hôm qua",
+    "vsYesterday": "So với hôm qua lúc {at}",
+    "noBaselineShort": "Chưa có số hôm qua để so",
+    "unknownShort": "Chưa rõ xu hướng",
+    "srUp": "tăng {n} so với hôm qua",
+    "srDown": "giảm {n} so với hôm qua",
+    "srFlat": "không đổi so với hôm qua",
+    "srUnknown": "chưa so được với hôm qua",
+    "measuredAt": "Số hiện tại đo lúc {at} ({tz}).",
+    "observedAt": "Mốc so sánh: quan sát thật lúc {at} hôm qua.",
+    "row": "{label}: {prior} → {now} ({delta})",
+    "cohort": "Chỉ so trên các ticket bạn còn thấy hiện nay; ticket đã xoá hoặc ngoài quyền không tính ở cả hai phía — đây không phải tăng trưởng ròng và không cho biết nguyên nhân.",
+    "unsupported": "Máy chủ chưa hỗ trợ so sánh với hôm qua.",
+    "reason": {
+      "baseline_missing": "Chưa có lần quan sát nào của hôm qua — chưa thể so sánh.",
+      "source_unavailable": "Một phần dữ liệu hôm qua không còn được dùng — chưa thể so sánh.",
+      "capture_unavailable": "Lần quan sát hôm qua không đầy đủ — chưa thể so sánh.",
+      "schema_unavailable": "Hệ thống đang cập nhật — chưa thể so sánh."
+    }
+  }
+}

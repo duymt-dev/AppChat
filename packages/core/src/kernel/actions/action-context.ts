@@ -1,0 +1,88 @@
+// Ngữ cảnh một lần gọi action (Blueprint §3.2) + port quyền (DC-010: TIP-005 cài Authorizer thật từ role / team).
+import type { Risk } from '@appchat/actions';
+import type { AuthzContext, PermissionKey } from '@appchat/shared';
+import type { PlatformDb, TenantDb } from '@appchat/db';
+
+export type ActionSource = 'ui' | 'assistant' | 'agent' | 'task' | 'system' | 'api';
+export type ActorType = 'user' | 'agent' | 'assistant' | 'system';
+
+export interface ActionContext {
+  workspaceId: string;
+  source: ActionSource;
+  actor: { type: ActorType; id: string };
+  /** assistant / task / agent được giao luôn mang user gốc → quyền = quyền user đó (§3.3b). */
+  onBehalfOfUserId?: string;
+  runId?: string;
+  stepId?: string;
+  idempotencyKey?: string;
+  confirmToken?: string;
+  /**
+   * Người dùng XIN xem trước (TIP-028b, DC-444 — header `x-action-preview: 1` của UI): action thuộc `REQUESTABLE_PREVIEW_ACTIONS` đi qua
+   * 202 preview → ConfirmActionHost (bảng kiểm chứng từ) như nguồn assistant. Chỉ THÊM bước xác nhận cho chính người gọi — không nới
+   * quyền / policy, nguồn bị cấm / phải duyệt vẫn giữ nguyên.
+   */
+  previewRequested?: boolean;
+  /** Chạy action đã được duyệt (job `ai-resume` — TIP-021): executor bỏ bước policy `approval`, gateway kiểm + đánh dấu đã chạy. */
+  approvalId?: string;
+  /**
+   * Agent trực kênh: hội thoại đang phục vụ (TIP-022). Action `send` nhận `conversation_id` trùng giá trị này chạy luôn
+   * (Blueprint §3.3 "chỉ trả lời trong hội thoại đang phục vụ"); gửi nơi khác vẫn qua duyệt.
+   */
+  servedConversationId?: string;
+  /** Lượt agent đang giữ (TIP-045b annex D): fence + epoch hội thoại — tin gửi mang theo, đặt chỗ gửi kiểm lại trước khi gọi kênh. */
+  agentTurn?: { fence: number; epoch: number };
+  /**
+   * Mục đích tin ra NỘI BỘ (TIP-022b): `greeting` = lời chào tự động của lượt agent, ràng với run + tin khách nguồn đã lưu. Không phải input
+   * công khai (HTTP / model không đặt được), không cấp quyền; chỉ agent đang giữ lượt (`agentTurn`) mới mang được.
+   */
+  outboundPurpose?: { kind: 'greeting'; runId: string; sourceMessageId: string };
+  /**
+   * Tác vụ Cowork tắt "Hỏi xác nhận trước khi gửi ra bên ngoài" (REQ-E13, Blueprint §3.3 dòng `task` — "approval nếu ask_before_send"):
+   * action `send` chạy luôn; delete / money vẫn qua duyệt.
+   */
+  autoSend?: boolean;
+  /** Action `db: 'platform'`: id thao tác xuyên DB (TIP-045b) — handler dùng cho đặt chỗ hạn mức / id tất định. */
+  operationId?: string;
+  /**
+   * TIP-020c: quyền ĐỌC NGUỒN tri thức của người ra lệnh hiện hành (agent làm cho người — delegate / Cowork / chat thử): runtime đọc lại
+   * người đó mỗi lời gọi rồi đặt ở đây (đã thu hẹp theo tác vụ). `authz` = agent ∩ người chỉ chứa permission của tool agent nên không
+   * phản ánh quyền đọc module gốc của nguồn. Không phải input công khai (HTTP / model không đặt được).
+   */
+  knowledgeAuthz?: AuthzContext;
+  /**
+   * TIP-023d §2.1-2.3: ràng buộc bước kế hoạch Cowork đang chạy — server cấp (meta-tools / xác nhận thẻ đọc lại từ DB), KHÔNG phải input
+   * công khai (HTTP / model không đặt được). Không cấp quyền: chỉ để executor claim hiệu ứng chính một lần + gắn biên nhận thật.
+   */
+  planBinding?: { planId: string; stepId: string; generation: number; epoch: number };
+  /** TIP-033c §3.1: dữ kiện nguồn đã ràng vào confirm_token lúc xem trước — executor đặt sau khi tiêu token; không phải input công khai. */
+  previewFacts?: Record<string, string | number>;
+  /** Quyền + data scope của người hiệu lực — handler dùng để lọc scope (SCOPE_FORBIDDEN). */
+  authz: AuthzContext;
+}
+
+/** Transaction tenant truyền cho handler (Prisma interactive transaction). */
+export type TenantTx = Parameters<Parameters<TenantDb['$transaction']>[0]>[0];
+
+/** Transaction DB nền tảng cho action `db: 'platform'` (Blueprint §3.2 bước 6) — handler nhận qua tham số thứ tư. */
+export type PlatformTx = Parameters<Parameters<PlatformDb['$transaction']>[0]>[0];
+
+export interface Authorizer {
+  /** Quyền hiệu lực của ctx cho permission của action (`self` = luôn được; `platform_admin` = admin nền tảng). */
+  can(ctx: ActionContext, permission: PermissionKey | 'platform_admin' | 'self'): boolean | Promise<boolean>;
+}
+
+export interface ActionPolicyInput {
+  source: ActionSource;
+  risk: Risk;
+  bulk?: boolean;
+  /** Agent gửi vào chính hội thoại đang phục vụ (§3.3). */
+  servedConversation?: boolean;
+  /** Tác vụ không hỏi trước khi gửi (ActionContext.autoSend). */
+  autoSend?: boolean;
+  /** Id action — FORCE_APPROVAL theo action (policy.ts). */
+  actionId?: string;
+  /** Người gọi xin xem trước (ActionContext.previewRequested). */
+  previewRequested?: boolean;
+}
+
+export const AUTHORIZER = Symbol('AUTHORIZER');

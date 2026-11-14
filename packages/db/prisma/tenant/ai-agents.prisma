@@ -1,0 +1,144 @@
+// tenant/ai-agents.prisma — sở hữu: TIP-021 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: ai_agent, ai_agent_version, approval_request, ai_governance (Blueprint §2.2 L397–410). Không Prisma relation xuyên domain
+// (Blueprint §2.1) — FK nội DB + CHECK + partial index viết tay ở migration 021.
+
+enum AiAgentStatus {
+  draft
+  active
+  paused
+
+  @@map("ai_agent_status")
+}
+
+enum AiAgentCreatedVia {
+  manual
+  template
+  assistant
+
+  @@map("ai_agent_created_via")
+}
+
+enum ApprovalStatus {
+  pending
+  approved
+  rejected
+  edited
+  expired
+
+  @@map("approval_status")
+}
+
+/// AI Agent (D29): các cột cấu hình là **bản nháp**; agent chạy theo `published_version` (snapshot ở ai_agent_version).
+/// `channels` = loại kênh agent nhận (FE Builder); gán tài khoản kênh cụ thể ở `channel_account.settings.agent_id` (TIP-014).
+/// `tool_ids` = quyền của agent (D51 — action id `agentGrantable`); `approval_rules` = action luôn cần duyệt (risk money / delete).
+model AiAgent {
+  id                  String            @id @db.Uuid
+  name                String
+  emoji               String            @default("🤖")
+  avatarFileId        String?           @map("avatar_file_id") @db.Uuid
+  role                String            @default("custom")
+  roleLabel           String            @default("") @map("role_label")
+  language            String            @default("vi")
+  persona             String            @default("")
+  tone                String            @default("")
+  systemPrompt        String            @default("") @map("system_prompt")
+  intents             Int[]             @default([])
+  modelTier           String            @default("standard") @map("model_tier")
+  toolIds             String[]          @default([]) @map("tool_ids")
+  kbScope             Json              @default("{\"folder_ids\":[],\"tags\":[]}") @map("kb_scope")
+  channels            String[]          @default([])
+  /// Ngưỡng tin cậy (%) — dưới ngưỡng thì bàn giao người (D05, mặc định 70).
+  confidenceThreshold Int               @default(70) @map("confidence_threshold")
+  handoffTo           String            @default("staff") @map("handoff_to")
+  governance          Json              @default("{}")
+  approvalRules       Json              @default("{}") @map("approval_rules")
+  /// Khung giờ hoạt động `{ mode: always | office | custom }` — `office` = 8:00–17:30 giờ VN (ngoài giờ không trả lời kênh).
+  workingHours        Json?             @map("working_hours")
+  /// Lịch tuần có cấu trúc `{ timezone, days[7][≤4]{from,to} }` (TIP-022b) — dùng khi `working_hours.mode = custom`.
+  weeklySchedule      Json?             @map("weekly_schedule")
+  /// Từ khoá ưu tiên (Builder › Phân luồng) — đưa vào system prompt; định tuyến nhiều agent theo từ khoá ở TIP-025.
+  keywords            String[]          @default([])
+  status              AiAgentStatus     @default(draft)
+  templateKey         String?           @map("template_key")
+  createdVia          AiAgentCreatedVia @default(manual) @map("created_via")
+  createdBy           String?           @map("created_by") @db.Uuid
+  /// Phiên bản đang chạy (0 = chưa xuất bản).
+  publishedVersion    Int               @default(0) @map("published_version")
+  publishedVersionId  String?           @map("published_version_id") @db.Uuid
+  draftDirty          Boolean           @default(false) @map("draft_dirty")
+  /// TIP-003e: khoá lạc quan của dòng (concurrency §1) — trigger `ai_agent_bump_row_version` tăng ở MỌI UPDATE; khác `publishedVersion`.
+  rowVersion          Int               @default(1) @map("row_version")
+  createdAt           DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt           DateTime          @default(now()) @map("updated_at") @db.Timestamptz(6)
+  deletedAt           DateTime?         @map("deleted_at") @db.Timestamptz(6)
+
+  @@map("ai_agent")
+}
+
+/// Snapshot cấu hình mỗi lần xuất bản; `ai_run.agent_version` ghi phiên bản đã chạy; quay lại = xuất bản lại snapshot cũ.
+model AiAgentVersion {
+  id          String   @id @db.Uuid
+  agentId     String   @map("agent_id") @db.Uuid
+  version     Int
+  config      Json
+  publishedBy String?  @map("published_by") @db.Uuid
+  publishedAt DateTime @map("published_at") @db.Timestamptz(6)
+  note        String   @default("")
+
+  @@unique([agentId, version(sort: Desc)])
+  @@map("ai_agent_version")
+}
+
+/// Hàng chờ duyệt (D07, Blueprint §5.1): action của agent / tác vụ cần người duyệt. Duyệt → job `ai-resume` chạy action đúng một
+/// lần (`executed_at`, cùng transaction với handler) rồi chạy tiếp run. Quá `expires_at` → `expired`, run → `handoff`.
+model ApprovalRequest {
+  id               String         @id @db.Uuid
+  runId            String?        @map("run_id") @db.Uuid
+  stepIdx          Int?           @map("step_idx")
+  agentId          String?        @map("agent_id") @db.Uuid
+  actionId         String         @map("action_id")
+  input            Json
+  inputHash        String         @map("input_hash")
+  preview          Json?
+  risk             String
+  /// Permission duyệt của action gốc (quote.approve, contract.sign, …) — người duyệt cần thêm `approvals.decide`.
+  permission       String
+  title            String
+  summary          String         @default("")
+  reason           String         @default("")
+  source           String
+  onBehalfOfUserId String?        @map("on_behalf_of_user_id") @db.Uuid
+  status           ApprovalStatus @default(pending)
+  requestedAt      DateTime       @map("requested_at") @db.Timestamptz(6)
+  expiresAt        DateTime       @map("expires_at") @db.Timestamptz(6)
+  decidedBy        String?        @map("decided_by") @db.Uuid
+  decidedAt        DateTime?      @map("decided_at") @db.Timestamptz(6)
+  decisionNote     String?        @map("decision_note")
+  executedAt       DateTime?      @map("executed_at") @db.Timestamptz(6)
+  /// Kết quả tool sau khi chạy action đã duyệt (job chạy lại sau lỗi dùng lại, không chạy action lần hai).
+  result           Json?
+
+  @@index([status, requestedAt(sort: Desc)])
+  @@map("approval_request")
+}
+
+/// Governance AI của workspace (Cài đặt › AI Governance — `governance.update`). Một dòng (id = 1).
+model AiGovernance {
+  id               Int      @id @default(1) @db.SmallInt
+  scopes           Json     @default("{}")
+  bounds           Json     @default("{}")
+  bannedWords      String[] @default([]) @map("banned_words")
+  filter           String   @default("strict")
+  longReview       Boolean  @default(false) @map("long_review")
+  retentionDays    Int      @default(90) @map("retention_days")
+  noExternalTrain  Boolean  @default(true) @map("no_external_train")
+  piiFilter        Boolean  @default(true) @map("pii_filter")
+  residency        String   @default("sg")
+  /// Luật luôn ép duyệt (báo giá > 20M, giảm giá > 5%, hoàn tiền, gửi hàng loạt, hợp đồng — COMMERCE / D05).
+  forceApproval    Json     @default("{}") @map("force_approval")
+  defaultThreshold Int      @default(70) @map("default_threshold")
+  approvalTtlHours Int      @default(72) @map("approval_ttl_hours")
+  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("ai_governance")
+}

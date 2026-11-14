@@ -1,0 +1,445 @@
+{
+  "quotes": [
+    {
+      "id": "q_2041",
+      "code": "BG-2041",
+      "version": 2,
+      "root_id": "q_2041",
+      "contact_id": "ct_lan",
+      "contact_name": "Chị Lan",
+      "phone": "0903 123 456",
+      "returning": true,
+      "owner_user_id": "u_minh",
+      "owner_name": "Minh",
+      "status": "approved",
+      "items": [
+        {
+          "name": "HIFU nâng cơ",
+          "variant": "Vùng mặt",
+          "qty": 8,
+          "unit_price": "1500000",
+          "tax_rate": 8
+        },
+        {
+          "name": "Chăm sóc da",
+          "variant": "Da dầu",
+          "qty": 2,
+          "unit_price": "400000",
+          "tax_rate": 8
+        }
+      ],
+      "header_discount": {
+        "kind": "pct",
+        "value": 5
+      },
+      "valid_days": 15,
+      "created_at": "2026-06-24T09:42:00+07:00",
+      "sent_at": null,
+      "note": "Khách VIP · ưu tiên",
+      "gift": "Tặng 1 buổi chăm sóc da",
+      "payment_terms": "",
+      "comments": [
+        {
+          "who": "Sale · Minh",
+          "text": "Khách đồng ý nâng combo, chốt sớm",
+          "at": "2026-06-24T09:45:00+07:00"
+        },
+        {
+          "who": "Kế toán · Hà",
+          "text": "Đã trừ 120k điểm tích lũy, OK",
+          "at": "2026-06-24T10:10:00+07:00"
+        }
+      ],
+      "ai": {
+        "hint": "Nên chăm sóc lại — 18 ngày chưa liên hệ",
+        "wait": false
+      },
+      "off_catalog": false,
+      "converted": null
+    },
+    {
+      "id": "q_2040",
+      "code": "BG-2040",
+      "version": 1,
+      "root_id": "q_2040",
+      "contact_id": "ct_vy",
+      "contact_name": "Phương Vy",
+      "phone": "0978 456 789",
+      "returning": false,
+      "owner_user_id": "u_tram",
+      "owner_name": "Trâm",
+      "status": "sent",
+      "items": [
+        {
+          "name": "Combo da mặt",
+          "variant": "Liệu trình 60 phút",
+          "qty": 1,
+          "unit_price": "9500000",
+          "tax_rate": 8
+        }
+      ],
+      "header_discount": null,
+      "valid_days": 15,
+      "created_at": "2026-06-24T08:18:00+07:00",
+      "sent_at": "2026-06-24T08:18:00+07:00",
+      "note": "",
+      "gift": "",
+      "payment_terms": "",
+      "comments": [],
+      "ai": {
+        "hint": "Gửi ưu đãi giữ chân khách",
+        "wait": false
+      },
+      "off_catalog": false,
+      "converted": null
+    },
+    {
+      "id": "q_2039",
+      "code": "BG-2039",
+      "version": 3,
+      "root_id": "q_2039",
+      "contact_id": "ct_dung",
+      "contact_name": "Anh Dũng",
+      "phone": "0912 345 678",
+      "returning": true,
+      "owner_user_id": "u_khoa",
+      "owner_name": "Khoa",
+      "status": "draft",
+      "items": [
+        {
+          "name": "Triệt lông toàn thân",
+          "variant": "Gói 12 buổi",
+          "qty": 1,
+          "unit_price": "22000000",
+          "tax_rate": 8
+        }
+      ],
+      "header_discount": {
+        "kind": "pct",
+        "value": 10
+      },
+      "valid_days": 15,
+      "created_at": "2026-06-23T16:30:00+07:00",
+      "sent_at": null,
+      "note": "Cần duyệt chiết khấu",
+      "gift": "",
+      "payment_terms": "",
+      "comments": [
+        {
+          "who": "QL · Trâm",
+          "text": "Chiết khấu 10% cần mình duyệt nhé",
+          "at": "2026-06-23T17:00:00+07:00"
+        }
+      ],
+      "ai": {
+        "hint": "Nhắc thanh toán / theo dõi đơn",
+        "wait": true
+      },
+      "off_catalog": false,
+      "converted": null
+    }
+  ],
+  "close_rate": "62%",
+  "crm_stats": [
+    [
+      "ltv",
+      "86,5tr",
+      "#16A34A"
+    ],
+    [
+      "orders",
+      "14",
+      "#2563EB"
+    ],
+    [
+      "quotes",
+      "3",
+      "#6E48E6"
+    ],
+    [
+      "close",
+      "62%",
+      "#C9820B"
+    ]
+  ],
+  "timeline": [
+    [
+      "sent",
+      "2026-06-22T10:20:00+07:00",
+      "#0068FF",
+      "ic-inbox"
+    ],
+    [
+      "opened",
+      "2026-06-23T09:05:00+07:00",
+      "#6E48E6",
+      "ic-mail"
+    ],
+    [
+      "call",
+      "2026-06-23T14:30:00+07:00",
+      "#2DC56A",
+      "ic-phone"
+    ],
+    [
+      "ask",
+      "2026-06-24T08:50:00+07:00",
+      "#C9820B",
+      "ic-doc"
+    ]
+  ],
+  "todos": [
+    [
+      "send",
+      true,
+      "yesterday"
+    ],
+    [
+      "call",
+      true,
+      "today"
+    ],
+    [
+      "price",
+      false,
+      "today"
+    ],
+    [
+      "contract",
+      false,
+      "none"
+    ]
+  ],
+  "history": [
+    [
+      "create",
+      "#6B7280"
+    ],
+    [
+      "lines",
+      "#2563EB"
+    ],
+    [
+      "send",
+      "#0068FF"
+    ],
+    [
+      "open",
+      "#6E48E6"
+    ],
+    [
+      "current",
+      "#157A40"
+    ]
+  ],
+  "ai_runs": {
+    "sugg": "Dựa trên lịch sử Chị Lan (đã mua HIFU): đề xuất combo \"HIFU 8 buổi + Chăm sóc da 4 buổi\" giá 18.5tr (tiết kiệm 2.3tr). Tỉ lệ chốt dự kiến ~74%.",
+    "followup": "Có 1 báo giá (Phương Vy · Combo da mặt 9.5tr) chờ phản hồi quá 3 ngày. Đề xuất gửi tin Zalo nhắc kèm ưu đãi -10% nếu chốt trong 48h.",
+    "analyze": "Tỉ lệ chốt hiện 62%. Báo giá rớt chủ yếu do (1) giá cao hơn đối thủ ~8%, (2) chậm follow-up. Đề xuất: thêm mốc giá \"combo tiết kiệm\" và auto-nhắc sau 48h."
+  },
+  "genui": [
+    {
+      "key": "sugg",
+      "re": "gợi ý gói|combo|mức giá",
+      "lead": "Gợi ý gói cho khách của báo giá đang mở:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "table",
+              "columns": [
+                {
+                  "key": "name",
+                  "label": "Gói đề xuất"
+                },
+                {
+                  "key": "price",
+                  "label": "Giá",
+                  "format": "money"
+                },
+                {
+                  "key": "save",
+                  "label": "Tiết kiệm",
+                  "format": "money"
+                }
+              ],
+              "rows": {
+                "$ref": "step:1.items"
+              }
+            },
+            {
+              "type": "button",
+              "label": "Mở báo giá BG-2041",
+              "on": {
+                "kind": "ui",
+                "command": {
+                  "type": "open",
+                  "entity": "quote",
+                  "id": "q_2041"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "items": [
+            {
+              "name": "HIFU 8 buổi + Chăm sóc da 4 buổi",
+              "price": 18500000,
+              "save": 2300000
+            },
+            {
+              "name": "HIFU 8 buổi",
+              "price": 14400000,
+              "save": 1600000
+            },
+            {
+              "name": "Chăm sóc da 4 buổi",
+              "price": 4800000,
+              "save": 400000
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "followup",
+      "re": "chưa phản hồi|follow|nhắc",
+      "lead": "Báo giá chờ khách phản hồi quá 3 ngày:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat",
+              "label": "Chờ phản hồi",
+              "value": {
+                "$ref": "step:1.count"
+              },
+              "format": "number",
+              "tone": "warning"
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "code",
+              "subtitle_key": "note",
+              "open": {
+                "entity": "quote",
+                "id_key": "id"
+              }
+            },
+            {
+              "type": "button",
+              "label": "Lọc báo giá đã gửi",
+              "on": {
+                "kind": "ui",
+                "command": {
+                  "type": "filter",
+                  "table": "quotes",
+                  "filter": {
+                    "status": "sent"
+                  }
+                }
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "count": 1,
+          "rows": [
+            {
+              "id": "q_2040",
+              "code": "BG-2040",
+              "note": "Phương Vy · gửi 4 ngày trước"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "analyze",
+      "re": "tỉ lệ chốt|tỷ lệ chốt|phân tích",
+      "lead": "Tỉ lệ chốt báo giá:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Tỉ lệ chốt",
+                  "value": {
+                    "$ref": "step:1.rate"
+                  },
+                  "format": "percent",
+                  "tone": "success"
+                },
+                {
+                  "type": "stat",
+                  "label": "Chấp nhận",
+                  "value": {
+                    "$ref": "step:1.accepted"
+                  },
+                  "format": "number"
+                },
+                {
+                  "type": "stat",
+                  "label": "Từ chối / hết hạn",
+                  "value": {
+                    "$ref": "step:1.lost"
+                  },
+                  "format": "number"
+                }
+              ]
+            },
+            {
+              "type": "chart",
+              "kind": "column",
+              "title": "Theo trạng thái",
+              "data": {
+                "$ref": "step:1.by_status"
+              },
+              "x": "status",
+              "y": "count"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "rate": 62,
+          "accepted": 8,
+          "lost": 5,
+          "by_status": [
+            {
+              "status": "Chấp nhận",
+              "count": 8
+            },
+            {
+              "status": "Từ chối",
+              "count": 3
+            },
+            {
+              "status": "Hết hạn",
+              "count": 2
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+// tenant/support.prisma — sở hữu: TIP-034 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: sla_policy, ticket, ticket_comment, ticket_event (Blueprint §2.2 support, REQ-H01–H04). Không Prisma relation xuyên domain
+// (Blueprint §2.1): khách / hội thoại / tin nguồn lưu id — FK + partial index viết tay ở migration 034. `ticket_event` + cột kênh /
+// công ty / email / mốc SLA của ticket thêm ngoài Blueprint — DV-016.
+
+enum TicketStatus {
+  open
+  in_progress
+  waiting
+  closed
+
+  @@map("ticket_status")
+}
+
+enum TicketPriority {
+  high
+  medium
+  low
+
+  @@map("ticket_priority")
+}
+
+/// Chính sách SLA (P0 chỉ một dòng mặc định — không xoá được; nhiều chính sách P3 H05). Phút; người tính theo giờ làm việc, AI tuyệt đối.
+model SlaPolicy {
+  id          String   @id @db.Uuid
+  name        String
+  isDefault   Boolean  @default(false) @map("is_default")
+  frtAiMin    Int      @default(0) @map("frt_ai_min")
+  frtHumanMin Int      @default(10) @map("frt_human_min")
+  ttrAiMin    Int      @default(30) @map("ttr_ai_min")
+  ttrHumanMin Int      @default(240) @map("ttr_human_min")
+  /// Quy tắc leo thang bật / tắt `{ warn_80, frt_breach, ttr_breach, ai_low, vip_wait }`.
+  escalation  Json     @default("{}")
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("sla_policy")
+}
+
+/// Ticket (mã `TKT-{n}`). Hạn SLA chụp lúc tạo (chính sách đổi chỉ áp việc mới — REQ-H03); `ttr_due_at` cộng dồn thời gian dừng khi rời
+/// "Đang chờ". `warned_at` / `breached_at` / `frt_breached_at` = mốc leo thang đã phát (mỗi mốc một lần).
+model Ticket {
+  id              String          @id @db.Uuid
+  code            String          @unique
+  contactId       String?         @map("contact_id") @db.Uuid
+  conversationId  String?         @map("conversation_id") @db.Uuid
+  sourceMessageId String?         @map("source_message_id") @db.Uuid
+  title           String
+  description     String          @default("")
+  category        String
+  channel         String          @default("zalo_personal")
+  company         String          @default("")
+  email           String          @default("")
+  priority        TicketPriority  @default(medium)
+  status          TicketStatus    @default(open)
+  assigneeUserId  String?         @map("assignee_user_id") @db.Uuid
+  assigneeAgentId String?         @map("assignee_agent_id") @db.Uuid
+  teamId          String?         @map("team_id")
+  slaPolicyId     String?         @map("sla_policy_id") @db.Uuid
+  slaPolicyName   String          @default("") @map("sla_policy_name")
+  frtTargetMin    Int             @default(10) @map("frt_target_min")
+  ttrTargetMin    Int             @default(240) @map("ttr_target_min")
+  frtDueAt        DateTime        @map("frt_due_at") @db.Timestamptz(6)
+  ttrStartAt      DateTime        @map("ttr_start_at") @db.Timestamptz(6)
+  ttrDueAt        DateTime        @map("ttr_due_at") @db.Timestamptz(6)
+  firstResponseAt DateTime?       @map("first_response_at") @db.Timestamptz(6)
+  pausedSince     DateTime?       @map("paused_since") @db.Timestamptz(6)
+  pausedTotalSec  Int             @default(0) @map("paused_total_sec")
+  slaResult       String?         @map("sla_result")
+  closeReason     String?         @map("close_reason")
+  closeNote       String?         @map("close_note")
+  csat            Int?
+  escalations     Int             @default(0)
+  warnedAt        DateTime?       @map("warned_at") @db.Timestamptz(6)
+  frtBreachedAt   DateTime?       @map("frt_breached_at") @db.Timestamptz(6)
+  breachedAt      DateTime?       @map("breached_at") @db.Timestamptz(6)
+  closedAt        DateTime?       @map("closed_at") @db.Timestamptz(6)
+  reopenedCount   Int             @default(0) @map("reopened_count")
+  custom          Json            @default("{}")
+  createdByType   String          @default("user") @map("created_by_type")
+  createdById     String?         @map("created_by_id")
+  /// TIP-034c: trigger `ticket_bump_version` đặt OLD.version + 1 ở MỌI UPDATE (một nguồn duy nhất — giá trị người gọi gửi bị bỏ qua).
+  version         Int             @default(1)
+  createdAt       DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
+  comments        TicketComment[]
+  events          TicketEvent[]
+
+  @@map("ticket")
+}
+
+/// Bình luận: ghi chú nội bộ (`internal`) hoặc trả lời khách; tin khách nhắn vào hội thoại gắn ticket cũng ghi ở đây (`contact`).
+model TicketComment {
+  id         String    @id @db.Uuid
+  ticketId   String    @map("ticket_id") @db.Uuid
+  authorType String    @map("author_type")
+  authorId   String?   @map("author_id")
+  authorName String    @default("") @map("author_name")
+  body       String
+  internal   Boolean   @default(false)
+  messageId  String?   @map("message_id") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  deletedAt  DateTime? @map("deleted_at") @db.Timestamptz(6)
+  ticket     Ticket    @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_comment")
+}
+
+/// Lịch sử ticket (tab Lịch sử): created / assigned / status / note / reply / closed / reopened / priority / escalated.
+model TicketEvent {
+  id        String   @id @db.Uuid
+  ticketId  String   @map("ticket_id") @db.Uuid
+  type      String
+  actorType String   @map("actor_type")
+  actorId   String?  @map("actor_id")
+  actorName String   @default("") @map("actor_name")
+  data      Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  ticket    Ticket   @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+
+  @@map("ticket_event")
+}

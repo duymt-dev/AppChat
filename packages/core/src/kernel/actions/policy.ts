@@ -1,0 +1,63 @@
+// Policy nguồn × rủi ro (Blueprint §3.3). Governance cứng (FORCE_APPROVAL — COMMERCE / D05, TIP-032b): ngưỡng báo giá (> ngưỡng
+// workspace, giảm vượt trần agent) do handler domain chặn bằng QUOTE_NEEDS_APPROVAL; hợp đồng / hoàn tiền / gửi hàng loạt do agent / tác vụ
+// gọi LUÔN qua duyệt ở đây — "agent trực kênh trong hội thoại đang phục vụ" hay "tác vụ không hỏi trước khi gửi" không miễn được.
+import { REQUESTABLE_PREVIEW_ACTIONS, type Risk } from '@appchat/actions';
+import type { ActionPolicyInput, ActionSource } from './action-context';
+
+export type PolicyDecision = 'run' | 'preview' | 'approval' | 'forbidden';
+
+const TABLE: Record<ActionSource, Record<Risk, PolicyDecision>> = {
+  ui: { read: 'run', write: 'run', send: 'run', money: 'run', delete: 'run', config: 'run' },
+  api: { read: 'run', write: 'run', send: 'run', money: 'run', delete: 'run', config: 'run' },
+  system: { read: 'run', write: 'run', send: 'run', money: 'run', delete: 'run', config: 'run' },
+  assistant: { read: 'run', write: 'preview', send: 'preview', money: 'preview', delete: 'preview', config: 'preview' },
+  agent: { read: 'run', write: 'run', send: 'approval', money: 'approval', delete: 'forbidden', config: 'forbidden' },
+  task: { read: 'run', write: 'run', send: 'approval', money: 'approval', delete: 'approval', config: 'forbidden' },
+};
+
+/** Action luôn duyệt khi agent / tác vụ gọi (FORCE_APPROVAL: contract · refund · bulk_send). */
+export const FORCE_APPROVAL_ACTIONS: ReadonlySet<string> = new Set([
+  'contract.send_for_signature',
+  'contract.appendix_send',
+  'payment.refund',
+  'payment.refund_approve',
+  'payment.refund_reject',
+  'campaign.approve',
+]);
+
+/**
+ * Action chỉ người bấm ở UI (TIP-045b annex A3 — đổi Chủ sở hữu bằng OTP email): mọi nguồn khác bị cấm TRƯỚC xem trước / duyệt — Trợ lý
+ * không dựng thẻ xác nhận, agent / tác vụ / API không xin hay nhập mã.
+ */
+export const UI_ONLY_ACTIONS: ReadonlySet<string> = new Set(['workspace.request_transfer_otp', 'workspace.transfer_ownership']);
+
+/**
+ * Hành động không thể đảo ngược của "Quên khách" (TIP-015c §1.3, DC-259/260/262/264/265): BẮT BUỘC xem trước + xác nhận canonical
+ * cho CẢ ui lẫn assistant — bảng policy để assistant risk=delete ở `preview` vốn đã đúng, nhưng `ui` risk=delete bình thường chạy
+ * thẳng (TABLE.ui.delete = 'run'); các action này ép `ui` cũng phải qua `preview` như assistant. agent / task / api / system vẫn theo
+ * TABLE gốc (agent risk=delete = 'forbidden' — không đổi, vì đây không phải nới quyền mà chỉ ép preview cho nguồn vốn đã được chạy).
+ * `privacy.review_resolve` thêm ở pha 2 (handler thật — read.handlers.ts/review.handler.ts); `contact.allow_recreation` chờ pha sau
+ * (identity-token anti-recreation chưa cài).
+ */
+// TIP-033c §3.2: tạo đơn từ lịch hẹn — xác nhận ràng giá / version lúc xem trước (UI / API thô không có token → preview_required, 0 ghi).
+// TIP-020e §2.2: tái tạo chỉ mục kho tri thức trừ Credit — luôn xem ước tính (đoạn / token / Credit / dung lượng) rồi mới xác nhận.
+export const MANDATORY_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation', 'order.create_from_appointment', 'kb.reindex']);
+
+export function decidePolicy({ source, risk, bulk, servedConversation, autoSend, actionId, previewRequested }: ActionPolicyInput): PolicyDecision {
+  if (actionId && UI_ONLY_ACTIONS.has(actionId) && source !== 'ui') return 'forbidden';
+  if (actionId && MANDATORY_PREVIEW_ACTIONS.has(actionId) && (source === 'ui' || source === 'api' || source === 'system')) return 'preview';
+  if ((source === 'agent' || source === 'task') && actionId && FORCE_APPROVAL_ACTIONS.has(actionId)) return TABLE[source][risk] === 'forbidden' ? 'forbidden' : 'approval';
+  // Agent trực kênh trả lời trong hội thoại đang phục vụ: chạy (§3.3 dòng `agent`, cột send) — gửi nơi khác vẫn duyệt.
+  if (source === 'agent' && risk === 'send' && servedConversation && !bulk) return 'run';
+  // Tác vụ Cowork tắt "hỏi trước khi gửi": send chạy (§3.3 dòng `task`); delete / money luôn duyệt.
+  if (source === 'task' && risk === 'send' && autoSend && !bulk) return 'run';
+  const base = TABLE[source][risk] as PolicyDecision;
+  // bulk luôn preview kèm số bản ghi, kể cả ui (§3.3) — trừ khi nguồn đã bị cấm / phải duyệt.
+  if (bulk && base === 'run' && risk !== 'read' && source !== 'system') return 'preview';
+  // TIP-028b (DC-444): người gọi XIN xem trước action chứng từ (bảng kiểm) — chỉ thêm bước xác nhận; không xin → hành vi cũ.
+  if (previewRequested && base === 'run' && (source === 'ui' || source === 'api') && actionId && REQUESTABLE_PREVIEW_ACTIONS.has(actionId)) return 'preview';
+  return base;
+}
+
+/** Luật Idempotency-Key ở `packages/actions` (FE `useAction` dùng chung — TIP-013). */
+export { requiresIdempotencyKey } from '@appchat/actions';

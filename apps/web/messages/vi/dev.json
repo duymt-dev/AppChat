@@ -1,0 +1,10 @@
+{
+  "role": "Vai trò (mock)",
+  "roles": {
+    "owner": "Chủ sở hữu",
+    "manager": "Quản lý",
+    "sales": "Sales",
+    "cs": "CSKH",
+    "accountant": "Kế toán"
+  }
+}

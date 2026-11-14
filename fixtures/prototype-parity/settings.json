@@ -1,0 +1,2915 @@
+{
+  "now": "2026-06-24T09:00:00+07:00",
+  "workspace": {
+    "id": "ms-vn-2026",
+    "name": "MediaSoft Vietnam",
+    "initial": "MS",
+    "legal_name": "MediaSoft Vietnam Corp.",
+    "website": "https://mediasoft.vn",
+    "tax_code": "0314783952",
+    "address": "81 Cách Mạng Tháng 8, Q.1, TP.HCM",
+    "support_phone": "+84 28 3823 4567",
+    "admin_email": "admin@mediasoft.vn",
+    "locale": "vi",
+    "timezone": "Asia/Ho_Chi_Minh",
+    "date_format": "DD/MM/YYYY",
+    "currency": "VND"
+  },
+  "workspaces": [
+    {
+      "name": "MediaSoft Vietnam",
+      "id": "ms-vn-2026",
+      "plan": "Ultimate",
+      "seats": "12/15",
+      "color": "#1B9E5A",
+      "current": true
+    },
+    {
+      "name": "Spa Hương Sen",
+      "id": "spa-hs-2026",
+      "plan": "Business",
+      "seats": "5/8",
+      "color": "#DB2777",
+      "current": false
+    },
+    {
+      "name": "Nha khoa Minh Châu",
+      "id": "nk-mc-2026",
+      "plan": "Team",
+      "seats": "3/5",
+      "color": "#2563EB",
+      "current": false
+    }
+  ],
+  "members": [
+    {
+      "id": "u_ngoc",
+      "name": "Mai Đình Ngọc",
+      "email": "ngocmd@mediasoft.vn",
+      "role": "owner",
+      "dept": "Ban giám đốc",
+      "color": "#16A34A",
+      "last": "online",
+      "status": "active"
+    },
+    {
+      "id": "u_tram",
+      "name": "Nguyễn Thùy Trâm",
+      "email": "tramnt@appchat.vn",
+      "role": "manager",
+      "dept": "Kinh doanh",
+      "color": "#7C3AED",
+      "last": "online",
+      "status": "active"
+    },
+    {
+      "id": "u_minh",
+      "name": "Lê Quốc Minh",
+      "email": "minhlq@appchat.vn",
+      "role": "manager",
+      "dept": "Vận hành",
+      "color": "#16A34A",
+      "last": "online",
+      "status": "active"
+    },
+    {
+      "id": "u_huong",
+      "name": "Phạm Thu Hương",
+      "email": "huongpt@appchat.vn",
+      "role": "cs",
+      "dept": "CS",
+      "color": "#2563EB",
+      "last": "2h",
+      "status": "offline"
+    },
+    {
+      "id": "u_huyen",
+      "name": "Đỗ Thị Huyền",
+      "email": "huyendt@appchat.vn",
+      "role": "sales",
+      "dept": "Marketing",
+      "color": "#16A34A",
+      "last": "online",
+      "status": "active"
+    },
+    {
+      "id": "u_khanh",
+      "name": "Trần Văn Khánh",
+      "email": "khanhtv@appchat.vn",
+      "role": "accountant",
+      "dept": "Kế toán",
+      "color": "#2563EB",
+      "last": "3d",
+      "status": "pending"
+    }
+  ],
+  "member_total": 12,
+  "seat_limit": 15,
+  "role_colors": {
+    "owner": "#DC2626",
+    "manager": "#7C3AED",
+    "sales": "#2DC56A",
+    "cs": "#F59E0B",
+    "accountant": "#2563EB"
+  },
+  "channels": [
+    {
+      "type": "zalo_oa",
+      "name": "Zalo OA",
+      "short": "Z",
+      "color": "#0068FF",
+      "group": "msg",
+      "label": "pop",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "zalo_personal",
+      "name": "Zalo cá nhân",
+      "short": "Z",
+      "color": "#0068FF",
+      "group": "msg",
+      "label": "",
+      "available": true,
+      "accounts": [
+        {
+          "id": "acc_zalo_1",
+          "name": "Trâm · 0907 711 888",
+          "connected": true,
+          "convs": 412,
+          "frt": "1'12",
+          "health": "good",
+          "agent": "Sales Agent (AI)",
+          "ai_mode": "auto",
+          "hours": "08:00–21:00",
+          "greeting": "Xin chào 👋 Spa hỗ trợ gì cho mình ạ?",
+          "assign_mode": "round_robin",
+          "sla_policy": "Mặc định",
+          "sync_messages": true,
+          "sync_auto_create_contact": true,
+          "history_days": 30,
+          "paused": false
+        }
+      ]
+    },
+    {
+      "type": "facebook",
+      "name": "Facebook Page",
+      "short": "f",
+      "color": "#1877F2",
+      "group": "msg",
+      "label": "pop",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "messenger",
+      "name": "Messenger",
+      "short": "f",
+      "color": "#1877F2",
+      "group": "msg",
+      "label": "pop",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "instagram",
+      "name": "Instagram",
+      "short": "◎",
+      "color": "#E1306C",
+      "group": "msg",
+      "label": "pop",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "whatsapp",
+      "name": "WhatsApp",
+      "short": "W",
+      "color": "#25D366",
+      "group": "msg",
+      "label": "pop",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "whatsapp_business",
+      "name": "WhatsApp Business (API)",
+      "short": "W",
+      "color": "#25D366",
+      "group": "msg",
+      "label": "pop",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "telegram",
+      "name": "Telegram",
+      "short": "✈",
+      "color": "#229ED9",
+      "group": "msg",
+      "label": "",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "tiktok_messaging",
+      "name": "TikTok Messaging",
+      "short": "♪",
+      "color": "#111111",
+      "group": "msg",
+      "label": "beta",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "viber",
+      "name": "Viber",
+      "short": "V",
+      "color": "#7360F2",
+      "group": "msg",
+      "label": "",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "line",
+      "name": "LINE",
+      "short": "L",
+      "color": "#06C755",
+      "group": "msg",
+      "label": "",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "wechat",
+      "name": "WeChat",
+      "short": "微",
+      "color": "#07C160",
+      "group": "msg",
+      "label": "",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "email",
+      "name": "Email",
+      "short": "@",
+      "color": "#1F8A4D",
+      "group": "web",
+      "label": "",
+      "available": true,
+      "accounts": [
+        {
+          "id": "acc_email_1",
+          "name": "cskh@appchat.vn",
+          "connected": true,
+          "convs": 88,
+          "frt": "42'",
+          "health": "good",
+          "agent": "",
+          "ai_mode": "suggest",
+          "hours": "08:00–18:00",
+          "greeting": "",
+          "assign_mode": "least_busy",
+          "sla_policy": "Mặc định",
+          "sync_messages": true,
+          "sync_auto_create_contact": false,
+          "history_days": 7,
+          "paused": false
+        }
+      ]
+    },
+    {
+      "type": "tiktok_shop",
+      "name": "TikTok Shop",
+      "short": "♪",
+      "color": "#111111",
+      "group": "shop",
+      "label": "",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "shopee",
+      "name": "Shopee",
+      "short": "S",
+      "color": "#EE4D2D",
+      "group": "shop",
+      "label": "",
+      "available": false,
+      "accounts": []
+    },
+    {
+      "type": "webchat",
+      "name": "Website Chat",
+      "short": "⌘",
+      "color": "#2DC56A",
+      "group": "web",
+      "label": "pop",
+      "available": true,
+      "accounts": [
+        {
+          "id": "acc_webchat_1",
+          "name": "appchat.vn",
+          "connected": true,
+          "convs": 324,
+          "frt": "0'48",
+          "health": "good",
+          "agent": "Sales Agent (AI)",
+          "ai_mode": "auto",
+          "hours": "24/7",
+          "greeting": "Xin chào 👋 Spa hỗ trợ gì cho mình ạ?",
+          "assign_mode": "round_robin",
+          "sla_policy": "Mặc định",
+          "sync_messages": true,
+          "sync_auto_create_contact": true,
+          "history_days": 90,
+          "paused": false
+        }
+      ]
+    }
+  ],
+  "widget": {
+    "enabled": true,
+    "channel_account_id": "acc_webchat_1",
+    "public_key": "wk_demo_appchat_w1",
+    "color": "#2DC56A",
+    "allowed_domains": [
+      "appchat.vn"
+    ],
+    "name": "Trợ lý AppChat",
+    "greeting": "Xin chào 👋 Spa hỗ trợ gì cho mình ạ?",
+    "ai_chat": true,
+    "prechat": true,
+    "actions": [
+      {
+        "key": "order",
+        "color": "#C9820B",
+        "on": false
+      },
+      {
+        "key": "faq",
+        "color": "#0E9B94",
+        "on": false
+      }
+    ],
+    "ai_on": true,
+    "agents": [
+      "Sales Agent",
+      "Support Agent",
+      "Marketing Agent"
+    ],
+    "agent": "Sales Agent",
+    "handoff": 70,
+    "knowledge": [
+      "catalog",
+      "price",
+      "policy",
+      "faq",
+      "company",
+      "process",
+      "website"
+    ],
+    "knowledge_on": [
+      "catalog",
+      "price",
+      "faq"
+    ],
+    "tone": "friendly",
+    "mode": "hybrid",
+    "collect": [
+      "answer",
+      "lead",
+      "ticket",
+      "booking",
+      "quote",
+      "contract",
+      "debt"
+    ],
+    "collect_on": [
+      "lead",
+      "ticket",
+      "answer"
+    ],
+    "kpis": {
+      "clicks": 7480,
+      "chats": 1743,
+      "running": 3,
+      "total": 4
+    },
+    "embed": "<script src=\"https://cdn.appchat.vn/w.js\" async\n  data-key=\"wk_demo_appchat_w1\"\n  data-api=\"https://api.appchat.vn\"></script>"
+  },
+  "connectors": [
+    {
+      "key": "web_widget",
+      "name": "Trợ lý AI",
+      "group": "channels_studio",
+      "color": "#2DC56A",
+      "status": "ga",
+      "connected": true,
+      "opens": "web_widget",
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "brevo",
+      "name": "Brevo",
+      "group": "marketing",
+      "color": "#0B996E",
+      "status": "ga",
+      "connected": true,
+      "opens": "email_mkt",
+      "fields": [
+        "api_key",
+        "sender_email",
+        "sender_name",
+        "reply_to",
+        "webhook_token"
+      ],
+      "interest": false
+    },
+    {
+      "key": "smtp",
+      "name": "Google Workspace",
+      "group": "marketing",
+      "color": "#4285F4",
+      "status": "ga",
+      "connected": false,
+      "opens": "email_mkt",
+      "fields": [
+        "host",
+        "username",
+        "password",
+        "port",
+        "sender_email",
+        "sender_name",
+        "reply_to",
+        "sender_confirmed"
+      ],
+      "interest": false
+    },
+    {
+      "key": "mailgun",
+      "name": "Mailgun",
+      "group": "marketing",
+      "color": "#C02021",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "sepay",
+      "name": "SePay",
+      "group": "payments",
+      "color": "#0E7C66",
+      "status": "ga",
+      "connected": true,
+      "opens": null,
+      "fields": [
+        "api_key",
+        "hmac_secret",
+        "account_number",
+        "api_token"
+      ],
+      "interest": false
+    },
+    {
+      "key": "casso",
+      "name": "Casso",
+      "group": "payments",
+      "color": "#1E5BBF",
+      "status": "ga",
+      "connected": false,
+      "opens": null,
+      "fields": [
+        "webhook_secret",
+        "account_number",
+        "api_key"
+      ],
+      "interest": false
+    },
+    {
+      "key": "kiotviet",
+      "name": "KiotViet",
+      "group": "commerce",
+      "color": "#1763F4",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "sapo",
+      "name": "Sapo",
+      "group": "commerce",
+      "color": "#1565C0",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "haravan",
+      "name": "Haravan",
+      "group": "commerce",
+      "color": "#0066FF",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "woocommerce",
+      "name": "WooCommerce",
+      "group": "commerce",
+      "color": "#7F54B3",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "google_sheets",
+      "name": "Google Sheets",
+      "group": "productivity",
+      "color": "#0F9D58",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "gcs",
+      "name": "Google Cloud Storage",
+      "group": "productivity",
+      "color": "#4285F4",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "misa_meinvoice",
+      "name": "MISA meInvoice",
+      "group": "erp",
+      "color": "#E2231A",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "matbao_minvoice",
+      "name": "Mắt Bão M-Invoice",
+      "group": "erp",
+      "color": "#D71920",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "vnpt_invoice",
+      "name": "VNPT Invoice",
+      "group": "erp",
+      "color": "#0068B7",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "viettel_sinvoice",
+      "name": "Viettel S-Invoice",
+      "group": "erp",
+      "color": "#EE0033",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "odoo",
+      "name": "Odoo",
+      "group": "erp",
+      "color": "#714B67",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    },
+    {
+      "key": "fast",
+      "name": "Fast",
+      "group": "erp",
+      "color": "#E8602C",
+      "status": "coming_soon",
+      "connected": false,
+      "opens": null,
+      "fields": [],
+      "interest": false
+    }
+  ],
+  "tags": [
+    {
+      "id": "tg_vip",
+      "name": "VIP",
+      "color": "#DB2777",
+      "emoji": "",
+      "description": "",
+      "count": 342,
+      "created_by": "Ngọc Mai",
+      "source": "user",
+      "created_at": "2026-07-21T14:48:00+07:00",
+      "updated_by": null,
+      "updated_at": "2026-07-21T14:48:00+07:00"
+    },
+    {
+      "id": "tg_new",
+      "name": "Khách mới",
+      "color": "#2563EB",
+      "emoji": "",
+      "description": "",
+      "count": 1280,
+      "created_by": "Ngọc Mai",
+      "source": "user",
+      "created_at": "2026-07-21T14:48:00+07:00",
+      "updated_by": null,
+      "updated_at": "2026-07-21T14:48:00+07:00"
+    },
+    {
+      "id": "tg_care",
+      "name": "Cần chăm sóc",
+      "color": "#F5A830",
+      "emoji": "",
+      "description": "",
+      "count": 86,
+      "created_by": "Ngọc Mai",
+      "source": "user",
+      "created_at": "2026-07-21T14:48:00+07:00",
+      "updated_by": null,
+      "updated_at": "2026-07-21T14:48:00+07:00"
+    },
+    {
+      "id": "tg_bought",
+      "name": "Đã mua",
+      "color": "#1B9E5A",
+      "emoji": "",
+      "description": "",
+      "count": 2140,
+      "created_by": "Ngọc Mai",
+      "source": "user",
+      "created_at": "2026-07-21T14:48:00+07:00",
+      "updated_by": null,
+      "updated_at": "2026-07-21T14:48:00+07:00"
+    },
+    {
+      "id": "tg_churn",
+      "name": "Nguy cơ rời bỏ",
+      "color": "#DC2626",
+      "emoji": "",
+      "description": "",
+      "count": 54,
+      "created_by": "Ngọc Mai",
+      "source": "user",
+      "created_at": "2026-07-21T14:48:00+07:00",
+      "updated_by": null,
+      "updated_at": "2026-07-21T14:48:00+07:00"
+    },
+    {
+      "id": "tg_hot",
+      "name": "Hot lead",
+      "color": "#E8602C",
+      "emoji": "",
+      "description": "",
+      "count": 128,
+      "created_by": "Ngọc Mai",
+      "source": "user",
+      "created_at": "2026-07-21T14:48:00+07:00",
+      "updated_by": null,
+      "updated_at": "2026-07-21T14:48:00+07:00"
+    },
+    {
+      "id": "tg_cared",
+      "name": "Đã chăm sóc",
+      "color": "#0E9B94",
+      "emoji": "",
+      "description": "",
+      "count": 412,
+      "created_by": "Ngọc Mai",
+      "source": "user",
+      "created_at": "2026-07-21T14:48:00+07:00",
+      "updated_by": null,
+      "updated_at": "2026-07-21T14:48:00+07:00"
+    },
+    {
+      "id": "tg_potential",
+      "name": "Tiềm năng",
+      "color": "#7C3AED",
+      "emoji": "",
+      "description": "",
+      "count": 196,
+      "created_by": "Ngọc Mai",
+      "source": "user",
+      "created_at": "2026-07-21T14:48:00+07:00",
+      "updated_by": null,
+      "updated_at": "2026-07-21T14:48:00+07:00"
+    }
+  ],
+  "tag_palette": [
+    "#DC2626",
+    "#F59E0B",
+    "#2563EB",
+    "#16A34A",
+    "#7C3AED",
+    "#0E9B94",
+    "#DB2777",
+    "#E8602C",
+    "#6B7280",
+    "#06B6D4"
+  ],
+  "replies": [
+    {
+      "id": "rp_1",
+      "category": "Chào & xin lỗi",
+      "shortcut": "/chao",
+      "title": "Chào khách lần đầu",
+      "body": "Dạ em chào anh/chị {tên} 👋 Em là trợ lý của AppChat, em có thể hỗ trợ gì cho mình ạ?"
+    },
+    {
+      "id": "rp_2",
+      "category": "Chào & xin lỗi",
+      "shortcut": "/xinloi",
+      "title": "Xin lỗi khi khách chờ lâu",
+      "body": "Dạ em xin lỗi đã để anh/chị chờ ạ. Em đang kiểm tra và phản hồi mình ngay trong ít phút nhé!"
+    },
+    {
+      "id": "rp_3",
+      "category": "Chào & xin lỗi",
+      "shortcut": "/cam_on",
+      "title": "Cảm ơn khách đã mua hàng",
+      "body": "Em cảm ơn anh/chị đã tin tưởng đặt hàng ạ 🎉 Đơn của mình đang được xử lý, em sẽ cập nhật tình trạng giao hàng sớm nhất."
+    },
+    {
+      "id": "rp_4",
+      "category": "Thông tin sản phẩm",
+      "shortcut": "/gia",
+      "title": "Gửi bảng giá tổng",
+      "body": "Dạ em gửi anh/chị bảng giá dịch vụ ạ. Hiện bên em đang có ưu đãi cho khách mới, anh/chị quan tâm gói nào để em tư vấn chi tiết nhé?"
+    },
+    {
+      "id": "rp_5",
+      "category": "Thông tin sản phẩm",
+      "shortcut": "/size",
+      "title": "Hướng dẫn chọn size",
+      "body": "Để chọn size chuẩn, anh/chị cho em xin chiều cao & cân nặng, em sẽ tư vấn size phù hợp nhất ạ."
+    },
+    {
+      "id": "rp_6",
+      "category": "Thông tin sản phẩm",
+      "shortcut": "/chat_lieu",
+      "title": "Giải thích chất liệu",
+      "body": "Sản phẩm dùng chất liệu cao cấp, thoáng mát, co giãn tốt và bền màu sau nhiều lần giặt ạ."
+    },
+    {
+      "id": "rp_7",
+      "category": "Vận chuyển & thanh toán",
+      "shortcut": "/ship",
+      "title": "Phí ship từng khu vực",
+      "body": "Nội thành: 20.000₫ · Ngoại thành & tỉnh: 30.000₫ · Miễn phí ship cho đơn từ 500.000₫ ạ."
+    },
+    {
+      "id": "rp_8",
+      "category": "Vận chuyển & thanh toán",
+      "shortcut": "/cod",
+      "title": "Chính sách COD",
+      "body": "Bên em hỗ trợ thanh toán khi nhận hàng (COD) toàn quốc, anh/chị được kiểm tra hàng trước khi thanh toán ạ."
+    },
+    {
+      "id": "rp_9",
+      "category": "Vận chuyển & thanh toán",
+      "shortcut": "/doi_tra",
+      "title": "Chính sách đổi trả 7 ngày",
+      "body": "Anh/chị được đổi/trả trong 7 ngày nếu sản phẩm lỗi hoặc chưa sử dụng, còn nguyên tem mác ạ."
+    }
+  ],
+  "fields": {
+    "contact": [
+      {
+        "key": "full_name",
+        "label": "Họ tên",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "phone",
+        "label": "Số điện thoại",
+        "type": "phone",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": false,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "email",
+        "label": "Email",
+        "type": "email",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": false,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "kind",
+        "label": "Phân loại",
+        "type": "picklist",
+        "options": "Cá nhân/Doanh nghiệp",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "tax_code",
+        "label": "Mã số thuế",
+        "type": "text",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [
+          "owner",
+          "manager"
+        ],
+        "condition": "Hiển thị khi Phân loại = Doanh nghiệp"
+      },
+      {
+        "key": "tier",
+        "label": "Tier khách",
+        "type": "picklist",
+        "options": "VIP/Gold/Regular",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "ltv",
+        "label": "LTV dự kiến",
+        "type": "currency",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [
+          "owner",
+          "manager"
+        ],
+        "condition": ""
+      },
+      {
+        "key": "birthday",
+        "label": "Ngày sinh",
+        "type": "date",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "ai_note",
+        "label": "Ghi chú AI",
+        "type": "textarea",
+        "options": "",
+        "required": false,
+        "ai": true,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": false
+        },
+        "roles": [],
+        "condition": ""
+      }
+    ],
+    "ticket": [
+      {
+        "key": "title",
+        "label": "Tiêu đề",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "priority",
+        "label": "Mức ưu tiên",
+        "type": "picklist",
+        "options": "Cao/Trung bình/Thấp",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "kind",
+        "label": "Loại yêu cầu",
+        "type": "picklist",
+        "options": "Sự cố/Yêu cầu/Khiếu nại",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "sla",
+        "label": "SLA cam kết",
+        "type": "number",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [
+          "owner",
+          "manager"
+        ],
+        "condition": ""
+      },
+      {
+        "key": "product",
+        "label": "Sản phẩm liên quan",
+        "type": "text",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "ai_summary",
+        "label": "AI tóm tắt",
+        "type": "textarea",
+        "options": "",
+        "required": false,
+        "ai": true,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": false,
+          "filter": false,
+          "detail": true,
+          "export": false
+        },
+        "roles": [],
+        "condition": ""
+      }
+    ],
+    "order": [
+      {
+        "key": "code",
+        "label": "Mã đơn",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "amount",
+        "label": "Giá trị đơn",
+        "type": "currency",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "pay_status",
+        "label": "Trạng thái TT",
+        "type": "picklist",
+        "options": "Đã thanh toán/Đã cọc/Chờ cọc",
+        "required": false,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "pay_method",
+        "label": "Phương thức",
+        "type": "picklist",
+        "options": "Chuyển khoản/Tiền mặt/COD",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "coupon",
+        "label": "Mã giảm giá",
+        "type": "text",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      }
+    ],
+    "product": [
+      {
+        "key": "name",
+        "label": "Tên sản phẩm",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "category",
+        "label": "Danh mục",
+        "type": "picklist",
+        "options": "Liệu trình/Combo/Gói năm/Dịch vụ lẻ",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "price",
+        "label": "Giá niêm yết",
+        "type": "currency",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": false,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "duration",
+        "label": "Thời lượng",
+        "type": "number",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": "Hiển thị khi Danh mục = Liệu trình"
+      },
+      {
+        "key": "warranty",
+        "label": "Bảo hành",
+        "type": "text",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      }
+    ],
+    "quote": [
+      {
+        "key": "code",
+        "label": "Mã báo giá",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "contact",
+        "label": "Khách hàng",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "total",
+        "label": "Tổng tiền",
+        "type": "currency",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "consult_channel",
+        "label": "Kênh tư vấn",
+        "type": "picklist",
+        "options": "Tại quầy/Zalo/Gọi điện",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "decision_maker",
+        "label": "Người quyết định",
+        "type": "text",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      }
+    ],
+    "appointment": [
+      {
+        "key": "service",
+        "label": "Dịch vụ",
+        "type": "text",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "start_at",
+        "label": "Thời gian",
+        "type": "date",
+        "options": "",
+        "required": true,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "staff",
+        "label": "Nhân viên",
+        "type": "text",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": true,
+        "visible_in": {
+          "list": true,
+          "kanban": true,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "special_request",
+        "label": "Yêu cầu đặc biệt",
+        "type": "textarea",
+        "options": "",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": false,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      },
+      {
+        "key": "skin_type",
+        "label": "Loại da",
+        "type": "picklist",
+        "options": "Da dầu/Da khô/Hỗn hợp/Nhạy cảm",
+        "required": false,
+        "ai": false,
+        "sys": false,
+        "visible_in": {
+          "list": false,
+          "kanban": false,
+          "form": true,
+          "filter": true,
+          "detail": true,
+          "export": true
+        },
+        "roles": [],
+        "condition": ""
+      }
+    ]
+  },
+  "ai": {
+    "default_tier": "standard",
+    "tiers": [
+      {
+        "key": "standard",
+        "credits": "1",
+        "badge": "using",
+        "active": true,
+        "locked": false
+      },
+      {
+        "key": "advanced",
+        "credits": "4",
+        "badge": "hot",
+        "active": true,
+        "locked": false
+      },
+      {
+        "key": "max",
+        "credits": "15",
+        "badge": "",
+        "active": false,
+        "locked": true
+      }
+    ],
+    "tasks": [
+      {
+        "key": "copilot",
+        "tier": "standard"
+      },
+      {
+        "key": "auto_reply",
+        "tier": "standard"
+      },
+      {
+        "key": "order_analysis",
+        "tier": "advanced"
+      },
+      {
+        "key": "insights",
+        "tier": "advanced"
+      },
+      {
+        "key": "content",
+        "tier": "standard"
+      }
+    ],
+    "budget": 5000000,
+    "rate_limit": 10000
+  },
+  "kb": {
+    "types": {
+      "pdf": [
+        "PDF",
+        "#E0566A",
+        "#FCEBEE"
+      ],
+      "xls": [
+        "XLS",
+        "#1B9E5A",
+        "#EAF7EF"
+      ],
+      "doc": [
+        "DOC",
+        "#2563EB",
+        "#EAF1FC"
+      ],
+      "folder": [
+        "",
+        "#C9820B",
+        "#FBF3E2"
+      ],
+      "mp4": [
+        "MP4",
+        "#FFFFFF",
+        "#231F20"
+      ],
+      "md": [
+        "MD",
+        "#0E9B94",
+        "#E6F6F4"
+      ],
+      "ppt": [
+        "PPT",
+        "#E8602C",
+        "#FCEEE6"
+      ]
+    },
+    "folders": [
+      {
+        "id": "f_cat",
+        "name": "Catalogues"
+      },
+      {
+        "id": "f_price",
+        "name": "Bảng giá"
+      },
+      {
+        "id": "f_policy",
+        "name": "Policy & Contracts"
+      },
+      {
+        "id": "f_img",
+        "name": "Ảnh sản phẩm"
+      },
+      {
+        "id": "f_report",
+        "name": "Reports"
+      }
+    ],
+    "nav": {
+      "all": 412,
+      "learned": 284,
+      "conv": 186,
+      "upload": 128,
+      "star": 24,
+      "trash": 8
+    },
+    "learned_total": 284,
+    "size": "4.2 GB",
+    "docs": [
+      {
+        "id": "kb_1",
+        "name": "Catalogue BST Hè 2026.pdf",
+        "type": "pdf",
+        "tags": [
+          "Catalogue",
+          "Hè 2026"
+        ],
+        "learned": true,
+        "size": "12.4 MB",
+        "source": "upload",
+        "by": "Trâm",
+        "date": "2026-04-18",
+        "folder_id": "f_cat",
+        "starred": false,
+        "visibility": "public"
+      },
+      {
+        "id": "kb_2",
+        "name": "Bảng giá sỉ — Dropship Q2.xlsx",
+        "type": "xls",
+        "tags": [
+          "Giá sỉ"
+        ],
+        "learned": true,
+        "size": "840 KB",
+        "source": "upload",
+        "by": "Minh",
+        "date": "2026-04-17",
+        "folder_id": "f_price",
+        "starred": false,
+        "visibility": "public"
+      },
+      {
+        "id": "kb_3",
+        "name": "Chính sách đổi trả 2026.docx",
+        "type": "doc",
+        "tags": [
+          "Policy"
+        ],
+        "learned": true,
+        "size": "124 KB",
+        "source": "upload",
+        "by": "Hương",
+        "date": "2026-04-15",
+        "folder_id": "f_policy",
+        "starred": false,
+        "visibility": "public"
+      },
+      {
+        "id": "kb_4",
+        "name": "Ảnh sản phẩm — Shoot April",
+        "type": "folder",
+        "tags": [
+          "Ảnh"
+        ],
+        "learned": false,
+        "size": "312 files",
+        "source": "drive",
+        "by": "Trâm",
+        "date": "2026-04-14",
+        "folder_id": "f_img",
+        "starred": false,
+        "visibility": "public"
+      },
+      {
+        "id": "kb_5",
+        "name": "Video hướng dẫn mặc váy hoa.mp4",
+        "type": "mp4",
+        "tags": [
+          "Video",
+          "Tutorial"
+        ],
+        "learned": true,
+        "size": "48.2 MB",
+        "source": "conv",
+        "by": "AI (from Zalo)",
+        "date": "2026-04-12",
+        "folder_id": null,
+        "starred": false,
+        "visibility": "public"
+      },
+      {
+        "id": "kb_6",
+        "name": "Hợp đồng Gia Dụng Sài Gòn.pdf",
+        "type": "pdf",
+        "tags": [
+          "Contract",
+          "Vận hành"
+        ],
+        "learned": false,
+        "size": "2.1 MB",
+        "source": "conv",
+        "by": "Minh",
+        "date": "2026-04-10",
+        "folder_id": "f_policy",
+        "starred": false,
+        "visibility": "internal"
+      },
+      {
+        "id": "kb_7",
+        "name": "FAQ — Quy trình đơn hàng.md",
+        "type": "md",
+        "tags": [
+          "FAQ",
+          "Vận hành"
+        ],
+        "learned": true,
+        "size": "18 KB",
+        "source": "internal",
+        "by": "Huyền",
+        "date": "2026-04-08",
+        "folder_id": null,
+        "starred": false,
+        "visibility": "internal"
+      },
+      {
+        "id": "kb_8",
+        "name": "Báo cáo KPI tháng 3.pptx",
+        "type": "ppt",
+        "tags": [
+          "Report"
+        ],
+        "learned": false,
+        "size": "6.8 MB",
+        "source": "upload",
+        "by": "CMO",
+        "date": "2026-04-05",
+        "folder_id": "f_report",
+        "starred": false,
+        "visibility": "internal"
+      }
+    ]
+  },
+  "governance": {
+    "keywords": [
+      "chính trị",
+      "tôn giáo",
+      "cạnh tranh tiêu cực",
+      "đầu tư tài chính",
+      "y tế cá nhân",
+      "pháp lý cá nhân"
+    ],
+    "filter": "strict",
+    "long_review": false,
+    "retention": "90",
+    "no_external_train": true,
+    "anonymize_pii": true,
+    "residency": "sg",
+    "applied": 12,
+    "total": 14,
+    "scopes": [
+      {
+        "key": "messages",
+        "on": true,
+        "sensitive": false
+      },
+      {
+        "key": "catalog",
+        "on": true,
+        "sensitive": false
+      },
+      {
+        "key": "faq",
+        "on": true,
+        "sensitive": false
+      },
+      {
+        "key": "pii",
+        "on": false,
+        "sensitive": true
+      },
+      {
+        "key": "finance",
+        "on": false,
+        "sensitive": true
+      },
+      {
+        "key": "partner",
+        "on": false,
+        "sensitive": false
+      }
+    ],
+    "bounds": [
+      {
+        "key": "auto_close",
+        "on": false,
+        "risky": true
+      },
+      {
+        "key": "send_bank",
+        "on": false,
+        "risky": true
+      },
+      {
+        "key": "discount",
+        "on": false,
+        "risky": true
+      },
+      {
+        "key": "promise_delivery",
+        "on": false,
+        "risky": false
+      },
+      {
+        "key": "escalate",
+        "on": true,
+        "risky": false
+      },
+      {
+        "key": "disclosure",
+        "on": true,
+        "risky": false
+      },
+      {
+        "key": "log_all",
+        "on": true,
+        "risky": false
+      }
+    ]
+  },
+  "audit": [
+    {
+      "time": "14:32",
+      "name": "Lan",
+      "role": "owner",
+      "action": "Cập nhật quy tắc phân công \"Chào Zalo\"",
+      "ip": "118.70.12.45"
+    },
+    {
+      "time": "14:18",
+      "name": "Trâm",
+      "role": "manager",
+      "action": "Mời user hoang@mediasoft.vn",
+      "ip": "118.70.12.44"
+    },
+    {
+      "time": "13:55",
+      "name": null,
+      "role": "system",
+      "action": "Gia hạn khoá kết nối SePay",
+      "ip": null
+    },
+    {
+      "time": "13:22",
+      "name": "Minh",
+      "role": "sales",
+      "action": "Xuất CSV 240 khách hàng",
+      "ip": "14.241.55.87"
+    },
+    {
+      "time": "12:40",
+      "name": null,
+      "role": "ai",
+      "action": "Chuyển hội thoại #8230 → Lan",
+      "ip": null
+    },
+    {
+      "time": "12:15",
+      "name": "Lan",
+      "role": "owner",
+      "action": "Đổi vai trò Nhân viên kinh doanh",
+      "ip": "118.70.12.45"
+    },
+    {
+      "time": "11:50",
+      "name": "Trâm",
+      "role": "manager",
+      "action": "Kết nối kênh Email",
+      "ip": "118.70.12.44"
+    }
+  ],
+  "ai_audit": [
+    {
+      "time": "14:23:10",
+      "actor": "copilot",
+      "action": "Gợi ý trả lời",
+      "context": "Hộp thư / Hội thoại #8245",
+      "status": "ok"
+    },
+    {
+      "time": "14:22:48",
+      "actor": "ops",
+      "action": "Đồng bộ dữ liệu đơn",
+      "context": "Đồng bộ 500 đơn",
+      "status": "ok"
+    },
+    {
+      "time": "14:21:02",
+      "actor": "copilot",
+      "action": "Bị chặn (từ khoá cấm)",
+      "context": "Chủ đề tài chính cá nhân",
+      "status": "warn"
+    },
+    {
+      "time": "14:19:36",
+      "actor": "order",
+      "action": "Tự chốt đơn 850.000₫",
+      "context": "Đơn #VN-8842",
+      "status": "ok"
+    },
+    {
+      "time": "14:15:21",
+      "actor": "cs",
+      "action": "Chuyển người — độ tin cậy 62%",
+      "context": "Khách khiếu nại hoàn tiền",
+      "status": "escalated"
+    },
+    {
+      "time": "14:12:04",
+      "actor": "human",
+      "action": "Điều chỉnh hướng dẫn agent",
+      "context": "Sales Zalo · phiên bản 12",
+      "status": "ok"
+    },
+    {
+      "time": "14:10:18",
+      "actor": "copilot",
+      "action": "Ẩn PII trong nhật ký",
+      "context": "Hội thoại #8240 — ẩn SĐT",
+      "status": "ok"
+    }
+  ],
+  "sla": {
+    "policy": {
+      "name": "Mặc định",
+      "scope": "all",
+      "tier": "all",
+      "color": "#2563EB",
+      "on": true,
+      "frt_ai": 0,
+      "frt_human": 10,
+      "ttr_ai": 30,
+      "ttr_human": 240
+    },
+    "tz": "GMT+7 · Hà Nội",
+    "days": [
+      {
+        "day": 0,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 1,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 2,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 3,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 4,
+        "on": true,
+        "from": "08:00",
+        "to": "18:00"
+      },
+      {
+        "day": 5,
+        "on": true,
+        "from": "08:00",
+        "to": "12:00"
+      },
+      {
+        "day": 6,
+        "on": false,
+        "from": "08:00",
+        "to": "18:00"
+      }
+    ],
+    "pause_sla": true,
+    "escalation": [
+      {
+        "key": "warn_80",
+        "color": "#F59E0B",
+        "on": true
+      },
+      {
+        "key": "frt_breach",
+        "color": "#DC2626",
+        "on": true
+      },
+      {
+        "key": "ttr_breach",
+        "color": "#DC2626",
+        "on": true
+      },
+      {
+        "key": "ai_low",
+        "color": "#6E48E6",
+        "on": true
+      },
+      {
+        "key": "vip_wait",
+        "color": "#2563EB",
+        "on": false
+      }
+    ],
+    "risk": {
+      "at_risk": 8,
+      "ai": 5,
+      "human": 3
+    }
+  },
+  "notif": {
+    "dnd": {
+      "on": false,
+      "from": "22:00",
+      "to": "08:00"
+    },
+    "sound": true,
+    "digest": "daily",
+    "groups": [
+      {
+        "key": "msg",
+        "events": [
+          {
+            "key": "msg_assigned",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "msg_mention",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "msg_vip",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "sla_warn",
+            "desktop": true,
+            "email": false,
+            "mobile": true
+          }
+        ]
+      },
+      {
+        "key": "ai",
+        "events": [
+          {
+            "key": "ai_review",
+            "desktop": true,
+            "email": false,
+            "mobile": false
+          },
+          {
+            "key": "ai_escalate",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "ai_budget",
+            "desktop": false,
+            "email": true,
+            "mobile": false
+          }
+        ]
+      },
+      {
+        "key": "system",
+        "events": [
+          {
+            "key": "channel_down",
+            "desktop": true,
+            "email": true,
+            "mobile": true
+          },
+          {
+            "key": "billing_invoice",
+            "desktop": false,
+            "email": true,
+            "mobile": false
+          }
+        ]
+      }
+    ]
+  },
+  "billing": {
+    "current": {
+      "plan_key": "ultimate",
+      "plan_name": "Ultimate",
+      "status": "active",
+      "activated_at": "2025-12-20",
+      "expires_at": "2026-12-20",
+      "days_left": 192,
+      "period_pct": 62,
+      "users": {
+        "used": 12,
+        "max": 15
+      },
+      "channels": {
+        "used": 9,
+        "max": 12
+      },
+      "credits_month": 200000
+    },
+    "plans": {
+      "personal": [
+        {
+          "key": "free",
+          "name": "Miễn phí",
+          "price": "0",
+          "period": "",
+          "desc": "Bắt đầu trải nghiệm AppChat",
+          "popular": false,
+          "features": [
+            "1 người dùng",
+            "1 kênh kết nối",
+            "1 AI Agent",
+            "500 credit / tháng",
+            "CRM cơ bản · 500 liên hệ",
+            "Hỗ trợ cộng đồng"
+          ]
+        },
+        {
+          "key": "personal",
+          "name": "Cá nhân",
+          "price": "2030000",
+          "period": "year",
+          "desc": "Cá nhân hoá & bán hàng đa kênh",
+          "popular": false,
+          "features": [
+            "1 người dùng",
+            "3 kênh kết nối",
+            "AI tiêu chuẩn + nâng cao",
+            "3.000 credit / tháng",
+            "CRM + pipeline + báo giá",
+            "Tickets cơ bản · Quick-reply"
+          ]
+        },
+        {
+          "key": "personal_pro",
+          "name": "Cá nhân Pro",
+          "price": "5090000",
+          "period": "year",
+          "desc": "Toàn bộ sức mạnh cho cá nhân",
+          "popular": true,
+          "features": [
+            "1 người dùng",
+            "8 kênh kết nối",
+            "AI toàn bộ cấp độ",
+            "10.000 credit / tháng",
+            "Marketing + Loyalty",
+            "Ưu tiên hỗ trợ 24/7"
+          ]
+        },
+        {
+          "key": "personal_max",
+          "name": "Cá nhân Max",
+          "price": "10190000",
+          "period": "year",
+          "desc": "Cá nhân chuyên nghiệp tối đa",
+          "popular": false,
+          "features": [
+            "1 người dùng",
+            "19 kênh kết nối",
+            "AI toàn bộ cấp độ",
+            "25.000 credit / tháng",
+            "AI Governance + RAG mở rộng",
+            "Hỗ trợ ưu tiên cao nhất"
+          ]
+        }
+      ],
+      "business": [
+        {
+          "key": "team",
+          "name": "Team",
+          "price": "5900000",
+          "period": "month",
+          "desc": "Đội nhóm nhỏ bắt đầu đa kênh",
+          "popular": false,
+          "features": [
+            "5 người dùng",
+            "5 kênh kết nối",
+            "2 AI Agent",
+            "20.000 credit / tháng",
+            "CRM + Loyalty đầy đủ",
+            "Hỗ trợ trong giờ"
+          ]
+        },
+        {
+          "key": "business",
+          "name": "Business",
+          "price": "12900000",
+          "period": "month",
+          "desc": "Vận hành chuyên nghiệp đa phòng ban",
+          "popular": true,
+          "features": [
+            "8 người dùng",
+            "10 kênh kết nối",
+            "5 AI Agent",
+            "50.000 credit / tháng",
+            "Marketing + phân khúc",
+            "Hỗ trợ ưu tiên"
+          ]
+        },
+        {
+          "key": "ultimate",
+          "name": "Ultimate",
+          "price": "24900000",
+          "period": "month",
+          "desc": "Toàn bộ năng lực cho doanh nghiệp",
+          "popular": false,
+          "features": [
+            "15 người dùng",
+            "Kênh không giới hạn",
+            "AI Agent không giới hạn",
+            "200.000 credit / tháng",
+            "AI Governance + RAG mở rộng",
+            "CSM riêng · SLA 99.9%"
+          ]
+        },
+        {
+          "key": "enterprise",
+          "name": "Enterprise",
+          "price": null,
+          "period": "",
+          "desc": "Triển khai riêng theo nhu cầu",
+          "popular": false,
+          "features": [
+            "User tuỳ chỉnh",
+            "Hạ tầng riêng",
+            "AI Governance ISO 42001",
+            "Credit tuỳ chỉnh",
+            "Tích hợp sâu ERP",
+            "CSM + onsite"
+          ]
+        }
+      ]
+    },
+    "compare": [
+      {
+        "group": "platform",
+        "rows": [
+          {
+            "feature": "Người dùng",
+            "personal": [
+              "1",
+              "1",
+              "1",
+              "1"
+            ],
+            "business": [
+              "5",
+              "8",
+              "15",
+              "Tuỳ chỉnh"
+            ]
+          },
+          {
+            "feature": "Kênh kết nối",
+            "personal": [
+              "1",
+              "3",
+              "8",
+              "19"
+            ],
+            "business": [
+              "5",
+              "10",
+              "Không giới hạn",
+              "Không giới hạn"
+            ]
+          },
+          {
+            "feature": "Phân quyền vai trò",
+            "personal": [
+              "—",
+              "—",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Nền tảng kết nối",
+            "personal": [
+              "—",
+              "Cơ bản",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓ + tuỳ biến"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "dashboard",
+        "rows": [
+          {
+            "feature": "Dashboard tổng quan",
+            "personal": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "assistant",
+        "rows": [
+          {
+            "feature": "Chat ra lệnh nghiệp vụ",
+            "personal": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Gợi ý xử lý theo ngữ cảnh",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Phiên trò chuyện & nhật ký",
+            "personal": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "inbox",
+        "rows": [
+          {
+            "feature": "Hộp thư hợp nhất đa kênh",
+            "personal": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Gán & phân luồng hội thoại",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Quick-reply / mẫu trả lời",
+            "personal": [
+              "Cơ bản",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "crm",
+        "rows": [
+          {
+            "feature": "Liên hệ (CRM)",
+            "personal": [
+              "500",
+              "Pipeline",
+              "Nâng cao",
+              "Không giới hạn"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Báo giá · Hợp đồng · Đơn",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Sản phẩm",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Loyalty",
+            "personal": [
+              "—",
+              "—",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "tickets",
+        "rows": [
+          {
+            "feature": "Tạo & xử lý ticket",
+            "personal": [
+              "Cơ bản",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "SLA & leo thang",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "marketing",
+        "rows": [
+          {
+            "feature": "Email Marketing",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Phân khúc khách hàng",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "booking",
+        "rows": [
+          {
+            "feature": "Đặt & quản lý lịch hẹn",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          },
+          {
+            "feature": "Nhắc lịch tự động",
+            "personal": [
+              "—",
+              "✓",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "✓",
+              "✓",
+              "✓",
+              "✓"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "agents",
+        "rows": [
+          {
+            "feature": "Số AI Agent",
+            "personal": [
+              "1",
+              "2",
+              "5",
+              "Không giới hạn"
+            ],
+            "business": [
+              "2",
+              "5",
+              "Không giới hạn",
+              "Không giới hạn"
+            ]
+          },
+          {
+            "feature": "Mức AI",
+            "personal": [
+              "Tiêu chuẩn",
+              "Tiêu chuẩn + Nâng cao",
+              "Toàn bộ",
+              "Toàn bộ"
+            ],
+            "business": [
+              "Toàn bộ",
+              "Toàn bộ",
+              "Toàn bộ",
+              "Toàn bộ"
+            ]
+          },
+          {
+            "feature": "Credit / tháng",
+            "personal": [
+              "500",
+              "3.000",
+              "10.000",
+              "25.000"
+            ],
+            "business": [
+              "20.000",
+              "50.000",
+              "200.000",
+              "Tuỳ chỉnh"
+            ]
+          },
+          {
+            "feature": "AI Governance",
+            "personal": [
+              "—",
+              "—",
+              "✓",
+              "✓"
+            ],
+            "business": [
+              "—",
+              "Cơ bản",
+              "✓",
+              "✓ + audit"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "service",
+        "rows": [
+          {
+            "feature": "Kênh hỗ trợ",
+            "personal": [
+              "Cộng đồng",
+              "Trong giờ",
+              "24/7",
+              "Ưu tiên cao"
+            ],
+            "business": [
+              "Trong giờ",
+              "Ưu tiên",
+              "CSM riêng",
+              "CSM + onsite"
+            ]
+          },
+          {
+            "feature": "SLA cam kết",
+            "personal": [
+              "—",
+              "—",
+              "99.5%",
+              "99.5%"
+            ],
+            "business": [
+              "99%",
+              "99.5%",
+              "99.9%",
+              "99.95%"
+            ]
+          }
+        ]
+      }
+    ],
+    "credit_packs": [
+      {
+        "key": "credit_500",
+        "credits": 500,
+        "price": "500000",
+        "bonus": 0,
+        "popular": false
+      },
+      {
+        "key": "credit_1000",
+        "credits": 1050,
+        "price": "1000000",
+        "bonus": 5,
+        "popular": true
+      },
+      {
+        "key": "credit_2000",
+        "credits": 2200,
+        "price": "2000000",
+        "bonus": 10,
+        "popular": false
+      },
+      {
+        "key": "credit_5000",
+        "credits": 5750,
+        "price": "5000000",
+        "bonus": 15,
+        "popular": false
+      }
+    ],
+    "addons": [
+      {
+        "key": "addon_user",
+        "kind": "user",
+        "price": "150000",
+        "period": "month"
+      },
+      {
+        "key": "addon_channel",
+        "kind": "channel",
+        "price": "200000",
+        "period": "month"
+      }
+    ],
+    "invoices": [
+      {
+        "id": "INV-2026-0612",
+        "code": "INV-2026-0612",
+        "desc": "Ultimate · 12 tháng",
+        "date": "2025-12-20",
+        "amount": "90000000",
+        "method": "bank_transfer",
+        "status": "paid",
+        "kind": "plan",
+        "item": "ultimate"
+      },
+      {
+        "id": "INV-2026-0588",
+        "code": "INV-2026-0588",
+        "desc": "Mua thêm 5 người dùng",
+        "date": "2026-04-12",
+        "amount": "9000000",
+        "method": "qr",
+        "status": "paid",
+        "kind": "addon",
+        "item": "addon_user"
+      },
+      {
+        "id": "INV-2026-0541",
+        "code": "INV-2026-0541",
+        "desc": "Nạp 5.750 credit",
+        "date": "2026-03-01",
+        "amount": "5000000",
+        "method": "qr",
+        "status": "paid",
+        "kind": "credit",
+        "item": "credit_5000"
+      },
+      {
+        "id": "INV-2026-0712",
+        "code": "INV-2026-0712",
+        "desc": "Nạp 2.200 credit",
+        "date": "2026-06-05",
+        "amount": "2000000",
+        "method": "bank_transfer",
+        "status": "pending",
+        "kind": "credit",
+        "item": "credit_2000"
+      },
+      {
+        "id": "INV-2026-0488",
+        "code": "INV-2026-0488",
+        "desc": "Mua thêm 3 kênh kết nối",
+        "date": "2026-02-14",
+        "amount": "1800000",
+        "method": "qr",
+        "status": "paid",
+        "kind": "addon",
+        "item": "addon_channel"
+      },
+      {
+        "id": "INV-2025-1102",
+        "code": "INV-2025-1102",
+        "desc": "Business · 6 tháng (gói cũ)",
+        "date": "2025-06-20",
+        "amount": "23400000",
+        "method": "bank_transfer",
+        "status": "paid",
+        "kind": "plan",
+        "item": "business"
+      },
+      {
+        "id": "INV-2025-0931",
+        "code": "INV-2025-0931",
+        "desc": "Nạp 1.050 credit",
+        "date": "2025-09-02",
+        "amount": "1000000",
+        "method": "qr",
+        "status": "expired",
+        "kind": "credit",
+        "item": "credit_1000"
+      }
+    ],
+    "bank": {
+      "bank": "Vietcombank — CN HCM",
+      "account_no": "0071 000 888 999",
+      "account_name": "CTY CP MEDIASOFT VN"
+    },
+    "vat": {
+      "tax_code": "0314783952",
+      "legal_name": "MediaSoft Vietnam Corp.",
+      "address": "81 Cách Mạng Tháng 8, Q.1, TP.HCM",
+      "email": "admin@mediasoft.vn"
+    }
+  },
+  "wallet": {
+    "plan_balance": 101150,
+    "topup_balance": 2450,
+    "days_estimate": 18,
+    "low_alert": true,
+    "ledger": [
+      {
+        "id": "cl_1",
+        "at": "2026-06-28T14:20:00+07:00",
+        "desc": "Nạp 2.200 credit · INV-2026-0627",
+        "kind": "topup",
+        "source": "VietQR",
+        "delta": 2200
+      },
+      {
+        "id": "cl_2",
+        "at": "2026-06-27T09:12:00+07:00",
+        "desc": "AI trả lời hội thoại · 4.120 token",
+        "kind": "usage",
+        "source": "Hộp thư",
+        "delta": -37
+      },
+      {
+        "id": "cl_3",
+        "at": "2026-06-26T16:40:00+07:00",
+        "desc": "Chiến dịch email · 1.200 người nhận",
+        "kind": "usage",
+        "source": "Marketing",
+        "delta": -120
+      },
+      {
+        "id": "cl_4",
+        "at": "2026-06-25T11:05:00+07:00",
+        "desc": "Trợ lý AI · soạn báo giá",
+        "kind": "usage",
+        "source": "Trợ lý AI",
+        "delta": -18
+      },
+      {
+        "id": "cl_5",
+        "at": "2026-06-24T08:30:00+07:00",
+        "desc": "Nạp 1.050 credit · INV-2026-0624",
+        "kind": "topup",
+        "source": "Chuyển khoản",
+        "delta": 1050
+      },
+      {
+        "id": "cl_6",
+        "at": "2026-06-01T00:00:00+07:00",
+        "desc": "Cấp credit gói Ultimate · tháng 6",
+        "kind": "grant",
+        "source": "Gói",
+        "delta": 1200
+      }
+    ]
+  }
+}

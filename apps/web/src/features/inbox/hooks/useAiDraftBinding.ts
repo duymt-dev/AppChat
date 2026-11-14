@@ -1,0 +1,47 @@
+// Tham chiếu nháp AI trong ô soạn (TIP-020c §3.8): dùng nháp bàn giao / gợi ý copilot → giữ `ai_draft_ref` (mờ, server kiểm) để `message.send`
+// mang theo; sửa chữ VẪN giữ (nội dung còn phụ thuộc nguồn) cho tới khi người bỏ nháp (xoá trắng ô soạn) hoặc gửi xong; đổi hội thoại / workspace
+// xoá (store `select`). Không phải trích dẫn / không cấp quyền — chỉ để nguồn bị thu hồi thì gửi bị từ chối an toàn (409).
+// TIP-020d: nguồn đã kiểm của nháp đi kèm dưới dạng "nguồn của bản nháp AI GỐC" (`original_draft`) — chữ trong ô soạn có thể đã khác,
+// không áp vị trí / băm cũ lên chữ mới; bỏ nháp / đổi hội thoại / gửi xong thì xoá cùng tham chiếu.
+// TIP-022c: nháp có câu tồn / giá — server kiểm lại tồn dưới quyền người gửi; tồn / giá đổi hoặc không kiểm được → 409 lý do riêng, chữ
+// giữ nguyên trong ô soạn (người sửa / soạn lại), không báo thành công, không tự sửa chữ.
+'use client';
+import { App } from 'antd';
+import { useTranslations } from 'next-intl';
+import type { ApiRequestError } from '@appchat/shared';
+import { useInboxUi } from '../inbox-store';
+import type { AiDraftRef } from '../types';
+import type { AiCitations } from '@/shared/ai-citations/types';
+
+/** Lý do 409 `ai_draft` → khoá thông báo (lý do lạ → `stale`). */
+const REASON: Record<string, 'revoked' | 'stockChanged' | 'stockUnverified' | 'stale'> = {
+  knowledge_revoked: 'revoked',
+  stock_changed: 'stockChanged',
+  stock_unverified: 'stockUnverified',
+  invalidated: 'stale',
+};
+
+export function useAiDraftBinding() {
+  const ref = useInboxUi((s) => s.draftRef);
+  const t = useTranslations('inbox.chat.aiDraftRef');
+  const { message } = App.useApp();
+  return {
+    ref,
+    /** Đưa nháp AI vào ô soạn kèm tham chiếu (không ref → nháp tay thường). */
+    use: (text: string, r: AiDraftRef | null | undefined, c?: AiCitations | null) =>
+      useInboxUi.getState().set({ draft: text, draftRef: r ?? null, draftCitations: r && c && c.state !== 'none' ? { ...c, state: c.state === 'unavailable' ? 'unavailable' : 'original_draft' } : null }),
+    /** Sửa chữ: ô soạn trống = bỏ nháp AI (tin tay mới); còn chữ = giữ phụ thuộc. */
+    edit: (text: string) => useInboxUi.getState().set(text.trim() ? { draft: text } : { draft: text, draftRef: null, draftCitations: null }),
+    clear: () => useInboxUi.getState().set({ draftRef: null, draftCitations: null }),
+    /** Input gửi kèm tham chiếu khi có. */
+    withRef: <T extends object>(input: T, r: AiDraftRef | null = ref): T & { ai_draft_ref?: AiDraftRef } => (r ? { ...input, ai_draft_ref: r } : input),
+    /** 409 `ai_draft` (nháp cũ / nguồn đã thu hồi): báo lý do an toàn, bỏ tham chiếu — chữ trong ô soạn giữ nguyên để người tự sửa. */
+    onError: (e: ApiRequestError): boolean => {
+      const why = e.error.fields?.ai_draft;
+      if (!why) return false;
+      useInboxUi.getState().set({ draftRef: null, draftCitations: null });
+      void message.error(t(REASON[why] ?? 'stale'));
+      return true;
+    },
+  };
+}

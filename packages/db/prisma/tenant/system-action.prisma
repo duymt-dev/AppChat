@@ -1,0 +1,43 @@
+// tenant/system-action.prisma — sở hữu: TIP-003c (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Biên nhận trigger bền của action riêng (TIP-003c §3.1): một dòng mỗi (nguồn, action, mục tiêu, thế hệ, mốc) — tra admission theo khoá
+// duy nhất, gửi lại cùng digest → tham chiếu cũ; khác digest → 409. Bền hơn TTL idempotency HTTP / retention BullMQ. Chỉ lưu tham chiếu
+// tối thiểu (không chép input khách / provider / OTP). Không workspace_id / RLS. Index viết tay ở migration (partial / INCLUDE).
+
+enum SystemSourceKind {
+  event
+  schedule
+  ingress
+  accepted_operation
+  public_locator
+
+  @@map("system_source_kind")
+}
+
+enum SystemReceiptPhase {
+  admitted
+  applied
+  no_effect
+  handed_off
+
+  @@map("system_receipt_phase")
+}
+
+model SystemActionReceipt {
+  id               String             @id @db.Uuid
+  sourceKind       SystemSourceKind   @map("source_kind")
+  sourceRef        String             @map("source_ref")
+  actionId         String             @map("action_id")
+  targetId         String             @map("target_id")
+  targetGeneration String             @map("target_generation")
+  milestone        String             @default("")
+  inputDigest      String             @map("input_digest")
+  phase            SystemReceiptPhase @default(admitted)
+  actionLogId      String?            @map("action_log_id") @db.Uuid
+  effectRef        String?            @map("effect_ref")
+  safeReason       String?            @map("safe_reason")
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime           @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([sourceKind, sourceRef, actionId, targetId, targetGeneration, milestone], map: "system_action_receipt_trigger_key")
+  @@map("system_action_receipt")
+}

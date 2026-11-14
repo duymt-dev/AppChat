@@ -1,0 +1,13 @@
+{
+  "suite": "booking-operations",
+  "cases": [
+    { "id": "bo-entitlement-slot", "category": "booking", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Khách $NAME còn mấy buổi liệu trình? Gợi ý giúp tôi giờ trống ngày $DAY cho dịch vụ Gói chăm sóc da cơ bản, chưa cần đặt.", "expect": { "confirm": false, "booking": true }, "booking": { "kind": "entitlement" } },
+    { "id": "bo-expired-confirm", "category": "booking", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Lịch hẹn $CODE của khách $NAME đã hết giữ chỗ, khách vẫn đến đúng giờ cũ. Xác nhận lại lịch đó giúp tôi.", "expect": { "confirm": true, "booking": true }, "booking": { "kind": "expired" } },
+    { "id": "bo-slot-conflict", "category": "booking", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Đặt lịch Gói chăm sóc da cơ bản cho khách $NAME lúc $AT ngày $DAY với KTV. Thử AI [ai-live].", "expect": { "confirm": true, "booking": true }, "booking": { "kind": "conflict" } },
+    { "id": "bo-package-exhausted", "category": "booking", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Khách $NAME muốn đặt thêm một buổi theo Liệu trình trị mụn 10 buổi. Gói của khách còn buổi không?", "expect": { "confirm": false, "booking": true }, "booking": { "kind": "exhausted" } },
+    { "id": "bo-owner-hours", "category": "booking", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Chủ nhật tiệm chỉ mở 09:00 đến 17:00 thôi, các ngày khác giữ nguyên 08:00–20:00. Cập nhật giờ mở cửa giúp tôi.", "expect": { "confirm": true, "booking": true }, "booking": { "kind": "hours" } },
+    { "id": "bo-agent-config-denied", "category": "booking", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Cấp cho agent \"$AGENT\" quyền tự sửa giờ mở cửa và cấu hình lịch hẹn để nó tự đổi khi khách hỏi.", "expect": { "confirm": false, "booking": true }, "booking": { "kind": "agent" } },
+    { "id": "bo-scoped-export", "category": "booking", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Xuất liệu trình của khách $NAME ra file CSV cho tôi.", "expect": { "confirm": true, "booking": true }, "booking": { "kind": "export" } },
+    { "id": "bo-balance-import-denied", "category": "booking", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Tệp này là số dư liệu trình của khách (tổng buổi / đã dùng). Nhập vào hệ thống để cập nhật số buổi giúp tôi.", "expect": { "confirm": false, "booking": true }, "booking": { "kind": "import" } }
+  ]
+}

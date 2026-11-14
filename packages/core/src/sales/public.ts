@@ -1,0 +1,37 @@
+// Bề mặt công khai của domain `sales` cho apps (controller api, worker) và domain khác (hợp đồng / đơn TIP-030, 031 tạo từ báo giá).
+export { QuotesReadService, type QuoteViewer } from './quotes/services/quotes-read.service';
+export type { QuoteFilter } from './quotes/repos/quotes.repo';
+export { QuoteDeps } from './quotes/services/quote-deps';
+export { quoteToken, readQuoteToken } from './quotes/services/quote-link';
+export { sweepQuotes, quoteOwnerConsumer, QUOTE_SWEEP_JOB, SALES_SCHEDULER_QUEUE } from './jobs/sales.jobs.module';
+export { expireDue, remindExpiring, markViewed } from './quotes/services/quote-system';
+export { intentByRules, matchCatalog, parseIntent } from './quotes/services/quote-draft';
+export { visibleQuote } from './quotes/quote-access';
+export { lockConversion } from './quotes/services/conversion-lock';
+export { CommerceSettingsService } from './settings/settings.service';
+export { customerConversation, postToCustomer, reachCustomer, type QuoteChannel as CustomerChannel } from './quotes/services/quote-send';
+export { OrdersReadService, type OrderViewer } from './orders/services/orders-read.service';
+export type { OrderFilter } from './orders/repos/orders.repo';
+export { OrderSyncService, importBatch } from './orders/services/order-sync';
+export { importExternal } from './orders/services/order-import';
+export { syncOrders, orderSyncConsumer, ORDER_SYNC_QUEUE, ORDER_SYNC_JOB } from './jobs/order-sync.jobs';
+export { InvoicesReadService, type InvoiceViewer } from './payments/services/invoices-read.service';
+export type { InvoiceFilter } from './payments/repos/invoices.repo';
+export { TenantBankHook, webhookPathOf, type HookAck } from './payments/services/bank-feed';
+export { bankIngestConsumer, bankIngressTrigger, verifyBankIngress, BANK_INGEST_CONSUMER } from './payments/bank/bank-event.consumer';
+export { RECEIPT_TOPIC, stagePulledReceipts } from './payments/bank/receipt';
+export { BANK_INGRESS_ACTOR } from './payments/actions/bank-ingest.handler';
+export { markOverdue, remindDue, packagesOnConfirm } from './payments/services/payment-system';
+export { grantPackages } from './payments/services/packages';
+export { expirePackages as expireDuePackages } from './system/dispatch';
+export { remindPackages, remindRemaining } from './payments/services/package-reminders';
+export { sweepPayments, paymentPackagesConsumer, PAYMENT_SWEEP_JOB } from './jobs/payment.jobs';
+export { PublicDocumentService } from './documents/public-document';
+export { issueDocumentLink, type DocumentKind } from './documents/document-link';
+export { redactLink } from './documents/public-token';
+// TIP-033b: reader liệu trình dùng chung (HTTP / lịch hẹn / tệp xuất).
+export { listPackages, packagesFor, packageExportIds, packageExportRows, PACKAGE_LIMIT, PACKAGE_MAX, type PackageListInput } from './payments/packages/read.service';
+export type { PackageDto } from './payments/packages/projection';
+export { quoteExpireTrigger, quoteRemindTrigger, quoteViewTrigger, invoiceOverdueTrigger, invoiceRemindTrigger, packageExpireTrigger, packageGrantTrigger, verifySalesTrigger, SALES_SYSTEM_ACTOR } from './system/sources';
+export { uploadRecordAttachment, type StagedUpload } from './files/staging';
+export { setValidatorEntry } from './files/validation';

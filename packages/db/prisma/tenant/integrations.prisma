@@ -1,0 +1,130 @@
+// tenant/integrations.prisma — sở hữu: TIP-012 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: integration_connection, integration_mapping, integration_call_log, integration_event.
+// Chuẩn: standards/integrations/provider-ports.md. Không Prisma relation xuyên domain (Blueprint §2.1).
+// Partial / covering index viết SQL trong migration.
+
+enum IntegrationMode {
+  sandbox
+  live
+
+  @@map("integration_mode")
+}
+
+enum IntegrationStatus {
+  connected
+  error
+  disconnected
+
+  @@map("integration_status")
+}
+
+/// queued → running → succeeded | failed | unknown (thao tác ghi ra ngoài không rõ kết quả — không thử mù) | cancelled (kết nối đổi
+/// khoá / ngắt trước khi chạy). TIP-012b P3.
+enum IntegrationCallStatus {
+  running
+  succeeded
+  failed
+  queued
+  unknown
+  cancelled
+
+  @@map("integration_call_status")
+}
+
+/// Kết nối connector của workspace. Bí mật (api_key, mật khẩu…) chỉ ở `secret_enc` (AES-256-GCM — ops §2.2), không bao giờ trả API.
+/// Một kết nối đang dùng mỗi connector: unique partial (connector_key) WHERE status <> 'disconnected' (migration).
+model IntegrationConnection {
+  id           String            @id @db.Uuid
+  connectorKey String            @map("connector_key")
+  port         String
+  name         String
+  mode         IntegrationMode   @default(live)
+  status       IntegrationStatus @default(connected)
+  /// Trường không bí mật của form (account_number, host, username…).
+  config       Json              @default("{}")
+  secretEnc    Bytes?            @map("secret_enc")
+  /// Chỉ cập nhật khi một lần KÉO thật sự hoàn tất (TIP-012b §4.4) — không phải mỗi lần gọi ra ngoài.
+  lastSyncAt   DateTime?         @map("last_sync_at") @db.Timestamptz(6)
+  /// Mã lỗi đã làm sạch (auth_failed / rate_limited / …) — không nguyên văn provider.
+  lastError    String?           @map("last_error")
+  /// Phiên bản khoá (tăng mỗi lần kết nối / kết nối lại) — rào việc cũ + `if_version` của integration.sync_now.
+  credentialRev Int              @default(1) @map("credential_rev")
+  /// Thăm dò đọc gần nhất: verified | failed | unsupported (+ lý do đã làm sạch) — bằng chứng, không suy từ "đã lưu khoá".
+  lastProbeAt     DateTime?      @map("last_probe_at") @db.Timestamptz(6)
+  lastProbeStatus String?        @map("last_probe_status")
+  lastProbeReason String?        @map("last_probe_reason")
+  /// Phiên bản khoá đã thăm dò (khác credentialRev → cần thăm dò lại).
+  probedRev       Int?           @map("probed_rev")
+  /// Webhook đã xác thực gần nhất.
+  lastEventAt     DateTime?      @map("last_event_at") @db.Timestamptz(6)
+  /// TIP-012c: thăm dò mail (người gửi + trạng thái) cho phiên bản `probed_rev`: { state, senders:[{id,email,name,state}], events, account_ref }.
+  mailSenders     Json?          @map("mail_senders")
+  createdBy    String?           @map("created_by") @db.Uuid
+  createdAt    DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime          @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([port, status])
+  @@map("integration_connection")
+}
+
+/// Ánh xạ bản ghi nội bộ ↔ id bên ngoài (đơn ↔ hoá đơn điện tử, sản phẩm ↔ SKU) — không thêm cột `misa_id` vào bảng nghiệp vụ.
+model IntegrationMapping {
+  id           String    @id @db.Uuid
+  connectionId String    @map("connection_id") @db.Uuid
+  entity       String
+  localId      String    @map("local_id")
+  externalId   String    @map("external_id")
+  syncedAt     DateTime? @map("synced_at") @db.Timestamptz(6)
+
+  @@unique([connectionId, entity, localId])
+  @@unique([connectionId, entity, externalId])
+  @@map("integration_mapping")
+}
+
+/// Mỗi lần gọi ra ngoài qua queue `integrations` — không ghi secret / payload nhạy cảm (provider-ports §5).
+model IntegrationCallLog {
+  id             String                @id @db.Uuid
+  connectionId   String                @map("connection_id") @db.Uuid
+  op             String
+  refType        String?               @map("ref_type")
+  refId          String?               @map("ref_id")
+  /// `connection_id:op:ref_id` — một lần gọi logic chỉ một dòng.
+  idempotencyKey String                @unique @map("idempotency_key")
+  status         IntegrationCallStatus
+  attempts       Int                   @default(0)
+  latencyMs      Int?                  @map("latency_ms")
+  /// Mã lỗi đã làm sạch (ProviderError code / `internal`) — không thông điệp provider.
+  error          String?
+  /// Phiên bản khoá lúc nhận việc — khác credential_rev hiện tại khi chạy → cancelled (TIP-012b §4.4).
+  configRev      Int?                  @map("config_rev")
+  /// Thế hệ claim (CAS): worker cũ không ghi đè kết quả của lượt mới.
+  generation     Int                   @default(0)
+  leaseUntil     DateTime?             @map("lease_until") @db.Timestamptz(6)
+  nextAttemptAt  DateTime?             @map("next_attempt_at") @db.Timestamptz(6)
+  /// read (GET / thăm dò — thử lại an toàn) | mutation (ghi ra ngoài — lỗi giữa chừng → unknown, không thử mù).
+  safety         String                @default("read")
+  /// Kết quả an toàn (đếm trang / giao dịch) — không dữ liệu khách.
+  outcome        Json?
+  /// Người / nguồn yêu cầu (user id | `scheduler`) — không phải quyền: lượt chạy đọc lại quyền hiện tại.
+  requestedBy    String?               @map("requested_by")
+  finishedAt     DateTime?             @map("finished_at") @db.Timestamptz(6)
+  createdAt      DateTime              @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime              @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  // Index log + hàng chờ viết SQL trong migration (INCLUDE / partial — TIP-012b §5.3).
+  @@map("integration_call_log")
+}
+
+/// Sự kiện webhook thô đã xác thực chữ ký — idempotent theo id của provider; xử lý ở consumer domain (processed_at).
+model IntegrationEvent {
+  id              String    @id @db.Uuid
+  connectionId    String    @map("connection_id") @db.Uuid
+  externalEventId String    @map("external_event_id")
+  kind            String
+  payload         Json
+  processedAt     DateTime? @map("processed_at") @db.Timestamptz(6)
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([connectionId, externalEventId])
+  @@map("integration_event")
+}

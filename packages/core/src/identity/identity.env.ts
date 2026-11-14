@@ -1,0 +1,45 @@
+// Env của domain identity (ops §2.1 — validate lúc boot). Mail / tra MST chọn adapter theo env; adapter dev bị cấm ở production.
+import { z } from 'zod';
+
+export const identityEnv = z
+  .object({
+    NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+    /** Khoá HS256 hiện tại (≥ 32 byte); `JWT_SECRETS_OLD` = "kid:secret,…" giữ khoá cũ khi xoay. */
+    JWT_SECRET: z.string().min(32),
+    JWT_KID: z.string().min(1).default('k1'),
+    JWT_SECRETS_OLD: z.string().optional(),
+    /** console (dev / test: giữ thư trong bộ nhớ + log không PII) | brevo (D34) | smtp (dự phòng, nodemailer — DC-018). */
+    MAIL_PROVIDER: z.enum(['console', 'brevo', 'smtp']).default('console'),
+    BREVO_API_KEY: z.string().optional(),
+    SMTP_HOST: z.string().optional(),
+    SMTP_PORT: z.coerce.number().int().min(1).max(65535).default(587),
+    SMTP_SECURE: z.enum(['true', 'false']).default('false'),
+    SMTP_USER: z.string().optional(),
+    SMTP_PASS: z.string().optional(),
+    MAIL_FROM_EMAIL: z.string().email().default('no-reply@appchat.vn'),
+    MAIL_FROM_NAME: z.string().default('AppChat'),
+    /** Dev / E2E http (TIP-011): MAIL_PROVIDER=console ghi thư gần nhất mỗi người nhận ra `<dir>/<email>.txt` để test đọc OTP / link. */
+    MAIL_CONSOLE_DIR: z.string().optional(),
+    /** mock (fixture) | vietqr (OQ-05). */
+    TAX_LOOKUP_PROVIDER: z.enum(['mock', 'vietqr']).default('mock'),
+    /** Gốc link trong email (đặt lại mật khẩu, lời mời). */
+    APP_PUBLIC_URL: z.string().url().default('http://localhost:3000'),
+    /** Cookie refresh có Secure — tắt được ở dev http. */
+    COOKIE_SECURE: z.enum(['true', 'false']).default('true'),
+  })
+  .superRefine((e, ctx) => {
+    if (e.NODE_ENV === 'production' && e.MAIL_PROVIDER === 'console') ctx.addIssue({ code: 'custom', path: ['MAIL_PROVIDER'], message: 'console cấm ở production' });
+    if (e.NODE_ENV === 'production' && e.MAIL_CONSOLE_DIR) ctx.addIssue({ code: 'custom', path: ['MAIL_CONSOLE_DIR'], message: 'cấm ở production' });
+    if (e.MAIL_PROVIDER === 'brevo' && !e.BREVO_API_KEY) ctx.addIssue({ code: 'custom', path: ['BREVO_API_KEY'], message: 'required' });
+    if (e.MAIL_PROVIDER === 'smtp' && !e.SMTP_HOST) ctx.addIssue({ code: 'custom', path: ['SMTP_HOST'], message: 'required' });
+  });
+
+export type IdentityEnv = z.infer<typeof identityEnv>;
+
+/** Đủ biến để bật identity (JWT_SECRET) — thiếu thì domain không đăng ký service auth (process không cần, vd. test health). */
+export function readIdentityEnv(source: Record<string, string | undefined>): IdentityEnv | null {
+  if (!source.JWT_SECRET) return null;
+  const r = identityEnv.safeParse(source);
+  if (!r.success) throw new Error(`Biến môi trường không hợp lệ: ${[...new Set(r.error.issues.map((i) => String(i.path[0])))].join(', ')}`);
+  return r.data;
+}

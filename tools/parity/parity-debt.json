@@ -1,0 +1,15 @@
+{
+  "_doc": "Sổ nợ parity (DC-360). Trần = mức cao nhất đo được (CI Linux 2026-11-05 run 41963699135 · máy dev Windows 2026-11-05) + 0,003 biên nhiễu. Chỉ được XOÁ dòng (màn đã ≤ 5%) hoặc hạ trần; không thêm màn, không nâng trần. Trả hết ở pha trả nợ parity trước TIP-046.",
+  "screens": {
+    "inbox:default": { "ceiling": 0.056, "owner": "pha trả nợ parity", "note": "CI 5,30% · Win 4,70%. Dòng hội thoại đang chọn không tô nền + vạch xanh; vị trí huy hiệu kênh / avatar nhóm lệch; chip 'Zalo OA' prototype vs 'Zalo cá nhân' (D04 — mask)" },
+    "inbox:folder-rail": { "ceiling": 0.054, "owner": "pha trả nợ parity", "note": "CI 5,09% · Win 4,57%" },
+    "inbox:zalo-group-info": { "ceiling": 0.057, "owner": "pha trả nợ parity", "note": "CI 5,36% · Win 4,51%" },
+    "tickets:list": { "ceiling": 0.054, "owner": "pha trả nợ parity", "note": "CI 5,10% · Win 4,21%" },
+    "tickets:detail": { "ceiling": 0.055, "owner": "TIP-001c (DEF-034-3 drawer)", "note": "CI 5,16% · Win 4,91%" },
+    "profile:me": { "ceiling": 0.056, "owner": "pha trả nợ parity", "note": "CI 5,28% · Win 4,74%" },
+    "quotes:ai": { "ceiling": 0.062, "owner": "pha trả nợ parity", "note": "CI 5,90% · Win 4,87%. Drawer Trợ lý: tiêu đề / gợi ý xuống dòng khác prototype" },
+    "calendar:ai": { "ceiling": 0.055, "owner": "pha trả nợ parity", "note": "CI 5,12% · Win 4,68%. Drawer Trợ lý" },
+    "tickets:ai": { "ceiling": 0.054, "owner": "pha trả nợ parity", "note": "CI 5,04% · Win 4,57%. Drawer Trợ lý" },
+    "contact-memory:360-ai": { "ceiling": 0.055, "owner": "pha trả nợ parity", "note": "CI 5,19% · Win 4,61%" }
+  }
+}

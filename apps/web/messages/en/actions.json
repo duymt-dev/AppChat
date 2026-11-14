@@ -1,0 +1,1863 @@
+{
+  "notification": {
+    "mark_read": {
+      "title": "Mark notifications as read"
+    },
+    "update_prefs": {
+      "title": "Update notification preferences"
+    }
+  },
+  "profile": {
+    "update": {
+      "title": "Update profile"
+    }
+  },
+  "workspace": {
+    "delete_challenge": {
+      "title": "Send workspace deletion code"
+    },
+    "delete": {
+      "title": "Delete workspace"
+    },
+    "freeze_request": {
+      "title": "Request workspace freeze"
+    },
+    "open": {
+      "title": "Open workspace (keep active / restore if archived)"
+    },
+    "switch": {
+      "title": "Switch workspace"
+    },
+    "update": {
+      "title": "Update workspace info"
+    },
+    "request_transfer_otp": {
+      "title": "Send ownership transfer code"
+    },
+    "transfer_ownership": {
+      "title": "Transfer workspace ownership"
+    }
+  },
+  "done": "Done: {title}",
+  "approvalSent": "Sent for approval: {title} — nothing runs until it is approved",
+  "jobAccepted": "Accepted: {title} — running in the background, results update when done",
+  "operationPending": "Finishing: {title} — the system completes the rest automatically, no need to retry",
+  "undone": "Undone: {title}",
+  "undoAccepted": "Undoing: {title} — running in the background, results update when done",
+  "undoPartial": "Partially undone: {title} — {undone} undone, {failed} kept (edited afterwards or failed)",
+  "previewTitle": "Confirm action",
+  "business_profile": {
+    "update": {
+      "title": "Update business profile"
+    }
+  },
+  "onboarding": {
+    "toggle_step": {
+      "title": "Update getting-started step"
+    }
+  },
+  "insight": {
+    "query": {
+      "title": "View metric",
+      "desc": "Read a predefined business metric (bookings, collections, at-risk customers, agent / support performance) within what you may see."
+    }
+  },
+  "follow_up": {
+    "complete": {
+      "title": "Follow-up done",
+      "desc": "Mark a due customer follow-up as done."
+    },
+    "reconcile": {
+      "title": "Refresh follow-ups (system)",
+      "desc": "The system creates follow-ups for customers silent for 7 days and drops old ones when the customer interacts again. Sends nothing."
+    }
+  },
+  "digest": {
+    "dispatch": {
+      "title": "Send digest email (system)",
+      "desc": "The system sends the daily / weekly 08:00 digest email to people who turned it on in Notifications — only figures they may see, moved past quiet hours."
+    }
+  },
+  "group": {
+    "copy_link": {
+      "title": "Copy group link",
+      "desc": "Read the Zalo group invite link for you to copy (never turns it on)."
+    },
+    "set_ai_policy": {
+      "title": "Change group AI policy"
+    },
+    "add_members": {
+      "title": "Add members to Zalo group"
+    },
+    "update": {
+      "title": "Rename / change link of Zalo group"
+    },
+    "set_mute": {
+      "title": "Mute / unmute group for the account"
+    },
+    "refresh": {
+      "title": "Refresh group info from Zalo"
+    }
+  },
+  "conversation": {
+    "approvals": {
+      "title": "Conversation approvals",
+      "desc": "List approval requests raised by AI in one conversation."
+    },
+    "unhide": {
+      "title": "Unhide conversation"
+    },
+    "untag": {
+      "title": "Remove conversation tag",
+      "desc": "Remove a tag from a conversation (no change if it is not tagged)."
+    },
+    "mark_read": {
+      "title": "Mark as read"
+    },
+    "set_status": {
+      "title": "Change conversation status",
+      "desc": "Close, reopen or snooze a conversation."
+    },
+    "assign": {
+      "title": "Assign conversation",
+      "desc": "Assign a conversation to a team member or another AI Agent."
+    },
+    "add_assignee": {
+      "title": "Add co-assignee",
+      "desc": "Add a team member or AI Agent as a co-assignee, alongside the primary assignee."
+    },
+    "remove_assignee": {
+      "title": "Remove co-assignee",
+      "desc": "Remove a team member or AI Agent from a conversation's co-assignees."
+    },
+    "tag": {
+      "title": "Tag conversation",
+      "desc": "Add a tag to a conversation."
+    },
+    "pin": {
+      "title": "Pin / unpin"
+    },
+    "archive": {
+      "title": "Archive conversation"
+    },
+    "set_ai_mode": {
+      "title": "Change AI mode"
+    },
+    "handoff": {
+      "title": "Take over conversation",
+      "desc": "Take over a conversation the AI handed off; the AI pauses."
+    },
+    "clear_history": {
+      "title": "Clear conversation history"
+    },
+    "set_tags": {
+      "title": "Set conversation tags",
+      "desc": "Replace all of a conversation's tags with the selected list."
+    },
+    "bulk_update": {
+      "title": "Bulk update conversations",
+      "desc": "Tag, assign, change status or archive many conversations at once."
+    },
+    "search": {
+      "title": "Find conversations",
+      "desc": "Look up conversations by customer, text, folder or channel."
+    },
+    "get": {
+      "title": "View conversation",
+      "desc": "Read one conversation with up to 20 latest messages."
+    },
+    "create_group": {
+      "title": "Create Zalo group",
+      "desc": "Create a new Zalo group on one account, inviting customers from that account's 1-1 conversations."
+    }
+  },
+  "message": {
+    "unpin": {
+      "title": "Unpin message"
+    },
+    "unreact": {
+      "title": "Remove message reaction"
+    },
+    "send": {
+      "title": "Send message",
+      "desc": "Reply to the customer through the conversation's channel."
+    },
+    "recall": {
+      "title": "Recall message"
+    },
+    "delete": {
+      "title": "Delete message"
+    }
+  },
+  "note": {
+    "add": {
+      "title": "Add internal note"
+    }
+  },
+  "contact_note": {
+    "export": {
+      "title": "Export customer notes / comments (Excel)"
+    }
+  },
+  "contact_activity": {
+    "list": {
+      "title": "View customer activities",
+      "desc": "Notes, comments, follow-up tasks or opportunities of a customer (paged)."
+    }
+  },
+  "contact_task": {
+    "export": {
+      "title": "Export follow-up tasks (Excel)"
+    },
+    "create": {
+      "title": "Create follow-up task",
+      "desc": "A reminder for staff to follow up — not an AI task, not an appointment."
+    },
+    "update": {
+      "title": "Edit follow-up task",
+      "desc": "Edit the title, description, due time or assignee."
+    },
+    "set_state": {
+      "title": "Change task state",
+      "desc": "Mark a follow-up task done, reopen or cancel it."
+    }
+  },
+  "contact_opportunity": {
+    "export": {
+      "title": "Export opportunities (Excel)"
+    },
+    "create": {
+      "title": "Create opportunity",
+      "desc": "Record a sales opportunity: need, expected value (not revenue), stage — probability follows the stage."
+    },
+    "update": {
+      "title": "Update opportunity",
+      "desc": "Edit the opportunity's title, need, expected value, expected close date and products."
+    },
+    "archive": {
+      "title": "Archive opportunity",
+      "desc": "Archive the opportunity (no deletion; undo within 24 hours)."
+    },
+    "set_stage": {
+      "title": "Move opportunity stage",
+      "desc": "Move the opportunity to another stage; probability follows the stage. Won needs a signed contract or an order."
+    },
+    "mark_lost": {
+      "title": "Mark opportunity lost",
+      "desc": "Mark the opportunity lost with a required reason; its sent quotes become rejected."
+    },
+    "reopen": {
+      "title": "Reopen opportunity",
+      "desc": "Reopen a lost opportunity at its previous stage."
+    },
+    "set_owner": {
+      "title": "Change opportunity owner",
+      "desc": "Assign the opportunity to another owner."
+    },
+    "list": {
+      "title": "View customer opportunities",
+      "desc": "Read one customer's opportunities: stage, probability, value (when you may see money)."
+    },
+    "get": {
+      "title": "View opportunity details",
+      "desc": "Read one opportunity: stage, document chain, history."
+    }
+  },
+  "contact": {
+    "restore": {
+      "title": "Restore deleted customer",
+      "desc": "Restore a customer deleted within the last 30 days (current deletion only, no phone conflict with a live customer)."
+    },
+    "duplicate_candidates": {
+      "title": "Find duplicate customers",
+      "desc": "List possible duplicate customer pairs you can see, ranked by matching rule (email / tax code / name) — a suggestion, not a probability."
+    },
+    "deleted_list": {
+      "title": "View deleted customers",
+      "desc": "List customers deleted within your scope, with their restore deadline."
+    },
+    "history_export": {
+      "title": "Export customer history",
+      "desc": "Export one customer's history to CSV by date range / event type / columns."
+    },
+    "get_edit_context": {
+      "title": "Read contact edit context",
+      "desc": "Read the editable fields, current version and owner of one contact (hidden fields are omitted)."
+    },
+    "import": {
+      "title": "Import customers",
+      "desc": "Import customers from a file in batches; skips duplicates and reports customers owned by others."
+    },
+    "export": {
+      "title": "Export customers",
+      "desc": "Export the customers you can see to CSV."
+    },
+    "create": {
+      "title": "Create customer",
+      "desc": "Create a new contact; fails if the phone / email already belongs to someone else's contact."
+    },
+    "update": {
+      "title": "Update customer",
+      "desc": "Update a contact's fields."
+    },
+    "set_stage": {
+      "title": "Change stage",
+      "desc": "Move a contact to another pipeline stage."
+    },
+    "add_note": {
+      "title": "Add note",
+      "desc": "Internal note on the customer profile — never sent to the customer."
+    },
+    "add_comment": {
+      "title": "Add comment",
+      "desc": "Internal comment for coworkers on the customer profile — never sent to the customer."
+    },
+    "tag": {
+      "title": "Tag customer",
+      "desc": "Add or remove a tag on a contact."
+    },
+    "delete": {
+      "title": "Delete customer"
+    },
+    "merge": {
+      "title": "Merge duplicates"
+    },
+    "add_collaborator": {
+      "title": "Add co-owner"
+    },
+    "remove_collaborator": {
+      "title": "Remove co-owner"
+    },
+    "transfer_owner": {
+      "title": "Transfer owner",
+      "desc": "Propose a new owner for a contact; a manager must approve."
+    },
+    "transfer_status": {
+      "title": "View owner transfer result",
+      "desc": "Read a committed owner transfer: status and moved record counts."
+    },
+    "transfer_owner_bulk": {
+      "title": "Bulk owner transfer",
+      "desc": "Transfer many contacts to one owner; each contact is its own transfer."
+    },
+    "request_access": {
+      "title": "Request access"
+    },
+    "decide_access": {
+      "title": "Decide access request"
+    },
+    "send_email": {
+      "title": "Send email",
+      "desc": "Send a standalone email to a contact, outside existing conversations."
+    },
+    "search": {
+      "title": "Find customers",
+      "desc": "Find customers by name, phone, email or customer code."
+    },
+    "get": {
+      "title": "View customer",
+      "desc": "Read one customer profile summary."
+    },
+    "get_360": {
+      "title": "Customer 360",
+      "desc": "Customer profile with open quotes, orders, unpaid requests, tickets and the next appointment."
+    },
+    "remember": {
+      "title": "Remember about customer",
+      "desc": "Save a lasting fact the customer said about themselves (preferences, allergies…) to AI memory; duplicates are refreshed, up to 50 facts."
+    },
+    "memory_forget": {
+      "title": "Forget AI memory",
+      "desc": "Delete one fact the AI remembered about the customer; undo within 24 hours."
+    },
+    "memory_list": {
+      "title": "View AI memory",
+      "desc": "List what the AI remembers about one customer (newest first, up to 50) with ids to forget a specific fact."
+    },
+    "summarize": {
+      "title": "Summarise customer",
+      "desc": "Summarise one customer in 3–5 points from data you may see (memory, history, receivables, contracts, orders, appointments, tickets)."
+    },
+    "bulk_update": {
+      "title": "Bulk update contacts",
+      "desc": "Update many contacts at once (group, status, tags…) — owner is not changed."
+    },
+    "privacy_preview": {
+      "title": "Preview forget customer",
+      "desc": "Preview the customer family's scope, what will be removed / kept, and any blockers before permanently forgetting — nothing is deleted yet."
+    },
+    "forget": {
+      "title": "Forget customer (permanent)",
+      "desc": "Permanently erase the customer's private content; issued/signed documents are kept. Irreversible, cannot be undone."
+    },
+    "privacy_status": {
+      "title": "Forget-customer progress",
+      "desc": "Track a forget-customer operation by id — counts only, no content."
+    },
+    "allow_recreation": {
+      "title": "Allow new profile recreation",
+      "desc": "One-time unlock to create a new contact from phone/email/channel-account identifiers blocked by a prior forget-customer operation — does not restore old data."
+    }
+  },
+  "custom_field": {
+    "define": {
+      "title": "Create custom field"
+    },
+    "update": {
+      "title": "Save field settings"
+    },
+    "delete": {
+      "title": "Delete custom field"
+    }
+  },
+  "agent": {
+    "draft_from_description": {
+      "title": "Draft agent config"
+    },
+    "create": {
+      "title": "Create AI agent (draft)"
+    },
+    "create_and_publish": {
+      "title": "Create & publish AI agent"
+    },
+    "update": {
+      "title": "Save agent draft"
+    },
+    "publish": {
+      "title": "Publish AI agent"
+    },
+    "rollback": {
+      "title": "Roll back version"
+    },
+    "pause": {
+      "title": "Pause / resume AI agent"
+    },
+    "delete": {
+      "title": "Delete AI agent"
+    },
+    "test": {
+      "title": "Test-chat AI agent"
+    },
+    "optimize_prompt": {
+      "title": "Optimise instructions"
+    },
+    "search": {
+      "title": "Find AI agents",
+      "desc": "Look up agents by name or role."
+    }
+  },
+  "approval": {
+    "approve": {
+      "title": "Approve request"
+    },
+    "reject": {
+      "title": "Reject request"
+    },
+    "edit_and_approve": {
+      "title": "Edit & approve action"
+    },
+    "system_expire": {
+      "title": "Expire approval request (system)"
+    }
+  },
+  "ai": {
+    "translate": {
+      "title": "Translate message",
+      "desc": "Translate a customer message into Vietnamese."
+    },
+    "summarize": {
+      "title": "Summarize",
+      "desc": "Summarize selected messages, pasted text or a contact profile with citations — never saved to CRM."
+    },
+    "detect_intent": {
+      "title": "Detect intent",
+      "desc": "Detect the main intent (pricing, booking, complaint…) with evidence — a suggestion only, never routes."
+    },
+    "extract_info": {
+      "title": "Extract info",
+      "desc": "Extract the fields you declare (dates, VND amounts…) with citations; missing or ambiguous values are explicit."
+    },
+    "score_lead": {
+      "title": "Assess lead fit",
+      "desc": "Assess opportunity fit on 4 evidence-backed criteria — advisory, never changes the contact score."
+    },
+    "translate_draft": {
+      "title": "Translate draft",
+      "desc": "Translate the reply draft into the customer language for preview — never sends."
+    }
+  },
+  "ai_task": {
+    "create": {
+      "title": "Create autonomous task"
+    },
+    "update": {
+      "title": "Save task config"
+    },
+    "pause": {
+      "title": "Pause / resume task"
+    },
+    "delete": {
+      "title": "Delete autonomous task"
+    },
+    "run_now": {
+      "title": "Run autonomous task now"
+    },
+    "search": {
+      "title": "Find AI tasks",
+      "desc": "Look up AI tasks by name."
+    }
+  },
+  "run": {
+    "cancel": {
+      "title": "Stop orchestration run"
+    },
+    "search": {
+      "title": "List AI runs",
+      "desc": "List recent AI runs and their status."
+    }
+  },
+  "product": {
+    "export": {
+      "title": "Export products (Excel)"
+    },
+    "create": {
+      "title": "Add product"
+    },
+    "update": {
+      "title": "Update product"
+    },
+    "archive": {
+      "title": "Delete product"
+    },
+    "search": {
+      "title": "Search products / prices",
+      "desc": "Search products / services by name or code with current price and stock"
+    },
+    "get": {
+      "title": "Get product details",
+      "desc": "View one product: description, attributes, combo items, price and stock"
+    },
+    "import": {
+      "title": "Import products from file"
+    },
+    "import_cancel": {
+      "title": "Cancel product import"
+    },
+    "import_retry": {
+      "title": "Retry product import"
+    },
+    "media_attach": {
+      "title": "Attach product image / document"
+    },
+    "media_detach": {
+      "title": "Remove product image / document"
+    },
+    "media_reorder": {
+      "title": "Reorder product images / documents"
+    },
+    "media_set_primary": {
+      "title": "Set product primary image"
+    },
+    "media_list": {
+      "title": "View product images / documents",
+      "desc": "List the images and documents of one product (primary image, order) — read only"
+    }
+  },
+  "category": {
+    "create": {
+      "title": "Create category"
+    },
+    "update": {
+      "title": "Edit category"
+    },
+    "delete": {
+      "title": "Delete category"
+    },
+    "list": {
+      "title": "List product categories",
+      "desc": "Read product categories and how many products each has"
+    }
+  },
+  "stock": {
+    "adjust": {
+      "title": "Adjust stock"
+    },
+    "get": {
+      "title": "Check stock",
+      "desc": "View current stock of products (low-stock warning)"
+    }
+  },
+  "quote": {
+    "export": {
+      "title": "Export quote list",
+      "desc": "Export every quote matching the filter to an Excel file (within your view access)."
+    },
+    "create": {
+      "title": "Create quote",
+      "desc": "Create a draft quote; unit prices exclude VAT, tax is per line."
+    },
+    "update": {
+      "title": "Update quote",
+      "desc": "Edit a draft quote or one awaiting revision: lines, discount, note."
+    },
+    "delete": {
+      "title": "Delete quote"
+    },
+    "submit_for_approval": {
+      "title": "Submit quote for approval",
+      "desc": "Send a quote over the approval threshold to the approver."
+    },
+    "approve": {
+      "title": "Approve quote"
+    },
+    "reject_internal": {
+      "title": "Return quote"
+    },
+    "send": {
+      "title": "Send quote",
+      "desc": "Send the quote to the customer by Zalo or email; quotes over the threshold need approval first."
+    },
+    "request_revision": {
+      "title": "Create quote revision",
+      "desc": "Customer wants changes: create a new draft version that supersedes the old one."
+    },
+    "mark_accepted": {
+      "title": "Customer accepted quote",
+      "desc": "Record that the customer accepted the quote."
+    },
+    "mark_rejected": {
+      "title": "Customer declined quote",
+      "desc": "Record that the customer declined the quote."
+    },
+    "extend_validity": {
+      "title": "Extend quote validity"
+    },
+    "comment": {
+      "title": "Add internal comment"
+    },
+    "draft_from_content": {
+      "title": "AI quote draft",
+      "desc": "AI drafts a quote from a note or chat excerpt, priced from the product catalog."
+    },
+    "search": {
+      "title": "Find quotes",
+      "desc": "Look up quotes by code, customer or status."
+    },
+    "get": {
+      "title": "View quote",
+      "desc": "Read one quote: lines, totals, validity."
+    },
+    "system_transition": {
+      "title": "Quote system transition"
+    },
+    "retry_render": {
+      "title": "Retry quote PDF",
+      "desc": "Re-render the frozen PDF of a sent quote after the previous attempt failed; once ready it is sent to the customer conversation."
+    }
+  },
+  "contract": {
+    "export": {
+      "title": "Export contract list",
+      "desc": "Export every contract matching the filter to an Excel file (within your view access)."
+    },
+    "create": {
+      "title": "Create contract",
+      "desc": "Create a draft contract (service, sale or framework)."
+    },
+    "inspect_file": {
+      "title": "Read contract file",
+      "desc": "Check a PDF / DOCX file and propose contract values."
+    },
+    "attach_file": {
+      "title": "Attach contract file",
+      "desc": "Attach or replace the signing file of a draft contract."
+    },
+    "create_from_attachment": {
+      "title": "Create contract from customer file",
+      "desc": "Create a draft contract from a PDF / DOCX in a conversation."
+    },
+    "create_from_quote": {
+      "title": "Create contract from quote",
+      "desc": "Create a draft contract from an accepted quote."
+    },
+    "update": {
+      "title": "Update contract",
+      "desc": "Edit a draft contract."
+    },
+    "submit": {
+      "title": "Submit contract for approval",
+      "desc": "Submit a draft contract to the Owner for approval."
+    },
+    "approve_and_sign": {
+      "title": "Approve & sign contract"
+    },
+    "request_changes": {
+      "title": "Request contract changes"
+    },
+    "reject_internal": {
+      "title": "Reject contract"
+    },
+    "send_for_signature": {
+      "title": "Send contract for signature"
+    },
+    "remind_signer": {
+      "title": "Remind signer",
+      "desc": "Remind the customer to sign a pending contract."
+    },
+    "extend_sign_link": {
+      "title": "Extend signing link",
+      "desc": "Extend the contract signing link by a few days."
+    },
+    "terminate": {
+      "title": "Terminate contract"
+    },
+    "renew": {
+      "title": "Renew contract",
+      "desc": "Create a renewal contract that goes through approval and signing again."
+    },
+    "delete": {
+      "title": "Delete contract"
+    },
+    "search": {
+      "title": "Find contracts",
+      "desc": "Look up contracts by code, customer or status."
+    },
+    "get": {
+      "title": "View contract",
+      "desc": "Read one contract: status, value, dates, signing progress."
+    },
+    "prepare_draft": {
+      "desc": "AI reads the request and proposes draft contract content (catalog prices) — no contract is created yet.",
+      "title": "Prepare contract proposal (AI)"
+    },
+    "draft_from_content": {
+      "desc": "Create one draft contract from a prepared AI proposal — no new AI call.",
+      "title": "Create draft contract from AI proposal"
+    },
+    "resolve_suggestion": {
+      "desc": "Keep or discard one AI-suggested clause of a draft contract.",
+      "title": "Keep / discard AI-suggested clause"
+    },
+    "create_appendix": {
+      "title": "Create contract appendix",
+      "desc": "Create a draft appendix for a signed contract"
+    },
+    "appendix_update": {
+      "title": "Edit appendix",
+      "desc": "Edit a draft appendix (new version)"
+    },
+    "appendix_submit": {
+      "title": "Submit appendix",
+      "desc": "Send the appendix to the Owner for approval"
+    },
+    "appendix_request_changes": {
+      "title": "Request appendix changes",
+      "desc": "Return the appendix to draft with a reason"
+    },
+    "appendix_owner_otp": {
+      "title": "Send appendix signing OTP",
+      "desc": "Email the Owner a code to sign the appendix"
+    },
+    "appendix_approve_and_sign": {
+      "title": "Approve & sign appendix",
+      "desc": "Owner signs the appendix with OTP + handwritten signature"
+    },
+    "appendix_send": {
+      "title": "Send appendix for signature",
+      "desc": "Send the customer a one-time signing link"
+    },
+    "appendix_public_otp": {
+      "title": "Appendix OTP (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "appendix_public_sign": {
+      "title": "Customer signs appendix (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "appendix_public_decline": {
+      "title": "Customer declines appendix (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "system_transition": {
+      "title": "Contract system transition"
+    },
+    "public_open": {
+      "title": "Open signing link (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_otp": {
+      "title": "Contract signing OTP (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_decline": {
+      "title": "Customer declines (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "public_sign": {
+      "title": "Customer signs contract (public page)",
+      "desc": "Internal — public signing page"
+    },
+    "sign_attempt_prepare": {
+      "title": "Verify signing attempt",
+      "desc": "Internal — signing pipeline"
+    },
+    "sign_attempt_stage": {
+      "title": "Stage signed copy",
+      "desc": "Internal — signing pipeline"
+    },
+    "request_sign_otp": {
+      "title": "Send approve & sign code",
+      "desc": "Email yourself a one-time code to approve & sign this contract"
+    }
+  },
+  "order": {
+    "export": {
+      "title": "Export order list",
+      "desc": "Export every order matching the filter to an Excel file (within your view access)."
+    },
+    "create": {
+      "title": "Create order",
+      "desc": "Create a new order, optionally with a deposit."
+    },
+    "create_from_quote": {
+      "title": "Create order from quote",
+      "desc": "Create an order from an accepted quote."
+    },
+    "create_from_appointment": {
+      "title": "Create order from appointment",
+      "desc": "Create an order for a completed service visit outside a package."
+    },
+    "create_from_contract": {
+      "title": "Create order from contract",
+      "desc": "Create an order from a signed contract."
+    },
+    "update": {
+      "title": "Update order",
+      "desc": "Edit an order while it is new or nothing has been paid."
+    },
+    "set_deposit": {
+      "title": "Set order deposit",
+      "desc": "Turn an order's deposit on or off."
+    },
+    "confirm": {
+      "title": "Confirm order",
+      "desc": "Confirm an order so stock is deducted and fulfilment starts."
+    },
+    "complete": {
+      "title": "Complete order"
+    },
+    "cancel": {
+      "title": "Cancel order"
+    },
+    "update_shipping": {
+      "title": "Update shipping",
+      "desc": "Update an order's shipping details."
+    },
+    "sync_now": {
+      "title": "Sync marketplace orders"
+    },
+    "search": {
+      "title": "Find orders",
+      "desc": "Look up orders by code, customer or payment state."
+    },
+    "get": {
+      "title": "View order",
+      "desc": "Read one order: lines, totals, amount paid."
+    },
+    "send_confirmation": {
+      "title": "Send order confirmation",
+      "desc": "Send the order confirmation PDF (items, total, paid / left) to the customer conversation."
+    },
+    "system_import": {
+      "title": "Import verified marketplace order revision (system)"
+    },
+    "system_stock_sync": {
+      "title": "Reconcile verified external stock snapshot (system)"
+    },
+    "file_attach": {
+      "title": "Attach a file to an order",
+      "desc": "Attach an uploaded file (PDF, DOCX, XLSX, image, text) to the order after a structural check."
+    },
+    "file_detach": {
+      "title": "Remove an attachment from an order",
+      "desc": "Unlink a file from the order; the original file is kept."
+    },
+    "files_list": {
+      "title": "View order attachments",
+      "desc": "List files attached to the order (newest first)."
+    }
+  },
+  "invoice": {
+    "export": {
+      "title": "Export payment requests (Excel)"
+    },
+    "create": {
+      "title": "Create payment request",
+      "desc": "Create a payment request (deposit, installment or full) for an order or customer."
+    },
+    "send_payment_qr": {
+      "title": "Send payment request with VietQR",
+      "desc": "Send the payment request with a VietQR code; also used as a payment reminder."
+    },
+    "record_payment": {
+      "title": "Record payment"
+    },
+    "resolve_bank_match": {
+      "title": "Reconcile bank transaction"
+    },
+    "void": {
+      "title": "Void payment request"
+    },
+    "search": {
+      "title": "Find payment requests",
+      "desc": "Look up payment requests by code, customer, order or status."
+    },
+    "get": {
+      "title": "View payment request",
+      "desc": "Read one payment request: amount, paid, due date."
+    },
+    "system_transition": {
+      "title": "Payment request system transition"
+    },
+    "file_attach": {
+      "title": "Attach a file to a payment request",
+      "desc": "Attach an uploaded file (transfer slip, voucher…) to the payment request after a structural check."
+    },
+    "file_detach": {
+      "title": "Remove an attachment from a payment request",
+      "desc": "Unlink a file from the payment request; the original file is kept. Generated documents cannot be removed."
+    },
+    "files_list": {
+      "title": "View payment request files",
+      "desc": "List generated documents and attachments of the payment request."
+    }
+  },
+  "booking": {
+    "settings_get": {
+      "title": "View booking settings",
+      "desc": "Read opening hours, slot step, buffer and staff schedules."
+    }
+  },
+  "staff": {
+    "create": {
+      "title": "Add staff",
+      "desc": "Add a staff member who takes appointments, with skills and shifts."
+    },
+    "update": {
+      "title": "Update staff",
+      "desc": "Change a staff member's details, skills or shifts."
+    },
+    "deactivate": {
+      "title": "Deactivate staff",
+      "desc": "Stop taking appointments for a staff member."
+    },
+    "search": {
+      "title": "Find staff",
+      "desc": "Look up active staff by name or skill."
+    }
+  },
+  "business_hours": {
+    "update": {
+      "title": "Update business hours",
+      "desc": "Update opening hours, slot step and buffer time."
+    }
+  },
+  "appointment": {
+    "list": {
+      "title": "View appointments",
+      "desc": "List appointments within a date range."
+    },
+    "find_slots": {
+      "title": "Find free slots",
+      "desc": "Find free time slots for a service on a date based on staff schedules."
+    },
+    "create": {
+      "title": "Book appointment",
+      "desc": "Book an appointment in a free slot; attaches the customer's active package."
+    },
+    "confirm": {
+      "title": "Confirm appointment",
+      "desc": "Confirm a pending appointment."
+    },
+    "reschedule": {
+      "title": "Reschedule appointment",
+      "desc": "Move an appointment to another free slot."
+    },
+    "cancel": {
+      "title": "Cancel appointment",
+      "desc": "Cancel an appointment with a reason."
+    },
+    "check_in": {
+      "title": "Check in"
+    },
+    "complete": {
+      "title": "Complete appointment"
+    },
+    "mark_no_show": {
+      "title": "Mark no-show"
+    },
+    "get": {
+      "title": "View appointment",
+      "desc": "Read one appointment: customer, service, staff, time, status."
+    },
+    "update": {
+      "title": "Edit appointment",
+      "desc": "Edit time, service, staff, note, reminder or custom fields of an open appointment."
+    },
+    "system_transition": {
+      "title": "Appointment system transition"
+    },
+    "order_suggestions": {
+      "title": "View order suggestions from appointments",
+      "desc": "List finished non-package appointments without an order, with the current price."
+    }
+  },
+  "ticket": {
+    "export": {
+      "title": "Export ticket list",
+      "desc": "Export every ticket matching the filter to an Excel file (within your view access)."
+    },
+    "update": {
+      "title": "Edit ticket",
+      "desc": "Edit a ticket’s title, description, category, priority or custom fields."
+    },
+    "search": {
+      "title": "Search tickets",
+      "desc": "Search tickets by text, status, priority or SLA."
+    },
+    "create": {
+      "title": "Create ticket",
+      "desc": "Open a support ticket; SLA due times follow its priority."
+    },
+    "assign": {
+      "title": "Assign ticket",
+      "desc": "Assign a ticket to a team member or an AI Agent."
+    },
+    "set_status": {
+      "title": "Change ticket status",
+      "desc": "Change a ticket's status; waiting on the customer pauses the SLA clock."
+    },
+    "comment": {
+      "title": "Note / reply on ticket",
+      "desc": "Add an internal note or a customer reply on a ticket."
+    },
+    "close": {
+      "title": "Close ticket",
+      "desc": "Close a ticket with a reason and record the SLA result."
+    },
+    "reopen": {
+      "title": "Reopen ticket"
+    },
+    "bulk_update": {
+      "title": "Bulk update tickets",
+      "desc": "Assign a member or an AI agent (assignment only — the agent does not run) and / or change priority on many tickets; each ticket gets its own result."
+    },
+    "get": {
+      "title": "View ticket",
+      "desc": "Read one ticket: status, priority, SLA due times, assignee."
+    },
+    "system_transition": {
+      "title": "Ticket system transition"
+    },
+    "category_suggestions": {
+      "title": "Ticket category suggestions",
+      "desc": "Read the configured category suggestions and categories used on tickets you can see."
+    },
+    "stock_summary": {
+      "title": "View ticket stock vs. yesterday",
+      "desc": "The five ticket stock counts you can currently see, compared with yesterday's real observation (only tickets that still exist and are still visible)."
+    },
+    "bulk_undo": {
+      "title": "Undo ticket bulk update",
+      "desc": "Restores only the changed fields on tickets nobody edited since; tickets changed later are kept and reported as conflicts."
+    },
+    "bulk_item": {
+      "title": "Update one ticket of a bulk operation (system)"
+    },
+    "bulk_item_undo": {
+      "title": "Undo one ticket of a bulk operation (system)"
+    },
+    "bulk_export": {
+      "title": "Download ticket bulk update results",
+      "desc": "CSV / Excel file with the per-ticket results of one bulk update (id, outcome, error code, changed, undo only — no ticket content)."
+    }
+  },
+  "segment": {
+    "create": {
+      "title": "Create segment"
+    },
+    "update": {
+      "title": "Edit segment"
+    },
+    "delete": {
+      "title": "Delete segment"
+    },
+    "preview": {
+      "title": "Preview segment",
+      "desc": "Count contacts in a segment before creating a campaign."
+    }
+  },
+  "campaign": {
+    "analyze": {
+      "title": "AI customer analysis"
+    },
+    "audience_import": {
+      "title": "Import recipient list"
+    },
+    "draft_content": {
+      "title": "AI rewrite campaign content"
+    },
+    "get": {
+      "title": "View campaign",
+      "desc": "Read one campaign: status, the approved sender and actual email delivery results per state."
+    },
+    "mail_senders": {
+      "title": "Business mail senders"
+    },
+    "recipient_export": {
+      "title": "Export recipients"
+    },
+    "resend_unread": {
+      "title": "Draft a resend to non-responders"
+    },
+    "unsubscribe": {
+      "title": "Unsubscribe from campaigns"
+    },
+    "dispatch": {
+      "title": "Send campaign batch (system)"
+    },
+    "record_delivery": {
+      "title": "Record send result (system)"
+    },
+    "record_metric": {
+      "title": "Record reply / conversion (system)"
+    },
+    "store_analysis": {
+      "title": "Save AI suggestions (system)"
+    },
+    "suggest": {
+      "title": "Suggest campaigns",
+      "desc": "Suggest campaigns with estimated audience and best send time."
+    },
+    "create": {
+      "title": "Create campaign"
+    },
+    "submit": {
+      "title": "Submit campaign for approval"
+    },
+    "send_test": {
+      "title": "Send test campaign"
+    },
+    "approve": {
+      "title": "Approve & send campaign"
+    },
+    "reject": {
+      "title": "Reject campaign"
+    },
+    "pause": {
+      "title": "Pause campaign"
+    },
+    "resume": {
+      "title": "Resume campaign"
+    },
+    "cancel": {
+      "title": "Cancel campaign"
+    },
+    "delete": {
+      "title": "Delete campaign"
+    },
+    "update": {
+      "title": "Edit campaign"
+    }
+  },
+  "loyalty": {
+    "get_member": {
+      "title": "View member points",
+      "desc": "View a member's points, tier and points expiring soon."
+    },
+    "adjust_points": {
+      "title": "Adjust points"
+    },
+    "update_config": {
+      "title": "Update loyalty settings"
+    },
+    "earn": {
+      "title": "Earn order points (system)"
+    },
+    "reverse": {
+      "title": "Reverse order points (system)"
+    },
+    "expire": {
+      "title": "Expire points (system)"
+    },
+    "review_tier": {
+      "title": "Quarterly tier review (system)"
+    },
+    "attach_file": {
+      "title": "Attach a file to a member"
+    }
+  },
+  "role": {
+    "create": {
+      "title": "Create role"
+    },
+    "update": {
+      "title": "Edit role"
+    },
+    "delete": {
+      "title": "Delete role"
+    }
+  },
+  "lead_routing": {
+    "update": {
+      "title": "Configure lead routing"
+    },
+    "apply": {
+      "title": "Route new lead (system)"
+    }
+  },
+  "team": {
+    "create": {
+      "title": "Create team"
+    },
+    "update": {
+      "title": "Edit team"
+    },
+    "set_members": {
+      "title": "Change team members"
+    }
+  },
+  "member": {
+    "invite": {
+      "title": "Invite member"
+    },
+    "set_role": {
+      "title": "Change member role"
+    },
+    "remove": {
+      "title": "Remove member"
+    },
+    "search": {
+      "title": "Find members",
+      "desc": "Look up active members by name or email."
+    }
+  },
+  "invite": {
+    "revoke": {
+      "title": "Revoke invite"
+    }
+  },
+  "working_hours": {
+    "update": {
+      "title": "Update working hours"
+    }
+  },
+  "sla": {
+    "update_default": {
+      "title": "Update default SLA"
+    }
+  },
+  "tag": {
+    "create": {
+      "title": "Create tag"
+    },
+    "update": {
+      "title": "Update tag"
+    },
+    "delete": {
+      "title": "Delete tag"
+    },
+    "search": {
+      "title": "Find tags",
+      "desc": "Look up tags by name."
+    }
+  },
+  "canned_reply": {
+    "create": {
+      "title": "Create canned reply"
+    },
+    "update": {
+      "title": "Update canned reply"
+    },
+    "delete": {
+      "title": "Delete canned reply"
+    },
+    "search": {
+      "title": "Find quick replies",
+      "desc": "Look up quick replies by shortcut or title."
+    }
+  },
+  "channel": {
+    "zalo": {
+      "start_login": {
+        "title": "Add personal Zalo account"
+      }
+    },
+    "email": {
+      "connect": {
+        "title": "Add email account"
+      }
+    },
+    "test": {
+      "title": "Test channel connection"
+    },
+    "update_settings": {
+      "title": "Update channel account settings"
+    },
+    "pause": {
+      "title": "Pause channel account"
+    },
+    "resume": {
+      "title": "Resume channel account"
+    },
+    "sync_history": {
+      "title": "Sync channel history"
+    },
+    "sync_contacts": {
+      "title": "Sync channel account address book"
+    },
+    "friend": {
+      "accept": {
+        "title": "Accept Zalo friend request"
+      },
+      "reject": {
+        "title": "Reject Zalo friend request"
+      },
+      "send": {
+        "title": "Send Zalo friend request"
+      },
+      "undo": {
+        "title": "Withdraw Zalo friend request"
+      }
+    },
+    "lookup_user": {
+      "title": "Find a Zalo user by phone"
+    },
+    "reconnect": {
+      "title": "Reconnect channel account"
+    },
+    "disconnect": {
+      "title": "Disconnect channel account"
+    },
+    "search": {
+      "title": "Find channel accounts",
+      "desc": "Look up connected Zalo / email / web chat accounts."
+    },
+    "group_result": {
+      "title": "Group creation result (system)"
+    },
+    "status": {
+      "title": "Check channel connection status"
+    },
+    "system_transition": {
+      "title": "Channel account transition (system)"
+    }
+  },
+  "webchat": {
+    "update_widget": {
+      "title": "Update website widget"
+    }
+  },
+  "integration": {
+    "connect": {
+      "title": "Connect integration"
+    },
+    "disconnect": {
+      "title": "Disconnect integration"
+    },
+    "register_interest": {
+      "title": "Register interest in integration"
+    },
+    "form_schema": {
+      "title": "Read platform connection form"
+    },
+    "test": {
+      "title": "Test platform connection"
+    },
+    "sync_now": {
+      "title": "Sync transactions now"
+    },
+    "get": {
+      "title": "View connection status"
+    },
+    "list_calls": {
+      "title": "View connection call log"
+    },
+    "update_settings": {
+      "title": "Update integration settings"
+    }
+  },
+  "profile_layout": {
+    "create": {
+      "title": "Create Hồ sơ 360° template"
+    },
+    "update": {
+      "title": "Edit Hồ sơ 360° layout"
+    },
+    "duplicate": {
+      "title": "Duplicate Hồ sơ 360° template"
+    },
+    "delete": {
+      "title": "Delete Hồ sơ 360° template"
+    },
+    "assign_role": {
+      "title": "Assign template to role"
+    },
+    "search": {
+      "title": "Find profile layouts",
+      "desc": "Look up customer profile layouts by name."
+    }
+  },
+  "ai_settings": {
+    "update": {
+      "title": "Update AI settings"
+    }
+  },
+  "kb": {
+    "add_source": {
+      "title": "Add knowledge source"
+    },
+    "update_source": {
+      "title": "Update knowledge source"
+    },
+    "search": {
+      "title": "Search knowledge base",
+      "desc": "Find matching passages in the knowledge base (policies, service descriptions, FAQs) with sources — not for prices, stock or free slots"
+    },
+    "remove_source": {
+      "title": "Remove knowledge source"
+    },
+    "refresh_source": {
+      "title": "Re-index knowledge source"
+    },
+    "folder": {
+      "create": {
+        "title": "Create knowledge folder"
+      },
+      "update": {
+        "title": "Edit knowledge folder",
+        "desc": "Rename, move or change the default access for new documents in a folder."
+      },
+      "delete": {
+        "title": "Delete knowledge folder",
+        "desc": "Delete an empty folder (no documents incl. trash, no sub-folders)."
+      }
+    },
+    "suggestion": {
+      "propose": {
+        "title": "Store knowledge suggestions from a conversation"
+      },
+      "approve": {
+        "title": "Approve knowledge suggestion",
+        "desc": "Add the question–answer pair (edited if needed) to the knowledge base for AI to learn."
+      },
+      "reject": {
+        "title": "Reject knowledge suggestion",
+        "desc": "Drop the question–answer pair; nothing is added to the knowledge base."
+      }
+    },
+    "source_search": {
+      "title": "Find knowledge sources",
+      "desc": "Look up knowledge-base sources by name or tag."
+    },
+    "system_publish": {
+      "title": "Publish knowledge source ingest result (system)"
+    },
+    "reindex": {
+      "title": "Rebuild knowledge base index"
+    },
+    "reindex_cancel": {
+      "title": "Cancel index rebuild"
+    }
+  },
+  "governance": {
+    "update": {
+      "title": "Update AI governance"
+    }
+  },
+  "billing": {
+    "create_invoice": {
+      "title": "Create plan / credit invoice"
+    },
+    "cancel_invoice": {
+      "title": "Cancel plan invoice"
+    },
+    "report_transfer": {
+      "title": "Report bank transfer"
+    },
+    "lifecycle_step": {
+      "title": "Plan lifecycle (system)",
+      "desc": "The system grants plan credits each monthly period from the sign-up date, applies a scheduled plan change at period end and expires unpaid plans (data kept 30 days)."
+    },
+    "apply_invoice": {
+      "title": "Apply plan invoice (system)",
+      "desc": "The system applies a paid plan invoice exactly once from the price captured at creation; mismatched invoices are held for reconciliation."
+    },
+    "contact_sales": {
+      "title": "Contact sales (Enterprise)",
+      "desc": "Send an Enterprise plan enquiry to the AppChat sales team — they will get back to you; this is not a signed contract."
+    }
+  },
+  "doc_template": {
+    "create": {
+      "title": "Create document template"
+    },
+    "update": {
+      "title": "Update document template"
+    },
+    "delete": {
+      "title": "Delete document template"
+    },
+    "detect_fields": {
+      "title": "Detect template fields"
+    },
+    "search": {
+      "title": "Find document templates",
+      "desc": "Look up quote / contract / payment request templates."
+    }
+  },
+  "wallet": {
+    "update_alerts": {
+      "title": "Update credit reminders"
+    }
+  },
+  "admin": {
+    "bank_transaction": {
+      "match": {
+        "title": "Match bank transaction to invoice (platform admin)"
+      }
+    },
+    "invoice": {
+      "confirm_transfer": {
+        "title": "Confirm bank transfer (platform admin)"
+      }
+    },
+    "plan": {
+      "upsert": {
+        "title": "Save plan (platform admin)"
+      }
+    },
+    "model_price": {
+      "upsert": {
+        "title": "Save model price (platform admin)"
+      }
+    },
+    "model_route": {
+      "upsert": {
+        "title": "Save model routing (platform admin)"
+      }
+    },
+    "llm_provider": {
+      "upsert": {
+        "title": "Save LLM provider (platform admin)"
+      },
+      "probe": {
+        "title": "Test LLM provider (platform admin)"
+      },
+      "disable": {
+        "title": "Enable / disable LLM provider (platform admin)"
+      }
+    },
+    "workspace": {
+      "freeze_decide": {
+        "title": "Decide workspace freeze request (platform admin)"
+      },
+      "suspend": {
+        "title": "Suspend workspace (platform admin)"
+      },
+      "resume": {
+        "title": "Resume workspace (platform admin)"
+      },
+      "archive": {
+        "title": "Archive workspace (platform admin)"
+      },
+      "restore": {
+        "title": "Restore archived workspace (platform admin)"
+      }
+    },
+    "agent_template": {
+      "upsert": {
+        "title": "Save AI agent template (platform admin)"
+      }
+    }
+  },
+  "payment": {
+    "refund": {
+      "title": "Request refund"
+    },
+    "refund_approve": {
+      "title": "Approve refund"
+    },
+    "refund_reject": {
+      "title": "Reject refund"
+    },
+    "redeem_points": {
+      "title": "Pay with points",
+      "desc": "Use the customer points for part of a payment request (1 point = 100đ, up to 50% of the order value)."
+    }
+  },
+  "package": {
+    "extend": {
+      "title": "Extend package"
+    },
+    "adjust_sessions": {
+      "title": "Adjust package sessions"
+    },
+    "export": {
+      "title": "Export a customer's packages",
+      "desc": "CSV / XLSX file of one customer's packages: total / used / left, status, expiry — no amounts. Export only; balances cannot be imported."
+    },
+    "list_for_contact": {
+      "title": "View a customer's packages",
+      "desc": "List a customer's packages: used / total / remaining, status, expiry (no amounts)."
+    },
+    "search": {
+      "title": "Find customer packages",
+      "desc": "Look up packages: sessions used, expiry, status."
+    },
+    "system_transition": {
+      "title": "Package system transition"
+    }
+  },
+  "payment_account": {
+    "update": {
+      "title": "Update receiving account"
+    }
+  },
+  "bank_feed": {
+    "ingest": {
+      "title": "Record bank transaction (system)"
+    },
+    "connect": {
+      "title": "Connect bank reconciliation"
+    },
+    "disconnect": {
+      "title": "Disconnect bank reconciliation"
+    }
+  },
+  "service": {
+    "search": {
+      "title": "Find services",
+      "desc": "Look up bookable services by name or code."
+    }
+  },
+  "assistant": {
+    "resume": {
+      "title": "Resume assistant turn"
+    },
+    "plan_propose": {
+      "title": "Propose Cowork plan",
+      "desc": "Create a new multi-step plan for the current session — proposal only, nothing executed yet."
+    },
+    "plan_get": {
+      "title": "View Cowork plan progress",
+      "desc": "Read the real status of a plan (which steps are done, waiting, failed) — not the model's claim."
+    },
+    "plan_request_edit": {
+      "title": "Pause plan to edit",
+      "desc": "Stop new work on the plan, let running work finish, then mark it paused."
+    },
+    "plan_update": {
+      "title": "Edit plan",
+      "desc": "Update, add, remove or reorder steps that have not started; started steps stay as they are."
+    },
+    "plan_resume": {
+      "title": "Resume plan",
+      "desc": "Continue the edited plan from where it paused, with the same budget and current permissions."
+    },
+    "plan_reuse": {
+      "title": "Reuse plan",
+      "desc": "Create a new draft plan from one of your own earlier structures — step types only, no old data, values or results."
+    },
+    "plan_reusable": {
+      "title": "Reusable plan suggestions",
+      "desc": "List your own prior plan structures you can reuse — action/step names only, no old values or results."
+    },
+    "agent_choices": {
+      "title": "List AI agents to choose as specialist",
+      "desc": "Page active/published AI agents selectable as a Cowork specialist — name/role/model tier only, no draft prompt/persona."
+    },
+    "discovery_prepare": {
+      "title": "Prepare semantic action search",
+      "desc": "Build the semantic action-search index for this workspace — a background job, only needed when keyword search falls short; no effect on customer data."
+    },
+    "attachment_prepare": {
+      "title": "Prepare Assistant attachment",
+      "desc": "Bind an uploaded file to the draft and extract bounded content for the Assistant to read — no analysis or import."
+    },
+    "attachment_remove": {
+      "title": "Remove draft attachment",
+      "desc": "Detach an unsent file from the draft — never deletes the source file or sent history."
+    },
+    "attachment_get": {
+      "title": "View attachment status",
+      "desc": "Preparation status of an attachment in the current Assistant context."
+    },
+    "attachment_read": {
+      "title": "Read attachment content",
+      "desc": "Read the next content segments of the turn's file with page / row locators to cite."
+    }
+  },
+  "sales_settings": {
+    "update": {
+      "title": "Update sales policy",
+      "desc": "Change the workspace quote approval thresholds (total, discount %) — Owner only."
+    }
+  },
+  "receipt": {
+    "send": {
+      "title": "Send receipt",
+      "desc": "Send the receipt PDF of a confirmed payment to the customer conversation."
+    }
+  },
+  "product_variant": {
+    "create": {
+      "title": "Add variant"
+    },
+    "update": {
+      "title": "Edit variant"
+    },
+    "archive": {
+      "title": "Archive variant"
+    }
+  },
+  "data_job": {
+    "cancel": {
+      "title": "Cancel background job"
+    },
+    "retry": {
+      "title": "Retry failed items of a background job"
+    }
+  },
+  "channel_operation": {
+    "cancel": {
+      "title": "Cancel a pending channel operation"
+    }
+  },
+  "transfer": {
+    "plan": {
+      "title": "Plan a data import from a file"
+    },
+    "update_mapping": {
+      "title": "Change column mapping / invalid-row policy"
+    },
+    "commit": {
+      "title": "Confirm data import"
+    },
+    "cancel": {
+      "title": "Cancel data import"
+    },
+    "sample": {
+      "title": "Preview an import file (contact data masked)"
+    }
+  },
+  "privacy": {
+    "cleanup_step": {
+      "title": "Run one \"forget customer\" cleanup step (system)",
+      "desc": "System-called — advances one \"forget customer\" operation by one step (fence → inventory → erase batch → needs review / verify → completed)."
+    },
+    "review_resolve": {
+      "title": "Resolve one quarantined item (forget customer)",
+      "desc": "Decide one shared / unidentified data item in a \"forget customer\" operation: unrelated, this customer only, shared (strip this subject, keep others), or retained as issued evidence."
+    }
+  },
+  "inbox": {
+    "system_agent_transition": {
+      "title": "Conversation agent transition (system)"
+    }
+  },
+  "checklist": {
+    "title": "Legal checklist",
+    "missing": "{n} items to review",
+    "allOk": "All items present",
+    "note": "Warning only — the parties may agree otherwise, you can still send.",
+    "hint": {
+      "template": "The document template lacks this item",
+      "empty": "The template has this item but {field} is empty"
+    },
+    "item": {
+      "parties": "Details of both parties",
+      "subject": "Subject matter",
+      "quantity": "Quantity and quality",
+      "price_payment": "Price and payment method",
+      "term_place": "Term, place and method of performance",
+      "rights": "Rights and obligations",
+      "breach": "Liability for breach",
+      "dispute": "Dispute resolution",
+      "effective": "Effective date",
+      "seller_tax": "Seller details + tax code",
+      "date": "Issue date",
+      "validity": "Quote validity",
+      "vat_note": "Price incl. / excl. VAT",
+      "not_vat": "\"Does not replace a VAT invoice\" line (auto-inserted)"
+    },
+    "field": {
+      "business_legal_name": "Business legal name",
+      "business_tax_code": "Business tax code",
+      "business_address": "Business address",
+      "business_representative": "Business representative",
+      "business_logo": "Logo",
+      "business_bank_account": "Receiving account",
+      "customer_name": "Customer name",
+      "customer_tax_code": "Customer tax code",
+      "customer_address": "Customer address",
+      "customer_phone": "Customer phone",
+      "customer_email": "Customer email",
+      "customer_representative": "Customer representative",
+      "doc_code": "Document no.",
+      "doc_date": "Issue date",
+      "doc_valid_until": "Valid until",
+      "doc_owner": "Owner",
+      "items": "Line items table",
+      "totals_subtotal": "Subtotal",
+      "totals_discount": "Discount",
+      "totals_vat": "VAT",
+      "totals_total": "Total",
+      "totals_total_words": "Amount in words",
+      "contract_kind": "Contract type",
+      "contract_value": "Contract value",
+      "contract_start": "Start date",
+      "contract_end": "End date",
+      "payment_vietqr": "VietQR code",
+      "payment_transfer_note": "Transfer note",
+      "signatures_seller": "Seller signature",
+      "signatures_buyer": "Buyer signature"
+    }
+  },
+  "ticket_categories": {
+    "get": {
+      "title": "View ticket category suggestions",
+      "desc": "Read the workspace category suggestions (order, default, version)."
+    },
+    "replace": {
+      "title": "Replace ticket category suggestions",
+      "desc": "Replace the whole suggestion list; existing tickets keep their category."
+    },
+    "export": {
+      "title": "Export ticket category suggestions",
+      "desc": "Export the suggestion list (position + label) as a CSV / Excel file."
+    }
+  },
+  "warn": {
+    "kb_reindex_old_slot_serves": "While rebuilding, search keeps using the current index; it switches when done.",
+    "kb_reindex_price_missing": "The target model has no price — Credit cannot be estimated.",
+    "kb_reindex_supersedes": "The rebuild in progress with another model will be replaced.",
+    "kb_reindex_in_progress": "A rebuild with this model is already running — confirming continues it.",
+    "kb_reindex_nothing_open": "No rebuild is running.",
+    "existing_tickets_unchanged": "Existing tickets keep their category — only the suggestions change.",
+    "agent_assignment_not_run": "Assigning to an AI agent is assignment only — the agent will not run or resolve the ticket.",
+    "bulk_background": "More than 50 tickets — runs in the background; per-ticket results appear when done.",
+    "undo_conflicts_kept": "Tickets edited after this operation are kept as they are (reported as conflicts)."
+  },
+  "action_log": {
+    "add_correction": {
+      "title": "Add a correction to a sent action"
+    }
+  },
+  "stale": {
+    "title": "This record was just updated by someone else",
+    "body": "{title} was not saved because the record changed after you opened it. What you typed is kept.",
+    "reload": "Reload",
+    "keep": "Keep my version"
+  }
+}

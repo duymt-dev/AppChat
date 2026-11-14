@@ -1,0 +1,54 @@
+// tenant/authz.prisma — sở hữu: TIP-005 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: role, team, team_member, authz_revision (TIP-042).
+// Không Prisma relation xuyên domain (Blueprint §2.1). Index viết tay ở migration: team_member_user_idx INCLUDE.
+
+/// Vai trò = tập permission + data scope (D27). Vai trò hệ thống (5, seed khi tenant.provision) không sửa / xoá;
+/// vai trò tuỳ biến `custom:*` (P1 — TIP-042). Resolver lấy định nghĩa vai trò hệ thống từ code (DC-024).
+model Role {
+  id          String    @id @db.Uuid
+  key         String    @unique
+  name        String
+  isSystem    Boolean   @default(false) @map("is_system")
+  permissions String[]  @default([])
+  dataScope   Json      @default("{}") @map("data_scope")
+  /// CAS (TIP-042) — tăng mỗi lần sửa / hoàn tác.
+  version     Int       @default(1)
+  /// Xoá mềm (TIP-042): tombstone không resolve / gán / mời / nhận lời mời; key không dùng lại.
+  deletedAt   DateTime? @map("deleted_at") @db.Timestamptz(6)
+  createdAt   DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("role")
+}
+
+/// Nhóm (data scope `team`). UI quản lý Nhóm ở P1; bảng có từ đầu (rbac-permissions §5).
+model Team {
+  id         String   @id @db.Uuid
+  name       String
+  /// CAS (TIP-042).
+  version    Int      @default(1)
+  /// Trưởng nhóm — phải là thành viên nhóm; không cấp thêm quyền (TIP-042).
+  leadUserId String?  @map("lead_user_id") @db.Uuid
+  createdAt  DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("team")
+}
+
+model TeamMember {
+  teamId    String   @map("team_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([teamId, userId])
+  @@map("team_member")
+}
+
+/// Phiên bản quyền của tenant (một dòng, id = 1 — TIP-042): đổi vai trò tuỳ biến / nhóm tăng cùng transaction; resolver khoá cache theo số này
+/// nên lần đọc quyền kế tiếp sau commit thấy quyền mới, không chờ TTL / event.
+model AuthzRevision {
+  id        Int      @id @default(1) @db.SmallInt
+  revision  BigInt   @default(1)
+  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("authz_revision")
+}

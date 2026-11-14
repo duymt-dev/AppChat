@@ -628,6 +628,300 @@ Mục *"Phân bổ đích danh nhân sự"* trong form Tạo/Sửa mục tiêu �
 
 ---
 
+## [2026-10-29] — Hộp thư: menu ⋯ trên tin nhắn đúng ngữ cảnh
+
+Trước: menu của từng bubble trộn **Quản lý tin nhắn** (Thu hồi, Xóa) với **Quản lý hội thoại** (Lưu trữ, Ẩn, Xóa lịch sử, Tạo nhóm) — các mục sau không thuộc về tin nhắn, và thiếu hành động phổ biến.
+
+Nay menu bubble chỉ chứa việc liên quan **tin nhắn được chọn**:
+- Hàng **cảm xúc** trên cùng: 👍 ❤️ 😂 😮 😢 🙏 (bấm lại để bỏ; cảm xúc đang chọn có viền xanh)
+- **Trả lời** (đưa con trỏ vào khung nhập) · **Sao chép** (vào clipboard) · **Chuyển tiếp** · **Ghim tin nhắn** · **Dịch** · **Tạo ticket từ tin này** (mở modal ticket điền sẵn tiêu đề + khách)
+- Nhóm nguy hiểm: **Thu hồi** (ghi chú *Chỉ tin của bạn*) · **Xóa tin nhắn** (đỏ, hỏi xác nhận)
+
+**Quản lý hội thoại chuyển sang menu ⋯ của dòng hội thoại** (dưới đường kẻ ngăn): *Lưu trữ hội thoại · Ẩn trò chuyện · Tạo nhóm · Xóa lịch sử* (đỏ, hỏi xác nhận).
+
+Thêm icon `ic-reply`. Giới hạn: hành động chưa tác động vào dữ liệu thật — Sao chép chạy thật; còn lại hiện thông báo xác nhận. Menu vẫn dùng chung cho mọi bubble (chưa nhận biết tin của khách hay của nhân viên để ẩn/hiện *Thu hồi*).
+
+---
+
+## [2026-10-29] — Hộp thư: menu ⋯ trên từng hội thoại hoạt động đầy đủ
+
+Trước: menu 6 mục chỉ để trang trí — bấm mục nào cũng chỉ đóng menu, các mục có › không mở gì.
+Nay (submenu mở **thay nội dung menu**, có nút ‹ quay lại, mở rộng 236px):
+- **Đóng hội thoại** — chạy ngay, chuyển vào tab *Đã đóng*.
+- **Tạm ẩn ›** — 1 giờ · 3 giờ · Đến sáng mai · Tuỳ chọn ngày giờ.
+- **Phím tắt ›** — `/chao · /baogia · /lich · /camon`, kèm nội dung xem trước; chọn là **chèn vào khung nhập** (chưa gửi).
+- **Phân công ›** — 4 nhân viên + 2 AI Agent kèm số hội thoại đang xử lý; dấu ✓ ở người hiện tại.
+- **Vòng đời ›** — 6 giai đoạn (Mới → Thân thiết), ✓ giai đoạn hiện tại; ghi chú sẽ cập nhật hồ sơ 360° và Kanban.
+- **Gắn thẻ** — chọn **nhiều** thẻ (VIP · Cần gọi lại · Đã báo giá · Khiếu nại · Quan tâm HIFU · Khách sỉ), nút *Xong · gắn N thẻ*.
+
+Theo đề xuất: *Vòng đời* và *Gắn thẻ* áp cho **khách hàng** (không riêng hội thoại); *Đóng hội thoại* đóng ngay, không bắt chọn lý do.
+Giới hạn: lựa chọn mới lưu trong phiên và **chưa phản chiếu** ra dòng hội thoại, hồ sơ 360° hay Kanban thật — hiện chỉ có thông báo xác nhận.
+
+---
+
+## [2026-10-29] — Hồ sơ 360°: 6 nút thao tác mở modal ngay trong Hộp thư
+
+Trước: *Tạo ticket* chuyển sang trang Hỗ trợ; 5 nút còn lại không có hành động. Nay cả 6 nút (Hộp thư + trang Khách hàng) **mở modal tạo/cập nhật của module tương ứng ngay tại chỗ, điền sẵn thông tin khách**, không rời Hộp thư:
+- **Báo giá** — khách đã có BG-2041 → mở form *Cập nhật báo giá · BG-2041* điền đủ số, ngày, giá trị, trạng thái
+- **Hợp đồng** — khách đã có HĐ-0412 (Chờ ký) → *Cập nhật hợp đồng · HĐ-0412*
+- **Đơn hàng** — chưa có đơn → *Tạo đơn bán hàng* điền khách, hợp đồng liên quan, ngày, người nhận, SĐT
+- **Tạo ticket** — modal Tạo ticket của trang Hỗ trợ, điền tiêu đề + khách + email
+- **Đặt lịch** — modal Tạo lịch hẹn, điền tiêu đề + người tham gia
+- **Gửi email** — modal soạn email mới (dùng chung): gửi từ, đến (điền sẵn), 3 mẫu email đổi tiêu đề/nội dung
+
+Quy tắc tạo/cập nhật: có bản ghi đang mở của khách → **Cập nhật** (tiêu đề form ghi mã bản ghi, toast *Đã cập nhật…*); chưa có → **Tạo mới**. Tooltip trên nút nói trước sẽ tạo hay cập nhật.
+
+Kỹ thuật: `openCrmForm(mod, values, mode, ref)` nhận dữ liệu điền sẵn + chế độ; các ô form CRM chuyển sang có giá trị. Mở modal ticket/lịch hẹn từ trang gốc vẫn trống như cũ.
+
+---
+
+## [2026-10-29] — AI Agent: Skills · Nền tảng kết nối · Tiện ích đồng bộ thật + khung "Agent đang chạy"
+
+**Một danh mục chung, cấp quyền theo từng Agent:**
+- `agCatalog()` là nguồn duy nhất cho 6 Skills · 10 Nền tảng kết nối · 6 Tiện ích (trước đó danh sách nằm riêng trong menu ＋ của Hộp thư).
+- Cài đặt → AI Agent → tab **Công cụ & Quyền**: thêm 3 khối cấp quyền với công tắc thật cho **đúng Agent đang mở** (đếm *n/tổng*). Ví dụ Sales Agent được Chấm điểm lead + KiotViet + Bảng giá; Marketing Agent chỉ Soạn phản hồi + Brevo.
+- Menu ＋ trong Hộp thư **đọc cùng bảng cấp quyền**: mục Agent phụ trách hội thoại (hiện là Sales Agent) chưa được cấp thì **mờ, ghi "Chưa cấp cho Sales Agent · bật ở Cài đặt AI Agent"** và không dùng được. Tiêu đề submenu ghi rõ *cấp cho Sales Agent*.
+
+**Tab Cowork (Trợ lý AI): khung "Trợ lý AI đang điều phối"** — mỗi việc đang giao có: tên việc, Agent nhận việc, công cụ dùng, thanh tiến độ, trạng thái (*Đang chạy · Chờ bạn duyệt · Hoàn tất*) và nút (*Dừng · Duyệt & gửi · Xem kết quả*). Tiêu đề tổng hợp *"4 việc · 2 đang chạy · 1 cần bạn duyệt"*; *Duyệt & gửi* chuyển việc sang *Hoàn tất*.
+
+*Cập nhật:* khung chỉ còn **một hàng thu gọn** (tên + *"4 việc · 2 đang chạy · 1 cần bạn duyệt"* + *Xem chi tiết ›*) để không đẩy dải thẻ Agent xuống; bấm vào mở **modal** chứa danh sách việc, nút *Dừng · Duyệt & gửi · Xem kết quả* nằm trong modal.
+
+Giới hạn: Agent phụ trách hội thoại trong Hộp thư đang **cố định là Sales Agent**; danh sách việc đang chạy là dữ liệu mẫu; chưa có mức quyền *chỉ tra cứu · cần duyệt · tự thực hiện* cho từng công cụ; cấu hình lưu theo phiên.
+
+---
+
+## [2026-10-29] — Hộp thư: menu ＋ trong khung nhập có chi tiết thật
+
+Trước: menu ＋ (*Thêm tệp · Chụp ảnh màn hình · Skills › · Connectors › · Plugins › · Research · Web search*) chỉ là danh sách tên; chọn mục nào cũng chỉ hiện thông báo.
+Nay:
+- **Skills ›** — 6 skill, mỗi dòng có mô tả, lệnh (`/summary · /draft · /translate · /intent · /score · /extract`), công tắc bật/tắt. Bấm dòng = **chèn lệnh vào khung nhập**; skill đang tắt thì nhắc bật.
+- **Connectors ›** — 10 nền tảng (Zalo ZBS · Google Sheets · Misa · KiotViet · Sapo · Haravan · WooCommerce · Odoo · Brevo · Fast): nền tảng **đã kết nối** có công tắc *dùng trong hội thoại này*; nền tảng **chưa kết nối** có nút *Kết nối* → mở Cài đặt → Nền tảng kết nối.
+- **Plugins ›** — 6 tiện ích (Bảng giá & Báo giá · Tra cứu đơn hàng · Kiểm tra tồn kho · Lịch hẹn · Thanh toán QR · Khảo sát CSAT) bật/tắt từng cái, hiện trạng thái.
+- Mỗi submenu có dòng **Quản lý … ›** ở cuối; submenu rộng 320px.
+- **Research** và **Web search** thành **công tắc thật**: bật thì dòng tô xanh và hiện *✓ Bật*, menu giữ nguyên để bật cả hai.
+- **Chụp ảnh màn hình** hiện xác nhận đã đính kèm.
+
+Giới hạn: trạng thái bật/tắt lưu trong phiên; Research/Web search/Plugins chưa thực sự thay đổi nội dung AI trả lời; ảnh chụp màn hình chưa tạo tệp đính kèm thật.
+
+---
+
+## [2026-10-29] — Hồ sơ 360°: sửa · xoá được cả tab mặc định, thêm khối vào tab mặc định
+
+Trước: 5 tab mặc định (Tổng quan · CRM · AI · Tệp · Lịch sử) chỉ ẩn/đổi tên được; khối chỉ thêm được ở *tab riêng*.
+Nay trong *Tuỳ chỉnh Hồ sơ 360°* mọi tab đối xử như nhau:
+- Tab mặc định gắn nhãn **MẶC ĐỊNH**, có nút **xoá** (hỏi xác nhận) — xoá khỏi **mẫu đang sửa**, không ảnh hưởng mẫu khác.
+- Xoá nhầm → dòng **"Tab mặc định đã xoá · thêm lại"** hiện chip *+ CRM · + Tệp…* để khôi phục.
+- Mọi tab (kể cả mặc định) có hàng chip **khối bổ sung** từ thư viện 12 khối. Với tab mặc định, khối hiển thị **bên dưới nội dung gốc**, ngăn bằng dải *KHỐI BỔ SUNG*; với tab riêng, khối là toàn bộ nội dung.
+- Bỏ khoá riêng cho *Tổng quan*; thay bằng quy tắc chung: **luôn giữ ít nhất 1 tab**, không tắt/xoá được tab cuối.
+
+Giới hạn: chưa sửa được **bên trong** khối gốc của tab mặc định (VD bỏ riêng thẻ "Tín hiệu khách hàng" khỏi tab AI) — chỉ thêm khối hoặc xoá cả tab.
+
+---
+
+## [2026-10-29] — Hồ sơ 360°: bố cục tab cấu hình được theo mẫu & vai trò
+
+Trước: 5 tab Hồ sơ 360° (Tổng quan · CRM · AI · Tệp · Lịch sử) viết cứng trong code; muốn thêm tab phải sửa code.
+
+**Nay bố cục chạy theo mẫu (layout):**
+- **Nút ⚙ ở góc phải thanh tab** (Hộp thư và trang Khách hàng) mở *Tuỳ chỉnh Hồ sơ 360°*: bật/tắt từng tab, đổi tên, đổi thứ tự (↑ ↓), xoá tab riêng, **+ Thêm tab mới** (đặt tên + chọn khối), *Đặt lại mặc định*. Thay đổi áp dụng ngay, không cần Lưu. *Tổng quan* luôn hiển thị.
+- **Thư viện 12 khối** cho tab riêng: Thông tin liên hệ · Trường tuỳ chỉnh · Ticket đang mở · SLA phản hồi · CSAT gần nhất · Ghi chú chăm sóc · Báo giá · Đơn hàng · Lịch hẹn · Điểm & hạng · Tín hiệu AI · Tóm tắt AI.
+- **Cài đặt → Hồ sơ 360°** (mục mới ở nhóm Ứng dụng): danh sách mẫu, mỗi mẫu có chip tab đang hiển thị, **gán cho vai trò** (Quản trị · Kinh doanh · CSKH · Marketing · Vận hành; mỗi vai trò chỉ một mẫu), *Chỉnh sửa bố cục · Nhân bản · Xoá*, *+ Tạo mẫu mới*, và ô **Xem như vai trò** để xem thử bố cục theo vai trò.
+- **3 mẫu có sẵn:** *Mặc định workspace* (5 tab chuẩn) · *CSKH* (thêm tab riêng **CSKH** sau Lịch sử gồm Ticket · SLA · CSAT · Ghi chú — đúng ví dụ yêu cầu) · *Kinh doanh* (thêm tab **Giao dịch**: Báo giá · Đơn · Lịch hẹn; ẩn Tệp).
+- Vai trò chưa được gán mẫu → dùng mẫu đầu tiên (Mặc định workspace).
+
+Giới hạn: dữ liệu trong khối của tab riêng là **mẫu cố định** (chưa lấy theo khách đang mở); cấu hình lưu trong phiên, tải lại trang sẽ về mặc định; chưa có cấp **cá nhân tự sắp lại** như đề xuất ban đầu — mới ở cấp workspace/vai trò.
+
+---
+
+## [2026-10-29] — Hộp thư: nút nghiệp vụ trong Hồ sơ 360° mở form tại chỗ
+
+6 nút cuối Hồ sơ 360° (*Báo giá · Hợp đồng · Đơn hàng · Gửi email · Tạo ticket · Đặt lịch*) **không còn chuyển sang trang khác**. Bấm là mở đúng form của module đó **ngay trên màn Hộp thư**, đã điền sẵn thông tin khách đang trò chuyện (Chị Lan Nguyễn · Spa Hương Sen):
+
+| Nút | Hành vi | Điền sẵn |
+|---|---|---|
+| Báo giá | **Cập nhật** BG-2041 (khách đã có báo giá) | số báo giá, khách, ngày, hạn, nhân viên, trạng thái, giá trị, ghi chú |
+| Hợp đồng | **Cập nhật** HĐ-0412 | mã, khách, báo giá liên quan, ngày ký, giá trị, loại, trạng thái |
+| Đơn hàng | **Tạo mới** (khách chưa có đơn) | khách, hợp đồng liên quan, ngày đặt, trạng thái *Mới*, người phụ trách, người nhận, SĐT |
+| Gửi email | Soạn email | người nhận, tiêu đề + nội dung theo mẫu |
+| Tạo ticket | Tạo mới | tiêu đề, khách, email |
+| Đặt lịch | Tạo mới | tiêu đề lịch, người tham gia |
+
+- Quy tắc tạo/cập nhật: khách **đã có** bản ghi → mở chế độ *Cập nhật* (tiêu đề form ghi mã bản ghi), **chưa có** → *Tạo mới*. Tooltip nút nêu rõ (*"Cập nhật báo giá BG-2041"* / *"Tạo đơn hàng mới cho Chị Lan Nguyễn"*).
+- Dùng lại **đúng form** của các trang Báo giá · Hợp đồng · Đơn bán hàng · Hỗ trợ · Lịch hẹn; các form nằm ở cấp gốc ứng dụng (z-index 1400, trên panel 360° ở mọi bề rộng) nên mở được từ mọi màn. Áp dụng cho cả panel 360° ở Hộp thư lẫn trang Khách hàng.
+
+---
+
+## [2026-10-29] — Hộp thư: tìm trong hội thoại (🔍)
+
+Biểu tượng kính lúp trên tiêu đề hội thoại trước chưa có chức năng. Nay bấm vào mở **thanh tìm kiếm ngay dưới tiêu đề**:
+- Gõ là tìm ngay trong hội thoại đang mở, không phân biệt dấu; từ khoá tô vàng, kết quả đang chọn tô đậm + viền cam và tự cuộn tới giữa khung.
+- Bộ đếm **N/M**, nút **↑ ↓** (hoặc Enter / Shift+Enter) để nhảy giữa kết quả; **Esc** hoặc ✕ để đóng và xoá đánh dấu.
+- Lọc theo **người gửi**: Tất cả · Khách · Nhân viên · AI Agent.
+- Không có kết quả → gợi ý dùng ô tìm ở danh sách hội thoại để tìm trong tất cả hội thoại.
+
+Chưa làm: lọc theo loại (Ảnh/Video · Tệp · Liên kết) và theo thời gian.
+
+---
+
+## [2026-10-29] — Hồ sơ 360°: đồng bộ kích thước nút thao tác · hoàn tác thanh nổi
+
+**Hoàn tác:** bỏ thanh "Chọn tất cả · Chuyển tiếp…" nổi ở đáy màn hình (hiểu sai yêu cầu). Các trang Khách hàng · Báo giá · Hợp đồng · Đơn bán hàng trở lại thanh thao tác nằm trên bảng như trước; bỏ tweak `bulkBarPos`. Giữ 2 tweak `tableScroll`, `stickyHeader`.
+
+**Đúng yêu cầu — nút cuối Hồ sơ 360° (Hộp thư + Khách hàng):** hai hàng nút trước lệch nhau (*Báo giá · Hợp đồng · Đơn hàng* cao 32px, chữ 12,7px, rộng theo nội dung; *Gửi email · Tạo ticket · Đặt lịch* cao 38px, chữ 14,3px). Nay cả 6 nút cùng **cao 36px · bo 9px · chữ 13,4px đậm · icon 14px · chia đều bề rộng**, khoảng cách 6px; **cùng nền trắng viền xám `#E5E7EB`** (bỏ nền xanh/vàng/xanh nhạt của hàng dưới), chỉ chữ và icon giữ màu riêng từng nút.
+
+---
+
+## [2026-10-29] — Thanh thao tác đã chọn gom 1 chỗ + Tweaks cho bảng
+
+**Thanh "Chọn tất cả · Chuyển tiếp · Gán phụ trách · Duyệt…"** (Khách hàng · Báo giá · Hợp đồng · Đơn bán hàng) trước nằm trong luồng nội dung phía trên bảng. Nay mặc định **nổi cố định giữa đáy màn hình** (nền mực, bo 14px, đổ bóng) — luôn ở một chỗ, không cuộn theo bảng. Trang chừa 86px dưới cùng để thanh không che dòng cuối; thanh giới hạn bề rộng màn hình và tự cuộn ngang nếu nhiều nút.
+- Khách hàng: chỉ **nhóm chọn + thao tác** (Chọn tất cả · Chuyển tiếp · Gán phụ trách · Tạo Ticket/Lịch hẹn/Báo giá/Hóa đơn/Đơn hàng) nổi xuống đáy; **bộ lọc · Lọc · Sắp xếp · Tạo trường giữ nguyên trên thanh công cụ**.
+
+**Tweaks mới** (nhóm *Bảng dữ liệu*):
+- `bulkBarPos` — `floating` (nổi đáy màn hình, mặc định) · `top` (nằm trên bảng như cũ)
+- `tableScroll` — `inside` (chỉ cuộn trong bảng, mặc định) · `page` (cuộn cả trang như trước)
+- `stickyHeader` — bật/tắt hàng tiêu đề cột dính trên cùng
+
+Cài đặt qua class trên vùng nội dung chính (`bulk-float` · `page-scroll` · `no-sticky`), đọc từ `this.props`.
+
+---
+
+## [2026-10-29] — Bảng dữ liệu cuộn bên trong bảng, không cuộn cả trang
+
+Trước: toàn bộ trang cuộn theo bảng — tiêu đề, ô tìm kiếm, thẻ thống kê và bộ lọc trôi mất khi xem dòng phía dưới.
+
+Sau (7 trang bảng: **Khách hàng · Sản phẩm · Báo giá · Hợp đồng · Đơn bán hàng · Hóa đơn · Hỗ trợ**, cả chế độ Danh sách lẫn Kanban):
+- Trang cao đúng 1 màn hình; phần trên (tiêu đề, tìm kiếm, thống kê, lọc) **đứng yên**.
+- Chỉ vùng bảng cuộn; **hàng tiêu đề cột dính trên cùng** khi cuộn. Kanban cuộn trong khung bảng.
+- Cách làm: đánh dấu `tblpage` (gốc trang) → `tblgrow` (các lớp bọc) → `tblbox` (khung bảng) bằng cách lần đúng chuỗi phần tử cha của danh sách dòng; CSS flex cột với `min-height:0`.
+- An toàn: khung bảng tối thiểu 260px; màn quá thấp thì trang mới cuộn dự phòng. Mobile (≤900px) giữ cuộn cả trang như cũ cho dễ thao tác.
+
+Chưa áp: Khách hàng thân thiết · Marketing · Gọi điện · Lịch hẹn — các trang này có nhiều khối khác ngoài bảng (luật tích điểm, KPI, lịch tuần/tháng), cần sắp lại bố cục trước.
+
+---
+
+## [2026-10-29] — Chuẩn hoá nút "Trợ lý AI" trên toàn app
+
+Trước: 14 nút Trợ lý AI ở 13 màn dùng **5 kiểu khác nhau** — nền đen / xanh nhạt (Hộp thư) / tím nhạt (Báo giá); cao 34–38px; bo góc 8–11px; nhãn khi có khi không kèm tên module; 2 nút không bấm được (Hóa đơn và 1 màn khác).
+
+Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon ✦ xanh brand `#2DC56A`, chữ trắng *"Trợ lý AI"*, cao 36px, bo 9px; hover đậm hơn. Tên module chuyển vào tooltip (VD *Trợ lý AI · Báo giá*) vì panel mở ra đã ghi rõ ngữ cảnh. Hai nút chết nay mở module Trợ lý AI.
+
+Áp dụng: Hộp thư · Khách hàng · Báo giá · Hợp đồng · Đơn bán hàng · Hóa đơn · Hỗ trợ (Tickets) · Lịch hẹn · Marketing · Gọi điện · AI Agents · Quy trình.
+
+---
+
+## [2026-10-29] — Kênh kết nối: một kênh nhiều tài khoản (omnichannel)
+
+**Sửa mô hình dữ liệu:** trước đây mỗi kênh = 1 tài khoản. Nay **mỗi kênh có nhiều tài khoản** (VD Zalo OA: *Spa Hương Sen* + *Shop Bé Na*; Facebook: 2 Page; Instagram: 2 tài khoản; Website Chat: 2 domain; Email: 2 hộp thư).
+- Dữ liệu tài khoản theo kênh: `chanAcctSeed()` + `chanAcctAdds` (thêm mới) − `chanAcctDels` (ngắt) + `chanAcctEdits` (sửa). `effChannels()` tính trạng thái kênh từ tài khoản: *đã kết nối* khi có ≥1 tài khoản, sức khoẻ = tài khoản kém nhất, tổng hội thoại cộng dồn.
+- Seed khớp đúng danh sách tài khoản trong bộ lọc Hộp thư, nên **bộ lọc "Tất cả tài khoản" ở Hộp thư giờ sinh ra từ chính dữ liệu kênh** — thêm/ngắt tài khoản ở Cài đặt là Hộp thư cập nhật theo.
+
+**Kết nối = thêm tài khoản:**
+- Kênh đã có tài khoản vẫn kết nối thêm được; tiêu đề luồng ghi *"Thêm tài khoản Zalo OA · đang có 2"*.
+- Thẻ kênh trong popup Hộp thư hiện *"N tài khoản đã kết nối · bấm để thêm"*.
+- Bước chọn trang (đăng nhập uỷ quyền) đánh dấu trang **đã kết nối**.
+- Bước cấu hình nhanh đặt **tên tài khoản** (tự điền theo trang/email đã chọn).
+
+**Quản lý = 2 cấp:**
+1. **Danh sách tài khoản của kênh** — 3 số tổng (tài khoản · hội thoại 7 ngày · số tài khoản có AI) + từng tài khoản: tên, định danh, sức khoẻ, số hội thoại, AI Agent → *Quản lý ›*. Nút **+ Thêm tài khoản**.
+2. **Chi tiết 1 tài khoản** — 6 khối cấu hình như cũ nhưng **riêng từng tài khoản** (AI Agent, phân công, SLA, đồng bộ). *Tạm dừng / Kết nối lại / Ngắt kết nối* chỉ tác động tài khoản đó; ngắt tài khoản cuối cùng thì kênh chuyển *Chưa kết nối*.
+- Nút trên danh sách kênh ở Cài đặt hiện số tài khoản: *Quản lý (2)*.
+
+---
+
+## [2026-10-29] — Kết nối kênh: luồng dùng chung + màn Quản lý kênh
+
+**Sửa lỗi:** nút *Quản lý* ở Cài đặt → Kênh kết nối trước đây **ngắt kênh ngay** (dùng chung hàm bật/tắt với *Kết nối*), và *Kết nối* nối ngay không qua xác thực. Nay cả 3 điểm vào (nút *Kết nối kênh* ở Hộp thư · nút *Kết nối/Liên kết* ở danh sách và dạng thẻ trong Cài đặt) đều đi qua `chanAction()`:
+- Kênh **chưa nối** → mở luồng kết nối
+- Kênh **đã nối** → mở màn Quản lý
+
+**Luồng kết nối 3 bước** (một modal dùng chung, có stepper):
+1. **Chọn kênh** — popup 13 kênh ở Hộp thư; trong Cài đặt bỏ qua bước này vì đã chọn sẵn
+2. **Xác thực** — tự chọn theo loại kênh:
+   - *Quét QR* (Zalo cá nhân, WhatsApp cá nhân) — mã QR + 3 bước hướng dẫn → *Tôi đã quét mã*
+   - *Đăng nhập uỷ quyền* (Zalo OA, Facebook, Messenger, Instagram, Google, TikTok…) — nút *Đăng nhập với…*, nêu quyền yêu cầu → chọn trang cần kết nối
+   - *Nhập thông tin* (Telegram · Email IMAP · Tổng đài SIP · Live chat · WhatsApp API · WeChat) — form theo từng kênh → *Kiểm tra kết nối* phải thành công mới tiếp tục được
+3. **Cấu hình nhanh** — tên hiển thị · AI Agent · chế độ AI (*trả lời ngay · gợi ý người duyệt · tắt*) · phòng ban nhận · cách chia → *Hoàn tất kết nối*: kênh chuyển sang *Đã kết nối*, sức khoẻ *Khỏe*
+
+**Màn Quản lý kênh** (drawer bên phải, 6 khối):
+1. Tổng quan kết nối — tài khoản · người kết nối · ngày · đồng bộ cuối · hạn token; *Kiểm tra kết nối*, *Đồng bộ lại*
+2. Hiệu suất 7 ngày — hội thoại mới · tin nhận/gửi · FRT · % AI tự xử lý · lỗi gửi tin
+3. Trả lời tự động — AI Agent · chế độ AI · giờ hoạt động · tin chào mừng
+4. Phân công & định tuyến — phòng ban · cách chia · chính sách SLA
+5. Đồng bộ dữ liệu — bật/tắt tin nhắn · bình luận · đánh giá · tự tạo liên hệ; đồng bộ lịch sử 0/7/30/90 ngày
+6. Vùng nguy hiểm — *Tạm dừng/Tiếp tục* · *Kết nối lại tài khoản khác* (mở lại bước xác thực) · *Ngắt kết nối* (hỏi xác nhận, giữ hội thoại cũ)
+
+*Lưu thay đổi* cập nhật AI Agent hiển thị trên danh sách kênh và trạng thái tạm dừng.
+
+---
+
+## [2026-11-14] — Phạm vi D64: doanh nghiệp nhiều phòng ban
+
+**Lý do:** Khách dùng AppChat không chỉ có bán hàng — có Nhân sự, Marketing, Vận hành / Kỹ thuật… Cần chia dữ liệu theo phòng ban và tách khách hàng khỏi ứng viên / đối tác / nhà cung cấp.
+
+**Thay đổi:**
+- **Phòng ban + Sơ đồ tổ chức** vào bản phát hành (trước P3): cây Chi nhánh → Phòng ban → Nhóm, mỗi đơn vị có trưởng; thành viên gồm người và AI agent (agent là nhân viên).
+- **Phạm vi dữ liệu "Phòng ban"**: thấy dữ liệu của phòng mình và các nhóm con.
+- **Kênh theo phòng ban nhận**: hội thoại vào tài khoản kênh của phòng nào thì phòng đó thấy và chia trong phòng (vd. kênh tuyển dụng chỉ Nhân sự thấy).
+- **Vai trò mẫu** Nhân sự · Marketing · Vận hành / Kỹ thuật · Chỉ xem (tạo vai trò tuỳ biến nhanh; 5 vai trò hệ thống giữ nguyên).
+- **Loại liên hệ** Khách hàng · Ứng viên · Đối tác · Nhà cung cấp; phễu bán hàng, doanh số, báo giá / hợp đồng / đơn chỉ cho Khách hàng.
+- **AI agent là thành viên:** hiện ở Cài đặt › Thành viên cùng người (vai trò "AI Agent", phòng ban, trạng thái), tính vào số thành viên; hạn mức gói vẫn tách "ghế người dùng" và "AI Agent" như bảng gói. Việc agent làm (khách, báo giá, đơn, lịch hẹn) thuộc phòng ban của agent.
+- **Không làm:** chấm công, lương, nghỉ phép, hồ sơ nhân sự, phễu tuyển dụng riêng; KPI / phân ca vẫn P3.
+
+**Ảnh hưởng:** 4 TIP mới (051 → 051d) sau 050, GOAL-RELEASE 108 TIP.
+
+---
+
+## [2026-11-14] — Phạm vi D63: đồng bộ sàn Shopee + TikTok Shop
+
+**Lý do:** DN dịch vụ có bán thêm qua sàn cần đơn sàn về AppChat (đơn, trạng thái, mã vận đơn, sản phẩm / giá / biến thể). Chỉ đồng bộ về — AppChat vẫn không vận hành gian hàng.
+
+**Thay đổi:**
+- Adapter thật **Shopee** (Open Platform v2) + **TikTok Shop** (Partner API VN) qua port `OrderSyncProvider` có sẵn (D31); kết nối bằng uỷ quyền sàn + chọn shop, nhiều shop / sàn mỗi workspace.
+- Kéo đơn theo trang qua hàng đợi + webhook mức App; mã vận đơn chỉ đọc; đọc sản phẩm để ghép SKU (drawer Ghép SKU).
+- Sửa lỗi đồng bộ có sẵn: vận đơn bị ghi đè bằng rỗng, khách / đơn trùng khi nối lại, ghép SKU bỏ qua ánh xạ, tồn biến thể không trừ (Q-916), một kết nối mỗi connector.
+- Luật COMMERCE §4b giữ nguyên. Lazada / Sapo / KiotViet / Haravan / WooCommerce, đẩy tồn / trạng thái lên sàn, đăng sản phẩm, chat người mua, livestream sàn: vẫn "Sắp có" / P2.
+
+**Ảnh hưởng:** 4 TIP mới (049 → 049d) sau 048h, GOAL-RELEASE 103 TIP. Cần đăng ký Shopee ISV (Q-914) + TikTok Shop Partner (Q-915) sớm.
+
+---
+
+## [2026-11-14] — Phạm vi D62: kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream, cô lập worktree
+
+**Lý do:** Chủ nhà muốn ship các kênh webhook cùng bản phát hành (trước đây P2 — D04) và làm song song nhiều worktree.
+
+**Thay đổi:**
+- **Kênh mới có adapter thật:** Zalo OA (tin tư vấn ≤ 7 ngày), Facebook Page / Messenger, Instagram (gắn Page), TikTok Business Messaging (Beta). Kết nối bằng đăng nhập nền tảng (OAuth) + chọn Page / OA / tài khoản; một Page / OA chỉ thuộc một workspace.
+- **Bình luận bài đăng** (Facebook / Instagram / TikTok) vào Hộp thư: trả lời công khai, nhắn riêng, ẩn, xoá, thích; AI agent trả lời thẳng như nhân viên (Q-911 chốt 2026-11-14).
+- **Livestream** Facebook / Instagram: gom bình luận theo phiên, cờ ý mua / SĐT; người hoặc AI agent tạo khách + đơn, trả lời / nhắn riêng người bình luận.
+- **Vẫn "Sắp có":** ZNS, WhatsApp, WhatsApp Business API, Telegram, LINE, Viber, WeChat; bình luận bài Zalo OA; live TikTok / Shopee; chat người mua trên sàn. Danh sách kênh ở mọi màn lấy từ registry (PD-903).
+- **Hạ tầng thi công:** TIP-035d cô lập worktree (DB / cổng / Memurai / slot Postgres riêng) để ba luồng A (TIP cũ) / B (Gọi điện) / C (Kênh) chạy song song.
+- **Kho token OAuth chung** (`oauth_grant` + `TokenVault`): một App Zalo cho kênh OA và Zalo Cloud Connect; TIP-047 / 047b / 047c / 047d sửa theo (DC-909).
+
+**Ảnh hưởng:** 9 TIP mới (035d, 048 → 048h), GOAL-RELEASE 99 TIP. Tài nguyên cần nộp sớm: Meta Business Verification + App Review, App Zalo quyền OA API, TikTok Business Messaging, domain HTTPS (Q-908…910). Prototype chưa vẽ Hộp thư bình luận và màn livestream (PD-904, PD-905 — mức 2).
+
+---
+
+## [2026-11-12] — Prototype mới (bản 2026-11-10) thay ver2.1
+
+**Nguồn:** `Team Work AppChat – AppChat.html` (bản đóng gói tự giải nén, lưu 2026-11-10). Bản gốc giữ nguyên ở `06-prototype/AppChat (standalone).html`; `AppChat.dc.html` là bản nguồn giải ra từ đó (support.js · font Google · `assets/appchat-symbol.png` dùng lại như cũ), đã chạy `normalize-prototype.mjs` (D44, 10.836 giá trị). Đo trên Playwright: bản giải ra khớp bản đóng gói ≤ 0,005% ở 14 màn.
+
+**Màn / khối mới trong prototype:**
+- **Tài chính** (`finance`, rail sau Khách hàng, badge 4) — doanh số & công nợ theo khách từ bán mới · gia hạn · marketing: 4 KPI (Doanh số · Đã thu · Còn nợ · Quá hạn), lọc đơn vị / hoạt động / mốc đếm ngày, chip trạng thái (Đã thu đủ · Đã cọc · Còn nợ · Quá hạn), bảng có số ngày còn lại / quá hạn và nhắc gần nhất.
+- **Báo cáo** có lại mục trên rail (chỉ icon, sau Quy trình).
+- **Cơ hội / Sales Pipeline** dùng chung mọi màn: thẻ trong Hồ sơ 360° (Hộp thư + Khách hàng) — giai đoạn, xác suất, dự báo, ngày dự kiến chốt, phụ trách, sản phẩm, báo giá liên quan, gợi ý AI bước tiếp theo, *Chuyển giai đoạn · Mở cơ hội*; drawer **Cơ hội 360°** (Mở lại · Đánh dấu Thua bắt buộc chọn lý do · Khách hàng 360° · cơ hội khác của khách · lịch sử).
+- **Công nợ · Tài chính** trong Hồ sơ 360° — số còn nợ, thanh đã thu / cọc, hạn, *Gửi email nhắc · Xem ở Tài chính ›*.
+- **Hẹn gọi lại** (modal dùng chung): thời điểm · người gọi · ghi chú.
+- **Khách hàng**: bảng thêm cột *Cơ hội đang mở*; *Gửi Zalo ZBS* (Coming soon) cạnh *Gửi email*.
+- **Cài đặt**: Tổng đài (lời chào & menu phím, nhóm nhận cuộc gọi, máy nhánh, ghi âm & giám sát), KPI theo cây tổ chức (mục tiêu quý · tổng cấp dưới · chia đều), Vai trò (*Sửa & phân quyền · Nhân bản · Xoá*).
+
+**Ảnh hưởng:**
+- Baseline parity dịch theo bản mới: phần lớn màn ~0,2% (rail thêm 2 mục), **Hộp thư ~6,6%** và **Khách hàng ~3,7%** (thẻ Cơ hội / Công nợ trong Hồ sơ 360°, cột mới) — các màn này cần đo lại `pnpm parity` trên app.
+- Màn ẩn theo V2 (Quy trình · Báo cáo; Gọi điện vào phạm vi từ 2026-11-13 — D61) và phạm vi module vẫn theo Blueprint §7 / D-quyết định hiện hành; prototype mới **không** ghi đè D42 (D43).
+- **Phạm vi (2026-11-12, D60 / Q-901):** Cơ hội / Sales Pipeline → TIP-026c (thay `contact_opportunity` 026b, sửa COMMERCE §8), Tài chính → TIP-032e (sửa COMMERCE §5); cả hai trước TIP-046. Kanban Pipeline làm sau; Hẹn gọi lại làm cùng Gọi điện (TIP-047d).
+- **Phạm vi (2026-11-13, D61 / RRI Gọi điện):** Gọi điện / Call Center vào bản phát hành (đảo D07 phần Call Center): TIP-047 hạ tầng voice (LiveKit + SIP edge tự dựng, không Docker) → 047b schema / quyền / gói → 047c backend (LiveKit / Zalo Cloud Connect / hotline / SĐT cá nhân, gọi nhỡ → việc gọi lại, ghi âm 12 tháng, Voice AI) → 047d giao diện (màn L4775, WebPhone, Hẹn gọi lại L2835, Cài đặt Tổng đài L8173); trước TIP-044. Nút "Cuộc gọi đến (demo)", codec G.729, thiết bị Softphone / IP Phone / Mobile app của prototype không làm (PD-902).
+
+---
+
 ## [2026-10-27] — Cài đặt → Phòng ban: tạo · cấu hình · xoá · xem thành viên
 
 Trước đây 3 nút trên trang Phòng ban không có hành động. Nay:

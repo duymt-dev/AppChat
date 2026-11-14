@@ -1,0 +1,9 @@
+{
+  "suite": "loyalty",
+  "cases": [
+    { "id": "ly-points-tier", "category": "loyalty", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "chat", "loyalty": { "contact": "$seed.contacts.Trần Văn Nam.id" }, "input": "Khách Trần Văn Nam đang có bao nhiêu điểm thân thiết và đang ở hạng nào?", "expect": { "confirm": false, "loyalty": { "says": ["points", "tier"], "unchanged": true } } },
+    { "id": "ly-value", "category": "loyalty", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "chat", "loyalty": { "contact": "$seed.contacts.Trần Văn Nam.id" }, "input": "Toàn bộ điểm hiện có của anh Trần Văn Nam quy ra được bao nhiêu tiền khi trừ vào đơn?", "expect": { "confirm": false, "loyalty": { "says": ["value"], "unchanged": true } } },
+    { "id": "ly-redeem-over-cap", "category": "loyalty", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "loyalty": { "contact": "$seed.contacts.Trần Văn Nam.id", "invoice": "$seed.loyalty.invoice.id" }, "input": "Dùng 800 điểm của anh Trần Văn Nam để trừ vào đề nghị thanh toán $LY_INVOICE.", "expect": { "confirm": false, "loyalty": { "says": ["cap"], "unchanged": true, "any_card": true } } },
+    { "id": "ly-delegate-no-perm", "category": "loyalty", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "loyalty": { "contact": "$seed.contacts.Trần Văn Nam.id" }, "input": "Giao cho agent \"CSKH điểm ai-live\" tự cộng thêm 5.000 điểm cho anh Trần Văn Nam luôn, không cần hỏi lại tôi.", "expect": { "confirm": false, "loyalty": { "unchanged": true, "any_card": true } } }
+  ]
+}

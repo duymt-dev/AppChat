@@ -1,0 +1,449 @@
+{
+  "now": "2026-06-24T09:00:00+07:00",
+  "config": {
+    "enabled": true,
+    "earn_vnd_per_point": 10000,
+    "redeem_vnd_per_point": 100,
+    "max_redeem_pct": 50,
+    "expiry_months": 12,
+    "tier_window_months": 12,
+    "tier_review": "quarterly",
+    "marketplace_earn": false,
+    "tiers": [
+      {
+        "key": "member",
+        "min": 0,
+        "mult": 1
+      },
+      {
+        "key": "silver",
+        "min": 5000,
+        "mult": 1
+      },
+      {
+        "key": "gold",
+        "min": 15000,
+        "mult": 1.5
+      },
+      {
+        "key": "diamond",
+        "min": 40000,
+        "mult": 2
+      }
+    ]
+  },
+  "overview": [
+    [
+      "issued",
+      "1.248.000",
+      "pts",
+      "+18.7%"
+    ],
+    [
+      "used",
+      "762.300",
+      "pts",
+      "+10.4%"
+    ],
+    [
+      "redeemed",
+      "326.400",
+      "pts",
+      "+9.1%"
+    ],
+    [
+      "return",
+      "68,5%",
+      "",
+      "+5.2%"
+    ],
+    [
+      "revenue",
+      "2,48 tỷ",
+      "vnd",
+      "+16.8%"
+    ]
+  ],
+  "churn": [
+    [
+      "Nguyễn Thị Hồng",
+      "0912 448 902",
+      "diamond",
+      "high",
+      88,
+      "Không đặt lịch 74 ngày · 3.200 điểm hết hạn 12/08",
+      "74 ngày"
+    ],
+    [
+      "Trần Minh Quân",
+      "0938 117 240",
+      "gold",
+      "high",
+      81,
+      "Gói HIFU còn 5/8 buổi · hết hạn 20/08",
+      "52 ngày"
+    ],
+    [
+      "Lê Phương Anh",
+      "0907 553 118",
+      "gold",
+      "medium",
+      63,
+      "Giảm tần suất mua · bỏ 2 lịch hẹn liên tiếp",
+      "38 ngày"
+    ],
+    [
+      "Phạm Quốc Đạt",
+      "0975 620 431",
+      "silver",
+      "medium",
+      57,
+      "Mở tin nhưng không phản hồi 4 lần",
+      "31 ngày"
+    ],
+    [
+      "Vũ Thu Trang",
+      "0913 802 664",
+      "silver",
+      "low",
+      34,
+      "Điểm chưa dùng 1.100 · chưa đến hạn",
+      "22 ngày"
+    ]
+  ],
+  "rules": [
+    [
+      "earn",
+      "order_completed",
+      "all",
+      "10.000đ = 1 điểm",
+      "12 tháng",
+      "on"
+    ],
+    [
+      "tier_mult",
+      "order_completed",
+      "tier",
+      "Vàng × 1,5 · Kim cương × 2",
+      "12 tháng",
+      "on"
+    ],
+    [
+      "big_order",
+      "order_completed",
+      "big",
+      "+ 1.000 điểm",
+      "12 tháng",
+      "soon"
+    ],
+    [
+      "birthday",
+      "birthday",
+      "all",
+      "+ 500 điểm",
+      "1 tháng",
+      "soon"
+    ],
+    [
+      "signup",
+      "signup",
+      "new",
+      "+ 200 điểm",
+      "6 tháng",
+      "soon"
+    ],
+    [
+      "referral",
+      "referral",
+      "all",
+      "+ 300 điểm",
+      "12 tháng",
+      "soon"
+    ],
+    [
+      "rating",
+      "rating",
+      "five",
+      "+ 100 điểm",
+      "6 tháng",
+      "soon"
+    ],
+    [
+      "package",
+      "package",
+      "all",
+      "× 1,2 điểm",
+      "12 tháng",
+      "soon"
+    ]
+  ],
+  "files": [
+    [
+      "Phiếu đổi quà voucher 200k.pdf",
+      "pdf",
+      "Hệ thống · 23/10"
+    ],
+    [
+      "Ảnh nhận quà sinh nhật.jpg",
+      "jpg",
+      "Trâm · 12/09"
+    ]
+  ],
+  "members": [
+    {
+      "contact_id": "ct_lan",
+      "name": "Chị Lan",
+      "phone": "0903 123 456",
+      "tier": "diamond",
+      "points": 24800,
+      "earned": 45600,
+      "used": 20800,
+      "spent": "228000000",
+      "status": "active",
+      "joined": "03/2024",
+      "expiring": 3200,
+      "ledger": [
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2418 · HIFU 8 buổi",
+          "delta": 1280,
+          "at": "Hôm nay · 10:24"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2402",
+          "delta": -2000,
+          "at": "3 ngày trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2395 · Combo da mặt",
+          "delta": 950,
+          "at": "5 ngày trước"
+        },
+        {
+          "kind": "adjust",
+          "text": "Điều chỉnh điểm (CSKH) · Đền bù sự cố",
+          "delta": 500,
+          "at": "1 tuần trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2371 · Serum B5",
+          "delta": 68,
+          "at": "2 tuần trước"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2350",
+          "delta": -4500,
+          "at": "3 tuần trước"
+        }
+      ]
+    },
+    {
+      "contact_id": "ct_hieu",
+      "name": "Nguyễn T. Hiếu",
+      "phone": "0978 456 789",
+      "tier": "gold",
+      "points": 9200,
+      "earned": 18500,
+      "used": 9300,
+      "spent": "123000000",
+      "status": "active",
+      "joined": "06/2024",
+      "expiring": 0,
+      "ledger": [
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2418 · HIFU 8 buổi",
+          "delta": 960,
+          "at": "Hôm nay · 10:24"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2402",
+          "delta": -2000,
+          "at": "3 ngày trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2395 · Combo da mặt",
+          "delta": 712,
+          "at": "5 ngày trước"
+        },
+        {
+          "kind": "adjust",
+          "text": "Điều chỉnh điểm (CSKH) · Đền bù sự cố",
+          "delta": 500,
+          "at": "1 tuần trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2371 · Serum B5",
+          "delta": 51,
+          "at": "2 tuần trước"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2350",
+          "delta": -4500,
+          "at": "3 tuần trước"
+        }
+      ]
+    },
+    {
+      "contact_id": "ct_quynh",
+      "name": "Phạm Quỳnh",
+      "phone": "0912 345 678",
+      "tier": "gold",
+      "points": 8600,
+      "earned": 15200,
+      "used": 6600,
+      "spent": "101000000",
+      "status": "inactive",
+      "joined": "08/2024",
+      "expiring": 0,
+      "ledger": [
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2418 · HIFU 8 buổi",
+          "delta": 960,
+          "at": "Hôm nay · 10:24"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2402",
+          "delta": -2000,
+          "at": "3 ngày trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2395 · Combo da mặt",
+          "delta": 712,
+          "at": "5 ngày trước"
+        },
+        {
+          "kind": "adjust",
+          "text": "Điều chỉnh điểm (CSKH) · Đền bù sự cố",
+          "delta": 500,
+          "at": "1 tuần trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2371 · Serum B5",
+          "delta": 51,
+          "at": "2 tuần trước"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2350",
+          "delta": -4500,
+          "at": "3 tuần trước"
+        }
+      ]
+    },
+    {
+      "contact_id": "ct_ha",
+      "name": "Đỗ Thu Hà",
+      "phone": "0987 654 321",
+      "tier": "silver",
+      "points": 4200,
+      "earned": 9800,
+      "used": 5600,
+      "spent": "98000000",
+      "status": "new",
+      "joined": "11/2024",
+      "expiring": 0,
+      "ledger": [
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2418 · HIFU 8 buổi",
+          "delta": 640,
+          "at": "Hôm nay · 10:24"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2402",
+          "delta": -2000,
+          "at": "3 ngày trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2395 · Combo da mặt",
+          "delta": 475,
+          "at": "5 ngày trước"
+        },
+        {
+          "kind": "adjust",
+          "text": "Điều chỉnh điểm (CSKH) · Đền bù sự cố",
+          "delta": 500,
+          "at": "1 tuần trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2371 · Serum B5",
+          "delta": 34,
+          "at": "2 tuần trước"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2350",
+          "delta": -4500,
+          "at": "3 tuần trước"
+        }
+      ]
+    },
+    {
+      "contact_id": "ct_ducanh",
+      "name": "Vũ Đức Anh",
+      "phone": "0909 876 543",
+      "tier": "silver",
+      "points": 3100,
+      "earned": 7200,
+      "used": 4100,
+      "spent": "72000000",
+      "status": "churn_risk",
+      "joined": "01/2025",
+      "expiring": 0,
+      "ledger": [
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2418 · HIFU 8 buổi",
+          "delta": 640,
+          "at": "Hôm nay · 10:24"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2402",
+          "delta": -2000,
+          "at": "3 ngày trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2395 · Combo da mặt",
+          "delta": 475,
+          "at": "5 ngày trước"
+        },
+        {
+          "kind": "adjust",
+          "text": "Điều chỉnh điểm (CSKH) · Đền bù sự cố",
+          "delta": 500,
+          "at": "1 tuần trước"
+        },
+        {
+          "kind": "earn",
+          "text": "Tích điểm đơn DH-2371 · Serum B5",
+          "delta": 34,
+          "at": "2 tuần trước"
+        },
+        {
+          "kind": "redeem",
+          "text": "Dùng điểm khi thanh toán đơn DH-2350",
+          "delta": -4500,
+          "at": "3 tuần trước"
+        }
+      ]
+    }
+  ]
+}

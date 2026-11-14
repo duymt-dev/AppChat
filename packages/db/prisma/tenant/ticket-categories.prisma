@@ -1,0 +1,14 @@
+// tenant/ticket-categories.prisma — sở hữu: TIP-034b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: ticket_category_config — từ điển GỢI Ý danh mục ticket (một dòng / workspace, khoá cố định). Không FK sang ticket: ticket vẫn
+// nhận danh mục tự do, nhãn cũ không bị sửa. Chưa có dòng = bản ảo version 0 (8 nhãn prototype); lần sửa đầu insert version 1 (CAS).
+
+model TicketCategoryConfig {
+  key       String   @id
+  /// Nhãn có thứ tự (đã chuẩn hoá NFC + trim, ≤ 100 nhãn × ≤ 60 code point) — nhãn đầu là mặc định.
+  labels    Json
+  version   Int
+  updatedAt DateTime @map("updated_at") @db.Timestamptz(6)
+  updatedBy String?  @map("updated_by")
+
+  @@map("ticket_category_config")
+}

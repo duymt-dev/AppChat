@@ -1,0 +1,54 @@
+// Ma trận quote.request_revision (TIP-023b): xin sửa → bản hiện tại revision_requested + phiên bản n+1 nháp cùng mã; đã có bản mới hơn → 409.
+// 403 cs · sales own → 404 · id lạ 404. Undo: ActionDef không khai.
+import 'reflect-metadata';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { matrix, na, type Matrix } from '../helpers/action-matrix';
+
+let m: Matrix;
+let q: { quote_id: string; code: string };
+let lan: string;
+let product: string;
+const Q = () => q.quote_id;
+const row = async () => (await m.db()).quote.findUniqueOrThrow({ where: { id: Q() } });
+/** Dựng trạng thái ở DB (gửi thật cần LibreOffice — đã kiểm ở quote.send / quotes.test). */
+const setStatus = async (status: string, data: Record<string, unknown> = {}) => (await m.db()).quote.update({ where: { id: Q() }, data: { status: status as never, ...data } });
+
+beforeAll(async () => {
+  m = await matrix('quote.request_revision');
+  await m.h.platform.user.update({ where: { id: m.h.user }, data: { name: 'Chủ Spa' } });
+  lan = (await m.seed('contact.create', { full_name: 'Chị Lan BG', phone: '0909470001', email: 'lan.bg@example.com' })).contact_id;
+  product = (await m.seed('product.create', { name: 'HIFU nâng cơ', type: 'service', price: '1500000', tax_rate: 8 })).product_id;
+  q = await m.seed('quote.create', { contact_id: lan, items: [{ product_id: product, name: 'HIFU nâng cơ', qty: 2, unit_price: '1500000', tax_rate: 8 }] });
+  await setStatus('sent', { sentAt: m.h.clock.now(), validUntil: new Date(m.h.clock.now().getTime() + 86_400_000) });
+}, 120_000);
+afterAll(() => m?.close());
+
+describe('quote.request_revision', () => {
+  it('403 thiếu quyền · ngoài scope (sales own) → 404 · id lạ → 404', async () => {
+    expect((await m.act({ quote_id: Q() }, m.cs)).status).toBe(403);
+    expect((await m.act({ quote_id: Q() }, m.sales)).status).toBe(404);
+    expect((await m.act({ ...{ quote_id: Q() }, quote_id: '0190f000-0000-7000-8000-00000000beef' })).status).toBe(404);
+  });
+
+  it('preview Trợ lý → xác nhận; lần hai → 409', async () => {
+    const { preview, done } = await m.confirm({ quote_id: Q(), reason: 'Bớt 1 buổi' });
+    expect(preview).toEqual({
+      summary: `${q.code} · L1 · Chị Lan BG`,
+      risk: 'write',
+      changes: [
+        { entity: 'quote', id: Q(), before: { status: 'sent' }, after: { status: 'revision_requested' } },
+        { entity: 'quote', after: { code: q.code, version: 2, status: 'draft', total: '3240000', reason: 'Bớt 1 buổi' } },
+      ],
+      // TIP-022c: thẻ Trợ lý là quyết định của người vận hành, không phải ý định khách phát hiện.
+      warnings: ['operator_decision'],
+    });
+    expect(done.body.data.result).toMatchObject({ code: q.code, version: 2 });
+    expect((await row()).status).toBe('revision_requested');
+    expect((await m.act({ quote_id: Q() }, undefined, { 'x-action-source': 'assistant' })).body.error.code).toBe('INVALID_TRANSITION');
+  });
+
+  it('ô không áp dụng có lý do', () => {
+    expect(na(m.def, 'undo')).toMatch(/không khai undo/);
+    expect(na(m.def, 'bulk')).toMatch(/không phải action hàng loạt/);
+  });
+});

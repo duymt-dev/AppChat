@@ -1,0 +1,46 @@
+// tenant/record-proposal.prisma — sở hữu: TIP-023g (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Binding công bố đề xuất theo bản ghi (TIP-023g §3.6, `publicationMode = validated_record`): một dòng / lượt Trợ lý đề xuất (combo /
+// chiến dịch sản phẩm) — gắn `assistant_request.request_id` + run 019b. Chữ thô của model RIÊNG (`private_generation`) tới khi kiểm lại
+// theo quyền / nguồn hiện hành xong mới có `published_result`. KHÔNG phải sổ thực thi / tính tiền: run + biên nhận vẫn ở 019b.
+// Index khôi phục ở migration `20261111090000_record_proposal_publication`.
+
+enum RecordProposalPhase {
+  awaiting_generation
+  validating
+  validated
+  invalidated
+  failed
+
+  @@map("record_proposal_phase")
+}
+
+model RecordProposal {
+  id                   String              @id @db.Uuid
+  /// Người dùng + request_id của lượt (unique) — cùng khoá khác input → 409 ở sổ yêu cầu 023c.
+  userId               String              @map("user_id") @db.Uuid
+  requestId            String              @map("request_id")
+  /// Run sinh (019b) — cấp TRƯỚC khi gọi model.
+  runId                String              @unique(map: "record_proposal_run_key") @map("run_id") @db.Uuid
+  entity               String
+  entityId             String              @map("entity_id") @db.Uuid
+  intent               String
+  /// Phiên bản bản ghi lúc nhận (so lại khi công bố — đổi → vô hiệu).
+  sourceVersion        Int?                @map("source_version")
+  schemaVersion        Int                 @map("schema_version")
+  /// sha256 input đã chuẩn hoá (thực thể + id + ý định + việc người dùng).
+  inputDigest          String              @map("input_digest")
+  phase                RecordProposalPhase @default(awaiting_generation)
+  /// Thế hệ kiểm (fence CAS): tăng mỗi lần ghi chữ thô; công bố chỉ áp đúng thế hệ đã đọc.
+  validationGeneration Int                 @default(0) @map("validation_generation")
+  leaseUntil           DateTime            @map("lease_until") @db.Timestamptz(6)
+  /// Chữ thô (JSON) model trả — riêng; xoá khi công bố / vô hiệu / thất bại.
+  privateGeneration    String?             @map("private_generation")
+  /// Đề xuất đã kiểm (tham chiếu hiện hành) — người đọc vẫn chiếu lại theo quyền hiện hành.
+  publishedResult      Json?               @map("published_result")
+  safeReason           String?             @map("safe_reason")
+  createdAt            DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt            DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([userId, requestId], map: "record_proposal_request_key")
+  @@map("record_proposal")
+}

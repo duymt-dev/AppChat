@@ -1,0 +1,75 @@
+// tenant/tenant-mail.prisma — sở hữu: TIP-012c (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Mail của DN cho Email Marketing (Brevo / SMTP qua kết nối tenant): biên nhận giao thư mỗi lượt gửi (không lưu địa chỉ / nội dung — chỉ
+// digest), sự kiện giao thư đã xác thực (chỉ thêm, chống lặp theo khoá provider), vật liệu xác thực callback giữ riêng sau ngắt kết nối.
+// Index biểu thức / một phần khai ở migration `20261108130000_tenant_mail`.
+
+enum TenantMailState {
+  queued
+  reserved
+  accepted
+  failed_before_accept
+  unknown
+
+  @@map("tenant_mail_state")
+}
+
+model TenantMailDelivery {
+  id                 String          @id @db.Uuid
+  /// `cr_<recipient>` (gửi thật) | `ct_<test>` (gửi thử) — duy nhất.
+  dispatchRef        String          @unique(map: "tenant_mail_delivery_dispatch_key") @map("dispatch_ref")
+  connectionId       String          @map("connection_id") @db.Uuid
+  /// campaign_recipient | test_send
+  subjectKind        String          @map("subject_kind")
+  campaignId         String          @map("campaign_id") @db.Uuid
+  recipientId        String?         @map("recipient_id") @db.Uuid
+  testInvocationId   String?         @map("test_invocation_id") @db.Uuid
+  senderId           String          @map("sender_id")
+  senderRev          Int             @map("sender_rev")
+  configRev          Int             @map("config_rev")
+  recipientDigest    String          @map("recipient_digest")
+  providerAccountRef String          @default("") @map("provider_account_ref")
+  providerMessageRef String?         @map("provider_message_ref")
+  state              TenantMailState @default(queued)
+  attempts           Int             @default(0)
+  reason             String?
+  nextAttemptAt      DateTime?       @map("next_attempt_at") @db.Timestamptz(6)
+  acceptedAt         DateTime?       @map("accepted_at") @db.Timestamptz(6)
+  lastEventAt        DateTime?       @map("last_event_at") @db.Timestamptz(6)
+  /// Cờ dẫn xuất từ sự kiện: { delivered, bounced, complained, opened, clicked } (không hạ cấp lỗi cứng).
+  facts              Json            @default("{}")
+  createdAt          DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime        @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@map("tenant_mail_delivery")
+}
+
+model TenantMailEvent {
+  id                 String   @id @db.Uuid
+  connectionId       String   @map("connection_id") @db.Uuid
+  externalEventKey   String   @map("external_event_key")
+  deliveryId         String?  @map("delivery_id") @db.Uuid
+  type               String
+  providerMessageRef String   @map("provider_message_ref")
+  recipientDigest    String   @map("recipient_digest")
+  occurredAt         DateTime @map("occurred_at") @db.Timestamptz(6)
+  /// unresolved | applied | ignored
+  state              String   @default("unresolved")
+  receivedAt         DateTime @default(now()) @map("received_at") @db.Timestamptz(6)
+
+  @@unique([connectionId, externalEventKey], map: "tenant_mail_event_key")
+  @@map("tenant_mail_event")
+}
+
+model TenantMailCallbackBinding {
+  connectionId    String   @map("connection_id") @db.Uuid
+  accountRef      String   @default("") @map("account_ref")
+  verificationRev Int      @map("verification_rev")
+  /// Token webhook đã mã hoá (AES-GCM như secret_enc) — không bao giờ khoá gửi; null sau khi dọn.
+  verifierEnc     Bytes?   @map("verifier_enc")
+  operationId     String   @unique(map: "tenant_mail_callback_binding_op_key") @map("operation_id")
+  expiresAt       DateTime @map("expires_at") @db.Timestamptz(6)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([connectionId, verificationRev])
+  @@map("tenant_mail_callback_binding")
+}

@@ -1,0 +1,1151 @@
+{
+  "now": "2026-06-24T09:00:00+07:00",
+  "teams": [
+    {
+      "id": "t_sp1",
+      "name": "Nhóm Hỗ trợ 1"
+    },
+    {
+      "id": "t_sp2",
+      "name": "Nhóm Hỗ trợ 2"
+    },
+    {
+      "id": "t_acc",
+      "name": "Nhóm Kế toán"
+    },
+    {
+      "id": "t_ai",
+      "name": "AI tự xử"
+    }
+  ],
+  "categories": [
+    "Refund",
+    "Delivery",
+    "Policy",
+    "Billing",
+    "Technical",
+    "Return",
+    "Shipping",
+    "Complaint"
+  ],
+  "agent": {
+    "id": "agent_cs",
+    "name": "AI Agent"
+  },
+  "tickets": [
+    {
+      "id": "tk_2041",
+      "code": "TKT-2041",
+      "title": "Khách yêu cầu đổi lịch hẹn liệu trình",
+      "description": "Khách phản ánh: \"Khách yêu cầu đổi lịch hẹn liệu trình\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Refund",
+      "channel": "zalo_personal",
+      "company": "Cty Bảo An",
+      "email": "linhpham@baoan.vn",
+      "contact_id": null,
+      "status": "open",
+      "priority": "high",
+      "assignee_user_id": "u_huong",
+      "assignee_agent_id": null,
+      "team_id": "t_sp1",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 480,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T06:30:00+07:00",
+      "paused_since": null,
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T08:35:00+07:00",
+      "updated_at": "2026-06-24T08:55:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2041_1",
+          "author_type": "contact",
+          "author": "Cty Bảo An",
+          "body": "Khách phản ánh: \"Khách yêu cầu đổi lịch hẹn liệu trình\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T08:35:00+07:00"
+        },
+        {
+          "id": "cm_2041_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T08:50:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T08:35:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T08:35:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Hương",
+          "status": "open",
+          "at": "2026-06-24T08:55:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2040",
+      "code": "TKT-2040",
+      "title": "Đặt nhầm dịch vụ, cần điều chỉnh",
+      "description": "Khách phản ánh: \"Đặt nhầm dịch vụ, cần điều chỉnh\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Delivery",
+      "channel": "webchat",
+      "company": "Cty XYZ",
+      "email": "hieu@xyz.com",
+      "contact_id": null,
+      "status": "in_progress",
+      "priority": "high",
+      "assignee_user_id": "u_minh",
+      "assignee_agent_id": null,
+      "team_id": "t_sp2",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 480,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T09:45:00+07:00",
+      "paused_since": null,
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T08:25:00+07:00",
+      "updated_at": "2026-06-24T08:45:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2040_1",
+          "author_type": "contact",
+          "author": "Cty XYZ",
+          "body": "Khách phản ánh: \"Đặt nhầm dịch vụ, cần điều chỉnh\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T08:25:00+07:00"
+        },
+        {
+          "id": "cm_2040_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T08:40:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T08:25:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T08:25:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Minh",
+          "status": "in_progress",
+          "at": "2026-06-24T08:45:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2039",
+      "code": "TKT-2039",
+      "title": "Hỏi chính sách hoãn/huỷ lịch hẹn",
+      "description": "Khách phản ánh: \"Hỏi chính sách hoãn/huỷ lịch hẹn\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Policy",
+      "channel": "zalo_personal",
+      "company": "Khách lẻ",
+      "email": "lan.tran@gmail.com",
+      "contact_id": null,
+      "status": "open",
+      "priority": "medium",
+      "assignee_user_id": null,
+      "assignee_agent_id": "agent_cs",
+      "team_id": "t_ai",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 960,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T11:10:00+07:00",
+      "paused_since": null,
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T08:10:00+07:00",
+      "updated_at": "2026-06-24T08:30:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2039_1",
+          "author_type": "contact",
+          "author": "Khách lẻ",
+          "body": "Khách phản ánh: \"Hỏi chính sách hoãn/huỷ lịch hẹn\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T08:10:00+07:00"
+        },
+        {
+          "id": "cm_2039_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T08:25:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T08:10:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T08:10:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "AI Agent",
+          "status": "open",
+          "at": "2026-06-24T08:30:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2038",
+      "code": "TKT-2038",
+      "title": "Phản hồi chưa hài lòng sau liệu trình",
+      "description": "Khách phản ánh: \"Phản hồi chưa hài lòng sau liệu trình\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Return",
+      "channel": "zalo_personal",
+      "company": "Cty DEF",
+      "email": "jr@def.com",
+      "contact_id": null,
+      "status": "waiting",
+      "priority": "medium",
+      "assignee_user_id": "u_huong",
+      "assignee_agent_id": null,
+      "team_id": "t_sp1",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 960,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T14:00:00+07:00",
+      "paused_since": "2026-06-24T08:00:00+07:00",
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T07:40:00+07:00",
+      "updated_at": "2026-06-24T08:00:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2038_1",
+          "author_type": "contact",
+          "author": "Cty DEF",
+          "body": "Khách phản ánh: \"Phản hồi chưa hài lòng sau liệu trình\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T07:40:00+07:00"
+        },
+        {
+          "id": "cm_2038_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T07:55:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T07:40:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T07:40:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Hương",
+          "status": "waiting",
+          "at": "2026-06-24T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2037",
+      "code": "TKT-2037",
+      "title": "Chưa nhận được xác nhận lịch hẹn",
+      "description": "Khách phản ánh: \"Chưa nhận được xác nhận lịch hẹn\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Shipping",
+      "channel": "email",
+      "company": "Cty GHI",
+      "email": "khoa@ghi.com",
+      "contact_id": null,
+      "status": "closed",
+      "priority": "low",
+      "assignee_user_id": null,
+      "assignee_agent_id": "agent_cs",
+      "team_id": "t_ai",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 1440,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-25T06:40:00+07:00",
+      "paused_since": null,
+      "sla_result": "met",
+      "close_reason": "resolved",
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T06:40:00+07:00",
+      "updated_at": "2026-06-24T07:00:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2037_1",
+          "author_type": "contact",
+          "author": "Cty GHI",
+          "body": "Khách phản ánh: \"Chưa nhận được xác nhận lịch hẹn\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T06:40:00+07:00"
+        },
+        {
+          "id": "cm_2037_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T06:55:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T06:40:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T06:40:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "AI Agent",
+          "status": "closed",
+          "at": "2026-06-24T07:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2036",
+      "code": "TKT-2036",
+      "title": "Lỗi hiển thị lịch hẹn trên app",
+      "description": "Khách phản ánh: \"Lỗi hiển thị lịch hẹn trên app\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Technical",
+      "channel": "zalo_personal",
+      "company": "Khách lẻ",
+      "email": "qanh@gmail.com",
+      "contact_id": null,
+      "status": "closed",
+      "priority": "low",
+      "assignee_user_id": "u_minh",
+      "assignee_agent_id": null,
+      "team_id": "t_sp2",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 1440,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-25T05:40:00+07:00",
+      "paused_since": null,
+      "sla_result": "met",
+      "close_reason": "resolved",
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T05:40:00+07:00",
+      "updated_at": "2026-06-24T06:00:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2036_1",
+          "author_type": "contact",
+          "author": "Khách lẻ",
+          "body": "Khách phản ánh: \"Lỗi hiển thị lịch hẹn trên app\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T05:40:00+07:00"
+        },
+        {
+          "id": "cm_2036_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T05:55:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T05:40:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T05:40:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Minh",
+          "status": "closed",
+          "at": "2026-06-24T06:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2035",
+      "code": "TKT-2035",
+      "title": "Yêu cầu xuất hoá đơn VAT",
+      "description": "Khách phản ánh: \"Yêu cầu xuất hoá đơn VAT\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Billing",
+      "channel": "email",
+      "company": "Cty Minh An",
+      "email": "ketoan@minhan.vn",
+      "contact_id": null,
+      "status": "in_progress",
+      "priority": "medium",
+      "assignee_user_id": "u_tram",
+      "assignee_agent_id": null,
+      "team_id": "t_acc",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 960,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T10:20:00+07:00",
+      "paused_since": null,
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T07:55:00+07:00",
+      "updated_at": "2026-06-24T08:15:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2035_1",
+          "author_type": "contact",
+          "author": "Cty Minh An",
+          "body": "Khách phản ánh: \"Yêu cầu xuất hoá đơn VAT\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T07:55:00+07:00"
+        },
+        {
+          "id": "cm_2035_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T08:10:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T07:55:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T07:55:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Trâm",
+          "status": "in_progress",
+          "at": "2026-06-24T08:15:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2034",
+      "code": "TKT-2034",
+      "title": "Liệu trình thiếu bước theo gói",
+      "description": "Khách phản ánh: \"Liệu trình thiếu bước theo gói\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Delivery",
+      "channel": "zalo_personal",
+      "company": "Khách lẻ",
+      "email": "ha.do@gmail.com",
+      "contact_id": null,
+      "status": "open",
+      "priority": "high",
+      "assignee_user_id": "u_huong",
+      "assignee_agent_id": null,
+      "team_id": "t_sp1",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 480,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T09:50:00+07:00",
+      "paused_since": null,
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T08:30:00+07:00",
+      "updated_at": "2026-06-24T08:50:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2034_1",
+          "author_type": "contact",
+          "author": "Khách lẻ",
+          "body": "Khách phản ánh: \"Liệu trình thiếu bước theo gói\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T08:30:00+07:00"
+        },
+        {
+          "id": "cm_2034_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T08:45:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T08:30:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T08:30:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Hương",
+          "status": "open",
+          "at": "2026-06-24T08:50:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2033",
+      "code": "TKT-2033",
+      "title": "Hỏi thời gian bảo hành sau điều trị",
+      "description": "Khách phản ánh: \"Hỏi thời gian bảo hành sau điều trị\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Policy",
+      "channel": "zalo_personal",
+      "company": "Khách lẻ",
+      "email": "ducanh@gmail.com",
+      "contact_id": null,
+      "status": "open",
+      "priority": "low",
+      "assignee_user_id": null,
+      "assignee_agent_id": "agent_cs",
+      "team_id": "t_ai",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 1440,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T15:00:00+07:00",
+      "paused_since": null,
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T07:40:00+07:00",
+      "updated_at": "2026-06-24T08:00:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2033_1",
+          "author_type": "contact",
+          "author": "Khách lẻ",
+          "body": "Khách phản ánh: \"Hỏi thời gian bảo hành sau điều trị\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T07:40:00+07:00"
+        },
+        {
+          "id": "cm_2033_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T07:55:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T07:40:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T07:40:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "AI Agent",
+          "status": "open",
+          "at": "2026-06-24T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2032",
+      "code": "TKT-2032",
+      "title": "Khiếu nại thái độ tư vấn",
+      "description": "Khách phản ánh: \"Khiếu nại thái độ tư vấn\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Complaint",
+      "channel": "webchat",
+      "company": "Khách lẻ",
+      "email": "bich.ngo@gmail.com",
+      "contact_id": null,
+      "status": "in_progress",
+      "priority": "high",
+      "assignee_user_id": "u_minh",
+      "assignee_agent_id": null,
+      "team_id": "t_sp2",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 480,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T10:00:00+07:00",
+      "paused_since": null,
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T08:35:00+07:00",
+      "updated_at": "2026-06-24T08:55:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2032_1",
+          "author_type": "contact",
+          "author": "Khách lẻ",
+          "body": "Khách phản ánh: \"Khiếu nại thái độ tư vấn\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T08:35:00+07:00"
+        },
+        {
+          "id": "cm_2032_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T08:50:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T08:35:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T08:35:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Minh",
+          "status": "in_progress",
+          "at": "2026-06-24T08:55:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2031",
+      "code": "TKT-2031",
+      "title": "Đổi chi nhánh thực hiện dịch vụ",
+      "description": "Khách phản ánh: \"Đổi chi nhánh thực hiện dịch vụ\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Delivery",
+      "channel": "email",
+      "company": "Cty JKL",
+      "email": "nam@jkl.com",
+      "contact_id": null,
+      "status": "waiting",
+      "priority": "medium",
+      "assignee_user_id": "u_tram",
+      "assignee_agent_id": null,
+      "team_id": "t_sp1",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 960,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T13:00:00+07:00",
+      "paused_since": "2026-06-24T07:00:00+07:00",
+      "sla_result": null,
+      "close_reason": null,
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-24T06:40:00+07:00",
+      "updated_at": "2026-06-24T07:00:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2031_1",
+          "author_type": "contact",
+          "author": "Cty JKL",
+          "body": "Khách phản ánh: \"Đổi chi nhánh thực hiện dịch vụ\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-24T06:40:00+07:00"
+        },
+        {
+          "id": "cm_2031_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-24T06:55:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-24T06:40:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-24T06:40:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Trâm",
+          "status": "waiting",
+          "at": "2026-06-24T07:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2030",
+      "code": "TKT-2030",
+      "title": "Hoàn phí gói liệu trình chưa dùng",
+      "description": "Khách phản ánh: \"Hoàn phí gói liệu trình chưa dùng\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Refund",
+      "channel": "zalo_personal",
+      "company": "Khách lẻ",
+      "email": "mai.trinh@gmail.com",
+      "contact_id": null,
+      "status": "closed",
+      "priority": "medium",
+      "assignee_user_id": "u_huong",
+      "assignee_agent_id": null,
+      "team_id": "t_sp1",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 960,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-24T00:40:00+07:00",
+      "paused_since": null,
+      "sla_result": "met",
+      "close_reason": "resolved",
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-23T08:40:00+07:00",
+      "updated_at": "2026-06-23T09:00:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2030_1",
+          "author_type": "contact",
+          "author": "Khách lẻ",
+          "body": "Khách phản ánh: \"Hoàn phí gói liệu trình chưa dùng\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-23T08:40:00+07:00"
+        },
+        {
+          "id": "cm_2030_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-23T08:55:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-23T08:40:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-23T08:40:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "Hương",
+          "status": "closed",
+          "at": "2026-06-23T09:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2029",
+      "code": "TKT-2029",
+      "title": "Lỗi thanh toán QR",
+      "description": "Khách phản ánh: \"Lỗi thanh toán QR\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Technical",
+      "channel": "webchat",
+      "company": "Khách lẻ",
+      "email": "quang.bui@gmail.com",
+      "contact_id": null,
+      "status": "closed",
+      "priority": "high",
+      "assignee_user_id": null,
+      "assignee_agent_id": "agent_cs",
+      "team_id": "t_ai",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 480,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-23T16:40:00+07:00",
+      "paused_since": null,
+      "sla_result": "met",
+      "close_reason": "resolved",
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-23T08:40:00+07:00",
+      "updated_at": "2026-06-23T09:00:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2029_1",
+          "author_type": "contact",
+          "author": "Khách lẻ",
+          "body": "Khách phản ánh: \"Lỗi thanh toán QR\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-23T08:40:00+07:00"
+        },
+        {
+          "id": "cm_2029_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-23T08:55:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-23T08:40:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-23T08:40:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "AI Agent",
+          "status": "closed",
+          "at": "2026-06-23T09:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "tk_2028",
+      "code": "TKT-2028",
+      "title": "Tư vấn liệu trình phù hợp cho khách",
+      "description": "Khách phản ánh: \"Tư vấn liệu trình phù hợp cho khách\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+      "category": "Policy",
+      "channel": "zalo_personal",
+      "company": "Khách lẻ",
+      "email": "cubin.mom@gmail.com",
+      "contact_id": null,
+      "status": "closed",
+      "priority": "low",
+      "assignee_user_id": null,
+      "assignee_agent_id": "agent_cs",
+      "team_id": "t_ai",
+      "sla_policy_name": "Mặc định",
+      "frt_target_min": 30,
+      "ttr_target_min": 1440,
+      "frt_min": 15,
+      "ttr_due_at": "2026-06-23T08:40:00+07:00",
+      "paused_since": null,
+      "sla_result": "met",
+      "close_reason": "resolved",
+      "escalations": 0,
+      "reopened_count": 0,
+      "created_at": "2026-06-22T08:40:00+07:00",
+      "updated_at": "2026-06-22T09:00:00+07:00",
+      "comments": [
+        {
+          "id": "cm_2028_1",
+          "author_type": "contact",
+          "author": "Khách lẻ",
+          "body": "Khách phản ánh: \"Tư vấn liệu trình phù hợp cho khách\". Cần kiểm tra và phản hồi theo SLA cam kết.",
+          "internal": false,
+          "at": "2026-06-22T08:40:00+07:00"
+        },
+        {
+          "id": "cm_2028_2",
+          "author_type": "agent",
+          "author": "AI Agent",
+          "body": "Dạ em đã tiếp nhận và đang kiểm tra thông tin, em phản hồi anh/chị trong ít phút ạ.",
+          "internal": false,
+          "at": "2026-06-22T08:55:00+07:00"
+        }
+      ],
+      "events": [
+        {
+          "type": "created",
+          "by": "system",
+          "at": "2026-06-22T08:40:00+07:00"
+        },
+        {
+          "type": "assigned",
+          "by": "routing",
+          "at": "2026-06-22T08:40:00+07:00"
+        },
+        {
+          "type": "status",
+          "by": "AI Agent",
+          "status": "closed",
+          "at": "2026-06-22T09:00:00+07:00"
+        }
+      ]
+    }
+  ],
+  "trend": {
+    "total": "+12%",
+    "open": "+5%",
+    "waiting": "+8%",
+    "breach": "+20%",
+    "closed": "+15%"
+  },
+  "ai": [
+    [
+      "overdue",
+      "Tóm tắt ticket quá hạn hôm nay",
+      "1 ticket quá hạn SLA + 3 sắp đến hạn · gợi ý xử lý ưu tiên"
+    ],
+    [
+      "reply",
+      "Gợi ý phản hồi cho khiếu nại trị liệu",
+      "Soạn phản hồi đồng cảm + hướng xử lý hoàn/đổi cho khách"
+    ],
+    [
+      "route",
+      "Phân loại & định tuyến ticket tồn",
+      "Tự gán nhóm xử lý theo danh mục & độ ưu tiên"
+    ],
+    [
+      "report",
+      "Báo cáo SLA tuần này",
+      "82% AI tự xử · thời gian xử lý TB 1.4h · 1 vi phạm SLA"
+    ]
+  ],
+  "genui": [
+    {
+      "key": "overdue",
+      "re": "quá hạn|sla",
+      "lead": "Ticket quá hạn và sắp đến hạn:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Quá hạn",
+                  "value": {
+                    "$ref": "step:1.breach"
+                  },
+                  "format": "number",
+                  "tone": "danger"
+                },
+                {
+                  "type": "stat",
+                  "label": "Sắp đến hạn",
+                  "value": {
+                    "$ref": "step:1.soon"
+                  },
+                  "format": "number",
+                  "tone": "warning"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "code",
+              "subtitle_key": "note",
+              "open": {
+                "entity": "ticket",
+                "id_key": "id"
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "breach": 1,
+          "soon": 3,
+          "rows": [
+            {
+              "id": "tk_2041",
+              "code": "TKT-2041",
+              "note": "Quá hạn 2 giờ · khiếu nại trị liệu"
+            },
+            {
+              "id": "tk_2039",
+              "code": "TKT-2039",
+              "note": "Còn 40 phút"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "route",
+      "re": "phân loại|định tuyến|nhóm xử lý",
+      "lead": "Đề xuất định tuyến ticket tồn:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "table",
+              "columns": [
+                {
+                  "key": "code",
+                  "label": "Ticket"
+                },
+                {
+                  "key": "team",
+                  "label": "Nhóm đề xuất"
+                },
+                {
+                  "key": "priority",
+                  "label": "Ưu tiên"
+                }
+              ],
+              "rows": {
+                "$ref": "step:1.rows"
+              },
+              "open": {
+                "entity": "ticket",
+                "id_key": "id"
+              }
+            },
+            {
+              "type": "button",
+              "label": "Sắp ưu tiên cao trước",
+              "on": {
+                "kind": "ui",
+                "command": {
+                  "type": "filter",
+                  "table": "tickets",
+                  "filter": {
+                    "sort": "priority"
+                  }
+                }
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "rows": [
+            {
+              "id": "tk_2040",
+              "code": "TKT-2040",
+              "team": "Kỹ thuật",
+              "priority": "Cao"
+            },
+            {
+              "id": "tk_2038",
+              "code": "TKT-2038",
+              "team": "CSKH",
+              "priority": "Thường"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "report",
+      "re": "báo cáo|tuần này",
+      "lead": "SLA tuần này:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "AI tự xử",
+                  "value": {
+                    "$ref": "step:1.ai_rate"
+                  },
+                  "format": "percent",
+                  "tone": "success"
+                },
+                {
+                  "type": "stat",
+                  "label": "Xử lý TB (giờ)",
+                  "value": {
+                    "$ref": "step:1.avg_hours"
+                  },
+                  "format": "number"
+                },
+                {
+                  "type": "stat",
+                  "label": "Vi phạm",
+                  "value": {
+                    "$ref": "step:1.breaches"
+                  },
+                  "format": "number",
+                  "tone": "danger"
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "ai_rate": 82,
+          "avg_hours": 1.4,
+          "breaches": 1
+        }
+      }
+    }
+  ]
+}

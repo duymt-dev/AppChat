@@ -1,0 +1,177 @@
+// Bản ghi hội thoại / tin → shape đọc FE (packages/shared/src/api/inbox.ts). Chữ theo locale người xem, giờ theo múi giờ workspace.
+import { AGENT_INTENTS_CLOSED, CONV_TAG_TONE_OF, createFmt, initialsOf, serverMessages, type AgentIntent, type BusinessCalendar, type ConversationDto, type MessageDto, type OpenOpportunitySummaryDto } from '@appchat/shared';
+import type { TenantTx } from '../../kernel/actions/action-context';
+
+export interface Place {
+  locale: string;
+  timeZone: string;
+  now: Date;
+  cal?: BusinessCalendar;
+}
+
+type ConvRow = NonNullable<Awaited<ReturnType<TenantTx['conversation']['findUnique']>>>;
+type MsgRow = NonNullable<Awaited<ReturnType<TenantTx['message']['findUnique']>>>;
+
+/** Màu avatar ổn định theo id (dạng `hsl(h 55% 45%)` như fixture prototype). */
+export function hueOf(id: string): string {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return `hsl(${h % 360} 55% 45%)`;
+}
+
+const dayKey = (d: Date, timeZone: string) => new Intl.DateTimeFormat('en-CA', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
+
+/** Hôm nay → giờ; hôm qua → "Hôm qua"; cũ hơn → ngày. */
+export function stamp(at: Date, p: Place): string {
+  const fmt = createFmt(p);
+  const today = dayKey(p.now, p.timeZone);
+  const k = dayKey(at, p.timeZone);
+  if (k === today) return fmt.time(at);
+  if (k === dayKey(new Date(p.now.getTime() - 86_400_000), p.timeZone)) return serverMessages(p.locale).inbox.day.yesterday;
+  return fmt.date(at).slice(0, 5);
+}
+
+/** Preview tin cuối cho danh sách: chữ (≤ 120) hoặc nhãn loại tin. */
+export function previewOf(kind: string, body: string, locale = 'vi'): string {
+  const text = body.replace(/\s+/g, ' ').trim();
+  if (text && kind !== 'sticker') return text.slice(0, 120);
+  const labels = serverMessages(locale).inbox.preview as Record<string, string>;
+  return labels[kind] ?? text.slice(0, 120);
+}
+
+export interface ConvExtras {
+  contactName: Map<string, string>;
+  accountName: Map<string, string>;
+  tags: Map<string, { name: string; color: string; emoji: string }[]>;
+  members: Map<string, number>;
+  /** Ảnh theo hội thoại (TIP-014b D) — đã ưu tiên ảnh nhân viên đặt. */
+  avatars?: Map<string, string>;
+  /** Khách đã xoá mềm (TIP-015f) — hội thoại mang dấu `contact_deleted`. */
+  deletedContacts?: Set<string>;
+  /** Đồng phụ trách (conversation_assignee) theo hội thoại — tên đã giải (người qua CrmMembers, agent qua aiAgent). */
+  coAssignees?: Map<string, { kind: 'user' | 'agent'; id: string; name: string }[]>;
+  /** TIP-020c: hội thoại có nháp AI phụ thuộc nguồn tri thức không còn hợp lệ — không chiếu nháp. */
+  staleDrafts?: Set<string>;
+  /** TIP-014c: hạn phản hồi đầu + mục tiêu + trạng thái SLA theo chính sách của tài khoản kênh. */
+  slaByConv?: Map<string, { frt_due_at: string; frt_target_min: number; sla_state: 'breach' | 'risk' | 'ok' }>;
+  /** TIP-026c: cơ hội mở theo khách (openSummary — một truy vấn cho cả trang, đã áp quyền crm). */
+  opportunities?: Map<string, OpenOpportunitySummaryDto>;
+}
+
+export function toConversation(c: ConvRow, x: ConvExtras, p: Place): ConversationDto {
+  const title = c.title?.trim() || (c.contactId ? x.contactName.get(c.contactId) : undefined) || serverMessages(p.locale).inbox.unknownContact;
+  const tags = (x.tags.get(c.id) ?? []).map((t) => ({ label: t.emoji ? `${t.emoji} ${t.name}` : t.name, tone: CONV_TAG_TONE_OF[t.color.toUpperCase()] ?? ('channel' as const) }));
+  const group = c.kind === 'group';
+  const status = c.status === 'snoozed' && c.snoozedUntil && c.snoozedUntil.getTime() <= p.now.getTime() ? 'open' : c.status;
+  return {
+    id: c.id,
+    kind: c.kind,
+    title,
+    initials: initialsOf(title),
+    hue: hueOf(c.contactId ?? c.id),
+    ...(x.avatars?.get(c.id) ? { avatar_url: x.avatars.get(c.id) } : {}),
+    channel: c.channelType,
+    account: x.accountName.get(c.channelAccountId) ?? '',
+    time: stamp(c.lastMessageAt, p),
+    preview: c.lastMessagePreview,
+    ...(group && c.lastSenderName ? { preview_sender: c.lastSenderName } : {}),
+    tags,
+    unread: c.unreadCount,
+    ...(group ? { members: x.members.get(c.id) ?? 0 } : {}),
+    contact_id: c.contactId,
+    ...(c.contactId && x.deletedContacts?.has(c.contactId) ? { contact_deleted: true } : {}),
+    ...(c.contactId && x.opportunities?.get(c.contactId) ? { opportunity_chip: x.opportunities.get(c.contactId) } : {}),
+    pinned: c.pinned,
+    ai_state: c.aiState,
+    ai_mode: c.aiMode,
+    ...(c.handoffReason ? { handoff_reason: c.handoffReason } : {}),
+    ...(c.aiDraft && !x.staleDrafts?.has(c.id) ? { ai_draft: c.aiDraft, ...(c.aiDraftRunId ? { ai_draft_ref: { id: c.aiDraftRunId, generation: c.aiDraftGen } } : {}) } : {}),
+    ...(c.intent && (AGENT_INTENTS_CLOSED as readonly string[]).includes(c.intent) ? { intent: c.intent as AgentIntent } : {}),
+    ...(c.handoffSummary ? { has_handoff_summary: true } : {}),
+    status,
+    pinned_message_id: c.pinnedMessageId,
+    hidden: !!c.hiddenAt,
+    channel_account_id: c.channelAccountId,
+    assignee_user_id: c.assigneeUserId,
+    assignee_agent_id: c.assigneeAgentId,
+    ...(x.coAssignees?.get(c.id)?.length ? { co_assignees: x.coAssignees.get(c.id) } : {}),
+    archived: !!c.archivedAt,
+    last_message_at: c.lastMessageAt.toISOString(),
+    ...(x.slaByConv?.get(c.id) ?? {}),
+  };
+}
+
+const MENU_KINDS = new Set(['text', 'image', 'file', 'sticker', 'audio', 'card']);
+const STATUS: Record<string, string> = { queued: 'sending', deferred_cap: 'deferred_cap', sent: 'sent', delivered: 'sent', read: 'read', failed: 'failed', partial: 'partial', unknown: 'unknown' };
+
+export interface MsgExtras {
+  /** Cảm xúc của người xem trên tin. */
+  myReaction: Map<string, string>;
+  replyPreview: Map<string, string>;
+  /** Kênh hỗ trợ cảm xúc (menu hiện hàng emoji — OQ-12). */
+  isGroup: boolean;
+  /** Lệnh thao tác kênh mới nhất theo tin (TIP-014b). */
+  ops?: Map<string, { recall?: string; react?: string }>;
+  /** Ảnh người gửi theo id phía kênh (nhóm — TIP-014b D). */
+  senderAvatars?: Map<string, string>;
+}
+
+const OPEN_RECALL = new Set(['pending', 'failed', 'unknown', 'partial']);
+const OPEN_REACT = new Set(['pending', 'failed', 'unknown']);
+
+export function toMessage(m: MsgRow, x: MsgExtras, p: Place): MessageDto {
+  const kind = m.kind === 'note' ? 'note' : m.kind;
+  const out: MessageDto = {
+    id: m.id,
+    kind,
+    body: m.deletedAt || m.recalledAt ? '' : m.body,
+    time: createFmt(p).time(m.createdAt),
+    plain: true,
+  };
+  if (m.direction) out.direction = m.direction;
+  if (m.direction === 'out') out.status = STATUS[m.status] ?? m.status;
+  if (MENU_KINDS.has(m.kind) && m.direction) out.menu = true;
+  if (m.senderType === 'agent') out.agent = true;
+  if (m.senderName && (m.direction === 'out' || x.isGroup)) out.sender = m.senderName;
+  if (x.isGroup && m.direction === 'in' && m.senderName) {
+    out.sender_initials = initialsOf(m.senderName);
+    out.sender_hue = hueOf(m.senderId ?? m.senderName);
+    const av = m.senderId ? x.senderAvatars?.get(m.senderId) : undefined;
+    if (av) out.sender_avatar = av;
+  }
+  if (m.recalledAt) out.recalled = true;
+  const op = x.ops?.get(m.id);
+  if (op) {
+    const recall = !m.recalledAt && op.recall && OPEN_RECALL.has(op.recall) ? op.recall : undefined;
+    const react = op.react && OPEN_REACT.has(op.react) ? op.react : undefined;
+    if (recall || react) out.provider_op = { ...(recall ? { recall: recall as 'pending' } : {}), ...(react ? { react: react as 'pending' } : {}) };
+  }
+  if (m.deletedAt) out.deleted = true;
+  const r = x.myReaction.get(m.id);
+  if (r) out.reaction = r;
+  if (m.replyToId) out.reply_to = { id: m.replyToId, preview: x.replyPreview.get(m.replyToId) ?? '' };
+  if (m.forwardedFromId) out.forwarded = true;
+  const att = m.attachments as MessageDto['attachments'];
+  if (Array.isArray(att) && att.length) out.attachments = att;
+  return out;
+}
+
+/** Chèn mốc ngày ("Hôm nay · 20/04/2026") giữa các tin khác ngày (thứ tự cũ → mới). */
+export function withDays(rows: { at: Date; dto: MessageDto }[], p: Place): MessageDto[] {
+  const out: MessageDto[] = [];
+  const fmt = createFmt(p);
+  const t = serverMessages(p.locale).inbox.day;
+  const today = dayKey(p.now, p.timeZone);
+  const yesterday = dayKey(new Date(p.now.getTime() - 86_400_000), p.timeZone);
+  let last = '';
+  for (const r of rows) {
+    const k = dayKey(r.at, p.timeZone);
+    if (k !== last) {
+      const label = k === today ? `${t.today} · ${fmt.date(r.at)}` : k === yesterday ? `${t.yesterday} · ${fmt.date(r.at)}` : fmt.date(r.at);
+      out.push({ id: `d-${k}`, kind: 'date', body: label });
+      last = k;
+    }
+    out.push(r.dto);
+  }
+  return out;
+}

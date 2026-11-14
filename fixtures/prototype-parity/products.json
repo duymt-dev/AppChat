@@ -1,0 +1,339 @@
+{
+  "categories": [
+    "Liệu trình",
+    "Combo",
+    "Gói năm",
+    "Dịch vụ lẻ",
+    "Sản phẩm"
+  ],
+  "category_color": {
+    "Liệu trình": "#1F9C4F",
+    "Combo": "#2B9EF3",
+    "Gói năm": "#8B5CF6",
+    "Dịch vụ lẻ": "#C9820B",
+    "Sản phẩm": "#0E9B94"
+  },
+  "category_pal": {
+    "Liệu trình": [
+      "#EDFAF3",
+      "#1F9C4F",
+      "ic-spark"
+    ],
+    "Combo": [
+      "#EFF7FF",
+      "#2B9EF3",
+      "ic-gift"
+    ],
+    "Gói năm": [
+      "#F3EEFE",
+      "#8B5CF6",
+      "ic-box"
+    ],
+    "Dịch vụ lẻ": [
+      "#FFF8EC",
+      "#C9820B",
+      "ic-doc"
+    ],
+    "Sản phẩm": [
+      "#E6F6F4",
+      "#0E9B94",
+      "ic-box"
+    ]
+  },
+  "products": [
+    {
+      "id": "pd_1",
+      "code": "SP-1001",
+      "name": "HIFU nâng cơ 8 buổi",
+      "category": "Liệu trình",
+      "type": "package",
+      "price": "12800000",
+      "cost": "7936000",
+      "unit": "Gói",
+      "tax_rate": 8,
+      "sold": 68,
+      "status": "active",
+      "channels": [
+        "zalo_personal",
+        "webchat",
+        "shopee"
+      ],
+      "description": "Liệu trình cao cấp · 8 tuần",
+      "attrs": [
+        "Buổi: 8"
+      ],
+      "stock": null,
+      "sessions": 8,
+      "valid_days": 60,
+      "tint": "#EDFAF3",
+      "ink": "#1F9C4F",
+      "icon": "ic-spark"
+    },
+    {
+      "id": "pd_2",
+      "code": "SP-1002",
+      "name": "Combo chăm sóc da mặt",
+      "category": "Combo",
+      "type": "combo",
+      "price": "9500000",
+      "cost": "5890000",
+      "unit": "Buổi",
+      "tax_rate": 8,
+      "sold": 124,
+      "status": "active",
+      "channels": [
+        "zalo_personal",
+        "webchat",
+        "tiktok_shop"
+      ],
+      "description": "5 bước · phục hồi & dưỡng",
+      "attrs": [
+        "Gồm: 5 bước"
+      ],
+      "stock": null,
+      "sessions": null,
+      "valid_days": null,
+      "tint": "#EFF7FF",
+      "ink": "#2B9EF3",
+      "icon": "ic-gift"
+    },
+    {
+      "id": "pd_3",
+      "code": "SP-1003",
+      "name": "Triệt lông toàn thân",
+      "category": "Gói năm",
+      "type": "package",
+      "price": "22000000",
+      "cost": "13640000",
+      "unit": "Combo",
+      "tax_rate": 8,
+      "sold": 41,
+      "status": "active",
+      "channels": [
+        "webchat",
+        "kiotviet"
+      ],
+      "description": "Gói năm · không giới hạn",
+      "attrs": [
+        "Hạn: 12 tháng"
+      ],
+      "stock": null,
+      "sessions": null,
+      "valid_days": 365,
+      "tint": "#F3EEFE",
+      "ink": "#8B5CF6",
+      "icon": "ic-box"
+    },
+    {
+      "id": "pd_4",
+      "code": "SP-1004",
+      "name": "Khám da soi VISIA",
+      "category": "Dịch vụ lẻ",
+      "type": "service",
+      "price": "500000",
+      "cost": "310000",
+      "unit": "Cái",
+      "tax_rate": 8,
+      "sold": 312,
+      "status": "active",
+      "channels": [
+        "zalo_personal",
+        "webchat"
+      ],
+      "description": "Soi da chuyên sâu",
+      "attrs": [
+        "Thời lượng: 60′"
+      ],
+      "stock": null,
+      "sessions": null,
+      "valid_days": null,
+      "tint": "#FFF8EC",
+      "ink": "#C9820B",
+      "icon": "ic-doc"
+    },
+    {
+      "id": "pd_5",
+      "code": "SP-1005",
+      "name": "Serum phục hồi B5",
+      "category": "Sản phẩm",
+      "type": "physical",
+      "price": "680000",
+      "cost": "421600",
+      "unit": "Lần",
+      "tax_rate": 8,
+      "sold": 205,
+      "status": "active",
+      "channels": [
+        "shopee",
+        "tiktok_shop",
+        "webchat"
+      ],
+      "description": "Chai 30ml · chính hãng",
+      "attrs": [
+        "Size: S/M/L",
+        "Màu: 3"
+      ],
+      "stock": 42,
+      "sessions": null,
+      "valid_days": null,
+      "tint": "#FCEBEE",
+      "ink": "#E0566A",
+      "icon": "ic-box"
+    },
+    {
+      "id": "pd_6",
+      "code": "SP-1006",
+      "name": "Mặt nạ collagen (hộp 10)",
+      "category": "Sản phẩm",
+      "type": "physical",
+      "price": "450000",
+      "cost": "279000",
+      "unit": "Gói",
+      "tax_rate": 8,
+      "sold": 0,
+      "status": "draft",
+      "channels": [
+        "kiotviet"
+      ],
+      "description": "Đang đồng bộ kho",
+      "attrs": [
+        "Size: S/M/L",
+        "Màu: 3"
+      ],
+      "stock": 42,
+      "sessions": null,
+      "valid_days": null,
+      "tint": "#E6F6F4",
+      "ink": "#0E9B94",
+      "icon": "ic-gift"
+    }
+  ],
+  "stats": {
+    "channels": 7,
+    "sold_month": 750
+  },
+  "sync_sources": [
+    {
+      "key": "zalo_personal",
+      "color": "#0068FF",
+      "status": "synced",
+      "at": "12:30"
+    },
+    {
+      "key": "webchat",
+      "color": "#2DC56A",
+      "status": "synced",
+      "at": "12:30"
+    },
+    {
+      "key": "shopee",
+      "color": "#EE4D2D",
+      "status": "soon"
+    },
+    {
+      "key": "tiktok_shop",
+      "color": "#111111",
+      "status": "soon"
+    },
+    {
+      "key": "sapo",
+      "color": "#0088FF",
+      "status": "soon"
+    },
+    {
+      "key": "kiotviet",
+      "color": "#1763F4",
+      "status": "soon"
+    }
+  ],
+  "files": [
+    [
+      "Ảnh sản phẩm — bộ 6 ảnh.jpg",
+      "jpg",
+      "Trâm · 20/10"
+    ],
+    [
+      "Video hướng dẫn sử dụng.mp4",
+      "mp4",
+      "Trâm · 18/10 · 24 MB"
+    ],
+    [
+      "Thông số kỹ thuật.pdf",
+      "pdf",
+      "Nhà cung cấp · 12/10"
+    ],
+    [
+      "Bảng giá sỉ theo số lượng.xlsx",
+      "xlsx",
+      "Minh · 05/10"
+    ]
+  ],
+  "history": [
+    [
+      "sale",
+      "#2DC56A",
+      "Hôm nay · 10:24"
+    ],
+    [
+      "price",
+      "#6E48E6",
+      "2 ngày trước · Minh"
+    ],
+    [
+      "import",
+      "#2563EB",
+      "5 ngày trước · tự động"
+    ],
+    [
+      "create",
+      "#9CA3AF",
+      "12/05/2026 · Trâm"
+    ]
+  ],
+  "crm_stats": [
+    [
+      "buyers",
+      "128",
+      "#231F20"
+    ],
+    [
+      "revenue30",
+      "42,6tr",
+      "#157A40"
+    ],
+    [
+      "quotes",
+      "6",
+      "#1D4ED8"
+    ],
+    [
+      "pending",
+      "3",
+      "#B45309"
+    ]
+  ],
+  "custom_fields": [
+    {
+      "key": "warranty",
+      "label": "Bảo hành",
+      "type": "text"
+    }
+  ],
+  "crm_buyers": [
+    [
+      "Chị Lan Nguyễn",
+      "3 lần · 12,4tr",
+      "KC"
+    ],
+    [
+      "Phương Vy",
+      "2 lần · 6,1tr",
+      "PV"
+    ],
+    [
+      "Anh Dũng",
+      "1 lần · 4,2tr",
+      "AD"
+    ]
+  ]
+}

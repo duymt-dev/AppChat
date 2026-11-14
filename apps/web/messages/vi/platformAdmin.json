@@ -1,0 +1,259 @@
+{
+  "title": "Quản trị nền tảng",
+  "denied": "Bạn không có quyền quản trị nền tảng",
+  "loadError": "Không tải được phiên quản trị",
+  "tabs": {
+    "workspaces": "Workspace",
+    "plans": "Gói",
+    "providers": "Nhà cung cấp LLM",
+    "routes": "Định tuyến model",
+    "prices": "Đơn giá model",
+    "transfers": "Chuyển khoản",
+    "freeze": "Yêu cầu đóng băng",
+    "templates": "Mẫu AI Agent"
+  },
+  "pager": {
+    "page": "Trang {n}",
+    "prev": "Trang trước",
+    "next": "Trang sau"
+  },
+  "ws": {
+    "search": "Tìm tên / slug",
+    "status": "Trạng thái",
+    "empty": "Không có workspace",
+    "st": {
+      "active": "Hoạt động",
+      "suspended": "Tạm dừng"
+    },
+    "col": {
+      "name": "Workspace",
+      "owner": "Chủ sở hữu",
+      "plan": "Gói",
+      "status": "Trạng thái",
+      "stats": "Số liệu",
+      "created": "Ngày tạo"
+    },
+    "stats": "{contacts} liên hệ · {conv} hội thoại / 30 ngày",
+    "suspend": "Tạm dừng",
+    "resume": "Mở lại",
+    "suspendTitle": "Tạm dừng {name}",
+    "suspendHint": "Workspace không mở được dữ liệu, AI không chạy bước mới, tin gửi ra được giữ lại. Dữ liệu giữ nguyên; tin đã gửi không thu hồi được.",
+    "reason": "Lý do (bắt buộc)"
+  },
+  "plans": {
+    "create": "Thêm gói",
+    "edit": "Sửa gói {name}",
+    "key": "Mã gói",
+    "name": "Tên gói",
+    "segment": "Nhóm",
+    "seg": {
+      "personal": "Cá nhân",
+      "business": "Doanh nghiệp"
+    },
+    "priceMonth": "Giá / tháng (VND)",
+    "priceYear": "Giá / năm (VND)",
+    "contact": "Liên hệ",
+    "f": {
+      "credits_month": "Credit / tháng",
+      "max_users": "Người dùng tối đa",
+      "max_channels": "Kênh tối đa",
+      "max_agents": "AI Agent tối đa"
+    },
+    "unlimited": "Để trống = không giới hạn",
+    "limits": "Người · Kênh · Agent",
+    "desc": "Mô tả",
+    "features": "Tính năng (mỗi dòng một mục)",
+    "sort": "Thứ tự",
+    "popular": "Phổ biến",
+    "active": "Đang bán",
+    "activeHint": "Tắt = ẩn khỏi bảng giá, chặn mua mới; gói đang dùng giữ nguyên. Đổi giá chỉ áp cho lần mua sau.",
+    "on": "Bật",
+    "off": "Tắt"
+  },
+  "providers": {
+    "create": "Thêm nhà cung cấp",
+    "edit": "Sửa {name}",
+    "editBtn": "Sửa",
+    "key": "Mã",
+    "kind": "Loại",
+    "kinds": {
+      "openai_compatible": "Tương thích OpenAI (router)",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "deepseek": "DeepSeek"
+    },
+    "name": "Tên",
+    "baseUrl": "Địa chỉ API",
+    "baseUrlHint": "Chỉ địa chỉ công khai https; địa chỉ nội bộ cần được triển khai cho phép.",
+    "apiKey": "API key",
+    "keySet": "Đã có key (để trống = giữ nguyên)",
+    "keyMissing": "Chưa có key",
+    "clearKey": "Xoá key (nhà cung cấp sẽ bị tắt)",
+    "headers": "Header thêm",
+    "headersHint": "Mỗi dòng: tên: giá trị (ví dụ x-api-version: 1). Để trống = giữ nguyên.",
+    "headersSet": "Đang có: {names} — để trống = giữ nguyên",
+    "clearHeaders": "Xoá toàn bộ header",
+    "caps": "Khả năng",
+    "cap": {
+      "chat": "Chat",
+      "tools": "Gọi công cụ",
+      "json_schema": "JSON schema",
+      "streaming": "Streaming",
+      "embeddings": "Embedding"
+    },
+    "probe": "Kiểm tra gần nhất",
+    "status": "Trạng thái",
+    "st": {
+      "active": "Đang bật",
+      "disabled": "Đã tắt"
+    },
+    "test": "Kiểm tra",
+    "testTitle": "Kiểm tra {name}",
+    "testHint": "Gọi thật tới nhà cung cấp (tốn một ít token), mỗi khả năng một lần. Chat được không có nghĩa embedding được.",
+    "runTest": "Chạy kiểm tra",
+    "chatModel": "Model chat (vd. gpt-4.1-mini)",
+    "embedModel": "Model embedding (tuỳ chọn)",
+    "ok": "Đạt",
+    "err": {
+      "auth": "Sai key / không có quyền",
+      "rate_limited": "Bị giới hạn tần suất",
+      "timeout": "Quá thời gian",
+      "not_found": "Không tìm thấy model",
+      "unsupported": "Không hỗ trợ / chưa chọn model",
+      "provider_error": "Nhà cung cấp lỗi",
+      "network": "Lỗi mạng",
+      "bad_response": "Phản hồi không hợp lệ"
+    },
+    "disable": "Tắt",
+    "enable": "Bật"
+  },
+  "routes": {
+    "tier": {
+      "standard": "Tiêu chuẩn",
+      "advanced": "Nâng cao",
+      "max": "Tối đa"
+    },
+    "purpose": {
+      "chat": "Chat",
+      "embed": "Embedding",
+      "rerank": "Xếp hạng lại"
+    },
+    "add": "Thêm model",
+    "save": "Lưu nhóm",
+    "empty": "Chưa có model — mức này không chạy được",
+    "primary": "Chính",
+    "fallback": "Dự phòng {n}",
+    "provider": "Nhà cung cấp",
+    "model": "Tên model",
+    "up": "Lên",
+    "down": "Xuống",
+    "remove": "Bỏ",
+    "vision": "Đọc ảnh"
+  },
+  "prices": {
+    "create": "Thêm đơn giá",
+    "provider": "Nhà cung cấp",
+    "model": "Model",
+    "tier": "Mức",
+    "tiers": {
+      "standard": "Tiêu chuẩn",
+      "advanced": "Nâng cao",
+      "max": "Tối đa"
+    },
+    "in": "Credit / 1k token vào",
+    "out": "Credit / 1k token ra",
+    "invalid": "Số không âm, tối đa 4 chữ số thập phân",
+    "active": "Đang dùng",
+    "on": "Bật",
+    "off": "Tắt"
+  },
+  "freeze": {
+    "status": {
+      "pending": "Chờ xử lý",
+      "approved": "Đã duyệt",
+      "rejected": "Đã từ chối",
+      "cancelled": "Đã huỷ"
+    },
+    "empty": "Không có yêu cầu.",
+    "workspace": "Workspace",
+    "reason": "Lý do của Owner",
+    "created": "Gửi lúc",
+    "decision": "Quyết định",
+    "approve": "Duyệt",
+    "reject": "Từ chối",
+    "approveTitle": "Duyệt đóng băng {name}",
+    "rejectTitle": "Từ chối yêu cầu của {name}",
+    "approveHint": "Workspace sẽ tạm dừng ngay (chặn việc mới, giữ dữ liệu) — mở lại bằng Tiếp tục ở tab Workspace.",
+    "rejectHint": "Workspace giữ nguyên; Owner thấy kết quả trong Cài đặt.",
+    "reasonPh": "Lý do quyết định (tối thiểu 3 ký tự)"
+  },
+  "transfers": {
+    "view": {
+      "invoices": "Chờ duyệt",
+      "bank": "Giao dịch chưa khớp",
+      "inquiries": "Liên hệ bán hàng"
+    },
+    "search": "Tìm mã hoá đơn / mã chuyển khoản",
+    "searchBank": "Tìm trong nội dung chuyển khoản",
+    "emptyInvoices": "Không có hoá đơn chờ duyệt",
+    "emptyBank": "Không có giao dịch chưa khớp",
+    "emptyInquiries": "Chưa có yêu cầu liên hệ",
+    "code": "Mã",
+    "workspace": "Workspace",
+    "amount": "Số tiền",
+    "reported": "Khách báo đã chuyển",
+    "occurred": "Thời điểm",
+    "content": "Nội dung",
+    "provider": "Nguồn",
+    "created": "Ngày gửi",
+    "contact": "Liên hệ",
+    "message": "Lời nhắn",
+    "confirm": "Duyệt tay",
+    "confirmTitle": "Duyệt tay {code}",
+    "confirmHint": "Chỉ duyệt khi đã thấy đủ {amount} vào tài khoản nền tảng mà không có giao dịch tự khớp.",
+    "note": "Lý do (bắt buộc)",
+    "evidence": "Bằng chứng: mã tham chiếu ngân hàng gửi… (bắt buộc)",
+    "match": "Gắn hoá đơn",
+    "matchTitle": "Gắn giao dịch {amount} vào hoá đơn",
+    "matchHint": "Số tiền phải bằng đúng hoá đơn. Thừa / thiếu sẽ bị từ chối và giữ chưa khớp.",
+    "invoiceId": "Mã hoá đơn (ID)",
+    "reason": "Lý do (bắt buộc)"
+  },
+  "templates": {
+    "create": "Thêm mẫu",
+    "edit": "Sửa mẫu {name}",
+    "key": "Mã mẫu",
+    "name": "Tên",
+    "role": "Vai trò",
+    "roles": {
+      "sales": "Bán hàng",
+      "cs": "CSKH",
+      "booking": "Đặt lịch",
+      "marketing": "Marketing",
+      "accounting": "Kế toán",
+      "ops": "Vận hành"
+    },
+    "group": "Nhóm ngành",
+    "industry": "Ngành",
+    "description": "Mô tả",
+    "color": "Màu",
+    "tint": "Màu nền",
+    "icon": "Biểu tượng",
+    "tools": "Công cụ mặc định",
+    "toolsHint": "Chỉ action được cấp cho agent. Quyền thật của agent vẫn = quyền agent ∩ quyền người tạo.",
+    "tier": "Mức AI",
+    "tiers": {
+      "standard": "Tiêu chuẩn",
+      "advanced": "Nâng cao",
+      "max": "Tối đa"
+    },
+    "threshold": "Ngưỡng tự tin (%)",
+    "prompt": "Hướng dẫn mặc định",
+    "sort": "Thứ tự",
+    "active": "Hiển thị",
+    "activeHint": "Tắt = ẩn khỏi danh sách mẫu; agent đã tạo từ mẫu không đổi.",
+    "on": "Hiện",
+    "off": "Ẩn"
+  }
+}

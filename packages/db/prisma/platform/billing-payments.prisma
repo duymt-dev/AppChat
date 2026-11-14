@@ -1,0 +1,88 @@
+// platform/billing-payments.prisma — sở hữu: TIP-010 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: billing_invoice (hoá đơn gói AppChat — VietQR / chuyển khoản), bank_transaction (giao dịch ngân hàng nền tảng từ webhook).
+// Không Prisma relation xuyên domain (Blueprint §2.1). Viết tay ở migration 010: sequence `billing_invoice_seq` (mã INV),
+// partial index hoá đơn chờ (pending / pending_review), CHECK amount > 0.
+
+enum BillingInvoiceKind {
+  plan
+  credits
+  addon
+  upgrade_proration
+
+  @@map("billing_invoice_kind")
+}
+
+enum BillingInvoiceStatus {
+  pending
+  pending_review
+  paid
+  expired
+  cancelled
+
+  @@map("billing_invoice_status")
+}
+
+enum BillingInvoiceMethod {
+  qr
+  bank_transfer
+
+  @@map("billing_invoice_method")
+}
+
+/// Hoá đơn gói AppChat (Blueprint §2.2, REQ-L04). `transfer_code` = nội dung chuyển khoản để khớp webhook; `vat_info` chụp
+/// thông tin xuất hoá đơn VAT lúc tạo (COMMERCE §10). Tiền VND bigint.
+model BillingInvoice {
+  id             String               @id @db.Uuid
+  workspaceId    String               @map("workspace_id") @db.Uuid
+  code           String               @unique
+  kind           BillingInvoiceKind
+  /// Khoá mặt hàng: plan key / credit pack key / addon key.
+  item           String
+  planId         String?              @map("plan_id") @db.Uuid
+  /// Số tháng của gói (1 / 12).
+  months         Int?
+  credits        BigInt?
+  amount         BigInt
+  vatInfo        Json                 @default("{}") @map("vat_info")
+  /// Ảnh chụp giá / quyền lợi lúc tạo (TIP-039): gói, kỳ, giá nguồn / đích, tỷ lệ còn lại, Credit chênh, hạn addon, version subscription.
+  /// Ghi nhận khi đã trả dùng ảnh này — không đọc lại giá gói hiện tại. `{}` = hoá đơn cũ (trước 039).
+  snapshot       Json                 @default("{}")
+  /// Đã trả nhưng không tự ghi nhận được (kỳ / gói đã đổi, addon cũ không rõ hạn…) — chờ đối soát (`reconcile_finding`), không đoán.
+  holdReason     String?              @map("hold_reason")
+  status         BillingInvoiceStatus @default(pending)
+  method         BillingInvoiceMethod @default(qr)
+  transferCode   String               @unique @map("transfer_code")
+  qrPayload      String               @map("qr_payload")
+  expiresAt      DateTime             @map("expires_at") @db.Timestamptz(6)
+  reportedAt     DateTime?            @map("reported_at") @db.Timestamptz(6)
+  paidAt         DateTime?            @map("paid_at") @db.Timestamptz(6)
+  bankTxId       String?              @map("bank_tx_id") @db.Uuid
+  confirmedBy    String?              @map("confirmed_by") @db.Uuid
+  /// Đã kích hoạt gói / cộng credit (fulfil idempotent).
+  fulfilledAt    DateTime?            @map("fulfilled_at") @db.Timestamptz(6)
+  createdByUserId String              @map("created_by_user_id") @db.Uuid
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime             @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@map("billing_invoice")
+}
+
+/// Giao dịch tài khoản nhận tiền của nền tảng (webhook SePay / mock). Idempotent theo (provider, provider_tx_id).
+model BankTransaction {
+  id               String   @id @db.Uuid
+  provider         String
+  providerTxId     String   @map("provider_tx_id")
+  amount           BigInt
+  direction        String
+  content          String
+  accountNo        String   @map("account_no")
+  occurredAt       DateTime @map("occurred_at") @db.Timestamptz(6)
+  matchedInvoiceId String?  @map("matched_invoice_id") @db.Uuid
+  raw              Json     @default("{}")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([provider, providerTxId])
+  @@index([matchedInvoiceId])
+  @@map("bank_transaction")
+}

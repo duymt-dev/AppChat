@@ -1,0 +1,20 @@
+packages:
+  - apps/*
+  - packages/*
+  - tools/parity
+  - tools/contract
+  - tools/ai-live
+autoInstallPeers: true
+strictPeerDependencies: false
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  '@parcel/watcher': true
+  '@swc/core': true
+  '@prisma/engines': true
+  prisma: true
+  msgpackr-extract: false
+minimumReleaseAgeExclude:
+  - '@boundaries/elements@3.3.0'
+  - eslint-plugin-boundaries@7.4.0

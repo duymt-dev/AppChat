@@ -1,0 +1,607 @@
+{
+  "approvals": {
+    "title": "Needs your approval",
+    "count": "{pending} pending · {total} cards",
+    "all": "Show all",
+    "pendingOnly": "Pending only",
+    "waitingRun": "Approved — the operation is waiting to run, not sent yet",
+    "error": "Couldn't load this conversation's approvals"
+  },
+  "emptyChat": "Pick a conversation to start",
+  "tabs": {
+    "all": "All",
+    "mine": "Mine",
+    "mention": "@Mention",
+    "unread": "Unread",
+    "ai_pending_approval": "AI awaiting approval",
+    "vip": "⭐ VIP",
+    "complaint": "⚠ Complaints"
+  },
+  "folders": {
+    "title": "Inbox folders",
+    "toggle": "Show / hide folders",
+    "synced": "{n} channels · synced <b>just now</b>",
+    "mailbox": "Inbox",
+    "ai": "AI status",
+    "channels": "Channels",
+    "saved": "Saved filters",
+    "items": {
+      "all": "All",
+      "unread": "Unread",
+      "mention": "Mentions me",
+      "starred": "Starred",
+      "mine": "Mine",
+      "team": "My team",
+      "spam": "Spam / blocked",
+      "ai_running": "AI handling",
+      "ai_pending_approval": "AI awaiting approval",
+      "needs_human": "Needs a human"
+    },
+    "at": "@"
+  },
+  "list": {
+    "title": "Inbox",
+    "sub": "{total} conversations · {unread} unread",
+    "connect": "Connect channel",
+    "search": "Search customer, phone, content, booking code…",
+    "allChannels": "All channels",
+    "allAccounts": "All accounts",
+    "menu": "Conversation actions",
+    "emptyTitle": "No conversations yet",
+    "emptyHint": "Connect a channel and customer messages will land here.",
+    "emptySearch": "No conversation matches your search.",
+    "sort": {
+      "latest": "Latest",
+      "unread": "Unread",
+      "priority": "Priority",
+      "vip": "VIP",
+      "sla": "SLA at risk"
+    },
+    "actions": {
+      "close": "Close conversation",
+      "snooze": "Snooze",
+      "shortcut": "Shortcuts",
+      "assign": "Assign",
+      "lifecycle": "Lifecycle stage",
+      "tag": "Add tag",
+      "archive": "Archive conversation",
+      "hideconv": "Hide conversation",
+      "group": "Create group",
+      "clear": "Clear history"
+    },
+    "closed": "Conversation closed",
+    "comingSoon": "Coming soon",
+    "caret": "›",
+    "kbd": "⌘K",
+    "back": "‹",
+    "snoozeOpts": {
+      "1h": "1 hour",
+      "3h": "3 hours",
+      "tomorrow": "Until tomorrow morning",
+      "custom": "Pick a date & time"
+    },
+    "snoozeDate": "Reopen date",
+    "snoozeTime": "Reopen time",
+    "snoozeApply": "Apply",
+    "snoozePastError": "Pick a future time",
+    "shortcutHint": "insert into the composer",
+    "assignSearch": "Search people / agents",
+    "assignDenied": "You don't have permission to assign",
+    "assignLoading": "Loading…",
+    "assignEmpty": "No matching candidates",
+    "assignError": "Couldn't load candidates",
+    "assignMore": "Load more",
+    "assignUserHint": "{role} · {load} open",
+    "assignAgentHint": "Agent · {role} · v{version} · {load} open",
+    "coAssigneesTitle": "Co-assignees",
+    "coAssigneesNone": "No co-assignees yet",
+    "coAssigneesAdd": "+ Add co-assignee",
+    "coAssigneesRemove": "Remove {name} from co-assignees",
+    "stageCurrent": "Current stage",
+    "stages": {
+      "lead": "New lead",
+      "potential": "Qualified",
+      "consulting": "Consulting / Demo",
+      "quote": "Quoted",
+      "contract": "Negotiation",
+      "won": "Won",
+      "lost": "Lost"
+    },
+    "tagsHint": "Tap to select · applies to the customer",
+    "tagsNewPh": "New tag…",
+    "tagsAdd": "+ Add",
+    "tagsDone": "Done · {n} tags",
+    "groupUnsupported": "This channel cannot create groups yet"
+  },
+  "chat": {
+    "aiDraftRef": {
+      "stale": "This AI draft is outdated — its reference content can no longer be used. Rewrite it or send it as your own message.",
+      "revoked": "The documents this AI draft relied on changed or were revoked — the draft was not sent. Please rewrite it.",
+      "stockChanged": "Stock / price in this AI draft changed since it was checked — the draft was not sent. Rewrite it or check stock again.",
+      "stockUnverified": "Stock / price in this AI draft couldn't be rechecked with your permissions — the draft was not sent. Please rewrite it."
+    },
+    "back": "Back to list",
+    "search": "Search in conversation",
+    "toggle360": "Collapse profile",
+    "members": "{n} members",
+    "online": "{n} online",
+    "zaloGroup": "Zalo group",
+    "offline": "offline",
+    "frtSla": "SLA {min}m",
+    "frtBreached": "FRT breached",
+    "pinned": "📌 Pinned:",
+    "unpin": "Unpin",
+    "pinnedMsg": "📌 Pinned message:",
+    "unpinMsg": "Unpin",
+    "window": {
+      "older": "Viewing older messages around the result",
+      "latest": "Back to latest",
+      "newer": "Load newer messages",
+      "loading": "Loading messages around the result…",
+      "error": "This message is no longer available."
+    },
+    "search2": {
+      "loading": "Searching…",
+      "error": "Search failed — try again.",
+      "placeholder": "Search in this conversation…",
+      "none": "No match for “{q}” in this conversation · try the search box in the conversation list to search everywhere.",
+      "sender": "Sender",
+      "senderAll": "All",
+      "senderContact": "Customer",
+      "senderUser": "Staff",
+      "senderAgent": "AI Agent",
+      "prev": "Previous result",
+      "next": "Next result",
+      "close": "Close (Esc)",
+      "count": "{i}/{n}"
+    },
+    "handoff": {
+      "title": "Needs a human",
+      "take": "Take over",
+      "useDraft": "Use draft",
+      "badge": "AI paused"
+    },
+    "suggest": {
+      "title": "AI Cowork suggested reply",
+      "confidence": "{pct}% confidence",
+      "send": "Send",
+      "edit": "Edit",
+      "other": "Another suggestion"
+    }
+  },
+  "thread": {
+    "contractFromFile": "Create contract from file",
+    "contractCreating": "Creating contract…",
+    "insight": "AI insight:",
+    "confidence": "· {pct}% confidence",
+    "note": "Internal note",
+    "deleted": "Message removed from AppChat",
+    "recalled": "Message recalled"
+  },
+  "msgMenu": {
+    "title": "Message actions",
+    "reply": "Reply",
+    "copy": "Copy",
+    "forward": "Forward",
+    "pin": "Pin message",
+    "unpin": "Unpin message",
+    "translate": "Translate",
+    "ticket": "Create ticket from this message",
+    "recall": "Recall",
+    "recallHint": "Your messages only",
+    "delete": "Delete message",
+    "copied": "Message content copied",
+    "reacts": {
+      "👍": "Like",
+      "❤️": "Love",
+      "😂": "Haha",
+      "😮": "Wow",
+      "😢": "Sad",
+      "🙏": "Thanks"
+    }
+  },
+  "forward": {
+    "title": "Forward message",
+    "search": "Search conversations…",
+    "send": "Forward",
+    "close": "Close",
+    "sent": "Message forwarded"
+  },
+  "composer": {
+    "placeholder": "Message {name}… ( / = AI command · @ = mention · # = service )",
+    "notePlaceholder": "Internal note — the customer won't see it…",
+    "attach": "Add file, connector, plugin",
+    "via": "Send via <b>{ch}</b> · <k>Enter</k> to send",
+    "send": "Send",
+    "saveNote": "Save note",
+    "replyingTo": "Replying to:",
+    "cancelReply": "Cancel quote",
+    "senderLine": "Sender: <b>{name} (you)</b>",
+    "attachMenu": {
+      "file": "Add file",
+      "screenshot": "Screenshot",
+      "agentTools": "Agent permissions (read-only)",
+      "noTools": "The handling agent has no tools granted",
+      "research": "Research / web search",
+      "soon": "Coming soon",
+      "count": "({on}/{total})",
+      "needs_connector": "needs connector",
+      "coming_soon": "coming soon",
+      "skillGroup": "AI Skills",
+      "editInBuilder": "Edit in Builder ›",
+      "humanSkills": "AI skills for you (runs with your permissions)"
+    },
+    "modes": {
+      "note": "Internal note",
+      "copilot": "Co-pilot",
+      "auto": "AI auto"
+    },
+    "tools": {
+      "qr": "Quick replies",
+      "sched": "Book appointment",
+      "xl": "Translate"
+    },
+    "qr": {
+      "title": "Quick replies",
+      "hint": "Type / in the box to filter"
+    },
+    "sched": {
+      "title": "Book an appointment for {name}",
+      "service": "Service",
+      "serviceOpt": "{name} · {min} min",
+      "date": "Date",
+      "staff": "Staff",
+      "anyStaff": "Any staff",
+      "loading": "Finding free slots…",
+      "error": "Couldn't load slots — try again",
+      "empty": "No free slots on this day",
+      "hint": "Free slots in workspace time — pick one, then open the booking form",
+      "book": "Open booking form",
+      "proposeBtn": "Insert time suggestion into message",
+      "propose": "We have {time} on {date} available for {service} — does that time work for you?"
+    },
+    "xl": {
+      "title": "Auto translate",
+      "auto": "Two-way auto translate",
+      "autoHint": "Customer → Vietnamese · You → customer's language",
+      "to": "Translate my draft to",
+      "pending": "Translating your draft…",
+      "failed": "Couldn't translate (error or out of credits) — retry or send the original",
+      "sendTranslated": "Send translation",
+      "sendOriginal": "Send original",
+      "retry": "Retry",
+      "cancel": "Cancel translation",
+      "inMore": "Translate older messages",
+      "inPaused": "Auto-translate paused (error or out of credits) — retry",
+      "autoLabel": "Automatic translation"
+    },
+    "capture": {
+      "busy": "Waiting for you to choose a tab / window / screen…",
+      "unsupported": "This browser can't capture the screen — attach an image file instead",
+      "denied": "Screen capture permission was denied — you can attach an image file",
+      "failed": "Couldn't capture the screen — attach an image file instead",
+      "alt": "Screenshot",
+      "warn": "Check the image has no sensitive information before attaching.",
+      "accept": "Attach image",
+      "fallback": "Choose file",
+      "cancel": "Discard screenshot"
+    },
+    "autoBadge": "AUTO",
+    "fileFailed": "Could not upload {name}",
+    "removeFile": "Remove {name}",
+    "mention": "Mention a teammate",
+    "mentionNone": "No matching teammate",
+    "aiDraft": {
+      "compose": "AI compose",
+      "rewrite": "AI rewrite",
+      "pending": "AI is drafting…",
+      "cancel": "Cancel",
+      "error": "Could not draft a reply.",
+      "retry": "Retry",
+      "dismiss": "Dismiss",
+      "composed": "AI draft",
+      "rewritten": "AI rewrite",
+      "badge": "draft — not sent",
+      "conflictBadge": "draft changed",
+      "conflict": "You edited the draft while AI was writing — choose replace or insert.",
+      "replace": "Replace draft",
+      "insert": "Insert"
+    }
+  },
+  "deletedContact": {
+    "title": "Deleted customer",
+    "close": "Close",
+    "body": "This conversation's customer was deleted. Messages are kept and you can still reply under Inbox permissions; profile, quotes, bookings and AI auto-reply are paused until the customer is restored.",
+    "openTrash": "Open deleted customers"
+  },
+  "p360": {
+    "title": "360° profile",
+    "close": "Close profile",
+    "customize": "Customize 360° profile",
+    "tabs": {
+      "overview": "Overview",
+      "crm": "CRM",
+      "ai": "AI",
+      "files": "Files",
+      "history": "History"
+    },
+    "journey": "Customer journey",
+    "stageAt": "Stage: {stage}",
+    "aiHint": "AI tip:",
+    "aiSummary": "AI summary",
+    "closeChance": "Close chance",
+    "contact": "Customer info",
+    "edit": "Edit",
+    "leadScore": "Lead score",
+    "tier": "MEMBER TIER",
+    "points": "points · ≈ {value}",
+    "history": "Interaction history",
+    "exportCsv": "Export CSV",
+    "openDeal": "Open opportunity",
+    "recentOrder": "Recent order",
+    "recentPayment": "Recent payment request",
+    "segments": "Segments & tags",
+    "behavior": "Behaviour analysis",
+    "signals": "Customer signals",
+    "nba": "AI next-best-action",
+    "files": "Files",
+    "timeline": "Omnichannel timeline",
+    "ops": {
+      "quote": "Quote",
+      "contract": "Contract",
+      "order": "Order"
+    },
+    "foot": {
+      "email": "Send email",
+      "ticket": "Create ticket",
+      "booking": "Book"
+    },
+    "spark": "✦",
+    "aiBadge": "AI",
+    "signalUp": "▲ ",
+    "signalWarn": "⚠ ",
+    "email": {
+      "title": "Send email",
+      "close": "Close",
+      "cancel": "Cancel",
+      "send": "Send email",
+      "from": "From",
+      "to": "To",
+      "template": "Email template",
+      "subject": "Subject",
+      "body": "Body",
+      "tpl": {
+        "followUp": {
+          "label": "Follow up after consult",
+          "subject": "Following up on our chat",
+          "body": "Hi {name},\n\nThanks for taking the time to talk with us. Here's a quick recap of what we discussed.\n\nBest regards."
+        },
+        "resendQuote": {
+          "label": "Resend quote",
+          "subject": "Resending your quote",
+          "body": "Hi {name},\n\nResending the quote for your review — let us know what you think.\n\nBest regards."
+        },
+        "confirmBooking": {
+          "label": "Confirm appointment",
+          "subject": "Appointment confirmation",
+          "body": "Hi {name},\n\nConfirming your appointment. Let us know if you need to reschedule.\n\nBest regards."
+        }
+      }
+    },
+    "blocksEmpty": "This tab has no blocks yet — add them in Settings › 360° profile.",
+    "blockNoData": "No data yet",
+    "blockDenied": "You do not have access to this section",
+    "slaMet": "SLA met",
+    "slaBreached": "SLA breached",
+    "csatScore": "{n}/5",
+    "linkStatus": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "open": "Open",
+      "in_progress": "In progress",
+      "waiting": "Waiting on customer"
+    }
+  },
+  "group": {
+    "title": "Group info",
+    "close": "Close group info",
+    "members": "{n} members",
+    "joinLink": "Group invite link",
+    "linkOn": "On · open Manage to turn off",
+    "linkOff": "Off",
+    "linkUnknown": "Not read from Zalo yet — refresh in Manage group",
+    "media": "Photos/Videos",
+    "files": "Files",
+    "links": "Links",
+    "hide": "Hide chat",
+    "clear": "Clear chat history",
+    "acts": {
+      "mute": "Mute",
+      "pin": "Pin chat",
+      "add": "Add member",
+      "manage": "Manage group",
+      "unmute": "Unmute",
+      "unpin": "Unpin"
+    },
+    "ai": {
+      "title": "AI in group",
+      "mention": "When @mentioned",
+      "auto": "Auto reply",
+      "off": "Off",
+      "rules": "Group rules for AI",
+      "rulesSub": "4 rules · AI reads them before replying"
+    },
+    "board": "Group board",
+    "pinned": "Pinned messages",
+    "notes": "Internal notes",
+    "notesSub": "Staff only",
+    "mediaCount": "{n} items",
+    "seeAll": "See all",
+    "pinnedNone": "No pinned message",
+    "countMore": "{n}+ items",
+    "boardLoading": "Loading…",
+    "boardEmpty": "Nothing here yet",
+    "boardError": "Couldn't load — try again later",
+    "linkCopy": "Copy",
+    "linkCopying": "Reading…",
+    "linkCopied": "Join link copied",
+    "linkCopyFailed": "Couldn't copy the link",
+    "linkFailed": "Couldn't read the link from Zalo",
+    "linkNoPerm": "Requires inbox management permission",
+    "linkUnsupported": "This account can't read this group's link",
+    "caretOpen": "▾",
+    "caretClosed": "▸"
+  },
+  "groupManage": {
+    "title": "Manage group",
+    "close": "Close",
+    "name": "Group name",
+    "rename": "Rename group",
+    "linkOn": "Turn invite link on",
+    "linkOff": "Turn invite link off",
+    "refresh": "Refresh from Zalo",
+    "refreshFirst": "Refresh from Zalo before renaming / changing the link.",
+    "snapshot": "Zalo reports {total} members · AppChat has seen {observed} · account is {role}",
+    "noSnapshot": "AppChat has seen {observed} members (not read from Zalo yet)",
+    "partial": "Zalo returned an incomplete list — not the whole group.",
+    "addTitle": "Add customers who messaged this account ({n}/{max})",
+    "add": "Add to group",
+    "more": "Load more",
+    "role": {
+      "owner": "owner",
+      "admin": "admin",
+      "member": "member",
+      "unknown": "unknown"
+    },
+    "state": {
+      "pending": "Sending command to Zalo…",
+      "confirmed": "Confirmed by Zalo.",
+      "failed": "Rejected by Zalo — nothing changed.",
+      "unknown": "Result unknown — check in Zalo, it will not be resent.",
+      "partial": "Partly done — see each member.",
+      "cancelled": "Cancelled.",
+      "superseded": "Replaced by a newer command."
+    },
+    "member": {
+      "confirmed": "Added",
+      "failed": "Not added",
+      "unknown": "Unknown"
+    }
+  },
+  "connect": {
+    "eyebrow": "Connect a new channel",
+    "title": "Choose a channel to add to AppChat",
+    "meta": "{n} channels · Omnichannel",
+    "close": "Close",
+    "soon": "Coming soon",
+    "time": "⏱ {time}",
+    "cats": {
+      "all": "All channels",
+      "social": "Social & Messaging",
+      "web": "Web · Email"
+    },
+    "hintTitle": "AppChat AI tip",
+    "hintBody": "Your industry (Spa/Beauty) is most active on <b>Zalo</b> — connect <b>personal Zalo</b> and <b>Live chat website</b> first so AI can start handling conversations.",
+    "ready": "Ready",
+    "industries": {
+      "fashion": "Fashion",
+      "beauty": "Cosmetics / Health",
+      "fnb": "F&B"
+    },
+    "byIndustry": "By industry"
+  },
+  "ai": {
+    "title": "AI Assistant",
+    "sub": "Compact mode · help right inside the conversation",
+    "close": "Close",
+    "hello": "I'm looking at the conversation with <b>{name}</b>. I can summarise, draft a reply, create a quote or book an appointment. What do you need?",
+    "ask": "Ask the AI Assistant about this conversation…",
+    "send": "Send",
+    "openFull": "Open the full AI Assistant →",
+    "sections": {
+      "quick": "Quick actions",
+      "cowork": "AI Cowork",
+      "move": "Move"
+    },
+    "cmds": {
+      "new": "New conversation",
+      "invite": "Invite a member to the conversation",
+      "meet": "Book an appointment for the customer",
+      "summary": "Summarise the last 30 messages",
+      "draft": "Draft a suggested reply",
+      "translate": "Translate to English",
+      "intent": "Detect customer intent",
+      "mention": "Move to @Mention tab",
+      "assign": "Hand over · @Trâm",
+      "vip": "Tag as VIP"
+    },
+    "prompts": {
+      "new": "Create a new conversation with {name}.",
+      "invite": "Invite a member to the conversation with {name}.",
+      "summary": "Summarise the last 30 messages of the conversation with {name}.",
+      "draft": "Draft a suggested reply to {name}'s latest message (draft only, do not send).",
+      "translate": "Translate {name}'s latest message into English.",
+      "intent": "Detect {name}'s intent in this conversation.",
+      "mention": "Move the conversation with {name} to the @Mention tab.",
+      "assign": "Assign the conversation with {name} to Trâm.",
+      "vip": "Tag {name} as VIP."
+    }
+  },
+  "createGroup": {
+    "title": "Create Zalo group",
+    "close": "Close",
+    "name": "Group name",
+    "members": "Selected members: {count}",
+    "notice": "Selected customers will be invited to a new Zalo group. Only customers who have messaged this account can be chosen.",
+    "submit": "Create group",
+    "open": "Open group",
+    "status": {
+      "queued": "Waiting for the Zalo account…",
+      "running": "Creating the group on Zalo…",
+      "succeeded": "Group created.",
+      "failed": "Could not create the group.",
+      "unknown": "Outcome unknown — the group may already exist on Zalo. Check Zalo before trying again."
+    }
+  },
+  "summary": {
+    "title": "Handoff summary",
+    "loading": "Loading summary…",
+    "error": "Could not load the summary.",
+    "retry": "Retry",
+    "unknown": "Customer request unclear",
+    "unresolved": "Unresolved: {text}",
+    "attachmentUnreadable": "{n} attachment(s) the AI could not read",
+    "status": {
+      "ok": "done",
+      "pending": "awaiting approval",
+      "denied": "blocked",
+      "error": "failed"
+    }
+  },
+  "intent": {
+    "hint": "Intent detected by AI on the latest turn",
+    "buy": "Wants to buy",
+    "question": "Question",
+    "complaint": "Complaint",
+    "booking": "Booking",
+    "other": "Other"
+  },
+  "providerOp": {
+    "recall": {
+      "pending": "Recalling on Zalo…",
+      "unknown": "Recall status on Zalo is unknown — check on the phone",
+      "failed": "Zalo could not recall this message",
+      "partial": "Partly recalled — some parts could not be recalled"
+    },
+    "react": {
+      "pending": "Sending reaction to Zalo…",
+      "unknown": "Unknown whether Zalo received the reaction",
+      "failed": "Zalo did not accept this reaction"
+    },
+    "send": {
+      "partial": "Only part of this message was sent — the rest did not reach the customer",
+      "unknown": "Unknown whether this message reached the customer — check on the phone before resending"
+    },
+    "accepted": "Sent to Zalo — waiting for confirmation"
+  }
+}

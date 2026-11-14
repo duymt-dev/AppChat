@@ -1,0 +1,205 @@
+{
+ "suite": "record-ai-entrypoints",
+ "cases": [
+  {
+   "id": "rec-quote",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Báo giá này đang ở trạng thái nào, còn hiệu lực tới khi nào?",
+   "record": {
+    "kind": "inspect",
+    "entity": "quote",
+    "intent": "inspect"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-contract",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Hợp đồng này đã ký chưa, giá trị bao nhiêu?",
+   "record": {
+    "kind": "inspect",
+    "entity": "contract",
+    "intent": "inspect"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-order",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Đơn này đã thanh toán và giao hàng tới đâu rồi?",
+   "record": {
+    "kind": "inspect",
+    "entity": "order",
+    "intent": "inspect"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-appointment",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Lịch hẹn này của khách ngày nào, mấy giờ, đã xác nhận chưa?",
+   "record": {
+    "kind": "inspect",
+    "entity": "appointment",
+    "intent": "inspect"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-follow-up",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Việc follow này cần làm gì với khách, đến hạn khi nào?",
+   "record": {
+    "kind": "inspect",
+    "entity": "follow_up",
+    "intent": "inspect"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-ticket",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Tóm tắt ticket này và đề xuất bước xử lý tiếp theo, chưa làm gì cả.",
+   "record": {
+    "kind": "inspect",
+    "entity": "ticket",
+    "intent": "review_ticket"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-invoice",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Đề nghị thanh toán này số tiền bao nhiêu, đã thu chưa?",
+   "record": {
+    "kind": "inspect",
+    "entity": "invoice",
+    "intent": "invoice_task"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-product-combo",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Gợi ý một combo bán kèm hợp lý cho dịch vụ này.",
+   "record": {
+    "kind": "proposal",
+    "entity": "product",
+    "intent": "product_combo"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-product-campaign",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Soạn ý tưởng chiến dịch Zalo cho dịch vụ này, nhắm khách cũ.",
+   "record": {
+    "kind": "proposal",
+    "entity": "product",
+    "intent": "product_campaign"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  },
+  {
+   "id": "rec-limited-sales",
+   "category": "record",
+   "mode": "chat",
+   "actor": {
+    "role": "owner"
+   },
+   "input": "Báo giá này còn hiệu lực không?",
+   "record": {
+    "kind": "limited",
+    "entity": "quote",
+    "intent": "inspect"
+   },
+   "expect": {
+    "confirm": false,
+    "record": true
+   },
+   "seed": "live-seed",
+   "locale": "vi"
+  }
+ ]
+}

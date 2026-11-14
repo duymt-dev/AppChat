@@ -1,0 +1,40 @@
+{
+  "name": "appchat",
+  "private": true,
+  "packageManager": "pnpm@11.21.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dev": "turbo run dev --filter=@appchat/web",
+    "build": "turbo run build",
+    "lint": "turbo run lint && node tools/scripts/lint-size.mjs && node tools/scripts/lint-tokens.mjs && node tools/scripts/lint-masks.mjs",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "lint:size": "node tools/scripts/lint-size.mjs",
+    "lint:tokens": "node tools/scripts/lint-tokens.mjs",
+    "lint:masks": "node tools/scripts/lint-masks.mjs",
+    "lint:parity-debt": "node tools/scripts/lint-parity-debt.mjs",
+    "depcheck": "depcruise apps packages --config .dependency-cruiser.cjs --output-type err --ignore-known .dependency-cruiser-known-violations.json",
+    "i18n:check": "node tools/scripts/i18n-check.mjs",
+    "parity": "pnpm --filter @appchat/parity run parity",
+    "parity:baseline": "pnpm --filter @appchat/parity run baseline",
+    "e2e": "pnpm --filter @appchat/web run e2e",
+    "e2e:http": "node tools/scripts/e2e-http.mjs",
+    "check:bundle": "node tools/scripts/check-bundle-deps.mjs",
+    "ai:live": "pnpm --filter @appchat/ai-live run live",
+    "wt:env": "node tools/scripts/worktree-env.mjs",
+    "wt:redis": "node tools/scripts/worktree-redis.mjs",
+    "slot": "node tools/scripts/pg-slot.mjs",
+    "test:tools": "node --test \"tools/scripts/test/*.test.mjs\""
+  },
+  "devDependencies": {
+    "dependency-cruiser": "18.7.0",
+    "eslint": "10.13.0",
+    "prettier": "3.9.10",
+    "turbo": "2.11.10",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.1",
+    "vitest": "5.0.5"
+  }
+}

@@ -1,0 +1,26 @@
+// API công khai của domain billing cho apps/api (controller), domain khác (CreditMeter — 019/022; QuotaService — 013/014/021;
+// WalletService / SubscriptionsService — 010/040) và test. Một dòng re-export ở src/index.ts (facade).
+export { seedPlans } from './seed';
+export { WalletService, type Balance, type LedgerInput, type WalletChange, type WalletFlags, type WalletListener } from './services/wallet.service';
+export { CreditMeter, DbPriceBook, StaticPriceBook, PRICE_BOOK, type PriceBook, type ModelPrice, type UsageInput } from './services/credit-meter';
+export { QuotaService, type PlanLimits } from './services/quota.service';
+export { UsageWallet, AI_USAGE_REF, type UsageCharge, type UsageChargeResult } from './services/usage-receipt';
+export { SubscriptionsService, type BillingEventSink } from './services/subscriptions.service';
+export { BillingReadService, ledgerDto, LEDGER_PAGE, CREDIT_VND } from './services/billing-read.service';
+export { OutboxBillingSink, walletThresholdListener, trialConsumer } from './events/billing.events';
+export { BILLING_SINK } from './billing.module';
+export { SCHEDULER_QUEUE, TRIAL_EXPIRY_JOB, INVOICE_SWEEP_JOB, LIFECYCLE_JOB } from './jobs/billing.jobs.module';
+export { runLifecycle, initLegacyAnchors } from './jobs/lifecycle.runner';
+export { stepWorkspace, RETAIN_DAYS } from './services/periods.service';
+export { priceItem, paidActive } from './services/plan-changes.service';
+export { activeAddons } from './services/addons.service';
+export { applyPaidInvoice } from './lifecycle/apply-invoice';
+export { BILLING_ACTOR, snapshotOf, type InvoiceSnapshot } from './lifecycle/types';
+export { InvoicesService, type CreateInvoiceInput } from './payments/invoices.service';
+export { InvoiceFulfiller, billingCtx } from './payments/fulfil';
+export { PlatformBankHook } from './payments/bank-hook.service';
+export { PAYMENTS_ENV, readPaymentsEnv, type PaymentsEnv } from './payments/payments.env';
+export { backfillLegacyAddons, type AddonBackfillResult } from './jobs/addon-backfill';
+export { parseLedgerFilter, readLedger, type LedgerFilter } from './services/ledger-reader';
+export { BillingInvoicePdf, invoiceDocument } from './services/invoice-pdf';
+export { parseQuoteInput, quoteView } from './services/quote-view';

@@ -1,0 +1,756 @@
+{
+  "today": "2026-06-24",
+  "open_hours": {
+    "start": "08:00",
+    "end": "19:00"
+  },
+  "services": [
+    {
+      "id": "sv1",
+      "name": "Trị mụn chuyên sâu",
+      "color": "#FF8A4C",
+      "duration": 90,
+      "price": "680000",
+      "buffer": 10
+    },
+    {
+      "id": "sv2",
+      "name": "Massage thư giãn 60p",
+      "color": "#7C9CFF",
+      "duration": 60,
+      "price": "450000",
+      "buffer": 10
+    },
+    {
+      "id": "sv3",
+      "name": "Triệt lông Diode",
+      "color": "#F87171",
+      "duration": 120,
+      "price": "1200000",
+      "buffer": 15
+    },
+    {
+      "id": "sv4",
+      "name": "Tư vấn 1-1 HLV",
+      "color": "#34D399",
+      "duration": 45,
+      "price": "300000",
+      "buffer": 5
+    },
+    {
+      "id": "sv5",
+      "name": "Khám da VISIA",
+      "color": "#A78BFA",
+      "duration": 30,
+      "price": "250000",
+      "buffer": 5
+    }
+  ],
+  "staff": [
+    {
+      "id": "s1",
+      "name": "BS. Hồng Anh",
+      "role": "Bác sĩ da",
+      "initial": "H",
+      "color": "#F87171",
+      "team": "tech",
+      "room": "Phòng khám 1"
+    },
+    {
+      "id": "s2",
+      "name": "KTV. Mai Lan",
+      "role": "KTV da",
+      "initial": "M",
+      "color": "#FF8A4C",
+      "team": "tech",
+      "room": "Phòng VIP 2"
+    },
+    {
+      "id": "s3",
+      "name": "KTV. Thu Hà",
+      "role": "KTV laser",
+      "initial": "T",
+      "color": "#7C9CFF",
+      "team": "tech",
+      "room": "Phòng laser"
+    },
+    {
+      "id": "s4",
+      "name": "PT. Đức Minh",
+      "role": "Personal trainer",
+      "initial": "D",
+      "color": "#34D399",
+      "team": "care",
+      "room": "Phòng tập"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "ap_1201",
+      "code": "LH-1201",
+      "contact_id": "ct_bk_01",
+      "contact_name": "Nguyễn Lan Hương",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv1",
+      "staff_id": "s2",
+      "start_at": "2026-06-05T09:00:00+07:00",
+      "end_at": "2026-06-05T10:30:00+07:00",
+      "status": "done",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": "pkg_501",
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-05T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1202",
+      "code": "LH-1202",
+      "contact_id": "ct_bk_02",
+      "contact_name": "Trần Quỳnh Anh",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv2",
+      "staff_id": "s2",
+      "start_at": "2026-06-08T10:30:00+07:00",
+      "end_at": "2026-06-08T11:30:00+07:00",
+      "status": "done",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-08T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1203",
+      "code": "LH-1203",
+      "contact_id": "ct_bk_03",
+      "contact_name": "Đức Long",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv4",
+      "staff_id": "s4",
+      "start_at": "2026-06-08T14:00:00+07:00",
+      "end_at": "2026-06-08T14:45:00+07:00",
+      "status": "done",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-08T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1204",
+      "code": "LH-1204",
+      "contact_id": "ct_bk_04",
+      "contact_name": "Mai Trâm",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv5",
+      "staff_id": "s1",
+      "start_at": "2026-06-12T09:30:00+07:00",
+      "end_at": "2026-06-12T10:00:00+07:00",
+      "status": "no_show",
+      "pay": "pending",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-12T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1205",
+      "code": "LH-1205",
+      "contact_id": "ct_bk_05",
+      "contact_name": "Thu Hà",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv3",
+      "staff_id": "s3",
+      "start_at": "2026-06-15T11:00:00+07:00",
+      "end_at": "2026-06-15T13:00:00+07:00",
+      "status": "done",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-15T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1206",
+      "code": "LH-1206",
+      "contact_id": "ct_bk_06",
+      "contact_name": "Quốc Bảo",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv2",
+      "staff_id": "s2",
+      "start_at": "2026-06-15T15:30:00+07:00",
+      "end_at": "2026-06-15T16:30:00+07:00",
+      "status": "done",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-15T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1207",
+      "code": "LH-1207",
+      "contact_id": "ct_bk_07",
+      "contact_name": "Vũ Mai",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv1",
+      "staff_id": "s2",
+      "start_at": "2026-06-15T16:30:00+07:00",
+      "end_at": "2026-06-15T18:00:00+07:00",
+      "status": "done",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-15T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1208",
+      "code": "LH-1208",
+      "contact_id": "ct_bk_08",
+      "contact_name": "Đỗ Hồng Nhung",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv3",
+      "staff_id": "s3",
+      "start_at": "2026-06-19T08:30:00+07:00",
+      "end_at": "2026-06-19T10:30:00+07:00",
+      "status": "done",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-19T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1209",
+      "code": "LH-1209",
+      "contact_id": "ct_bk_09",
+      "contact_name": "Khánh Vy",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv2",
+      "staff_id": "s2",
+      "start_at": "2026-06-22T13:00:00+07:00",
+      "end_at": "2026-06-22T14:00:00+07:00",
+      "status": "done",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-22T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1210",
+      "code": "LH-1210",
+      "contact_id": "ct_bk_01",
+      "contact_name": "Nguyễn Lan Hương",
+      "phone": "+84 909 123 456",
+      "owner_user_id": "u_tram",
+      "service_id": "sv1",
+      "staff_id": "s2",
+      "start_at": "2026-06-24T09:00:00+07:00",
+      "end_at": "2026-06-24T10:30:00+07:00",
+      "status": "confirmed",
+      "pay": "paid",
+      "source": "zalo_personal",
+      "note": "Da nhạy cảm — dùng sản phẩm dịu nhẹ",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": "pkg_501",
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-24T07:12:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1211",
+      "code": "LH-1211",
+      "contact_id": "ct_bk_02",
+      "contact_name": "Trần Quỳnh Anh",
+      "phone": "+84 912 345 678",
+      "owner_user_id": "u_minh",
+      "service_id": "sv2",
+      "staff_id": "s3",
+      "start_at": "2026-06-24T10:00:00+07:00",
+      "end_at": "2026-06-24T11:00:00+07:00",
+      "status": "in_progress",
+      "pay": "pending",
+      "source": "webchat",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-24T07:12:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1212",
+      "code": "LH-1212",
+      "contact_id": "ct_bk_10",
+      "contact_name": "Lê Phương Linh",
+      "phone": "+84 938 222 111",
+      "owner_user_id": "u_huong",
+      "service_id": "sv5",
+      "staff_id": "s1",
+      "start_at": "2026-06-24T11:00:00+07:00",
+      "end_at": "2026-06-24T11:30:00+07:00",
+      "status": "confirmed",
+      "pay": "paid",
+      "source": "staff",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-24T07:12:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1213",
+      "code": "LH-1213",
+      "contact_id": "ct_bk_08",
+      "contact_name": "Đỗ Hồng Nhung",
+      "phone": "+84 977 666 555",
+      "owner_user_id": "u_tram",
+      "service_id": "sv3",
+      "staff_id": "s3",
+      "start_at": "2026-06-24T14:00:00+07:00",
+      "end_at": "2026-06-24T16:00:00+07:00",
+      "status": "confirmed",
+      "pay": "partial",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-24T07:12:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1214",
+      "code": "LH-1214",
+      "contact_id": "ct_bk_11",
+      "contact_name": "Phạm Tuấn Đạt",
+      "phone": "+84 901 555 222",
+      "owner_user_id": "u_khoa",
+      "service_id": "sv4",
+      "staff_id": "s4",
+      "start_at": "2026-06-24T15:00:00+07:00",
+      "end_at": "2026-06-24T15:45:00+07:00",
+      "status": "confirmed",
+      "pay": "paid",
+      "source": "agent",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-24T07:12:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1215",
+      "code": "LH-1215",
+      "contact_id": "ct_bk_12",
+      "contact_name": "Vũ Mai Trâm",
+      "phone": "+84 988 333 444",
+      "owner_user_id": "u_tram",
+      "service_id": "sv2",
+      "staff_id": "s2",
+      "start_at": "2026-06-24T16:30:00+07:00",
+      "end_at": "2026-06-24T17:30:00+07:00",
+      "status": "pending",
+      "pay": "pending",
+      "source": "zalo_personal",
+      "note": "Khách hỏi đổi sang chiều thứ 7 nếu còn KTV",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-24T07:12:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1216",
+      "code": "LH-1216",
+      "contact_id": "ct_bk_13",
+      "contact_name": "Gia Hân",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv1",
+      "staff_id": "s2",
+      "start_at": "2026-06-26T10:00:00+07:00",
+      "end_at": "2026-06-26T11:30:00+07:00",
+      "status": "confirmed",
+      "pay": "pending",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-26T08:00:00+07:00"
+        }
+      ]
+    },
+    {
+      "id": "ap_1217",
+      "code": "LH-1217",
+      "contact_id": "ct_bk_14",
+      "contact_name": "Tuấn Anh",
+      "phone": "",
+      "owner_user_id": "u_tram",
+      "service_id": "sv5",
+      "staff_id": "s1",
+      "start_at": "2026-06-26T14:30:00+07:00",
+      "end_at": "2026-06-26T15:00:00+07:00",
+      "status": "confirmed",
+      "pay": "pending",
+      "source": "zalo_personal",
+      "note": "",
+      "cancel_reason": "",
+      "reschedule_count": 0,
+      "package_id": null,
+      "order_id": null,
+      "reminders": [
+        {
+          "kind": "confirm",
+          "at": "2026-06-26T08:00:00+07:00"
+        }
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "id": "pkg_501",
+      "contact_id": "ct_bk_01",
+      "name": "Liệu trình trị mụn 10 buổi",
+      "service_id": "sv1",
+      "total": 10,
+      "used": 5,
+      "expires_at": "2026-12-31",
+      "status": "active"
+    }
+  ],
+  "follow_ups": [
+    {
+      "id": "cfu_1",
+      "at": "2026-06-24T09:30:00+07:00",
+      "note": "Nhắc tái khám sau liệu trình",
+      "contact_name": "Nguyễn Lan Hương",
+      "step": "Chăm sóc 30 ngày",
+      "owner": "agent",
+      "channel": "zalo_personal",
+      "due": "today"
+    },
+    {
+      "id": "cfu_2",
+      "at": "2026-06-24T14:00:00+07:00",
+      "note": "Win-back khách ngủ đông",
+      "contact_name": "Phạm Tuấn Đạt",
+      "step": "Ưu đãi quay lại",
+      "owner": "Hương",
+      "channel": "email",
+      "due": "overdue"
+    }
+  ],
+  "history": [
+    {
+      "at": "2026-04-15",
+      "service": "Trị mụn chuyên sâu"
+    },
+    {
+      "at": "2026-04-02",
+      "service": "Khám da VISIA"
+    },
+    {
+      "at": "2026-03-18",
+      "service": "Massage thư giãn 60p"
+    }
+  ],
+  "ai": [
+    [
+      "confirm",
+      "Gọi xác nhận khách chờ",
+      "1 lịch hẹn chờ xác nhận (Vũ Mai Trâm 16:30) · soạn lời nhắc qua Zalo"
+    ],
+    [
+      "gap",
+      "Lấp khung giờ trống chiều nay",
+      "12:00–14:00 còn trống · đề xuất mời 2 khách tiềm năng đang quan tâm"
+    ],
+    [
+      "follow",
+      "Nhắc follow-up đến hạn",
+      "2 follow-up cần xử lý hôm nay · tự soạn tin chăm sóc theo giai đoạn"
+    ],
+    [
+      "report",
+      "Báo cáo lịch hẹn hôm nay",
+      "6 lịch · 4 xác nhận · utilization 6.4h · doanh thu 3.6tr"
+    ]
+  ],
+  "genui": [
+    {
+      "key": "confirm",
+      "re": "đang chờ xác nhận|gọi xác nhận",
+      "lead": "Lịch hẹn đang chờ xác nhận:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat",
+              "label": "Chờ xác nhận",
+              "value": {
+                "$ref": "step:1.count"
+              },
+              "format": "number",
+              "tone": "warning"
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "name",
+              "subtitle_key": "time",
+              "open": {
+                "entity": "appointment",
+                "id_key": "id"
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "count": 1,
+          "rows": [
+            {
+              "id": "ap_1215",
+              "name": "Vũ Mai Trâm",
+              "time": "16:30 hôm nay"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "follow",
+      "re": "follow|chăm sóc",
+      "lead": "Follow-up đến hạn hôm nay:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat",
+              "label": "Đến hạn",
+              "value": {
+                "$ref": "step:1.count"
+              },
+              "format": "number"
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "name",
+              "subtitle_key": "note"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "count": 2,
+          "rows": [
+            {
+              "name": "Nguyễn Thị Lan",
+              "note": "Sau liệu trình HIFU buổi 3"
+            },
+            {
+              "name": "Phạm Thị Linh",
+              "note": "Nhắc tái khám da"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "report",
+      "re": "báo cáo lịch|lịch hẹn hôm nay:",
+      "lead": "Lịch hẹn hôm nay:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Lịch hẹn",
+                  "value": {
+                    "$ref": "step:1.total"
+                  },
+                  "format": "number"
+                },
+                {
+                  "type": "stat",
+                  "label": "Đã xác nhận",
+                  "value": {
+                    "$ref": "step:1.confirmed"
+                  },
+                  "format": "number",
+                  "tone": "success"
+                },
+                {
+                  "type": "stat",
+                  "label": "Doanh thu dự kiến",
+                  "value": {
+                    "$ref": "step:1.revenue"
+                  },
+                  "format": "money"
+                }
+              ]
+            },
+            {
+              "type": "progress",
+              "label": "Công suất",
+              "value": {
+                "$ref": "step:1.hours"
+              },
+              "max": {
+                "$ref": "step:1.open_hours"
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "total": 6,
+          "confirmed": 4,
+          "revenue": 3600000,
+          "hours": 6.4,
+          "open_hours": 10
+        }
+      }
+    }
+  ]
+}

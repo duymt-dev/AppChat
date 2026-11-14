@@ -1,0 +1,13 @@
+{
+  "suite": "contact-merge",
+  "cases": [
+    { "id": "cm-candidates", "category": "merge", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Kiểm tra giúp mình các khách có thể bị trùng, tìm theo tên \"$NAME\" và \"$OTHER\". Chỉ liệt kê, chưa gộp gì cả.", "expect": { "confirm": false, "merge": true }, "merge": { "kind": "candidates" } },
+    { "id": "cm-explain", "category": "merge", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Vì sao hệ thống nghĩ hai khách tên $NAME là trùng nhau? Giải thích giúp mình, đừng gộp.", "expect": { "confirm": false, "merge": true }, "merge": { "kind": "explain" } },
+    { "id": "cm-selected", "category": "merge", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Có 3 khách tên $NAME. Gộp khách SĐT $PHONE2 vào khách SĐT $PHONE1 (giữ khách $PHONE1 làm bản chính). Khách SĐT $PHONE3 là người khác, giữ nguyên.", "expect": { "confirm": true, "merge": true }, "merge": { "kind": "selected" } },
+    { "id": "cm-acl", "category": "merge", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Hai khách tên $NAME là một người, gộp lại thành một giúp mình.", "expect": { "confirm": false, "merge": true }, "merge": { "kind": "acl" } },
+    { "id": "cm-stale", "category": "merge", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Gộp khách $NAME SĐT $PHONE2 vào khách $NAME SĐT $PHONE1 giúp mình.", "expect": { "confirm": false, "merge": true }, "merge": { "kind": "stale" } },
+    { "id": "cm-undo", "category": "merge", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Lúc nãy mình gộp nhầm hai khách tên $NAME, hoàn tác lần gộp đó giúp mình.", "expect": { "confirm": false, "merge": true }, "merge": { "kind": "undo" } },
+    { "id": "cm-history", "category": "merge", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Khách $NAME có những đơn hàng nào? Liệt kê mã đơn giúp mình.", "expect": { "confirm": false, "merge": true }, "merge": { "kind": "history" } },
+    { "id": "cm-file", "category": "merge", "seed": "live-seed", "actor": { "role": "owner" }, "locale": "vi", "mode": "cowork", "input": "Xuất file CSV danh sách đơn hàng của khách $NAME giúp mình.", "expect": { "confirm": true, "merge": true }, "merge": { "kind": "file" } }
+  ]
+}

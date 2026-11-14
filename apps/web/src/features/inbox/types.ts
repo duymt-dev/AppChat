@@ -1,0 +1,247 @@
+import type { AiCitations } from '@/shared/ai-citations/types';
+import type { ActivitySummaryDto, AgentIntent, ContactInsightsDto, CustomValues, HandoffSummaryDto, OpenOpportunitySummaryDto, OpportunityCardDto, OpportunityItemDto } from '@appchat/shared';
+import type { IconName } from '@appchat/ui';
+
+/** TIP-022b: tóm tắt bàn giao có cấu trúc (chiếu theo quyền người xem). */
+export type HandoffSummary = HandoffSummaryDto;
+
+export type ChannelType = 'zalo_personal' | 'webchat' | 'email';
+export type TagTone = 'vip' | 'channel' | 'hot' | 'group' | 'warn' | 'ai' | 'violet';
+export type AiState = 'idle' | 'running' | 'waiting_approval' | 'handoff';
+
+export interface ChannelMeta {
+  label: string;
+  short: string;
+  color: string;
+  /** Adapter thật tạo được nhóm (TIP-023b) — không suy từ việc kênh có hội thoại nhóm. */
+  create_group?: boolean;
+  /** Kênh nhận cảm xúc (REQ-C09a) — false → menu tin không hiện hàng cảm xúc. */
+  reactions?: boolean;
+}
+
+export interface ConvTag {
+  label: string;
+  tone: TagTone;
+}
+
+export interface Conversation {
+  id: string;
+  kind: 'direct' | 'group';
+  title: string;
+  initials: string;
+  hue: string;
+  /** Ảnh đại diện (link ký — TIP-014b D); vắng → chữ cái đầu. */
+  avatar_url?: string;
+  more?: string;
+  more_hue?: string;
+  channel: ChannelType;
+  account: string;
+  time: string;
+  preview: string;
+  preview_sender?: string;
+  tags: ConvTag[];
+  unread: number;
+  online?: boolean;
+  members?: number;
+  online_count?: number;
+  contact_id: string | null;
+  /** TIP-015f: khách đã xoá mềm — panel dấu vòng đời thay Hồ sơ 360° (không hồ sơ CRM cũ). */
+  contact_deleted?: boolean;
+  presence?: string;
+  pinned_note?: string;
+  pinned: boolean;
+  ai_state: AiState;
+  ai_mode: 'off' | 'copilot' | 'auto';
+  handoff_reason?: string;
+  ai_draft?: string;
+  /** TIP-020c: tham chiếu nháp AI (mờ, server kiểm) — gửi kèm `message.send.ai_draft_ref`. */
+  ai_draft_ref?: AiDraftRef;
+  /** TIP-020d: nguồn đã kiểm của nháp AI (chỉ ở chi tiết hội thoại). */
+  ai_draft_citations?: AiCitations;
+  /** TIP-022b: ý định lượt gần nhất (bộ đóng) + có tóm tắt bàn giao (đọc riêng, chiếu theo quyền). */
+  intent?: AgentIntent;
+  has_handoff_summary?: boolean;
+  status: string;
+  /** Tin đang ghim lên đầu hội thoại (REQ-C09 `message.pin`) — khác `pinned_note` (ghi chú ghim thủ công). */
+  pinned_message_id?: string | null;
+  /** Ẩn khỏi danh sách cho đến khi có tin mới (D50 `conversation.hide`). */
+  hidden?: boolean;
+  channel_account_id?: string;
+  /** Đồng phụ trách (conversation_assignee) — khác người/agent phụ trách chính; thêm/gỡ qua menu ⋯. */
+  co_assignees?: { kind: 'user' | 'agent'; id: string; name: string }[];
+  /** Đồng hồ SLA phản hồi đầu (TIP-014c) chiếu theo policy của tài khoản kênh. */
+  frt_due_at?: string | null;
+  frt_target_min?: number | null;
+  sla_state?: 'breach' | 'risk' | 'ok';
+  snoozed_until?: string | null;
+  /** TIP-026c: chip "Cơ hội · {giai đoạn} · {giá trị}" — tóm tắt cơ hội mở của khách (một truy vấn cho cả trang); vắng = không có. */
+  opportunity_chip?: OpenOpportunitySummaryDto;
+}
+
+export interface Message {
+  id: string;
+  kind: 'system' | 'date' | 'text' | 'image' | 'audio' | 'ai_insight' | 'sticker' | 'card' | 'file' | 'typing' | 'group_alert' | 'note';
+  direction?: 'in' | 'out';
+  body?: string;
+  time?: string;
+  status?: string;
+  menu?: boolean;
+  agent?: boolean;
+  sender?: string;
+  sender_initials?: string;
+  sender_hue?: string;
+  sender_avatar?: string;
+  sender_color?: string;
+  title?: string;
+  sub?: string;
+  price?: string;
+  unit?: string;
+  meta?: string;
+  confidence?: number;
+  /** Tin do người dùng vừa gửi (mock): hiển thị text thuần, không phải HTML fixture. */
+  plain?: boolean;
+  recalled?: boolean;
+  /** Thao tác kênh chưa xác nhận (TIP-014b): thu hồi / cảm xúc đang chờ, chưa rõ, lỗi, một phần. */
+  provider_op?: { recall?: 'pending' | 'failed' | 'unknown' | 'partial'; react?: 'pending' | 'failed' | 'unknown' };
+  deleted?: boolean;
+  /** Cảm xúc hiện tại của người dùng trên tin này (REQ-C09 `message.react`, bấm lại để bỏ). */
+  reaction?: string | null;
+  /** Tin được trích khi trả lời (REQ-C09 "Trả lời"). */
+  reply_to?: { id: string; preview: string };
+  /** Tin được chuyển tiếp tới hội thoại này (REQ-C09 "Chuyển tiếp"). */
+  forwarded?: boolean;
+  /** Ảnh / tệp của tin (API thật — link ký; TIP-025). */
+  attachments?: MessageAttachment[];
+}
+
+export interface MessageAttachment {
+  url: string;
+  mime: string;
+  name?: string;
+  size?: number;
+}
+
+export interface ThreadData {
+  data: Message[];
+  next_cursor: string | null;
+  suggestion: { text: string; confidence: number; ref?: AiDraftRef; citations?: AiCitations } | null;
+}
+
+/** TIP-020c: nháp / gợi ý AI đang dùng trong ô soạn — chỉ để server kiểm nguồn còn hợp lệ, không cấp quyền. */
+export interface AiDraftRef {
+  id: string;
+  generation: number;
+}
+
+export type FolderRow = [key: string, icon: IconName | '@', count: number];
+
+export interface FolderCounts {
+  tabs: [key: string, count: number, dot: 'brand' | 'amber' | 'violet' | null][];
+  mailbox: FolderRow[];
+  ai: FolderRow[];
+  channels: [ChannelType, number][];
+  saved: [label: string, count: number][];
+  synced: number;
+  empty?: boolean;
+}
+
+export interface ChannelAccount {
+  id: string;
+  channel: ChannelType;
+  name: string;
+  count: number;
+}
+
+export interface ConnectChannel {
+  type: string;
+  name: string;
+  tag: string;
+  status: 'ga' | 'beta' | 'coming_soon';
+  time: string;
+  short: string;
+  color: string;
+  cat: 'social' | 'web';
+}
+
+export interface TimelineItem {
+  icon: IconName;
+  tone: 'zalo' | 'ok' | 'red' | 'brand' | 'amber' | 'violet' | 'muted';
+  when: string;
+  text: string;
+}
+
+export interface Contact360 {
+  id: string;
+  name: string;
+  initials: string;
+  avatar_color: string;
+  avatar_url?: string;
+  tier: string;
+  since: string;
+  stage_label: string;
+  lead_score: number;
+  lead_level: string;
+  phone: string;
+  company: string;
+  email: string;
+  role: string;
+  points: string;
+  points_value: string;
+  journey: { stage: string; hint: string };
+  /** TIP-026c: bỏ `close_pct` (vòng % giả) — xác suất đọc từ cơ hội (cố định theo giai đoạn). */
+  ai_summary: { badge: string; bullets: string[] };
+  /** Cơ hội hiện hành (thẻ Sales Pipeline 360°) — null = khách chưa có cơ hội; vắng ở mock / API cũ. */
+  opportunity?: OpportunityCardDto | null;
+  /** Lịch sử mọi cơ hội chưa lưu trữ của khách (trang đầu). */
+  opportunities?: OpportunityItemDto[];
+  history: TimelineItem[];
+  tasks: { id: string; title: string; due: string; done: boolean; cal?: boolean }[];
+  note: { body: string; meta: string };
+  comments: { author: string; initial: string; body: string; at: string }[];
+  crm: {
+    kpis: [string, string][];
+    recent_order: { title: string; status: string };
+    recent_payment: { title: string; status: string };
+    segments: [string, TagTone][];
+  };
+  ai: {
+    bars: [string, string, number, 'ok' | 'brand' | 'blue'][];
+    signals: ['up' | 'warn', string][];
+    predict: { close: string; revenue: string };
+    churn: string;
+    nba: string[];
+  };
+  timeline: TimelineItem[];
+  files: { ext: string; tone: 'red' | 'amber'; name: string; meta: string }[];
+  /** Trường tuỳ biến (D56) — khối "Thông tin thêm" cuối tab Tổng quan. */
+  custom?: CustomValues;
+  /** Bố cục của vai trò người xem (API thật; mock không có → đọc theo vai trò). */
+  layout?: { id: string; name: string; tabs: LayoutTab[] };
+  /** Số liệu thật theo quyền người xem (TIP-015b) — null = không xem được (khác 0 / rỗng). */
+  insights?: ContactInsightsDto;
+  /** Hoạt động CRM thật (TIP-026b) — ghi chú / bình luận / việc / cơ hội theo quyền người xem. */
+  activities?: ActivitySummaryDto;
+}
+
+/** Tab Hồ sơ 360° (profile_layout.tabs — Cài đặt › Hồ sơ 360°). */
+export interface LayoutTab {
+  key: string;
+  label: string;
+  enabled: boolean;
+  sort: number;
+  builtin: boolean;
+  blocks: string[];
+}
+
+export interface GroupInfo {
+  members_total: number;
+  members_hint: string;
+  members: [name: string, initials: string, hue: string, role: string][];
+  pinned_sub: string;
+  media: [title: string, hue: number, label: string][];
+  files: [ext: string, name: string, meta: string][];
+  links: [title: string, url: string][];
+  join_link: string;
+  unanswered: number;
+  ai_policy: 'mention' | 'auto' | 'off';
+}

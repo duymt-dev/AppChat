@@ -1,0 +1,24 @@
+// API công khai của domain inbox cho apps/api (controller) + domain khác (crm chuyển phụ trách kèm hội thoại).
+export { InboxReadService, type Viewer as InboxViewer } from './services/read.service';
+export { InboxMetaService } from './services/meta.service';
+export { InboundPipeline, wantsAgent } from './services/pipeline';
+export { INBOX_RUNTIME } from './jobs/inbox.jobs.module';
+export type { ConvFilter } from './repos/conversations.repo';
+export { visibleConversation, writableConversation } from './services/access';
+// TIP-025b §D: liên kết hội thoại nguồn khi tạo chứng từ từ Hộp thư (quote / order / contract / ticket / appointment).
+export { linkConversation, type ConversationLink, type LinkInput } from './services/conversation-link';
+// Gửi tin ra kênh từ domain khác (báo giá gửi khách — TIP-029): ghi tin + outbox trong transaction, đẩy hàng đợi sau commit.
+export { writeOutgoing, enqueueOutgoing, sendableAccount, type Outgoing } from './services/outbound';
+export { scopeCols } from './services/access';
+export { senderOf } from './actions/message.handlers';
+// TIP-022b: tóm tắt bàn giao chiếu theo quyền người xem.
+export { readHandoffSummary } from './services/handoff-summary-read';
+// TIP-025b §A: trạng thái nhóm / lệnh nhóm / ứng viên thêm thành viên (controller inbox-groups).
+export { groupState, groupCommand, groupCandidates } from './groups/group-read';
+export { groupBoard } from './groups/group-board';
+export { assigneeCandidates } from './services/assignee-candidates';
+export { conversationApprovals } from './approvals/conversation-approvals';
+// TIP-022c §2.3: người ghi nguồn khách (xoá / thu hồi / xoá lịch sử) — cùng thứ tự khoá với cổng ý định khách của báo giá.
+export { fenceCustomerSource, markRecalled, type SourceFenceReason } from './services/customer-source-fence';
+// TIP-016b: số đếm trên rail (hội thoại chưa đọc / ticket đang mở / lịch hôm nay) theo quyền + scope người xem.
+export { NavBadgesService, NAV_BADGES_TTL_MS, NAV_BADGE_EVENTS, touchNavBadges, type NavViewer } from './services/nav-badges';

@@ -1,0 +1,63 @@
+// Chữ thông báo phía server — tiếng Việt (nguồn). Tham số `{x}` thay bằng giá trị đã escape khi render email.
+export const notify = {
+  kind: {
+    msg_assigned: { title: 'Hội thoại mới được gán cho bạn: {contact}', label: 'Tin mới được gán cho tôi' },
+    msg_mention: { title: '{actor} nhắc đến bạn trong hội thoại {contact}', label: 'Nhắc đến tôi trong hội thoại' },
+    msg_vip: { title: 'Tin mới từ khách ưu tiên {contact}', label: 'Tin từ VIP / khách ưu tiên' },
+    // TIP-015d: biến thể `to` (người mới) / `from` (người cũ) chiếu lúc đọc theo quyền hiện tại; `generic` = dòng gốc / người không còn thấy khách.
+    crm_owner: {
+      title: '{actor} chuyển khách {contact} cho bạn phụ trách',
+      to: '{actor} chuyển khách {contact} cho bạn phụ trách',
+      from: '{actor} đã chuyển khách {contact} của bạn cho {to} phụ trách',
+      generic: 'Phân công khách hàng của bạn đã thay đổi',
+      label: 'Khách được chuyển cho tôi',
+    },
+    // Biến thể theo `params.variant` (approved / rejected) — kết quả duyệt gửi người xin.
+    crm_access: {
+      title: '{actor} xin cùng phụ trách khách {contact}',
+      approved: '{actor} đã đồng ý cho bạn cùng phụ trách khách {contact}',
+      rejected: '{actor} đã từ chối yêu cầu chia sẻ khách {contact}',
+      label: 'Xin chia sẻ khách / kết quả duyệt',
+    },
+    quote_approval: { title: '{actor} gửi duyệt báo giá {code} · {contact}', label: 'Báo giá chờ tôi duyệt' },
+    quote_expiring: { title: 'Báo giá {code} · {contact} còn {n} ngày hiệu lực', label: 'Báo giá sắp hết hiệu lực' },
+    opportunity_lost_reason: { title: 'Khách từ chối báo giá {code} của cơ hội {title} — ghi lý do Thua nếu cơ hội đã mất', label: 'Báo giá của cơ hội bị từ chối' },
+    contract_approval: { title: '{actor} trình duyệt hợp đồng {code} · {contact}', label: 'Hợp đồng chờ tôi duyệt & ký' },
+    contract_signed: { title: '{contact} đã ký hợp đồng {code}', label: 'Khách đã ký hợp đồng' },
+    contract_declined: { title: 'Hợp đồng {code} · {contact} không được ký: {reason}', label: 'Khách từ chối ký / link ký hết hạn' },
+    contract_expiring: { title: 'Hợp đồng {code} · {contact} hết hạn sau {n} ngày — chào gia hạn', label: 'Hợp đồng sắp hết hạn' },
+    payment_received: { title: '{contact} đã thanh toán {amount} cho {code}', label: 'Khách đã thanh toán đề nghị của tôi' },
+    refund_approval: {
+      title: '{actor} yêu cầu hoàn tiền {amount} · {contact}',
+      approved: '{actor} đã duyệt hoàn tiền {amount} · {contact}',
+      rejected: '{actor} từ chối hoàn tiền {amount} · {contact}',
+      label: 'Hoàn tiền chờ tôi duyệt / kết quả duyệt',
+    },
+    bank_review: { title: 'Giao dịch {amount} cần đối soát', label: 'Giao dịch ngân hàng cần đối soát' },
+    package_reminder: {
+      title: 'Liệu trình {name} · {contact} còn {n} ngày tới hạn — gợi ý gia hạn',
+      remaining: 'Liệu trình {name} · {contact} còn 1 buổi — gợi ý mua thêm',
+      label: 'Liệu trình sắp hết buổi / tới hạn',
+    },
+    sla_warn: { title: '{count} ticket sắp quá hạn SLA', label: 'SLA sắp vi phạm' },
+    sla_breach: { title: 'Ticket {code} đã quá hạn SLA: {title}', label: 'Ticket quá hạn SLA (leo thang)' },
+    ticket_assigned: { title: 'Ticket {code} được giao cho bạn: {title}', label: 'Ticket được giao cho tôi' },
+    campaign_approval: { title: 'Chiến dịch {code} chờ bạn duyệt', approved: 'Chiến dịch {code} đã được duyệt', rejected: 'Chiến dịch {code} bị từ chối', label: 'Chiến dịch chờ duyệt / kết quả duyệt' },
+    ai_review: { title: '{agent} cần bạn duyệt trước khi gửi', label: 'AI cần duyệt trước khi gửi', kb: 'AI đề xuất {count} cặp hỏi–đáp mới cần duyệt trước khi vào kho tri thức', expired: 'Một yêu cầu duyệt của AI đã hết hạn — việc đã chuyển cho người xử lý' },
+    ai_escalate: { title: '{agent} chuyển hội thoại {contact} sang người', label: 'AI chuyển sang người' },
+    ai_budget: { title: 'AI đã dùng {percent}% ngân sách credit', label: 'AI vượt ngân sách' },
+    ai_briefing: { title: 'Bản tin sáng: {summary}', label: 'Bản tin sáng của Trợ lý AI' },
+    ai_task_failed: { title: 'Tác vụ "{name}" chưa chạy xong: {reason}', label: 'Tác vụ tự chủ lỗi' },
+    channel_down: { title: 'Kênh {channel} bị ngắt kết nối', label: 'Kênh bị ngắt kết nối' },
+    archive_warning: { title: 'Workspace sẽ được lưu trữ vào ngày {date} — đăng nhập để giữ hoạt động', label: 'Workspace sắp được lưu trữ (không hoạt động)' },
+    billing_invoice: { title: 'Hoá đơn gói mới {code}', label: 'Gói & ví — hoá đơn mới' },
+    security_event: { title: 'Sự kiện bảo mật: {action} ({source}) — xem Cài đặt › Audit log', label: 'Sự kiện bảo mật (vai trò, thành viên, kênh, xuất dữ liệu, đăng nhập mới)' },
+    owner_transfer: { title: 'Quyền Chủ sở hữu đã chuyển từ {from} sang {to}', label: 'Đổi Chủ sở hữu workspace' },
+    data_job_done: { title: 'Việc chạy nền "{job}" đã {status}: {done}/{total} bản ghi', label: 'Xuất dữ liệu / sửa hàng loạt chạy nền xong' },
+  },
+  mail: {
+    subject: '[{workspace}] {title}',
+    open: 'Xem trên AppChat',
+    footer: 'Bạn nhận email này vì đã bật email cho "{label}". Đổi tại Cài đặt › Thông báo.',
+  },
+} as const;

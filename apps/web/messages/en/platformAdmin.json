@@ -1,0 +1,259 @@
+{
+  "title": "Platform admin",
+  "denied": "You are not a platform admin",
+  "loadError": "Could not load the admin session",
+  "tabs": {
+    "workspaces": "Workspaces",
+    "plans": "Plans",
+    "providers": "LLM providers",
+    "routes": "Model routing",
+    "prices": "Model prices",
+    "transfers": "Transfers",
+    "freeze": "Freeze requests",
+    "templates": "AI agent templates"
+  },
+  "pager": {
+    "page": "Page {n}",
+    "prev": "Previous",
+    "next": "Next"
+  },
+  "ws": {
+    "search": "Search name / slug",
+    "status": "Status",
+    "empty": "No workspaces",
+    "st": {
+      "active": "Active",
+      "suspended": "Suspended"
+    },
+    "col": {
+      "name": "Workspace",
+      "owner": "Owner",
+      "plan": "Plan",
+      "status": "Status",
+      "stats": "Stats",
+      "created": "Created"
+    },
+    "stats": "{contacts} contacts · {conv} conversations / 30 days",
+    "suspend": "Suspend",
+    "resume": "Resume",
+    "suspendTitle": "Suspend {name}",
+    "suspendHint": "The workspace cannot open its data, AI takes no new steps and outbound messages are held. Data is kept; messages already sent cannot be recalled.",
+    "reason": "Reason (required)"
+  },
+  "plans": {
+    "create": "Add plan",
+    "edit": "Edit plan {name}",
+    "key": "Plan key",
+    "name": "Plan name",
+    "segment": "Segment",
+    "seg": {
+      "personal": "Personal",
+      "business": "Business"
+    },
+    "priceMonth": "Price / month (VND)",
+    "priceYear": "Price / year (VND)",
+    "contact": "Contact us",
+    "f": {
+      "credits_month": "Credits / month",
+      "max_users": "Max users",
+      "max_channels": "Max channels",
+      "max_agents": "Max AI agents"
+    },
+    "unlimited": "Empty = unlimited",
+    "limits": "Users · Channels · Agents",
+    "desc": "Description",
+    "features": "Features (one per line)",
+    "sort": "Order",
+    "popular": "Popular",
+    "active": "On sale",
+    "activeHint": "Off = hidden from pricing and not purchasable; active subscriptions stay. Price changes apply to future purchases only.",
+    "on": "On",
+    "off": "Off"
+  },
+  "providers": {
+    "create": "Add provider",
+    "edit": "Edit {name}",
+    "editBtn": "Edit",
+    "key": "Key",
+    "kind": "Kind",
+    "kinds": {
+      "openai_compatible": "OpenAI-compatible (router)",
+      "openai": "OpenAI",
+      "anthropic": "Anthropic",
+      "google": "Google",
+      "deepseek": "DeepSeek"
+    },
+    "name": "Name",
+    "baseUrl": "API base URL",
+    "baseUrlHint": "Public https addresses only; internal addresses must be allowed by the deployment.",
+    "apiKey": "API key",
+    "keySet": "Key set (leave empty to keep)",
+    "keyMissing": "No key",
+    "clearKey": "Remove key (provider will be disabled)",
+    "headers": "Extra headers",
+    "headersHint": "One per line: name: value (e.g. x-api-version: 1). Leave empty to keep.",
+    "headersSet": "Current: {names} — leave empty to keep",
+    "clearHeaders": "Remove all headers",
+    "caps": "Capabilities",
+    "cap": {
+      "chat": "Chat",
+      "tools": "Tool calling",
+      "json_schema": "JSON schema",
+      "streaming": "Streaming",
+      "embeddings": "Embeddings"
+    },
+    "probe": "Last test",
+    "status": "Status",
+    "st": {
+      "active": "Enabled",
+      "disabled": "Disabled"
+    },
+    "test": "Test",
+    "testTitle": "Test {name}",
+    "testHint": "Makes real calls to the provider (uses a few tokens), one per capability. Chat working does not mean embeddings work.",
+    "runTest": "Run test",
+    "chatModel": "Chat model (e.g. gpt-4.1-mini)",
+    "embedModel": "Embedding model (optional)",
+    "ok": "Passed",
+    "err": {
+      "auth": "Wrong key / no access",
+      "rate_limited": "Rate limited",
+      "timeout": "Timed out",
+      "not_found": "Model not found",
+      "unsupported": "Not supported / no model chosen",
+      "provider_error": "Provider error",
+      "network": "Network error",
+      "bad_response": "Invalid response"
+    },
+    "disable": "Disable",
+    "enable": "Enable"
+  },
+  "routes": {
+    "tier": {
+      "standard": "Standard",
+      "advanced": "Advanced",
+      "max": "Max"
+    },
+    "purpose": {
+      "chat": "Chat",
+      "embed": "Embedding",
+      "rerank": "Rerank"
+    },
+    "add": "Add model",
+    "save": "Save group",
+    "empty": "No model — this tier cannot run",
+    "primary": "Primary",
+    "fallback": "Fallback {n}",
+    "provider": "Provider",
+    "model": "Model name",
+    "up": "Up",
+    "down": "Down",
+    "remove": "Remove",
+    "vision": "Reads images"
+  },
+  "prices": {
+    "create": "Add price",
+    "provider": "Provider",
+    "model": "Model",
+    "tier": "Tier",
+    "tiers": {
+      "standard": "Standard",
+      "advanced": "Advanced",
+      "max": "Max"
+    },
+    "in": "Credits / 1k input tokens",
+    "out": "Credits / 1k output tokens",
+    "invalid": "Non-negative number, up to 4 decimals",
+    "active": "In use",
+    "on": "On",
+    "off": "Off"
+  },
+  "freeze": {
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "empty": "No requests.",
+    "workspace": "Workspace",
+    "reason": "Owner's reason",
+    "created": "Sent",
+    "decision": "Decision",
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveTitle": "Approve freezing {name}",
+    "rejectTitle": "Reject the request from {name}",
+    "approveHint": "The workspace is paused immediately (new work blocked, data kept) — reopen it with Resume on the Workspace tab.",
+    "rejectHint": "The workspace is unchanged; the Owner sees the result in Settings.",
+    "reasonPh": "Decision reason (at least 3 characters)"
+  },
+  "transfers": {
+    "view": {
+      "invoices": "Awaiting review",
+      "bank": "Unmatched transactions",
+      "inquiries": "Sales inquiries"
+    },
+    "search": "Search invoice code / transfer code",
+    "searchBank": "Search transfer content",
+    "emptyInvoices": "No invoices awaiting review",
+    "emptyBank": "No unmatched transactions",
+    "emptyInquiries": "No inquiries yet",
+    "code": "Code",
+    "workspace": "Workspace",
+    "amount": "Amount",
+    "reported": "Customer reported paid",
+    "occurred": "Time",
+    "content": "Content",
+    "provider": "Source",
+    "created": "Sent",
+    "contact": "Contact",
+    "message": "Message",
+    "confirm": "Confirm manually",
+    "confirmTitle": "Confirm {code} manually",
+    "confirmHint": "Only confirm when the full {amount} has reached the platform account without an auto-matched transaction.",
+    "note": "Reason (required)",
+    "evidence": "Evidence: sender bank reference… (required)",
+    "match": "Match invoice",
+    "matchTitle": "Match the {amount} transaction to an invoice",
+    "matchHint": "The amount must equal the invoice exactly. Over / under payments are rejected and stay unmatched.",
+    "invoiceId": "Invoice ID",
+    "reason": "Reason (required)"
+  },
+  "templates": {
+    "create": "Add template",
+    "edit": "Edit template {name}",
+    "key": "Template key",
+    "name": "Name",
+    "role": "Role",
+    "roles": {
+      "sales": "Sales",
+      "cs": "Customer care",
+      "booking": "Booking",
+      "marketing": "Marketing",
+      "accounting": "Accounting",
+      "ops": "Operations"
+    },
+    "group": "Industry group",
+    "industry": "Industry",
+    "description": "Description",
+    "color": "Colour",
+    "tint": "Background colour",
+    "icon": "Icon",
+    "tools": "Default tools",
+    "toolsHint": "Agent-grantable actions only. The agent still gets only agent rights ∩ creator rights.",
+    "tier": "AI tier",
+    "tiers": {
+      "standard": "Standard",
+      "advanced": "Advanced",
+      "max": "Max"
+    },
+    "threshold": "Confidence threshold (%)",
+    "prompt": "Default instructions",
+    "sort": "Order",
+    "active": "Visible",
+    "activeHint": "Off = hidden from the template list; agents already created from it do not change.",
+    "on": "Shown",
+    "off": "Hidden"
+  }
+}

@@ -1,0 +1,185 @@
+// Agent Gateway (Blueprint §5.1, agent-gateway §1–§6): interface engine + tool + sự kiện run. Core chỉ thấy các kiểu này —
+// không import `ai` / `@ai-sdk/*`. Tool = action (origin 'action') hoặc meta-tool / tool phối hợp; logic nghiệp vụ không nằm trong tool.
+import type { ActionPreview } from '@appchat/actions';
+import type { AttemptInfo, AttemptOutcome } from './attempts';
+
+export type { AttemptInfo, AttemptOutcome } from './attempts';
+
+/** Tin nhắn theo định dạng AI SDK (`ModelMessage`) — lưu nguyên trong `ai_run.state` (jsonb). */
+export type RunMessage = Record<string, unknown> & { role: 'system' | 'user' | 'assistant' | 'tool' };
+
+export type JsonSchema = Record<string, unknown>;
+
+// TIP-023f §3.1: tham chiếu tệp trong tin + resolver dựng nội dung trước mỗi lời gọi (logic ở input-parts.ts).
+/** Phần tham chiếu trong `content` của tin user (thay cho bytes). */
+export interface InputRefPart {
+  type: 'appchat-input';
+  artifact_id: string;
+  revision: number;
+}
+
+/** Kết quả dựng một tham chiếu — chữ đã giới hạn (có locator) và / hoặc ảnh inline. */
+export type HydratedPart = { type: 'text'; text: string } | { type: 'image'; image: Uint8Array; mediaType: 'image/png' | 'image/jpeg' };
+
+export interface InputResolver {
+  /** Dựng các tham chiếu (theo thứ tự). Thiếu quyền / bị quên / đổi revision → một phần chữ báo không khả dụng. */
+  hydrate(refs: readonly InputRefPart[]): Promise<HydratedPart[][]>;
+}
+
+
+export type ToolOutcome =
+  | { kind: 'ok'; output: unknown }
+  /** `canonicalInput`: input đã chuẩn hoá (mã → id) mà token gắn — xác nhận phải chạy đúng input này (TIP-023b R1.6). */
+  /** `binding`: ràng buộc bước kế hoạch do server cấp (TIP-023d §1.4) — engine chỉ chép nguyên vào trạng thái dừng, không đọc. */
+  | { kind: 'needs_confirmation'; preview: ActionPreview; confirmToken: string; canonicalInput?: unknown; binding?: unknown }
+  | { kind: 'needs_approval'; approvalId: string }
+  /** Run con đang chờ (duyệt / thao tác / usage — TIP-019b §4.3): run cha dừng chờ, không coi là xong, chạy tiếp khi con kết thúc. */
+  | { kind: 'waiting_child'; runId: string }
+  /** Việc nền đã nhận (202 `job_accepted`, TIP-032b): CHƯA xong — model chỉ báo đang chạy + handle; bước cần kết quả cuối không được mở. */
+  | { kind: 'job_accepted'; jobId: string; actionLogId: string; statusUrl: string }
+  /** Thao tác nền tảng đã commit, phần workspace chưa áp xong (202 `operation_pending`, TIP-045b): CHƯA thành công — hệ thống tự hoàn tất. */
+  | { kind: 'operation_pending'; operationId: string; actionLogId: string; statusUrl: string }
+  | { kind: 'error'; code: string; message: string };
+
+export interface ToolSpec {
+  name: string;
+  description: string;
+  inputSchema: JsonSchema;
+  origin: 'action' | 'meta' | 'external';
+  execute(input: unknown, meta: { stepIdx: number; toolCallId: string }): Promise<ToolOutcome>;
+}
+
+export type AiTier = 'standard' | 'advanced' | 'max';
+export type ModelPurpose = 'chat' | 'embed' | 'rerank';
+
+/** Một model ứng viên do router chọn — `model` là LanguageModel của AI SDK (kiểu mờ với core). */
+export interface ModelCandidate {
+  provider: string;
+  model: string;
+  /** LanguageModel (AI SDK) — chỉ engine trong gói này dùng. */
+  handle: unknown;
+  /** Thế hệ cấu hình opaque của route đã chọn (TIP-023e §1.2) — route có, provider không → vẫn route's; cả hai vắng → undefined.
+   *  Dùng để ghim `embedding_space` của một generation vào đúng cấu hình đã phục vụ nó (023e §1.6), không suy luận ngầm. */
+  configRevision?: string;
+  /** Thế hệ không gian của route (TIP-020e — model + params, không id / priority) — khoá kho tri thức `provider:model:1536:<route>`; vắng ở mock / test cũ. */
+  routeRevision?: string;
+}
+
+export interface ModelSource {
+  /** `structured` (TIP-021b): chỉ route có provider khai `json_schema` (vắng = không lọc — test / mock). */
+  candidates(tier: AiTier, purpose: ModelPurpose, needs: { tools: boolean; vision?: boolean; structured?: boolean }): Promise<ModelCandidate[]>;
+}
+
+/**
+ * TIP-021b §2.2: chế độ sinh theo schema do SERVER sở hữu (không bao giờ lấy từ input người dùng / model). Engine chạy một lời gọi không
+ * tool qua adapter `structured.ts`; kết quả đã kiểm schema trả qua `finish.text` (JSON chuẩn). Không phát delta chữ thô.
+ */
+export interface ResponseSchema {
+  name: string;
+  version: number;
+  schema: JsonSchema;
+}
+
+export interface ToolCallRef {
+  toolCallId: string;
+  toolName: string;
+  input: unknown;
+}
+
+/** Trạng thái lưu khi run dừng chờ người — đủ để chạy tiếp ở process khác (không giữ RAM). */
+export interface PausedState {
+  /** Tới hết tin assistant có các tool call của bước đang dừng. */
+  messages: RunMessage[];
+  /** Kết quả các tool cùng bước đã chạy trước tool đang chờ (phần `tool-result`). */
+  results: Record<string, unknown>[];
+  pendingToolCall: ToolCallRef;
+  /** Tool cùng bước, sau tool đang chờ — chưa chạy (trả `skipped` khi chạy tiếp). */
+  skipped: ToolCallRef[];
+  stepIdx: number;
+  /** Input chuẩn hoá của lời gọi đang chờ xác nhận — lưu cùng run, không phụ thuộc RAM (chạy tiếp ở process khác). */
+  canonicalInput?: unknown;
+  /** Ràng buộc bước kế hoạch của lời gọi đang chờ (TIP-023d §1.4) — server ghi, xác nhận đọc lại; model không đặt được. */
+  binding?: unknown;
+}
+
+export interface UsageInfo {
+  stepIdx: number;
+  provider: string;
+  model: string;
+  tokensIn: number;
+  tokensOut: number;
+  latencyMs: number;
+}
+
+export interface RunHooks {
+  /** Trước mỗi bước LLM (huỷ / workspace mở) — ném lỗi thì run dừng. */
+  beforeStep?(stepIdx: number): Promise<void>;
+  /** Sau mỗi bước LLM (cách cũ — khi không khai `afterAttempt`): trừ credit → trả số credit của bước. */
+  onUsage?(u: UsageInfo): Promise<{ credits: number }>;
+  /**
+   * TIP-019b: NGAY trước mỗi lời gọi thật (mỗi ứng viên): nhận chỗ của gốc + kiểm ví + chụp giá + ghi biên nhận. Ném → không gọi,
+   * run dừng (`code` của lỗi). `bytes` = kích thước request (đã kiểm trần).
+   */
+  beforeAttempt?(a: AttemptInfo, bytes: number): Promise<void>;
+  /** TIP-019b: sau mỗi lời gọi thật — ghi kết quả (usage / bị từ chối / không rõ) + quyết toán; trả credit đã tính (0 nếu không usage). */
+  afterAttempt?(a: AttemptInfo, outcome: AttemptOutcome): Promise<{ credits: number }>;
+  /** TIP-019b: trước MỖI tool (kể cả meta) — kiểm lại ví / ngân sách gốc / huỷ. Ném → bỏ tool chưa chạy, run dừng. */
+  beforeTool?(stepIdx: number, toolName: string): Promise<void>;
+  /**
+   * TIP-023d §3.2: cổng sửa kế hoạch — hỏi trước mỗi lời gọi model và trước mỗi tool. `{ paused: epoch }` → engine dừng ở checkpoint
+   * (`plan_paused`): kết quả đã có giữ nguyên, lời gọi còn lại thành `superseded`. Vắng / null → chạy tiếp.
+   */
+  planGate?(): Promise<{ paused: number } | null>;
+}
+
+export interface RunRequest {
+  runId: string;
+  workspaceId: string;
+  system: string;
+  messages: RunMessage[];
+  tools: ToolSpec[];
+  tier: AiTier;
+  /** Mặc định 8 (agent), 16 (Trợ lý). */
+  maxSteps: number;
+  budget: { maxCredits: number; spent?: number };
+  /** Chạy tiếp sau khi dừng: bước bắt đầu. */
+  startStep?: number;
+  /** Trần chữ ra mỗi lời gọi (mặc định 2048, tối đa 8192 — TIP-019b §1.4). */
+  maxOutputTokens?: number;
+  hooks?: RunHooks;
+  /** TIP-023f §3.1: dựng tham chiếu tệp (`appchat-input`) ngay trước mỗi lời gọi thật — vắng → tham chiếu thành chữ "không khả dụng". */
+  inputs?: InputResolver | null;
+  /** TIP-021b: có → chế độ structured (tools phải rỗng — trộn bị từ chối trước khi gọi provider). */
+  responseSchema?: ResponseSchema;
+}
+
+export type StopReason = 'stop' | 'max_steps' | 'loop_guard' | 'budget' | 'cancelled';
+
+/** Checkpoint dừng-để-sửa kế hoạch (TIP-023d §3.2) — plan-checkpoint.ts dựng. */
+export interface PlanCheckpoint {
+  /** Tin tới hết batch (tin assistant có tool-call + tin tool đủ kết quả) — đủ để chạy tiếp ở process khác. */
+  messages: RunMessage[];
+  /** Bước model kế tiếp (bộ đếm giữ nguyên qua dừng). */
+  stepIdx: number;
+  /** Lời gọi bị thay bởi revision mới (chưa chạy) — chỉ id/tên, không input. */
+  superseded: { toolCallId: string; toolName: string }[];
+  /** Epoch kế hoạch lúc dừng (chạy tiếp chỉ khi đúng epoch này đã được resume). */
+  epoch: number;
+}
+
+export type RunEvent =
+  | { type: 'delta'; stepIdx: number; text: string }
+  /** Input tool đang đến dần (chưa kiểm, chưa chạy) — chỉ để dựng khung xương GenUI; không bao giờ là lệnh. */
+  | { type: 'tool_input'; stepIdx: number; toolCallId: string; toolName: string; delta: string }
+  | { type: 'tool_call'; stepIdx: number; call: ToolCallRef }
+  | { type: 'tool_result'; stepIdx: number; call: ToolCallRef; outcome: ToolOutcome; latencyMs: number }
+  | { type: 'usage'; usage: UsageInfo; credits: number }
+  | { type: 'paused'; state: PausedState; outcome: Extract<ToolOutcome, { kind: 'needs_confirmation' | 'needs_approval' | 'waiting_child' }> }
+  /** TIP-023d §3.2: dừng để sửa kế hoạch — checkpoint đủ chạy tiếp, không phát lại tool đã chạy. */
+  | { type: 'plan_paused'; checkpoint: PlanCheckpoint }
+  | { type: 'finish'; reason: StopReason; text: string; messages: RunMessage[]; steps: number }
+  | { type: 'error'; code: string; message: string; stepIdx: number };
+
+export interface AgentEngine {
+  run(req: RunRequest, signal: AbortSignal): AsyncIterable<RunEvent>;
+}

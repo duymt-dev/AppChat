@@ -1,0 +1,80 @@
+{
+  "me": {
+    "user": {
+      "id": "u_tram",
+      "name": "Thùy Trâm",
+      "initial": "T",
+      "phone": "+84 90 771 1888",
+      "title": "Sales Lead",
+      "locale": "vi",
+      "email": "tramnt@appchat.vn"
+    },
+    "workspaces": [
+      {
+        "id": "ws_personal",
+        "name": "Trâm · Cá nhân",
+        "initial": "T",
+        "kind": "personal",
+        "plan": "Gói Cá nhân",
+        "color": "#2563EB"
+      },
+      {
+        "id": "ws_team",
+        "name": "Spa Hương Sen",
+        "initial": "S",
+        "kind": "team",
+        "plan": "Gói Team · 8 thành viên",
+        "color": "#0E9B7E"
+      },
+      {
+        "id": "ws_biz",
+        "name": "MediaSoft Group",
+        "initial": "",
+        "kind": "business",
+        "plan": "Doanh nghiệp · 42 người",
+        "color": "#6E48E6"
+      }
+    ],
+    "current_workspace_id": "ws_personal",
+    "billing": {
+      "trial_days_left": 15,
+      "paid_plan": "",
+      "wallet_balance": "2450000"
+    }
+  },
+  "nav_badges": {
+    "inbox": 7,
+    "tickets": 3,
+    "calendar": 7
+  },
+  "notifications": [
+    {
+      "id": "n1",
+      "icon": "ic-ticket",
+      "tone": "warn",
+      "title": "CSKH AI tạo 5 ticket mới",
+      "ago": "2 phút trước"
+    },
+    {
+      "id": "n2",
+      "icon": "ic-bell",
+      "tone": "danger",
+      "title": "1 ticket sắp quá hạn SLA",
+      "ago": "12 phút trước"
+    },
+    {
+      "id": "n3",
+      "icon": "ic-users",
+      "tone": "info",
+      "title": "Sales AI tạo 23 lead mới",
+      "ago": "30 phút trước"
+    },
+    {
+      "id": "n4",
+      "icon": "ic-cal",
+      "tone": "teal",
+      "title": "18 lịch hẹn được xác nhận",
+      "ago": "1 giờ trước"
+    }
+  ]
+}

@@ -1,0 +1,65 @@
+// tenant/ai-sales-behavior.prisma — sở hữu: TIP-022c (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: ai_sales_intent — biên nhận ý định khách (chốt / xin sửa / từ chối báo giá) của agent trực kênh, ghi TRƯỚC mọi hiệu ứng báo giá.
+// Không Prisma relation xuyên domain (Blueprint §2.1); FK / CHECK / index viết tay ở migration 20261113040000_ai_sales_behavior (+ 20261113041000 tập nguồn, 20261113042000 run phân loại, 20261113043000 epoch + công bố).
+
+/// Một tin khách nguồn (đúng revision) → tối đa một quyết định báo giá tự động (unique source_message_id + source_revision). Báo giá
+/// được giải lúc ghi và KHÔNG thuộc khoá — phát lại không đổi đích sang báo giá mới gửi. Chữ phân loại / đoạn trích nằm ở bước run được
+/// bảo vệ, không chép vào đây. state: prepared → consumed (cùng transaction với hiệu ứng) | invalidated.
+model AiSalesIntent {
+  id                 String   @id @db.Uuid
+  rootRunId          String   @map("root_run_id") @db.Uuid
+  runId              String   @map("run_id") @db.Uuid
+  conversationId     String   @map("conversation_id") @db.Uuid
+  sourceMessageId    String   @map("source_message_id") @db.Uuid
+  sourceRevision     Int      @map("source_revision")
+  /// Tập tin khách nguồn của lượt (id, theo thứ tự; tin neo = cuối tập) — digest = sha256 các cặp (id, nội dung).
+  sourceIds          String[] @map("source_ids") @db.Uuid
+  sourceDigest       String   @map("source_digest")
+  turnFence          Int      @map("turn_fence")
+  originalContactId  String?  @map("original_contact_id") @db.Uuid
+  quoteId            String   @map("quote_id") @db.Uuid
+  quoteVersion       Int      @map("quote_version")
+  /// Dấu trạng thái báo giá lúc nhận (status + version + tổng + cập nhật) — đổi trước hiệu ứng → từ chối.
+  quoteFingerprint   String   @map("quote_fingerprint")
+  /// accept | revise | reject
+  intent             String
+  /// Phần trăm [0, 100] model ước lượng — so ≥ 70 KHÔNG làm tròn (double, không NUMERIC(5,2) — 69.995 không thành 70).
+  confidencePct      Float    @map("confidence_pct")
+  classifiedStepIdx  Int?     @map("classified_step_idx")
+  /// Run phân loại (con dưới gốc lượt) — chữ phân loại / đoạn trích ở bước run được bảo vệ, không chép vào biên nhận.
+  classifierRunId    String?  @map("classifier_run_id") @db.Uuid
+  /// prepared | consumed | invalidated
+  state              String   @default("prepared")
+  invalidReason      String?  @map("invalid_reason")
+  actionLogId        String?  @map("action_log_id") @db.Uuid
+  /// `ai_epoch` hội thoại lúc ghi (dưới khoá) — người tiếp quản / đổi chế độ / chuyển phụ trách tăng epoch → biên nhận không dùng lại được,
+  /// kể cả khi hội thoại về lại auto sau đó (epoch không bao giờ giảm). Null (dòng cũ) → không dùng được.
+  aiEpoch            Int?     @map("ai_epoch")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([sourceMessageId, sourceRevision], map: "ai_sales_intent_source_key")
+  @@map("ai_sales_intent")
+}
+
+/// Căn cứ tồn / giá của câu trả lời bán hàng đã dựng (TIP-022c §3.7–3.8) — một dòng / run trả lời. Tham chiếu mờ phía client vẫn là run
+/// (`ai_draft_ref` / gợi ý / `outbox.knowledge_run_id`); ghi / đặt chỗ gửi đọc dòng này rồi quan sát lại tồn HIỆN TẠI — đổi → 409 / không gửi.
+/// Không chép chữ khách; chỉ id sản phẩm + số lượng + digest. state: active | invalidated (Quên khách — chặn dùng lại, không mở lại).
+model AiSalesPublication {
+  id                 String   @id @db.Uuid
+  runId              String   @unique(map: "ai_sales_publication_run_key") @map("run_id") @db.Uuid
+  conversationId     String   @map("conversation_id") @db.Uuid
+  agentId            String?  @map("agent_id") @db.Uuid
+  /// [{ product_id, qty }] — sản phẩm khách hỏi (theo kế hoạch đã kiểm khuôn).
+  items              Json
+  /// [{ product_id, qty }] — thay thế model đề xuất (quan sát cùng lúc, câu chỉ nêu id còn hàng).
+  alternatives       Json
+  observationDigest  String   @map("observation_digest")
+  alternativesDigest String   @map("alternatives_digest")
+  /// sha256 câu server dựng — tin agent phải gửi đúng câu này.
+  contentDigest      String   @map("content_digest")
+  state              String   @default("active")
+  createdAt          DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("ai_sales_publication")
+}

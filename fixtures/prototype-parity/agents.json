@@ -1,0 +1,1611 @@
+{
+ "taxonomy": [
+  {
+   "group": "Bán lẻ & TMĐT",
+   "industries": [
+    "Bán hàng",
+    "TMĐT",
+    "Đơn hàng"
+   ]
+  },
+  {
+   "group": "Dịch vụ & CSKH",
+   "industries": [
+    "CSKH",
+    "Lịch hẹn",
+    "Kỹ thuật"
+   ]
+  },
+  {
+   "group": "Tiếp thị & Tăng trưởng",
+   "industries": [
+    "Marketing",
+    "Lead",
+    "Loyalty",
+    "Giữ chân"
+   ]
+  },
+  {
+   "group": "Bất động sản",
+   "industries": [
+    "BĐS"
+   ]
+  },
+  {
+   "group": "Giáo dục",
+   "industries": [
+    "Giáo dục"
+   ]
+  },
+  {
+   "group": "F&B & Du lịch",
+   "industries": [
+    "F&B",
+    "Du lịch"
+   ]
+  },
+  {
+   "group": "Tài chính & Kế toán",
+   "industries": [
+    "Kế toán"
+   ]
+  },
+  {
+   "group": "Vận hành nội bộ",
+   "industries": [
+    "Gọi điện",
+    "Báo cáo",
+    "Nhân sự",
+    "Vận hành"
+   ]
+  }
+ ],
+ "templates": [
+  {
+   "id": "tpl_1",
+   "name": "Sales Agent · Bán lẻ",
+   "desc": "Tư vấn sản phẩm, báo giá, chốt đơn theo kịch bản bán lẻ.",
+   "tag": "Bán hàng",
+   "color": "#1F9C4F",
+   "tint": "#EDFAF3",
+   "icon": "ic-chart",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_2",
+   "name": "CSKH Agent · Dịch vụ",
+   "desc": "Trả lời FAQ, tạo ticket, theo dõi SLA và hài lòng khách.",
+   "tag": "CSKH",
+   "color": "#2563EB",
+   "tint": "#EFF6FF",
+   "icon": "ic-users",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_3",
+   "name": "Marketing Agent",
+   "desc": "Gợi ý chiến dịch, soạn nội dung ZNS/Email, phân khúc khách.",
+   "tag": "Marketing",
+   "color": "#DB2777",
+   "tint": "#FDF2F8",
+   "icon": "ic-spark",
+   "role": "marketing",
+   "defaults": {
+    "tools": [
+     "campaign.suggest",
+     "segment.preview",
+     "contact.tag"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_4",
+   "name": "Booking Agent · Spa/Clinic",
+   "desc": "Tư vấn dịch vụ, đặt lịch hẹn, nhắc hẹn tự động.",
+   "tag": "Lịch hẹn",
+   "color": "#6E48E6",
+   "tint": "#F5F3FF",
+   "icon": "ic-cal",
+   "role": "booking",
+   "defaults": {
+    "tools": [
+     "appointment.find_slots",
+     "appointment.create",
+     "appointment.reschedule",
+     "conversation.handoff"
+    ],
+    "intents": [
+     1,
+     5
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."
+   }
+  },
+  {
+   "id": "tpl_5",
+   "name": "Lead Qualify Agent",
+   "desc": "Sàng lọc lead theo tiêu chí, chấm điểm và chuyển sales.",
+   "tag": "Lead",
+   "color": "#0891B2",
+   "tint": "#ECFEFF",
+   "icon": "ic-flow",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_6",
+   "name": "Đơn hàng & Vận đơn",
+   "desc": "Tra cứu đơn, cập nhật trạng thái, xử lý đổi/trả.",
+   "tag": "Đơn hàng",
+   "color": "#EA580C",
+   "tint": "#FFF7ED",
+   "icon": "ic-box",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_7",
+   "name": "Thu hồi công nợ",
+   "desc": "Nhắc thanh toán theo lịch, gửi nhắc nhở lịch sự.",
+   "tag": "Kế toán",
+   "color": "#B45309",
+   "tint": "#FFFBEB",
+   "icon": "ic-doc",
+   "role": "accounting",
+   "defaults": {
+    "tools": [
+     "invoice.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     6
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_8",
+   "name": "Giữ chân & Loyalty",
+   "desc": "Phát hiện khách nguội, đề xuất ưu đãi tái mua.",
+   "tag": "Loyalty",
+   "color": "#0F766E",
+   "tint": "#F0FDFA",
+   "icon": "ic-gift",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_9",
+   "name": "Tổng đài & Gọi ra",
+   "desc": "Gọi tự động, ghi âm, tóm tắt cuộc gọi và gán vào khách.",
+   "tag": "Gọi điện",
+   "color": "#7C3AED",
+   "tint": "#F5F3FF",
+   "icon": "ic-mega",
+   "role": "ops",
+   "defaults": {
+    "tools": [
+     "conversation.assign",
+     "conversation.handoff",
+     "ticket.create"
+    ],
+    "intents": [
+     2
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."
+   }
+  },
+  {
+   "id": "tpl_10",
+   "name": "Báo cáo & Phân tích",
+   "desc": "Tổng hợp số liệu, phát hiện bất thường, gửi báo cáo định kỳ.",
+   "tag": "Báo cáo",
+   "color": "#0369A1",
+   "tint": "#F0F9FF",
+   "icon": "ic-chart",
+   "role": "ops",
+   "defaults": {
+    "tools": [
+     "conversation.assign",
+     "conversation.handoff",
+     "ticket.create"
+    ],
+    "intents": [
+     2
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."
+   }
+  },
+  {
+   "id": "tpl_11",
+   "name": "Tư vấn sản phẩm · TMĐT",
+   "desc": "Gợi ý sản phẩm theo nhu cầu, so sánh, upsell combo.",
+   "tag": "TMĐT",
+   "color": "#0D9488",
+   "tint": "#F0FDFA",
+   "icon": "ic-box",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_12",
+   "name": "Bất động sản Agent",
+   "desc": "Tư vấn dự án, lọc nhu cầu, hẹn xem nhà, gửi bảng giá.",
+   "tag": "BĐS",
+   "color": "#7C3AED",
+   "tint": "#F5F3FF",
+   "icon": "ic-grid",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_13",
+   "name": "Giáo dục & Tuyển sinh",
+   "desc": "Tư vấn khoá học, học phí, đăng ký học thử, nhắc nhập học.",
+   "tag": "Giáo dục",
+   "color": "#2563EB",
+   "tint": "#EFF6FF",
+   "icon": "ic-doc",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_14",
+   "name": "Nhà hàng & Đặt bàn",
+   "desc": "Nhận đặt bàn, gợi ý món, xác nhận và nhắc giờ đến.",
+   "tag": "F&B",
+   "color": "#EA580C",
+   "tint": "#FFF7ED",
+   "icon": "ic-cal",
+   "role": "booking",
+   "defaults": {
+    "tools": [
+     "appointment.find_slots",
+     "appointment.create",
+     "appointment.reschedule",
+     "conversation.handoff"
+    ],
+    "intents": [
+     1,
+     5
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."
+   }
+  },
+  {
+   "id": "tpl_15",
+   "name": "Du lịch & Tour",
+   "desc": "Tư vấn tour, báo giá lịch trình, giữ chỗ và nhắc thanh toán.",
+   "tag": "Du lịch",
+   "color": "#0891B2",
+   "tint": "#ECFEFF",
+   "icon": "ic-mega",
+   "role": "booking",
+   "defaults": {
+    "tools": [
+     "appointment.find_slots",
+     "appointment.create",
+     "appointment.reschedule",
+     "conversation.handoff"
+    ],
+    "intents": [
+     1,
+     5
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."
+   }
+  },
+  {
+   "id": "tpl_16",
+   "name": "Bảo hành & Kỹ thuật",
+   "desc": "Tiếp nhận lỗi, hướng dẫn xử lý, tạo phiếu bảo hành.",
+   "tag": "Kỹ thuật",
+   "color": "#DC2626",
+   "tint": "#FEF2F2",
+   "icon": "ic-cog",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_17",
+   "name": "Tuyển dụng & HR",
+   "desc": "Sàng lọc CV, trả lời JD, hẹn phỏng vấn, nhắc ứng viên.",
+   "tag": "Nhân sự",
+   "color": "#DB2777",
+   "tint": "#FDF2F8",
+   "icon": "ic-users",
+   "role": "ops",
+   "defaults": {
+    "tools": [
+     "conversation.assign",
+     "conversation.handoff",
+     "ticket.create"
+    ],
+    "intents": [
+     2
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."
+   }
+  },
+  {
+   "id": "tpl_18",
+   "name": "Khảo sát & Phản hồi",
+   "desc": "Gửi khảo sát, thu phản hồi, tổng hợp điểm hài lòng.",
+   "tag": "CSKH",
+   "color": "#B45309",
+   "tint": "#FFFBEB",
+   "icon": "ic-spark",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_19",
+   "name": "Nhắc tái mua định kỳ",
+   "desc": "Nhận biết chu kỳ dùng, nhắc mua lại đúng thời điểm.",
+   "tag": "Giữ chân",
+   "color": "#0F766E",
+   "tint": "#F0FDFA",
+   "icon": "ic-gift",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_20",
+   "name": "Kiểm duyệt & An toàn",
+   "desc": "Phát hiện spam, nội dung xấu, khách khiếu nại gay gắt.",
+   "tag": "Vận hành",
+   "color": "#6B7280",
+   "tint": "#F3F4F6",
+   "icon": "ic-ticket",
+   "role": "ops",
+   "defaults": {
+    "tools": [
+     "conversation.assign",
+     "conversation.handoff",
+     "ticket.create"
+    ],
+    "intents": [
+     2
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."
+   }
+  },
+  {
+   "id": "tpl_21",
+   "name": "Vận đơn & Giao hàng",
+   "desc": "Tra cứu vận đơn, cập nhật trạng thái giao, xử lý sự cố.",
+   "tag": "Đơn hàng",
+   "color": "#0E9B94",
+   "tint": "#ECFDF9",
+   "icon": "ic-cart",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_22",
+   "name": "Thu hồi công nợ",
+   "desc": "Nhắc hạn thanh toán, gửi sao kê, đối soát chứng từ.",
+   "tag": "Kế toán",
+   "color": "#B45309",
+   "tint": "#FFFBEB",
+   "icon": "ic-doc",
+   "role": "accounting",
+   "defaults": {
+    "tools": [
+     "invoice.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     6
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_23",
+   "name": "Chăm sóc sau bán",
+   "desc": "Hỏi thăm sau sử dụng, thu phản hồi, gợi ý mua lại.",
+   "tag": "Giữ chân",
+   "color": "#DB2777",
+   "tint": "#FDF2F8",
+   "icon": "ic-gift",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_24",
+   "name": "Tuyển sinh & Tư vấn khoá học",
+   "desc": "Tư vấn lộ trình học, học phí, giữ chỗ và nhắc nhập học.",
+   "tag": "Giáo dục",
+   "color": "#2563EB",
+   "tint": "#EFF6FF",
+   "icon": "ic-users",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_25",
+   "name": "Điều phối tổng đài",
+   "desc": "Phân luồng cuộc gọi, gọi ra nhắc hẹn, ghi nhận kết quả.",
+   "tag": "Gọi điện",
+   "color": "#6E48E6",
+   "tint": "#F5F3FF",
+   "icon": "ic-phone",
+   "role": "ops",
+   "defaults": {
+    "tools": [
+     "conversation.assign",
+     "conversation.handoff",
+     "ticket.create"
+    ],
+    "intents": [
+     2
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."
+   }
+  },
+  {
+   "id": "tpl_26",
+   "name": "Tư vấn thời trang · Size",
+   "desc": "Gợi ý size, phối đồ, đổi trả theo chính sách shop.",
+   "tag": "Bán hàng",
+   "color": "#1F9C4F",
+   "tint": "#EDFAF3",
+   "icon": "ic-cart",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_27",
+   "name": "Livestream & Chốt đơn",
+   "desc": "Trả bình luận livestream, ghi nhận đơn, gửi link thanh toán.",
+   "tag": "TMĐT",
+   "color": "#E8602C",
+   "tint": "#FFF4EF",
+   "icon": "ic-mega",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_28",
+   "name": "Săn deal & Khuyến mãi",
+   "desc": "Thông báo ưu đãi, mã giảm giá, nhắc hạn dùng voucher.",
+   "tag": "TMĐT",
+   "color": "#E8602C",
+   "tint": "#FFF4EF",
+   "icon": "ic-gift",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_29",
+   "name": "Xử lý đổi trả & Hoàn tiền",
+   "desc": "Tiếp nhận yêu cầu đổi trả, kiểm tra điều kiện, tạo phiếu hoàn.",
+   "tag": "Đơn hàng",
+   "color": "#0E9B94",
+   "tint": "#ECFDF9",
+   "icon": "ic-doc",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_30",
+   "name": "Trực đêm & Ngoài giờ",
+   "desc": "Trả lời ngoài giờ hành chính, ghi nhận yêu cầu cho ca sáng.",
+   "tag": "CSKH",
+   "color": "#2563EB",
+   "tint": "#EFF6FF",
+   "icon": "ic-inbox",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_31",
+   "name": "Xử lý khiếu nại",
+   "desc": "Xoa dịu, phân loại mức độ, leo thang đúng người phụ trách.",
+   "tag": "CSKH",
+   "color": "#2563EB",
+   "tint": "#EFF6FF",
+   "icon": "ic-shield",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_32",
+   "name": "Nhắc lịch & Xác nhận hẹn",
+   "desc": "Nhắc trước giờ hẹn, xác nhận/đổi lịch, giảm no-show.",
+   "tag": "Lịch hẹn",
+   "color": "#7C3AED",
+   "tint": "#F5F3FF",
+   "icon": "ic-cal",
+   "role": "booking",
+   "defaults": {
+    "tools": [
+     "appointment.find_slots",
+     "appointment.create",
+     "appointment.reschedule",
+     "conversation.handoff"
+    ],
+    "intents": [
+     1,
+     5
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."
+   }
+  },
+  {
+   "id": "tpl_33",
+   "name": "Nội dung mạng xã hội",
+   "desc": "Lên lịch bài đăng, viết caption, đề xuất hashtag theo kênh.",
+   "tag": "Marketing",
+   "color": "#DB2777",
+   "tint": "#FDF2F8",
+   "icon": "ic-mega",
+   "role": "marketing",
+   "defaults": {
+    "tools": [
+     "campaign.suggest",
+     "segment.preview",
+     "contact.tag"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_34",
+   "name": "Email & ZNS Automation",
+   "desc": "Dựng chuỗi email/ZNS, cá nhân hoá nội dung, đo mở-click.",
+   "tag": "Marketing",
+   "color": "#DB2777",
+   "tint": "#FDF2F8",
+   "icon": "ic-send",
+   "role": "marketing",
+   "defaults": {
+    "tools": [
+     "campaign.suggest",
+     "segment.preview",
+     "contact.tag"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_35",
+   "name": "Nuôi dưỡng lead nguội",
+   "desc": "Chạm lại lead cũ, phân loại nhu cầu, hẹn tư vấn.",
+   "tag": "Lead",
+   "color": "#F59E0B",
+   "tint": "#FFFBEB",
+   "icon": "ic-users",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_36",
+   "name": "Ưu đãi sinh nhật & Hạng",
+   "desc": "Tự động tặng quà theo hạng, nhắc đổi điểm sắp hết hạn.",
+   "tag": "Loyalty",
+   "color": "#B45309",
+   "tint": "#FFFBEB",
+   "icon": "ic-gift",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_37",
+   "name": "Cảnh báo khách rời bỏ",
+   "desc": "Phát hiện dấu hiệu rời bỏ, đề xuất kịch bản giữ chân.",
+   "tag": "Giữ chân",
+   "color": "#DB2777",
+   "tint": "#FDF2F8",
+   "icon": "ic-shield",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_38",
+   "name": "Tư vấn dự án BĐS",
+   "desc": "Giới thiệu dự án, chính sách vay, hẹn xem nhà.",
+   "tag": "BĐS",
+   "color": "#0F766E",
+   "tint": "#ECFDF9",
+   "icon": "ic-box",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_39",
+   "name": "Chăm sóc học viên",
+   "desc": "Nhắc lịch học, gửi tài liệu, theo dõi tiến độ và điểm danh.",
+   "tag": "Giáo dục",
+   "color": "#2563EB",
+   "tint": "#EFF6FF",
+   "icon": "ic-doc",
+   "role": "sales",
+   "defaults": {
+    "tools": [
+     "contact.update",
+     "contact.set_stage",
+     "quote.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     0,
+     1
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+   }
+  },
+  {
+   "id": "tpl_40",
+   "name": "Đặt bàn & Gọi món",
+   "desc": "Nhận đặt bàn, tư vấn thực đơn, xác nhận và nhắc giờ.",
+   "tag": "F&B",
+   "color": "#EA580C",
+   "tint": "#FFF7ED",
+   "icon": "ic-cal",
+   "role": "booking",
+   "defaults": {
+    "tools": [
+     "appointment.find_slots",
+     "appointment.create",
+     "appointment.reschedule",
+     "conversation.handoff"
+    ],
+    "intents": [
+     1,
+     5
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."
+   }
+  },
+  {
+   "id": "tpl_41",
+   "name": "Tư vấn tour & Đặt chỗ",
+   "desc": "Tư vấn hành trình, báo giá tour, giữ chỗ và nhắc khởi hành.",
+   "tag": "Du lịch",
+   "color": "#0891B2",
+   "tint": "#ECFEFF",
+   "icon": "ic-globe",
+   "role": "booking",
+   "defaults": {
+    "tools": [
+     "appointment.find_slots",
+     "appointment.create",
+     "appointment.reschedule",
+     "conversation.handoff"
+    ],
+    "intents": [
+     1,
+     5
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."
+   }
+  },
+  {
+   "id": "tpl_42",
+   "name": "Bảo hành & Sửa chữa",
+   "desc": "Tra cứu bảo hành, đặt lịch kỹ thuật, theo dõi tiến độ sửa.",
+   "tag": "Kỹ thuật",
+   "color": "#475569",
+   "tint": "#F1F5F9",
+   "icon": "ic-cog",
+   "role": "cs",
+   "defaults": {
+    "tools": [
+     "ticket.create",
+     "ticket.search",
+     "conversation.handoff",
+     "conversation.tag"
+    ],
+    "intents": [
+     2,
+     3,
+     4
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_43",
+   "name": "Đối soát thanh toán",
+   "desc": "Đối chiếu giao dịch, phát hiện lệch, lập báo cáo thu chi.",
+   "tag": "Kế toán",
+   "color": "#B45309",
+   "tint": "#FFFBEB",
+   "icon": "ic-doc",
+   "role": "accounting",
+   "defaults": {
+    "tools": [
+     "invoice.create",
+     "conversation.handoff"
+    ],
+    "intents": [
+     6
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+   }
+  },
+  {
+   "id": "tpl_44",
+   "name": "Onboarding nhân sự mới",
+   "desc": "Gửi tài liệu, checklist ngày đầu, giải đáp chính sách nội bộ.",
+   "tag": "Nhân sự",
+   "color": "#DB2777",
+   "tint": "#FDF2F8",
+   "icon": "ic-users",
+   "role": "ops",
+   "defaults": {
+    "tools": [
+     "conversation.assign",
+     "conversation.handoff",
+     "ticket.create"
+    ],
+    "intents": [
+     2
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."
+   }
+  },
+  {
+   "id": "tpl_45",
+   "name": "Tổng hợp báo cáo tự động",
+   "desc": "Tóm tắt số liệu ngày/tuần, cảnh báo bất thường, gửi ban điều hành.",
+   "tag": "Báo cáo",
+   "color": "#6E48E6",
+   "tint": "#F5F3FF",
+   "icon": "ic-chart",
+   "role": "ops",
+   "defaults": {
+    "tools": [
+     "conversation.assign",
+     "conversation.handoff",
+     "ticket.create"
+    ],
+    "intents": [
+     2
+    ],
+    "model_tier": "advanced",
+    "threshold": 70,
+    "prompt": "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."
+   }
+  }
+ ],
+ "agents": [
+  {
+   "id": "ag_mkt",
+   "name": "Marketing Agent",
+   "emoji": "🤖",
+   "role": "marketing",
+   "role_label": "Thu hút & nuôi dưỡng lead",
+   "status": "active",
+   "conversations": 1480,
+   "resolve_rate": 86,
+   "csat": 4.5,
+   "persona": "Sáng tạo, đúng phân khúc",
+   "model_tier": "standard",
+   "version": 3,
+   "intents": [
+    0,
+    2
+   ],
+   "channels": [
+    "zalo_personal",
+    "webchat"
+   ],
+   "tools": [
+    "end_conversation",
+    "assign",
+    "ticket",
+    "booking"
+   ],
+   "language": "vi",
+   "prompt": "",
+   "threshold": 70,
+   "handoff_to": "staff",
+   "governance": {
+    "grounding": true,
+    "pii": true,
+    "override": true,
+    "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [
+     "f_cat"
+    ],
+    "tags": []
+   },
+   "keywords": [],
+   "working_hours": "always"
+  },
+  {
+   "id": "ag_lead",
+   "name": "Lead Qualification Agent",
+   "emoji": "💡",
+   "role": "sales",
+   "role_label": "Chấm điểm & sàng lọc lead",
+   "status": "active",
+   "conversations": 642,
+   "resolve_rate": 91,
+   "csat": 4.6,
+   "persona": "Phân tích, hỏi đúng trọng tâm",
+   "model_tier": "advanced",
+   "version": 2,
+   "intents": [
+    0,
+    2
+   ],
+   "channels": [
+    "zalo_personal",
+    "webchat"
+   ],
+   "tools": [
+    "end_conversation",
+    "assign",
+    "ticket",
+    "booking"
+   ],
+   "language": "vi",
+   "prompt": "",
+   "threshold": 70,
+   "handoff_to": "staff",
+   "governance": {
+    "grounding": true,
+    "pii": true,
+    "override": true,
+    "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [],
+    "tags": []
+   },
+   "keywords": [],
+   "working_hours": "always"
+  },
+  {
+   "id": "ag_sales",
+   "name": "Sales Agent",
+   "emoji": "🛍️",
+   "role": "sales",
+   "role_label": "Tư vấn & chốt đơn",
+   "status": "active",
+   "conversations": 1284,
+   "resolve_rate": 89,
+   "csat": 4.6,
+   "persona": "Nhiệt tình, chủ động chốt đơn",
+   "model_tier": "standard",
+   "version": 4,
+   "intents": [
+    0,
+    2
+   ],
+   "channels": [
+    "zalo_personal",
+    "webchat"
+   ],
+   "tools": [
+    "end_conversation",
+    "assign",
+    "ticket",
+    "booking"
+   ],
+   "language": "vi",
+   "prompt": "",
+   "threshold": 70,
+   "handoff_to": "staff",
+   "governance": {
+    "grounding": true,
+    "pii": true,
+    "override": true,
+    "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [
+     "f_cat",
+     "f_price"
+    ],
+    "tags": []
+   },
+   "keywords": [],
+   "working_hours": "always"
+  },
+  {
+   "id": "ag_service",
+   "name": "Service Agent",
+   "emoji": "🎧",
+   "role": "cs",
+   "role_label": "Xử lý ticket & chăm sóc",
+   "status": "active",
+   "conversations": 678,
+   "resolve_rate": 82,
+   "csat": 4.4,
+   "persona": "Kiên nhẫn, empathy cao",
+   "model_tier": "standard",
+   "version": 2,
+   "intents": [
+    0,
+    2
+   ],
+   "channels": [
+    "zalo_personal",
+    "webchat"
+   ],
+   "tools": [
+    "end_conversation",
+    "assign",
+    "ticket",
+    "booking"
+   ],
+   "language": "vi",
+   "prompt": "",
+   "threshold": 70,
+   "handoff_to": "staff",
+   "governance": {
+    "grounding": true,
+    "pii": true,
+    "override": true,
+    "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [
+     "f_cat",
+     "f_policy"
+    ],
+    "tags": []
+   },
+   "keywords": [],
+   "working_hours": "always"
+  },
+  {
+   "id": "ag_loyalty",
+   "name": "Loyalty Agent",
+   "emoji": "🌸",
+   "role": "cs",
+   "role_label": "Tích điểm & ưu đãi thành viên",
+   "status": "active",
+   "conversations": 396,
+   "resolve_rate": 93,
+   "csat": 4.7,
+   "persona": "Chu đáo, cá nhân hoá",
+   "model_tier": "advanced",
+   "version": 1,
+   "intents": [
+    0,
+    2
+   ],
+   "channels": [
+    "zalo_personal",
+    "webchat"
+   ],
+   "tools": [
+    "end_conversation",
+    "assign",
+    "ticket",
+    "booking"
+   ],
+   "language": "vi",
+   "prompt": "",
+   "threshold": 70,
+   "handoff_to": "staff",
+   "governance": {
+    "grounding": true,
+    "pii": true,
+    "override": true,
+    "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [],
+    "tags": []
+   },
+   "keywords": [],
+   "working_hours": "always"
+  },
+  {
+   "id": "ag_retention",
+   "name": "Retention Agent",
+   "emoji": "⚡",
+   "role": "marketing",
+   "role_label": "Giữ chân & kéo lại khách",
+   "status": "draft",
+   "conversations": 0,
+   "resolve_rate": 0,
+   "csat": 0,
+   "persona": "Chủ động, đúng thời điểm",
+   "model_tier": "advanced",
+   "version": 0,
+   "intents": [
+    0,
+    2
+   ],
+   "channels": [
+    "zalo_personal",
+    "webchat"
+   ],
+   "tools": [
+    "end_conversation",
+    "assign",
+    "ticket",
+    "booking"
+   ],
+   "language": "vi",
+   "prompt": "",
+   "threshold": 70,
+   "handoff_to": "staff",
+   "governance": {
+    "grounding": true,
+    "pii": true,
+    "override": true,
+    "audit": true
+   },
+   "kb_scope": {
+    "folder_ids": [],
+    "tags": []
+   },
+   "keywords": [],
+   "working_hours": "always"
+  }
+ ],
+ "emojis": [
+  "🤖",
+  "💬",
+  "✨",
+  "🎧",
+  "🛍️",
+  "📞",
+  "🧑‍💼",
+  "📅",
+  "💡",
+  "🛟",
+  "🌸",
+  "⚡"
+ ],
+ "intents": [
+  "Hỏi giá",
+  "Tư vấn sản phẩm",
+  "Hỗ trợ / CSKH",
+  "Khiếu nại",
+  "Đổi / Trả",
+  "Đặt lịch hẹn",
+  "Theo dõi đơn",
+  "Chăm sóc sau bán"
+ ],
+ "channels": [
+  {
+   "key": "zalo_personal",
+   "color": "#0068FF"
+  },
+  {
+   "key": "webchat",
+   "color": "#2DC56A"
+  },
+  {
+   "key": "email",
+   "color": "#1F8A4D"
+  }
+ ],
+ "tools": [
+  {
+   "key": "end_conversation",
+   "action_id": "conversation.close"
+  },
+  {
+   "key": "assign",
+   "action_id": "conversation.assign"
+  },
+  {
+   "key": "ticket",
+   "action_id": "ticket.create"
+  },
+  {
+   "key": "deal",
+   "action_id": "contact.set_stage"
+  },
+  {
+   "key": "booking",
+   "action_id": "appointment.create"
+  },
+  {
+   "key": "stage",
+   "action_id": "contact.set_stage"
+  },
+  {
+   "key": "contact",
+   "action_id": "contact.update"
+  },
+  {
+   "key": "tags",
+   "action_id": "contact.tag"
+  },
+  {
+   "key": "note",
+   "action_id": "conversation.add_note"
+  }
+ ],
+ "prompt_templates": [
+  {
+   "label": "CSKH đa kênh",
+   "text": "# VAI TRÒ & PHONG CÁCH\nBạn là trợ lý CSKH thân thiện, lịch sự, trả lời ngắn gọn bằng tiếng Việt. Luôn xưng \"em\" và gọi khách là \"anh/chị\".\n\n# NHIỆM VỤ\n- Chào hỏi, xác định nhu cầu của khách.\n- Tra cứu Knowledge Base để trả lời chính xác về sản phẩm, đơn hàng, chính sách.\n- Khi không chắc chắn (confidence < 70%), chuyển cho nhân viên.\n\n# GIỚI HẠN\n- Không bịa thông tin. Không hứa hẹn ngoài chính sách."
+  },
+  {
+   "label": "Tư vấn bán hàng",
+   "text": "# VAI TRÒ\nBạn là chuyên viên tư vấn bán hàng nhiệt tình, hiểu sản phẩm và biết chốt đơn.\n\n# NHIỆM VỤ\n- Khai thác nhu cầu, gợi ý sản phẩm/liệu trình phù hợp.\n- Báo giá rõ ràng, nêu ưu đãi đang chạy.\n- Tạo cơ hội (CRM) và đề xuất đặt lịch/đặt cọc.\n\n# PHONG CÁCH\n- Tự tin, đồng cảm, không gây áp lực."
+  },
+  {
+   "label": "Đặt lịch hẹn",
+   "text": "# VAI TRÒ\nBạn là trợ lý đặt lịch hẹn cho spa/phòng khám.\n\n# NHIỆM VỤ\n- Hỏi dịch vụ, thời gian khách mong muốn.\n- Kiểm tra slot trống và đề xuất 2–3 khung giờ.\n- Xác nhận và tạo lịch hẹn, gửi nhắc trước 24h."
+  },
+  {
+   "label": "Hỗ trợ kỹ thuật",
+   "text": "# VAI TRÒ\nBạn là kỹ thuật viên hỗ trợ sản phẩm/phần mềm.\n\n# NHIỆM VỤ\n- Thu thập mô tả lỗi, các bước tái hiện.\n- Hướng dẫn xử lý theo Knowledge Base.\n- Nếu không giải quyết được, tạo ticket ưu tiên và chuyển đội kỹ thuật."
+  }
+ ],
+ "optimize_suffix": "\n\n# ĐỊNH DẠNG TRẢ LỜI\n- Câu ngắn, xuống dòng rõ ràng, dùng bullet khi liệt kê.\n- Mỗi tin tối đa 3–4 câu; chủ động hỏi lại để làm rõ.\n- Kết thúc bằng một câu hỏi mở hoặc đề xuất bước tiếp theo.",
+ "test_seed": "Dạ em chào anh/chị! Em là trợ lý AI vừa cấu hình. Em có thể giúp gì cho mình hôm nay ạ?",
+ "test_replies": [
+  {
+   "re": "giá|bao nhiêu|chi phí",
+   "text": "Dạ về giá, anh/chị quan tâm liệu trình mấy buổi để em báo giá chính xác nhất ạ? Hiện bên em đang có ưu đãi cho khách mới."
+  },
+  {
+   "re": "lịch|đặt|hẹn",
+   "text": "Dạ em hỗ trợ đặt lịch ngay ạ. Anh/chị muốn đến vào khung giờ nào, em kiểm tra slot trống giúp mình nhé?"
+  }
+ ],
+ "test_fallback": "Dạ em đã ghi nhận yêu cầu của anh/chị. Em kiểm tra và phản hồi ngay trong ít phút ạ.",
+ "ai_suggests": [
+  {
+   "key": "create",
+   "color": "#2DC56A",
+   "title": "Tạo AI Agent bằng hội thoại",
+   "desc": "Mô tả vai trò, AppChat tự dựng kịch bản + kết nối kênh"
+  },
+  {
+   "key": "optimize",
+   "color": "#6E48E6",
+   "title": "Tối ưu agent CSAT thấp",
+   "desc": "Service Agent đang 4.4★ · gợi ý cải thiện prompt & knowledge"
+  },
+  {
+   "key": "routing",
+   "color": "#2563EB",
+   "title": "Kiểm tra quy tắc phân luồng",
+   "desc": "5 rule đang chạy · phát hiện trùng điều kiện"
+  },
+  {
+   "key": "report",
+   "color": "#157A40",
+   "title": "Báo cáo hiệu suất AI Agents",
+   "desc": "1.091 xử lý hôm nay · tin cậy 92% · escalate 15%"
+  }
+ ],
+ "version_notes": [
+  "Bản đầu tiên",
+  "Thêm kiến thức bảng giá",
+  "Đổi giọng điệu thân thiện hơn",
+  "Hạ ngưỡng bàn giao về 70%"
+ ],
+ "ai_draft": {
+  "name": "CSKH Spa",
+  "emoji": "🎧",
+  "role": "cs",
+  "model_tier": "advanced",
+  "channels": [
+   "zalo_personal",
+   "webchat"
+  ],
+  "intents": [
+   1,
+   2,
+   5
+  ],
+  "tools": [
+   "assign",
+   "ticket",
+   "booking",
+   "note"
+  ],
+  "threshold": 80,
+  "prompt_template": 0
+ }
+}

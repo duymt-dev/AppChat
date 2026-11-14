@@ -1,0 +1,42 @@
+# D40 — affected: lint · typecheck · test của package bị đổi + phụ thuộc; i18n:check; lint:size; depcheck (D59).
+name: ci
+
+on:
+  pull_request:
+    branches: [dev, main]
+  push:
+    branches: [dev]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  affected:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - uses: actions/cache@v4
+        with:
+          path: .turbo
+          key: turbo-${{ runner.os }}-${{ github.sha }}
+          restore-keys: turbo-${{ runner.os }}-
+      - run: pnpm install --frozen-lockfile
+      - name: Base ref
+        run: echo "BASE=origin/${{ github.base_ref || 'dev' }}" >> "$GITHUB_ENV"
+      - run: pnpm turbo run lint typecheck test --filter="...[$BASE]"
+      - run: pnpm i18n:check
+      - run: pnpm lint:size
+      - run: pnpm lint:masks
+      - run: git fetch origin dev && pnpm lint:parity-debt
+      - run: pnpm depcheck
+      # Bản build api / worker: mọi gói npm bundle import phải khai ở dependencies của app (DC-359 — lỗi chỉ lộ khi chạy dist).
+      - run: pnpm turbo run build --filter=@appchat/api --filter=@appchat/worker
+      - run: pnpm check:bundle

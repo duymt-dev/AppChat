@@ -1,0 +1,317 @@
+// tenant/inbox.prisma — sở hữu: TIP-016 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: conversation, message, message_reaction, conversation_participant, conversation_tag, canned_reply, outbox_message.
+// Không Prisma relation xuyên domain (Blueprint §2.1) — contact / tag / channel_account nối bằng id. Partial / expression index
+// và FK viết SQL trong migration.
+
+enum ConversationKind {
+  direct
+  group
+
+  @@map("conversation_kind")
+}
+
+enum ConversationStatus {
+  open
+  pending
+  snoozed
+  closed
+
+  @@map("conversation_status")
+}
+
+enum AiMode {
+  off
+  copilot
+  auto
+
+  @@map("ai_mode")
+}
+
+enum AiState {
+  idle
+  running
+  waiting_approval
+  handoff
+
+  @@map("ai_state")
+}
+
+enum GroupAiPolicy {
+  mention
+  auto
+  off
+
+  @@map("group_ai_policy")
+}
+
+enum MessageDirection {
+  in
+  out
+
+  @@map("message_direction")
+}
+
+enum SenderType {
+  contact
+  user
+  agent
+  system
+
+  @@map("sender_type")
+}
+
+enum MessageKind {
+  text
+  image
+  file
+  sticker
+  audio
+  note
+  system
+  card
+
+  @@map("message_kind")
+}
+
+enum MessageStatus {
+  queued
+  sent
+  delivered
+  read
+  failed
+  /// TIP-014b B: tin nhiều phần — một số phần đã tới khách, phần khác lỗi. Không gửi lại cả tin.
+  partial
+  /// TIP-014b B: đã gọi kênh nhưng không biết kết quả (mạng / hết giờ sau đặt chỗ) — không tự gửi lại.
+  unknown
+  /// TIP-022d: vượt trần tin chủ động / ngày — chờ đầu ngày kế tiếp theo tz workspace, không mất.
+  deferred_cap
+
+  @@map("message_status")
+}
+
+enum ReactionActor {
+  user
+  contact
+
+  @@map("reaction_actor")
+}
+
+enum AssigneeKind {
+  user
+  agent
+
+  @@map("assignee_kind")
+}
+
+enum OutboxMessageStatus {
+  pending
+  /// TIP-045b annex D: đã đặt chỗ gửi (điểm tuyến tính hoá) — sau mốc này coi như đang gửi; người tiếp quản không chặn được nữa.
+  dispatch_reserved
+  sending
+  sent
+  failed
+  dead
+  /// TIP-014b B: đã đặt chỗ gửi, kết quả không biết — không tự gửi lại.
+  unknown
+  /// TIP-022d: vượt trần tin chủ động / ngày — chờ next_attempt_at đầu ngày kế tiếp, không mất.
+  deferred_cap
+
+  @@map("outbox_message_status")
+}
+
+/// Hội thoại theo (tài khoản kênh, thread phía kênh). `channel_type` chép từ tài khoản (lọc theo kênh không cần join).
+/// Ẩn (D50) = `hidden_at`; tạm ẩn = status `snoozed` + `snoozed_until`; tin vào mới mở lại cả ba (đóng / ẩn / tạm ẩn).
+model Conversation {
+  id                 String             @id @db.Uuid
+  channelAccountId   String             @map("channel_account_id") @db.Uuid
+  channelType        String             @map("channel_type")
+  contactId          String?            @map("contact_id") @db.Uuid
+  kind               ConversationKind   @default(direct)
+  externalThreadId   String             @map("external_thread_id")
+  title              String?
+  status             ConversationStatus @default(open)
+  assigneeUserId     String?            @map("assignee_user_id") @db.Uuid
+  /// Agent AI phụ trách (TIP-021 / 022: chuyển agent bằng `transfer_to_agent`).
+  assigneeAgentId    String?            @map("assignee_agent_id")
+  teamId             String?            @map("team_id") @db.Uuid
+  aiMode             AiMode             @default(copilot) @map("ai_mode")
+  aiState            AiState            @default(idle) @map("ai_state")
+  handoffReason      String?            @map("handoff_reason")
+  /// Câu trả lời agent soạn nhưng không gửi khi chuyển sang người (TIP-022) — nhân viên dùng lại.
+  aiDraft            String?            @map("ai_draft")
+  /// Gợi ý trả lời của copilot `{ text, confidence (0–100), run_id }` — người gửi tin thì xoá.
+  aiSuggestion       Json?              @map("ai_suggestion")
+  /// TIP-020c: run sinh `ai_draft` (nguồn tri thức phụ thuộc) + thế hệ nháp — `message.send.ai_draft_ref` phải khớp; nháp tay = null.
+  aiDraftRunId       String?            @map("ai_draft_run_id") @db.Uuid
+  aiDraftGen         Int                @default(0) @map("ai_draft_gen")
+  intent             String?
+  /// Ý định theo lượt (TIP-022b): `{ source_message_id, run_id, fence }` — CAS chống run cũ ghi đè lượt mới.
+  intentSource       Json?              @map("intent_source")
+  /// Tóm tắt bàn giao có cấu trúc (TIP-022b) — tách khỏi `handoff_reason` / `ai_draft`; chiếu theo quyền người xem khi đọc.
+  handoffSummary     Json?              @map("handoff_summary")
+  lastMessageAt      DateTime           @default(now()) @map("last_message_at") @db.Timestamptz(6)
+  lastMessagePreview String             @default("") @map("last_message_preview")
+  /// Người gửi tin cuối ở hội thoại nhóm (dòng "Hồng Nhung: …").
+  lastSenderName     String?            @map("last_sender_name")
+  unreadCount        Int                @default(0) @map("unread_count")
+  pinned             Boolean            @default(false)
+  archivedAt         DateTime?          @map("archived_at") @db.Timestamptz(6)
+  snoozedUntil       DateTime?          @map("snoozed_until") @db.Timestamptz(6)
+  hiddenAt           DateTime?          @map("hidden_at") @db.Timestamptz(6)
+  pinnedMessageId    String?            @map("pinned_message_id") @db.Uuid
+  groupAiPolicy      GroupAiPolicy?     @map("group_ai_policy")
+  /// "Xoá lịch sử" chỉ trong AppChat — tin trước mốc này không hiện (kênh giữ nguyên).
+  clearedAt          DateTime?          @map("cleared_at") @db.Timestamptz(6)
+  /// Tin khách đầu tiên chưa được phản hồi — tính FRT khi người / agent trả lời (thống kê kênh REQ-B11).
+  frtPendingSince    DateTime?          @map("frt_pending_since") @db.Timestamptz(6)
+  /// TIP-045b annex D: tăng mỗi lần người tiếp quản / đổi chế độ AI / chuyển người / đóng — lượt agent mang epoch lúc bắt đầu,
+  /// lệch → không gửi / không ghi gợi ý.
+  aiEpoch            Int                @default(0) @map("ai_epoch")
+  /// Lượt agent đang giữ (lease bền trong DB tenant): fence tăng mỗi lần giành; chủ + hạn để nhả đúng chủ / giành lại khi hết hạn.
+  aiTurnFence        Int                @default(0) @map("ai_turn_fence")
+  aiTurnOwner        String?            @map("ai_turn_owner")
+  aiTurnUntil        DateTime?          @map("ai_turn_until") @db.Timestamptz(6)
+  /// TIP-015d: trigger tăng mỗi lần đổi người / agent được gán (mọi writer, kể cả hoàn tác) — biên nhận chuyển phụ trách so số này.
+  assignmentRevision Int                @default(0) @map("assignment_revision")
+  createdAt          DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime           @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([channelAccountId, externalThreadId])
+  @@index([assigneeUserId, status, lastMessageAt(sort: Desc)])
+  @@index([contactId])
+  @@map("conversation")
+}
+
+/// Tin nhắn. Tin vào chống trùng bằng unique (channel_account_id, external_msg_id) + `ON CONFLICT DO NOTHING`.
+/// `created_at` = thời điểm gửi phía kênh (tin vào / lịch sử) hoặc lúc tạo (tin ra).
+model Message {
+  id               String            @id @db.Uuid
+  conversationId   String            @map("conversation_id") @db.Uuid
+  channelAccountId String            @map("channel_account_id") @db.Uuid
+  direction        MessageDirection?
+  senderType       SenderType        @map("sender_type")
+  senderId         String?           @map("sender_id")
+  senderName       String?           @map("sender_name")
+  kind             MessageKind       @default(text)
+  body             String            @default("")
+  attachments      Json              @default("[]")
+  externalMsgId    String?           @map("external_msg_id")
+  status           MessageStatus     @default(sent)
+  error            String?
+  runId            String?           @map("run_id") @db.Uuid
+  /// Mục đích tin ra nội bộ (TIP-022b): `greeting` = lời chào tự động — không làm xong lượt khách / FRT / chưa đọc. null = tin thường.
+  purpose          String?
+  replyToId        String?           @map("reply_to_id") @db.Uuid
+  forwardedFromId  String?           @map("forwarded_from_id") @db.Uuid
+  recalledAt       DateTime?         @map("recalled_at") @db.Timestamptz(6)
+  deletedAt        DateTime?         @map("deleted_at") @db.Timestamptz(6)
+  /// `live` = tin tới qua kênh lúc đang chạy; `history` = lấy lại lịch sử (TIP-014b C) — không kích luồng trực tiếp (AI / SLA / thông báo).
+  origin           String            @default("live")
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([channelAccountId, externalMsgId])
+  @@index([conversationId, createdAt(sort: Desc), id(sort: Desc)])
+  @@map("message")
+}
+
+/// Cảm xúc trên tin (REQ-C09) — bấm lại = xoá; chỉ kênh có `capabilities.reactions` (OQ-12).
+model MessageReaction {
+  messageId String        @map("message_id") @db.Uuid
+  actorType ReactionActor @map("actor_type")
+  actorId   String        @map("actor_id")
+  emoji     String
+  createdAt DateTime      @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([messageId, actorType, actorId, emoji])
+  @@map("message_reaction")
+}
+
+/// @nhắc thành viên trong ghi chú nội bộ (TIP-025, REQ-C05): thư mục "Nhắc đến tôi" = hội thoại có lần nhắc mình chưa đọc
+/// (`read_at` null); mở hội thoại (`conversation.mark_read`) → đánh dấu đã đọc. Người được nhắc là user nền tảng (không FK chéo DB).
+model MessageMention {
+  messageId      String    @map("message_id") @db.Uuid
+  userId         String    @map("user_id") @db.Uuid
+  conversationId String    @map("conversation_id") @db.Uuid
+  readAt         DateTime? @map("read_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([messageId, userId])
+  @@map("message_mention")
+}
+
+/// Thành viên hội thoại nhóm (theo id phía kênh); `contact_id` khi đã liên kết khách.
+model ConversationParticipant {
+  conversationId String    @map("conversation_id") @db.Uuid
+  externalId     String    @map("external_id")
+  displayName    String    @default("") @map("display_name")
+  contactId      String?   @map("contact_id") @db.Uuid
+  lastSeenAt     DateTime? @map("last_seen_at") @db.Timestamptz(6)
+
+  @@id([conversationId, externalId])
+  @@map("conversation_participant")
+}
+
+/// Đồng phụ trách hội thoại (người hoặc AI Agent) — người/agent phụ trách CHÍNH vẫn ở `conversation.assignee_user_id` /
+/// `assignee_agent_id`, không đổi. Bảng này chỉ thêm người phụ trách bổ sung, luôn thêm bằng tay qua menu ⋯ (không bao giờ
+/// auto-route ghi vào đây — xem `routing-apply.handler.ts`). Mirror `ContactCollaborator` (D32) nhưng gộp cả user + agent.
+model ConversationAssignee {
+  conversationId String       @map("conversation_id") @db.Uuid
+  kind           AssigneeKind
+  assigneeId     String       @map("assignee_id") @db.Uuid
+  addedBy        String?      @map("added_by") @db.Uuid
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([conversationId, kind, assigneeId])
+  @@index([kind, assigneeId, conversationId])
+  @@map("conversation_assignee")
+}
+
+/// Thẻ hội thoại — nguồn thẻ dùng chung bảng `tag` (crm, Blueprint L336).
+model ConversationTag {
+  conversationId String   @map("conversation_id") @db.Uuid
+  tagId          String   @map("tag_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([conversationId, tagId])
+  @@index([tagId])
+  @@map("conversation_tag")
+}
+
+/// Câu trả lời mẫu (Cài đặt › Câu trả lời mẫu; khung nhập gõ "/").
+model CannedReply {
+  id              String   @id @db.Uuid
+  shortcut        String   @unique
+  title           String
+  body            String
+  category        String   @default("")
+  attachments     Json     @default("[]")
+  createdByUserId String?  @map("created_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("canned_reply")
+}
+
+/// Hàng đợi gửi tin (events/outbox §7) — tách khỏi outbox_event; ghi cùng transaction với `message`, đẩy vào queue gửi của tài
+/// khoản sau commit (job id = id dòng này → gửi một lần). `payload` = OutboundMessage.
+model OutboxMessage {
+  id               String              @id @db.Uuid
+  messageId        String              @unique @map("message_id") @db.Uuid
+  channelAccountId String              @map("channel_account_id") @db.Uuid
+  payload          Json
+  status           OutboxMessageStatus @default(pending)
+  attempts         Int                 @default(0)
+  nextAttemptAt    DateTime            @default(now()) @map("next_attempt_at") @db.Timestamptz(6)
+  lastError        String?             @map("last_error")
+  /// TIP-045b annex D: tin agent — fence lượt + epoch hội thoại lúc ghi; đặt chỗ gửi kiểm lại dưới cùng khoá hội thoại.
+  turnFence        Int?                @map("turn_fence")
+  aiEpoch          Int?                @map("ai_epoch")
+  reservedAt       DateTime?           @map("reserved_at") @db.Timestamptz(6)
+  /// TIP-020c: run có nguồn tri thức mà nội dung tin phụ thuộc — đặt chỗ gửi kiểm lại nguồn còn hợp lệ trước khi gọi kênh.
+  knowledgeRunId   String?             @map("knowledge_run_id") @db.Uuid
+  createdAt        DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([status, nextAttemptAt])
+  @@map("outbox_message")
+}

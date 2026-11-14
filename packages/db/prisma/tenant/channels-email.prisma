@@ -1,0 +1,22 @@
+// tenant/channels-email.prisma — sở hữu: TIP-018 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: email_thread. Không Prisma relation xuyên domain (Blueprint §2.1) — FK nội DB viết SQL trong migration.
+
+/// Chuỗi thư của một hội thoại email (REQ-B06): khoá = (tài khoản, Message-ID gốc của chuỗi = `conversation.external_thread_id`).
+/// Worker poll ghi khi thư khách vào (địa chỉ khách, tiêu đề, Message-ID mới nhất, References); gửi trả lời đọc để dựng
+/// `In-Reply-To` / `References` / "Re: tiêu đề". `contact.send_email` tạo dòng cho chuỗi do mình mở.
+model EmailThread {
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  externalThreadId String   @map("external_thread_id")
+  /// Địa chỉ khách (chữ thường) — người nhận thư trả lời.
+  address          String
+  subject          String   @default("")
+  /// Message-ID thư mới nhất của chuỗi (thư khách, hoặc thư mở chuỗi của mình) — `In-Reply-To` của thư trả lời.
+  lastMessageId    String?  @map("last_message_id")
+  references       String[] @default([])
+  lastAt           DateTime @default(now()) @map("last_at") @db.Timestamptz(6)
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@id([channelAccountId, externalThreadId])
+  @@map("email_thread")
+}

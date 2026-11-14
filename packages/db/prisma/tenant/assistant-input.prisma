@@ -1,0 +1,62 @@
+// tenant/assistant-input.prisma — sở hữu: TIP-023f (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Tệp / ảnh / email người dùng đưa cho Trợ lý (TIP-023f §1.3): artifact = một tệp đã buộc vào bản nháp (draft_nonce) hoặc phiên; phần
+// nội dung đã trích (private) tách bảng, có vị trí trang / sheet / dòng / đoạn. DTO công khai không chứa văn bản rộng. Không FK xuyên
+// domain (file_id là tham chiếu kernel); không workspace_id / RLS. Hàng `queued`/`preparing` là việc chờ có thẩm quyền — hàng đợi chỉ
+// là đánh thức (§1.5); lease_owner/lease_until/fence cho tái nhận sau crash, kết quả trễ bị loại theo fence.
+
+enum AssistantInputPhase {
+  queued
+  preparing
+  ready
+  unsupported
+  failed
+  cancelled
+
+  @@map("assistant_input_phase")
+}
+
+model AssistantInputArtifact {
+  id            String              @id @db.Uuid
+  ownerUserId   String              @map("owner_user_id") @db.Uuid
+  draftNonce    String              @map("draft_nonce") @db.Uuid
+  sessionId     String?             @map("session_id") @db.Uuid
+  fileId        String              @map("file_id") @db.Uuid
+  fileDigest    String              @map("file_digest")
+  parserVersion Int                 @map("parser_version")
+  phase         AssistantInputPhase @default(queued)
+  revision      Int                 @default(1)
+  kind          String?
+  name          String
+  size          BigInt
+  partCount     Int                 @default(0) @map("part_count")
+  charCount     Int                 @default(0) @map("char_count")
+  errorReason   String?             @map("error_reason")
+  leaseOwner    String?             @map("lease_owner")
+  leaseUntil    DateTime?           @map("lease_until") @db.Timestamptz(6)
+  fence         Int                 @default(0)
+  boundAt       DateTime?           @map("bound_at") @db.Timestamptz(6)
+  createdAt     DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime            @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+  expiresAt     DateTime?           @map("expires_at") @db.Timestamptz(6)
+
+  parts AssistantInputPart[]
+
+  @@unique([ownerUserId, draftNonce, fileDigest, parserVersion], map: "assistant_input_artifact_identity_key")
+  @@map("assistant_input_artifact")
+}
+
+/// Một đoạn nội dung đã trích (private) — văn bản ≤ 8k ký tự hoặc tham chiếu ảnh (file_id gốc), kèm vị trí thật.
+model AssistantInputPart {
+  artifactId  String  @map("artifact_id") @db.Uuid
+  id          String  @db.Uuid
+  position    Int
+  locatorKind String  @map("locator_kind")
+  locator     Json
+  text        String?
+  imageFileId String? @map("image_file_id") @db.Uuid
+
+  artifact AssistantInputArtifact @relation(fields: [artifactId], references: [id], onDelete: Cascade)
+
+  @@id([artifactId, id])
+  @@map("assistant_input_part")
+}

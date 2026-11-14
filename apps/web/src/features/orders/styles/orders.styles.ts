@@ -1,0 +1,210 @@
+// Màn Đơn hàng — tiêu đề + tìm + 2 nút, chip trạng thái (pill), thanh công cụ, thanh chọn nhiều, chân bảng — prototype L5491–5540.
+import { createStyles } from 'antd-style';
+import { color, font, layout, listPage, radius, shadow } from '@appchat/ui';
+
+const btn = `
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: ${radius.r8}px;
+  padding: 0 12px;
+  font-size: ${font.scale.s14}px;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+`;
+
+export const useOrdersStyles = createStyles(({ css, responsive }) => ({
+  wrap: css`
+    ${listPage(responsive.md)}
+    padding: 24px 28px;
+    font-family: ${font.family};
+    line-height: normal;
+    ${responsive.md} {
+      padding: 16px 12px;
+    }
+  `,
+  search: css`
+    position: relative;
+    width: 260px;
+    input {
+      height: 38px;
+      width: 100%;
+      padding-left: 32px;
+      border: 1px solid ${color.border};
+      border-radius: ${radius.r8}px;
+      font-size: ${font.scale.s14}px;
+      outline: none;
+      font-family: inherit;
+      box-sizing: border-box;
+      color: ${color.text};
+    }
+    svg {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+    }
+    ${responsive.md} {
+      width: 100%;
+      order: 3;
+      input {
+        height: ${layout.touch}px;
+      }
+      svg {
+        top: 15px;
+      }
+    }
+  `,
+  primary: css`
+    ${btn}
+    height: 38px;
+    padding: 0 16px;
+    background: ${color.brand};
+    color: ${color.white};
+    font-weight: ${font.weight.bold};
+    border: none;
+    ${responsive.md} {
+      height: ${layout.touch}px;
+    }
+  `,
+  aiBtn: css`
+    ${btn}
+    height: 38px;
+    border: none;
+    background: ${color.text};
+    color: ${color.white};
+    font-weight: ${font.weight.bold};
+    ${responsive.md} {
+      height: ${layout.touch}px;
+    }
+  `,
+  bar: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  `,
+  chips: css`
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    ${responsive.md} {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      max-width: 100%;
+    }
+  `,
+  chip: css`
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: ${radius.r16}px;
+    font-size: ${font.scale.s14}px;
+    font-weight: ${font.weight.semibold};
+    cursor: pointer;
+    border: 1px solid ${color.border};
+    background: ${color.surface};
+    color: ${color.text3};
+    font-family: inherit;
+    white-space: nowrap;
+    ${responsive.md} {
+      min-height: ${layout.touch}px;
+    }
+  `,
+  chipOn: css`
+    font-weight: ${font.weight.bold};
+    border-color: transparent;
+    background: ${color.brandBg};
+    color: ${color.brandInk};
+  `,
+  chipN: css`
+    font-size: ${font.scale.s12}px;
+    opacity: 0.7;
+  `,
+  grow: css`
+    flex: 1;
+  `,
+  tool: css`
+    ${btn}
+    height: 38px;
+    border: 1px solid ${color.border};
+    background: ${color.surface};
+    font-weight: ${font.weight.semibold};
+    color: ${color.text2};
+    ${responsive.md} {
+      height: ${layout.touch}px;
+    }
+  `,
+  seg: css`
+    display: flex;
+    padding: 2px;
+    background: ${color.pillBg};
+    border-radius: ${radius.r8}px;
+    gap: 2px;
+  `,
+  segBtn: css`
+    ${btn}
+    height: 34px;
+    font-weight: ${font.weight.bold};
+    border: none;
+    background: transparent;
+    color: ${color.text3};
+    ${responsive.md} {
+      height: ${layout.touch}px;
+    }
+  `,
+  segOn: css`
+    background: ${color.surface};
+    color: ${color.text};
+    box-shadow: ${shadow.segOn};
+  `,
+  bulk: css`
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  `,
+  selAll: css`
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: ${font.scale.s14}px;
+    font-weight: ${font.weight.semibold};
+    color: ${color.text};
+    cursor: pointer;
+    input {
+      width: 15px;
+      height: 15px;
+      accent-color: ${color.brand};
+      margin: 0;
+    }
+    ${responsive.md} {
+      min-height: ${layout.touch}px;
+    }
+  `,
+  sep: css`
+    width: 1px;
+    height: 18px;
+    background: ${color.border};
+  `,
+  bulkBtn: css`
+    ${btn}
+    height: 34px;
+    border: 1px solid ${color.border};
+    font-weight: ${font.weight.semibold};
+    color: ${color.text2};
+    background: ${color.surface};
+    ${responsive.md} {
+      height: ${layout.touch}px;
+    }
+  `,
+  bulkPrimary: css`
+    background: ${color.brand};
+    border-color: ${color.brand};
+    color: ${color.white};
+    font-weight: ${font.weight.bold};
+  `,
+}));

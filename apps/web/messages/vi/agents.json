@@ -1,0 +1,247 @@
+{
+  "title": "AI Agents",
+  "sub": "Quản lý AI Agent · Routing phân luồng",
+  "manual": "Tạo thủ công",
+  "assistant": "Trợ lý AI",
+  "tabs": {
+    "templates": "Mẫu theo ngành",
+    "mine": "Agent của bạn ({n})"
+  },
+  "tplTitle": "AI Agents mẫu (Templates)",
+  "tplHint": "Cài đặt ngay hoặc tùy biến bằng hội thoại với Trợ lý AI",
+  "tplSub": "Không cần cấu hình thủ công — chọn một mẫu theo ngành/nghiệp vụ, Trợ lý AI sẽ dựng prompt, kiến thức và công cụ cho bạn.",
+  "search": "Tìm mẫu theo tên, mô tả, ngành…",
+  "groupAll": "— Tất cả nhóm ngành —",
+  "industryAll": "— Tất cả ngành —",
+  "agentAll": "— Tất cả AI Agent —",
+  "clear": "Xoá lọc",
+  "install": "Cài đặt →",
+  "pageInfo": "Hiển thị {from}–{to} / {total} mẫu",
+  "prev": "‹",
+  "next": "›",
+  "noTpl": "Không có mẫu phù hợp bộ lọc.",
+  "mine": {
+    "title": "Agent của bạn",
+    "sub": "Agent đang chạy theo phiên bản đã xuất bản; sửa cấu hình là bản nháp cho tới khi xuất bản lại.",
+    "conv": "Hội thoại",
+    "resolve": "Tự xử lý",
+    "csat": "CSAT",
+    "dash": "—",
+    "tier": "◈ {tier}",
+    "version": "v{n}",
+    "draft": "Nháp",
+    "status": {
+      "active": "Đang chạy",
+      "paused": "Tạm dừng",
+      "draft": "Nháp"
+    },
+    "edit": "Cấu hình",
+    "toggle": "Bật / tạm dừng {name}",
+    "versions": "Lịch sử phiên bản",
+    "delete": "Xoá",
+    "empty": "Chưa có agent nào — chọn một mẫu hoặc tạo bằng Trợ lý AI."
+  },
+  "stats": {
+    "def": {
+      "conversations": "Số hội thoại khác nhau agent đã trả lời trong 30 ngày (không tính chạy thử) — {n} lượt.",
+      "resolve_rate": "Tỷ lệ LƯỢT tự xử lý = lượt hoàn tất / (hoàn tất + chuyển người) — {n} lượt. Không phải tỷ lệ khách.",
+      "csat": "CSAT trung bình của ticket giao cho agent, đóng trong 30 ngày — {n} ticket có điểm. Không khẳng định agent là nguyên nhân."
+    },
+    "noData": "Chưa có dữ liệu trong kỳ.",
+    "noAccess": "Bạn không có quyền xem nguồn số liệu này.",
+    "human": "Người thật cùng kỳ: {v} ({n} ticket).",
+    "close": "Tỷ lệ chốt (tương quan, không dùng tính hoa hồng): {v} trên {n} khách được phục vụ."
+  },
+  "tier": {
+    "standard": "Tiêu chuẩn",
+    "advanced": "Nâng cao",
+    "max": "Tối đa"
+  },
+  "tierDesc": {
+    "standard": "Nhanh · tiết kiệm · trả lời ngắn, FAQ",
+    "advanced": "Cân bằng · suy luận tốt · tư vấn & bán hàng",
+    "max": "Suy luận sâu nhất · việc phức tạp"
+  },
+  "b": {
+    "createTitle": "Tạo tác nhân AI",
+    "editTitle": "Cấu hình tác nhân AI",
+    "back": "Quay lại",
+    "cancel": "Hủy bỏ",
+    "saveDraft": "Lưu nháp",
+    "publish": "Xuất bản",
+    "config": "Cấu hình",
+    "configSub": "Hãy xác định rõ ràng trách nhiệm của AI Agent và cách thức nó hỗ trợ doanh nghiệp của bạn.",
+    "emoji": "Biểu tượng",
+    "name": "Tên",
+    "nameInfo": "ⓘ",
+    "namePh": "Tên tác nhân AI",
+    "showDesc": "Hiển thị mô tả",
+    "tier": "Mức AI",
+    "lang": "Ngôn ngữ trả lời",
+    "langs": {
+      "vi": "Tiếng Việt",
+      "en": "Tiếng Anh",
+      "bilingual": "Song ngữ Việt–Anh",
+      "auto": "Tự động theo khách"
+    },
+    "guide": "Hướng dẫn",
+    "guideSub": "Mô tả vai trò, phong cách giao tiếp và các hành động mà tác nhân AI nên thực hiện. Đưa ra hướng dẫn từng bước bằng ngôn ngữ rõ ràng, dễ hiểu.",
+    "promptPh": "# ROLE & STYLE — You are a polite and helpful virtual assistant…",
+    "addTpl": "Thêm mẫu lời nhắc ▾",
+    "optimize": "Tối ưu hóa",
+    "learn": "Hãy học cách viết điều này.",
+    "channels": "Kênh hoạt động",
+    "channelsSub": "Chọn các kênh đã kết nối mà tác nhân AI này sẽ tiếp nhận và trả lời hội thoại.",
+    "channel": {
+      "zalo_personal": "Zalo cá nhân",
+      "webchat": "Web chat",
+      "email": "Email"
+    },
+    "connect": "Kết nối kênh",
+    "routing": "Phân luồng & điều kiện kích hoạt",
+    "routingSub": "Xác định khi nào AI Agent này được kích hoạt — theo ý định (intent) của khách, từ khoá và khung giờ.",
+    "intents": "Ý định khách hàng (intent)",
+    "keywords": "Từ khoá ưu tiên",
+    "keywordsVal": "hoàn tiền, bảo hành, khiếu nại",
+    "keywordsHint": "Phân tách bằng dấu phẩy. Khi tin nhắn chứa từ khoá, agent này được ưu tiên xử lý.",
+    "hours": "Khung giờ hoạt động",
+    "schedule": {
+      "overnight": "Khung qua nửa đêm sẽ được tách thành hai ngày liền nhau. Tiếp tục?",
+      "needsConfig": "Agent đang chọn \"Tuỳ chỉnh\" nhưng chưa có lịch tuần — vẫn chạy như cũ, cần lưu lịch trước khi xuất bản phiên bản mới.",
+      "hint": "Lịch áp dụng sau khi lưu và xuất bản. Giờ hoạt động thực tế = giao với lịch của tài khoản kênh."
+    },
+    "binding": {
+      "taken": "{n} tài khoản kênh đang do agent khác trực:",
+      "row": "{account} — {agent}",
+      "unknown": "agent đã xoá",
+      "hint": "Xuất bản không đổi gán. Đổi agent trực ở Cài đặt › Kênh kết nối.",
+      "error": "Không đọc được gán tài khoản kênh."
+    },
+    "hoursOpt": {
+      "always": "24/7 — luôn hoạt động",
+      "office": "Giờ hành chính (8:00–17:30)",
+      "custom": "Tuỳ chỉnh theo lịch…"
+    },
+    "actions": "Hành động",
+    "actionsSub": "Chỉ định các hành động mà Trợ lý AI có thể thực hiện trong suốt cuộc hội thoại. Mỗi hành động chỉ hoạt động nếu được kích hoạt.",
+    "toolOn": "Bật / tắt: {name}",
+    "toolCount": "{on}/{total}",
+    "skillGroup": "Kỹ năng AI",
+    "needsConnector": "Cần kết nối {name}",
+    "comingSoon": "Sắp có",
+    "gov": "Bàn giao cho người & An toàn",
+    "govTag": "(AI Governance)",
+    "govSub": "Vận hành AI an toàn theo chuẩn ISO 42001 — bàn giao cho nhân viên khi cần và tuân thủ dữ liệu.",
+    "threshold": "Bàn giao cho người khi độ tin cậy dưới <b>{n}%</b>",
+    "thresholdAria": "Ngưỡng bàn giao cho người",
+    "thLow": "50% · ít bàn giao",
+    "thHigh": "95% · ưu tiên người thật",
+    "handoff": "Bàn giao tới",
+    "handoffOpt": {
+      "staff": "Nhân viên đang trực",
+      "team": "Nhóm CSKH",
+      "lead": "Trưởng nhóm"
+    },
+    "govItem": {
+      "grounding": [
+        "Không bịa thông tin (grounding)",
+        "Chỉ trả lời dựa trên Knowledge Base & dữ liệu thật, chống hallucination."
+      ],
+      "pii": [
+        "Tuân thủ PII · Nghị định 13",
+        "Ẩn và bảo vệ dữ liệu cá nhân của khách theo chính sách."
+      ],
+      "override": [
+        "Luôn cho phép nhân viên can thiệp",
+        "Human override — nhân viên có thể tiếp quản hội thoại bất cứ lúc nào."
+      ],
+      "audit": [
+        "Ghi log mọi hành động AI",
+        "Lưu vết phục vụ AI Audit log & đối soát Token."
+      ]
+    },
+    "kb": "Nguồn kiến thức",
+    "kbNoticeB": "Bạn muốn trợ lý AI của mình phản hồi chính xác hơn?",
+    "kbNotice": "Thêm và kích hoạt các nguồn kiến thức để cung cấp cho AI Agent ngữ cảnh cần thiết, giúp nó đưa ra các phản hồi chính xác và phù hợp với từng công ty.",
+    "kbFolders": "Thư mục agent được dùng",
+    "kbTags": "Hoặc theo thẻ",
+    "kbTag": "#{tag}",
+    "kbCount": "{n} tài liệu trong phạm vi · {pub} tài liệu dùng được khi trả lời khách",
+    "kbEmpty": "Chưa chọn thư mục / thẻ — agent chưa dùng tài liệu nào để trả lời",
+    "kbTitle": "Huấn luyện tác nhân AI của bạn",
+    "kbSub": "Để nâng cao độ chính xác, chúng tôi khuyến bạn nên huấn luyện AI Agent của mình bằng các tài liệu và liên kết đặc thù của công ty.",
+    "kbAdd": "Thêm nguồn kiến thức",
+    "test": "Kiểm thử tác nhân AI",
+    "reset": "Đặt lại",
+    "testChat": "Trò chuyện",
+    "testSim": "Mô phỏng kênh",
+    "testPh": "Nhập tin để kiểm thử…",
+    "send": "Gửi",
+    "dryRun": "Chạy thử — hành động chỉ xem trước, không thực thi",
+    "versions": "Phiên bản",
+    "draftDirty": "Có thay đổi chưa xuất bản",
+    "hideDesc": "Ẩn mô tả",
+    "roleLabel": "Vai trò hiển thị",
+    "roleLabelPh": "VD: Tư vấn & chốt đơn",
+    "persona": "Tính cách",
+    "personaPh": "VD: Thân thiện, xưng \"em\", trả lời ngắn gọn",
+    "noPermission": "Bạn chưa có quyền này",
+    "simChannel": "Kênh mô phỏng"
+  },
+  "v": {
+    "title": "Lịch sử phiên bản · {name}",
+    "current": "Đang chạy",
+    "by": "{by} · {at}",
+    "rollback": "Quay lại bản này",
+    "close": "Đóng",
+    "empty": "Chưa xuất bản phiên bản nào."
+  },
+  "ai": {
+    "title": "Trợ lý AI · AI Agents",
+    "sub": "Phiên bản thu nhỏ · tạo & tối ưu agent",
+    "hello": "Chào {name} 👋 Mình giúp gì về AI Agents? Chọn nhanh bên dưới hoặc nhập yêu cầu.",
+    "ph": "Hỏi trợ lý về AI Agents…",
+    "full": "Mở Trợ lý AI đầy đủ →",
+    "send": "Gửi",
+    "close": "Đóng",
+    "describe": "Mô tả agent bạn cần",
+    "describePh": "VD: Agent CSKH cho spa, trả lời giá liệu trình, đặt lịch qua Zalo, khiếu nại thì chuyển Hương.",
+    "draft": "Bản nháp Trợ lý soạn",
+    "draftLead": "Em đã soạn cấu hình agent theo mô tả — anh xem lại rồi xác nhận nhé:",
+    "fName": "Tên",
+    "fRole": "Vai trò",
+    "fTier": "Mức AI",
+    "fChannels": "Kênh",
+    "fTools": "Hành động được phép",
+    "fThreshold": "Ngưỡng bàn giao",
+    "publish": "Tạo & xuất bản",
+    "openBuilder": "Mở trong builder",
+    "role": {
+      "sales": "Bán hàng",
+      "cs": "CSKH",
+      "booking": "Đặt lịch",
+      "marketing": "Marketing",
+      "accounting": "Kế toán",
+      "ops": "Vận hành",
+      "custom": "Tuỳ chỉnh"
+    },
+    "pct": "{n}%",
+    "done": "Đã tạo & xuất bản {name} (v1) — agent đang chạy.",
+    "drafting": "Đang soạn cấu hình theo mô tả…",
+    "draftFailed": "Chưa soạn được — mô tả vẫn giữ nguyên. Thử lại hoặc tự tạo trong builder.",
+    "retry": "Thử lại",
+    "manual": "Tự tạo trong builder",
+    "regenerate": "Soạn lại",
+    "noTools": "Không có hành động nào — agent chỉ trả lời và chuyển nhân viên",
+    "fallback": {
+      "no_model_route": "Chưa cấu hình mô hình AI — đây là bản theo mẫu, chưa dùng AI. Anh xem lại rồi xác nhận nhé:",
+      "structured_unsupported": "Mô hình hiện tại chưa hỗ trợ soạn theo khuôn — đây là bản theo mẫu, chưa dùng AI:",
+      "malformed_output": "AI trả về sai khuôn — đây là bản theo mẫu (đã tính lượt gọi AI):"
+    },
+    "warn": {
+      "no_candidate_tools": "Không tìm thấy hành động nào phù hợp mà anh có quyền cấp.",
+      "tools_revoked": "Một số hành động đã bị bỏ vì quyền vừa thay đổi.",
+      "keyword_discovery": "Hành động được tìm theo từ khoá (kho tìm kiếm ngữ nghĩa chưa sẵn sàng)."
+    }
+  }
+}

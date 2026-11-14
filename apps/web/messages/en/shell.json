@@ -1,0 +1,91 @@
+{
+  "nav": {
+    "dashboard": "Overview",
+    "assistant": "AI Assistant",
+    "inbox": "Inbox",
+    "customers": "Customers",
+    "tickets": "Support",
+    "marketing": "Marketing",
+    "calendar": "Bookings",
+    "agents": "AI Agents",
+    "loyalty": "Loyalty",
+    "quotes": "Quotes",
+    "contracts": "Contracts",
+    "orders": "Orders",
+    "products": "Products",
+    "invoices": "Payment requests",
+    "settings": "Settings",
+    "more": "More"
+  },
+  "collapse": "Collapse",
+  "expand": "Expand",
+  "assistantFly": {
+    "title": "AI Assistant · AppChat",
+    "chats": "Conversations",
+    "actions": "Action log",
+    "approvals": "Approvals"
+  },
+  "crmFly": {
+    "title": "Customers & CRM",
+    "customers": "Customers",
+    "products": "Products",
+    "quotes": "Quotes",
+    "orders": "Sales orders",
+    "invoices": "Payment requests",
+    "contracts": "Contracts",
+    "loyalty": "Loyalty members"
+  },
+  "notifications": {
+    "label": "Alerts",
+    "title": "Notifications",
+    "markRead": "Mark all as read"
+  },
+  "upgrade": "Upgrade",
+  "news": {
+    "title": "News & updates",
+    "body": "AppChat just launched Claude Cowork & Voice AI for new plans."
+  },
+  "trial": {
+    "active": "Personal Pro trial · {days} days left",
+    "free": "Free plan"
+  },
+  "user": {
+    "onDuty": "On duty",
+    "switchWorkspace": "Switch workspace",
+    "profile": "My profile",
+    "accountSettings": "Account settings",
+    "language": "Language",
+    "helpCenter": "Help center",
+    "supportChat": "Chat with support",
+    "wallet": "AppChat wallet",
+    "logout": "Sign out"
+  },
+  "planExpired": {
+    "title": "Your {plan} plan has expired",
+    "body": "The plan expired on {at}: AI and plan limits are paused. Inbox, data and top-up credits are kept.",
+    "retain": "Data is kept until {at}. Renew before then to keep full access.",
+    "renew": "Renew",
+    "askOwner": "Ask the Owner to renew the plan.",
+    "close": "Close"
+  },
+  "billingNotice": {
+    "lowTitle": "{level}% of plan credits used",
+    "lowBody": "Your plan credits are running low. Top up so AI is not interrupted — there is no auto top-up.",
+    "exhaustedTitle": "Out of AI credits",
+    "exhaustedBody": "AI is paused: conversations the AI was answering have been handed to people. Inbox, data and manual replies keep working.",
+    "restoredTitle": "Credits are back",
+    "restoredBody": "AI can be used again. Conversations handed to people stay with them — turn AI back on per conversation when needed.",
+    "topup": "Top up credits",
+    "askOwner": "Ask the workspace owner to top up credits.",
+    "close": "Close"
+  },
+  "dock": {
+    "title": "AI Assistant",
+    "subtitle": "Compact mode · help right on this screen",
+    "placeholder": "Ask the assistant…",
+    "openFull": "Open full screen",
+    "greeting": "I can summarise, draft content or act for you right on this screen.",
+    "quick": "Quick actions",
+    "send": "Send"
+  }
+}

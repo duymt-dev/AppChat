@@ -1,0 +1,174 @@
+# Sinh fixtures/prototype-parity/inbox.json từ dữ liệu prototype L1505–2226 (kênh map về 3 kênh phát hành).
+import json
+
+CH = {
+    "zalo_personal": {"label": "Zalo cá nhân", "short": "Z", "color": "#0068FF"},
+    "webchat": {"label": "Live chat web", "short": "⌘", "color": "#231F20"},
+    "email": {"label": "Email", "short": "@", "color": "#1F8A4D"},
+}
+
+
+def tag(label, tone):
+    return {"label": label, "tone": tone}
+
+
+convs = [
+    {"id": "c_lan", "kind": "direct", "title": "Chị Lan — Spa Hương Sen", "initials": "CL", "hue": "hsl(12 62% 52%)", "channel": "zalo_personal", "account": "Shop Bé Na", "time": "11:42", "preview": "Spa ơi cho mình hỏi mẫu váy trẻ em in họa tiết size 3-5…", "tags": [tag("⭐ VIP", "vip"), tag("Zalo cá nhân", "channel")], "unread": 3, "online": True, "contact_id": "ct_lan", "presence": "đang gõ…", "pinned_note": "Khách nhờ <b>giữ buổi liệu trình HIFU lúc 14:00 hôm nay</b>", "ai_state": "idle"},
+    {"id": "g_vip", "kind": "group", "title": "Nhóm VIP Spa Hương Sen", "initials": "CL", "hue": "hsl(12 62% 52%)", "more": "+22", "more_hue": "hsl(150 50% 40%)", "channel": "zalo_personal", "account": "Nhóm Zalo", "time": "11:40", "preview_sender": "Hồng Nhung", "preview": "Gói 8 buổi giá bao nhiêu vậy shop?", "tags": [tag("Nhóm · 24", "group"), tag("3 chưa trả lời", "warn")], "unread": 7, "members": 24, "online_count": 3, "contact_id": None, "ai_state": "idle"},
+    {"id": "g_daily", "kind": "group", "title": "Cộng đồng Đại lý miền Bắc", "initials": "ĐL", "hue": "hsl(210 70% 50%)", "more": "+46", "more_hue": "hsl(280 45% 52%)", "channel": "zalo_personal", "account": "Nhóm Zalo", "time": "10:15", "preview_sender": "AI CSKH", "preview": "Đã gửi bảng giá sỉ quý IV cho cả nhóm", "tags": [tag("Nhóm · 48", "group"), tag("AI auto", "ai")], "unread": 0, "members": 48, "online_count": 5, "contact_id": None, "ai_state": "idle"},
+    {"id": "c_hieu", "kind": "direct", "title": "Nguyễn Trung Hiếu", "initials": "NH", "hue": "hsl(210 70% 50%)", "channel": "webchat", "account": "bamboehome.vn", "time": "11:38", "preview": "Ok mình chuyển khoản luôn nhé, số TK gửi lại mình với", "tags": [tag("Hot lead", "hot")], "unread": 1, "contact_id": "ct_lan", "presence": "vừa truy cập", "ai_state": "handoff", "handoff_reason": "Khách hỏi số tài khoản để chuyển khoản — cần người xác nhận", "ai_draft": "Dạ anh Hiếu, em gửi lại thông tin chuyển khoản: Vietcombank · 0071 000 888 999 · CÔNG TY TNHH HƯƠNG SEN. Anh ghi nội dung DH-290412 giúp em ạ."},
+    {"id": "c_linh", "kind": "direct", "title": "Linh Phạm", "initials": "LP", "hue": "hsl(280 55% 55%)", "channel": "webchat", "account": "spahuongsen.vn", "time": "11:24", "preview": "[Đơn #DH-290411] Hàng bao giờ giao được ạ?", "tags": [tag("Order tracking", "channel"), tag("AI auto", "ai")], "unread": 0, "contact_id": "ct_lan", "ai_state": "running"},
+    {"id": "c_mai", "kind": "direct", "title": "Cô Mai — Spa Hương Sen", "initials": "CM", "hue": "hsl(12 62% 52%)", "channel": "zalo_personal", "account": "Spa Hương Sen", "time": "10:55", "preview": "Cho chị đặt lịch liệu trình chăm sóc da mặt cuối tuần…", "tags": [tag("⭐ VIP", "vip"), tag("Đặt lịch", "channel")], "unread": 2, "contact_id": "ct_lan", "ai_state": "idle"},
+    {"id": "c_khoa", "kind": "direct", "title": "Trần Minh Khoa", "initials": "TK", "hue": "hsl(150 50% 42%)", "channel": "email", "account": "sales@bena.vn", "time": "10:41", "preview": "Giá sỉ 100 cái loại áo này bao nhiêu anh?", "tags": [tag("Wholesale", "channel")], "unread": 0, "contact_id": "ct_lan", "ai_state": "idle"},
+    {"id": "c_rodriguez", "kind": "direct", "title": "J. Rodriguez", "initials": "JR", "hue": "hsl(0 0% 45%)", "channel": "email", "account": "cskh@huongsen.vn", "time": "09:30", "preview": "Return request for order #114-7823449 — damaged", "tags": [tag("Return", "hot")], "unread": 0, "contact_id": "ct_lan", "ai_state": "idle"},
+    {"id": "c_quynh", "kind": "direct", "title": "Phạm Quỳnh Anh", "initials": "PQ", "hue": "hsl(330 55% 52%)", "channel": "zalo_personal", "account": "Shop Bé Na", "time": "09:12", "preview": "Đã chuyển khoản 890.000đ — gửi ảnh bill nha shop", "tags": [tag("Paid", "ai"), tag("AI auto", "ai")], "unread": 0, "contact_id": "ct_lan", "ai_state": "idle"},
+    {"id": "c_yen", "kind": "direct", "title": "Hoàng Yến", "initials": "HY", "hue": "hsl(40 70% 48%)", "channel": "webchat", "account": "bamboehome.vn", "time": "08:47", "preview": "Shop còn mẫu áo len cổ lọ màu kem không ạ?", "tags": [tag("AI auto", "ai")], "unread": 0, "contact_id": "ct_lan", "ai_state": "idle"},
+]
+
+lan_thread = [
+    {"id": "m1", "kind": "system", "body": "AI Cowork đã chuyển hội thoại cho <b>Trâm (Sales Lead)</b> · 10:42"},
+    {"id": "m2", "kind": "date", "body": "Hôm nay · 20/04/2026"},
+    {"id": "m3", "kind": "text", "direction": "in", "body": "Em ơi, bên spa mình còn lịch HIFU chiều nay không ạ? Chị muốn đặt buổi 6 trong liệu trình.", "time": "10:38", "menu": True},
+    {"id": "m4", "kind": "image", "direction": "in", "body": "Soi da tuần trước", "time": "10:38"},
+    {"id": "m5", "kind": "audio", "direction": "in", "body": "0:12"},
+    {"id": "m6", "kind": "ai_insight", "body": "Ý định <b>MUA HÀNG</b> · giọng nói → text", "confidence": 92},
+    {"id": "m7", "kind": "text", "direction": "out", "body": "Dạ chị ơi, em check kho ngay giúp chị 💚", "time": "10:40", "status": "read"},
+    {"id": "m8", "kind": "sticker", "direction": "out", "body": "💚", "time": "10:40", "status": "read"},
+    {"id": "m9", "kind": "card", "direction": "out", "title": "HIFU nâng cơ + Mesotherapy", "sub": "LT-HIFU-06 · Còn lịch 14:00", "price": "1500000", "unit": "buổi", "time": "10:41", "status": "read"},
+    {"id": "m10", "kind": "file", "direction": "in", "body": "bang-size-be-na.pdf", "meta": "PDF · 420 KB · 2 trang"},
+    {"id": "m11", "kind": "typing", "body": "Chị Lan đang soạn…"},
+]
+group_thread = [
+    {"id": "gm0", "kind": "system", "body": "Nhóm Zalo · 24 thành viên · <b>AI CSKH</b> trả lời khi được @nhắc tên"},
+    {"id": "gm1", "kind": "date", "body": "Hôm nay"},
+    {"id": "gm2", "kind": "text", "direction": "in", "sender": "Mai Phương", "sender_initials": "MP", "sender_hue": "hsl(24 60% 52%)", "sender_color": "#C2410C", "body": "Tháng 11 còn slot HIFU cuối tuần không ạ? Mình muốn đặt cho 2 người.", "time": "11:15"},
+    {"id": "gm3", "kind": "text", "direction": "in", "sender": "Anh Tuấn", "sender_initials": "AT", "sender_hue": "hsl(200 55% 45%)", "sender_color": "#0369A1", "body": "Hôm qua mình chờ gần 40 phút mới được làm, hơi lâu shop ạ.", "time": "10:52"},
+    {"id": "gm4", "kind": "text", "direction": "out", "agent": True, "sender": "AI CSKH · trả lời @Chị Lan", "body": "Dạ chị Lan, liệu trình của chị còn <b>3 buổi</b>, hạn dùng đến 30/12. Em giữ lịch 14:00 thứ Bảy cho chị nhé ạ 💚", "time": "11:31", "status": "read"},
+    {"id": "gm5", "kind": "text", "direction": "in", "sender": "Hồng Nhung", "sender_initials": "HN", "sender_hue": "hsl(330 50% 52%)", "sender_color": "#BE185D", "body": "Gói 8 buổi giá bao nhiêu vậy shop? Có ưu đãi cho thành viên mới không?", "time": "11:40"},
+    {"id": "gm6", "kind": "group_alert", "title": "3 câu hỏi trong nhóm chưa ai trả lời", "body": "AI không tự trả lời vì chưa được @nhắc tên. Mở <b>Hồ sơ 360° nhóm</b> để giao AI hoặc xử lý từng câu."},
+]
+hieu_thread = [
+    {"id": "h1", "kind": "date", "body": "Hôm nay"},
+    {"id": "h2", "kind": "text", "direction": "in", "body": "Shop ơi gói HIFU 8 buổi còn ưu đãi không?", "time": "11:30"},
+    {"id": "h3", "kind": "text", "direction": "out", "agent": True, "sender": "AI CSKH", "body": "Dạ còn ạ, gói 8 buổi đang giảm 10% đến hết tháng 💚", "time": "11:31", "status": "read"},
+    {"id": "h4", "kind": "text", "direction": "in", "body": "Ok mình chuyển khoản luôn nhé, số TK gửi lại mình với", "time": "11:38"},
+]
+
+contact_lan = {
+    "id": "ct_lan", "name": "Chị Lan", "initials": "CL", "avatar_color": "#C2410C", "tier": "Kim cương", "since": "VIP từ 06/2024", "stage_label": "Khách hàng tiềm năng",
+    "lead_score": 82, "lead_level": "Cao", "phone": "0987 123 421", "company": "Shop Bé Na", "email": "lan.tran@gmail.com", "role": "Chủ shop",
+    "points": "2480", "points_value": "24800",
+    "journey": {"stage": "Cân nhắc", "hint": "Khách đang cân nhắc — gửi ưu đãi/giải đáp lo ngại để chốt"},
+    "ai_summary": {"badge": "Hot Lead", "close_pct": 78, "bullets": ["Đã trao đổi <b>5 lần</b> trong 14 ngày", "Quan tâm: <b>CRM, Zalo cá nhân</b>", "Ngân sách: <b>20 – 50 triệu</b>", "Việc cần làm: <b data-tone=\"ok\">Hẹn demo tuần này</b>"]},
+    "deal": {"title": "Liệu trình HIFU + Combo da", "value": "48000000", "stage": "Demo", "probability": 70, "close_date": "15/06/2026", "need": "Khách cần liệu trình HIFU + combo da cho Shop Bé Na; ngân sách 20–50 triệu; ưu tiên demo trong tuần này."},
+    "history": [
+        {"icon": "ic-inbox", "tone": "zalo", "when": "Hôm nay 09:17", "text": "Chat Zalo — yêu cầu báo giá & demo"},
+        {"icon": "ic-doc", "tone": "ok", "when": "Hôm nay 09:18", "text": "Đã gửi Báo giá liệu trình.pdf"},
+        {"icon": "ic-mail", "tone": "red", "when": "Hôm qua", "text": "Mở email báo giá (2 lần)"},
+        {"icon": "ic-phone", "tone": "brand", "when": "02/06", "text": "Cuộc gọi 15 phút — tư vấn tính năng"},
+    ],
+    "tasks": [
+        {"id": "t1", "title": "Gọi lại cho khách", "due": "Hôm nay", "done": True},
+        {"id": "t2", "title": "Gửi báo giá liệu trình", "due": "Hôm nay", "done": True},
+        {"id": "t3", "title": "Demo sản phẩm", "due": "10/06/2026", "done": False, "cal": True},
+        {"id": "t4", "title": "Ký hợp đồng", "due": "—", "done": False},
+    ],
+    "note": {"body": "Khách quan tâm liệu trình HIFU và chăm sóc da. Ưu tiên hẹn demo trong tuần này.", "meta": "Trâm · 02/06/2026 10:35"},
+    "comments": [{"author": "Trâm", "initial": "T", "body": "Cần gửi thêm case study ngành làm đẹp", "at": "02/06/2026 10:36"}],
+    "crm": {
+        "kpis": [["Giá trị vòng đời (LTV)", "86,5tr"], ["Tổng đơn", "14"], ["Giá trị đơn TB", "6,2tr"], ["Tần suất mua", "~45 ngày"]],
+        "open_deal": {"title": "Liệu trình HIFU + Combo da", "meta": "Giai đoạn: Demo · xác suất 70%", "value": "48tr"},
+        "recent_order": {"title": "Đơn #DH-290411 · HIFU 8 buổi", "status": "Đã cọc"},
+        "recent_payment": {"title": "ĐNTT-1180 · liệu trình năm", "status": "Đã thanh toán"},
+        "segments": [["⭐ VIP Kim cương", "vip"], ["Khách thân thiết", "ai"], ["Nhạy giá", "channel"], ["Quan tâm HIFU", "violet"]],
+    },
+    "ai": {
+        "bars": [["Cảm xúc", "Tích cực · 78%", 78, "ok"], ["Ý định mua", "Cao · 84%", 84, "brand"], ["Mức độ gắn bó", "Tốt · 72%", 72, "blue"]],
+        "signals": [["up", "Hỏi giá <b>3 lần</b> trong tuần · mở báo giá 2 lần/24h — tín hiệu mua rõ."], ["warn", "Đang cân nhắc <b>1 đối thủ</b> — nên gửi ưu đãi giữ chân."]],
+        "predict": {"close": "84%", "revenue": "~52tr"},
+        "churn": "<b>Cảnh báo churn thấp.</b> Đang cân nhắc 1 đối thủ — gợi ý gửi ưu đãi giữ chân.",
+        "nba": ["Chốt lịch demo trước thứ Sáu", "Gửi voucher ưu đãi VIP −10%"],
+    },
+    "timeline": [
+        {"icon": "ic-inbox", "tone": "zalo", "when": "Hôm nay 11:42 · Zalo cá nhân", "text": "Hỏi lịch HIFU chiều nay · yêu cầu báo giá"},
+        {"icon": "ic-doc", "tone": "amber", "when": "Hôm nay 09:18 · Báo giá", "text": "Gửi báo giá liệu trình HIFU.pdf"},
+        {"icon": "ic-phone", "tone": "brand", "when": "02/06 · Cuộc gọi", "text": "Gọi 15 phút — tư vấn liệu trình"},
+        {"icon": "ic-cart", "tone": "violet", "when": "12/05 · Đơn hàng", "text": "Mua liệu trình da mặt · 8,5tr"},
+        {"icon": "ic-users", "tone": "muted", "when": "06/2024 · Nguồn", "text": "Tạo hồ sơ từ Zalo cá nhân"},
+    ],
+    "files": [
+        {"ext": "PDF", "tone": "red", "name": "bang-size-be-na.pdf", "meta": "420 KB · 20/04"},
+        {"ext": "PDF", "tone": "amber", "name": "Báo giá liệu trình HIFU.pdf", "meta": "Gửi 09:18 · 2 lần mở"},
+    ],
+}
+
+accounts = [
+    {"id": "a1", "channel": "zalo_personal", "name": "Zalo cá nhân · Spa Hương Sen", "count": 42},
+    {"id": "a2", "channel": "zalo_personal", "name": "Zalo cá nhân · Shop Bé Na", "count": 28},
+    {"id": "a3", "channel": "zalo_personal", "name": "Zalo cá nhân · Trâm", "count": 11},
+    {"id": "a4", "channel": "zalo_personal", "name": "Zalo cá nhân · CSKH 0907 711 888", "count": 24},
+    {"id": "a5", "channel": "zalo_personal", "name": "Zalo cá nhân · Sales Hồng", "count": 13},
+    {"id": "a6", "channel": "zalo_personal", "name": "Zalo cá nhân · KTV Mai", "count": 9},
+    {"id": "a7", "channel": "webchat", "name": "Live chat · bamboehome.vn", "count": 14},
+    {"id": "a8", "channel": "webchat", "name": "Live chat · spahuongsen.vn", "count": 8},
+    {"id": "a9", "channel": "email", "name": "Email · cskh@huongsen.vn", "count": 11},
+    {"id": "a10", "channel": "email", "name": "Email · sales@bena.vn", "count": 6},
+]
+
+folders = {
+    "tabs": [["all", 128, None], ["mine", 18, "brand"], ["mention", 4, "amber"], ["unread", 23, None], ["ai_pending_approval", 7, "violet"], ["vip", 24, None], ["complaint", 2, None]],
+    "mailbox": [["all", "ic-inbox", 128], ["unread", "ic-mail", 23], ["mention", "@", 4], ["starred", "ic-star", 12], ["mine", "ic-users", 18], ["team", "ic-users", 56], ["spam", "ic-shield", 2]],
+    "ai": [["ai_running", "ic-bot", 41], ["ai_pending_approval", "ic-spark", 7], ["needs_human", "ic-bell", 3]],
+    "channels": [["zalo_personal", 81], ["webchat", 22], ["email", 17]],
+    "saved": [["⭐ Khách VIP", 24], ["🛒 Giỏ hàng chờ", 17], ["⚠️ Khiếu nại mới", 2]],
+    "synced": 3,
+}
+
+connect = [
+    {"type": "zalo_personal", "name": "Zalo cá nhân", "tag": "Quét QR đăng nhập", "status": "ga", "time": "2 phút", "short": "Z", "color": "#0068FF", "cat": "social"},
+    {"type": "zalo_oa", "name": "Zalo OA", "tag": "Phổ biến nhất VN", "status": "coming_soon", "time": "5 phút", "short": "Z", "color": "#0068FF", "cat": "social"},
+    {"type": "facebook", "name": "Facebook Page", "tag": "Inbox + comment page", "status": "coming_soon", "time": "3 phút", "short": "f", "color": "#1877F2", "cat": "social"},
+    {"type": "messenger", "name": "Facebook Messenger", "tag": "Tự động sync comment", "status": "coming_soon", "time": "3 phút", "short": "M", "color": "#0084FF", "cat": "social"},
+    {"type": "whatsapp", "name": "WhatsApp Cá nhân", "tag": "Quét QR Web", "status": "coming_soon", "time": "2 phút", "short": "W", "color": "#25D366", "cat": "social"},
+    {"type": "whatsapp_business", "name": "WhatsApp Business", "tag": "Cloud API chính thức", "status": "coming_soon", "time": "15 phút", "short": "W", "color": "#128C7E", "cat": "social"},
+    {"type": "viber", "name": "Viber Business", "tag": "Broadcast + chat", "status": "coming_soon", "time": "10 phút", "short": "V", "color": "#7360F2", "cat": "social"},
+    {"type": "telegram", "name": "Telegram", "tag": "Bot API", "status": "coming_soon", "time": "2 phút", "short": "✈", "color": "#229ED9", "cat": "social"},
+    {"type": "line", "name": "LINE OA", "tag": "OA + broadcast", "status": "coming_soon", "time": "10 phút", "short": "L", "color": "#06C755", "cat": "social"},
+    {"type": "google_business", "name": "Google Business", "tag": "Maps · review · chat", "status": "coming_soon", "time": "5 phút", "short": "G", "color": "#4285F4", "cat": "web"},
+    {"type": "webchat", "name": "Live Chat Website", "tag": "Widget nhúng web", "status": "ga", "time": "5 phút", "short": "⌘", "color": "#231F20", "cat": "web"},
+    {"type": "email", "name": "Email", "tag": "IMAP/SMTP", "status": "ga", "time": "5 phút", "short": "@", "color": "#1F8A4D", "cat": "web"},
+]
+
+groups = {
+    "g_vip": {
+        "members_total": 24, "members_hint": "3 nhân viên · 15 khách hàng · 6 chưa có hồ sơ",
+        "members": [["Trâm", "TR", "hsl(150 55% 38%)", "Quản trị · Nhân viên"], ["Chị Lan Nguyễn", "CL", "hsl(12 62% 52%)", "Khách VIP"], ["Mai Phương", "MP", "hsl(24 60% 52%)", "Khách hàng"], ["Anh Tuấn", "AT", "hsl(200 55% 45%)", "Khách hàng"], ["Hồng Nhung", "HN", "hsl(330 50% 52%)", "Chưa có hồ sơ"], ["Thu Hà", "TH", "hsl(260 45% 55%)", "Chưa có hồ sơ"]],
+        "join_link": "zalo.me/g/huongsen-vip",
+        "pinned_sub": "2 tin · Lịch liệu trình tháng 11",
+        "media": [["Ảnh không gian spa", 150, "ẢNH"], ["Video liệu trình HIFU", 200, "VIDEO"], ["Ảnh khuyến mãi T10", 30, "ẢNH"], ["Bill chuyển khoản — Mai Phương", 260, "BILL"], ["Ảnh trước–sau", 330, "ẢNH"], ["Ảnh phòng VIP", 170, "ẢNH"], ["Video giới thiệu", 210, "VIDEO"], ["Ảnh đội ngũ", 90, "ẢNH"]],
+        "files": [["PDF", "Bảng giá liệu trình tháng 11.pdf", "Trâm · 24/10 · 1,2 MB"], ["XLSX", "Lịch hoạt động spa Q4.xlsx", "Trâm · 20/10 · 86 KB"], ["DOCX", "Quy định thành viên VIP.docx", "Trâm · 12/03 · 42 KB"]],
+        "links": [["Đặt lịch online — Spa Hương Sen", "huongsen.vn/dat-lich"], ["Form khảo sát hài lòng", "forms.gle/hs-khaosat"]],
+        "unanswered": 3, "ai_policy": "mention",
+    }
+}
+
+canned = [
+    {"group": "Chào hỏi", "items": [["/chao", "Chào mở đầu", "Dạ em chào anh/chị {tên} ạ, em có thể hỗ trợ gì cho mình?"], ["/camon", "Cảm ơn", "Em cảm ơn anh/chị {tên} đã tin tưởng spa mình ạ!"]]},
+    {"group": "Bảng giá", "items": [["/gia", "Báo giá HIFU", "Liệu trình HIFU nâng cơ 8 buổi hiện ưu đãi 12.8tr ạ."], ["/combo", "Combo da mặt", "Combo chăm sóc da 5 bước chỉ 9.5tr cho cả liệu trình ạ."]]},
+    {"group": "Chính sách", "items": [["/diachi", "Địa chỉ", "Spa mình ở 123 Nguyễn Huệ, Q.1 ạ. Mở 9h-21h hằng ngày."], ["/doilich", "Đổi lịch", "Mình có thể đổi lịch trước 24h, em hỗ trợ sắp xếp ngay ạ."]]},
+    {"group": "Chăm sóc sau dịch vụ", "items": [["/cssau", "Dặn dò sau HIFU", "Sau HIFU mình tránh nắng, uống nhiều nước và dưỡng ẩm ạ."], ["/taikham", "Nhắc tái khám", "Em nhắc anh/chị {tên} lịch tái khám định kỳ sau 30 ngày ạ."]]},
+]
+slots = [
+    {"day": "21", "mon": "TH4", "time": "09:30 - 10:30", "staff": "KTV Hồng · còn trống", "best": True},
+    {"day": "21", "mon": "TH4", "time": "15:00 - 16:00", "staff": "KTV Mai · còn trống", "best": False},
+    {"day": "22", "mon": "TH5", "time": "10:00 - 11:00", "staff": "KTV Hồng · còn trống", "best": False},
+]
+out = {"canned_replies": canned, "slots": slots,
+    "channels": CH, "folders": folders, "accounts": accounts, "conversations": convs,
+    "messages": {"c_lan": lan_thread, "g_vip": group_thread, "c_hieu": hieu_thread},
+    "suggestions": {"c_lan": {"text": "Dạ chị Lan ơi, chiều nay spa còn <b>khung 14:00</b> ạ 💚 Em giữ chỗ buổi 6 (HIFU + Meso) cho chị nhé. Chị mang theo sổ liệu trình giúp em ạ!", "confidence": 92}},
+    "contacts": {"ct_lan": contact_lan}, "connect_channels": connect, "groups": groups,
+}
+with open("fixtures/prototype-parity/inbox.json", "w", encoding="utf-8") as f:
+    json.dump(out, f, ensure_ascii=False, indent=1)
+print("ok", len(convs))

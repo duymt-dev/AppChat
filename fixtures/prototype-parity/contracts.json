@@ -1,0 +1,535 @@
+{
+  "contracts": [
+    {
+      "id": "ctr_1180",
+      "code": "HĐ-1180",
+      "number": "1180/2026/HĐDV",
+      "kind": "service",
+      "contact_id": "ct_lan",
+      "contact_name": "Chị Lan",
+      "phone": "0903 123 456",
+      "quote_id": null,
+      "quote_code": "BG-2040",
+      "title": "Liệu trình HIFU 8 buổi",
+      "value": "12800000",
+      "signed_date": "2026-06-16",
+      "start_date": "2026-06-16",
+      "end_date": "2026-12-16",
+      "owner_user_id": "u_minh",
+      "owner_name": "Minh",
+      "status": "signed",
+      "created_at": "2026-06-16T08:30:00+07:00",
+      "sent_at": "2026-06-16T09:00:00+07:00",
+      "signed_by_customer_at": "2026-06-16T10:08:00+07:00",
+      "sign_token": null,
+      "sign_link_expires_at": null,
+      "otp_fails": 0,
+      "signed_sha256": null,
+      "renewal_of_id": null,
+      "terminated_reason": "",
+      "note": "",
+      "file_name": "",
+      "events": [
+        {
+          "type": "created_from_quote",
+          "at": "2026-06-16T08:30:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "submitted",
+          "at": "2026-06-16T08:40:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "approved_signed",
+          "at": "2026-06-16T08:50:00+07:00",
+          "actor": "Chủ sở hữu"
+        },
+        {
+          "type": "sent",
+          "at": "2026-06-16T09:00:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "opened",
+          "at": "2026-06-16T10:05:00+07:00",
+          "actor": "Chị Lan"
+        },
+        {
+          "type": "otp_ok",
+          "at": "2026-06-16T10:07:00+07:00",
+          "actor": "Chị Lan"
+        },
+        {
+          "type": "signed",
+          "at": "2026-06-16T10:08:00+07:00",
+          "actor": "Chị Lan"
+        }
+      ],
+      "ai": {
+        "hint": "Nên chăm sóc lại — 18 ngày chưa liên hệ",
+        "wait": false
+      }
+    },
+    {
+      "id": "ctr_1181",
+      "code": "HĐ-1181",
+      "number": "",
+      "kind": "sale",
+      "contact_id": "ct_vy",
+      "contact_name": "Phương Vy",
+      "phone": "0978 456 789",
+      "quote_id": null,
+      "quote_code": "BG-2041",
+      "title": "Combo chăm sóc da mặt",
+      "value": "9500000",
+      "signed_date": "2026-06-17",
+      "start_date": null,
+      "end_date": null,
+      "owner_user_id": "u_tram",
+      "owner_name": "Trâm",
+      "status": "pending_signature",
+      "created_at": "2026-06-17T08:30:00+07:00",
+      "sent_at": "2026-06-17T09:00:00+07:00",
+      "signed_by_customer_at": null,
+      "sign_token": "tk_1181_demo",
+      "sign_link_expires_at": "2026-06-24T15:00:00+07:00",
+      "otp_fails": 0,
+      "signed_sha256": null,
+      "renewal_of_id": null,
+      "terminated_reason": "",
+      "note": "",
+      "file_name": "",
+      "events": [
+        {
+          "type": "created_from_quote",
+          "at": "2026-06-17T08:30:00+07:00",
+          "actor": "Trâm"
+        },
+        {
+          "type": "submitted",
+          "at": "2026-06-17T08:40:00+07:00",
+          "actor": "Trâm"
+        },
+        {
+          "type": "approved_signed",
+          "at": "2026-06-17T08:50:00+07:00",
+          "actor": "Chủ sở hữu"
+        },
+        {
+          "type": "sent",
+          "at": "2026-06-17T09:00:00+07:00",
+          "actor": "Trâm"
+        }
+      ],
+      "ai": {
+        "hint": "Gửi ưu đãi giữ chân khách",
+        "wait": false
+      }
+    },
+    {
+      "id": "ctr_1182",
+      "code": "HĐ-1182",
+      "number": "",
+      "kind": "framework",
+      "contact_id": "ct_dung",
+      "contact_name": "Anh Dũng",
+      "phone": "0912 345 678",
+      "quote_id": null,
+      "quote_code": "BG-2042",
+      "title": "Gói triệt lông năm",
+      "value": "22000000",
+      "signed_date": "2026-06-18",
+      "start_date": null,
+      "end_date": null,
+      "owner_user_id": "u_khoa",
+      "owner_name": "Khoa",
+      "status": "draft",
+      "created_at": "2026-06-18T08:30:00+07:00",
+      "sent_at": null,
+      "signed_by_customer_at": null,
+      "sign_token": null,
+      "sign_link_expires_at": null,
+      "otp_fails": 0,
+      "signed_sha256": null,
+      "renewal_of_id": null,
+      "terminated_reason": "",
+      "note": "",
+      "file_name": "",
+      "events": [
+        {
+          "type": "created_from_quote",
+          "at": "2026-06-18T08:30:00+07:00",
+          "actor": "Khoa"
+        }
+      ],
+      "ai": {
+        "hint": "Nhắc thanh toán / theo dõi đơn",
+        "wait": true
+      }
+    },
+    {
+      "id": "ctr_1179",
+      "code": "HĐ-1179",
+      "number": "1179/2026/HĐDV",
+      "kind": "service",
+      "contact_id": "ct_baoan",
+      "contact_name": "Cty Bảo An",
+      "phone": "028 7300 5588",
+      "quote_id": null,
+      "quote_code": "BG-2043",
+      "title": "Dịch vụ AI 12 tháng",
+      "value": "48000000",
+      "signed_date": "2026-06-02",
+      "start_date": "2026-06-02",
+      "end_date": "2027-06-02",
+      "owner_user_id": "u_minh",
+      "owner_name": "Minh",
+      "status": "signed",
+      "created_at": "2026-06-02T08:30:00+07:00",
+      "sent_at": "2026-06-02T09:00:00+07:00",
+      "signed_by_customer_at": "2026-06-02T10:08:00+07:00",
+      "sign_token": null,
+      "sign_link_expires_at": null,
+      "otp_fails": 0,
+      "signed_sha256": null,
+      "renewal_of_id": null,
+      "terminated_reason": "",
+      "note": "",
+      "file_name": "",
+      "events": [
+        {
+          "type": "created_from_quote",
+          "at": "2026-06-02T08:30:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "submitted",
+          "at": "2026-06-02T08:40:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "approved_signed",
+          "at": "2026-06-02T08:50:00+07:00",
+          "actor": "Chủ sở hữu"
+        },
+        {
+          "type": "sent",
+          "at": "2026-06-02T09:00:00+07:00",
+          "actor": "Minh"
+        },
+        {
+          "type": "opened",
+          "at": "2026-06-02T10:05:00+07:00",
+          "actor": "Cty Bảo An"
+        },
+        {
+          "type": "otp_ok",
+          "at": "2026-06-02T10:07:00+07:00",
+          "actor": "Cty Bảo An"
+        },
+        {
+          "type": "signed",
+          "at": "2026-06-02T10:08:00+07:00",
+          "actor": "Cty Bảo An"
+        }
+      ],
+      "ai": {
+        "hint": "Đề xuất upsell combo phù hợp",
+        "wait": false
+      }
+    },
+    {
+      "id": "ctr_1178",
+      "code": "HĐ-1178",
+      "number": "",
+      "kind": "sale",
+      "contact_id": "ct_maianh",
+      "contact_name": "Mai Anh",
+      "phone": "0934 222 111",
+      "quote_id": null,
+      "quote_code": "BG-2044",
+      "title": "Gói chăm sóc 3 tháng",
+      "value": "6200000",
+      "signed_date": "2026-03-10",
+      "start_date": "2026-03-10",
+      "end_date": "2026-06-10",
+      "owner_user_id": "u_huong",
+      "owner_name": "Hương",
+      "status": "expired",
+      "created_at": "2026-03-10T08:30:00+07:00",
+      "sent_at": "2026-03-10T09:00:00+07:00",
+      "signed_by_customer_at": "2026-03-10T10:08:00+07:00",
+      "sign_token": null,
+      "sign_link_expires_at": null,
+      "otp_fails": 0,
+      "signed_sha256": null,
+      "renewal_of_id": null,
+      "terminated_reason": "",
+      "note": "",
+      "file_name": "",
+      "events": [
+        {
+          "type": "created_from_quote",
+          "at": "2026-03-10T08:30:00+07:00",
+          "actor": "Hương"
+        },
+        {
+          "type": "submitted",
+          "at": "2026-03-10T08:40:00+07:00",
+          "actor": "Hương"
+        },
+        {
+          "type": "approved_signed",
+          "at": "2026-03-10T08:50:00+07:00",
+          "actor": "Chủ sở hữu"
+        },
+        {
+          "type": "sent",
+          "at": "2026-03-10T09:00:00+07:00",
+          "actor": "Hương"
+        },
+        {
+          "type": "opened",
+          "at": "2026-03-10T10:05:00+07:00",
+          "actor": "Mai Anh"
+        },
+        {
+          "type": "otp_ok",
+          "at": "2026-03-10T10:07:00+07:00",
+          "actor": "Mai Anh"
+        },
+        {
+          "type": "signed",
+          "at": "2026-03-10T10:08:00+07:00",
+          "actor": "Mai Anh"
+        },
+        {
+          "type": "expired",
+          "at": "2026-06-10T00:00:00+07:00",
+          "actor": "system"
+        }
+      ],
+      "ai": {
+        "hint": "Phản hồi gấp theo SLA",
+        "wait": false
+      }
+    }
+  ],
+  "crm": {
+    "ltv": "86500000",
+    "total": 4,
+    "tier": "Kim cương",
+    "debt": "0",
+    "others": [
+      {
+        "code": "HĐ-1102",
+        "title": "HIFU 4 buổi",
+        "value": "6400000"
+      },
+      {
+        "code": "HĐ-1044",
+        "title": "Combo da",
+        "value": "9500000"
+      }
+    ]
+  },
+  "insight": "Hợp đồng hiệu lực tốt, khách hạng Kim cương — xác suất gia hạn ~82%. Đề xuất chào gói nâng cấp trước khi hết hạn 30 ngày.",
+  "suggestions": [
+    "Đặt nhắc gia hạn trước 30 ngày",
+    "Gửi khảo sát hài lòng sau ký"
+  ],
+  "files": [
+    {
+      "name": "Hợp đồng dịch vụ đã ký.pdf",
+      "ext": "pdf",
+      "by": "esign",
+      "at": "2026-10-23",
+      "size": "320 KB"
+    },
+    {
+      "name": "Phụ lục bảng giá.xlsx",
+      "ext": "xlsx",
+      "by": "Trâm",
+      "at": "2026-10-22",
+      "size": "48 KB"
+    },
+    {
+      "name": "CCCD đại diện.jpg",
+      "ext": "jpg",
+      "by": "customer",
+      "at": "2026-10-21",
+      "size": ""
+    }
+  ],
+  "ai_runs": {
+    "risk": "Rà soát 5 hợp đồng: HĐ-1178 (Mai Anh) đã hết hạn 10/06 — đề xuất gia hạn kèm ưu đãi -10%. HĐ-1181 (Phương Vy) chờ ký quá 24h, nên nhắc lại.",
+    "draft": "Đã soạn dự thảo hợp đồng từ báo giá đã duyệt: thông tin bên A/B, phạm vi dịch vụ, giá trị, điều khoản thanh toán 50% cọc, hiệu lực 6 tháng. Bấm \"Tạo hợp đồng\" để lưu nháp.",
+    "renew": "2 hợp đồng sắp hết hạn trong 30 ngày (Cty Bảo An còn 11 tháng — chưa cần; Mai Anh đã hết). Đề xuất chiến dịch gia hạn qua Zalo / Email.",
+    "analyze": "Tổng giá trị hợp đồng đang hiệu lực: 60.8tr. Tỉ lệ ký thành công 68%. Hợp đồng rớt chủ yếu do chậm gửi ký — đề xuất bật nhắc tự động sau 24h."
+  },
+  "genui": [
+    {
+      "key": "risk",
+      "re": "rủi ro|rà soát",
+      "lead": "Rà soát rủi ro hợp đồng:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Đã hết hạn",
+                  "value": {
+                    "$ref": "step:1.expired"
+                  },
+                  "format": "number",
+                  "tone": "danger"
+                },
+                {
+                  "type": "stat",
+                  "label": "Chờ ký > 24h",
+                  "value": {
+                    "$ref": "step:1.waiting"
+                  },
+                  "format": "number",
+                  "tone": "warning"
+                }
+              ]
+            },
+            {
+              "type": "list",
+              "items": {
+                "$ref": "step:1.rows"
+              },
+              "title_key": "code",
+              "subtitle_key": "note",
+              "open": {
+                "entity": "contract",
+                "id_key": "id"
+              }
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "expired": 1,
+          "waiting": 1,
+          "rows": [
+            {
+              "id": "ctr_1178",
+              "code": "HĐ-1178",
+              "note": "Mai Anh · hết hạn 10/06"
+            },
+            {
+              "id": "ctr_1181",
+              "code": "HĐ-1181",
+              "note": "Phương Vy · chờ ký 30 giờ"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "key": "renew",
+      "re": "hết hạn|gia hạn",
+      "lead": "Hợp đồng cần gia hạn:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat",
+              "label": "Sắp / đã hết hạn",
+              "value": {
+                "$ref": "step:1.count"
+              },
+              "format": "number",
+              "tone": "warning"
+            },
+            {
+              "type": "button",
+              "label": "Lọc hợp đồng hết hạn",
+              "on": {
+                "kind": "ui",
+                "command": {
+                  "type": "filter",
+                  "table": "contracts",
+                  "filter": {
+                    "status": "expired"
+                  }
+                }
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "count": 2
+        }
+      }
+    },
+    {
+      "key": "analyze",
+      "re": "phân tích|giá trị|tỉ lệ ký",
+      "lead": "Tổng quan hợp đồng:",
+      "tree": {
+        "version": 1,
+        "root": {
+          "type": "stack",
+          "children": [
+            {
+              "type": "stat_group",
+              "stats": [
+                {
+                  "type": "stat",
+                  "label": "Giá trị hiệu lực",
+                  "value": {
+                    "$ref": "step:1.value"
+                  },
+                  "format": "money"
+                },
+                {
+                  "type": "stat",
+                  "label": "Tỉ lệ ký",
+                  "value": {
+                    "$ref": "step:1.rate"
+                  },
+                  "format": "percent",
+                  "tone": "success"
+                }
+              ]
+            },
+            {
+              "type": "progress",
+              "label": "Đã ký / tổng gửi",
+              "value": {
+                "$ref": "step:1.signed"
+              },
+              "max": {
+                "$ref": "step:1.sent"
+              },
+              "tone": "brand"
+            }
+          ]
+        }
+      },
+      "refs": {
+        "step:1": {
+          "value": 60800000,
+          "rate": 68,
+          "signed": 17,
+          "sent": 25
+        }
+      }
+    }
+  ]
+}

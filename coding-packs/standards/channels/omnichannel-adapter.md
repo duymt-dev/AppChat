@@ -1,7 +1,7 @@
 # Omnichannel — Channel Adapter
 
 > Mục tiêu: thêm một kênh mới (Zalo OA, Messenger, Instagram, Telegram, WhatsApp, TikTok, SMS…) = **thêm một adapter + một bản ghi manifest**. Không sửa Inbox, CRM, AI hay schema DB.
-> Kênh phát hành: `zalo_personal`, `webchat`, `email`. Các kênh khác dùng cùng khung, bật khi có adapter.
+> Kênh phát hành: `zalo_personal`, `webchat`, `email` + **D62:** `zalo_oa`, `facebook` (thẻ `messenger` mở luồng này), `instagram`, `tiktok_messaging` (Beta). Các kênh khác dùng cùng khung, "Sắp có" tới khi có adapter.
 
 ## Quy tắc
 
@@ -15,7 +15,9 @@
 6. **Gửi luôn qua outbox + rate limiter của kênh.** Không gửi đồng bộ trong request.
    - Limiter lấy từ `manifest.rateLimit`, được ghi đè bằng `channel_account.settings`.
 7. **Kiểu kết nối khai báo trong manifest:** `connect.kind = 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed'`. Modal kết nối dựng form từ kiểu này cộng `connect.fields` (zod schema).
-8. **Session dài (Zalo, IMAP) dùng lease** (`lease:channel:{id}`) trong `worker-channels`. Kênh webhook (OA, Meta…) không cần lease; route `/hooks/channels/:type/:accountKey` tra `tenant_channel_route` để biết DB đích.
+8. **Session dài (Zalo, IMAP) dùng lease** (`lease:channel:{id}`) trong `worker-channels`. Kênh webhook (OA, Meta, TikTok) không cần lease; **một route mức App** `GET|POST /hooks/channels/:type` (D62, DC-910 — bỏ `:accountKey` vì nền tảng gửi một URL cho mọi Page / OA): `adapter.webhook.verify` (chữ ký mức App) → `split` thành `HookItem { routeKey: '<type>:<external_id>', eventKey, kind, body }` → tra `tenant_channel_webhook_route` → biên nhận `channel_webhook_event` (trùng bỏ) → queue → `adapter.handleWebhook(item, account, sink)`. Trả 200 ngay, xử lý nền.
+8b. **Kết nối OAuth (D62, DC-909):** `connect.kind = 'oauth'` + `connect.oauth.provider`; token ở `oauth_grant` (một kho mỗi workspace) qua `TokenVault` — adapter KHÔNG tự làm mới token (refresh Zalo / Shopee dùng một lần). Một Page / OA chỉ thuộc một workspace (PK route nền tảng).
+8c. **Cửa sổ gửi (D62):** kênh có hạn nhắn khai `capabilities.window` (`hours`, `after: 'blocked' | 'tag_human_agent'`, `tagHours?`, `maxBeforeReply?`, `graceAfterWindow?`); core kiểm ở `outbound.ts` + `send.processor.ts`, không `switch(type)`. Tag HUMAN_AGENT là chính sách Meta (người thật trả lời) → chỉ gắn khi người gửi; agent / follow-up / chiến dịch theo cửa sổ thường. Ngoài luật nền tảng, kênh mới không có luật riêng cho agent (DC-921).
 9. **Health chuẩn hoá:** `probe()` trả `connected | degraded | error | expired`. Trạng thái này ghi vào `channel_account.status` và phát metric `channel_account_status{type}`.
 10. **Credential mã hoá** AES-256-GCM (`credentials_enc`). Không log, không trả về API.
 
@@ -27,14 +29,23 @@ export interface ChannelManifest {
   type: string;                         // 'zalo_personal' | 'webchat' | 'email' | 'zalo_oa' | 'messenger' | ...
   label: string;                        // i18n key 'channels.zalo_personal.label'
   icon: string;                         // key icon trong packages/ui
-  group: 'chat' | 'social' | 'email' | 'sms' | 'web';
+  group: 'chat' | 'social' | 'email' | 'sms' | 'web' | 'commerce';  // commerce: sàn TMĐT (P2, D04)
   status: 'ga' | 'beta' | 'coming_soon';  // coming_soon: hiện thẻ "Sắp có", không cho kết nối
-  connect: { kind: 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed'; fields?: z.ZodObject<any>; riskNotice?: string };
+  connect: { kind: 'qr' | 'oauth' | 'credentials' | 'webhook' | 'embed'; fields?: z.ZodObject<any>; riskNotice?: string;
+             oauth?: { provider: string; picker: boolean; scopes: string[] }; via?: string };   // D62: OAuth + thẻ mở luồng type khác (messenger → facebook)
   capabilities: {
-    direct: boolean; group: boolean; mentions: boolean;
+    direct: boolean; group: boolean; createGroup?: boolean; mentions: boolean;
+    reactions: boolean;                 // chỉ hiện hàng cảm xúc ở menu — KHÔNG suy ra năng lực gọi kênh
+    operations?: Partial<Record<'recall' | 'react' | 'group_info' | 'group_members' | 'group_link' | 'group_add_members'
+      | 'profiles' | 'friends' | 'friend_requests' | 'find_user',   // ảnh đại diện · danh bạ · lời mời kết bạn · tra một SĐT (TIP-014b D/E)
+      'local' | 'remote' | 'unsupported'>>;   // vắng = unsupported (TIP-014b, DEF-001-2)
     send: Array<'text' | 'image' | 'file' | 'sticker' | 'audio' | 'card' | 'template'>;
     maxTextLength: number; markdown: 'none' | 'rich' | 'html';
     proactive: 'allowed' | 'window_24h' | 'template_only' | 'disallowed';   // gửi chủ động (marketing / follow-up)
+    window?: { hours: number; after: 'blocked' | 'tag_human_agent'; tagHours?: number; maxBeforeReply?: number; graceAfterWindow?: number };  // D62
+    comments?: { publicReply: boolean; privateReply: boolean; hide: boolean; delete: boolean; like: boolean };                                 // D62 bình luận
+    live?: boolean;                                                                                                                           // D62 livestream
+    sync?: Array<'messages' | 'comments' | 'auto_contact' | 'history'>;                                                                       // khối Đồng bộ theo năng lực (REQ-B17)
   };
   rateLimit: { perMinute: number; perDayProactive?: number; jitterMs?: [number, number] };
   session: 'lease' | 'webhook' | 'poll';
@@ -45,9 +56,28 @@ export interface ChannelAdapter {
   start?(account: ChannelAccountRuntime, sink: InboundSink): Promise<void>;   // lease / poll
   stop?(accountId: string): Promise<void>;
   handleWebhook?(req: RawWebhook, account: ChannelAccountRuntime, sink: InboundSink): Promise<void>; // webhook
-  send(accountId: string, msg: OutboundMessage): Promise<{ externalMsgId: string }>;
+  send(accountId: string, msg: OutboundMessage): Promise<{ externalMsgId: string; parts?: ProviderMessageRef[] }>;  // lỗi giữa chừng → PartialSendError(receipt)
   probe(accountId: string): Promise<HealthStatus>;
+  createGroup?(accountId: string, req: CreateGroupRequest): Promise<CreateGroupResult>;   // capabilities.createGroup (TIP-023b)
+  operations?: ChannelOperations;      // chỉ hàm ứng với operations[kind] = 'remote' (packages/channels/src/operations.ts)
 }
+// InboundSink.event?(e: ProviderEvent) — self-listen / thu hồi / cảm xúc từ kênh, KHÔNG đi qua pipeline tin vào.
+```
+
+### Thao tác trên tin / nhóm (TIP-014b)
+
+- Năng lực khai từng thao tác: `local` (chỉ ghi AppChat, commit ngay), `remote` (lệnh bền `channel_operation` + outbox → worker giữ phiên gọi
+  kênh → chỉ ACK nhà cung cấp mới đổi tin), `unsupported` (409 trước mọi ghi). Vắng = unsupported. Core / UI / AI không `switch (type)`.
+- Tham chiếu tin phía kênh lưu `message_provider_ref` (từng phần, id dạng chuỗi — không qua number). Thiếu tham chiếu cần thiết / id không an
+  toàn → từ chối trước khi gọi kênh, không đoán.
+- Trạng thái lệnh: `queued → dispatch_reserved → confirmed | failed | unknown | partial`; đã đặt chỗ mà gián đoạn → `unknown`, không tự thử lại.
+- Ma trận năng lực từng kênh ghi ở `packages/channels/src/<kênh>/provider-capabilities.md` (Zalo: zca-js 2.2.0).
+- Bạn bè / tra SĐT (`adapter.friends?: ChannelFriends`, DC-362): chỉ nhân viên bấm trên UI (action từ chối mọi nguồn khác `ui`), một người
+  mỗi lệnh, trần / ngày theo tài khoản; kết quả tra tạm 24 giờ, không tự tạo khách. Không bao giờ có đường hàng loạt hay cho agent.
+- Tệp chứng từ gửi ra mang `fileId` + `sha256` (bản đóng băng) — `FileFetcher(url, bind)` chỉ đọc đúng tệp đó trong kho của workspace và
+  kiểm hash; sai → `attachment_binding_mismatch` trước khi gọi kênh (không tải URL ngoài cho chứng từ).
+
+```ts
 
 // packages/channels/src/registry.ts — DUY NHẤT nơi liệt kê kênh
 export const channelRegistry = defineChannels([zaloPersonal, webchat, email /*, zaloOa, messenger … */]);
@@ -58,7 +88,7 @@ export const channelRegistry = defineChannels([zaloPersonal, webchat, email /*, 
 1. Tạo `packages/channels/src/<type>/{manifest.ts, adapter.ts, normalize.ts, render.ts}` cùng test riêng (`*.test.ts`).
 2. Đăng ký vào `channelRegistry`.
 3. Thêm i18n `channels.<type>.*` (vi + en) và icon vào `packages/ui`.
-4. Nếu dùng webhook: thêm xác thực chữ ký trong `handleWebhook`, route dùng chung `/hooks/channels/:type/:accountKey`.
+4. Nếu dùng webhook: khai `adapter.webhook` (`challenge?` / `verify` / `split`) + `handleWebhook(item, account, sink)`; route dùng chung `/hooks/channels/:type` (D62). Nếu OAuth: khai `connect.oauth` + đăng ký `OAuthClient` (`packages/channels/src/oauth.ts`) — token qua `TokenVault`.
 5. Test contract dùng chung (`channels/contract.test.ts`) phải pass cho adapter mới: normalize, dedupe, send, probe, chặn gửi khi vượt rate limit.
 6. **Không** sửa `inbox/`, `crm/`, `ai/`. Nếu phải sửa thì manifest đang thiếu một capability → bổ sung capability vào manifest trước.
 
@@ -74,4 +104,4 @@ await outbox.enqueue({ accountId, message: { kind: 'text', text } });
 ## Lý do
 
 - RRI REQ-B08: các kênh P2 phải thêm được mà không đập lại.
-- Prototype có 16 kênh trong Cài đặt → Kênh và 13 kênh trong modal kết nối. Phát hành chỉ bật 3 kênh; số còn lại hiện theo `status` của manifest.
+- Prototype có 16 kênh trong Cài đặt → Kênh và 13 kênh trong modal kết nối. Phát hành bật 3 kênh + 4 kênh D62 (Zalo OA, Facebook Page / Messenger, Instagram, TikTok); số còn lại hiện theo `status` của manifest ("Sắp có" — PD-903).

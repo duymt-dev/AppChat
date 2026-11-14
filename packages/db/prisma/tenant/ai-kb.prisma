@@ -1,0 +1,185 @@
+// tenant/ai-kb.prisma — sở hữu: TIP-020 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: Blueprint §2.2 ai-kb — kho tri thức một mỗi workspace (D29, D54): thư mục, nguồn, đoạn (pgvector + trgm), cài đặt ngưỡng.
+// `kb_chunk.embedding` (vector) + `content_norm` (cột sinh f_unaccent) đọc / ghi bằng SQL thô (search.ts / ingest.ts).
+// Không Prisma relation xuyên domain (Blueprint §2.1).
+
+enum KbVisibility {
+  public
+  internal
+
+  @@map("kb_visibility")
+}
+
+enum KbOrigin {
+  upload
+  url
+  text
+  catalog
+  conversation
+  drive
+
+  @@map("kb_origin")
+}
+
+enum KbSourceStatus {
+  pending
+  processing
+  ready
+  failed
+
+  @@map("kb_source_status")
+}
+
+model KbFolder {
+  id         String       @id @db.Uuid
+  name       String
+  parentId   String?      @map("parent_id") @db.Uuid
+  visibility KbVisibility @default(public)
+  sort       Int          @default(0)
+  /// CAS cho kb.folder.update / delete (TIP-020b). Tên duy nhất theo f_unaccent(lower(btrim(name))) — index SQL `kb_folder_name_key`.
+  version    Int          @default(1)
+  createdAt  DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  sources KbSource[]
+
+  @@index([parentId])
+  @@map("kb_folder")
+}
+
+model KbSource {
+  id          String         @id @db.Uuid
+  folderId    String?        @map("folder_id") @db.Uuid
+  origin      KbOrigin
+  /// pdf | docx | xlsx | csv | txt | md | url | text | product (+ đuôi khác chỉ lưu — learn=false)
+  kind        String
+  name        String
+  tags        String[]       @default([])
+  visibility  KbVisibility   @default(public)
+  fileId      String?        @map("file_id") @db.Uuid
+  url         String?
+  productId   String?        @map("product_id") @db.Uuid
+  /// Nội dung văn bản nhập tay (origin=text) — nguồn để ingest lại.
+  body        String?
+  sha256      String?
+  /// false = chỉ lưu tài liệu, không cắt đoạn / embed ("Cho AI học tài liệu này").
+  learn       Boolean        @default(true)
+  starred     Boolean        @default(false)
+  status      KbSourceStatus @default(pending)
+  error       String?
+  chunkCount  Int            @default(0) @map("chunk_count")
+  /// Lần nạp (tăng mỗi lần thêm / học lại) — job id `kb-<id>-<seq>` + khoá trừ credit idempotent.
+  ingestSeq   Int            @default(1) @map("ingest_seq")
+  sizeBytes   BigInt         @default(0) @map("size_bytes")
+  createdBy   String?        @map("created_by") @db.Uuid
+  createdAt   DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  refreshedAt DateTime?      @map("refreshed_at") @db.Timestamptz(6)
+  deletedAt   DateTime?      @map("deleted_at") @db.Timestamptz(6)
+
+  folder KbFolder? @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  chunks KbChunk[]
+
+  @@index([createdAt(sort: Desc)])
+  @@map("kb_source")
+}
+
+model KbChunk {
+  id         String                       @id @db.Uuid
+  sourceId   String                       @map("source_id") @db.Uuid
+  ord        Int
+  content    String
+  /// Khe A (TIP-020e — hai khe vector đối xứng; khe đang phục vụ = `kb_setting.active_slot`).
+  embedding  Unsupported("vector(1536)")?
+  embedModel String                       @map("embed_model")
+  tokenCount Int                          @default(0) @map("token_count")
+  /// `{ path?: string[], page?: number, row?: number, volatile?: boolean }`
+  meta       Json                         @default("{}")
+  /// Khe B + space key / generation đã ghi từng khe (`provider:model:1536:<thế hệ route>`). HNSW `embedding_b` + index generation viết tay.
+  embeddingB       Unsupported("vector(1536)")? @map("embedding_b")
+  embedSpaceA      String?                      @map("embed_space_a")
+  embedSpaceB      String?                      @map("embed_space_b")
+  embedGenerationA String?                      @map("embed_generation_a") @db.Uuid
+  embedGenerationB String?                      @map("embed_generation_b") @db.Uuid
+
+  source KbSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+
+  @@index([sourceId, ord])
+  @@map("kb_chunk")
+}
+
+/// Một dòng (id = 1): ngưỡng căn cứ của workspace (rag §7).
+model KbSetting {
+  id                 Int       @id @default(1) @db.SmallInt
+  minScore           Float     @default(0.35) @map("min_score") @db.Real
+  /// TIP-020e: khe vector đang phục vụ ('a' | 'b'), generation + space key của khe đó (null = chưa gắn — kho chưa có vector).
+  activeSlot         String    @default("a") @map("active_slot") @db.Char(1)
+  activeGenerationId String?   @map("active_generation_id") @db.Uuid
+  activeSpace        String?   @map("active_space")
+  /// 'current' | 'stale' — đổi route embed chỉ đánh dấu stale (không tự chạy job trả tiền — DC-288).
+  indexState         String    @default("current") @map("index_state")
+  staleSince         DateTime? @map("stale_since") @db.Timestamptz(6)
+  version            Int       @default(1)
+
+  @@map("kb_setting")
+}
+
+/// Một lần tái tạo chỉ mục embedding (TIP-020e §2): ghi khe chưa hoạt động theo lô cursor (id đoạn), lease + CAS `version`, catch-up có
+/// trần vòng, publish đổi khe trong một transaction. Một generation dở mỗi workspace (partial unique viết tay).
+model KbEmbedGeneration {
+  id            String    @id @db.Uuid
+  slot          String    @db.Char(1)
+  spaceKey      String    @map("space_key")
+  /// building | catching_up | active | failed | cancelled | superseded
+  phase         String
+  expected      Int       @default(0)
+  done          Int       @default(0)
+  tokens        BigInt    @default(0)
+  cursorChunkId String?   @map("cursor_chunk_id") @db.Uuid
+  batchStep     Int       @default(0) @map("batch_step")
+  catchupRound  Int       @default(0) @map("catchup_round")
+  leaseToken    String?   @map("lease_token") @db.Uuid
+  leaseUntil    DateTime? @map("lease_until") @db.Timestamptz(6)
+  operationId   String?   @map("operation_id") @db.Uuid
+  reason        String?
+  createdBy     String?   @map("created_by") @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  version       Int       @default(1)
+
+  @@map("kb_embed_generation")
+}
+
+enum KbSuggestionStatus {
+  pending
+  approved
+  rejected
+
+  @@map("kb_suggestion_status")
+}
+
+/// Đề xuất hỏi–đáp từ hội thoại đã đóng (TIP-043, rag §9, D29b): chờ người có `kb.manage` sửa / duyệt mới thành nguồn RAG
+/// (origin conversation). `question` / `answer` đã che PII (packages/ai `redactForKnowledge`) — không lưu transcript thô hay bảng khôi
+/// phục. `source_message_ids` chỉ để truy vết server (không trả cho người thiếu quyền inbox). `fingerprint` = hash hội thoại + tin gốc +
+/// nội dung chuẩn hoá → đến lặp không thêm cặp. Index viết tay: `kb_suggestion_status_created_cover_idx` (status, created_at DESC, id DESC)
+/// INCLUDE (conversation_id, version, kb_source_id) — xem migration 20261102004300.
+model KbSuggestion {
+  id               String             @id @db.Uuid
+  conversationId   String             @map("conversation_id") @db.Uuid
+  question         String
+  answer           String
+  sourceMessageIds String[]           @map("source_message_ids") @db.Uuid
+  status           KbSuggestionStatus @default(pending)
+  edited           Boolean            @default(false)
+  fingerprint      String             @unique
+  /// Tin cuối đã xét (mốc đóng) — job id `kbsug-<conversation>-<cutoff>`.
+  cutoffMessageId  String             @map("cutoff_message_id") @db.Uuid
+  runId            String?            @map("run_id") @db.Uuid
+  reviewedBy       String?            @map("reviewed_by") @db.Uuid
+  reviewedAt       DateTime?          @map("reviewed_at") @db.Timestamptz(6)
+  rejectReason     String?            @map("reject_reason")
+  kbSourceId       String?            @unique @map("kb_source_id") @db.Uuid
+  version          Int                @default(1)
+  createdAt        DateTime           @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@index([conversationId])
+  @@map("kb_suggestion")
+}

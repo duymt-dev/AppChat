@@ -1,0 +1,607 @@
+{
+  "approvals": {
+    "title": "Cần bạn duyệt",
+    "count": "{pending} chờ duyệt · {total} thẻ",
+    "all": "Xem tất cả",
+    "pendingOnly": "Chỉ chờ duyệt",
+    "waitingRun": "Đã duyệt — thao tác đang chờ chạy, chưa phải đã gửi",
+    "error": "Không tải được thẻ duyệt của hội thoại"
+  },
+  "emptyChat": "Chọn một hội thoại để bắt đầu",
+  "tabs": {
+    "all": "Tất cả",
+    "mine": "Của tôi",
+    "mention": "@Mention",
+    "unread": "Chưa đọc",
+    "ai_pending_approval": "AI chờ duyệt",
+    "vip": "⭐ VIP",
+    "complaint": "⚠ Khiếu nại"
+  },
+  "folders": {
+    "title": "Thư mục hộp thư",
+    "toggle": "Mở / đóng thư mục",
+    "synced": "{n} kênh · đồng bộ <b>vừa xong</b>",
+    "mailbox": "Hộp thư",
+    "ai": "Trạng thái AI",
+    "channels": "Kênh",
+    "saved": "Bộ lọc đã lưu",
+    "items": {
+      "all": "Tất cả",
+      "unread": "Chưa đọc",
+      "mention": "Mention tôi",
+      "starred": "Đã gắn sao",
+      "mine": "Của tôi",
+      "team": "Của nhóm",
+      "spam": "Spam / đã chặn",
+      "ai_running": "AI tự xử",
+      "ai_pending_approval": "AI chờ duyệt",
+      "needs_human": "Cần can thiệp"
+    },
+    "at": "@"
+  },
+  "list": {
+    "title": "Hộp thư",
+    "sub": "{total} hội thoại · {unread} chưa đọc",
+    "connect": "Kết Nối Kênh",
+    "search": "Tìm khách, SĐT, nội dung, mã lịch hẹn…",
+    "allChannels": "Tất cả kênh",
+    "allAccounts": "Tất cả tài khoản",
+    "menu": "Thao tác hội thoại",
+    "emptyTitle": "Chưa có hội thoại",
+    "emptyHint": "Kết nối kênh để tin nhắn của khách đổ về đây.",
+    "emptySearch": "Không có hội thoại khớp từ khoá.",
+    "sort": {
+      "latest": "Mới nhất",
+      "unread": "Chưa đọc",
+      "priority": "Ưu tiên",
+      "vip": "VIP",
+      "sla": "Sắp quá SLA"
+    },
+    "actions": {
+      "close": "Đóng hội thoại",
+      "snooze": "Tạm ẩn",
+      "shortcut": "Phím tắt",
+      "assign": "Phân công",
+      "lifecycle": "Vòng đời (giai đoạn)",
+      "tag": "Gắn thẻ",
+      "archive": "Lưu trữ hội thoại",
+      "hideconv": "Ẩn trò chuyện",
+      "group": "Tạo nhóm",
+      "clear": "Xóa lịch sử"
+    },
+    "closed": "Đã đóng hội thoại",
+    "comingSoon": "Sắp có",
+    "caret": "›",
+    "kbd": "⌘K",
+    "back": "‹",
+    "snoozeOpts": {
+      "1h": "1 giờ",
+      "3h": "3 giờ",
+      "tomorrow": "Đến sáng mai",
+      "custom": "Tuỳ chọn ngày giờ"
+    },
+    "snoozeDate": "Ngày mở lại",
+    "snoozeTime": "Giờ mở lại",
+    "snoozeApply": "Áp dụng",
+    "snoozePastError": "Chọn thời điểm trong tương lai",
+    "shortcutHint": "chèn vào khung nhập",
+    "assignSearch": "Tìm người / agent",
+    "assignDenied": "Bạn không có quyền phân công",
+    "assignLoading": "Đang tải…",
+    "assignEmpty": "Không có ứng viên phù hợp",
+    "assignError": "Không tải được danh sách",
+    "assignMore": "Xem thêm",
+    "assignUserHint": "{role} · {load} đang mở",
+    "assignAgentHint": "Agent · {role} · v{version} · {load} đang mở",
+    "coAssigneesTitle": "Đồng phụ trách",
+    "coAssigneesNone": "Chưa có đồng phụ trách",
+    "coAssigneesAdd": "+ Thêm đồng phụ trách",
+    "coAssigneesRemove": "Gỡ {name} khỏi đồng phụ trách",
+    "stageCurrent": "Giai đoạn hiện tại",
+    "stages": {
+      "lead": "Lead mới",
+      "potential": "Đủ điều kiện",
+      "consulting": "Tư vấn / Demo",
+      "quote": "Báo giá",
+      "contract": "Đàm phán",
+      "won": "Đã mua",
+      "lost": "Thất bại"
+    },
+    "tagsHint": "Chạm để chọn · áp dụng cho khách",
+    "tagsNewPh": "Tạo thẻ mới…",
+    "tagsAdd": "+ Thêm",
+    "tagsDone": "Xong · gắn {n} thẻ",
+    "groupUnsupported": "Kênh này chưa hỗ trợ tạo nhóm"
+  },
+  "chat": {
+    "aiDraftRef": {
+      "stale": "Nháp AI đã cũ — nội dung tham khảo không còn dùng được. Hãy soạn lại hoặc gửi như tin tự viết.",
+      "revoked": "Tài liệu mà nháp AI dựa vào đã thay đổi hoặc bị thu hồi — nháp không được gửi. Hãy soạn lại.",
+      "stockChanged": "Tồn kho / giá trong nháp AI đã đổi so với lúc kiểm — nháp không được gửi. Hãy soạn lại hoặc kiểm tồn mới.",
+      "stockUnverified": "Không kiểm lại được tồn kho / giá của nháp AI với quyền của bạn — nháp không được gửi. Hãy soạn lại."
+    },
+    "back": "Quay lại danh sách",
+    "search": "Tìm trong hội thoại",
+    "toggle360": "Thu gọn hồ sơ",
+    "members": "{n} thành viên",
+    "online": "{n} đang online",
+    "zaloGroup": "Nhóm Zalo",
+    "offline": "ngoại tuyến",
+    "frtSla": "SLA {min}p",
+    "frtBreached": "Quá hạn FRT",
+    "pinned": "📌 Ghim:",
+    "unpin": "Bỏ ghim",
+    "pinnedMsg": "📌 Tin đã ghim:",
+    "unpinMsg": "Bỏ ghim",
+    "window": {
+      "older": "Đang xem tin cũ quanh kết quả tìm",
+      "latest": "Về tin mới nhất",
+      "newer": "Tải tin mới hơn",
+      "loading": "Đang tải tin quanh kết quả…",
+      "error": "Tin này không còn xem được."
+    },
+    "search2": {
+      "loading": "Đang tìm…",
+      "error": "Không tìm được — thử lại.",
+      "placeholder": "Tìm trong hội thoại này…",
+      "none": "Không tìm thấy “{q}” trong hội thoại này · thử ô tìm kiếm ở danh sách hội thoại bên trái để tìm trong tất cả hội thoại.",
+      "sender": "Người gửi",
+      "senderAll": "Tất cả",
+      "senderContact": "Khách",
+      "senderUser": "Nhân viên",
+      "senderAgent": "AI Agent",
+      "prev": "Kết quả trước",
+      "next": "Kết quả sau",
+      "close": "Đóng (Esc)",
+      "count": "{i}/{n}"
+    },
+    "handoff": {
+      "title": "Cần người",
+      "take": "Nhận xử lý",
+      "useDraft": "Dùng bản nháp",
+      "badge": "AI đã tạm dừng"
+    },
+    "suggest": {
+      "title": "AI Cowork gợi ý trả lời",
+      "confidence": "độ tin {pct}%",
+      "send": "Gửi",
+      "edit": "Chỉnh sửa",
+      "other": "Gợi ý khác"
+    }
+  },
+  "thread": {
+    "contractFromFile": "Tạo hợp đồng từ tệp",
+    "contractCreating": "Đang tạo hợp đồng…",
+    "insight": "AI phân tích:",
+    "confidence": "· tin {pct}%",
+    "note": "Ghi chú nội bộ",
+    "deleted": "Tin nhắn đã xoá khỏi AppChat",
+    "recalled": "Tin nhắn đã được thu hồi"
+  },
+  "msgMenu": {
+    "title": "Thao tác tin nhắn",
+    "reply": "Trả lời",
+    "copy": "Sao chép",
+    "forward": "Chuyển tiếp",
+    "pin": "Ghim tin nhắn",
+    "unpin": "Bỏ ghim tin nhắn",
+    "translate": "Dịch",
+    "ticket": "Tạo ticket từ tin này",
+    "recall": "Thu hồi",
+    "recallHint": "Chỉ tin của bạn",
+    "delete": "Xóa tin nhắn",
+    "copied": "Đã sao chép nội dung tin nhắn",
+    "reacts": {
+      "👍": "Thích",
+      "❤️": "Yêu thích",
+      "😂": "Haha",
+      "😮": "Wow",
+      "😢": "Buồn",
+      "🙏": "Cảm ơn"
+    }
+  },
+  "forward": {
+    "title": "Chuyển tiếp tin nhắn",
+    "search": "Tìm hội thoại…",
+    "send": "Chuyển",
+    "close": "Đóng",
+    "sent": "Đã chuyển tiếp tin nhắn"
+  },
+  "composer": {
+    "placeholder": "Nhập tin cho {name}… ( / = lệnh AI · @ = mention · # = dịch vụ )",
+    "notePlaceholder": "Ghi chú nội bộ — khách không thấy…",
+    "attach": "Thêm tệp, kết nối, plugin",
+    "via": "Gửi qua <b>{ch}</b> · <k>Enter</k> gửi",
+    "send": "Gửi",
+    "saveNote": "Lưu ghi chú",
+    "replyingTo": "Đang trả lời:",
+    "cancelReply": "Bỏ trích dẫn",
+    "senderLine": "Người gửi: <b>{name} (bạn)</b>",
+    "attachMenu": {
+      "file": "Thêm tệp",
+      "screenshot": "Chụp ảnh màn hình",
+      "agentTools": "Quyền của agent (chỉ xem)",
+      "noTools": "Agent phụ trách chưa được cấp công cụ nào",
+      "research": "Research / tìm trên web",
+      "soon": "Sắp có",
+      "count": "({on}/{total})",
+      "needs_connector": "cần kết nối",
+      "coming_soon": "sắp có",
+      "skillGroup": "Kỹ năng AI",
+      "editInBuilder": "Chỉnh trong Builder ›",
+      "humanSkills": "Kỹ năng AI cho bạn (chạy bằng quyền của bạn)"
+    },
+    "modes": {
+      "note": "Ghi chú nội bộ",
+      "copilot": "Co-pilot",
+      "auto": "AI tự xử"
+    },
+    "tools": {
+      "qr": "Quick replies",
+      "sched": "Đặt lịch hẹn",
+      "xl": "Dịch"
+    },
+    "qr": {
+      "title": "Trả lời nhanh",
+      "hint": "Gõ / trong ô nhập để lọc nhanh"
+    },
+    "sched": {
+      "title": "Đặt lịch hẹn cho {name}",
+      "service": "Dịch vụ",
+      "serviceOpt": "{name} · {min} phút",
+      "date": "Ngày",
+      "staff": "Nhân viên",
+      "anyStaff": "Nhân viên bất kỳ",
+      "loading": "Đang tìm khung giờ trống…",
+      "error": "Không tải được khung giờ — thử lại",
+      "empty": "Không còn khung giờ trống ngày này",
+      "hint": "Khung giờ trống theo lịch workspace — chọn rồi mở form đặt lịch",
+      "book": "Mở form đặt lịch",
+      "proposeBtn": "Chèn đề xuất giờ vào tin nhắn",
+      "propose": "Bên em còn trống {time} ngày {date} cho dịch vụ {service}, mình xem giờ này được không ạ?"
+    },
+    "xl": {
+      "title": "Dịch tự động",
+      "auto": "Tự động dịch 2 chiều",
+      "autoHint": "Tin khách → tiếng Việt · Tin bạn → ngôn ngữ khách",
+      "to": "Dịch tin soạn sang",
+      "pending": "Đang dịch tin soạn…",
+      "failed": "Không dịch được (lỗi hoặc hết credit) — thử lại hoặc gửi nguyên văn",
+      "sendTranslated": "Gửi bản dịch",
+      "sendOriginal": "Gửi nguyên văn",
+      "retry": "Thử lại",
+      "cancel": "Huỷ dịch",
+      "inMore": "Dịch thêm tin cũ hơn",
+      "inPaused": "Tạm dừng tự dịch (lỗi hoặc hết credit) — thử lại",
+      "autoLabel": "Bản dịch tự động"
+    },
+    "capture": {
+      "busy": "Đang chờ bạn chọn tab / cửa sổ / màn hình…",
+      "unsupported": "Trình duyệt này không hỗ trợ chụp màn hình — hãy đính kèm tệp ảnh",
+      "denied": "Bạn đã từ chối quyền chụp màn hình — có thể đính kèm tệp ảnh",
+      "failed": "Không chụp được màn hình — hãy đính kèm tệp ảnh",
+      "alt": "Ảnh chụp màn hình",
+      "warn": "Kiểm tra ảnh không chứa thông tin nhạy cảm trước khi đính kèm.",
+      "accept": "Đính kèm ảnh",
+      "fallback": "Chọn tệp",
+      "cancel": "Bỏ ảnh chụp"
+    },
+    "autoBadge": "AUTO",
+    "fileFailed": "Không tải lên được tệp {name}",
+    "removeFile": "Bỏ tệp {name}",
+    "mention": "Nhắc thành viên",
+    "mentionNone": "Không có thành viên khớp",
+    "aiDraft": {
+      "compose": "AI soạn",
+      "rewrite": "AI viết lại",
+      "pending": "AI đang soạn nháp…",
+      "cancel": "Huỷ",
+      "error": "Không soạn được nháp.",
+      "retry": "Thử lại",
+      "dismiss": "Bỏ",
+      "composed": "AI soạn nháp",
+      "rewritten": "AI viết lại nháp",
+      "badge": "nháp — chưa gửi",
+      "conflictBadge": "nháp đã đổi",
+      "conflict": "Bạn đã sửa nháp trong lúc AI soạn — chọn thay hay chèn thêm.",
+      "replace": "Thay nháp",
+      "insert": "Chèn thêm"
+    }
+  },
+  "deletedContact": {
+    "title": "Khách đã xoá",
+    "close": "Đóng",
+    "body": "Khách của hội thoại này đã bị xoá. Tin nhắn vẫn được lưu và bạn vẫn trả lời được theo quyền Hộp thư; hồ sơ, báo giá, lịch hẹn và AI tự trả lời tạm ngưng cho tới khi khách được khôi phục.",
+    "openTrash": "Mở danh sách khách đã xoá"
+  },
+  "p360": {
+    "title": "Hồ sơ 360°",
+    "close": "Đóng hồ sơ",
+    "customize": "Tuỳ chỉnh Hồ sơ 360°",
+    "tabs": {
+      "overview": "Tổng quan",
+      "crm": "CRM",
+      "ai": "AI",
+      "files": "Tệp",
+      "history": "Lịch sử"
+    },
+    "journey": "Hành trình trao đổi",
+    "stageAt": "Đang ở: {stage}",
+    "aiHint": "AI gợi ý:",
+    "aiSummary": "AI Tóm tắt",
+    "closeChance": "Khả năng chốt",
+    "contact": "Thông tin khách hàng",
+    "edit": "Sửa",
+    "leadScore": "Lead Score",
+    "tier": "HẠNG THÀNH VIÊN",
+    "points": "điểm · ≈ {value}",
+    "history": "Lịch sử tương tác",
+    "exportCsv": "Xuất CSV",
+    "openDeal": "Cơ hội đang mở",
+    "recentOrder": "Đơn hàng gần đây",
+    "recentPayment": "Đề nghị thanh toán gần đây",
+    "segments": "Phân khúc & thẻ",
+    "behavior": "Phân tích hành vi",
+    "signals": "Tín hiệu khách hàng",
+    "nba": "AI đề xuất next-best-action",
+    "files": "Tệp tin",
+    "timeline": "Dòng thời gian đa kênh",
+    "ops": {
+      "quote": "Báo giá",
+      "contract": "Hợp đồng",
+      "order": "Đơn hàng"
+    },
+    "foot": {
+      "email": "Gửi email",
+      "ticket": "Tạo ticket",
+      "booking": "Đặt lịch"
+    },
+    "spark": "✦",
+    "aiBadge": "AI",
+    "signalUp": "▲ ",
+    "signalWarn": "⚠ ",
+    "email": {
+      "title": "Gửi email",
+      "close": "Đóng",
+      "cancel": "Huỷ",
+      "send": "Gửi email",
+      "from": "Gửi từ",
+      "to": "Đến",
+      "template": "Mẫu email",
+      "subject": "Tiêu đề",
+      "body": "Nội dung",
+      "tpl": {
+        "followUp": {
+          "label": "Theo dõi sau tư vấn",
+          "subject": "Theo dõi sau buổi tư vấn",
+          "body": "Chào {name},\n\nCảm ơn anh/chị đã dành thời gian trao đổi. Em gửi lại tóm tắt nội dung đã tư vấn để anh/chị tiện theo dõi.\n\nTrân trọng."
+        },
+        "resendQuote": {
+          "label": "Gửi lại báo giá",
+          "subject": "Gửi lại báo giá",
+          "body": "Chào {name},\n\nEm gửi lại báo giá để anh/chị xem và phản hồi giúp em nhé.\n\nTrân trọng."
+        },
+        "confirmBooking": {
+          "label": "Xác nhận lịch hẹn",
+          "subject": "Xác nhận lịch hẹn",
+          "body": "Chào {name},\n\nXin xác nhận lịch hẹn của anh/chị. Nếu cần đổi giờ anh/chị nhắn lại giúp em.\n\nTrân trọng."
+        }
+      }
+    },
+    "blocksEmpty": "Tab này chưa có khối nào — thêm ở Cài đặt › Hồ sơ 360°.",
+    "blockNoData": "Chưa có dữ liệu",
+    "blockDenied": "Bạn không có quyền xem mục này",
+    "slaMet": "Đạt SLA",
+    "slaBreached": "Trễ SLA",
+    "csatScore": "{n}/5",
+    "linkStatus": {
+      "pending": "Chờ xác nhận",
+      "confirmed": "Đã xác nhận",
+      "open": "Mở",
+      "in_progress": "Đang xử lý",
+      "waiting": "Chờ khách"
+    }
+  },
+  "group": {
+    "title": "Thông tin nhóm",
+    "close": "Đóng thông tin nhóm",
+    "members": "{n} thành viên",
+    "joinLink": "Link tham gia nhóm",
+    "linkOn": "Đang bật · bấm Quản lý để tắt",
+    "linkOff": "Đang tắt",
+    "linkUnknown": "Chưa đọc từ Zalo — làm mới trong Quản lý nhóm",
+    "media": "Ảnh/Video",
+    "files": "File",
+    "links": "Link",
+    "hide": "Ẩn trò chuyện",
+    "clear": "Xoá lịch sử trò chuyện",
+    "acts": {
+      "mute": "Tắt thông báo",
+      "pin": "Ghim hội thoại",
+      "add": "Thêm thành viên",
+      "manage": "Quản lý nhóm",
+      "unmute": "Bật thông báo",
+      "unpin": "Bỏ ghim"
+    },
+    "ai": {
+      "title": "AI trong nhóm",
+      "mention": "Khi được @",
+      "auto": "Tự động",
+      "off": "Tắt",
+      "rules": "Quy định nhóm cho AI",
+      "rulesSub": "4 quy định · AI đọc trước khi trả lời"
+    },
+    "board": "Bảng tin nhóm",
+    "pinned": "Tin nhắn đã ghim",
+    "notes": "Ghi chú nội bộ",
+    "notesSub": "Chỉ nhân viên thấy",
+    "mediaCount": "{n} mục",
+    "seeAll": "Xem tất cả",
+    "pinnedNone": "Chưa có tin ghim",
+    "countMore": "{n}+ mục",
+    "boardLoading": "Đang tải…",
+    "boardEmpty": "Chưa có mục nào",
+    "boardError": "Không tải được — thử lại sau",
+    "linkCopy": "Sao chép",
+    "linkCopying": "Đang đọc…",
+    "linkCopied": "Đã sao chép link tham gia",
+    "linkCopyFailed": "Không sao chép được link",
+    "linkFailed": "Không đọc được link từ Zalo",
+    "linkNoPerm": "Cần quyền quản lý hộp thư",
+    "linkUnsupported": "Tài khoản không đọc được link nhóm này",
+    "caretOpen": "▾",
+    "caretClosed": "▸"
+  },
+  "groupManage": {
+    "title": "Quản lý nhóm",
+    "close": "Đóng",
+    "name": "Tên nhóm",
+    "rename": "Đổi tên nhóm",
+    "linkOn": "Bật link tham gia",
+    "linkOff": "Tắt link tham gia",
+    "refresh": "Làm mới từ Zalo",
+    "refreshFirst": "Làm mới từ Zalo trước khi đổi tên / link.",
+    "snapshot": "Zalo báo {total} thành viên · AppChat đã thấy {observed} · tài khoản là {role}",
+    "noSnapshot": "AppChat đã thấy {observed} thành viên (chưa đọc từ Zalo)",
+    "partial": "Danh sách Zalo trả về chưa đủ — không phải toàn bộ nhóm.",
+    "addTitle": "Thêm khách đã nhắn với tài khoản này ({n}/{max})",
+    "add": "Thêm vào nhóm",
+    "more": "Tải thêm",
+    "role": {
+      "owner": "trưởng nhóm",
+      "admin": "phó nhóm",
+      "member": "thành viên",
+      "unknown": "chưa rõ"
+    },
+    "state": {
+      "pending": "Đang gửi lệnh tới Zalo…",
+      "confirmed": "Zalo đã xác nhận.",
+      "failed": "Zalo từ chối — không đổi gì.",
+      "unknown": "Chưa rõ kết quả — kiểm tra trên Zalo, không tự gửi lại.",
+      "partial": "Xong một phần — xem từng người.",
+      "cancelled": "Đã huỷ.",
+      "superseded": "Đã thay bằng lệnh mới hơn."
+    },
+    "member": {
+      "confirmed": "Đã thêm",
+      "failed": "Không thêm được",
+      "unknown": "Chưa rõ"
+    }
+  },
+  "connect": {
+    "eyebrow": "Kết nối kênh mới",
+    "title": "Chọn kênh bạn muốn thêm vào AppChat",
+    "meta": "{n} kênh · Omnichannel",
+    "close": "Đóng",
+    "soon": "Sắp có",
+    "time": "⏱ {time}",
+    "cats": {
+      "all": "Tất cả kênh",
+      "social": "Social & Messaging",
+      "web": "Web · Email"
+    },
+    "hintTitle": "AppChat AI gợi ý",
+    "hintBody": "Ngành của bạn (Spa/Beauty) hoạt động mạnh trên <b>Zalo</b> — kết nối <b>Zalo cá nhân</b> và <b>Live chat website</b> trước để AI bắt đầu xử lý hội thoại.",
+    "ready": "Sẵn sàng",
+    "industries": {
+      "fashion": "Thời trang",
+      "beauty": "Mỹ phẩm / Sức khoẻ",
+      "fnb": "F&B"
+    },
+    "byIndustry": "Theo ngành"
+  },
+  "ai": {
+    "title": "Trợ lý AI",
+    "sub": "Phiên bản thu nhỏ · hỗ trợ ngay trong hội thoại",
+    "close": "Đóng",
+    "hello": "Em đang xem hội thoại với <b>{name}</b>. Em có thể tóm tắt, soạn trả lời, tạo báo giá hoặc đặt lịch ngay. Anh cần gì ạ?",
+    "ask": "Hỏi Trợ lý AI về hội thoại này…",
+    "send": "Gửi",
+    "openFull": "Mở Trợ lý AI đầy đủ →",
+    "sections": {
+      "quick": "Hành động nhanh",
+      "cowork": "AI Cowork",
+      "move": "Chuyển"
+    },
+    "cmds": {
+      "new": "Tạo hội thoại mới",
+      "invite": "Mời thành viên vào hội thoại",
+      "meet": "Đặt lịch hẹn cho khách",
+      "summary": "Tóm tắt 30 tin cuối",
+      "draft": "Soạn phản hồi gợi ý",
+      "translate": "Dịch sang tiếng Anh",
+      "intent": "Phát hiện ý định khách",
+      "mention": "Chuyển sang Tab @Mention",
+      "assign": "Chuyển agent · @Trâm",
+      "vip": "Gắn tag VIP"
+    },
+    "prompts": {
+      "new": "Tạo hội thoại mới với khách {name}.",
+      "invite": "Mời thành viên vào hội thoại với {name}.",
+      "summary": "Tóm tắt 30 tin nhắn cuối của hội thoại với {name}.",
+      "draft": "Soạn phản hồi gợi ý cho tin nhắn mới nhất của {name} (chỉ soạn nháp, không gửi).",
+      "translate": "Dịch tin nhắn mới nhất của {name} sang tiếng Anh.",
+      "intent": "Phát hiện ý định của khách {name} trong hội thoại này.",
+      "mention": "Chuyển hội thoại với {name} sang tab @Mention.",
+      "assign": "Chuyển hội thoại với {name} cho Trâm phụ trách.",
+      "vip": "Gắn tag VIP cho khách {name}."
+    }
+  },
+  "createGroup": {
+    "title": "Tạo nhóm Zalo",
+    "close": "Đóng",
+    "name": "Tên nhóm",
+    "members": "Thành viên đã chọn: {count}",
+    "notice": "Khách được chọn sẽ nhận lời mời vào nhóm mới trên Zalo. Chỉ chọn được khách đã nhắn với tài khoản này.",
+    "submit": "Tạo nhóm",
+    "open": "Mở nhóm",
+    "status": {
+      "queued": "Đang chờ tài khoản Zalo xử lý…",
+      "running": "Đang tạo nhóm trên Zalo…",
+      "succeeded": "Đã tạo nhóm.",
+      "failed": "Không tạo được nhóm.",
+      "unknown": "Chưa rõ kết quả — nhóm có thể đã được tạo trên Zalo. Kiểm tra Zalo trước khi tạo lại."
+    }
+  },
+  "summary": {
+    "title": "Tóm tắt bàn giao",
+    "loading": "Đang tải tóm tắt…",
+    "error": "Không tải được tóm tắt.",
+    "retry": "Thử lại",
+    "unknown": "Chưa rõ khách cần gì",
+    "unresolved": "Chưa giải quyết: {text}",
+    "attachmentUnreadable": "{n} tệp đính kèm AI chưa đọc được",
+    "status": {
+      "ok": "xong",
+      "pending": "chờ duyệt",
+      "denied": "bị chặn",
+      "error": "lỗi"
+    }
+  },
+  "intent": {
+    "hint": "Ý định AI nhận diện ở lượt gần nhất",
+    "buy": "Muốn mua",
+    "question": "Hỏi thông tin",
+    "complaint": "Khiếu nại",
+    "booking": "Đặt lịch",
+    "other": "Khác"
+  },
+  "providerOp": {
+    "recall": {
+      "pending": "Đang thu hồi trên Zalo…",
+      "unknown": "Chưa rõ đã thu hồi trên Zalo — kiểm tra trên điện thoại",
+      "failed": "Zalo không thu hồi được tin này",
+      "partial": "Đã thu hồi một phần — còn phần chưa thu hồi được"
+    },
+    "react": {
+      "pending": "Đang gửi cảm xúc lên Zalo…",
+      "unknown": "Chưa rõ Zalo đã nhận cảm xúc",
+      "failed": "Zalo không nhận cảm xúc này"
+    },
+    "send": {
+      "partial": "Chỉ gửi được một phần tin — phần còn lại chưa tới khách",
+      "unknown": "Chưa rõ tin đã tới khách — kiểm tra trên điện thoại trước khi gửi lại"
+    },
+    "accepted": "Đã gửi lệnh tới Zalo — chờ xác nhận"
+  }
+}

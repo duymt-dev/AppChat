@@ -1,0 +1,96 @@
+{
+  "declare": {
+    "bizTitle": "Business information",
+    "indivTitle": "Personal information",
+    "sub": "Helps personalise your workspace and issue invoices.",
+    "typeBiz": "Company / Household business",
+    "typeBizSub": "Has a tax code",
+    "typeIndiv": "Individual",
+    "typeIndivSub": "Uses VNeID",
+    "taxLabel": "Company tax code",
+    "idLabel": "Personal ID (VNeID)",
+    "taxPlaceholder": "0312 345 678",
+    "idPlaceholder": "001 099 012 345",
+    "lookup": "Look up",
+    "found": "Found — details filled in below",
+    "notFound": "Tax code not found — please enter details manually below",
+    "nameBiz": "Company / business name",
+    "nameIndiv": "Full name",
+    "namePlaceholder": "Nguyen Van A",
+    "address": "Address",
+    "addressPlaceholder": "Street, ward, district, province/city",
+    "rep": "Legal representative",
+    "phone": "Phone",
+    "phonePlaceholder": "0912 345 678",
+    "founded": "Founded on",
+    "status": "Status",
+    "next": "Continue",
+    "back": "← Back",
+    "fieldTitle": "What does your business do?",
+    "fieldSub": "Briefly describe your business — AppChat uses it to suggest suitable AI Agents, workflows and reply templates.",
+    "fieldLabel": "Business field",
+    "fieldPlaceholder": "E.g. Imported cosmetics retail via Zalo & Facebook…",
+    "submit": "Finish & enter workspace",
+    "required": "Required to activate your workspace",
+    "indivHint": "Enter the details exactly as on your ID / VNeID below"
+  },
+  "provisioning": {
+    "title": "Setting up your workspace…",
+    "sub": "AppChat is creating a private data space for your business. This usually takes under a minute.",
+    "steps": {
+      "db": "Create a dedicated database",
+      "seed": "Install defaults (SLA, loyalty, AI governance)",
+      "trial": "Activate the 15-day Personal Pro trial"
+    },
+    "failed": "Setup isn't finished yet. We'll retry automatically.",
+    "retry": "Retry"
+  },
+  "deleting": {
+    "title": "This workspace is being deleted",
+    "sub": "You confirmed deleting this workspace. All access has stopped; an encrypted backup is kept for 30 days, then permanently deleted. Sign out to pick or create another workspace.",
+    "failed": "The deletion is not finished yet. Our operators have been notified and will handle it.",
+    "logout": "Sign out"
+  },
+  "restoring": {
+    "title": "Restoring your workspace…",
+    "sub": "This workspace was archived after a long period of inactivity. AppChat is restoring your data — this usually takes under a minute.",
+    "steps": {
+      "create": "Prepare the database",
+      "restore": "Load the archived data",
+      "checks": "Verify and reopen the workspace"
+    },
+    "failed": "The restore isn't finished yet. Our operators have been notified and we'll retry.",
+    "retry": "Check again"
+  },
+  "welcome": {
+    "eyebrow": "ONE-PERSON COMPANY SOLUTION",
+    "mark": "A",
+    "title": "Welcome to AppChat 👋",
+    "body": "You have <b>a 15-day Personal Pro trial</b>. Every feature of the plan is active until <b>{date}</b>.",
+    "days": "15",
+    "boxTitle": "15-day free trial",
+    "boxSub": "<b>Personal Pro</b> plan · all features · until {date}",
+    "perks": {
+      "1": "Unlimited Zalo, Facebook, Instagram, TikTok, Website and Email connections",
+      "2": "All department AI Agents — Sales, Customer care, Marketing, Operations",
+      "3": "Full CRM: customers, quotes, contracts, orders, invoices, loyalty",
+      "4": "Automation, reports and 10,000 trial AI credits"
+    },
+    "start": "Start the trial",
+    "pricing": "See pricing",
+    "note": "When the trial ends your account moves to the Free plan automatically. Your data is kept."
+  },
+  "expired": {
+    "title": "Your trial has ended",
+    "body": "Your Personal Pro trial has ended. Your account has been <b>moved to the Free plan</b> — you can still sign in and use it within the plan limits.",
+    "locks": {
+      "1": "Only 1 channel kept — channels over the limit are paused",
+      "2": "Only 1 AI Agent kept — other agents are paused",
+      "3": "AI credits drop to 500 / month on the Free plan",
+      "4": "Advanced reports and automation are locked"
+    },
+    "upgrade": "See pricing · Upgrade",
+    "note": "Your data is kept. Upgrading unlocks every feature right away.",
+    "close": "Close"
+  }
+}

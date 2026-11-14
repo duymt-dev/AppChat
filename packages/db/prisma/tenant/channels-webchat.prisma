@@ -1,0 +1,43 @@
+// tenant/channels-webchat.prisma — sở hữu: TIP-017 (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: webchat_widget, webchat_visitor. Không Prisma relation xuyên domain (Blueprint §2.1) — FK nội DB viết SQL trong migration.
+
+/// Widget chat website (REQ-B05, Blueprint §2.2): một widget mỗi workspace, gắn một `channel_account(type = webchat)`.
+/// `public_key` nằm trong mã nhúng (công khai) → `tenant_widget_route` ở DB nền tảng tra workspace. Tắt widget = tạm dừng tài khoản;
+/// ngắt tài khoản rồi bật lại → dùng lại đúng tài khoản (giữ lịch sử khách web) và `public_key` (mã nhúng cũ vẫn chạy).
+model WebchatWidget {
+  id               String   @id @db.Uuid
+  channelAccountId String   @unique @map("channel_account_id") @db.Uuid
+  publicKey        String   @unique @map("public_key")
+  name             String
+  greeting         String   @default("")
+  /// `{ color }` — màu chủ đạo của nút + đầu cửa sổ chat.
+  theme            Json     @default("{}")
+  /// `{ enabled, fields: ['name','phone','email'] }` — form thu thông tin trước khi chat.
+  prechatForm      Json     @default("{}") @map("prechat_form")
+  /// AI Agent trực (bảng ai_agent — TIP-021; chưa kiểm tồn tại, như DC-076).
+  agentId          String?  @map("agent_id")
+  /// Rỗng = chưa giới hạn domain (DC-088).
+  allowedDomains   String[] @default([]) @map("allowed_domains")
+  /// Cấu hình AI / nút hành động của trang Cài đặt (prototype L7184): ai_chat, ai_on, handoff, tone, mode, knowledge_on, collect_on, actions.
+  settings         Json     @default("{}")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("webchat_widget")
+}
+
+/// Khách web (một trình duyệt — `visitor_token` 30 ngày). Thông tin pre-chat; liên kết khách CRM qua contact_identity
+/// (channel_account_id, external_id = id này) ở inbound pipeline.
+model WebchatVisitor {
+  id               String   @id @db.Uuid
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  name             String?
+  phone            String?
+  email            String?
+  pageUrl          String?  @map("page_url")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  lastSeenAt       DateTime @default(now()) @map("last_seen_at") @db.Timestamptz(6)
+
+  @@index([channelAccountId, createdAt])
+  @@map("webchat_visitor")
+}

@@ -1,0 +1,55 @@
+# D40 — toàn bộ: lint · typecheck · test · parity --all · e2e · build. PR vào main, chạy tay, đêm trên dev.
+name: full
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+  schedule:
+    - cron: '17 19 * * *' # 02:17 giờ VN
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  full:
+    runs-on: ubuntu-24.04
+    env:
+      NEXT_PUBLIC_API_MODE: mock
+      PARITY_APP_URL: http://localhost:3417
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'schedule' && 'dev' || github.ref }}
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm i18n:check
+      - run: pnpm depcheck
+      - run: pnpm build
+      - run: pnpm check:bundle
+      - run: pnpm --filter @appchat/parity exec playwright install --with-deps chromium
+      - name: Start app
+        id: app
+        run: |
+          pnpm --filter @appchat/web exec next start -p 3417 &
+          npx --yes wait-on http://localhost:3417/dashboard --timeout 120000
+      - run: pnpm parity --all
+      # E2E hồi quy chạy cả khi parity đỏ (DC-359): parity tồn đọng không được che mất lưới hồi quy đêm. Job vẫn đỏ nếu parity đỏ.
+      - if: ${{ !cancelled() && steps.app.outcome == 'success' }}
+        run: E2E_REUSE=1 pnpm e2e
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-artifacts
+          path: |
+            tools/parity/out/
+            apps/web/playwright-report/
+          if-no-files-found: ignore

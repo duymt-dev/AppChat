@@ -1,0 +1,48 @@
+// Kết quả executor → ToolOutcome cho model (TIP-023b R1, SPEC B.4): một hàm dùng chung cho Trợ lý (`call_action`) và tool action của agent /
+// task (`runs/tools.ts`). Phân nhánh 202 EXHAUSTIVE theo `status` — loại 202 mới (032b `job_accepted`) phải thêm nhánh, không rơi vào
+// "approval" mặc định (approvalId undefined). Kết quả đọc đưa cho model được cắt ≤ 20 dòng mỗi mảng và bỏ ô bí mật theo tên (token,
+// secret, password, credentials, prompt…) — action đọc vốn không trả, đây là lưới an toàn cuối trước model. Kết quả xuất tệp (`file_name` +
+// `mime` + `content`, vd contact.export) chỉ đưa tên / số dòng — thân tệp (SĐT, email…) không vào lịch sử model (TIP-038b §3).
+import type { ActionAccepted } from '@appchat/actions';
+import type { ToolOutcome } from '@appchat/ai';
+import type { ExecuteOutcome } from '../../kernel/actions/executor';
+
+export const READ_MAX_ROWS = 20;
+const SECRET = /(token|secret|password|passwd|credential|api_?key|cookie|imei|session_key|private|system_prompt|^prompt$|persona)/i;
+
+/** Bỏ ô bí mật + cắt mảng ≤ `maxRows` (độ sâu ≤ 6) — giữ nguyên kiểu nguyên thuỷ. */
+export function safeForModel(v: unknown, maxRows = READ_MAX_ROWS, depth = 0): unknown {
+  if (depth > 6 || v === null || typeof v !== 'object') return v;
+  if (Array.isArray(v)) return v.slice(0, maxRows).map((x) => safeForModel(x, maxRows, depth + 1));
+  const out: Record<string, unknown> = {};
+  const file = 'file_name' in v && 'mime' in v && 'content' in v;
+  for (const [k, x] of Object.entries(v as Record<string, unknown>)) if (!SECRET.test(k) && !(file && k === 'content')) out[k] = safeForModel(x, maxRows, depth + 1);
+  if (file) out.content_omitted = true;
+  return out;
+}
+
+const never = (x: never): never => {
+  throw new Error(`202 chưa xử lý: ${JSON.stringify(x)}`);
+};
+
+/** 202 → outcome dừng run (thẻ xác nhận / chờ duyệt). */
+export function acceptedOutcome(a: ActionAccepted, canonicalInput: unknown): ToolOutcome {
+  switch (a.status) {
+    case 'preview_required':
+      return { kind: 'needs_confirmation', preview: a.preview, confirmToken: a.confirm_token, canonicalInput };
+    case 'approval_required':
+      return { kind: 'needs_approval', approvalId: a.approval_id };
+    case 'job_accepted':
+      return { kind: 'job_accepted', jobId: a.job_id, actionLogId: a.action_log_id, statusUrl: a.status_url };
+    case 'operation_pending':
+      return { kind: 'operation_pending', operationId: a.operation_id, actionLogId: a.action_log_id, statusUrl: a.status_url };
+    default:
+      return never(a);
+  }
+}
+
+/** 200 → `ok` (đã lọc cho model); 202 → acceptedOutcome. */
+/** `maxRows`: metric (`insight.query` ≤ 100 dòng, đã giới hạn ở registry) giữ đủ dòng để khớp HTTP; còn lại 20. */
+export function dispatchOutcome(out: ExecuteOutcome, canonicalInput: unknown, maxRows = READ_MAX_ROWS): ToolOutcome {
+  return out.status === 200 ? { kind: 'ok', output: safeForModel(out.data.result, maxRows) } : acceptedOutcome(out.data, canonicalInput);
+}

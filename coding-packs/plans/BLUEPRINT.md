@@ -1,7 +1,8 @@
 # AppChat — Technical Blueprint (khế ước kiến trúc)
 
 > Vibecode Kit v5.0 — BƯỚC 4 (BLUEPRINT) · 2026-10-28 · **ĐÃ DUYỆT — Chủ nhà duyệt 2026-10-28** (D36)
-> Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V15), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D32, REQ A–N), `plans/COMMERCE-DECISIONS.md`, `product/*`, **`standards/*` (bắt buộc — xem `standards/README.md`)**
+> **Cập nhật 2026-10-29:** prototype ver2.1 + D42–D51 (bảng có số trang, quyền agent một nơi, một kênh nhiều tài khoản, menu tin nhắn / hội thoại, bố cục Hồ sơ 360°). Không đổi kiến trúc; chỉ bổ sung entity, action, endpoint, primitive.
+> Upstream: `00-PROJECT-CONTEXT.md` (Scan + Vision V1–V18 + Scan delta ver2.1), `01-REQUIREMENTS-MATRIX.md` (RRI D01–D51, REQ A–N), `plans/COMMERCE-DECISIONS.md`, `product/*`, **`standards/*` (bắt buộc — xem `standards/README.md`)**
 > Đã duyệt thì **không đổi kiến trúc**. Thay đổi lớn phải quay lại Vision.
 
 ---
@@ -26,6 +27,7 @@ AppChat_Ver2/
 │   ├── db/                       # 2 Prisma schema (platform + tenant), migrations, PlatformDb, TenantDbResolver (LRU), provisioner, tenant-migrate runner, seed
 │   ├── ai/                       # Agent Gateway interface, AiSdkEngine, LLM Router, prompts, meta-tools
 │   ├── channels/                 # ChannelAdapter + ChannelManifest + channelRegistry; adapters (zalo-personal, webchat, email) — standards/channels
+│   ├── voice/                    # Gọi điện (D61): LiveKit phòng / SIP / webhook, ZCC client, ghi track, VoiceAiEnginePort (realtime | pipeline) — §6b
 │   ├── integrations/             # Port theo năng lực + ConnectorManifest + connectorRegistry; adapters (sepay, casso, smtp, s3, mock; coming_soon: misa, matbao, vnpt, viettel…) — standards/integrations
 │   ├── shared/                   # types, enums, error codes, money/phone/date utils, i18n keys
 │   └── ui/                       # antd theme (token prototype → ConfigProvider), antd-style tokens, wrapper component, icons (lucide-react)
@@ -38,8 +40,8 @@ AppChat_Ver2/
 - `shared` → không phụ thuộc package nào.
 - `actions` → chỉ `shared` (+ zod).
 - `db` → `shared`.
-- `ai`, `channels`, `integrations` → `shared`, `actions` (**không** import `core` — nhận dependency qua interface).
-- `core` → `db`, `actions`, `shared`, `ai`, `channels`, `integrations`.
+- `ai`, `channels`, `integrations`, `voice` → `shared`, `actions` (**không** import `core` — nhận dependency qua interface; `voice` dùng `ai` qua port `VoiceAiEnginePort`, không gọi thẳng).
+- `core` → `db`, `actions`, `shared`, `ai`, `channels`, `integrations`, `voice`.
 - `api`, `worker` → `core` (+ `ai`, `channels`, `integrations`).
 - `web` → `actions`, `shared`, `ui` (**không bao giờ** import `core`/`db`).
 
@@ -61,6 +63,7 @@ packages/core/src/
 ├── documents/         # doc_template (rich / DOCX), biến chuẩn, render PDF (react-pdf / LibreOffice), AI soạn chứng từ, bảng kiểm (D30)
 ├── integrations/      # integration_connection, mapping, call log, resolver theo port, webhook router, interest (D28) — adapter ở packages/integrations
 ├── booking/           # staff, business hours, appointment, slot finder
+├── callcenter/        # (D61) số / trunk, máy nhánh, nhóm, IVR, cuộc gọi + chuyển máy, ghi âm / transcript / tóm tắt, ZCC consent, webhook LiveKit / ZCC, Voice AI phiên — §6b
 ├── support/           # ticket, sla policy, sla clock, escalation
 ├── marketing/         # segment, campaign, recipient, suggestion
 ├── loyalty/           # config, ledger, tier
@@ -257,7 +260,7 @@ PostgreSQL 16 cluster (native)  ── PgBouncer (transaction mode, :6432) ─�
 - **Tiền:** `bigint`, đơn vị VND (không dùng float). **Credit:** `bigint`.
 - **Thời gian:** `timestamptz`; hiển thị theo timezone của workspace (mặc định `Asia/Ho_Chi_Minh`).
 - **Enum:** dùng Postgres enum qua Prisma, giá trị tiếng Anh snake_case. Nhãn hiển thị nằm trong i18n.
-- **Mã nghiệp vụ:** cột `code` dạng `KH-000123`, `BG-…`, `DH-…`, `TT-…` (đề nghị thanh toán), `LH-…`, `TK-…`. Sinh bằng bảng `sequence_counter(kind, value)` trong DB tenant và lệnh `UPDATE … RETURNING`. Hoá đơn gói AppChat dùng sequence riêng ở DB nền tảng.
+- **Mã nghiệp vụ:** cột `code` dạng `KH-000123`, `BG-…`, `DH-…`, `TT-…` (đề nghị thanh toán), `LH-…`, `TKT-…` (D52). Sinh bằng bảng `sequence_counter(kind, value)` trong DB tenant và lệnh `UPDATE … RETURNING`. Hoá đơn gói AppChat dùng sequence riêng ở DB nền tảng.
 - **Extensions** (cài sẵn trong DB template): `pgcrypto`, `vector` (pgvector), `pg_trgm`, `unaccent`, `btree_gist`, `citext`.
 - **Hàm bất biến:** `f_unaccent(text) IMMUTABLE`, dùng cho expression index tìm kiếm tiếng Việt không dấu.
 - **Index:**
@@ -284,6 +287,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `tenant_widget_route` | public_key (pk), ws, allowed_domains text[] | widget kết nối → DB đích |
 | `tenant_bank_feed_route` | feed_id (pk), ws, provider | webhook SePay / Casso của DN → DB đích |
 | `tenant_integration_route` | connection_id (pk), ws, connector_key, status | webhook `/hooks/integrations/:connector/:connectionId` → DB đích (D28) |
+| `tenant_shop_route` | route_key (pk, `<connector>:<shop_id>`), ws, connection_id, status(active\|disabled), updated_at | webhook sàn mức App `/hooks/marketplace/:connector` → DB đích; PK chặn một shop ở hai workspace (D63, DC-917, TIP-049) |
+| `tenant_channel_webhook_route` | route_key (pk, `<type>:<external_id>` — `zalo_oa:<oa_id>`, `facebook:<page_id>`, `instagram:<ig_id>`, `tiktok_messaging:<business_id>`), ws, channel_account_id, type, status(active\|disabled), updated_at | webhook kênh mức App `/hooks/channels/:type` → DB đích; PK chặn một Page / OA thuộc hai workspace (D62, DC-910, TIP-048b) |
 | `integration_interest` | ws, connector_key, user_id, note?, created_at | unique(ws, connector_key); thẻ "Sắp có" → "Đăng ký quan tâm" |
 | `tenant_sign_route` | token_hash (pk), ws, expires_at | trang ký công khai `/sign/[token]` → DB đích |
 | `tenant_migration` | ws, version, status(pending\|running\|done\|failed), error?, started_at, finished_at | idx(status, version) |
@@ -296,8 +301,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 |---|---|---|
 | `plan` | id, key, segment(personal\|business), name, price_month, price_year, credits_month, max_channels, max_agents, max_users, features jsonb, is_trial_plan, archive_inactive_days? (Miễn phí = 90, còn lại null), active, sort | seed theo prototype; sửa được trong trang admin |
 | `subscription` | ws (unique), plan_id, status(trialing\|active\|expired\|cancelled), trial_started_at, trial_ends_at, current_period_start, current_period_end | |
-| `credit_wallet` | ws (pk), plan_balance bigint (reset mỗi kỳ, không cộng dồn), topup_balance bigint (không hết hạn), low_threshold, warn_80_sent_at, warn_95_sent_at | CHECK cả hai ≥ 0; trừ plan_balance trước |
-| `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind); unique(ws, ref_type, ref_id) — idempotent khi trừ credit từ DB tenant |
+| `credit_wallet` | ws (pk), plan_balance bigint (reset mỗi kỳ, không cộng dồn), topup_balance bigint (không hết hạn), low_threshold, low_alert, warn_80_sent_at, warn_95_sent_at, exhausted_at | CHECK cả hai ≥ 0; trừ plan_balance trước (TIP-009: DC-034) |
+| `credit_ledger` | ws, delta, balance_after, kind(grant\|topup\|usage\|refund\|adjust\|expire), ref_type, ref_id, note? (khoá chữ i18n/server), meta jsonb?, source?, provider?, model?, tokens_in?, tokens_out?, run_id? | idx(ws, created_at desc) INCLUDE(delta, kind); unique(ws, ref_type, ref_id) — idempotent khi trừ credit từ DB tenant |
 | `model_price` | provider_key, model, tier(standard\|advanced\|max), credits_per_1k_in, credits_per_1k_out, active | unique(provider, model) |
 | `llm_provider` | key (unique), kind(anthropic\|openai\|google\|deepseek\|openai_compatible), name, base_url?, api_key_enc bytea, headers jsonb?, capabilities jsonb `{tools, json_schema, streaming, embeddings, vision, reasoning}`, status(active\|disabled), last_probe_at?, last_error? | D33. Router OpenRouter / 9router / LiteLLM… = `openai_compatible`; chỉ Quản trị nền tảng sửa |
 | `model_route` | tier, priority, provider_key → `llm_provider.key`, model, purpose(chat\|embed\|rerank), params jsonb? | fallback theo priority; một tier có thể trộn provider gốc và router |
@@ -308,19 +313,27 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ghi chú |
 |---|---|---|
-| `channel_account` | type(zalo_personal\|webchat\|email), name, external_id, status(pending\|connecting\|connected\|error\|disconnected\|expired), credentials_enc bytea (AES-256-GCM), settings jsonb (rate limit, cap/ngày, agent mặc định, ai_mode mặc định), health jsonb, last_event_at | unique(type, external_id) |
+| `channel_account` | type(zalo_personal\|webchat\|email), name, external_id, status(pending\|connecting\|connected\|error\|disconnected\|expired), credentials_enc bytea (AES-256-GCM), settings jsonb (rate limit, cap/ngày, agent mặc định, ai_mode mặc định; ver2.1 REQ-B11: giờ + lời chào trả lời tự động, cách chia + SLA, đồng bộ `{auto_create_contact, history_days: 0\|7\|30\|90}`), paused_at?, health jsonb, last_event_at | unique(type, external_id) |
+| _ghi chú_ | **Một kênh nhiều tài khoản (REQ-B09):** mỗi `type` có nhiều `channel_account`. Trạng thái kênh tính ở service: sức khoẻ = tài khoản kém nhất, số hội thoại cộng dồn; hết tài khoản `connected` → kênh "Chưa kết nối". | |
 | `webchat_widget` | channel_account_id, public_key unique, theme jsonb, greeting, prechat_form jsonb, agent_id?, allowed_domains text[] | |
+| `channel_account.oauth_grant_id` (D62) | uuid? → `oauth_grant` | kênh OAuth (Zalo OA, Facebook, Instagram, TikTok) lấy token qua `TokenVault`, không lưu token trong `credentials_enc` (DC-909) |
+| `channel_webhook_event` (D62) | channel_account_id, event_key, kind, payload jsonb, received_at, processed_at?, outcome(applied\|ignored\|failed)?, attempts | unique(channel_account_id, event_key); partial (received_at) WHERE processed_at IS NULL; dọn > 7 ngày (TIP-048b) |
+| `oauth_grant` (D62, file `tenant/oauth-grants.prisma`) | provider, subject, access_enc, refresh_enc?, access_expires_at?, refresh_expires_at?, scopes text[], status(active\|refresh_failed\|revoked), version, refreshed_at?, last_error? | unique(provider, subject); partial (status, access_expires_at) WHERE status = 'active' — job làm mới trước hạn; dùng chung kênh OA + ZCC + sàn (DC-909, TIP-048) |
 
 **[T] tenant/inbox.prisma**
 
 | Bảng | Trường | Index |
 |---|---|---|
-| `conversation` | channel_account_id, contact_id→crm, kind(direct\|group), external_thread_id, title?, status(open\|pending\|snoozed\|closed), assignee_user_id?, assignee_agent_id?, team_id?, ai_mode(off\|copilot\|auto), ai_state(idle\|running\|waiting_approval\|handoff), handoff_reason?, intent?, last_message_at, last_message_preview, unread_count, pinned, archived_at?, snoozed_until?, group_ai_policy(mention\|auto\|off)? | unique(channel_account_id, external_thread_id); idx(status, last_message_at desc) INCLUDE(contact_id, unread_count, ai_mode); idx(assignee_user_id, last_message_at desc); partial idx(ai_state) WHERE ai_state in (waiting_approval, handoff) |
-| `message` | conversation_id, direction(in\|out), sender_type(contact\|user\|agent\|system), sender_id?, kind(text\|image\|file\|sticker\|audio\|note\|system\|card), body, attachments jsonb, external_msg_id?, channel_account_id, status(queued\|sent\|delivered\|read\|failed), error?, run_id?, created_at | unique(channel_account_id, external_msg_id); idx(conversation_id, created_at desc). Partition theo tháng làm sau khi scale |
+| `conversation` | channel_account_id, contact_id→crm, kind(direct\|group), external_thread_id, title?, status(open\|pending\|snoozed\|closed), assignee_user_id?, assignee_agent_id?, team_id?, ai_mode(off\|copilot\|auto), ai_state(idle\|running\|waiting_approval\|handoff), handoff_reason?, intent?, last_message_at, last_message_preview, unread_count, pinned, archived_at?, snoozed_until?, **hidden_at?** (D50 — ẩn khỏi danh sách, tin vào mới thì xoá), **pinned_message_id?** (REQ-C09), group_ai_policy(mention\|auto\|off)? | unique(channel_account_id, external_thread_id); idx(status, last_message_at desc) INCLUDE(contact_id, unread_count, ai_mode); idx(assignee_user_id, last_message_at desc); partial idx(ai_state) WHERE ai_state in (waiting_approval, handoff) |
+| `message` | conversation_id, direction(in\|out), sender_type(contact\|user\|agent\|system), sender_id?, kind(text\|image\|file\|sticker\|audio\|note\|system\|card), body, attachments jsonb, external_msg_id?, channel_account_id, status(queued\|sent\|delivered\|read\|failed), error?, run_id?, **reply_to_id?**, **forwarded_from_id?**, deleted_at?, created_at | unique(channel_account_id, external_msg_id); idx(conversation_id, created_at desc). Partition theo tháng làm sau khi scale. Tìm trong hội thoại (REQ-C12): expression index `gin (f_unaccent(lower(body)) gin_trgm_ops)` + lọc `conversation_id` |
+| `message_reaction` | message_id, actor_type(user\|contact), actor_id, emoji(👍\|❤️\|😂\|😮\|😢\|🙏), created_at | pk(message_id, actor_type, actor_id, emoji) — bấm lại = xoá; chỉ kênh có `capabilities.reactions` (OQ-12) |
 | `conversation_participant` | conversation_id, external_id, display_name, contact_id? | dùng cho hội thoại nhóm |
 | `conversation_tag` | conversation_id, tag_id | pk(conversation_id, tag_id) |
+| `conversation_assignee` | conversation_id, kind(user\|agent), assignee_id, added_by?, created_at | pk(conversation_id, kind, assignee_id); idx(kind, assignee_id, conversation_id). **Đồng phụ trách** (DC-423, mirror D32 `contact_collaborator`) — khác phụ trách CHÍNH ở `conversation.assignee_user_id`/`assignee_agent_id`; luôn thêm/gỡ bằng tay qua `conversation.add_assignee`/`remove_assignee`, auto-route không bao giờ ghi vào bảng này. `least_busy` đếm tải cho cả phụ trách chính và đồng phụ trách |
 | `canned_reply` | shortcut, title, body, attachments jsonb | unique(shortcut) |
 | `outbox_message` | message_id, channel_account_id, payload jsonb, status(pending\|sending\|sent\|failed\|dead), attempts, next_attempt_at, last_error | idx(status, next_attempt_at) |
+
+- **D62 (TIP-048b, 048f, 048g):** `conversation.last_inbound_at` (tin khách cuối — cửa sổ gửi); `conversation.kind` thêm `comment` (hội thoại bình luận theo bài + người bình luận, `external_thread_id = c:<post>:<author>`), `conversation.post_id` → `social_post`; `message.hidden_at`, `message.external_parent_id`; index `(kind, last_message_at DESC, id DESC) WHERE kind = 'comment'`. File mới `tenant/social.prisma` (chủ 048f): `social_post` (unique(channel_account_id, external_post_id)), `social_comment` (message_id pk — khoá nhắn riêng một lần `private_reply_at`, `liked_at`, `private_reply_eligible`), `live_session` (unique(channel_account_id, external_live_id), `version`), `live_comment_flag` (idx(live_session_id, status, created_at DESC), `version` — CAS khi hai người xử lý cùng cờ).
 
 **[T] tenant/crm.prisma**
 
@@ -329,13 +342,18 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `contact` | code, name, kind(person\|business\|household), phone?, phone_norm?, email?, tax_code?, avatar_url?, gender?, birthday?, address?, city?, source?, locale?, group(vip\|loyal\|new\|potential)?, stage(lead\|potential\|consulting\|quote\|contract\|won\|lost), owner_user_id?, team_id?, tier_key?, points_balance bigint, total_spent bigint, last_interaction_at, last_order_at, marketing_opt_out bool, ai_summary?, ai_summary_at?, custom jsonb, deleted_at? | partial unique(phone_norm) WHERE deleted_at IS NULL AND phone_norm IS NOT NULL; idx(stage, last_interaction_at desc); gin(f_unaccent(lower(name)) gin_trgm_ops); idx(lower(email)) WHERE email IS NOT NULL |
 | `contact_identity` | contact_id, channel_type, channel_account_id, external_id, display_name | unique(channel_account_id, external_id) — `channel_type = marketplace` cho buyer id của sàn (D31) |
 | `contact_collaborator` | contact_id, user_id, role(collaborator\|watcher), added_by, created_at | pk(contact_id, user_id); idx(user_id, contact_id) — scope `own` (D32) |
+| `lead_routing_rule` | channel_account_id? (null = mặc định), enabled (mặc định false), enabled_at?, mode(manual\|round_robin\|least_busy\|by_channel), user_ids uuid[] (≤ 100) XOR team_id?, fixed_user_id? (by_channel), version int (CAS), configured_by_user_id? | partial unique((true)) WHERE channel_account_id IS NULL; partial unique(channel_account_id) WHERE NOT NULL. Chỉ chia lead TẠO SAU enabled_at (TIP-042b, DC-238); `assign_mode` của tài khoản kênh chỉ là bản chiếu cũ |
+| `lead_routing_cursor` | rule_id pk (FK cascade), last_user_id? | khoá FOR UPDATE tuần tự hoá lựa chọn (TIP-042b) |
+| `lead_routing_decision` | contact_id, originating_event_id, rule_id?, rule_version?, selected_user_id?, conversation_id?, reason | unique(contact_id); unique(originating_event_id) — một quyết định chủ đầu tiên mỗi khách / event, không lưu tin / SĐT (TIP-042b) |
 | `contact_access_request` | contact_id, requester_user_id, status(pending\|approved\|rejected), decided_by?, decided_at?, note? | idx(contact_id, status); partial unique(contact_id, requester_user_id) WHERE status='pending' |
 | `tag` | name, color, scope(all\|contact\|conversation) | unique(lower(name)) — nguồn thẻ dùng chung cho khách và hội thoại |
 | `contact_tag` | contact_id, tag_id | pk |
 | `contact_memory` | contact_id, fact, source_run_id?, confidence | AI ghi nhớ sự kiện về khách |
 | `timeline_event` | contact_id, type(message\|quote\|order\|invoice\|payment\|appointment\|ticket\|note\|ai_action\|loyalty\|campaign\|stage), ref_type, ref_id, actor_type, actor_id, summary, payload jsonb, occurred_at | idx(contact_id, occurred_at desc) |
 | `contact_note` | contact_id, body, author_user_id | |
-| `custom_field_def` | entity(contact\|product\|quote\|order\|ticket\|appointment), key, label, type(text\|number\|currency\|date\|email\|phone\|picklist\|lookup\|file\|textarea), options jsonb, required, sort, visible_in jsonb | unique(entity, key) |
+| `profile_layout` | name, is_system bool (Mặc định · CSKH · Kinh doanh), tabs jsonb `[{key, label, enabled, sort, builtin, blocks: block_key[]}]` (≥ 1 tab; khối lấy từ thư viện 12 khối), created_by | REQ-F12, M05 |
+| `profile_layout_role` | role_key (pk, 5 vai trò D27), layout_id | mỗi vai trò đúng một mẫu; xoá mẫu đang gán → về Mặc định |
+| `custom_field_def` | entity(contact\|product\|quote\|order\|ticket\|appointment), key, label, type(text\|textarea\|number\|currency\|date\|email\|phone\|picklist\|multi\|tier\|tags\|lookup\|file), options jsonb, required, ai, sys, roles text[], condition?, sort, visible_in jsonb `{list, kanban, form, filter, detail, export}` | unique(entity, key). Giá trị: cột `custom jsonb NOT NULL DEFAULT '{}'` trên `contact`, `product`, `quote`, `order`, `ticket`, `appointment` + GIN `(custom jsonb_path_ops)` (D56, `standards/domain/custom-fields.md`) |
 
 **[T] tenant/catalog.prisma** — `product_category(name, parent_id?)`; `product(code, name, type(physical|service|combo|package|digital|rental), category_id?, price, cost?, unit, tax_rate(0|5|8|10), stock?, duration_min?, buffer_min?, sessions?, valid_days?, deposit?, package_service_ids uuid[]?, allow_use_on_deposit bool, low_stock_threshold?, images jsonb, description, status(active|draft|archived), custom jsonb, deleted_at?)` — giá **chưa VAT**; `product_variant(product_id, sku, name, attrs jsonb, price?, stock, status)` (P1); `product_component(product_id, child_id, qty)` cho combo; `stock_movement(product_id, variant_id?, kind(sale|return|adjust|import), qty, ref_type, ref_id, reason?, actor_id, created_at)` với idx(product_id, created_at desc). Index: gin trigram trên tên; idx(status, type). Quy tắc kho: COMMERCE-DECISIONS §2.
 
@@ -378,8 +396,27 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | Bảng | Trường |
 |---|---|
 | `sla_policy` | name, is_default (không xoá được), frt_human_min (10), ttr_human_min (240), business_hours_only, escalation jsonb, active |
-| `ticket` | code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, team_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count. Index: idx(status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
+| `ticket` | code, contact_id, conversation_id?, title, description, category, priority(high\|medium\|low), status(open\|in_progress\|waiting\|closed), assignee_user_id?, assignee_agent_id?, team_id?, sla_policy_id, sla_policy_name, frt_due_at, ttr_due_at, first_response_at?, paused_since?, paused_total_sec, sla_result(met\|breached)?, close_reason(resolved\|duplicate\|withdrawn\|out_of_scope)?, csat?, closed_at?, reopened_count, version (trigger `ticket_bump_version` BEFORE UPDATE — `OLD.version + 1` ở MỌI UPDATE, nguồn duy nhất; TIP-034c). Index: idx(status, ttr_due_at) INCLUDE(priority, assignee_user_id) |
 | `ticket_comment` | ticket_id, author_type, author_id, body, internal bool |
+| `ticket_category_config` | key = 'ticket_categories' (một dòng), labels jsonb (1–100 nhãn có thứ tự, nhãn đầu = mặc định), version, updated_at, updated_by — TIP-034b: chỉ là bộ GỢI Ý; chưa có dòng = version 0 ảo 8 nhãn prototype; `ticket.category` vẫn chữ tự do, không FK. Index nhãn đã dùng: `ticket(category COLLATE "C")`, `(assignee_user_id, category COLLATE "C")`, `(created_by_type, created_by_id, category COLLATE "C") INCLUDE(id)` |
+| `ticket_stock_control` · `ticket_stock_batch` · `ticket_stock_observation` · `ticket_stock_result_contribution` · `ticket_stock_result_source` | TIP-034d (DC-451): control singleton id=1 (khoá điều phối chụp / dọn / "Quên khách" — sau khoá họ khách); batch (time_zone, local_date, metric_version, observed_at, completed_at) unique theo ngày + INCLUDE; observation hẹp (batch_id, ticket_id, status, breached, source_contact_id, source_conversation_id — nguồn GỐC lúc chụp, không FK, không nội dung); tập đóng góp kết quả action `ticket.stock_summary` (candidate_id, ticket_id, version, trạng thái hiện tại / mốc, provenance) + nguồn chuẩn hoá (source_kind, source_id, source_generation, origin current|baseline) index theo khoá nguồn cho privacy. Cache kỹ thuật 8 ngày lịch (không phải lưu trữ pháp lý); tập đóng góp 30 ngày |
+
+**[T] tenant/callcenter.prisma** (D61, TIP-047b — DC-903)
+
+| Bảng | Trường / ràng buộc |
+|---|---|
+| `call_line` | number_e164?, display, channel_kind(pstn\|zcc\|personal_forwarding\|personal_sim_gateway\|webrtc_widget), carrier?, sip_mode(peering\|register)?, sip_host?, sip_user?, secret_enc bytea?, zcc_oa_id?, zcc_route_id?, max_concurrent (SIM gateway = 1, CHECK), inbound_default bool, outbound_allowed bool, active, version | unique(number_e164) WHERE number_e164 IS NOT NULL; unique(zcc_oa_id, zcc_route_id) |
+| `call_extension` | ext text (2–5 số), user_id? \| agent_id? (máy AI 900), can_receive, can_dial, device(webphone), caller_line_id?, status(online\|offline\|busy\|acw\|away), version | unique(ext); unique(user_id) WHERE user_id IS NOT NULL |
+| `call_queue` · `call_queue_member` | name (duy nhất), strategy(sequential\|ring_all\|least_calls\|longest_idle), max_wait_s (30–300), overflow(voicemail\|ai\|any_free\|queue), overflow_queue_id?, caller_line_id? · (queue_id, extension_id) | pk(queue_id, extension_id) |
+| `call_ivr` · `call_ivr_key` | id smallint = 1, greeting_file_id?, ai_first bool, after_hours(voicemail_callback\|ai), record_notice bool (luôn bật khi ghi) · key 0–9, target(any\|ai\|queue\|extension\|voicemail), target_id? | unique(key) |
+| `call` | code `CG-`, direction(in\|out), channel_kind, line_id, caller_phone? (rỗng khi ZCC chỉ có user Zalo), external_user_id?, contact_id?, opportunity_id?, queue_id?, answered_by_user_id?, agent_id?, status(ringing\|in_progress\|completed\|missed\|voicemail\|ai_handled\|failed), started_at, answered_at?, ended_at?, duration_s, missed_count, callback_task_id?, ticket_id?, livekit_room, version (CAS) | idx(started_at DESC, id) INCLUDE(status, direction); idx(contact_id, started_at DESC); partial(status, started_at) WHERE status = 'missed' |
+| `call_leg` | call_id, role(customer\|agent\|ai\|monitor), user_id?, agent_id?, extension_id?, joined_at, left_at?, transfer_from_leg_id?, mode(normal\|listen\|whisper\|barge) | idx(call_id, joined_at) |
+| `call_recording` · `call_transcript` · `call_summary` | call_id, file_id (purpose `call_recording`), duration_s, expires_at (+12 tháng) · call_id, segments jsonb (người nói, ms, text, text_vi?), expires_at · call_id, summary, sentiment, ai_run_id? (giữ sau 12 tháng) | unique(call_id) mỗi bảng; partial(expires_at) WHERE file chưa xoá |
+| `zcc_consent` | line_id, zalo_user_id?, phone_e164?, requested_by, requested_at, status(pending\|granted\|expired\|declined), granted_at?, callable_until?, cost_credits? | idx(line_id, zalo_user_id); idx(line_id, phone_e164) |
+| `call_webhook_receipt` | provider(livekit\|zcc), event_id, received_at, processed_at? | pk(provider, event_id) |
+
+- `contact_task` (crm-activities, TIP-026b) thêm `kind(task|callback)`, `callback_at`, `callback_caller(user|agent)`, `call_id?` — sửa bởi TIP-047b (DC-903).
+- Platform: `model_price` thêm dòng voice (`voice_realtime` · `stt` · `tts`, đơn vị phút / 1k ký tự); `plan.max_call_extensions`; addon kind `call_extension` (200.000đ / tháng — COMMERCE §10).
 
 **[T] tenant/marketing.prisma** — `segment(name, filter jsonb /* AST điều kiện */, is_dynamic, last_count)`; `campaign(code, name, kind(reactivation|upsell|conversion|aftercare|manual), channel(zalo|email), segment_id, content jsonb {text, variables, cta, attachments}, ab jsonb?, status(draft|pending_approval|approved|scheduled|running|paused|completed|rejected|cancelled), scheduled_at?, approved_by?, approved_at?, est_recipients, est_credits, stats jsonb, suggestion_id?)`; `campaign_recipient(campaign_id, contact_id, status(pending|skipped|sent|failed|replied|converted), skip_reason?, message_id?, sent_at?)` với unique(campaign_id, contact_id); `campaign_suggestion(kind, title, reason, segment_filter, est_count, best_time, channel, status(new|used|dismissed), generated_at)`.
 
@@ -392,10 +429,11 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `ai_agent` | name, emoji?, avatar_file_id?, role(sales\|cs\|booking\|marketing\|accounting\|ops\|custom), language(vi\|en\|bilingual\|auto), persona, tone, system_prompt, intents text[], model_tier(standard\|advanced\|max), tool_ids text[] (action ids), kb_scope jsonb `{folder_ids[], tags[]}`, channel_account_ids uuid[], confidence_threshold (0.7), approval_rules jsonb, working_hours jsonb, status(draft\|active\|paused), template_key?, created_via(manual\|template\|assistant), created_by, **published_version_id?**, draft_dirty bool. Các cột cấu hình là **bản nháp**; agent chạy theo `published_version_id` (D29) |
 | `ai_agent_version` | agent_id, version int, config jsonb (snapshot đủ cấu hình), published_by, published_at, note? | unique(agent_id, version); idx(agent_id, version desc) |
 | `agent_template` **[P]** | key, role, industry_group?, industry?, name, description, defaults jsonb |
-| `kb_folder` | name, parent_id?, visibility(public\|internal), sort | idx(parent_id) |
+| `kb_folder` | name, parent_id?, visibility(public\|internal), sort, version (TIP-020b — CAS) | idx(parent_id); unique f_unaccent(lower(btrim(name))) (TIP-020b) |
 | `kb_source` | folder_id?, origin(upload\|url\|text\|catalog\|conversation\|drive), kind(pdf\|docx\|xlsx\|csv\|txt\|md\|url\|text\|product), name, tags text[], visibility(public\|internal), file_id?, url?, product_id?, sha256?, status(pending\|processing\|ready\|failed), error?, chunk_count, size_bytes, created_by, refreshed_at, deleted_at? | idx(folder_id, status) WHERE deleted_at IS NULL; gin(tags); unique(sha256) WHERE deleted_at IS NULL |
-| `kb_chunk` | source_id, ord, content, content_norm (= f_unaccent(lower(content))), embedding vector(1536), embed_model, token_count, meta jsonb `{path[], page?, row?, volatile?}` | `hnsw (embedding vector_cosine_ops)`; `gin (content_norm gin_trgm_ops)`; idx(source_id, ord) |
-| `kb_suggestion` (P1) | conversation_id, question, answer, source_message_ids uuid[], status(pending\|approved\|rejected), edited bool, reviewed_by?, reviewed_at?, kb_source_id? | idx(status, created_at desc) |
+| `kb_chunk` | source_id, ord, content, content_norm (= f_unaccent(lower(content))), embedding vector(1536), embed_model, token_count, meta jsonb `{path[], page?, row?, volatile?}` | `hnsw (embedding vector_cosine_ops)`; `gin (content_norm gin_trgm_ops)`; idx(source_id, ord) · *TIP-020e (DC-452):* hai khe vector đối xứng — khe A = `embedding` + `embed_space_a` + `embed_generation_a`, khe B = `embedding_b vector(1536)` + `embed_space_b` + `embed_generation_b`; space key `provider:model:1536:<spaceRevision>` (HMAC model + params của route); `hnsw (embedding_b vector_cosine_ops)`; idx(embed_generation_a, id) / idx(embed_generation_b, id) (đếm / catch-up / purge theo generation) |
+| `kb_embed_generation` *(TIP-020e)* | slot(a\|b), space_key, phase(building\|catching_up\|active\|failed\|cancelled\|superseded), expected, done, tokens, cursor_chunk_id?, catchup_round, lease_token?, lease_until?, operation_id?, reason?, created_by?, created_at, updated_at, version | partial unique ((true)) WHERE phase IN ('building','catching_up') — một generation dở mỗi workspace; idx(created_at DESC) INCLUDE (phase). `kb_setting` thêm active_slot(a\|b), active_generation_id?, active_space?, index_state(current\|stale), stale_since? |
+| `kb_suggestion` (P1) | conversation_id, question, answer, source_message_ids uuid[], status(pending\|approved\|rejected), edited bool, fingerprint, cutoff_message_id, run_id?, reviewed_by?, reviewed_at?, reject_reason?, kb_source_id?, version | *TIP-043:* covering idx(status, created_at desc, id desc) INCLUDE (conversation_id, version, kb_source_id) + deferred join; unique(fingerprint); unique(kb_source_id); idx(conversation_id). Câu hỏi / đáp án lưu **đã che PII**; không có nguồn / đoạn KB tới khi duyệt |
 | `ai_run` | kind(agent_reply\|assistant\|delegate\|consult\|task\|suggestion), parent_run_id?, root_run_id?, depth, state jsonb? (messages + pending tool call khi chờ duyệt), agent_id?, agent_version int?, dry_run bool, conversation_id?, assistant_session_id?, task_id?, initiated_by_user_id?, status(queued\|running\|waiting_approval\|completed\|failed\|cancelled\|handoff), plan jsonb?, input jsonb, output jsonb?, error?, confidence?, credits_used, started_at, finished_at. Index: idx(status, started_at desc) |
 | `ai_run_step` | run_id, idx, type(llm\|tool\|delegate\|consult\|handoff\|ui_command), agent_id?, action_id?, input jsonb, output jsonb, status, provider?, model?, tokens_in, tokens_out, credits, latency_ms |
 | `approval_request` | run_id, step_id, action_id, input jsonb, preview jsonb, risk, reason, status(pending\|approved\|rejected\|edited\|expired), requested_at, decided_by?, decided_at?, decision_note?. partial idx(requested_at desc) WHERE status='pending' |
@@ -408,9 +446,10 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ràng buộc / index |
 |---|---|---|
-| `role` | key text, name, is_system bool, permissions text[], data_scope jsonb `{inbox:'own', crm:'own', sales:'own', …}`, created_at | unique(key). Seed 5 vai trò hệ thống khi provision |
-| `team` | name, lead_user_id? | (P1 UI; bảng có từ đầu) |
+| `role` | key text, name, is_system bool, permissions text[], data_scope jsonb `{inbox:'own', crm:'own', sales:'own', …}`, version int (CAS), deleted_at? (xoá mềm vai trò tuỳ biến — TIP-042), created_at | unique(key). Seed 5 vai trò hệ thống khi provision; tuỳ biến `custom:<uuid>` do server sinh. idx `(is_system DESC, created_at, id) INCLUDE(name, version) WHERE deleted_at IS NULL` |
+| `team` | name, lead_user_id? (phải là thành viên), version int (CAS), created_at | idx `(created_at, id) INCLUDE(name, version, lead_user_id)` (TIP-042) |
 | `team_member` | team_id, user_id | pk(team_id, user_id); idx(user_id) |
+| `authz_revision` | id smallint = 1 (singleton), revision bigint, updated_at | pk(id) CHECK id = 1. Mọi role.\* / team.\* tăng trong cùng giao dịch tenant; AuthzResolver đọc mỗi lần và đưa vào khoá cache — sửa / thu hồi quyền có hiệu lực ở request kế tiếp, không chờ TTL / event (TIP-042) |
 
 - Bảng nghiệp vụ có chủ sở hữu (`contact`, `conversation`, `quote`, `contract`, `order`, `invoice`, `appointment`, `ticket`) có `owner_user_id` và/hoặc `assignee_user_id` + `team_id?`, cùng index theo `standards/database/indexing.md` §7:
   - `contact(owner_user_id, last_interaction_at DESC) WHERE deleted_at IS NULL` · `contact_collaborator(user_id, contact_id)`
@@ -422,10 +461,12 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 
 | Bảng | Trường | Ràng buộc / index |
 |---|---|---|
-| `integration_connection` | connector_key text, port text, name, mode(sandbox\|live), status(connected\|error\|disconnected), config jsonb, secret_enc bytea, last_sync_at?, last_error?, created_by | idx(port, status) |
-| `integration_mapping` | connection_id, entity, local_id, external_id, synced_at | unique(connection_id, entity, local_id); unique(connection_id, entity, external_id) |
+| `integration_connection` | connector_key text, port text, name, mode(sandbox\|live), status(connected\|error\|disconnected), config jsonb, secret_enc bytea, last_sync_at?, last_error?, created_by | idx(port, status); unique partial (connector_key) WHERE status <> 'disconnected' (DC-044) |
+| `integration_mapping` | connection_id, entity, local_id, external_id, synced_at | unique(connection_id, entity, local_id); unique(connection_id, entity, external_id) — D63: entity `product_sku` (SKU sàn ↔ sản phẩm / biến thể), ghép SKU đọc ánh xạ trước mã / SKU |
+| _D63_ | `integration_connection.external_account_id` (shop_id), `oauth_grant_id`; unique đang dùng `(connector_key) WHERE external_account_id IS NULL` + `(connector_key, external_account_id) WHERE external_account_id IS NOT NULL` (nhiều shop / sàn); `order.external_shop_key` (`<connector>:<shop_id>`) + unique (external_shop_key, external_id); `stock_movement` unique → `NULLS NOT DISTINCT (ref_type, ref_id, product_id, variant_id)` (trừ / hoàn tồn biến thể — Q-916); `integration_connection.sync_state` jsonb (cursor + lần chạy cuối), status thêm `expired` | TIP-049, DC-917 |
+| `marketplace_listing` (D63) | connection_id → integration_connection (CASCADE), external_item_id, external_model_id (default ''), seller_sku?, name, model_name?, price, stock?, platform_status, image_url?, match_status(unmatched\|suggested\|mapped), suggested_product_id?, suggested_variant_id?, suggest_reason?, synced_at | bản chụp sản phẩm sàn chỉ đọc cho Ghép SKU; unique(connection_id, external_item_id, external_model_id); list theo D42 deferred join (TIP-049) |
 | `integration_call_log` | connection_id, op, ref_type, ref_id, idempotency_key, status, latency_ms, error?, created_at | unique(idempotency_key); idx(connection_id, created_at desc) |
-| `integration_event` | connection_id, external_event_id, kind, payload jsonb, processed_at? | unique(connection_id, external_event_id) |
+| `integration_event` | connection_id, external_event_id, kind, payload jsonb, processed_at? | unique(connection_id, external_event_id); partial (connection_id, created_at) WHERE processed_at IS NULL |
 
 - `tenant_bank_feed` (sales) là một `integration_connection` port `bank_feed`; giữ bảng feed riêng cho khớp mã `TT-xxxxxx`, tham chiếu `connection_id`.
 
@@ -438,7 +479,8 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `idempotency_key` | key, route, request_hash, response jsonb, status_code, created_at. pk(key); TTL 24h (job dọn) |
 | `file` | storage_key, name, mime, size, sha256, uploaded_by, purpose |
 | `sequence_counter` | kind, value | pk(kind) |
-| `notification` | user_id, type, title, body, link, read_at?. idx(user_id, read_at, created_at desc) |
+| `notification` | user_id, type (loại `NOTIFY_KINDS`), title (render theo locale người nhận), body, link, read_at?. idx(user_id, created_at desc, id desc) + partial `WHERE read_at IS NULL` (TIP-006) |
+| `event_consumption` | event_id, consumer, created_at. pk(event_id, consumer) — khoá idempotent consumer `events` (outbox §4, TIP-006 DC-027) |
 
 ### 2.3 Domain events (outbox → BullMQ queue `events`)
 
@@ -448,7 +490,9 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `message.sent` | … | support (first_response), marketing (stats) |
 | `conversation.handoff` | reason, summary | notify Owner/assignee |
 | `contact.created` / `contact.merged` / `contact.stage_changed` | | timeline, marketing segments, ai tasks |
+| `lead.routing_requested` | contact_id, conversation_id, channel_account_id, message_id | consumer `crm.lead-routing` (ROLE=jobs) → `lead_routing.apply` nguồn system — chỉ khi tin 1-1 live vừa tạo khách (không nhóm / khớp khách cũ / lịch sử) (TIP-042b) |
 | `quote.sent` / `quote.viewed` / `quote.accepted` / `quote.rejected` / `quote.expired` | | crm stage (COMMERCE-DECISIONS §8); timeline; nhắc hết hạn |
+| `document.render_requested` / `document.rendered` / `document.render_failed` | render_id, kind, document_id, generation (+ error mã đã làm sạch) | consumer `documents.render` (ROLE=jobs) đẩy queue `doc-render` (jobId render:thế hệ); WS `document.render` làm mới chứng từ (TIP-028b) |
 | `contract.approved` / `contract.sent_for_signature` / `contract.signed` / `contract.declined` / `contract.expiring` (T-30) / `contract.expired` / `contract.terminated` | contract_id, contact_id | crm stage → Hợp đồng; timeline; thông báo Owner; gửi PDF đã ký 2 bên; nhắc gia hạn; gợi ý agent |
 | `order.confirmed` | order_id | trừ kho (`stock_movement`), sinh `customer_package` nếu đủ điều kiện |
 | `order.completed` / `order.cancelled` | total, net_before_vat, contact_id | loyalty earn (một lần) / reverse; crm stage → Đã mua; total_spent; hoàn kho + yêu cầu hoàn tiền khi huỷ |
@@ -456,18 +500,27 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `invoice.overdue` | | nhắc khách T+1 / T+7; công nợ |
 | `appointment.created` / `confirmed` / `completed` / `no_show` / `cancelled` | | reminders, timeline, ai tasks; `completed` → trừ buổi `customer_package` hoặc **gợi ý** tạo đơn (8b) |
 | `ticket.sla_warning` / `ticket.sla_breached` / `ticket.closed` | | notify, escalation, csat |
+| `ticket_categories.changed` | key, version (không nhãn) | realtime: `ticket_categories.config` (settings.manage) + `ticket_categories.suggestions` (ticket.view) — client đọc lại REST (TIP-034b) |
 | `campaign.approved` / `campaign.completed` | | sender job, campaign stats |
 | `ai.run.completed` / `approval.requested` / `approval.decided` | | WS push, notify, resume run |
 | `credits.low` / `credits.exhausted` / `credits.restored` | | notify; inbox chuyển hội thoại auto về người / mở lại |
+| `credits.changed` | balance_plan, balance_topup, ledger_id | realtime WS `credits.changed` (số dư chỉ cho `billing.manage`, người khác tín hiệu không số — TIP-006c, DC-449) |
+| `ui.command_issued` | run_id, user_id, tab_id, command | realtime WS `ui.command` tới phòng `tab:{user}:{tab}` của tab đã gửi lượt (TIP-006c, DC-449) |
 | `subscription.changed` / `trial.expired` | | quota, notify |
+| `notify.requested` | kind, to { user_ids?, permission? }, params, link?, exclude_user_id? | notify: ghi `notification` theo locale người nhận → WS `notification.new` → email theo tuỳ chọn (TIP-006) |
 | `member.role_changed` / `member.removed` | user_id | xoá cache AuthzContext; WS `authz.changed` → FE tải lại `me/authz`; gỡ gán hội thoại khi bị xoá |
 | `contact.owner_changed` / `contact.collaborator_changed` | contact_id, from, to, moved: {conversations, quotes, appointments} | timeline; thông báo hai bên; gán lại hội thoại đang mở (D32) |
 | `contact.access_requested` / `contact.access_decided` | request_id | thông báo owner của khách / Quản lý (Việc cần tôi); thông báo người xin |
 | `agent.published` / `agent.paused` / `agent.deleted` | agent_id, version | làm mới routing agent theo kênh; WS; thông báo |
 | `kb.source_ready` / `kb.source_failed` | source_id, chunk_count / error | WS cập nhật trang Dữ liệu RAG; thông báo khi lỗi |
-| `kb.suggestion_created` (P1) | suggestion_id | thông báo người có `kb.manage` |
+| `kb.index_stale` / `kb.index_published` *(TIP-020e)* | generation_id | Route embed khác space khe đang phục vụ → chỉ đánh dấu cũ (không job, không Credit — DC-288); publish đổi khe → WS làm mới trang Dữ liệu RAG |
+| `kb.suggestion_created` (P1) | suggestion_ids (1–5), conversation_id — *TIP-043:* chỉ id | thông báo `ai_review` (biến thể kb, link `/settings/rag_data?nav=review`) cho người có `kb.manage`; WS `kb.suggestion` |
+| `kb.suggestion_approved` / `kb.suggestion_rejected` (TIP-043) | suggestion_id (+ source_id, ingest_seq khi duyệt) | consumer `kb-suggest` đẩy lại `kb-ingest` cho nguồn mới; WS |
+| `conversation.updated` → `kb-suggest` (TIP-043) | change `status` / `bulk` + hội thoại `closed` | job đề xuất theo mốc tin cuối (ROLE=ai, AiRunner run kind `suggestion`, trần 20 credit, prompt `kb-suggestion` v2) |
 | `order.imported` / `order.external_updated` | order_id, connection_id | như `order.confirmed` / `completed` / `cancelled` theo trạng thái ánh xạ (kho; loyalty **chỉ khi** bật cho kết nối); timeline (D31) |
 | `integration.connected` / `integration.error` / `integration.disconnected` | connection_id, connector_key | thông báo; metric `integration_connection_status`; trang Nền tảng kết nối |
+| `integration.event_received` | connection_id, connector_key, port, event_id, kind | consumer domain theo port xử lý `integration_event` (TIP-010 / 031 / 032) — TIP-012 |
+| `call.ringing` / `call.answered` / `call.ended` / `call.missed` / `call.recording_ready` / `call.transcript_ready` / `callcenter.extension_status` (D61) | chỉ id (call_id, contact_id?, extension_id?) — không SĐT / URL ghi âm | WS WebPhone + màn Gọi điện theo scope `call.view`; `call.missed` → việc gọi lại (`contact_task` callback); `call.ended` → tóm tắt AI (ROLE=ai), timeline khách, gợi ý cơ hội; credit `voice_turn` |
 | `document.rendered` / `document.render_failed` | ref_type, ref_id, file_id | gắn `file_id` vào chứng từ; WS; lỗi thì thông báo người tạo (D30) |
 
 ---
@@ -490,6 +543,8 @@ export interface ActionDef<I extends z.ZodTypeAny, O extends z.ZodTypeAny> {
   risk: Risk;
   bulk?: boolean;             // thao tác nhiều bản ghi → luôn preview số lượng
   agentGrantable: boolean;    // có được cấp cho AI Agent trực kênh không
+  skill?: boolean;            // nhóm "Kỹ năng AI" trong Builder (chỉ risk 'read') — D51
+  requiresConnector?: string; // key connector / channel type; chưa kết nối thì tool không vào run — D51
   undo?: { windowSec: number };   // có hoàn tác + thời hạn
   invalidates: string[];      // query keys FE cần refetch
   uiTarget?: (o: z.infer<O>) => UiCommand;   // deep-link kết quả
@@ -536,6 +591,19 @@ interface ActionHandler<I, O> {
 | `task` (Cowork) | chạy | chạy trong `data_scope` | approval nếu `ask_before_send` | approval | luôn approval | cấm |
 
 - `bulk=true` luôn yêu cầu preview kèm số bản ghi, kể cả khi nguồn là `ui`.
+
+### 3.3b Quyền hiệu lực khi agent làm thay người (D51)
+
+- **Một nơi cấp quyền:** quyền của agent = `ai_agent.tool_ids`, chỉ sửa ở Builder AI Agents (`agent.update`). Menu ＋ Hộp thư và drawer Cowork chỉ đọc.
+- **Agent trực kênh** (`source=agent`, không có người ra lệnh): quyền hiệu lực = `tool_ids` của agent, áp policy §3.3.
+- **`delegate` từ Trợ lý AI** và **tác vụ Cowork** (`source=assistant` / `task`): quyền hiệu lực = **`tool_ids` của agent ∩ permission của người ra lệnh** (`initiated_by_user_id`), và **data scope theo người ra lệnh** (`ai_task.data_scope` không được rộng hơn scope của người tạo).
+  - Kiểm ở `ActionExecutor` cho **mỗi** lần gọi tool, không chỉ lúc tạo task. Người ra lệnh mất quyền sau đó thì lần gọi kế tiếp bị chặn.
+  - Tool ngoài giao → không đưa vào danh sách tool của run. Nếu vẫn bị gọi → `FORBIDDEN`, ghi `ai_run_step` lỗi, run tiếp tục với các tool còn lại.
+  - `action_log.on_behalf_of_user_id` = người ra lệnh; `actor_type=agent`, `actor_id` = agent.
+  - `delegate` lồng nhau: run con kế thừa giao của run cha (giao càng sâu càng hẹp).
+  - **Kiến thức (D54):** `kb.search` trong run giao dùng `kb_scope` của agent ∩ quyền đọc của người ra lệnh, được trả `internal` người đó được xem. Agent trực kênh trả lời khách chỉ nhận `public` trong `kb_scope`; Trợ lý (không có `kb_scope`) tìm cả kho trong quyền của người hỏi.
+- **Connector không phải quyền của agent:** action cần connector khai báo `requiresConnector` trong `ActionDef` (§3.1). Connector chưa kết nối thì tool vẫn hiện trong Builder (badge *Cần kết nối X*), nhưng không đưa vào run; chưa có manifest thì hiện *Sắp có*.
+- **Builder hiển thị Tools** theo `ActionDef.module` (Hộp thư, Khách hàng, Bán hàng, Lịch hẹn, Hỗ trợ, Marketing, Loyalty…) + nhóm **Kỹ năng AI** (`skill: true`), mỗi nhóm n/tổng. Nguồn: `GET /v1/agents/:id/tools` (§4.4).
 - Luật **governance** luôn ép approval, không phụ thuộc bảng trên: báo giá > 20.000.000₫, giảm giá ngoài chính sách, hoàn tiền, gửi hàng loạt, hợp đồng.
 - Từ cấm: chặn nội dung, đặt `handoff`.
 
@@ -552,9 +620,12 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `invite.revoke`
 - `profile.update` (mọi thành viên, write)
 - `working_hours.update`
+- `profile_layout.create` / `profile_layout.update` / `profile_layout.duplicate` / `profile_layout.delete` / `profile_layout.assign_role` (config, `settings.manage`; mẫu hệ thống không xoá được — REQ-F12, M05)
 - `notification.mark_read` (mọi thành viên, write)
+- `notification.update_prefs` (self, write, `db: 'platform'` — tuỳ chọn thông báo của tôi, bảng nền tảng `notification_pref`; TIP-006)
 - `role.create` / `role.update` / `role.delete` (P1, permission `roles.manage`; vai trò hệ thống không sửa được)
-- `team.create` / `team.update` / `team.set_members` (P1)
+- `team.create` / `team.update` / `team.set_members` (P1) — giữ làm alias một bản phát hành.
+- **D64 (TIP-051):** `org_unit.create` / `org_unit.update` / `org_unit.move` / `org_unit.set_members` (config, `members.manage`; thành viên người hoặc AI agent, trưởng là người) · `org_unit.delete` (delete; chỉ đơn vị không còn thành viên / con / bản ghi gắn). Scope `dept` = đơn vị mình + con (DC-924). TIP-051b: `channel.update_settings` nhận `unit_id`. TIP-051c: `contact.set_relation` (write, `crm.edit`, agentGrantable).
 - `workspace.transfer_ownership` (owner, OTP)
 - `integration.connect` / `integration.disconnect` / `integration.test` / `integration.sync_now` / `integration.register_interest` (permission `integrations.manage`; `register_interest` = write)
 
@@ -565,6 +636,13 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `channel.reconnect`
 - `channel.disconnect` (`channels.manage`)
 - `webchat.update_widget`
+- `channel.test` (read — kiểm tra kết nối; form Email IMAP / SMTP gọi trước khi lưu, REQ-B10)
+- `channel.pause` / `channel.resume` (config)
+- `channel.sync_history` (write; `history_days` 0 / 7 / 30 / 90 — REQ-B11)
+- Mọi action kênh nhận `channel_account_id` (một kênh nhiều tài khoản — REQ-B09); `channel.disconnect` tài khoản cuối → kênh thành Chưa kết nối.
+- **D62:** `oauth.start` (config; quyền theo mục đích: kênh `channels.manage` · ZCC `callcenter.manage` · connector `integrations.manage`) · `oauth.complete` (nội bộ, nguồn system, từ callback) · `oauth.pending_get` (read) · `oauth.cancel` — TIP-048, file `actions/src/oauth.ts`. `channel.oauth_select` (config; chọn Page / OA / tài khoản, kiểm hạn mức kênh) · `channel.reauthorize` (config) — TIP-048b, file `actions/src/channel-oauth.ts`.
+- **Bình luận (D62, TIP-048f, file `actions/src/inbox-comments.ts`):** `comment.reply` · `comment.private_reply` (send, `inbox.reply`; agent trực kênh dùng như nhân viên — DC-921; `message.send` vào hội thoại bình luận = trả lời công khai bình luận mới nhất) · `comment.hide` / `comment.unhide` / `comment.delete` (`inbox.manage`; lệnh bền `channel_operation`) · `comment.like` (`inbox.reply`).
+- **Livestream (D62, TIP-048g, file `actions/src/live.ts`):** `live.list` · `live.get` (read, `inbox.view`) · `live.flag_update` (write, `inbox.reply`) · `live.update_settings` (config, `inbox.manage`). Tạo khách / đơn từ cờ dùng `contact.create` / `order.create` có sẵn (người qua form điền sẵn, agent gọi thẳng — DC-921).
 
 **inbox** (`inbox.view` đọc · `inbox.reply` gửi / ghi chú · `inbox.assign` gán · `inbox.manage` thẻ, câu trả lời mẫu)
 
@@ -583,10 +661,19 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | `conversation.bulk_update` | write, bulk | | 24h |
 | `conversation.handoff` | write | ✓ | |
 | `message.send` | send | ✓ chỉ hội thoại hiện tại | |
-| `message.recall` | send | | |
+| `message.recall` | send (chỉ tin của mình) | | |
+| `message.delete` | delete (xác nhận) | | 24h |
+| `message.react` / `message.unreact` | write (kênh có `capabilities.reactions`) | | |
+| `message.pin` / `message.unpin` | write → `conversation.pinned_message_id` | | |
+| `message.forward` | send (sang hội thoại khác) | | |
+| `conversation.set_tags` | write (gắn nhiều thẻ một lần; thẻ mới qua `tag.create`) | ✓ | 24h |
+| `conversation.hide` / `conversation.unhide` | write → `hidden_at` (D50) | | 24h |
+| `conversation.clear_history` | delete (xác nhận) | | |
 | `note.add` | write | | 24h |
 | `canned_reply.create` / `canned_reply.update` / `canned_reply.delete` | config | | |
 | `tag.create` / `tag.update` / `tag.delete` | config | | |
+
+Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (trích tin); `conversation.set_status` với `snoozed` bắt buộc `snoozed_until` (1 giờ / 3 giờ / sáng mai / tuỳ chọn); `conversation.assign` nhận `user_id` **hoặc** `agent_id`; Vòng đời trong menu ⋯ gọi `contact.set_stage` (D49); Dịch tin dùng `ai.translate` (Kỹ năng AI); Tạo nhóm Zalo "Sắp có" (D50). Không có action gọi video / gọi điện (D07).
 
 **crm** (`crm.view` · `crm.edit` · `crm.delete` · `crm.import` · `crm.export` · `crm.reassign` · `crm.fields_manage`)
 
@@ -599,6 +686,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | `contact.set_stage` | write | ✓ | 24h |
 | `contact.tag` | write | ✓ | 24h |
 | `contact.add_note` | write | ✓ | 24h |
+| `contact.send_email` | send, `requiresConnector: 'email'` (modal soạn: từ tài khoản email, đến, 3 mẫu — REQ-F11) | | |
 | `contact.remember` | write | ✓ | |
 | `contact.bulk_update` | write, bulk | | 24h |
 | `contact.merge` | write | | 7d |
@@ -654,7 +742,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | `quote.draft_from_content` | write (AI soạn nháp từ nội dung — D30) | ✓ chỉ nháp | 24h |
 | `contract.draft_from_content` | write (AI soạn nháp, khối `ai_suggested`) | ✓ chỉ nháp | 24h |
 | `order.import_external` | write (system, từ OrderSyncProvider — D31) | | |
-| `order.sync_now` | write (`integrations.manage`) | | |
+| `order.sync_now` | write (`order.manage` — DC-923; chỉ xếp job) | | |
 | `order.create_from_contract` | write ("→ Đơn hàng" từ HĐ đã ký) | ✓ | 24h |
 | `order.create` | write | ✓ | 24h, khi ở new |
 | `order.create_from_quote` | write ("→ Đơn hàng") | ✓ khi khách chốt | 24h |
@@ -699,15 +787,40 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | Action | Risk | Agent | Undo |
 |---|---|---|---|
 | `ticket.search` | read | ✓ | |
-| `ticket.create` | write | ✓ | 24h |
+| `ticket.create` | write (`source_message_id?` — tạo từ tin nhắn, điền sẵn; REQ-C09) | ✓ | 24h |
 | `ticket.update` | write | | 24h |
 | `ticket.assign` | write | ✓ | 24h |
 | `ticket.set_status` | write | ✓ | 24h |
 | `ticket.comment` | write | ✓ | 24h |
 | `ticket.close` | write, lý do bắt buộc | ✓ | 24h |
 | `ticket.reopen` | write | | |
-| `ticket.bulk_update` | write, bulk | | 24h |
+| `ticket.bulk_update` | write, bulk (≤ 200 id, người phụ trách HOẶC agent + ưu tiên, `if_versions?`; kết quả từng id; ≤ 50 chạy ngay, 51–200 → 202 data_job; Idempotency-Key bắt buộc — TIP-034c) | | 24h (qua `ticket.bulk_undo`; `/action-logs/:id/undo` → 409 `UNDO_REQUIRES_ACTION`) |
+| `ticket.bulk_undo` | write, bulk (chỉ người tạo; chỉ trường đã đổi trên ticket chưa ai sửa sau đó; đang chạy → 409 `OPERATION_BUSY`) | | |
+| `ticket.bulk_item` · `ticket.bulk_item_undo` | write, internal (003c — con riêng của thao tác hàng loạt, một ticket / transaction) | | |
+| `ticket.bulk_export` | write (ticket.manage; chỉ người tạo thao tác; tệp 038b `ticket_bulk_results` chỉ xuất — id / kết quả / mã lỗi / đã đổi / hoàn tác, không tiêu đề; dấu theo quyền hiện hành, đổi → 410) | | |
 | `sla.update_default` | config | | |
+| `ticket.category_suggestions` | read (ticket.view, kỹ năng AI — không tự cấp) | ✓ | |
+| `ticket_categories.get` | read (settings.manage) | | |
+| `ticket_categories.replace` | config (settings.manage, `if_version`, xem trước trước / sau; nhập tệp 038b `ticket_category_suggestions` = một lệnh này) | | 24h |
+| `ticket_categories.export` | write (settings.manage, data_job CSV / XLSX — chỉ bộ cấu hình) | | |
+
+**callcenter** (D61 — `call.use` · `call.view` · `call.listen` · `call.monitor` · `callcenter.manage`)
+
+| Action | Risk | Agent | Undo |
+|---|---|---|---|
+| `call.list` · `call.get` · `call.kpis` | read (scope own cho sales / CSKH / kế toán) | ✓ (skill) | |
+| `call.dial` | send (`call.use`; kênh theo cửa sổ ZCC / trần SIM; không giả Caller ID) | | |
+| `call.answer` · `call.hangup` · `call.hold` · `call.mute` · `call.dtmf` | write (`call.use`, người đang trong cuộc) | | |
+| `call.transfer` | write (blind / consult tới máy lẻ / nhóm) | | |
+| `call.monitor` | write (`call.monitor`; listen / whisper / barge; audit) | | |
+| `call.assign_contact` · `call.link_opportunity` · `call.save_note` | write | | 24h |
+| `call.create_ticket` | write (kèm transcript) | | 24h |
+| `call.schedule_callback` | write (`contact_task` kind callback; người gọi hoặc AI Agent) | ✓ | 24h |
+| `call.zcc_request_consent` | send (bắt buộc preview kèm phí cho người / Trợ lý; agent theo §3.3 — DC-922) | ✓ | |
+| `call.recording_url` | read (`call.listen`; URL ký ngắn hạn) | | |
+| `call.export` | read, bulk (`callcenter.manage`; data job CSV) | | |
+| `call_line.*` · `call_extension.*` · `call_queue.*` · `call_ivr.update` · `call_settings.update` | config (`callcenter.manage`) | | |
+| `call.ingest_event` · `call.finalize` · `call.record_missed` | internal (`exposure: internal`, nguồn system qua system adapter — webhook LiveKit / ZCC) | | |
 
 **marketing** (`campaign.view` · `campaign.manage` · `campaign.approve`)
 
@@ -726,11 +839,18 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | `campaign.resume` | write | | |
 | `campaign.cancel` | write | | |
 | `campaign.delete` | delete | | |
+| `campaign.analyze` | write (chỉ xếp hàng run `campaign.analyze` — worker ROLE=ai gọi model, AI Credit theo CreditMeter, DC-246) | | |
+| `campaign.draft_content` | read, AI (viết lại theo giọng — chỉ trả đề xuất, không lưu) | | |
+| `campaign.audience_import` | write (tệp CSV / XLSX → lô id khách thật; không đổi chủ, không đăng ký lại khách đã huỷ nhận) | | |
+| `campaign.recipient_export` | read (CSV theo scope CRM người xuất, chặn công thức) | | |
+| `campaign.resend_unread` | write (tạo NHÁP mới — vẫn qua duyệt + khoá 48 giờ) | | |
+| `campaign.dispatch` · `campaign.record_delivery` · `campaign.record_metric` · `campaign.store_analysis` · `campaign.unsubscribe` | hệ thống (`permission: self`, SYSTEM_ONLY — chỉ actor `system:campaign-*` qua Executor; HTTP / Trợ lý / agent 403) | | |
 
 **loyalty** (`loyalty.view` · `loyalty.adjust` · `loyalty.config`)
 - `loyalty.get_member`: read, agent ✓.
 - `loyalty.update_config`: config.
 - `loyalty.adjust_points`: money; bắt buộc 1 trong 7 lý do; undo 24h.
+- *Bổ sung hợp đồng TIP-036 (không đổi luật COMMERCE §7):* `loyalty.get_member` trả thêm `value` (điểm × 100đ, string VND) + `vnd_per_point`; `loyalty.attach_file` (crm.edit, write, undo 24h — gắn tệp tự tải lên vào thành viên); `payment.redeem_points` (payment.record, money, undo 24h, module sales — khoá đề nghị → đơn → khách → lô, trần 50% đơn, DC-350); action hệ thống `loyalty.earn` / `reverse` / `expire` / `review_tier` chỉ consumer `order.completed` · `order.cancelled` · `payment.refunded` + job `loyalty.sweep` gọi (actor `system:loyalty`, không qua HTTP / Trợ lý — DC-348/349). `contact.get` / `get_360` trả thêm `tier`.
 
 **ai** (`assistant.use` · `agents.manage` · `kb.manage` · `approvals.decide` · `ai.governance` · `ai_task.manage`)
 
@@ -751,10 +871,12 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 | `kb.update_source` (thư mục, thẻ, visibility) | write | | 24h |
 | `kb.remove_source` | delete | | 30d |
 | `kb.refresh_source` | write | | |
-| `kb.folder.create` / `kb.folder.update` / `kb.folder.delete` | write / write / delete | | |
-| `kb.suggestion.approve` / `kb.suggestion.reject` (P1) | write | | |
+| `kb.reindex` / `kb.reindex_cancel` *(TIP-020e)* | config / config | | Quyền `kb.manage`, không agentGrantable. `kb.reindex` xem trước BẮT BUỘC (model đích, số đoạn, token, Credit theo giá hiện hành, dung lượng, cảnh báo `kb_reindex_old_slot_serves` / `price_missing` / `supersedes` / `in_progress`); xác nhận ràng buộc space + số đoạn (đổi → 409); chạy lại cùng model trả generation đang chạy; worker `kb-reindex` (ROLE=ai) lô 64, lease, catch-up ≤ 3 vòng, publish CAS; Credit ceil gộp một nhóm (DC-251). Route `rerank` bị từ chối ở `config-validation.ts` tới khi có provider + đơn vị giá (Q-071) |
+| `kb.folder.create` / `kb.folder.update` / `kb.folder.delete` | write / write / delete | | *Bổ sung TIP-020b (không đổi quyền):* update / delete nhận `if_version` (STALE_VERSION), undo 24h; delete chỉ thư mục rỗng (HAS_DEPENDENCIES); visibility thư mục = mặc định cho nguồn MỚI. `kb.add_source.visibility` bỏ trống = kế thừa thư mục (server resolve); nguồn `origin=catalog` không sửa / xoá trực tiếp (CONFLICT `catalog_managed`). |
+| `kb.suggestion.approve` / `kb.suggestion.reject` (P1) | write | | *TIP-043:* quyền `kb.manage`, không agentGrantable, `if_version` bắt buộc (STALE_VERSION / CONFLICT khi đã xử lý); approve che PII lần nữa — còn dấu vết → 422 `fields.<ô>=sensitive_data:<loại>`; tạo `kb_source` origin `conversation`, visibility kế thừa thư mục. `kb.suggestion.propose` chỉ nguồn system (actor `system:kb-suggest`, nằm trong SYSTEM_ONLY — HTTP / Trợ lý 403). |
 | `approval.approve` / `approval.reject` / `approval.edit_and_approve` | write, `approvals.decide` **và** permission duyệt của action gốc (`quote.approve`, `contract.sign`, `payment.refund_approve`, `campaign.approve`…) | | |
-| `run.cancel` | write | | |
+| `run.cancel` | write (nút Dừng ở khung "Trợ lý AI đang điều phối" — REQ-E14) | | |
+| `ai.summarize` · `ai.translate` · `ai.detect_intent` · `ai.score_lead` · `ai.extract_info` | read, `skill: true` — nhóm **Kỹ năng AI** (D51); lệnh `/…` trong khung nhập | ✓ | |
 | `ai_task.create` / `ai_task.update` / `ai_task.pause` / `ai_task.delete` | config | | |
 | `ai_task.run_now` | write | | |
 | `governance.update` | config, `ai.governance` | | |
@@ -772,7 +894,7 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `admin.model_price.upsert`
 - `admin.model_route.upsert`
 - `admin.llm_provider.upsert` / `admin.llm_provider.probe` / `admin.llm_provider.disable`: config (D33)
-- `admin.invoice.confirm_transfer`: money.
+- `admin.invoice.confirm_transfer`: money (xác nhận tay cần ghi chú + bằng chứng) · `admin.bank_transaction.match`: money (một giao dịch → một hoá đơn, đúng số tiền — TIP-040).
 - `admin.workspace.suspend` / `admin.workspace.resume`
 - `admin.workspace.archive` / `admin.workspace.restore`: config, luôn preview (§2.0 bước 5)
 - `admin.agent_template.upsert`
@@ -812,6 +934,9 @@ Nguồn sự thật: `packages/shared/src/authz/permissions.ts` (seed vai trò h
 | Hỗ trợ | `ticket.view` · `ticket.manage` | ✓ | ✓ | S | S | — |
 | | `sla.manage` | ✓ | ✓ | — | — | — |
 | Marketing | `campaign.view` · `campaign.manage` · `campaign.approve` | ✓ | ✓ | — | — | — |
+| Gọi điện (D61) | `call.use` (gọi / nhận) | ✓ | ✓ | ✓ | ✓ | ✓ |
+| | `call.view` (nhật ký) | ✓ | ✓ | S | S | S |
+| | `call.listen` (nghe ghi âm, đọc transcript) · `call.monitor` · `callcenter.manage` | ✓ | ✓ | — | — | — |
 | Loyalty | `loyalty.view` | ✓ | ✓ | ✓ | ✓ | ✓ |
 | | `loyalty.adjust` | ✓ | ✓ | — | — | ✓ |
 | | `loyalty.config` | ✓ | ✓ | — | — | — |
@@ -830,8 +955,12 @@ Nguồn sự thật: `packages/shared/src/authz/permissions.ts` (seed vai trò h
 | Sales | own | own | own | own | own | own |
 | CSKH | own | all (đọc) / own (sửa) | — | own | own | own |
 | Kế toán | — | all (đọc) | all | — | — | all (module sales) |
+| _Gọi điện (D61, module `callcenter`)_ | Chủ sở hữu / Quản lý: all · Sales / CSKH / Kế toán: own = cuộc mình nghe / gọi + gọi nhỡ của nhóm mình + khách mình phụ trách | | | | | |
 
 - `own` gồm bản ghi mình phụ trách / được gán **và** mọi bản ghi của khách mình là collaborator / watcher (D32).
+- **Bảng chân trị một nơi (TIP-042c, `packages/core/src/authz/data-access`)** — list / count / detail / action đọc / realtime dùng cùng predicate: Owner workspace → all; `none` chặn trước mọi nhánh (kể cả bản ghi của chính mình); `own` → owner / assignee (+ người tạo ticket, phụ trách khách của hội thoại) + quan hệ khách; `team` → thêm `team_id` của **bản ghi** ∈ nhóm người xem (DC-299 — không suy từ owner ∈ thành viên nhóm; `team_id` null = mơ hồ, chỉ nhánh own). Quan hệ khách không áp ticket.
+- **Đọc ≠ ghi:** watcher chỉ ĐỌC (không bao giờ là bằng chứng ghi); collaborator đọc + ghi trong phạm vi (không chuyển phụ trách / xoá khách). Scope GHI theo vai trò (`AuthzContext.writeScope`, preset `ROLE_DEFS.*.writeScope`; vai trò tuỳ biến = scope đọc) không rộng hơn scope đọc — CSKH crm đọc `all` / ghi `own`. Không đọc được → 404; đọc được mà không ghi được → 403 `SCOPE_FORBIDDEN`.
+- **`team_id` (DC-299):** chụp lúc tạo — nguồn (HĐ ← báo giá / HĐ gia hạn, đơn ← báo giá → HĐ → lịch hẹn, đề nghị ← đơn, bản sửa báo giá ← bản trước, hội thoại ← khách) → nhóm DUY NHẤT của người phụ trách (0 / nhiều nhóm → null); chia lead theo nhóm của rule. Chuyển phụ trách khách đổi nhóm khách + hội thoại chuyển kèm; chứng từ cũ giữ owner + nhóm (doanh số).
 - "uỷ quyền" = Chủ sở hữu bật riêng cho từng Quản lý (lưu trong `role` tuỳ biến P1; P0 bật bằng cờ `membership.delegations text[]`).
 - Viewer (prototype) = vai trò tuỳ biến P1.
 
@@ -845,6 +974,7 @@ Nguồn sự thật: `packages/shared/src/authz/permissions.ts` (seed vai trò h
 - Header bắt buộc: `Authorization: Bearer <access JWT 15m>` và `X-Workspace-Id: <uuid>` (trừ `/v1/auth/*`, `/v1/me`, `/hooks/*`).
 - Thành công: `200 { data, meta? }`.
 - List: `{ data: T[], next_cursor: string | null }`. Cursor là base64 của `(sortKey, id)`; tham số `?limit=` (≤ 100, mặc định 30) và `?cursor=`.
+- **Bảng có số trang (D42, D43):** 9 list chính (khách hàng, sản phẩm, báo giá, đơn, đề nghị thanh toán, hợp đồng, ticket, marketing, thành viên loyalty) nhận `?page=&limit=` (20 / 50 / 100) và trả `{ data, next_cursor, meta: { total, page, limit } }`; backend offset + deferred join + đếm tổng. Không có `page` → cursor như trên. Chi tiết: `standards/api/response-envelope.md` §2.
 - Lỗi: `{ error: { code: string, message: string, fields?: Record<string,string> } }`.
 
 | Mã code | HTTP |
@@ -876,6 +1006,10 @@ POST /v1/auth/logout             (cookie)                                       
 GET  /v1/me                                                                                → { user, workspaces: [{ id, name, role, plan, trial_ends_at }] }
 POST /v1/workspaces              { name }                                                  → { workspace }       (tạo workspace mới; người tạo là owner)
 GET  /v1/business-lookup/tax/:taxCode                                                      → { legal_name, address, representative, phone, founded_on, legal_status } | 404
+GET  /v1/session                 (public)                                                 → { authed, declared, provisioned, trialDaysLeft, trialEndsAt, trialSeen, expiredSeen, workspace_id }   (TIP-011, DC-037)
+POST /v1/session/ack             { notice: 'trial_welcome'|'trial_expired' }  (auth)      → 204
+GET  /v1/workspace/provisioning  (auth, workspace đang dùng)                              → { status: 'running'|'ready'|'failed' }
+GET  /v1/auth/brand?locale=      (public)                                                 → { card, stats }
 ```
 
 ### 4.3 Actions (cổng ghi thống nhất)
@@ -917,18 +1051,24 @@ type UiCommand =
 | contracts | `GET /v1/contracts?status=&kind=&contact_id=&expiring_within=` · `GET /v1/contracts/:id` (+ phụ lục, người ký, sự kiện ký) · `GET /v1/contracts/:id/pdf` · `GET /v1/doc-templates?kind=` · **public:** `GET /v1/public/sign/:token` (PDF + thông tin hiển thị) · `POST /v1/public/sign/:token/otp` · `POST /v1/public/sign/:token/sign` { otp, signature_png, consent: true } · `POST /v1/public/sign/:token/decline` { reason? } — rate-limit theo token + IP, OTP 6 số, sai 5 lần thì khoá link |
 | sales | `GET /v1/quotes?status=&contact_id=` · `GET /v1/quotes/:id` (gồm các version) · `GET /v1/quotes/:id/pdf` · `GET /v1/orders?…` · `GET /v1/orders/:id` · `GET /v1/invoices?…` · `GET /v1/invoices/:id` · `GET /v1/invoices/:id/qr` |
 | booking | `GET /v1/appointments?from=&to=&staff_id=&status=` · `GET /v1/appointments/:id` · `GET /v1/staff` · `GET /v1/booking/slots?service_id=&date=&staff_id=` |
-| support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/sla-policies` |
-| marketing | `GET /v1/segments` · `POST /v1/segments/preview` (đọc) · `GET /v1/campaigns?status=` · `GET /v1/campaigns/:id` (+stats) · `GET /v1/campaign-suggestions` |
-| loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=` · `GET /v1/loyalty/members/:contactId/ledger` |
-| ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/suggestions?status=` (P1) · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
+| support | `GET /v1/tickets?status=&priority=&assignee=&sla=` · `GET /v1/tickets/:id` · `GET /v1/tickets/counts` · `GET /v1/tickets/meta` (`counts` = `stock_summary.counts`; `stock_summary` = 5 số tập hiện tại người xem thấy + so với MỘT quan sát thật hôm qua theo múi giờ workspace — `available{observed_at, local_date, prior, delta}` | `unavailable{reason}`, không prior 0 giả — TIP-034d; action đọc `ticket.stock_summary` cùng dịch vụ, job `support.stock-observe` mỗi 15 phút trên queue `support-scheduler`) · `GET /v1/sla-policies` · `GET /v1/support/category-suggestions?cursor=` (ticket.view: bộ cấu hình + ≤ 50 nhãn đã dùng trong ticket người xem thấy, cursor mờ — TIP-034b) · `GET /v1/settings/ticket-categories` (settings.manage: chỉ bộ cấu hình) |
+| marketing | `GET /v1/segments` · `segment.preview` (action đọc) · `GET /v1/campaigns?status=&channel=&q=&page=&limit=` · `GET /v1/campaigns/meta` · `GET /v1/campaigns/:id` (+stats, 50 người nhận đầu) · `GET /v1/campaigns/:id/recipients?status=&page=&limit=` · `GET /v1/campaign-suggestions` · `GET /v1/campaign-analyses/:run_id` (trạng thái lượt phân tích của chính người xem) · công khai `GET /v1/public/campaign-unsubscribe/:token` + `POST …/confirm` (TIP-037) |
+| loyalty | `GET /v1/loyalty/config` · `GET /v1/loyalty/members?tier=&q=&page=&limit=` · `GET /v1/loyalty/members/:contactId` · `GET /v1/loyalty/members/:contactId/ledger` · `GET /v1/loyalty/lookup?phone=` · `GET /v1/loyalty/overview` · `GET /v1/loyalty/members/:contactId/files` (+ `/:fileId` bytes) — bổ sung TIP-036, schema chung `packages/shared/src/api/loyalty.ts` |
+| ai | `GET /v1/agents` · `GET /v1/agents/:id` · `GET /v1/agents/:id/stats?from=&to=` · `GET /v1/agent-templates?role=&industry=` · `GET /v1/kb/folders` · `GET /v1/settings/kb` thêm `index` *(TIP-020e)* `{state, phase, generation_id, active_space_label, target_space_label, done, expected, degraded(no_model_route\|embed_space_retired), reason}` (đọc cấu hình router, không gọi provider) · `GET /v1/kb/sources?folder_id=&tag=&origin=&status=` · `GET /v1/kb/sources/:id/download` (TIP-020b — byte / văn bản, URL / catalog trả JSON mô tả; không tải lại website) · `GET /v1/kb/suggestions?status=&cursor=&limit=` (P1; TIP-043 — `{data, next_cursor, meta:{pending}}`) · `GET /v1/kb/suggestions/:id` · `GET /v1/agents/:id/versions` · `GET /v1/runs?status=&agent_id=&conversation_id=` · `GET /v1/runs/:id` (+steps) · `GET /v1/approvals?status=pending` · `GET /v1/ai-tasks` · `GET /v1/governance` |
 | assistant | `GET /v1/assistant/sessions?q=` · `GET /v1/assistant/sessions/:id/messages` |
 | channels | `GET /v1/channels` · `GET /v1/channels/:id` (health) · `GET /v1/webchat/widget` |
 | billing | `GET /v1/billing/summary` (gói, hạn, credit, giới hạn) · `GET /v1/billing/plans` · `GET /v1/billing/ledger?cursor=` · `GET /v1/billing/invoices` · `GET /v1/billing/invoices/:id` (QR, trạng thái) |
-| dashboard / insights | `GET /v1/dashboard` (việc cần tôi, AI hôm nay, follow-up, onboarding, credit) · `GET /v1/insights/:metric?from=&to=` (metric đọc sẵn) |
+| dashboard / insights | `GET /v1/dashboard` (TIP-038 pha 2 — schema `dashboardSchema`: `my_work` việc cần tôi theo scope, `ai_today` không dry-run, `follow_ups` ≤ 5 + `follow_up_count` từ bảng `follow_up`, onboarding, `credit` chỉ billing.manage; catalog tĩnh có nhãn — DC-364) · `GET /v1/insights/:metric?from=&to=` (metric đọc sẵn — TIP-038: `sales.booked` · `sales.collected` · `customers.at_risk` · `agents.performance` · `support.performance`; kỳ [from, to) theo giờ workspace, tối đa 366 ngày, `bucket` day/week/month; cùng service với `insight.query`; nguồn thiếu quyền → `availability.excluded`, không tổng) · `GET /v1/agents/:id/stats?from=&to=` (thống kê agent có nguồn: hội thoại, tỷ lệ lượt, CSAT + n, tỷ lệ chốt tương quan, Credit thật, so người thật) |
 | authz | `GET /v1/me/authz` (permissions + scope của user trong workspace hiện tại — FE dùng cho `can()`) · `GET /v1/roles` · `GET /v1/permissions` (danh mục, nhóm theo module) · `GET /v1/teams` |
 | integrations | `GET /v1/integrations/connectors` (registry: manifest + trạng thái kết nối của workspace) · `GET /v1/integrations/connections/:id` (không trả secret) · `GET /v1/integrations/connections/:id/logs?cursor=` |
-| misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` |
-| admin | `GET /v1/admin/workspaces` · `GET /v1/admin/plans` · `GET /v1/admin/model-prices` · `GET /v1/admin/transfers?status=pending_review` |
+| misc | `POST /v1/files` (multipart, trả `file_id`, giới hạn 25MB) · `GET /v1/files/:id` (signed URL) · `GET /v1/notifications?unread=` · `GET /v1/settings/:section` — đã nối (TIP-013, shape `packages/shared/src/api/settings.ts`): `workspace` (mọi thành viên), `members?q=` (`members.manage`; `{ data, total, seat_limit, next_cursor: null }`), `roles` (mọi thành viên), `sla` (`sla.manage`; giờ làm việc thật, chính sách mặc định tới TIP-034), `notifications` (TIP-006), `integrations` (TIP-012) |
+| admin | `GET /v1/admin/session` · `GET /v1/admin/workspaces?status&plan&q&cursor` · `GET /v1/admin/config/{plans,providers,routes,prices,templates}` · `GET /v1/admin/transfers` · `GET /v1/admin/bank-transactions` · `GET /v1/admin/sales-inquiries` (con trỏ, deferred join) — TIP-040, `platform_admin` sống mỗi lời gọi, không cần X-Workspace-Id; ghi qua `POST /v1/actions/admin.*` nhánh ngữ cảnh nền tảng (DC-368; cấu hình CAS + `platform_config_revision` DC-370, provider DC-371, đối soát DC-372, tạm dừng DC-373). Cấp quyền admin chỉ bằng `db:grant-platform-admin` (shell) |
+
+Bổ sung ver2.1:
+- inbox: `GET /v1/conversations/:id/messages/search?q=&sender=all|contact|user|agent` (không dấu, trả vị trí để tô — REQ-C12); list hội thoại bỏ `hidden_at` khác null (D50); `GET /v1/conversations/:id/agent-tools` (quyền hiệu lực của agent phụ trách, chỉ đọc — REQ-C11).
+- crm: `GET /v1/contacts/:id` (360) trả thêm `layout` theo vai trò người xem và dữ liệu các khối được bật · `GET /v1/profile-layouts` · `GET /v1/profile-layouts/:id?as_role=` (REQ-F12, M05).
+- ai: `GET /v1/agents/:id/tools` (nhóm theo module + Kỹ năng AI, `granted`, badge `needs_connector` / `coming_soon` — D51) · `GET /v1/runs?root_run_id=&status=running|waiting_approval` (khung điều phối Cowork — REQ-E14).
+- channels: `GET /v1/channels` trả theo `type` kèm `accounts[]` và trạng thái gộp · `GET /v1/channels/:accountId/stats?days=7` (REQ-B09, B11).
 
 ### 4.5 Trợ lý AI & runs
 
@@ -952,21 +1092,27 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 ### 4.6 Realtime (Socket.IO)
 
 - **Namespace `/ws`:**
-  - Auth bằng access JWT + workspace. Tự join room `ws:{id}` và `user:{id}`. Join `conv:{id}` khi mở hội thoại.
-  - Server → client: `message.new`, `message.updated`, `conversation.updated`, `conversation.counts`, `typing`, `run.step`, `run.done`, `approval.requested`, `approval.decided`, `ui.command` (chỉ gửi user ra lệnh), `channel.status`, `channel.zalo.qr` ({ account_id, qr_png_base64, expires_at }), `notification.new`, `credits.changed`.
+  - Auth bằng access JWT + workspace. Tự join room `ws:{id}` và `user:{id}` (+ `tab:{user}:{tab}` khi handshake có `tab_id` — TIP-006c). Join `conv:{id}` khi mở hội thoại.
+  - Server → client: `message.new`, `message.updated`, `conversation.updated`, `conversation.counts`, `typing`, `run.step`, `run.done`, `approval.requested`, `approval.decided`, `ui.command` (chỉ gửi user ra lệnh), `channel.status`, `channel.zalo.qr` ({ account_id, qr_png_base64, expires_at }), `notification.new`, `credits.changed`, `ticket.updated`, `appointment.updated` (TIP-016b — chỉ id + loại thay đổi, lọc theo scope).
   - Client → server: `conv.join`, `conv.leave`, `typing`.
 - **Namespace `/widget`:**
   - Auth bằng `public_key` + `visitor_token` (JWT riêng, 30 ngày).
   - Client → server: `visitor.hello` ({ name?, phone?, email?, page_url }), `message.send` ({ text, attachments? }).
   - Server → client: `message.new`, `typing`, `agent.status`.
+- **Gọi điện (D61):** server → client `call.ringing` / `call.updated` / `callcenter.extension_status` qua room `user:{id}` và theo scope `call.view`; media không đi Socket.IO — WebPhone / widget nối LiveKit bằng token ngắn hạn (`GET /v1/calls/token`, widget qua ack `visitor.call`).
 - **Fan-out:** Redis adapter; worker phát qua `@socket.io/redis-emitter`.
+- **Số đếm rail (TIP-016b, DC-450):** `GET /v1/nav/badges` → `{ inbox?, tickets?, calendar? }` (khoá vắng khi thiếu quyền module) — hội thoại đang hiện chưa đọc / ticket `open`+`in_progress` / lịch hôm nay (múi giờ workspace) trong data scope người xem; cache 15s mỗi người, bỏ ngay khi gateway nhận event đổi số.
+- **Cache registry workspace (TIP-006c):** `TenantDbResolver.invalidate` publish kênh Redis `tenant-registry:invalidate`; mọi api / worker subscribe → xoá cache cục bộ; mất Redis → TTL 60s + thế hệ trạng thái 2s.
 
 ### 4.7 Webhooks
 
-- `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ.
+- `POST /hooks/payments/:provider`: tiền **gói AppChat**. Kiểm chữ ký / API key của provider, insert `bank_transaction` idempotent, khớp `transfer_code` thì `billing_invoice.paid`. Luôn trả 200 nhanh; phần khớp chạy bất đồng bộ. — đã nối (TIP-010): provider = `PLATFORM_BANK_FEED` (`mock` HMAC dev / `sepay` header `Authorization: Apikey`), khớp mã `APPCHAT INV…` + số tiền ≥ hoá đơn, ghi nhận ngay trong request (idempotent) + scheduler `billing.invoice-sweep` quét lại (DC-055, DC-057, DC-058).
 - `POST /hooks/integrations/:connector/:connectionId`: webhook connector của DN (D28). Tra `tenant_integration_route` → DB tenant; adapter tự kiểm chữ ký; insert `integration_event` idempotent theo id của provider; trả 200 rồi xử lý trong queue `integrations`.
 - `POST /hooks/tenant-payments/:provider/:feedId`: tiền **khách của DN** (Q3). `feedId` tra `tenant_bank_feed_route` (DB nền tảng) rồi vào DB tenant; kiểm chữ ký bằng secret của feed; khớp mã `TT-xxxxxx` + số tiền thì `customer_payment(confirmed)`; lệch thì `needs_review`. Idempotent theo mã giao dịch của provider.
-- `POST /hooks/channels/:provider`: dành cho kênh dùng webhook về sau (Zalo OA, Meta). Hiện chưa dùng.
+- `GET|POST /hooks/channels/:type` (D62, TIP-048b): webhook kênh mức App (Zalo OA, Meta, TikTok). GET = xác minh (`hub.challenge`); POST giữ raw body ≤ 1MB, adapter kiểm chữ ký (`X-ZEvent-Signature` / `X-Hub-Signature-256` / `TikTok-Signature`), tách theo `<type>:<external_id>` → `tenant_channel_webhook_route` → `channel_webhook_event` idempotent → queue `channel-hooks`; luôn 200 nhanh (Zalo ≤ 2 giây). `POST /hooks/channels/facebook/data-deletion` (Meta data deletion callback — TIP-048e).
+- `POST /hooks/marketplace/:connector` (D63, TIP-049): webhook sàn mức App (Shopee trả 2xx **body rỗng**; TikTok Shop 200). Kiểm chữ ký bằng khoá app (Shopee HMAC(partner_key, url|body); TikTok Shop HMAC(app_secret, app_key + body)) → `shop_id` → `tenant_shop_route` → `integration_event` idempotent → queue `integrations`.
+- `GET /hooks/oauth/:provider/callback` (D62, TIP-048): callback OAuth chung (kênh, ZCC, sàn) — kiểm state ký + nonce một lần → `oauth.complete` → redirect về trang web công khai `/oauth/return?oauth=<pending>` (relay kết quả về cửa sổ gốc qua `BroadcastChannel`); lỗi → `?oauth_error=<code>`; thiếu cấu hình App → 503 `oauth_not_configured`.
+- `POST /hooks/livekit` · `POST /hooks/zalo-zcc/:appId` (D61): kiểm chữ ký (LiveKit JWT webhook / Zalo OA secret) → `call_webhook_receipt` idempotent theo `event_id` → action nội bộ `call.*` nguồn system qua system adapter (DC-904); trả 200 nhanh.
 
 ---
 
@@ -1015,7 +1161,7 @@ export type RunEvent = { type: 'delta'|'tool_call'|'tool_result'|'paused'|'usage
 
 | Tool | Ai dùng | Hành vi |
 |---|---|---|
-| `delegate(agent_id\|role, task, context)` | Trợ lý AI | Tạo `ai_run` con (`kind=delegate`, `parent_run_id`), chạy agent đích với bộ tool của agent đó, trả tóm tắt kết quả. Run con cần duyệt thì cả run cha chờ theo |
+| `delegate(agent_id\|role, task, context)` | Trợ lý AI | Tạo `ai_run` con (`kind=delegate`, `parent_run_id`), chạy agent đích với bộ tool = **tool của agent ∩ quyền người ra lệnh** (§3.3b), trả tóm tắt kết quả. Run con cần duyệt thì cả run cha chờ theo |
 | `transfer_to_agent(role, reason, summary)` | Agent trực kênh | Đổi `conversation.assignee_agent_id`, ghi `ai_run_step(type=handoff)`, agent mới nhận summary và tiếp tục ngay trong lượt đó. Có thể trả lại agent cũ |
 | `consult(role, question)` | Agent trực kênh, agent con | Chạy agent đích ở chế độ **chỉ đọc** (chỉ được dùng action có risk `read`), trả lời ngắn, không gửi gì cho khách |
 
@@ -1046,13 +1192,15 @@ Danh mục action quá lớn để nhồi hết vào prompt, nên Trợ lý ch�
 |---|---|
 | `find_actions(query, module?)` | Tìm action phù hợp (lọc theo quyền user) → trả id + mô tả + input schema rút gọn. Index tìm bằng embedding của description, có cache |
 | `call_action(action_id, input)` | Gọi `ActionExecutor` với `source='assistant'`, `onBehalfOfUserId=user` → read chạy ngay; còn lại trả `needs_confirmation` |
-| `delegate(agent_id \| role, task, context)` | Tạo `ai_run` con (kind=delegate) chạy agent chuyên trách với tool set của agent; trả tóm tắt kết quả; hiển thị trong plan |
+| `delegate(agent_id \| role, task, context)` | Tạo `ai_run` con (kind=delegate) chạy agent chuyên trách với tool set = tool của agent ∩ quyền người ra lệnh (§3.3b); trả tóm tắt kết quả; hiển thị trong plan |
 | `ui(command: UiCommand)` | Phát `ui.command` tới user (điều hướng, mở drawer, điền form, lọc, highlight) |
 | `query_data(metric, params)` | = `insight.query` (metric định nghĩa sẵn, chỉ đọc); trả bảng/biểu đồ nhỏ ngay trong thẻ trả lời |
+| `render(tree: UiTree)` | (D55) Trả cây giao diện mức 2 cho câu trả lời: khối dựng sẵn, số liệu qua `$ref` tới bước `query_data` / action đọc, nút = `UiCommand` hoặc action, form gắn action. Schema + quy tắc: `standards/ai/generative-ui.md`. Lưu vào `assistant_message.content.parts[]` (`type: ui`) |
 | `plan(steps[])` / `update_step(id, status)` | Cập nhật thẻ kế hoạch |
 
 - **System prompt** gồm: vai trò, quyền của user, màn hiện tại và bản ghi đang xem (từ `context`), danh sách agent đang có, quy tắc xác nhận và hoàn tác. Viết bằng tiếng Việt, trả lời tiếng Việt.
 - **Chế độ Chat:** chỉ cho dùng `find_actions` với read và `query_data`. **Chế độ Cowork:** mở toàn bộ meta-tools.
+- **Đọc bản ghi (DC-224):** Trợ lý / agent đọc từng bản ghi bằng action `<thực thể>.search` / `get` (risk `read`, cùng truy vấn + `scopeFilter` của màn) qua `call_action`; `query_data` chỉ cho metric tổng hợp. Mã hiển thị (KH-, BG-, DH-…) ở ô `*_id` được đổi sang id trước khi chạy. Mọi action ghi có `preview` (diff / số bản ghi / tiền / người nhận) để thẻ xác nhận nói rõ đổi gì (TIP-023b).
 
 ### 5.3 Agent trực kênh
 
@@ -1088,6 +1236,7 @@ Khi có `message.received` mà `ai_mode=auto` và có `assignee_agent_id` (hoặ
   - Nhắc hẹn (24h / 2h).
   - Chăm sóc sau mua (D+3).
   - Briefing sáng 08:00 cho Owner (gửi vào Trợ lý và thông báo).
+- **Khung "Trợ lý AI đang điều phối" (Cowork, REQ-E14):** một hàng thu gọn "N việc · x đang chạy · y cần bạn duyệt" → modal danh sách run con (agent, công cụ, tiến độ, trạng thái) với Dừng (`run.cancel`) · Duyệt & gửi (`approval.approve`) · Xem kết quả. Tab Công cụ & Quyền của drawer Cowork **chỉ hiển thị** quyền hiệu lực (§3.3b) + link sang Builder.
 - **Ràng buộc khi gửi ra ngoài:** mọi tác vụ gửi đều đi qua outbox và rate limiter của kênh. Đặc biệt Zalo cá nhân: delay ngẫu nhiên 2–6 giây, cap mặc định 200 tin chủ động/ngày/tài khoản, cấu hình được.
 
 ---
@@ -1112,16 +1261,35 @@ export interface NormalizedInbound {
 ```
 
 - **Account lease:** danh sách account cần giữ phiên đọc từ `tenant_channel_route` (DB nền tảng); credential đọc từ DB tenant tương ứng. Mỗi `channel_account` chỉ do **một** worker giữ phiên. Dùng Redis lock `lease:channel:{id}`, TTL 30 giây, heartbeat 10 giây. Worker khởi động sẽ nhận các account `connected` chưa có lease.
-- **Zalo cá nhân** (zca-js; thiết kế theo OpenClaw `zalouser`, MIT):
+- **Một kênh nhiều tài khoản + kết nối 3 bước (REQ-B09, B10):** chọn kênh → xác thực (QR Zalo cá nhân · form Email IMAP / SMTP + `channel.test` · Webchat) → cấu hình nhanh (tên, AI Agent, chế độ AI trả lời ngay / gợi ý / tắt, cách chia). Nhánh OAuth và kênh ngoài manifest hiện "Sắp có". Manifest khai báo `capabilities.reactions` (OQ-12).
+- **Zalo cá nhân** (zca-js — Chủ nhà đã thử 2026-10-29, chưa thấy vấn đề; thiết kế theo OpenClaw `zalouser`, MIT):
   - **Đăng nhập:** QR login phát ảnh qua WS. Khi thành công, lưu `{cookie, imei, userAgent}` đã mã hoá vào `credentials_enc`. Khởi động lại thì login bằng credential đã lưu; lỗi thì chuyển `expired` và thông báo quét lại.
   - **Listener:** tin 1-1 và tin nhóm. Nhóm chỉ kích hoạt AI theo `group_ai_policy`.
   - **Gửi:** text (markdown → rich text), ảnh, file, sticker. Chia đoạn ≤ 2000 ký tự.
   - **Chống khoá:** limiter theo account (1 tin / 2–6 giây), cap/ngày, không gửi chủ động cho người lạ chưa từng nhắn. Nếu lỗi bất thường liên tiếp (≥ 3 lần trong 10 phút) thì tự `pause` kênh và báo Owner. Lúc kết nối hiện cảnh báo rủi ro, Owner phải tick xác nhận đã đọc.
 - **Webchat:** widget JS (≤ 40KB gz) kết nối namespace `/widget`. Có prechat form tuỳ chọn để thu tên/SĐT, tạo contact hoặc lead. Chỉ chạy trên domain thuộc `allowed_domains`.
 - **Email:** kết nối IMAP (imapflow, poll 60 giây, IDLE nếu được) và SMTP (nodemailer). Gom thread theo `Message-ID`/`In-Reply-To`/`References`. Kiểm tra credential bằng cách login thật trước khi lưu.
+- **Kênh webhook (D62 — TIP-048 → 048h):** kết nối bằng OAuth (`oauth.start` → callback → chọn Page / OA / tài khoản), token ở `oauth_grant` qua `TokenVault` (làm mới có khoá — refresh Zalo dùng một lần); không lease, nhận qua `/hooks/channels/:type`. Cửa sổ gửi khai ở `manifest.capabilities.window`, kiểm ở `outbound.ts` (409 sớm) và `send.processor.ts` (chốt cuối): **Zalo OA** tin tư vấn ≤ 7 ngày rồi chặn (ZNS Sắp có), rate App 4.000 / phút chung + OA theo gói · **Facebook Page / Instagram** 24 giờ, ngoài đó chỉ người thật gửi với tag HUMAN_AGENT ≤ 7 ngày (chính sách Meta) · **TikTok** 48 giờ, ≤ 10 tin trước khi khách trả lời, +3 sau 48 giờ. Bình luận bài đăng (FB / IG / TikTok) = hội thoại `comment`; livestream FB (SSE `live_comments` + poll đối soát) / IG (webhook `live_comments`) = `live_session` + cờ ý mua; agent trả lời / nhắn riêng / tạo khách + đơn như nhân viên theo chế độ AI của tài khoản (Q-911 chốt, DC-921).
 - **Inbound pipeline** (core/inbox, gọi từ worker): insert `message` với `ON CONFLICT (channel_account_id, external_msg_id) DO NOTHING` (chống trùng) → resolve contact (`contact_identity`, hoặc khớp `phone_norm`/email, hoặc tạo contact `lead`) → upsert conversation → cập nhật counters → outbox `message.received` → emit WS.
 
 ---
+
+## 6b. VOICE (`packages/voice` + worker ROLE=channels / ai — D61, DC-904, DC-906)
+
+```ts
+export interface VoiceAiEnginePort {               // hai bộ cài: pipeline (mặc định, local: VAD → PhoWhisper → AgentGateway → VieNeu-TTS — DC-907) | realtime (tuỳ chọn, có key)
+  start(session: VoiceSessionInit): Promise<VoiceSession>;   // agentId, kbScope, locale, tools (caller ∩ agent)
+}
+export interface LiveKitRoomPort { createRoom(name: string): Promise<void>; token(room: string, identity: string, grants: Grants): string; dialSip(req: SipDialRequest): Promise<SipLeg>; }
+export interface ZccClient { requestConsent(oa: OaRef, to: ZaloUserOrPhone): Promise<ConsentRef>; checkConsent(oa: OaRef, to: ZaloUserOrPhone): Promise<ConsentState>; }
+```
+
+- **Một cuộc gọi = một phòng LiveKit** `ws_<workspace>_call_<callId>`; kênh vào / ra: ZCC, hotline (SIP trunk), SĐT cá nhân (chuyển tiếp / SIM gateway), WebRTC widget — cùng SIP edge (Kamailio + rtpengine) → `livekit-sip` (§11.1).
+- **ZCC:** App AppChat (một AppID) cấp quyền gọi thoại; mỗi OA một luồng (`OA_id` + 3 số); gọi vào `From = UserID`, `To = OA_id + luồng`; gọi ra `From = OA_id`, `To = UserID | SĐT`; khách ngoài cửa sổ 30 ngày cần `zcc_consent` (D61 #8).
+- **Định tuyến vào:** IVR (`call_ivr`) → AI nghe máy trước (agent bật "Xử lý cuộc gọi") → phím → nhóm (`call_queue`, 4 cách đổ chuông) → tràn; ngoài giờ theo `business_hours`.
+- **Ghi âm:** thông báo ghi âm phát trước; worker subscribe track (`@livekit/rtc-node`) → opus `.ogg` → `FilesService` purpose `call_recording`; transcript + tóm tắt chạy ROLE=ai sau `call.ended`.
+- **Voice AI (DC-907):** mặc định `pipeline` tự dựng — VAD Silero + STT PhoWhisper trong worker ROLE=channels (addon `sherpa-onnx-node` / whisper.cpp), TTS VieNeu-TTS ở dịch vụ `voice-tts` (Python, HTTP stream, cùng máy thoại); giới hạn `VOICE_AI_MAX_SESSIONS`, hết chỗ → chuyển người / lời nhắn. Credit theo lượt `voice_turn` (`CreditMeter`, idempotent `callId:turnIdx`) — local chỉ tính LLM; chuyển người khi tin cậy thấp / khách yêu cầu / hết credit; AI gọi ra chỉ từ Hẹn gọi lại một khách (D61 #7).
+- **Không:** gọi hàng loạt / tự động quay số, Softphone / IP Phone / Mobile app, giả Caller ID, `livekit-egress` Docker.
 
 ## 7. FRONTEND — COMPONENT TREE
 
@@ -1158,7 +1326,7 @@ export interface NormalizedInbound {
 Primitive dùng chung (`packages/ui` + `shared`), kèm props chính:
 
 ```ts
-DataTable<T>   { columns: TableColumnsType<T>; query: UseInfiniteQueryResult<Page<T>>; selection?: Key[];   // bọc antd Table (virtual)
+DataTable<T>   { rows: T[]; columns: TableColumnsType<T>; rowKey(row: T): string; selection?: { keys; onChange }; footer?: ReactNode;   // D42: cao hết phần còn lại, chỉ thân bảng cuộn, header dính
                  onRowClick?(row: T): void; bulkActions?: BulkAction[]; aiColumn?: (row: T) => AiSuggestion | null;
                  mobileCard?: (row: T) => ReactNode /* < md: render danh sách thẻ */ }
 KanbanBoard<T> { columns: { key: string; label: string; color: string }[]; items: T[]; groupBy(item: T): string;
@@ -1167,6 +1335,9 @@ FilterBar      { fields: FilterField[]; value: FilterState; onChange(v: FilterSt
 EntityDrawer   { entity: EntityKind; id: string; tabs: DrawerTab[]; onClose(): void }   // antd Drawer; < md: placement="bottom", full height
 PageHeader     { title: string; actions?: ReactNode; kpis?: KpiItem[] }
 PageStates     { state: 'empty'|'loading'|'error'|'ready'; empty?: EmptySpec; onRetry?(): void; children }
+Pager          { page; size; total; onPage(p): void; onSize?(n): void; label; prev; next }   // D42: số trang + 20/50/100; < md chỉ Trước · trang · Sau
+AiButton       { module: string; onClick(): void }   // REQ-N15: một kiểu nút "Trợ lý AI" toàn app (nền mực, ✦ brand, tooltip tên module)
+ActionMenu     { items: (MenuItem | { label; submenu: MenuItem[] })[] }   // REQ-C10: submenu thay nội dung + nút ‹
 ConfirmActionDialog { preview: ActionPreview; onConfirm(): void; onCancel(): void; editable?: boolean }
 useAction<Id extends ActionId>(id) → { run(input, opts?): Promise<ActionResult>; isPending; }   // tự xử lý 202 preview, invalidates, toast + nút "Hoàn tác"
 ```
@@ -1189,24 +1360,29 @@ inbox/[[...conversationId]]
     ├── FolderRail { counts }        # Tất cả · Của tôi · AI đang xử lý · Cần người · AI chờ duyệt · Chưa đọc · theo kênh · thẻ
     ├── ConversationList { folder; filters }         (virtual)
     ├── ChatPanel { conversationId }
-    │   ├── ChatHeader (assign, tag, AiModeToggle, status, "Chuyển thành ▾")
+    │   ├── ChatHeader (assign, tag, AiModeToggle, status, "Chuyển thành ▾", ⋯ ConversationMenu có submenu — REQ-C10; không video / gọi điện)
+    │   ├── ThreadSearchBar (REQ-C12) · PinnedMessageBar · MessageMenu ⋯ (cảm xúc, trả lời, chuyển tiếp, ghim, dịch, tạo ticket, thu hồi / xoá — REQ-C09)
     │   ├── MessageThread (virtual, load-more) · AiSuggestionBar (copilot) · HandoffBanner
-    │   └── Composer (text, emoji, attach, canned "/", note mode, AI rewrite/translate)
-    └── ContextPanel → Customer360Panel { contactId }   # tóm tắt AI, info, đơn/báo giá/lịch/ticket, ghi chú, hạng
+    │   └── Composer (text, emoji, attach, canned "/", note mode, AI rewrite/translate; menu ＋: tệp · chụp màn hình · AgentToolsPanel chỉ đọc + link Builder — REQ-C11, D51; "Người gửi: <tên> (bạn)")
+    └── ContextPanel → Customer360Panel { contactId; layout }   # tab / khối theo profile_layout của vai trò (⚙ Tuỳ chỉnh — REQ-F12); 6 nút mở form tại chỗ theo luật COMMERCE (D46, REQ-F11)
+                                                         # tóm tắt AI, info, đơn/báo giá/lịch/ticket, ghi chú, hạng
 
 customers/                CustomersPage → PageHeader + StageTabs + FilterBar + (DataTable | KanbanBoard) → Customer360Drawer
 customers/[id]            Customer360Page tabs: Tổng quan · CRM · AI · Tệp · Lịch sử
 contracts/                ContractsPage → KpiStrip(4) · FilterChips(Nháp/Chờ ký/Đã ký/Hết hạn) · (DataTable | Kanban 4 cột) · ContractDrawer (thông tin · nội dung/PDF · ký điện tử · phụ lục · timeline ký · AI gợi ý) · ContractEditor (mẫu theo loại + biến | upload PDF)
 (public)/sign/[token]      SignPage → PdfViewer · ConsentCheckbox · OtpStep · SignaturePad · Done (tải PDF đã ký)
 products/ quotes/ orders/ invoices/   cùng mẫu ListPage + EntityDrawer; QuoteEditor { quoteId? } (line items, chiết khấu dòng + tổng, thuế sau CK, preview PDF); OrderDetail (2 trục trạng thái, thanh toán, gói buổi, kho); "Hoá đơn" hiển thị là "Đề nghị thanh toán"
+callcenter/ (D61)         CallCenterPage → PageHeader (kỳ · Export · Gọi đi · AiButton) · KpiStrip(6) · HourlyChart · ExtensionBoard (realtime, giám sát) · CallLogTable (6 tab, D42) → CallDetailModal (player · tóm tắt · transcript + dịch · khối cơ hội · gán) · CallCenterAiDrawer
+(app)/_webphone (D61)     WebPhoneHost toàn cục: Dialer · IncomingCall · InCall (mute / hold / DTMF / transfer) · MiniPill · MonitorBar; mở từ số điện thoại ở 360° / Khách hàng / Tài chính
 calendar/                 CalendarPage → ViewSwitch(day|week|month|list) · StaffLanes · AppointmentBlock · AppointmentDrawer · SlotPicker
 tickets/                  TicketsPage → KpiStrip(5) · FilterBar · (DataTable | Kanban 4 cột) · TicketDrawer (timeline, comment, SLA clock)
 marketing/                MarketingPage → SuggestionTable(7 cột) · CampaignList · CampaignWizard(steps: đối tượng → nội dung → kênh & lịch → duyệt) · CampaignDetail(stats)
 loyalty/                  LoyaltyPage → Overview · MemberTable · AdjustPointsDialog(3 bước) · ConfigDialog
-agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nhóm ngành → Ngành) · AgentBuilder{ agentId } (trái: cấu hình/prompt/tools/tri thức/kênh/ngưỡng · phải: TestChat)
+agents/                   AgentsPage (list + stats) · TemplateGallery(lọc Nhóm ngành → Ngành) · AgentBuilder{ agentId } (trái: cấu hình/prompt/tools/tri thức/kênh/ngưỡng · phải: TestChat). Tab Tools = **nơi duy nhất cấp quyền agent**: ToolGroup theo module + Kỹ năng AI, n/tổng, badge Cần kết nối X / Sắp có (D51, REQ-D16)
 assistant/approvals       ApprovalsQueue (màn mới, không đo parity) · assistant/actions → ActionLog + hoàn tác (prototype L1464)
 dashboard/                DashboardPage → GreetingBar(hỏi Trợ lý) · NeedsMe · AiTodayFeed · FollowUpWidget · OnboardingChecklist · CreditCard
-settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prototype L9810) → SettingsSection registry: general (+ giờ làm việc) · locale · members · channels · web_widget · contacts_fields · tags · replies · doc_templates (Mẫu chứng từ — báo giá / hợp đồng / đề nghị thanh toán / phiếu thu; rich + DOCX; D30) · ai_models · rag_data · ai_gov · ai_audit / audit · org_sla (chỉ chính sách mặc định) · notifications · wallet (gói, ví, hoá đơn gói). · **roles** (Vai trò & phân quyền — P0 chỉ đọc ma trận, P1 sửa/tạo; D27) · **integrations** (Nền tảng kết nối — registry + thẻ "Sắp có"; D28). Các mục OUT bị ẩn (Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API/Playground/Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO/Compliance)
+settings/callcenter (D61) CallCenterSettings (4 tab Nhân sự · Gọi vào · Gọi ra · Nâng cao) → ExtensionTable · QueueList · IvrKeys · CallerIdMap · RecordingToggles · LineList (hotline / ZCC / SĐT cá nhân / SIP) · CallCenterFormModal
+settings/[section]        SettingsShell (nav nhóm, ô tìm kiếm — theo prototype L9810) → SettingsSection registry: general (+ giờ làm việc) · locale · members · channels · web_widget · contacts_fields · tags · replies · doc_templates (Mẫu chứng từ — báo giá / hợp đồng / đề nghị thanh toán / phiếu thu; rich + DOCX; D30) · ai_models · rag_data · ai_gov · ai_audit / audit · org_sla (chỉ chính sách mặc định) · notifications · wallet (gói, ví, hoá đơn gói). · **roles** (Vai trò & phân quyền — P0 chỉ đọc ma trận, P1 sửa/tạo; D27) · **integrations** (Nền tảng kết nối — registry + thẻ "Sắp có"; D28) · **profile_360** (Hồ sơ 360° — nhóm Ứng dụng: mẫu, gán vai trò, Xem như vai trò; REQ-M05) · **channels** theo ver2.1: danh sách kênh → tài khoản → ChannelDrawer (tổng quan, hiệu suất 7 ngày, trả lời tự động, phân công & SLA, đồng bộ, vùng nguy hiểm) + ConnectChannelWizard 3 bước (REQ-B09–B11). Các mục OUT bị ẩn (Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API/Playground/Developer, SMS, ZBS, Tổng đài, Cloud, Branding, Affiliate, SSO/Compliance)
 customers/ (D32)          ContactOwnerCell + CollaboratorsPopover · TransferOwnerModal (chọn chuyển kèm hội thoại / báo giá / lịch) · AccessRequestDialog ("Đã có người phụ trách: …" + Xin chia sẻ) · AccessRequestsList (trong NeedsMe)
 quotes/ contracts/ (D30)  DraftFromContentModal (dán nội dung / đính kèm → chọn mẫu → AI soạn nháp) · AiSuggestedClauseBlock (Giữ / Bỏ) · LegalChecklistPanel
 orders/ (D31)             OrderSourceBadge (sàn / POS) · ExternalLockBanner (khoá dòng hàng / giá) · PlatformStatusTag
@@ -1214,8 +1390,8 @@ agents/ (D29)             AgentCreateMenu (Mở Workflow — ẩn · Tạo thủ
 settings/roles (D27)      RolesMatrix (P0 chỉ đọc: nhóm quyền × 5 vai trò, theo prototype L6011) · P1: RoleEditor (nhân bản, sửa) · TeamsManager · DelegationToggles (uỷ quyền ký / hoàn tiền cho Quản lý)
 settings/integrations     IntegrationsPage (theo prototype L6218) → CategoryTabs · StatsStrip · ConnectorGrid → ConnectorCard { manifest, status } (badge "Sắp có" + InterestButton) · ConnectModal (form sinh từ `manifest.auth.fields`) · ConnectionDrawer (trạng thái, nhật ký gọi, đồng bộ ngay, chọn bên giữ tồn, bật tích điểm đơn sàn, ngắt) (D28, D31)
 settings/doc_templates    TemplateList (tab theo loại) · RichTemplateEditor · DocxUploadWizard (tải lên → AI nhận diện → FieldMapper đánh dấu / sửa biến → LegalChecklistPanel → lưu) · TemplatePreview (PDF) (D30)
-settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTabs (Tất cả / AI đã học / Từ hội thoại / Do bạn upload) · FileTable (trạng thái index, số đoạn, index lại) · UploadModal (thư mục, thẻ, visibility) · SuggestionQueue (P1)
-(admin)/admin/[section]   workspaces · plans · model-prices · transfers · templates
+settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTabs (Tất cả / AI đã học / Từ hội thoại / Do bạn upload) · FileTable (trạng thái index, số đoạn, index lại) · UploadModal (thư mục, thẻ, visibility) · SuggestionQueue (P1) · KbIndexStatus (TIP-020e, PD-033: cũ / đang tạo lại + tiến độ thật / lỗi / suy giảm; Tạo lại chỉ mục có xem trước)
+(admin)/admin?tab=        workspaces · plans · providers · routes · prices · transfers (+ giao dịch chưa khớp, yêu cầu liên hệ) · templates — AdminGuard (`/admin/session`), không AppShell (TIP-040, PD-022)
 (onboarding)/declare      DeclareBusinessModal (không đóng được; 2 bước) · welcome → TrialWelcome (2 nút)
 ```
 
@@ -1265,6 +1441,14 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 | **Connector registry (D28)** | `packages/integrations`: port theo năng lực (`EInvoiceProvider`, `ESignProvider`, `AccountingSyncProvider`, `CommerceSyncProvider`, `SheetSyncProvider`, `SmsProvider`, `MailProvider`, `StorageProvider`, `TaxLookupProvider`) + `ConnectorManifest`; gọi ra ngoài qua queue `integrations` (retry, idempotent, call log); webhook chung `/hooks/integrations/:connector/:connectionId` | Chuẩn `standards/integrations/provider-ports.md`; MISA / Mắt Bão / VNPT / Viettel… = "Sắp có" |
 | Object storage | interface `Storage`: `local` (dev `./.data/files`; prod `/srv/appchat/files` trên VPS + backup restic) và `s3` (S3-compatible, bật bằng env khi cần) | |
 | PDF chứng từ | Mẫu `rich`: `@react-pdf/renderer` trong worker (font Plus Jakarta Sans nhúng). Mẫu `docx`: `docxtemplater` + **LibreOffice headless native** (`soffice --convert-to pdf`, queue `doc-render`, user riêng, không mạng) — D30 | Cài LibreOffice trên VPS-APP (infra) |
+| Thoại (D61) | LiveKit tự dựng (`livekit-server`, `livekit-sip`, systemd) + SIP edge Kamailio / rtpengine; SDK `livekit-server-sdk`, `@livekit/rtc-node`, `livekit-client` (DV-901) | TIP-047 |
+| Zalo Cloud Connect (D61) | SIP trunk `<AppID>.zcc.openapi.zaloapp.com` (IP tĩnh, PCMU / PCMA) + OA OpenAPI v4 (yêu cầu / kiểm quyền gọi) | Q-902 |
+| Voice AI (D61) | `VoiceAiEnginePort`: mặc định tự dựng PhoWhisper (STT) + VieNeu-TTS (TTS) chạy local (DC-907, DV-902); OpenAI Realtime / Gemini Live tuỳ chọn; test dùng `mock` | DC-907 (Q-905 chốt) |
+| Zalo OA (D62) | OAuth v4 + OpenAPI v3 (`message/cs`, upload, user detail) + webhook ký `X-ZEvent-Signature`; **một App Zalo** chung với ZCC (`ZALO_APP_ID` / `ZALO_APP_SECRET` — DC-909) | Q-909 |
+| Meta — Facebook Page / Messenger, Instagram (D62) | Graph API (`fetch`, `META_GRAPH_VERSION`), Facebook Login for Business, Webhooks `messages` / `feed` / `comments` / `live_comments`, data deletion callback | Q-908 (App Review + Business Verification) |
+| Shopee Open Platform v2 (D63) | Connector `shopee` port `order_sync`: auth_partner (access 4 giờ, refresh 30 ngày dùng một lần — TokenVault), ký HMAC-SHA256, `get_order_list` / `get_order_detail` / `get_tracking_number` / `get_item_list` / `get_model_list`, push 3 / 4 / 12 | Q-914 |
+| TikTok Shop Partner API VN (D63) | Connector `tiktok_shop` port `order_sync`: auth_code → token 7 ngày, ký HMAC bọc app_secret + `shop_cipher`, order / package / product search, webhook topic 1 / 4 / deauth | Q-915 |
+| TikTok Business (D62) | Business Messaging API (Beta) + Accounts API (bình luận) + webhook `TikTok-Signature` | Q-910 |
 | Excel import/export | `exceljs` | |
 | Parse tài liệu RAG | `pdf-parse`, `mammoth` (docx), `exceljs`/csv, fetch URL + readability | |
 
@@ -1298,13 +1482,14 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 | # | Rủi ro | Xử lý |
 |---|---|---|
 | K1 | ~~pgvector trên Windows~~ **Đã xử lý 2026-10-28:** build pgvector 0.8.1 bằng MSVC và cài vào PG16 trên máy dev. Ghi lệnh cài vào `infra/dev/README.md` | TIP-002 kiểm `CREATE EXTENSION vector`. Nếu không cài được: dev tạm dùng `kb_chunk.embedding` kiểu `real[]` + tìm tuyến tính (chỉ cho dev). Prod chạy Linux có pgvector. Escalate nếu cả hai đều không được |
-| K2 | zca-js không chính thức, có thể bị Zalo đổi giao thức hoặc khoá tài khoản | Adapter cô lập; pin version; health probe; cảnh báo Owner; thiết kế sẵn chỗ cho Zalo OA (P2) |
+| K2 | zca-js không chính thức, có thể bị Zalo đổi giao thức hoặc khoá tài khoản | Adapter cô lập; pin version; health probe; cảnh báo Owner; Zalo OA chính thức vào phạm vi từ D62 (TIP-048d) |
+| K13 | Kênh webhook (Meta / Zalo OA / TikTok) cần **App được duyệt** (Meta App Review + Business Verification 2–6 tuần; Zalo quyền OA + gói OA trả phí; TikTok form) và **domain HTTPS** cho callback / webhook — tức VPS sớm hơn Q-006 | Chủ nhà nộp ngay (Q-908 / Q-909 / Q-910); code + test bằng transport `fake`; nghiệm thu thật sau khi duyệt |
 | K3 | DB-per-tenant: số kết nối, RAM của Prisma Client mỗi DB, autovacuum trên nhiều DB | PgBouncer transaction mode bắt buộc; driver adapter `@prisma/adapter-pg` pool nhỏ; LRU client; đo RAM/latency với 200 DB giả lập. Đo p95 ở TIP-002 |
 | K4 | Tên trường `usage` của AI SDK v7 khi stream nhiều bước chưa kiểm | Spike nửa ngày ở đầu TIP AI: kiểm `usage` + chạy tiếp sau restart worker; viết test hợp đồng cho `CreditMeter` |
 | K7 | Nhiều DB trên một cluster (mỗi DB rỗng ~8 MB, catalog + autovacuum tăng theo số DB) | Theo dõi số DB và tổng kích thước; khi > ~500 DB hoặc đĩa > 70% thì thêm cluster mới và đặt workspace mới lên đó qua `db_host`. Workspace gói Miễn phí không hoạt động 90 ngày được tự lưu trữ (dump + drop, khôi phục khi đăng nhập — §2.0 bước 5, D23) |
 | K6 | Single VPS là điểm lỗi duy nhất | Backup offsite + restore thử hằng tuần; runbook dựng lại VPS < 1 giờ bằng `infra/scripts`; khi doanh thu cho phép thì thêm replica PG ở VPS thứ 2 |
 | K8 | **LibreOffice DOCX → PDF** lệch bố cục / font so với Word; tốn CPU | Spike đầu TIP chứng từ với 5 mẫu DOCX thật (bảng, header/footer, font tiếng Việt); cài font (Plus Jakarta Sans, Times New Roman, Arial, DejaVu) trên VPS; giới hạn 2 tiến trình + timeout 60s; lệch thì trả thêm DOCX đã điền và khuyến nghị mẫu rich |
-| K9 | API sàn TMĐT (Shopee Open Platform, TikTok Shop Partner, Lazada Open Platform) cần **đăng ký app đối tác / duyệt**, webhook cần domain HTTPS | Adapter thật để P2 nên không chặn phát hành; Chủ nhà nộp đăng ký sớm; khung + `mock` có từ P0 |
+| K9 | API sàn TMĐT (Shopee Open Platform, TikTok Shop Partner, Lazada Open Platform) cần **đăng ký app đối tác / duyệt**, webhook cần domain HTTPS | Shopee + TikTok Shop vào bản phát hành (D63): Chủ nhà nộp ngay (Q-914, Q-915); code + test bằng server giả; Lazada vẫn P2 |
 | K10 | AI nhận diện biến DOCX sai, AI soạn sai số liệu | Bắt buộc người xác nhận field map; số liệu luôn từ bản ghi; eval `doc-draft` |
 | K11 | Scope `own` + join `contact_collaborator` làm chậm list lớn | Index §2.2 authz; `EXPLAIN` trong TIP; p95 > 300ms thì denormalize `contact.visible_user_ids uuid[]` + GIN |
 | K12 | pgvector HNSW kèm filter (`kb_scope`, visibility) giảm recall | Dùng `hnsw.iterative_scan` (pgvector ≥ 0.8); kho nhỏ thì quét chính xác; eval `rag` |
@@ -1341,6 +1526,7 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 - Monitoring tách VPS riêng để **app sập vẫn còn cảnh báo**. Giai đoạn đầu có thể gộp chung một VPS; khi đó Blackbox exporter phải đặt ở nơi khác (hoặc dùng uptime check ngoài).
 - Khi tải tăng: tách PostgreSQL sang VPS-DB riêng (streaming replica cho đọc), rồi tách `worker-ai`. Kiến trúc không đổi, chỉ đổi biến môi trường.
 - File upload: `Storage` interface — mặc định `local` trên đĩa VPS (`/srv/appchat/files`) + backup restic; đổi sang `s3` (S3-compatible bên ngoài) chỉ bằng env.
+- **Thoại (D61, DC-906, DC-907):** `voice-tts` (VieNeu-TTS, Python venv) + STT trong worker channels chạy cùng máy thoại, systemd CPUQuota / MemoryMax; `livekit-server` (WebRTC UDP + TURN/TLS 443 qua nginx stream hoặc cổng riêng), `livekit-sip`, Kamailio + rtpengine chạy native systemd trên VPS-APP (CPUQuota / MemoryMax, Redis DB riêng) hoặc một VPS thoại riêng chỉ bằng đổi env (`LIVEKIT_URL`); cần **IP public tĩnh** cho Zalo ZCC / nhà mạng; ufw mở 5060/udp-tcp, 5061/tls, dải RTP, cổng WebRTC của LiveKit (§11.5).
 - **LibreOffice headless** + bộ font (apt) trên VPS-APP cho queue `doc-render` (D30); chạy dưới user `appchat-render`, không mạng, thư mục tạm riêng mỗi job.
 
 ### 11.2 Thư mục `infra/` trong repo
@@ -1448,9 +1634,14 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | B05 | §6 webchat · §2.2 channels-webchat |
 | B06 | §6 email |
 | B07 | §4.4 channels · §7.2 settings/channels |
+| B09, B10, B11 | §2.2 `channel_account` · §3.4 channels · §4.4 channels · §6 · §7.2 settings/channels |
+| F07c (D63) | §2.2 `tenant_shop_route` · `integration_connection.external_account_id` · `order.external_shop_key` · §4.7 `/hooks/marketplace/:connector` · §8 Shopee / TikTok Shop · §10 K9 |
+| B08, B12–B17 (D62) | §2.2 `tenant_channel_webhook_route` · `oauth_grant` · `channel_webhook_event` · `social.prisma` · §3.4 oauth / comment / live · §4.7 `/hooks/channels/:type` · `/hooks/oauth/:provider/callback` · §6 kênh webhook · §8 · §10 K13 |
 | C01–C04, C08 | §2.2 inbox · §3.4 inbox · §7.2 inbox |
 | C05 | §7.2 Composer · §5.3 copilot |
 | C06 | §6 inbound pipeline |
+| C09, C10, C12, C13 | §2.2 `message_reaction`, `conversation.hidden_at` / `pinned_message_id`, `message.reply_to_id` · §3.4 inbox · §4.4 inbox · §7.1 ActionMenu · §7.2 inbox |
+| C11, D16 | §3.1 `skill` / `requiresConnector` · §3.3b · §3.4 ai (Kỹ năng AI) · §4.4 `agents/:id/tools` · §7.2 agents, Composer |
 | C07 | §3.4 `quote.create` / `order.create` / `appointment.create` / `ticket.create` · §7.2 ChatHeader "Chuyển thành" |
 | D01, D02, D03 | §5.1 · `standards/ai/agent-gateway.md` |
 | D04, D04b | §2.2 ai-kb · §5.3 · §7.2 settings/rag_data · `standards/ai/rag.md` |
@@ -1468,6 +1659,7 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | E07 | §3.4 `insight.query` |
 | E10 | §4.4 assistant sessions |
 | E12 | §4.4 files · §5.2 |
+| E14 | §3.3b · §4.4 runs · §5.4 khung điều phối |
 | F01, F02, F04 | §2.2 crm · §7.2 customers |
 | F01b, F01c | §2.2 `contact_collaborator`, `contact_access_request` · §3.4 crm · §3.5 · COMMERCE §8b |
 | F03 | §3.4 `contact.merge` / `contact.import` / `contact.export` |
@@ -1477,6 +1669,8 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | F08 | §2.2 `invoice`, `customer_payment` · §4.7 · COMMERCE §5 |
 | F09 | §2.2 contracts · §4.4 public sign · §7.2 contracts, (public)/sign · COMMERCE §9 |
 | F10 | §2.3 · COMMERCE §8 |
+| F11 | §3.4 `contact.send_email`, `quote.request_revision` · §7.2 Customer360Panel · D46 |
+| F12, M05 | §2.2 `profile_layout`, `profile_layout_role` · §3.4 settings · §4.4 crm · §7.2 settings/profile_360 |
 | G01–G05 | §2.2 booking · §3.4 booking · §7.2 calendar |
 | H01–H04 | §2.2 support · §3.4 support · §7.2 tickets |
 | I01–I05 | §2.2 marketing · §3.4 marketing · queue `campaign-send` · §7.2 marketing |
@@ -1501,4 +1695,10 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | N10 | §7.4 · `standards/i18n/i18n.md` |
 | N11 | §9 · `standards/code/testing.md` · `standards/ai/eval.md` |
 | N12 | `standards/code/file-size-module-layout.md` |
-| N14 | §7.0 · `standards/ui/prototype-parity.md` |
+| N14 | §7.0 · `standards/ui/prototype-parity.md` (ngoại lệ D42 / D43 / D44 / D46 / D51) |
+| N15 | §7.1 `AiButton` |
+| O01 | §1.1 `packages/voice` · §6b · §11.1 thoại |
+| O02, O11 | §2.2 `tenant/callcenter.prisma` · `contact_task` callback |
+| O03, O04, O08 | §6b · §3.4 callcenter · §4.7 webhooks |
+| O05, O06, O07, O09 | §3.4 callcenter · §2.3 `call.*` · §7.2 callcenter / _webphone |
+| O10, O12 | §7.2 settings/callcenter · §3.5 Gọi điện · COMMERCE §10 |

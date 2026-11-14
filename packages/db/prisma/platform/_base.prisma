@@ -1,0 +1,10 @@
+// platform/_base.prisma — generator + datasource của DB nền tảng `appchat_platform` (TIP-002). URL ở prisma.platform.config.ts.
+generator client {
+  provider     = "prisma-client"
+  output       = "../../src/generated/platform"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "postgresql"
+}

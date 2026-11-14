@@ -1,0 +1,50 @@
+// tenant/ai-channel-behavior.prisma — sở hữu: TIP-022b (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Bảng: ai_turn_receipt (pha một lượt agent theo tin khách nguồn: chọn agent, lời chào, câu trả lời — phục hồi sau crash không gửi hai
+// lần), ai_complaint_receipt (một ticket khiếu nại tự động mỗi tin khách nguồn — model + consumer dùng chung). Không Prisma relation xuyên
+// domain (Blueprint §2.1); FK / CHECK / partial index viết tay ở migration 20261102002220.
+
+/// Một lượt khách (tin khách nguồn) của hội thoại: agent đã chọn (phân luồng) + nguồn gán, pha lời chào và pha câu trả lời. Ghi TRƯỚC
+/// khi gửi lời chào; khôi phục dựa vào đây (không dựa hướng tin cuối). `fence` = fence lượt lúc ghi — lượt cũ không ghi đè lượt mới.
+model AiTurnReceipt {
+  conversationId    String   @map("conversation_id") @db.Uuid
+  sourceMessageId   String   @map("source_message_id") @db.Uuid
+  fence             Int
+  agentId           String?  @map("agent_id")
+  agentVersion      Int?     @map("agent_version")
+  /// auto = phân luồng / mặc định tài khoản; manual = người gán; transfer = agent chuyển.
+  bindingSource     String   @default("auto") @map("binding_source")
+  bindingReason     String   @default("") @map("binding_reason")
+  /// none | pending | acknowledged | unknown — lời chào chỉ gửi tối đa một lần cho hội thoại.
+  greetingPhase     String   @default("none") @map("greeting_phase")
+  greetingMessageId String?  @map("greeting_message_id") @db.Uuid
+  /// pending | finalized — câu trả lời của lượt (lời chào không làm xong lượt).
+  answerPhase       String   @default("pending") @map("answer_phase")
+  runId             String?  @map("run_id") @db.Uuid
+  createdAt         DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@id([conversationId, sourceMessageId])
+  @@map("ai_turn_receipt")
+}
+
+/// Ticket khiếu nại do agent tạo: một dòng mỗi tin khách nguồn (`kind = agent_ticket`). Commit cùng transaction với ticket.create — event
+/// trùng / model + consumer chạy song song chỉ ra một ticket hoặc một yêu cầu duyệt.
+model AiComplaintReceipt {
+  sourceMessageId String   @map("source_message_id") @db.Uuid
+  kind            String   @default("agent_ticket")
+  conversationId  String   @map("conversation_id") @db.Uuid
+  runId           String?  @map("run_id") @db.Uuid
+  agentId         String?  @map("agent_id")
+  /// pending (chờ duyệt) | created | duplicate (ticket mở trùng — chờ người chọn) | denied | rejected
+  status          String   @default("pending")
+  ticketId        String?  @map("ticket_id") @db.Uuid
+  approvalId      String?  @map("approval_id") @db.Uuid
+  /// Băm nội dung chuẩn (tiêu đề / danh mục) — phát lại khác nội dung → CONFLICT, không tạo ticket thứ hai.
+  intentHash      String   @map("intent_hash")
+  detail          String   @default("")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+
+  @@id([sourceMessageId, kind])
+  @@map("ai_complaint_receipt")
+}

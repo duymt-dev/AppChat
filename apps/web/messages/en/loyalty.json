@@ -1,0 +1,278 @@
+{
+  "title": "Loyalty",
+  "sub": "Membership tiers · points · retention",
+  "search": "Search name, phone, tier…",
+  "add": "Add member",
+  "ai": "AI Assistant",
+  "tier": {
+    "member": "Member",
+    "silver": "Silver",
+    "gold": "Gold",
+    "diamond": "Diamond"
+  },
+  "ov": {
+    "title": "Points & revenue overview",
+    "issued": "Points issued",
+    "used": "Points used",
+    "redeemed": "Points redeemed (gifts)",
+    "return": "Return rate",
+    "revenue": "Member revenue",
+    "unit": {
+      "pts": "pts",
+      "vnd": "VND"
+    },
+    "trend": "↑ {v} vs last month"
+  },
+  "mem": {
+    "title": "Members",
+    "find": "Search…",
+    "allTiers": "All tiers",
+    "col": {
+      "idx": "#",
+      "name": "Member",
+      "tier": "Tier",
+      "points": "Points",
+      "earned": "Total earned",
+      "used": "Used",
+      "spent": "Spent",
+      "status": "Status",
+      "act": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "new": "New",
+      "churn_risk": "At risk"
+    },
+    "empty": "No matching members",
+    "menu": {
+      "open": "Actions",
+      "view": "View details",
+      "adjust": "Adjust points"
+    },
+    "vnd": "{v} ₫"
+  },
+  "churn": {
+    "title": "Churn alerts",
+    "sub": "AI detected falling engagement · points or packages expiring",
+    "col": {
+      "name": "Member",
+      "tier": "Tier",
+      "risk": "Risk",
+      "signal": "Signal",
+      "last": "Last seen"
+    },
+    "risk": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "score": "{n}/100",
+    "soonD": "Churn risk scoring is coming in a later release."
+  },
+  "rules": {
+    "title": "Earning rules",
+    "sub": "Per agreed rules: <b>10,000 ₫ = 1 point</b>, earned once when an order completes · tier multiplier",
+    "config": "Tier & points settings",
+    "col": {
+      "prio": "Priority",
+      "when": "When · event",
+      "if": "If · condition",
+      "then": "Then · points",
+      "expiry": "Expiry",
+      "state": "Status"
+    },
+    "name": {
+      "earn": "Earn on completed orders",
+      "tier_mult": "Tier multiplier",
+      "big_order": "Big order bonus",
+      "birthday": "Birthday bonus",
+      "signup": "Sign-up bonus",
+      "referral": "Referral bonus",
+      "rating": "5-star review bonus",
+      "package": "Earn on packages / cards"
+    },
+    "trigger": {
+      "order_completed": "Order completed",
+      "birthday": "On birthday",
+      "signup": "Member profile completed",
+      "referral": "Referred friend's first purchase",
+      "rating": "Customer leaves a review",
+      "package": "Package or card purchased"
+    },
+    "cond": {
+      "all": "Always",
+      "tier": "Tier ∈ Gold, Diamond",
+      "big": "Order value ≥ 5,000,000 ₫",
+      "new": "Is a new customer",
+      "five": "Stars = 5"
+    },
+    "on": "Running",
+    "soon": "Coming soon",
+    "foot": "<b>{on}</b> / {n} rules running · points expire after 12 months (FIFO) · tiers reviewed quarterly",
+    "sim": "Test point calculation"
+  },
+  "adj": {
+    "title": "Add member & record points",
+    "sub": "Look up phone → determine tier → adjust points with a reason",
+    "close": "Close",
+    "steps": [
+      "Look up phone",
+      "Determine tier",
+      "Record points"
+    ],
+    "phone": "Customer phone",
+    "phonePh": "e.g. 0903 123 456",
+    "lookup": "Look up",
+    "tryHint": "Try <b>0903 123 456</b> (existing member) or any number (new customer).",
+    "member": "Member · joined {d}",
+    "tierBadge": "{t} tier",
+    "cur": "Points",
+    "toNext": "<b>{n}</b> more points to reach {t}",
+    "maxTier": "Top tier — kept by points earned in the last 12 months",
+    "newT": "Not in the program yet",
+    "newD": "This number is not a member. Enter a name to create the customer — they join the <b>Member</b> tier; tiers follow points earned in 12 months.",
+    "crmD": "{name} is in the CRM but has no points yet — joins the <b>Member</b> tier.",
+    "name": "Full name",
+    "namePh": "Nguyen Van A",
+    "box": "Adjust points",
+    "boxSub": "automatic points are only earned when an order completes",
+    "dir": "Adjustment",
+    "plus": "Add points",
+    "minus": "Deduct points",
+    "points": "Points",
+    "reason": "Reason",
+    "reasons": {
+      "missing_earn": "Completed order missed its points",
+      "order_error": "Fix an order mistake",
+      "compensation": "Service incident compensation",
+      "promotion": "Special campaign offer",
+      "refund_reverse": "Reverse points after refund",
+      "fraud": "Revoke wrongly issued / fraudulent points",
+      "other": "Other (specify)"
+    },
+    "note": "Note",
+    "notePh": "Short description for the log",
+    "result": "Result",
+    "curPoints": "Current points",
+    "after": "Balance after",
+    "tierAfter": "Tier after",
+    "log": "Every adjustment is logged: who, when, why — undoable within 24 hours.",
+    "hintStart": "Enter a phone number and press Look up to continue.",
+    "hintMember": "Existing member — just record points.",
+    "hintNew": "New customer — create the profile then record points.",
+    "cancel": "Cancel",
+    "save": "Record points",
+    "saveNew": "Add member & record",
+    "errPhone": "Enter a valid phone number",
+    "errName": "Enter the customer's name",
+    "errPoints": "Enter points greater than 0",
+    "errNote": "Other reason needs a note",
+    "done": "Recorded {d} points for {name}"
+  },
+  "cfg": {
+    "title": "Tier & points settings",
+    "sub": "Earn / redeem rules are fixed — only on/off and tier multipliers can change",
+    "close": "Close",
+    "enabled": "Enable loyalty program",
+    "fixed": "Fixed rules",
+    "earn": "Earning",
+    "earnV": "10,000 ₫ = 1 point · once when an order completes",
+    "redeem": "Redeeming",
+    "redeemV": "1 point = 100 ₫ · up to 50% of the order",
+    "expiry": "Expiry",
+    "expiryV": "12 months from earning (FIFO)",
+    "review": "Tier review",
+    "reviewV": "By points earned in the last 12 months · reviewed quarterly",
+    "tiers": "Tiers",
+    "from": "From {n} pts",
+    "mult": "Multiplier",
+    "market": "Earn points on marketplace orders",
+    "marketHint": "Off by default — marketplaces usually forbid pulling customers away.",
+    "cancel": "Cancel",
+    "save": "Save settings",
+    "saved": "Loyalty settings saved"
+  },
+  "sim": {
+    "title": "Test point calculation",
+    "sub": "Enter a sample completed order to see how many points the customer gets",
+    "close": "Close",
+    "tier": "Customer tier",
+    "amount": "Amount paid before VAT (₫)",
+    "applied": "Rules applied",
+    "base": "Order points (10,000 ₫ = 1 point)",
+    "mult": "{t} tier multiplier (×{m})",
+    "total": "Total points earned",
+    "note": "Points are added once when the order becomes Completed; cancelling reverses them. Completed appointments earn no separate points.",
+    "done": "Done"
+  },
+  "dr": {
+    "close": "Close",
+    "tierBadge": "{t} tier",
+    "cur": "Points",
+    "earned": "Total earned",
+    "tabs": {
+      "overview": "Overview",
+      "crm": "CRM",
+      "ai": "AI",
+      "files": "Files",
+      "history": "History"
+    },
+    "progress": "Tier progress",
+    "maxTag": "Top tier ✦",
+    "maxD": "The customer is at the top tier — keep VIP perks & priority care.",
+    "up": "To <b>{t}</b>",
+    "need": "{n} more points",
+    "stats": "Member stats",
+    "used": "Points used",
+    "spent": "Total spent",
+    "expiring": "Points expiring soon",
+    "adjust": "Adjust points",
+    "openCrm": "Open CRM profile",
+    "ladderD": "Tiers follow <b>points earned in the last 12 months</b>, reviewed quarterly. The multiplier applies to each completed order's points.",
+    "current": "Current tier",
+    "rate": "Earn ×{m}",
+    "from": "From {n} points earned in 12 months",
+    "perk": {
+      "member": "Base earning 10,000 ₫ = 1 point",
+      "silver": "Birthday offer · earn ×1",
+      "gold": "Monthly voucher · earn ×1.5",
+      "diamond": "Birthday gift · priority booking · dedicated care · earn ×2"
+    },
+    "aiT": "AI member analysis",
+    "aiD": "<b>{n}</b> more earned points to reach <b>{t}</b> — suggest a personal offer within 30 days.",
+    "aiMax": "Top-tier member with steady spending — prioritise personal care to keep the tier.",
+    "aiActs": "Suggested actions",
+    "files": "Attachments",
+    "openFile": "Open",
+    "upload": "+ Upload file",
+    "kind": {
+      "earn": "Earned",
+      "redeem": "Redeemed",
+      "adjust": "Adjusted",
+      "expire": "Expired",
+      "reverse": "Reversed",
+      "restore": "Points returned"
+    },
+    "noHistory": "No point transactions yet",
+    "acts": {
+      "keep": {
+        "label": "Suggest a keep / upgrade offer",
+        "prompt": "Customer {name} ({phone}) is {tier} with {points} points, {expiring} points expiring soon. Suggest a suitable keep-tier / upgrade offer; do not send it to the customer yet."
+      },
+      "care": {
+        "label": "Plan regular care",
+        "prompt": "Suggest a regular care schedule for customer {name} ({phone}), tier {tier}. Only suggest; wait for my confirmation."
+      },
+      "expiring": {
+        "label": "Draft an expiring points reminder",
+        "prompt": "Draft a message reminding customer {name} ({phone}) that {expiring} points expire soon (balance {points} points). Draft only, do not send."
+      }
+    },
+    "openFail": "Could not open the file",
+    "uploadFail": "Could not upload the file",
+    "filesFail": "Could not load the files",
+    "noFiles": "No attachments yet"
+  },
+  "unit": "members"
+}

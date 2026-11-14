@@ -1,0 +1,27 @@
+// platform/privacy-journal.prisma — sở hữu: TIP-015c (02-TASK-GRAPH.md → Bản đồ sở hữu file).
+// Nhật ký nền tảng (TIP-015c §2.5, mirror 045b annex A1 "sổ thao tác xuyên DB"): trước khi chấp nhận fence bất kỳ không thể đảo ngược ở
+// DB tenant, ghi Ý ĐỊNH ở đây trước (reserve), rồi mới commit tenant — khôi phục 041 đọc capsule này, không phải snapshot cũ. Nhiều
+// revision bất biến mỗi operation (không bao giờ ghi đè capsule trước); capsule KHÔNG có PII thô — chỉ tombstone/digest/disposition.
+
+model PrivacyJournalEntry {
+  id            String   @id @db.Uuid
+  workspaceId   String   @map("workspace_id") @db.Uuid
+  /// Thứ tự đơn điệu trong workspace (không phải toàn hệ thống) — khôi phục phát theo đúng thứ tự này.
+  sequence      BigInt
+  operationId   String   @map("operation_id") @db.Uuid
+  revision      Int
+  phase         String
+  /// Capsule mã hoá (APP_ENC_KEY + key_version) — tombstone/token-digest/disposition/checkpoint, không PII.
+  capsuleCipher String   @map("capsule_cipher")
+  capsuleIv     String   @map("capsule_iv")
+  keyVersion    Int      @map("key_version")
+  checksum      String
+  /// Checksum của revision liền trước (chuỗi toàn vẹn — thiếu 1 revision thì verify fail).
+  priorChecksum String?  @map("prior_checksum")
+  acknowledgedAt DateTime? @map("acknowledged_at") @db.Timestamptz(6)
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@unique([workspaceId, sequence], map: "privacy_journal_workspace_seq_key")
+  @@unique([operationId, revision], map: "privacy_journal_operation_revision_key")
+  @@map("privacy_journal_entry")
+}
