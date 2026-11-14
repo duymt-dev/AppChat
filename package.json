@@ -22,7 +22,11 @@
     "e2e": "pnpm --filter @appchat/web run e2e",
     "e2e:http": "node tools/scripts/e2e-http.mjs",
     "check:bundle": "node tools/scripts/check-bundle-deps.mjs",
-    "ai:live": "pnpm --filter @appchat/ai-live run live"
+    "ai:live": "pnpm --filter @appchat/ai-live run live",
+    "wt:env": "node tools/scripts/worktree-env.mjs",
+    "wt:redis": "node tools/scripts/worktree-redis.mjs",
+    "slot": "node tools/scripts/pg-slot.mjs",
+    "test:tools": "node --test \"tools/scripts/test/*.test.mjs\""
   },
   "devDependencies": {
     "dependency-cruiser": "18.7.0",

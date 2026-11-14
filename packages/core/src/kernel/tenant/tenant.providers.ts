@@ -33,7 +33,7 @@ class Closer implements OnApplicationShutdown {
 }
 
 export function dbProviders(env: DbEnv): Provider[] {
-  const platform: FactoryProvider = { provide: PLATFORM_DB, useFactory: () => createPlatformDb(env.PLATFORM_DATABASE_URL) };
+  const platform: FactoryProvider = { provide: PLATFORM_DB, useFactory: () => createPlatformDb(env.PLATFORM_DATABASE_URL, env.PLATFORM_POOL_MAX) };
   const resolver: FactoryProvider = {
     provide: TENANT_RESOLVER,
     inject: [WORKSPACE_REGISTRY],

@@ -2,11 +2,12 @@
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient as PlatformClient } from './generated/platform/client';
 import { PrismaClient as TenantClient } from './generated/tenant/client';
+import { platformPoolMax } from './env';
 
 export type PlatformDb = InstanceType<typeof PlatformClient>;
 export type TenantDb = InstanceType<typeof TenantClient>;
 
-export function createPlatformDb(url: string, max = 10): PlatformDb {
+export function createPlatformDb(url: string, max = platformPoolMax()): PlatformDb {
   return new PlatformClient({ adapter: new PrismaPg({ connectionString: url, max }) });
 }
 

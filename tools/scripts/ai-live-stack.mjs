@@ -2,14 +2,17 @@
 // channels Zalo giả) ở cổng RIÊNG (mặc định 4617) với engine model THẬT (env `.env` máy dev — LLM_SEED_*), Redis DB riêng (mặc định 14,
 // không tranh job với integration DB 15 / demo), hộp thư console tạm → chạy `pnpm ai:live` trỏ vào stack đó → dừng hết. Không đụng
 // cổng / dữ liệu demo. Không in env.
+// Worktree (TIP-035d, DC-908 e): giữ một slot Postgres suốt lượt; cổng `AI_LIVE_PORT` phải trống (in PID giữ cổng); health phải trả đúng
+// `instance`; Redis DB 14 trên Memurai CỦA worktree (REDIS_URL của `.env` worktree trỏ cổng 638k).
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { testDbEnv } from '../../packages/db/src/test-env.ts';
+import { withSlot } from './pg-slot.mjs';
+import { assertPortsFree, expectedInstance } from './worktree-env.mjs';
 
 const ROOT = join(import.meta.dirname, '..', '..');
-const PORT = process.env.AI_LIVE_PORT ?? '4617';
 const DB = process.env.AI_LIVE_REDIS_DB ?? '14';
 const envFile = join(ROOT, '.env');
 const base = existsSync(envFile)
@@ -20,6 +23,16 @@ const base = existsSync(envFile)
         .map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1)]),
     )
   : {};
+const PORT = process.env.AI_LIVE_PORT ?? base.AI_LIVE_PORT ?? '4617';
+const INSTANCE = expectedInstance({ ...base, ...process.env });
+await withSlot(() => main(), { wait: 1800, label: 'ai-live-stack' }).then((code) => process.exit(code));
+
+async function main() {
+const busy = await assertPortsFree([PORT]);
+if (busy) {
+  console.error(`ai-live-stack — ${busy}`);
+  return 1;
+}
 const mailDir = mkdtempSync(join(tmpdir(), 'appchat-ailive-mail-'));
 const filesDir = mkdtempSync(join(tmpdir(), 'appchat-ailive-files-'));
 const env = {
@@ -52,7 +65,7 @@ const sep = argv.indexOf('--');
 const liveArgs = sep >= 0 ? argv.slice(sep + 1) : [];
 if (!argv.includes('--no-build')) {
   const b = spawnSync('pnpm', ['turbo', 'run', 'build', '--filter=@appchat/api', '--filter=@appchat/worker'], { stdio: 'inherit', shell: true, cwd: ROOT });
-  if (b.status !== 0) process.exit(b.status ?? 1);
+  if (b.status !== 0) return b.status ?? 1;
 }
 const CHANNEL_VERTICAL = { ZALO_FAKE_GREETING: 'Chào shop, mình muốn đặt lịch gội đầu dưỡng sinh chiều thứ bảy này', ZALO_FAKE_UNKNOWN_TEXT: 'Dạ shop gửi chị bảng giá gội đầu dưỡng sinh ạ', ZALO_FAKE_KICK_TEXT: 'ai-live: đá phiên tài khoản này' };
 // Suite marketing (TIP-037): khách Zalo giả nhắn chào → khách mới có hội thoại 1-1 (người nhận chiến dịch hợp lệ).
@@ -76,13 +89,21 @@ process.on('SIGINT', () => (stop(), process.exit(130)));
 const BOOT_MS = Number(process.env.AI_LIVE_BOOT_MS ?? 60_000);
 const deadline = Date.now() + BOOT_MS;
 for (;;) {
+  let instance = null;
   try {
-    if ((await fetch(`http://localhost:${PORT}/v1/health`)).ok) break;
+    const h = await fetch(`http://localhost:${PORT}/v1/health`);
+    instance = h.ok ? ((await h.json())?.data?.instance ?? 'main') : null;
   } catch {}
+  if (instance && instance !== INSTANCE) {
+    stop();
+    console.error(`cổng ${PORT} trả instance "${instance}", cần "${INSTANCE}" — dừng`);
+    return 1;
+  }
+  if (instance) break;
   if (Date.now() > deadline) {
     stop();
     console.error(`API không lên trong ${BOOT_MS / 1000} giây`);
-    process.exit(1);
+    return 1;
   }
   await new Promise((r) => setTimeout(r, 500));
 }
@@ -93,4 +114,5 @@ const r = spawnSync('pnpm', ['ai:live', ...liveArgs], {
   env: { ...process.env, AI_LIVE_API: `http://localhost:${PORT}/v1`, AI_LIVE_MAIL_DIR: mailDir, AI_LIVE_EMAIL: process.env.AI_LIVE_EMAIL ?? base.AI_LIVE_EMAIL ?? 'genui-screen@ai-live.appchat.test', AI_LIVE_PASSWORD: process.env.AI_LIVE_PASSWORD ?? base.AI_LIVE_PASSWORD ?? 'AiLive@12345' },
 });
 stop();
-process.exit(r.status ?? 1);
+return r.status ?? 1;
+}

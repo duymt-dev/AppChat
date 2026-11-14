@@ -23,5 +23,10 @@ if (args.includes('--changed')) {
   }
 }
 
-const r = spawnSync('pnpm', ['exec', 'playwright', 'test', ...specs], { stdio: 'inherit', shell: true });
+// Cổng E2E mock / http (TIP-035d): env, rồi `.env` ở gốc repo (worktree đặt E2E_PORT / E2E_HTTP_PORT); mặc định 3417 / 3418 trong config.
+const root = execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim();
+const dotenv = fs.existsSync(`${root}/.env`) ? fs.readFileSync(`${root}/.env`, 'utf8') : '';
+const pick = (k) => process.env[k] ?? new RegExp(`^${k}=(.*)$`, 'm').exec(dotenv)?.[1]?.trim();
+const ports = Object.fromEntries(['E2E_PORT', 'E2E_HTTP_PORT', 'WORKTREE_ID'].flatMap((k) => (pick(k) ? [[k, pick(k)]] : [])));
+const r = spawnSync('pnpm', ['exec', 'playwright', 'test', ...specs], { stdio: 'inherit', shell: true, env: { ...process.env, ...ports } });
 process.exit(r.status ?? 1);

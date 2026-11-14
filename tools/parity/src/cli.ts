@@ -1,5 +1,5 @@
 // pnpm parity <id…> | --done | --all | --changed      pnpm parity:baseline [id…]
-// App phải đang chạy (PARITY_APP_URL, mặc định http://localhost:3000, NEXT_PUBLIC_API_MODE=mock).
+// App phải đang chạy (PARITY_APP_URL, mặc định http://localhost:<WEB_PORT ?? 3000> — TIP-035d worktree, NEXT_PUBLIC_API_MODE=mock).
 import fs from 'node:fs';
 import path from 'node:path';
 import { execSync } from 'node:child_process';
@@ -12,7 +12,7 @@ import { loadDebt, verdict, type Verdict } from './debt';
 const ROOT = path.resolve(import.meta.dirname, '../../..');
 const OUT = path.resolve(import.meta.dirname, '../out');
 const REPORT = path.join(ROOT, 'coding-packs/reports/goal-fe-prototype.md');
-const APP_URL = process.env.PARITY_APP_URL ?? 'http://localhost:3000';
+const APP_URL = process.env.PARITY_APP_URL ?? `http://localhost:${process.env.WEB_PORT ?? /^WEB_PORT=(\d+)\s*$/m.exec(fs.existsSync(path.join(ROOT, '.env')) ? fs.readFileSync(path.join(ROOT, '.env'), 'utf8') : '')?.[1] ?? 3000}`;
 
 const [cmd = 'compare', ...args] = process.argv.slice(2);
 
