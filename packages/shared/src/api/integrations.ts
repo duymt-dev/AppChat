@@ -16,9 +16,11 @@ export const connectorSchema = z.object({
   key: z.string(),
   name: z.string(),
   group: z.enum(['channels_studio', 'marketing', 'crm', 'commerce', 'payments', 'productivity', 'erp']),
+  port: z.string().optional(),
   color: z.string(),
   status: z.enum(['ga', 'beta', 'coming_soon']),
   connected: z.boolean(),
+  stock_master: z.enum(['appchat', 'external']).optional(),
   /** Thẻ mở một mục Cài đặt thay vì hộp kết nối (Trợ lý AI → web_widget — DC-006). */
   opens: z.string().nullable(),
   /** Key trường form theo manifest.auth.fields. */

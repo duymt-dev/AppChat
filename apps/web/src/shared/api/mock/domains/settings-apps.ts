@@ -17,7 +17,10 @@ import { applyBehavior, behaviorOf, mockBindingVersion, type BehaviorPatch } fro
 
 export type ChannelAccount = (typeof fixture.channels)[number]['accounts'][number];
 export type SettingsChannel = (typeof fixture.channels)[number];
-export type Connector = (typeof fixture.connectors)[number];
+export type Connector = (typeof fixture.connectors)[number] & {
+  port?: string;
+  stock_master?: 'appchat' | 'external';
+};
 export type Widget = typeof fixture.widget;
 
 export interface SettingsAppsState {
@@ -301,8 +304,24 @@ export const settingsAppsHandlers: Record<string, MockHandler> = {
       const optional = OPTIONAL[c.key] ?? [];
       const missing = c.fields.find((f) => !optional.includes(f) && !i.fields[f]?.trim()) ?? (c.key === 'sepay' && !i.fields.api_key?.trim() && !i.fields.hmac_secret?.trim() ? 'api_key' : undefined);
       if (missing) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: missing, fields: { [missing]: 'required' } });
+      if (c.group === 'commerce' || c.port === 'order_sync') {
+        const sm = i.fields.stock_master?.trim();
+        if (sm && sm !== 'appchat' && sm !== 'external') throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'invalid', fields: { stock_master: 'invalid' } });
+        c.stock_master = (sm as 'appchat' | 'external' | undefined) ?? c.stock_master ?? 'appchat';
+      }
       c.connected = true;
       return { connection_id: `conn_${c.key}`, status: 'connected' };
+    },
+  },
+  'integration.update_settings': {
+    execute: (db, i: { provider: string; stock_master: 'appchat' | 'external' }) => {
+      const c = connector(db, i.provider);
+      if (!c.connected) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: 'not_connected', fields: { provider: 'not_connected' } });
+      if (c.group !== 'commerce' && c.port !== 'order_sync') {
+        throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'not_order_sync', fields: { provider: 'not_order_sync' } });
+      }
+      c.stock_master = i.stock_master;
+      return { connection_id: `conn_${c.key}`, stock_master: c.stock_master };
     },
   },
   'integration.disconnect': {

@@ -9,7 +9,7 @@ import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } fro
 import { OrderSyncService } from '../services/order-sync';
 import { syncPreview } from '../previews/order-sync.handler.preview';
 
-type Out = { imported: number; blocked: number; failed: number };
+type Out = { imported: number; blocked: number; failed: number; stock_adjusted?: number; unmatched_skus?: string[] };
 
 @Injectable()
 @ActionHandler('order.sync_now')
@@ -19,7 +19,13 @@ export class OrderSyncNowHandler implements Handler<ActionInput<typeof orderSync
   async prepare(ctx: ActionContext): Promise<Out> {
     if (!this.sync) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '031' }, 'order sync chưa cấu hình (APP_ENC_KEY)');
     const r = await this.sync.syncWorkspace(ctx.workspaceId);
-    return { imported: r.imported, blocked: r.blocked, failed: r.failed };
+    return {
+      imported: r.imported,
+      blocked: r.blocked,
+      failed: r.failed,
+      ...(r.stockAdjusted ? { stock_adjusted: r.stockAdjusted } : {}),
+      ...(r.unmatchedSkus.length ? { unmatched_skus: r.unmatchedSkus } : {}),
+    };
   }
 
   async execute(_ctx: ActionContext, _input: ActionInput<typeof orderSyncNow>, _tx: unknown, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<Out>> {

@@ -350,6 +350,19 @@ export const integrationRegisterInterest = defineAction({
   db: 'platform',
 });
 
+export const integrationUpdateSettings = defineAction({
+  id: 'integration.update_settings',
+  module: 'integrations',
+  title: 'actions.integration.update_settings.title',
+  description: 'Update sync settings (such as stock_master appchat or external) on an active integration connection. Example: {"provider":"mock_marketplace","stock_master":"external"}',
+  input: z.object({ provider: z.string().min(1), stock_master: z.enum(['appchat', 'external']) }),
+  output: z.object({ connection_id: z.string(), stock_master: z.enum(['appchat', 'external']) }),
+  permission: 'integrations.manage',
+  risk: 'config',
+  agentGrantable: false,
+  invalidates: ['integrations'],
+});
+
 export const profileLayoutCreate = defineAction({
   id: 'profile_layout.create',
   module: 'settings',

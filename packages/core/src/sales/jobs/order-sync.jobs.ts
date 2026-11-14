@@ -13,16 +13,19 @@ export const ORDER_SYNC_EVERY_MS = 5 * 60_000;
 export async function syncOrders(d: { platform: Pick<PlatformDb, 'workspace'>; tenants: TenantDbResolver; sync: OrderSyncService; onError?: (ws: string, err: unknown) => void }) {
   const wss = await d.platform.workspace.findMany({ where: { dbStatus: 'active' }, select: { id: true } });
   let imported = 0;
+  let stockAdjusted = 0;
   for (const w of wss) {
     try {
       const db = await d.tenants.get(TenantContexts.system(w.id, ORDER_SYNC_JOB));
       if (!(await db.integrationConnection.count({ where: { port: 'order_sync', status: 'connected' } }))) continue;
-      imported += (await d.sync.syncWorkspace(w.id)).imported;
+      const r = await d.sync.syncWorkspace(w.id);
+      imported += r.imported;
+      stockAdjusted += r.stockAdjusted;
     } catch (err) {
       d.onError?.(w.id, err);
     }
   }
-  return { imported };
+  return { imported, stockAdjusted };
 }
 
 /** Webhook sàn đã lưu → nhập đơn (idempotent theo `integration_event.processed_at` + unique (kết nối, mã ngoài)). */

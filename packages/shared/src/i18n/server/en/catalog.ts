@@ -12,6 +12,7 @@ export const catalog: Shape<typeof vi> = {
     restore: 'Product restored',
     import: 'Opening stock: {qty}',
     adjust: 'Stock adjusted {delta} · {reason}',
+    sync_adjust: 'Synced from external stock: {delta}',
     sale: 'Shipped for an order: {delta}',
     return: 'Returned from an order: {delta}',
     undo: 'Stock adjustment undone: {delta}',

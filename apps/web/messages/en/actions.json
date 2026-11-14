@@ -847,6 +847,9 @@
     "system_import": {
       "title": "Import verified marketplace order revision (system)"
     },
+    "system_stock_sync": {
+      "title": "Reconcile verified external stock snapshot (system)"
+    },
     "file_attach": {
       "title": "Attach a file to an order",
       "desc": "Attach an uploaded file (PDF, DOCX, XLSX, image, text) to the order after a structural check."
@@ -1355,6 +1358,9 @@
     },
     "list_calls": {
       "title": "View connection call log"
+    },
+    "update_settings": {
+      "title": "Update integration settings"
     }
   },
   "profile_layout": {

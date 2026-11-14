@@ -6,7 +6,7 @@
 // qua nó (lô hợp lệ cùng đợt vẫn ghi bền và phát lại idempotent). Đơn của người mua đã xoá → biên nhận chặn (`blocked`, không phải
 // imported). Sau một lần kéo thành công, thử lại biên nhận `pending` của kết nối theo khách hiện tại (khôi phục rồi mới nhập được).
 import { TenantContexts, type TenantDb, type TenantDbResolver } from '@appchat/db';
-import { isOrderSync, type ConnectorRegistry, type OrderSyncProvider } from '@appchat/integrations';
+import { isOrderSync, stockMasterOf, type ConnectorRegistry, type OrderSyncProvider } from '@appchat/integrations';
 import type { SystemOutput } from '@appchat/actions';
 import type { ActionExecutor } from '../../../kernel/actions/executor';
 import { runSystemAction, settled, type SystemRunDeps } from '../../../kernel/actions/system';
@@ -16,6 +16,7 @@ import { adapterOf, connectionCtx } from '../../../integrations/public';
 import { orderImportTrigger, withStagedOrder, type StagedOrder } from '../system/import';
 import { checkExternalOrder } from './external-order-payload';
 import { pendingBlocked } from './blocked-imports';
+import { syncConnectionStock } from './stock-sync';
 
 const OVERLAP_MS = 10 * 60_000;
 
@@ -53,7 +54,7 @@ export async function importBatch(sys: SystemRunDeps, ws: string, conn: ConnRow,
       c.errors.push(chk.reason);
       continue;
     }
-    const staged: StagedOrder = { conn: { id: conn.id, createdBy: conn.createdBy }, order: chk.order, mapped: adapter.mapStatus(chk.order), meta: { hash: chk.hash, updatedAt: chk.updatedAt, sourceEventId } };
+    const staged: StagedOrder = { conn: { id: conn.id, createdBy: conn.createdBy, stockMaster: stockMasterOf(conn.config as Record<string, unknown>) }, order: chk.order, mapped: adapter.mapStatus(chk.order), meta: { hash: chk.hash, updatedAt: chk.updatedAt, sourceEventId } };
     const t = orderImportTrigger(ws, staged, milestone);
     try {
       if (await settled(sys, t)) continue;
@@ -91,11 +92,13 @@ export class OrderSyncService {
     return isOrderSync(a) ? a : null;
   }
 
-  /** Kéo đơn mọi kết nối sàn của workspace. Trả tổng đơn mới (action `order.sync_now` / job poll). */
-  async syncWorkspace(ws: string): Promise<{ imported: number; blocked: number; failed: number }> {
+  /** Kéo đơn mọi kết nối sàn của workspace (và đối soát tồn ngoài khi `stock_master = external`). Trả tổng đơn mới. */
+  async syncWorkspace(ws: string): Promise<{ imported: number; blocked: number; failed: number; stockAdjusted: number; unmatchedSkus: string[] }> {
     const db = await this.d.tenants.get(TenantContexts.system(ws, 'sales.order-sync'));
     const conns = await db.integrationConnection.findMany({ where: { port: 'order_sync', status: 'connected' } });
     let total = empty();
+    let stockAdjusted = 0;
+    const unmatched = new Set<string>();
     for (const row of conns) {
       const adapter = this.adapterOf(row);
       if (!adapter) continue;
@@ -104,9 +107,17 @@ export class OrderSyncService {
         const since = row.lastSyncAt ? new Date(row.lastSyncAt.getTime() - OVERLAP_MS) : null;
         const orders = await adapter.pull(connectionCtx(row, this.d.key), since);
         const c = await importBatch(this.d, ws, row, adapter, orders, this.d.now);
-        total = add(total, add(c, await retryBlocked(this.d, db, ws, row, adapter, this.d.now)));
+        const blocked = await retryBlocked(this.d, db, ws, row, adapter, this.d.now);
+        const stock = await syncConnectionStock(this.d, db, ws, row, adapter, this.d.key);
+        stockAdjusted += stock.adjusted;
+        for (const sku of stock.unmatchedSkus) unmatched.add(sku);
+        const combined = add(add(c, blocked), { imported: 0, blocked: 0, failed: stock.failed, errors: stock.errors });
+        total = add(total, combined);
         // Có đơn hỏng / lỗi ghi → cursor không tiến (lần sau kéo lại, đơn đã ghi phát lại idempotent).
-        await db.integrationConnection.update({ where: { id: row.id }, data: c.failed ? { lastError: `items_failed:${c.failed} ${c.errors.slice(0, 3).join(',')}`.slice(0, 300) } : { lastSyncAt: started, lastError: null } });
+        await db.integrationConnection.update({
+          where: { id: row.id },
+          data: combined.failed ? { lastError: `items_failed:${combined.failed} ${combined.errors.slice(0, 3).join(',')}`.slice(0, 300) } : { lastSyncAt: started, lastError: null },
+        });
       } catch (e) {
         total = add(total, { ...empty(), failed: 1 });
         // Lý do từ sàn có thể chứa dữ liệu nhạy cảm → chỉ lưu thông điệp ngắn.
@@ -114,7 +125,7 @@ export class OrderSyncService {
       }
     }
     if (this.d.kv && conns.length) await markDirty(this.d.kv, ws);
-    return { imported: total.imported, blocked: total.blocked, failed: total.failed };
+    return { imported: total.imported, blocked: total.blocked, failed: total.failed, stockAdjusted, unmatchedSkus: [...unmatched] };
   }
 
   /** Sự kiện webhook đã lưu (`integration_event`) của port order_sync → nhập đơn; đánh dấu đã xử lý. */

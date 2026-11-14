@@ -11,14 +11,14 @@ import type { ActionContext, TenantTx } from '../../../kernel/actions/action-con
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../../kernel/actions/handler';
 import { stableTriggerId, systemCapabilityOf, type SystemTrigger } from '../../../kernel/actions/system';
 import { CLOCK, type Clock } from '../../../kernel/clock';
-import { importExternal, type CheckedMeta } from '../services/order-import';
+import { importExternal, type CheckedMeta, type SyncConnection } from '../services/order-import';
 
 const ACTION = 'order.system_import';
 export const ORDER_IMPORT_ACTOR = 'order-sync';
 
 /** Bản đơn đã kiểm + trạng thái đã ánh xạ bởi adapter của kết nối — chỉ sống trong lời gọi. */
 export interface StagedOrder {
-  conn: { id: string; createdBy: string | null };
+  conn: SyncConnection;
   order: ExternalOrder;
   mapped: MappedStatus;
   meta: CheckedMeta;

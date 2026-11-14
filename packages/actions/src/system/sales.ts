@@ -46,3 +46,14 @@ export const orderSystemImport = defineAction({
   risk: 'money',
   invalidates: ['orders', 'sales'],
 });
+
+export const orderSystemStockSync = defineAction({
+  ...common,
+  id: 'order.system_stock_sync',
+  module: 'sales',
+  title: 'actions.order.system_stock_sync.title',
+  description: 'Internal: reconcile one verified external stock snapshot item (kind=sync_adjust) idempotently per (connection_id, snapshot_id, sku).',
+  input: systemInput(['apply_stock_snapshot']),
+  risk: 'write',
+  invalidates: ['products', 'orders'],
+});
