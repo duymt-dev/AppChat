@@ -1,6 +1,6 @@
 ### COMPLETION REPORT — TIP-003e
 
-**STATUS:** DONE — nhánh `tip/003e-action-integrity` (từ `origin/dev` `4d55d8b8`, rebase lên `origin/dev` mới nhất trước PR), luồng A, checkout chính. Một commit code + sổ (SHA ghi ở GOAL-RELEASE / HANDOFF-NEXT). AC1–8 đều có test chạy thật. Không cần provider ngoài (không LLM / kênh / ngân hàng thật). Webhook ngân hàng ở E2E http là `mock` có ký HMAC.
+**STATUS:** DONE — nhánh `tip/003e-action-integrity` (từ `origin/dev` `4d55d8b8`, rebase lên `f9ac7646` sau #230), luồng A, checkout chính. Commit code + sổ `b9f4856d`; commit tiến độ kế tiếp. AC1–8 đều có test chạy thật. Không cần provider ngoài (không LLM / kênh / ngân hàng thật). Webhook ngân hàng ở E2E http là `mock` có ký HMAC.
 
 **TÓM TẮT:**
 
