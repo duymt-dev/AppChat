@@ -1,6 +1,7 @@
 # TIP-020c — Effective knowledge scope across agent execution
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/inbox.ts`; integrate 020c before050.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/inbox/services/outbound.ts`, `packages/db/prisma/tenant/inbox.prisma`, `packages/shared/src/api/inbox.ts`; integrate 020c before048b.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`; integrate 020c before048c.
 - **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `apps/web/src/features/inbox/components/ChatPanel.tsx`, `apps/web/src/features/inbox/components/Composer.tsx`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/inbox/services/outbound.ts`, `packages/core/src/inbox/services/read.service.ts`, `packages/core/src/inbox/services/view.ts`, `packages/db/prisma/tenant/inbox.prisma`, `packages/shared/src/api/inbox.ts`; integrate 020c before048f.

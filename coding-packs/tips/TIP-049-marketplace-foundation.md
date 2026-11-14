@@ -140,7 +140,7 @@
 3. Tìm mọi chỗ dùng `IntegrationStatus` (switch, map nhãn). Thêm `expired` vỡ typecheck ở file ngoài manifest → L2.
 4. Kiểm `product.stock` hiện là tổng tồn biến thể hay độc lập (`catalog/services/variants.ts`, form sản phẩm). Chọn cách cộng ở §6.4 theo thực tế, ghi "Giả định đã chọn".
 5. Kiểm `registerCallOp` / `operations/call-receipt.ts` (ghi call log), điều kiện đăng ký `mock_marketplace` (ẩn ở production), cách harness integration chạy job BullMQ (helper chạy job trong test).
-6. `order.sync_now` hiện dùng quyền `integrations.manage` (~L185). Giữ nguyên; đổi quyền đã có là L2 (đề xuất `order.manage` ghi ở Q-917, chờ Chủ nhà chốt).
+6. `order.sync_now` hiện dùng quyền `integrations.manage` (~L185) → đổi sang `order.manage` (Q-917 chốt, DC-923). Grep test / ma trận quyền đang chờ 403 cho Sales / Kế toán và sửa theo.
 7. Grep `ON CONFLICT (ref_type, ref_id, product_id)` và khoá Prisma `refType_refId_productId`: mọi chỗ phải đổi sang khoá sổ kho mới (§2.3). Chỗ nằm ngoài manifest → L2.
 8. Đo ở demo / dev: số đơn `source IN ('marketplace','pos')`, số kết nối `order_sync`, để backfill `external_shop_key` (§2) chạy đúng.
 
@@ -289,7 +289,7 @@ Dựng nền chung cho mọi sàn (049b Shopee, 049c TikTok Shop dùng lại), k
 | `marketplace.unmap_sku` | write | `catalog.manage` | true (DC-921) | §7 |
 | `marketplace.listings` | read | `catalog.view` | read: true | §7; đường tra `listing_id` cho Trợ lý |
 | `integration.auth_event` | internal | system | false | §8 |
-| `order.sync_now` (sửa) | write | `integrations.manage` (giữ — đổi sang `order.manage` là Q-917, chờ Chủ nhà) | false | §5; chỉ xếp job, trả `queued` |
+| `order.sync_now` (sửa) | write | **`order.manage`** (đổi — Q-917 chốt, DC-923) | false | §5; chỉ xếp job, trả `queued` |
 | `integration.sync_now` (sửa handler) | write | `integrations.manage` (giữ) | false | §5; kết nối `order_sync` → xếp job |
 
 - Agent là nhân viên (DC-921): action ghi mới của sàn cấp được cho agent ở Builder. `integration.oauth_select` (risk `config`) giữ `false` theo bảng nguồn × rủi ro §3.3 — luật chung, không riêng sàn. `order.sync_now` / `integration.sync_now` là action có sẵn, giữ cờ hiện tại.
@@ -352,7 +352,7 @@ Dựng nền chung cho mọi sàn (049b Shopee, 049c TikTok Shop dùng lại), k
   - Gọi sàn trong request HTTP (kể cả `order.sync_now`, preview, webhook).
   - Tự lưu / tự làm mới token ngoài `TokenVault`; log token, chữ ký, query có `access_token`.
   - Thêm `workspace_id` / RLS vào bảng tenant; Prisma relation xuyên domain.
-  - Thêm permission; đổi quyền `order.sync_now`; thêm thư viện (HMAC = `node:crypto`, HTTP = `fetch`).
+  - Thêm permission; thêm thư viện (HMAC = `node:crypto`, HTTP = `fetch`).
   - Ghi DB trong controller webhook.
   - Thêm logic vào `settings/types.ts` hay file gần trần.
 - **REUSE:**

@@ -1,6 +1,7 @@
 # TIP-027b — Private product media and functional formatted descriptions
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/catalog.ts`; integrate 027b before050.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/catalog/services/catalog-write.ts`, `packages/db/prisma/tenant/catalog.prisma`, `packages/shared/src/api/index.ts`; integrate 027b before049.
 - **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/products.json`, `apps/web/messages/vi/products.json`, `apps/web/src/features/products/api.ts`, `apps/web/src/features/products/components/ProductDrawer.tsx`, `apps/web/src/shared/api/mock/domains/products.ts`, `packages/core/src/catalog/services/catalog-read.service.ts`, `packages/core/src/catalog/services/product-view.ts`, `packages/shared/src/api/catalog.ts`, `tools/parity/parity.manifest.ts`; integrate 027b before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/shared/src/api/index.ts`; integrate 027b before048.

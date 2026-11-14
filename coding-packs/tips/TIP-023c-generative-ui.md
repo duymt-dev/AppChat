@@ -1,6 +1,7 @@
 # TIP-023c: Generative UI (D55) + Trợ lý theo màn có ngữ cảnh + kết nối kênh / nền tảng qua Trợ lý (QR Zalo trong chat, form có ô bí mật)
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/payments.ts`; integrate 023c before050.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/integrations/integrations.module.ts`, `packages/core/src/integrations/services/connections.service.ts`, `packages/core/src/integrations/services/read.service.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/api/integrations.ts`; integrate 023c before049.
 - **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `packages/core/src/integrations/integrations.module.ts`; integrate 023c before049b.
 - **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `packages/core/src/integrations/integrations.module.ts`; integrate 023c before049c.

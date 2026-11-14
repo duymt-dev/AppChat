@@ -1,6 +1,7 @@
 # TIP-023b: Trợ lý toàn năng — phủ đủ action (đọc / ghi), ô lồng nhau, mã → id, thẻ xem trước "đổi gì", test bắt buộc, bộ câu thử với model thật
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/registry.test.ts`; integrate 023b before050.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/api/test/integration/actions/order.sync_now.action.test.ts`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/integrations/actions/integration-disconnect.handler.ts`, `packages/core/src/sales/orders/actions/order-sync.handler.ts`, `packages/core/test/assistant-coverage.test.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/i18n/server/en/notify.ts`, `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/notify.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 023b before049.
 - **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 023b before049b.
 - **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 023b before049c.

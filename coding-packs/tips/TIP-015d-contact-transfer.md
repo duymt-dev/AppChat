@@ -1,6 +1,7 @@
 # TIP-015d: Chuyển phụ trách CRM đúng D32 — AI qua duyệt, dữ liệu liên quan atomic
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/crm.ts`, `packages/actions/src/quotes.ts`; integrate 015d before050.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/events.ts`, `packages/shared/src/i18n/server/en/notify.ts`, `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/notify.ts`, `packages/shared/src/i18n/server/vi/sales.ts`, `packages/shared/src/notify/catalog.ts`; integrate 015d before049.
 - **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 015d before049b.
 - **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 015d before049c.

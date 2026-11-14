@@ -82,7 +82,7 @@
   - 003g đưa `Clock` vào mọi chỗ tính thời điểm. `windowState` nhận `now` từ `Clock` để test nhảy giờ.
   - 026c sửa `shared/crm/labels.ts` (nguồn khách). 048b thêm nguồn kênh mới cùng file.
 - **Files touched:** [exact M/C manifest](manifests/TIP-048b-files.md). Không có file prisma mới. Sửa có chủ đích `tenant/channels.prisma` (chủ 014), `tenant/inbox.prisma` (chủ 016), `platform/routing.prisma` (chủ 002). Sửa danh sách 3 kênh cứng ở báo giá / đơn / phiếu thu / ticket / lịch hẹn để đọc registry.
-- **Quyết định nguồn:** D62 (#2, #5, #6) · DC-910 · DC-909 (chỉ dùng) · Q-907 (tạm theo đề xuất) · Q-912 (không thêm permission) · Blueprint §2.2, §4.7, §6 · omnichannel-adapter quy tắc 2, 6, 7, 8, 10.
+- **Quyết định nguồn:** D62 (#2, #5, #6) · DC-910 · DC-909 (chỉ dùng) · Q-907 / DC-923 (hạn mức chốt) · Q-912 (không thêm permission) · Blueprint §2.2, §4.7, §6 · omnichannel-adapter quy tắc 2, 6, 7, 8, 10.
 - **Dòng COVERAGE nhận:** REQ-B12 · REQ-B16 (chọn tài khoản, một Page / OA một workspace) · BP-4.7-channels · BP-6-webhook · STD-channels-adapter-8b · D62-foundation · D62-quota · DC-910 · Q-907.
 
 ## CONTEXT
@@ -270,9 +270,7 @@ Action ở file **mới** (`settings-apps.ts` đã 408 dòng). Export ở `packa
    - Chỉ kênh có `connect.oauth`. Gọi service `oauth.start` purpose `channel` + `ref` = id tài khoản.
    - Khi `oauth_select` nhận pending có `ref`: chỉ cho chọn đúng external_id của tài khoản đó, cập nhật grant, `status = 'connected'`.
 3. **Thu hồi grant:** consumer event `oauth.grant_revoked` (048) → mọi tài khoản có `oauth_grant_id` đó chuyển `expired` + thông báo Owner. Idempotent (kiểm trạng thái đích). Route giữ `active` để Uỷ quyền lại không mất Page.
-4. **Hạn mức (Q-907, đang mở):**
-   - Mỗi tài khoản (Page / OA / IG / TikTok) = 1 kênh, như 3 kênh cũ. Theo đề xuất, chưa có quyết định cuối.
-   - Đảo ngược được bằng cờ `QUOTA_COUNT_OAUTH_CHANNELS` (mặc định `true`). `false` → bỏ bước 2.2 cho kênh có `connect.oauth`. Ghi "Giả định đã chọn" trong report.
+4. **Hạn mức (Q-907 chốt, DC-923):** mỗi tài khoản (Page / OA / IG / TikTok) = 1 kênh, như 3 kênh cũ; vượt → lỗi hạn mức có sẵn, mua addon kênh. Không cờ đảo.
 5. **Quyền:** không thêm permission (Q-912). `channel.oauth_select` / `channel.reauthorize` risk `config` → `agentGrantable: false` theo bảng nguồn × rủi ro §3.3 có sẵn (cấu hình luôn do người; OAuth cần đăng nhập nền tảng trên trình duyệt) — luật chung, không phải luật riêng cho kênh mới (DC-921).
 
 ### 7. Cửa sổ gửi (`core/inbox/services/send-window.ts`)
@@ -327,7 +325,7 @@ Action ở file **mới** (`settings-apps.ts` đã 408 dòng). Export ở `packa
    - Trường mới để `.optional()` ở 048b: mock FE hiện có (`inbox-shape.test.ts`, mock `settings-apps.ts`) vẫn parse. 048c điền mock rồi mới dùng.
 3. Chỉ đọc manifest, không `switch(type)`.
 4. Env (`channels.env.ts` + `.env.example`, khối "Kênh webhook"):
-   - `CHANNEL_HOOKS_MAX_BYTES=1048576` · `CHANNEL_HOOKS_CONCURRENCY=4` · `CHANNEL_HOOK_RETENTION_DAYS=7` · `CHANNEL_ECHO_MATCH_SECONDS=120` · `QUOTA_COUNT_OAUTH_CHANNELS=true`.
+   - `CHANNEL_HOOKS_MAX_BYTES=1048576` · `CHANNEL_HOOKS_CONCURRENCY=4` · `CHANNEL_HOOK_RETENTION_DAYS=7` · `CHANNEL_ECHO_MATCH_SECONDS=120`.
    - Secret theo kênh (`META_APP_SECRET`…) do 048d / 048e / 048h thêm. `HOOKS_PUBLIC_URL` của 048.
 
 ### 10. Lỗi (i18n server `channels.ts` vi + en)
@@ -349,7 +347,7 @@ Action ở file **mới** (`settings-apps.ts` đã 408 dòng). Export ở `packa
 | 2 | Given cùng một event gửi 3 lần (nền tảng gửi lại), when processor chạy, then 1 biên nhận, `handleWebhook` gọi 1 lần, 1 tin vào Hộp thư; job chạy lại trên biên nhận đã xử lý không gọi adapter | `channel-hooks.test.ts` |
 | 3 | Given một POST có 3 mục cho 2 workspace + 1 mục không có route, when gửi, then 200 trong < 2 giây; mỗi workspace có đúng biên nhận của mình; mục lạ bị bỏ (metric `unrouted`); DB tenant lỗi → 503 | `channel-hooks.test.ts` (đo thời gian) |
 | 4 | Given Page `P` đã gắn workspace A, when workspace B gọi `channel.oauth_select` chọn `P`, then 409 `channel_in_use_elsewhere`, B không có tài khoản mới, route vẫn của A; A ngắt kết nối → B chọn lại được | `channel-oauth-select.test.ts` |
-| 5 | Given gói còn 1 kênh trống, when chọn 2 Page một lần, then Page 1 tạo, Page 2 trả lỗi hạn mức của `QuotaService`; nối lại Page đã có không tính thêm; cờ `QUOTA_COUNT_OAUTH_CHANNELS=false` bỏ kiểm | `channel-oauth-select.test.ts` |
+| 5 | Given gói còn 1 kênh trống, when chọn 2 Page một lần, then Page 1 tạo, Page 2 trả lỗi hạn mức của `QuotaService`; nối lại Page đã có không tính thêm (Q-907 chốt, DC-923) | `channel-oauth-select.test.ts` |
 | 6 | Given pending của user khác / hết hạn, when `channel.oauth_select`, then 400 `oauth_state_invalid`; given grant bị thu hồi (`oauth.grant_revoked`), then tài khoản dùng grant → `expired` + thông báo; `channel.reauthorize` trả `authorize_url` có `ref` | `channel-oauth-select.test.ts` |
 | 7 | Given hội thoại `fake_hook` có tin khách cuối 25 giờ trước, when agent / follow-up / chiến dịch gửi, then 409 `window_tag_required`, không ghi tin; when người bấm gửi (nguồn `ui`), then tin ghi với `windowTag = 'human_agent'`, adapter nhận tag; 8 ngày → 409 `window_closed` | `send-window.test.ts` (integration) + `packages/core/test/send-window.test.ts` |
 | 8 | Given tin đã enqueue lúc cửa sổ còn mở, when nhảy `Clock` qua hạn trước khi job chạy, then tin `failed` lý do cuối `window_closed`, adapter không được gọi, không thử lại | `send-window.test.ts` (integration) |
@@ -399,7 +397,6 @@ Action ở file **mới** (`settings-apps.ts` đã 408 dòng). Export ở `packa
 - [x] Index theo indexing.md (partial chờ xử lý / dọn, index đếm tin ra), EXPLAIN ở AC12.
 - [x] 14 AC đo được; ô cần nền tảng thật ghi "chưa nghiệm thu với provider thật".
 - **Gap đã khai:**
-  - Q-907 (hạn mức kênh mới) còn mở: cài theo đề xuất, cờ `QUOTA_COUNT_OAUTH_CHANNELS` đảo được.
   - Tham số cửa sổ từng nền tảng do adapter khai (048d / 048e / 048h); 048b chỉ thử bằng kênh giả.
   - Đổi URL route khỏi omnichannel-adapter quy tắc 8 (`/:accountKey` → `/:type` mức App) theo DC-910; standard sửa ở nhánh docs.
 

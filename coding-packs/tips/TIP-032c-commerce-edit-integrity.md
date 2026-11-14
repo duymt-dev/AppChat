@@ -1,6 +1,7 @@
 # TIP-032c: Hợp đồng/đơn hàng — attribution bất biến, sửa và hoàn tác không ghi đè
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/contracts.ts`; integrate 032c before050.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/actions/src/orders.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/sales/orders/services/order-import.ts`, `packages/core/src/sales/orders/services/order-view.ts`, `packages/core/src/sales/orders/services/order-write.ts`, `packages/db/prisma/tenant/sales-orders.prisma`, `packages/shared/src/api/orders.ts`, `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 032c before049.
 - **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 032c before049b.
 - **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 032c before049c.

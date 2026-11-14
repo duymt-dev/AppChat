@@ -1,6 +1,7 @@
 # TIP-020e — RAG rerank và tái tạo chỉ mục embedding khi đổi model
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/settings-ai.ts`; integrate 020e before050.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`, `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`; integrate 020e before049.
 - **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 020e before049b.
 - **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `.env.example`; integrate 020e before049c.

@@ -60,7 +60,7 @@ Không dùng wildcard thư mục; test liệt kê từng file.
 | M | `packages/core/test/assistant-coverage.test.ts` | Action mới có preview, đường tra `listing_id` / `connection_id` |
 | C | `packages/actions/src/marketplace.ts` | `integration.oauth_select`, `marketplace.import_products` / `map_sku` / `unmap_sku` / `listings`, internal `integration.auth_event` |
 | M | `packages/actions/src/index.ts` | Export + registry nhóm marketplace |
-| M | `packages/actions/src/orders.ts` | `order.sync_now` output `queued` + default 0, mô tả xếp hàng |
+| M | `packages/actions/src/orders.ts` | `order.sync_now` quyền `order.manage` (DC-923), output `queued` + default 0, mô tả xếp hàng |
 | M | `packages/core/src/ai/assistant/catalog.ts` | `SYSTEM_ONLY` thêm `integration.auth_event`; mô tả nhóm marketplace |
 | C | `packages/shared/src/api/marketplace.ts` | DTO listing, trang listing D42, kết quả `oauth_select` |
 | M | `packages/shared/src/api/index.ts` | Export DTO marketplace |
@@ -80,7 +80,7 @@ Không dùng wildcard thư mục; test liệt kê từng file.
 | M | `apps/api/src/http/integrations/integrations.http.module.ts` | Đăng ký controller webhook sàn |
 | C | `apps/api/test/integration/marketplace-oauth.test.ts` | AC1, AC2, AC5: chọn shop, route, nối lại, refresh một lần, thu hồi / deauth → expired |
 | C | `apps/api/test/integration/marketplace-sync.test.ts` | AC3, AC4, AC6–AC10: webhook, cursor, năm lỗi, thanh toán, loyalty |
-| M | `apps/api/test/integration/actions/order.sync_now.action.test.ts` | `order.sync_now` chỉ xếp job (`queued`) |
+| M | `apps/api/test/integration/actions/order.sync_now.action.test.ts` | `order.sync_now` chỉ xếp job (`queued`); Sales / Kế toán (`order.manage`) chạy được, CSKH 403 |
 | M | `apps/api/test/integration/contact-lifecycle-blocked-import.test.ts` | Biên nhận chặn theo shop; sync_now xếp job rồi chạy job |
 | M | `apps/web/messages/vi/actions.json` | `actions.<id>.title` 6 action mới |
 | M | `apps/web/messages/en/actions.json` | Như trên (en) |

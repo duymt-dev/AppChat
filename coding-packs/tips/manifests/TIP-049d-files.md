@@ -18,7 +18,7 @@ Không dùng wildcard thư mục; test liệt kê từng file.
 | M | `apps/web/src/features/orders/columns.tsx` | `SourceBadge` ~L37–46 dùng `MarketplaceBadge` |
 | M | `apps/web/src/features/orders/components/DetailTabs.tsx` | Banner ~L44–53: trạng thái sàn có nhãn, "Thanh toán qua sàn", ẩn nút Đề nghị thanh toán |
 | M | `apps/web/src/features/orders/components/ShippingCard.tsx` | Trường `shipping.source = platform` chỉ đọc ~L32 |
-| M | `apps/web/src/features/orders/components/OrdersToolbar.tsx` | `order.sync_now` đọc `queued` ~L34; nút theo `useCan` quyền của action (Q-917) |
+| M | `apps/web/src/features/orders/components/OrdersToolbar.tsx` | `order.sync_now` đọc `queued` ~L34; nút theo `useCan('order.manage')` (DC-923) |
 | C | `apps/web/src/features/products/components/SkuMappingDrawer.tsx` | Drawer Ghép SKU: chọn shop, bảng listing D42, Ghép / Bỏ ghép / chọn sản phẩm khác, Đọc sản phẩm từ sàn |
 | C | `apps/web/src/features/products/components/SkuMappingDrawer.test.tsx` | Lọc về trang 1, lỗi tại dòng, chỉ xem khi thiếu quyền |
 | C | `apps/web/src/features/products/hooks/useSkuMapping.ts` | Tải listing theo trang + `map_sku` / `unmap_sku` / `import_products` |

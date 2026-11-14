@@ -1,6 +1,7 @@
 # TIP-047b — Dữ liệu tổng đài: `tenant/callcenter.prisma`, việc gọi lại, giá voice, hạn mức máy, quyền (Gọi điện, D61)
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/crm.ts`, `packages/actions/src/support.ts`; integrate 047b before050.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/db/prisma/platform/routing.prisma`, `packages/db/test/factories/index.ts`; integrate 047b before049.
 - **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 047b before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `packages/db/test/prisma-stubs.test.ts`; integrate 047b before048.

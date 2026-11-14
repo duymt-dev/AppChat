@@ -136,7 +136,7 @@ Giao diện cho sàn, đọc API 049; không đổi backend nghiệp vụ (trừ
 1. **Cột Nguồn (`orders/columns.tsx` M, `SourceBadge` ~L37–46):** đơn `marketplace` → `MarketplaceBadge.tsx` (C): logo sàn + tên shop (tooltip mã ngoài). Sửa key `platform.tiktok` → `platform.tiktok_shop` (giữ key cũ một bản làm bí danh nếu chỗ khác còn dùng — kiểm ở Rà).
 2. **Chi tiết đơn (`DetailTabs.tsx` M, banner ~L44–53):** banner "Đơn từ <Sàn> · <shop> · mã <external_id>": trạng thái sàn có nhãn (i18n `orders.platformStatus.<connector>.<STATUS>`, thiếu nhãn → chuỗi gốc), câu "Dòng hàng / giá do sàn quản lý" (COMMERCE §4b), thanh toán "Thanh toán qua sàn" (không nút tạo Đề nghị thanh toán / VietQR cho đơn sàn — đã chặn ở backend 032b, UI ẩn nút).
 3. **Vận đơn (`ShippingCard.tsx` M ~L32):** đơn sàn — trường có `shipping.source.<field> = 'platform'` chỉ đọc (khoá + chú thích "Theo <Sàn>"); trường sàn chưa có vẫn nhập tay được (lỗi 1 của 049 đã giữ dữ liệu nhập tay). Đơn thường giữ nguyên.
-4. **Đồng bộ (`OrdersToolbar.tsx` M ~L34):** nút hiện theo `useCan` đúng quyền của `order.sync_now` (hiện `integrations.manage`; đổi theo Q-917 nếu Chủ nhà chốt); đọc `queued` → toast "Đã xếp đồng bộ N kết nối"; `queued = 0` → "Chưa có kết nối sàn". Không còn đọc `imported` ngay (049 §5). Mock `orders-actions.ts` trả `queued`.
+4. **Đồng bộ (`OrdersToolbar.tsx` M ~L34):** nút hiện theo `useCan` đúng quyền của `order.sync_now` (`order.manage` — Q-917 chốt, DC-923); đọc `queued` → toast "Đã xếp đồng bộ N kết nối"; `queued = 0` → "Chưa có kết nối sàn". Không còn đọc `imported` ngay (049 §5). Mock `orders-actions.ts` trả `queued`.
 5. Bảng Đơn giữ D42 (cuộn trong khung, header dính, `Pager`) — D43.
 
 ### 3. Sản phẩm (PD-908)

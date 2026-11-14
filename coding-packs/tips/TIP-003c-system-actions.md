@@ -1,6 +1,7 @@
 # TIP-003c — Canonical private system-transition adapters
 
 ## HEADER
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/contract-appendix.ts`; integrate 003c before050.
 - **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/event-protocol.manifest.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/sales/jobs/order-sync.jobs.ts`, `packages/core/src/sales/orders/services/order-sync.ts`; integrate 003c before049.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/worker/src/roles/jobs.module.ts`, `packages/actions/src/index.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/kernel/index.ts`; integrate 003c before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`, `packages/core/src/channels/channels.module.ts`, `packages/core/src/sales/quotes/services/quote-send.ts`; integrate 003c before048b.

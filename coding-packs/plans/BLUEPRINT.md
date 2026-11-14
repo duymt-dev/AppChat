@@ -733,7 +733,7 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `quote.draft_from_content` | write (AI soạn nháp từ nội dung — D30) | ✓ chỉ nháp | 24h |
 | `contract.draft_from_content` | write (AI soạn nháp, khối `ai_suggested`) | ✓ chỉ nháp | 24h |
 | `order.import_external` | write (system, từ OrderSyncProvider — D31) | | |
-| `order.sync_now` | write (`integrations.manage`) | | |
+| `order.sync_now` | write (`order.manage` — DC-923; chỉ xếp job) | | |
 | `order.create_from_contract` | write ("→ Đơn hàng" từ HĐ đã ký) | ✓ | 24h |
 | `order.create` | write | ✓ | 24h, khi ở new |
 | `order.create_from_quote` | write ("→ Đơn hàng") | ✓ khi khách chốt | 24h |

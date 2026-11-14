@@ -272,7 +272,7 @@ Ghi chú:
 | D62-comments | Bình luận bài đăng vào Hộp thư, agent trả lời như nhân viên (D62 #3, DC-921) | 01-REQUIREMENTS-MATRIX.md:336 | 048f | CHƯA | TIP-048f |
 | D62-live | Livestream FB + IG; live TikTok / Shopee Sắp có (D62 #4) | 01-REQUIREMENTS-MATRIX.md:336 | 048g | CHƯA | TIP-048g |
 | D62-soon | Kênh còn lại "Sắp có" theo registry (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048c | CHƯA | TIP-048c (PD-903) |
-| D62-quota | Hạn mức kênh của gói cho kênh mới (D62 #6 — Q-907 mở, tạm theo đề xuất) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b §chọn tài khoản (`QuotaService.assert('channels')`) |
+| D62-quota | Hạn mức kênh của gói cho kênh mới (D62 #6 — Q-907 chốt, DC-923) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b §chọn tài khoản (`QuotaService.assert('channels')`) |
 | D62-order | Thứ tự: 035d sớm nhất (ngay sau TIP chờ đang mở PR — 016b / 034d lúc viết); 048 sau 047b trước 047c / 047d; 048b → 048h trước 044 / 045 / 046 (D62 #8) | 01-REQUIREMENTS-MATRIX.md:336 | 035d, 048 | QUY-TẮC | `python -X utf8 tools/obligations/order.py` + `manifests.py --order` |
 | D63-foundation | Nền sàn: OAuth + nhiều shop + webhook mức App + pull cursor + 5 lỗi đồng bộ (D63 #2, #4) | 01-REQUIREMENTS-MATRIX.md:338 | 049 | CHƯA | TIP-049 |
 | D63-shopee | Connector Shopee (D63 #1) | 01-REQUIREMENTS-MATRIX.md:338 | 049b | CHƯA | TIP-049b |
@@ -294,3 +294,4 @@ Ghi chú:
 | DC-916 | TikTok Business Messaging + bình luận video, 48 giờ / 10 + 3 tin | DECISIONS.md:497 | 048h | CHƯA | TIP-048h |
 | DC-921 | AI agent là nhân viên trên kênh D62: không trần gợi ý / luật riêng; `comment.*` (trừ delete) + `live.flag_update` cấp được cho agent; giữ luật chung §3.3 / D06 + luật nền tảng | DECISIONS.md:498 | 048f, 048g, 048h | CHƯA | TIP-048f §3 / §6 · 048g §5–6 · 048h §5 |
 | DC-922 | Agent là nhân viên áp cho cơ hội (bỏ ép Lead mới, set_stage / mark_lost / reopen / set_owner cấp được) + gọi điện (agent tự áp đề xuất, ZCC consent cấp được) | DECISIONS.md:499 | 026c, 047c, 047d | CHƯA | TIP-026c §2 / §4 · 047c §4 / §8 · 047d |
+| DC-923 | Chốt Q-917 / 049 / 907 / 913 / 054 / 919 theo đề xuất | DECISIONS.md:500 | 035d, 045, 048b, 049, 049d, 050 | CHƯA | TIP-049 §5 · 048b §6.4 · 035d §4.2 · 045 §3.7 · 050 |

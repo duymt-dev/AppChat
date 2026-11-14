@@ -1,10 +1,10 @@
-# GOAL — Phát hành AppChat (103 TIP → cổng phát hành TIP-046)
+# GOAL — Phát hành AppChat (104 TIP → cổng phát hành TIP-046)
 
 > Thay `goals/GOAL-BACKEND.md` từ 2026-11-03 (file cũ giữ làm lịch sử TIP 001–035). Nguồn duy nhất cho thứ tự và tiến độ phần còn lại.
 
 ## Goal (1 câu)
 
-Làm tuần tự **103 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c / TIP-032e Cơ hội · Tài chính D60 + TIP-047 / 047b / 047c / 047d Gọi điện D61 + TIP-035d cô lập worktree + TIP-048 → 048h kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream D62 + TIP-049 → 049d đồng bộ sàn Shopee / TikTok Shop D63) theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
+Làm tuần tự **104 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026c / TIP-032e Cơ hội · Tài chính D60 + TIP-047 / 047b / 047c / 047d Gọi điện D61 + TIP-035d cô lập worktree + TIP-048 → 048h kênh Zalo OA / Facebook / Instagram / TikTok, bình luận, livestream D62 + TIP-049 → 049d đồng bộ sàn Shopee / TikTok Shop D63 + TIP-050 rà quyền agent DC-923) theo bảng thứ tự dưới (TIP-023b → … → TIP-046) cho tới khi **TIP-046 (cổng phát hành) đạt**: backend + FE chạy thật ở `NEXT_PUBLIC_API_MODE=http`, mọi dòng `COVERAGE.md` ĐẠT hoặc NGOÀI / QUY-TẮC có mã, hạ tầng native sẵn sàng deploy.
 
 **Câu dán vào `/goal`:**
 `Làm xong AppChat tới phát hành theo coding-packs/goals/GOAL-RELEASE.md: lần lượt từng TIP trong bảng Thứ tự (023b → 046) tới khi TIP-046 đạt. Mỗi TIP: rà "Rà trước khi làm" với code thật; làm đúng manifest (tips/manifests/TIP-XXX-files.md); đọc và đối chiếu mọi standard TIP ghi tên, completion report có bảng "Đối chiếu standards" (file:dòng hoặc mã DV); test theo mục "Cổng test" của GOAL-RELEASE.md; commit; gh pr create --base dev; cập nhật COVERAGE (tools/obligations/parts + merge.py) và bảng tiến độ GOAL-RELEASE.md. TIP nhiều pha thì một PR mỗi pha. Test CHỈ trong phạm vi TIP thay đổi: cổng commit chạy lint/typecheck/unit của package đổi + depcheck + lint:size, lint:tokens, lint:masks, i18n:check; cổng chốt (một lần mỗi TIP) chạy lint/typecheck/unit/build của package đổi, integration CHỈ các file test của domain/action TIP chạm, E2E mock + http CHỈ spec của module TIP, parity màn TIP sửa; sửa lớp dùng chung (kernel, packages/db|actions|shared|ui, apps/web/src/shared) thì thêm E2E mock các module dùng phần đó + parity --done. KHÔNG chạy full integration hay full E2E hồi quy ở TIP thường — chỉ chạy ở TIP-046. Sau rebase chỉ chạy lại phần bị ảnh hưởng. Ca đỏ trong phạm vi TIP mà đã đỏ sẵn trên origin/dev hoặc là lỗi môi trường đã ghi sổ (vd Q-042, Q-010) thì chạy riêng chứng minh rồi ghi report — không tính là cổng đỏ. Thiếu provider thật (Zalo, SePay, Brevo, VPS, credit) ghi "chưa nghiệm thu với provider thật", không dừng. ai:live: lỗi hạ tầng provider chạy lại, lỗi hệ thống phải sửa, không hạ ngưỡng. Nhánh: tip/XXX-<slug> từ origin/dev; nếu PR TIP trước chưa merge thì tách xếp chồng từ nhánh TIP trước. Trước mỗi PR: git fetch, PR trước đã merge thì rebase lên origin/dev, chưa merge thì rebase lên nhánh TIP trước; thân PR ghi "xếp chồng trên #N — merge #N trước". Mở PR xong là sang ngay pha / TIP kế trong cùng lượt — KHÔNG dừng để tóm tắt hay chờ phản hồi; tiến độ ghi vào bảng tiến độ và coding-packs/HANDOFF-NEXT.md, không báo qua chat. Câu hỏi mới ghi QUESTIONS.md kèm đề xuất rồi làm tiếp theo đề xuất; quyết định kỹ thuật ghi DECISIONS.md; lệch spec ghi DEVIATIONS.md. Chỉ dừng khi: (1) TIP-046 đạt; (2) cần quyết định về luật tiền / quyền / pháp lý / xoá dữ liệu; (3) lỗi test thuộc phạm vi TIP mà đã thử sửa không được — ghi rõ lý do vào HANDOFF-NEXT.md.`
@@ -52,7 +52,7 @@ Làm tuần tự **103 TIP chưa DONE** (83 + TIP-006d web push DC-381 + TIP-026
 
 **Mỗi TIP:** mọi AC có test chạy thật và xanh · mọi action của TIP có handler · shape đọc đúng contract FE, contract test xanh · tenant + role isolation có test khi chạm dữ liệu có chủ · cổng "chốt TIP" xanh · commit + SHA + PR + Completion Report + COVERAGE + ba sổ cập nhật.
 
-**Cả goal:** 103 TIP DONE (hoặc PARTIAL **chỉ** vì ô cần tài nguyên ngoài, ghi "chưa nghiệm thu với provider thật") · `node tools/release/gate.mjs --sha <sha>` (TIP-046) không còn ô đỏ ngoài ô `unknown-resource` · `COVERAGE.md` không còn dòng CHƯA / GIẢ / MỘT PHẦN trừ dòng chờ tài nguyên ngoài.
+**Cả goal:** 104 TIP DONE (hoặc PARTIAL **chỉ** vì ô cần tài nguyên ngoài, ghi "chưa nghiệm thu với provider thật") · `node tools/release/gate.mjs --sha <sha>` (TIP-046) không còn ô đỏ ngoài ô `unknown-resource` · `COVERAGE.md` không còn dòng CHƯA / GIẢ / MỘT PHẦN trừ dòng chờ tài nguyên ngoài.
 
 ## Tài nguyên ngoài (không chặn thi công, chặn nghiệm thu / bán)
 
@@ -150,10 +150,10 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 52 | [034c](../tips/TIP-034c-ticket-bulk.md) | W8 | DONE (ai:live chưa nghiệm thu — Q-066) | `tip/034c-ticket-bulk` · `tip/034c-p2-bulk-web` · `tip/034c-p3-bulk-evidence` | `d86d0fd2` (P1) · `d48dc026` (P2) · `b5a1184b` (P3) | #213 (P1) · #214 (P2) · #216 (P3) |
 | 53 | [022c](../tips/TIP-022c-sales-behavior.md) | W8 | DONE | `tip/022c-sales-behavior` · `tip/022c-p2-operator-provenance` · `tip/022c-p3-stock-grounding` · `tip/022c-p4-publication` · `tip/022c-p5-templates-live` | `e4ab67ce` (P1) · `21f6091f` (P2) · `f86984a8` (P3) · `1a02ff8b` (P4) · `0af4609f` (P5) | #217 (P1) · #218 (P2) · #219 (P3) · #220 (P4) · #221 (P5) |
 | 54 | [006c](../tips/TIP-006c-realtime-events.md) | W8 | DONE | `tip/006c-realtime-events` | `8c43594c` | #222 |
-| 55 | [016b](../tips/TIP-016b-nav-badges.md) | W8 | chờ | `tip/016b-nav-badges` | | |
-| 56 | [034d](../tips/TIP-034d-ticket-stock-trends.md) | W8 | chờ | `tip/034d-ticket-stock-trends` | | |
+| 55 | [016b](../tips/TIP-016b-nav-badges.md) | W8 | DONE | `tip/016b-nav-badges` | `342d1a84` | #223 |
+| 56 | [034d](../tips/TIP-034d-ticket-stock-trends.md) | W8 | DONE | `tip/034d-ticket-stock-trends` | `cc9c77ad` | #224 |
 | 57 | [035d](../tips/TIP-035d-worktree-isolation.md) | W8 | chờ — D62 / DC-908 (cô lập worktree) — **làm trước tiên** rồi mới chia 3 luồng A / B / C | `tip/035d-worktree-isolation` | | |
-| 58 | [020e](../tips/TIP-020e-rag-model-lifecycle.md) | W8 | chờ | `tip/020e-rag-model-lifecycle` | | |
+| 58 | [020e](../tips/TIP-020e-rag-model-lifecycle.md) | W8 | DONE | `tip/020e-rag-model-lifecycle` | `bcc52d2e` | #226 |
 | 59 | [003e](../tips/TIP-003e-action-integrity.md) | W8 | chờ | `tip/003e-action-integrity` | | |
 | 60 | [001c](../tips/TIP-001c-ui-states-mobile.md) | W8 | chờ | `tip/001c-ui-states-mobile` | | |
 | 61 | [003f](../tips/TIP-003f-validation-forms.md) | W8 | chờ | `tip/003f-validation-forms` | | |
@@ -196,7 +196,8 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 98 | [049b](../tips/TIP-049b-shopee.md) | W8 | chờ — D63 / DC-918 (Shopee, Q-914) | `tip/049b-shopee` | | |
 | 99 | [049c](../tips/TIP-049c-tiktok-shop.md) | W8 | chờ — D63 / DC-919 (TikTok Shop, Q-915) | `tip/049c-tiktok-shop` | | |
 | 100 | [049d](../tips/TIP-049d-marketplace-ui.md) | W8 | chờ — D63 / DC-920 (giao diện sàn) | `tip/049d-marketplace-ui` | | |
-| 101 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
-| 102 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
-| 102b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
-| 103 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |
+| 101 | [050](../tips/TIP-050-agent-grantable-review.md) | W8 | chờ | `tip/050-agent-grantable-review` | | |
+| 102 | [044](../tips/TIP-044-ai-eval-gate.md) | W9 | chờ | `tip/044-ai-eval-gate` | | |
+| 103 | [045](../tips/TIP-045-native-infrastructure.md) | W9 | chờ | `tip/045-native-infrastructure` | | |
+| 103b | trả nợ parity (DC-360) | W9 | chờ | `fix/parity-debt-payoff` | | |
+| 104 | [046](../tips/TIP-046-release-hardening.md) | W9 | chờ | `tip/046-release-hardening` | | |
