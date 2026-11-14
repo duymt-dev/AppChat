@@ -1,6 +1,9 @@
 # TIP-022c: Sales Agent — tồn kho có căn cứ và ý định báo giá trước tác động
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 022c before049.
+- **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 022c before049b.
+- **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 022c before049c.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`, `packages/core/src/inbox/services/outbound.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 022c before048b.
 - **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `packages/core/src/channels/operations/provider-event.ts`; integrate 022c before048d.
 - **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `packages/core/src/ai/reply/reply-context.ts`, `packages/core/src/channels/operations/provider-event.ts`, `packages/core/src/inbox/services/outbound.ts`, `packages/db/prisma/tenant/inbox.prisma`; integrate 022c before048f.

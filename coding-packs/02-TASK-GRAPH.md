@@ -168,6 +168,15 @@ W9   045b Bảo mật & vận hành trong app · 044 AI eval gate · 045 Hạ t�
 | 048f | [Bình luận bài đăng](tips/TIP-048f-social-comments.md): hội thoại `comment`, `social_post`, trả lời công khai / nhắn riêng / ẩn / xoá / thích, agent trả lời như nhân viên, tab Bình luận | 048b, 048c, 048e | P0 | XL/3 pha | W8 | REQ-B13, PD-904, DC-914, DC-921 | channels, actions, ui |
 | 048g | [Livestream FB / IG](tips/TIP-048g-livestream.md): `live_session` + cờ ý mua / SĐT, SSE + poll đối soát, người / agent tạo khách / đơn | 048f | P1 | L | W8 | REQ-B14, PD-905, DC-915, DC-921 | channels, ui |
 | 048h | [TikTok Business Messaging](tips/TIP-048h-tiktok-messaging.md): 48 giờ / 10 + 3 tin, `TikTok-Signature`, bình luận video organic, comment-to-message | 048b, 048c, 048f | P1 | L | W8 | REQ-B08, DC-916, Q-910 | channels |
+| 049 | [Nền đồng bộ sàn](tips/TIP-049-marketplace-foundation.md): OAuth connector + chọn shop, nhiều shop / sàn, `tenant_shop_route`, `/hooks/marketplace/:connector`, pull theo cursor qua hàng đợi, ProviderHttp POST, sửa 5 lỗi đồng bộ (vận đơn rỗng, khách / đơn trùng khi nối lại, ánh xạ SKU, tồn biến thể, một kết nối / connector) | 048, 048h, 031c, 027b, 032b, 032c | P0 | XL/2 pha | W8 | REQ-F07c, DC-917, Q-916 | integrations, database, concurrency |
+| 049b | [Shopee](tips/TIP-049b-shopee.md): ký HMAC, token 4 giờ / refresh dùng một lần, đơn + vận đơn + sản phẩm, push body rỗng | 049 | P0 | L | W8 | REQ-F07c, DC-918, Q-914 | integrations |
+| 049c | [TikTok Shop](tips/TIP-049c-tiktok-shop.md): ký + `shop_cipher`, token 7 ngày, đơn + package + sản phẩm, webhook deauth | 049, 049b | P0 | L | W8 | REQ-F07c, DC-919, Q-915 | integrations |
+| 049d | [Giao diện sàn](tips/TIP-049d-marketplace-ui.md): thẻ sàn + chọn shop, Ghép SKU, đơn sàn (badge / mã ngoài / trạng thái / vận đơn chỉ đọc), Kênh bán theo ánh xạ | 049, 049b, 049c, 048c | P0 | L | W8 | REQ-F07c, PD-907, PD-908, DC-920 | ui, i18n |
+| 050 | [Rà quyền agent](tips/TIP-050-agent-grantable-review.md): agent là nhân viên — bật `agentGrantable` cho 64 action nghiệp vụ một bản ghi, giữ 87 có lý do, test khoá luật | 049d | P1 | M | W8 | DC-923, Q-919 | actions |
+| 051 | [Phòng ban + Sơ đồ tổ chức](tips/TIP-051-org-units.md): cây đơn vị (chi nhánh · phòng ban · nhóm) trên bảng `team`, AI agent là thành viên (`team_agent`), scope `dept`, `org_unit.*`, màn Sơ đồ tổ chức + Phòng ban theo prototype | 050 | P0 | L | W8 | D64, DC-924, PD-909 | authz, settings |
+| 051b | [Kênh theo phòng ban + vai trò mẫu](tips/TIP-051b-unit-channels-roles.md): `settings.unit_id` tài khoản kênh, hội thoại / khách mới mang đơn vị, chia lead trong phòng, agent vào phòng, vai trò mẫu Nhân sự / Marketing / Vận hành / Chỉ xem | 051 | P0 | M | W8 | D64, DC-925 | channels, crm, settings |
+| 051c | [Loại liên hệ](tips/TIP-051c-contact-relation.md): Khách hàng / Ứng viên / Đối tác / Nhà cung cấp; phễu, giai đoạn, chia lead, insight, segment, chứng từ chỉ cho Khách hàng; cột + lọc "Loại" | 051b, 026c, 032e | P0 | M | W8 | D64, DC-926, PD-910 | crm, sales, insights |
+| 051d | [AI agent là thành viên](tips/TIP-051d-agent-members.md): dòng AI Agent ở Cài đặt › Thành viên (tính vào số thành viên, ghế người dùng / AI Agent tách như gói), ô Phòng ban ở form thành viên (`member.set_units`, lời mời kèm đơn vị), bản ghi agent tạo mang phòng ban của agent, lọc Phòng ban thật ở Lịch hẹn | 051, 051c | P0 | M | W8 | DC-927, PD-911 | settings, authz, booking |
 | 044 | [AI release eval gate](tips/TIP-044-ai-eval-gate.md): ten fixed suites, actual native/UI replay+live, protected file/receipt evidence, human review and CI | 023b,019b/c,020b/c/d,021b,022b/c,023c/d/e/f/g,015c/e/f/g,025b,030b/c,032b/c/d,033b/c,036–043,045b; exact manifest predecessors | P0 | XL | W9 | N11 + named eval obligations | ai/eval; native isolation |
 | 045 | [Native infrastructure](tips/TIP-045-native-infrastructure.md):186 paths; SHA deployment/readiness/drain, native monitoring, consistent offsite checkpoint and privacy-safe restore | 002,003b/c,006b,014b,019b,015c,040,041,044,045b and exact shared-file predecessors; before046 | P0 | XL | W9 | N01/N02/N06/N08/N09 + BP9e/BP11/D20/DEF0272;12 AC | Blueprint§11,ops/database/workflow |
 | 046 | [Release gate](tips/TIP-046-release-hardening.md): backend-it.yml (PG16+pgvector+Redis native runner), `pnpm smoke:build`, runner http release an toàn, parity receipt, đo p95/LCP/1M/200 tenant, axe + i18n, gate bằng chứng theo SHA; tiêu thụ 044/045 | tất cả TIP chờ (tích hợp cuối) | P0 | XL | W9 | REQ-C01c/N07/N08a/N10d/N14, D40, DEF-002-1/004-1/034-3, Q-008/009/017/020, STD-workflow-git-4c/4d | workflow/git-flow-ci, code/testing, ui/prototype-parity |
@@ -212,7 +221,7 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `platform/notify.prisma` | 006 | `notification_pref` (thêm khi làm TIP-006 — DV-002) |
 | `platform/commerce-links.prisma` | 032b | `commerce_link` (link công khai xem / tải chứng từ đã gửi — chỉ băm token + định tuyến) |
 | `tenant/kernel.prisma` | 002 | `action_log`, `outbox_event`, `idempotency_key`, `file`, `sequence_counter`, `notification`; + `event_consumption` (TIP-006 — DC-027) |
-| `tenant/authz.prisma` | 005 | `role`, `team`, `team_member` |
+| `tenant/authz.prisma` | 005 | `role`, `team`, `team_member`; D64: cột cây `team` + `team_agent` (TIP-051) |
 | `tenant/integrations.prisma` | 012 | `integration_connection`, `integration_mapping`, `integration_call_log`, `integration_event` |
 | `tenant/channels.prisma` · `tenant/channels-webchat.prisma` · `tenant/channels-email.prisma` | 014 · 017 · 018 | `channel_account`, … · `webchat_widget` · `email_thread` |
 | `tenant/crm.prisma` | 015 · 015b | `contact`, `contact_identity`, `contact_collaborator`, `contact_access_request`, `tag`, `contact_tag`, `contact_memory`, `timeline_event`, `contact_note`, `custom_field_def`, `profile_layout`, `profile_layout_role`; 015b: `contact_revision`, `contact_memory_merge`, `contact_summary_cache` (+ cột nguồn / `fact_norm` / `updated_at` của `contact_memory`) |
@@ -258,7 +267,7 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | App Zalo (AppID) có quyền gọi thoại + OA Doanh nghiệp đã xác thực (Q-902) | 047c / 047d (ZCC thật) | `ZccClient` mock + SIP giả lập |
 | Máy Linux IP tĩnh cho SIP edge + livekit-sip (Q-903) · số SIP / hotline thử (Q-904) | 047, 047c (gọi thật) | `livekit-server --dev` trên máy dev; SIPp giả lập trunk |
 | Voice AI tự dựng: PhoWhisper (STT) + VieNeu-TTS (TTS) local — DC-907 (Q-905 chốt); Realtime OpenAI / Gemini tuỳ chọn khi có key | 047, 047c, 044 (voice live) | Bộ cài `mock` kịch bản cố định; model tải bằng `voice-models.sh` |
-| Đăng ký app đối tác Shopee / TikTok Shop / Lazada | adapter thật P2 (ngoài 46 TIP) | Khung + `mock` trong 031 |
+| Đăng ký app đối tác Shopee (Q-914) / TikTok Shop (Q-915) — D63; Lazada vẫn P2 | 049b, 049c (nghiệm thu thật) | Server giả + fixtures; khung + `mock` trong 031 |
 | Meta Business Verification + App Review + domain HTTPS (Q-908) | 048e, 048f, 048g (nghiệm thu thật) | Transport `fake` + fixtures webhook |
 | App Zalo quyền OA API + OA thử mua gói Tăng trưởng (Q-909) | 048, 048d | Transport `fake`; ZCC dùng chung App (DC-909) |
 | TikTok Business Messaging API + Accounts API form (Q-910) | 048h | Transport `fake` |
@@ -485,3 +494,19 @@ Bốn lớp dựng song song trên worktree riêng (cổng E2E riêng, `--worker
 |048h [tiktok-messaging](tips/TIP-048h-tiktok-messaging.md)|TikTok BM + bình luận video|After048f; before044/045/046|fixtures + integration, chưa nghiệm thu thật (Q-910)|
 
 Luồng song song (D62 #7, sau khi chuỗi PR hiện tại merge): A = TIP cũ theo `order.py` · B = Gọi điện 047 → 047d · C = Kênh 048 → 048h. 035d làm đầu tiên (ngay sau TIP chờ đang có PR — 034d lúc viết; chủ thầu đặt dòng khai hai phía để 035d ghép trước mọi TIP chờ còn lại có chung file). 048 nằm giữa 047b và 047c (một token OA cho ZCC + kênh OA — DC-909): luồng C bắt đầu 048 sau khi 047b ghép, hoặc luồng B làm luôn 048. Mỗi luồng một dải số sổ (B: 8xx, C: 7xx, docs: 9xx). Agent là nhân viên: trả lời bình luận, nhắn riêng, tạo khách / đơn từ live như người (Q-911 chốt, DC-921).
+
+### Supplemental049 — Đồng bộ sàn Shopee + TikTok Shop (D63, DC-917 → DC-920)
+
+| TIP | Scope | Integration order | Gates |
+|---|---|---|---|
+|049 [marketplace-foundation](tips/TIP-049-marketplace-foundation.md)|OAuth connector + shop route + webhook mức App + pull cursor + 5 lỗi đồng bộ|After048/048h/031c/027b/032b/032c; before049b|db 3 lệnh, nối lại không trùng, hai shop / sàn, tồn biến thể, EXPLAIN|
+|049b [shopee](tips/TIP-049b-shopee.md)|connector Shopee|After049; before049c|fake-server + fixtures, ký / push body rỗng, refresh một lần (Q-914)|
+|049c [tiktok-shop](tips/TIP-049c-tiktok-shop.md)|connector TikTok Shop|After049b; before049d|fake-server + fixtures, deauth (Q-915)|
+|049d [marketplace-ui](tips/TIP-049d-marketplace-ui.md)|Nền tảng kết nối + Ghép SKU + đơn / sản phẩm sàn|After049c/048c; before044/045/046|parity settings / orders / products + --done, e2e mock + http|
+|050 [agent-grantable-review](tips/TIP-050-agent-grantable-review.md)|Bật agentGrantable action một bản ghi (DC-921 / 922 / 923)|After049d; before044/045/046|registry test khoá luật, eval 3 ca|
+|051 [org-units](tips/TIP-051-org-units.md)|Cây đơn vị + scope `dept` + agent thành viên + Sơ đồ tổ chức / Phòng ban (D64)|After050; before051b/051c/044/045/046|EXPLAIN scope dept, parity settings:org_dept / teams|
+|051b [unit-channels-roles](tips/TIP-051b-unit-channels-roles.md)|Kênh theo phòng ban nhận, chia trong phòng, vai trò mẫu (D64)|After051; before051c/044|parity settings:channels / roles|
+|051c [contact-relation](tips/TIP-051c-contact-relation.md)|Loại liên hệ, chỉ Khách hàng vào phễu / chứng từ (D64)|After051b, 026c, 032e; before044/045/046|EXPLAIN danh sách mặc định, parity customers|
+|051d [agent-members](tips/TIP-051d-agent-members.md)|Agent là thành viên + phòng ban ở form thành viên + đơn vị bản ghi agent tạo (DC-927)|After051c; before044/045/046|parity settings:members, e2e settings / calendar|
+
+Không đăng sản phẩm, không đẩy tồn / trạng thái lên sàn (P2), không chat người mua, không livestream sàn. Luật COMMERCE §4b giữ nguyên.

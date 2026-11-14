@@ -61,6 +61,10 @@ M modify, C create. Future M requires predecessor integration. No directory wild
 | C | `infra/nginx/snippets/security.conf` | Native production control-plane configuration, bounded scripts, schemas or dedicated isolated rehearsal evidence |
 | C | `infra/nginx/snippets/proxy.conf` | Native production control-plane configuration, bounded scripts, schemas or dedicated isolated rehearsal evidence |
 | C | `infra/nginx/snippets/websocket.conf` | Native production control-plane configuration, bounded scripts, schemas or dedicated isolated rehearsal evidence |
+| C | `infra/nginx/snippets/admin-allow.conf` | Allowlist IP host admin (Q-054, DC-923) |
+| C | `packages/db/prisma/platform/migrations/20261116090000_platform_admin_totp/migration.sql` | Bảng `platform_admin_totp` (Q-054) |
+| C | `apps/api/src/http/platform/admin-totp.ts` | Bước TOTP trước ngữ cảnh nền tảng, khoá sai, mã dự phòng, audit (Q-054) |
+| C | `apps/api/test/integration/platform-admin-totp.test.ts` | AC Q-054 |
 | C | `infra/postgres/postgresql.conf` | Native production control-plane configuration, bounded scripts, schemas or dedicated isolated rehearsal evidence |
 | C | `infra/postgres/pg_hba.conf` | Native production control-plane configuration, bounded scripts, schemas or dedicated isolated rehearsal evidence |
 | C | `infra/postgres/pgbouncer.ini` | Native production control-plane configuration, bounded scripts, schemas or dedicated isolated rehearsal evidence |

@@ -15,7 +15,7 @@
 
 - Dùng chữ "giải pháp" thay cho "nền tảng"; không dùng "OPC" đứng một mình trong tiêu đề. [SoT: CHANGELOG 2026-08-26; Document-Index]
 - **Khách mục tiêu:** doanh nghiệp dịch vụ có khách quay lại (Spa, Nha khoa, Phòng khám, Giáo dục, Gym, Ô tô, Du lịch, BĐS, Tài chính, F&B…).
-- **Không** phục vụ mô hình sàn TMĐT.
+- **Không** phục vụ mô hình sàn TMĐT. (D63, 2026-11-14: đồng bộ đơn từ Shopee / TikTok Shop về AppChat cho DN có bán thêm qua sàn — chỉ kéo đơn / vận đơn / đọc sản phẩm, không vận hành gian hàng.)
 - Taxonomy ngành 2 cấp (10 nhóm ngành) dùng cho onboarding, segment và template. [SoT: docs/06-prototype/jsx-reference/CLAUDE.md]
 - AI là hạ tầng vận hành, không phải tính năng bổ trợ. Có human-in-the-loop ở các điểm quyết định. [SoT: SolutionDesign §2, §7]
 

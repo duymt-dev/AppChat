@@ -1,6 +1,12 @@
 # TIP-020d — Validated RAG answer citations in drafts and AI logs
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `tools/parity/parity.manifest.ts`; integrate 020d before051d.
+- **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before051.
+- **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 020d before051b.
+- **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/vi/inbox.json`, `packages/core/src/inbox/services/view.ts`, `packages/shared/src/api/inbox.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before051c.
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `packages/shared/src/api/index.ts`; integrate 020d before049.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `tools/parity/parity.manifest.ts`; integrate 020d before049d.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `packages/shared/src/api/index.ts`; integrate 020d before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/db/prisma/tenant/inbox.prisma`, `packages/shared/src/api/inbox.ts`; integrate 020d before048b.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/inbox.json`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/inbox.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/inbox/types.ts`, `apps/web/src/shared/api/mock/domains/inbox.ts`, `tools/parity/parity.manifest.ts`; integrate 020d before048c.

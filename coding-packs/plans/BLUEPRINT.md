@@ -287,6 +287,7 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | `tenant_widget_route` | public_key (pk), ws, allowed_domains text[] | widget kết nối → DB đích |
 | `tenant_bank_feed_route` | feed_id (pk), ws, provider | webhook SePay / Casso của DN → DB đích |
 | `tenant_integration_route` | connection_id (pk), ws, connector_key, status | webhook `/hooks/integrations/:connector/:connectionId` → DB đích (D28) |
+| `tenant_shop_route` | route_key (pk, `<connector>:<shop_id>`), ws, connection_id, status(active\|disabled), updated_at | webhook sàn mức App `/hooks/marketplace/:connector` → DB đích; PK chặn một shop ở hai workspace (D63, DC-917, TIP-049) |
 | `tenant_channel_webhook_route` | route_key (pk, `<type>:<external_id>` — `zalo_oa:<oa_id>`, `facebook:<page_id>`, `instagram:<ig_id>`, `tiktok_messaging:<business_id>`), ws, channel_account_id, type, status(active\|disabled), updated_at | webhook kênh mức App `/hooks/channels/:type` → DB đích; PK chặn một Page / OA thuộc hai workspace (D62, DC-910, TIP-048b) |
 | `integration_interest` | ws, connector_key, user_id, note?, created_at | unique(ws, connector_key); thẻ "Sắp có" → "Đăng ký quan tâm" |
 | `tenant_sign_route` | token_hash (pk), ws, expires_at | trang ký công khai `/sign/[token]` → DB đích |
@@ -461,7 +462,9 @@ Ghi chú: **[P]** = DB nền tảng, **[T]** = DB tenant. `ws` = `workspace_id` 
 | Bảng | Trường | Ràng buộc / index |
 |---|---|---|
 | `integration_connection` | connector_key text, port text, name, mode(sandbox\|live), status(connected\|error\|disconnected), config jsonb, secret_enc bytea, last_sync_at?, last_error?, created_by | idx(port, status); unique partial (connector_key) WHERE status <> 'disconnected' (DC-044) |
-| `integration_mapping` | connection_id, entity, local_id, external_id, synced_at | unique(connection_id, entity, local_id); unique(connection_id, entity, external_id) |
+| `integration_mapping` | connection_id, entity, local_id, external_id, synced_at | unique(connection_id, entity, local_id); unique(connection_id, entity, external_id) — D63: entity `product_sku` (SKU sàn ↔ sản phẩm / biến thể), ghép SKU đọc ánh xạ trước mã / SKU |
+| _D63_ | `integration_connection.external_account_id` (shop_id), `oauth_grant_id`; unique đang dùng `(connector_key) WHERE external_account_id IS NULL` + `(connector_key, external_account_id) WHERE external_account_id IS NOT NULL` (nhiều shop / sàn); `order.external_shop_key` (`<connector>:<shop_id>`) + unique (external_shop_key, external_id); `stock_movement` unique → `NULLS NOT DISTINCT (ref_type, ref_id, product_id, variant_id)` (trừ / hoàn tồn biến thể — Q-916); `integration_connection.sync_state` jsonb (cursor + lần chạy cuối), status thêm `expired` | TIP-049, DC-917 |
+| `marketplace_listing` (D63) | connection_id → integration_connection (CASCADE), external_item_id, external_model_id (default ''), seller_sku?, name, model_name?, price, stock?, platform_status, image_url?, match_status(unmatched\|suggested\|mapped), suggested_product_id?, suggested_variant_id?, suggest_reason?, synced_at | bản chụp sản phẩm sàn chỉ đọc cho Ghép SKU; unique(connection_id, external_item_id, external_model_id); list theo D42 deferred join (TIP-049) |
 | `integration_call_log` | connection_id, op, ref_type, ref_id, idempotency_key, status, latency_ms, error?, created_at | unique(idempotency_key); idx(connection_id, created_at desc) |
 | `integration_event` | connection_id, external_event_id, kind, payload jsonb, processed_at? | unique(connection_id, external_event_id); partial (connection_id, created_at) WHERE processed_at IS NULL |
 
@@ -621,7 +624,8 @@ Cột "Agent" = `agentGrantable`. Cột "Undo" = có hoàn tác (thời hạn). 
 - `notification.mark_read` (mọi thành viên, write)
 - `notification.update_prefs` (self, write, `db: 'platform'` — tuỳ chọn thông báo của tôi, bảng nền tảng `notification_pref`; TIP-006)
 - `role.create` / `role.update` / `role.delete` (P1, permission `roles.manage`; vai trò hệ thống không sửa được)
-- `team.create` / `team.update` / `team.set_members` (P1)
+- `team.create` / `team.update` / `team.set_members` (P1) — giữ làm alias một bản phát hành.
+- **D64 (TIP-051):** `org_unit.create` / `org_unit.update` / `org_unit.move` / `org_unit.set_members` (config, `members.manage`; thành viên người hoặc AI agent, trưởng là người) · `org_unit.delete` (delete; chỉ đơn vị không còn thành viên / con / bản ghi gắn). Scope `dept` = đơn vị mình + con (DC-924). TIP-051b: `channel.update_settings` nhận `unit_id`. TIP-051c: `contact.set_relation` (write, `crm.edit`, agentGrantable).
 - `workspace.transfer_ownership` (owner, OTP)
 - `integration.connect` / `integration.disconnect` / `integration.test` / `integration.sync_now` / `integration.register_interest` (permission `integrations.manage`; `register_interest` = write)
 
@@ -738,7 +742,7 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `quote.draft_from_content` | write (AI soạn nháp từ nội dung — D30) | ✓ chỉ nháp | 24h |
 | `contract.draft_from_content` | write (AI soạn nháp, khối `ai_suggested`) | ✓ chỉ nháp | 24h |
 | `order.import_external` | write (system, từ OrderSyncProvider — D31) | | |
-| `order.sync_now` | write (`integrations.manage`) | | |
+| `order.sync_now` | write (`order.manage` — DC-923; chỉ xếp job) | | |
 | `order.create_from_contract` | write ("→ Đơn hàng" từ HĐ đã ký) | ✓ | 24h |
 | `order.create` | write | ✓ | 24h, khi ở new |
 | `order.create_from_quote` | write ("→ Đơn hàng") | ✓ khi khách chốt | 24h |
@@ -1106,6 +1110,7 @@ POST /v1/actions/approval.approve  { input: { approval_id, edited_input? } }   (
 - `POST /hooks/integrations/:connector/:connectionId`: webhook connector của DN (D28). Tra `tenant_integration_route` → DB tenant; adapter tự kiểm chữ ký; insert `integration_event` idempotent theo id của provider; trả 200 rồi xử lý trong queue `integrations`.
 - `POST /hooks/tenant-payments/:provider/:feedId`: tiền **khách của DN** (Q3). `feedId` tra `tenant_bank_feed_route` (DB nền tảng) rồi vào DB tenant; kiểm chữ ký bằng secret của feed; khớp mã `TT-xxxxxx` + số tiền thì `customer_payment(confirmed)`; lệch thì `needs_review`. Idempotent theo mã giao dịch của provider.
 - `GET|POST /hooks/channels/:type` (D62, TIP-048b): webhook kênh mức App (Zalo OA, Meta, TikTok). GET = xác minh (`hub.challenge`); POST giữ raw body ≤ 1MB, adapter kiểm chữ ký (`X-ZEvent-Signature` / `X-Hub-Signature-256` / `TikTok-Signature`), tách theo `<type>:<external_id>` → `tenant_channel_webhook_route` → `channel_webhook_event` idempotent → queue `channel-hooks`; luôn 200 nhanh (Zalo ≤ 2 giây). `POST /hooks/channels/facebook/data-deletion` (Meta data deletion callback — TIP-048e).
+- `POST /hooks/marketplace/:connector` (D63, TIP-049): webhook sàn mức App (Shopee trả 2xx **body rỗng**; TikTok Shop 200). Kiểm chữ ký bằng khoá app (Shopee HMAC(partner_key, url|body); TikTok Shop HMAC(app_secret, app_key + body)) → `shop_id` → `tenant_shop_route` → `integration_event` idempotent → queue `integrations`.
 - `GET /hooks/oauth/:provider/callback` (D62, TIP-048): callback OAuth chung (kênh, ZCC, sàn) — kiểm state ký + nonce một lần → `oauth.complete` → redirect về trang web công khai `/oauth/return?oauth=<pending>` (relay kết quả về cửa sổ gốc qua `BroadcastChannel`); lỗi → `?oauth_error=<code>`; thiếu cấu hình App → 503 `oauth_not_configured`.
 - `POST /hooks/livekit` · `POST /hooks/zalo-zcc/:appId` (D61): kiểm chữ ký (LiveKit JWT webhook / Zalo OA secret) → `call_webhook_receipt` idempotent theo `event_id` → action nội bộ `call.*` nguồn system qua system adapter (DC-904); trả 200 nhanh.
 
@@ -1441,6 +1446,8 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 | Voice AI (D61) | `VoiceAiEnginePort`: mặc định tự dựng PhoWhisper (STT) + VieNeu-TTS (TTS) chạy local (DC-907, DV-902); OpenAI Realtime / Gemini Live tuỳ chọn; test dùng `mock` | DC-907 (Q-905 chốt) |
 | Zalo OA (D62) | OAuth v4 + OpenAPI v3 (`message/cs`, upload, user detail) + webhook ký `X-ZEvent-Signature`; **một App Zalo** chung với ZCC (`ZALO_APP_ID` / `ZALO_APP_SECRET` — DC-909) | Q-909 |
 | Meta — Facebook Page / Messenger, Instagram (D62) | Graph API (`fetch`, `META_GRAPH_VERSION`), Facebook Login for Business, Webhooks `messages` / `feed` / `comments` / `live_comments`, data deletion callback | Q-908 (App Review + Business Verification) |
+| Shopee Open Platform v2 (D63) | Connector `shopee` port `order_sync`: auth_partner (access 4 giờ, refresh 30 ngày dùng một lần — TokenVault), ký HMAC-SHA256, `get_order_list` / `get_order_detail` / `get_tracking_number` / `get_item_list` / `get_model_list`, push 3 / 4 / 12 | Q-914 |
+| TikTok Shop Partner API VN (D63) | Connector `tiktok_shop` port `order_sync`: auth_code → token 7 ngày, ký HMAC bọc app_secret + `shop_cipher`, order / package / product search, webhook topic 1 / 4 / deauth | Q-915 |
 | TikTok Business (D62) | Business Messaging API (Beta) + Accounts API (bình luận) + webhook `TikTok-Signature` | Q-910 |
 | Excel import/export | `exceljs` | |
 | Parse tài liệu RAG | `pdf-parse`, `mammoth` (docx), `exceljs`/csv, fetch URL + readability | |
@@ -1482,7 +1489,7 @@ settings/rag_data (D29)   KnowledgePage (theo prototype) → FolderTree · NavTa
 | K7 | Nhiều DB trên một cluster (mỗi DB rỗng ~8 MB, catalog + autovacuum tăng theo số DB) | Theo dõi số DB và tổng kích thước; khi > ~500 DB hoặc đĩa > 70% thì thêm cluster mới và đặt workspace mới lên đó qua `db_host`. Workspace gói Miễn phí không hoạt động 90 ngày được tự lưu trữ (dump + drop, khôi phục khi đăng nhập — §2.0 bước 5, D23) |
 | K6 | Single VPS là điểm lỗi duy nhất | Backup offsite + restore thử hằng tuần; runbook dựng lại VPS < 1 giờ bằng `infra/scripts`; khi doanh thu cho phép thì thêm replica PG ở VPS thứ 2 |
 | K8 | **LibreOffice DOCX → PDF** lệch bố cục / font so với Word; tốn CPU | Spike đầu TIP chứng từ với 5 mẫu DOCX thật (bảng, header/footer, font tiếng Việt); cài font (Plus Jakarta Sans, Times New Roman, Arial, DejaVu) trên VPS; giới hạn 2 tiến trình + timeout 60s; lệch thì trả thêm DOCX đã điền và khuyến nghị mẫu rich |
-| K9 | API sàn TMĐT (Shopee Open Platform, TikTok Shop Partner, Lazada Open Platform) cần **đăng ký app đối tác / duyệt**, webhook cần domain HTTPS | Adapter thật để P2 nên không chặn phát hành; Chủ nhà nộp đăng ký sớm; khung + `mock` có từ P0 |
+| K9 | API sàn TMĐT (Shopee Open Platform, TikTok Shop Partner, Lazada Open Platform) cần **đăng ký app đối tác / duyệt**, webhook cần domain HTTPS | Shopee + TikTok Shop vào bản phát hành (D63): Chủ nhà nộp ngay (Q-914, Q-915); code + test bằng server giả; Lazada vẫn P2 |
 | K10 | AI nhận diện biến DOCX sai, AI soạn sai số liệu | Bắt buộc người xác nhận field map; số liệu luôn từ bản ghi; eval `doc-draft` |
 | K11 | Scope `own` + join `contact_collaborator` làm chậm list lớn | Index §2.2 authz; `EXPLAIN` trong TIP; p95 > 300ms thì denormalize `contact.visible_user_ids uuid[]` + GIN |
 | K12 | pgvector HNSW kèm filter (`kb_scope`, visibility) giảm recall | Dùng `hnsw.iterative_scan` (pgvector ≥ 0.8); kho nhỏ thì quét chính xác; eval `rag` |
@@ -1628,6 +1635,7 @@ Mọi REQ P0 / P1 của `01-REQUIREMENTS-MATRIX.md` có chỗ thiết kế dư�
 | B06 | §6 email |
 | B07 | §4.4 channels · §7.2 settings/channels |
 | B09, B10, B11 | §2.2 `channel_account` · §3.4 channels · §4.4 channels · §6 · §7.2 settings/channels |
+| F07c (D63) | §2.2 `tenant_shop_route` · `integration_connection.external_account_id` · `order.external_shop_key` · §4.7 `/hooks/marketplace/:connector` · §8 Shopee / TikTok Shop · §10 K9 |
 | B08, B12–B17 (D62) | §2.2 `tenant_channel_webhook_route` · `oauth_grant` · `channel_webhook_event` · `social.prisma` · §3.4 oauth / comment / live · §4.7 `/hooks/channels/:type` · `/hooks/oauth/:provider/callback` · §6 kênh webhook · §8 · §10 K13 |
 | C01–C04, C08 | §2.2 inbox · §3.4 inbox · §7.2 inbox |
 | C05 | §7.2 Composer · §5.3 copilot |

@@ -1,6 +1,8 @@
 # TIP-003b — Durable event transport and per-entity dispatch protocol
 
 ## HEADER
+- **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`; integrate 003b before051b.
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `apps/worker/src/event-protocol.manifest.ts`, `packages/core/src/sales/orders/services/order-sync.ts`, `packages/shared/src/events.ts`, `packages/shared/src/events/protocol/aggregate.ts`, `packages/shared/test/event-protocol.test.ts`; integrate 003b before049.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/worker/src/roles/jobs.module.ts`, `packages/core/src/kernel/index.ts`, `packages/shared/src/events.ts`, `packages/shared/src/events/protocol/aggregate.ts`, `packages/shared/test/event-protocol.test.ts`; integrate 003b before048.
 - **Parallel-safe with TIP-048b (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`; integrate 003b before048b.
 - **Parallel-safe with TIP-048f (coverage-closure manifest):** sequential, shares `packages/core/src/inbox/services/pipeline.ts`; integrate 003b before048f.

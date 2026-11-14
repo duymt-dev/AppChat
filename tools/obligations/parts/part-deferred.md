@@ -73,7 +73,7 @@
 | DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | ĐẠT | Đã làm ở TIP-030b F3 — xem COM-9-17 / ACT-contract.create_appendix |
 | DEF-030-2 | AI soạn nháp hợp đồng `contract.draft_from_content` | reports/TIP-030-completion.md:3 | 030b | ĐẠT | Đã làm ở TIP-030b F2 — xem ACT-contract.draft_from_content |
 | DEF-030-3 | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | reports/TIP-030-completion.md:25 | 003e | CHƯA | Chỉ migration 20261101600000_030_contracts có trigger; TIP-003e nhận (2026-11-02) |
-| DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | — | NGOÀI | REQ-F07b adapter P2 |
+| DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | 049b, 049c | CHƯA | Shopee + TikTok Shop vào phạm vi D63 (TIP-049b / 049c); Sapo / Lazada / KiotViet… vẫn NGOÀI (REQ-F07b-4) |
 | DEF-031-2 | `order.cancelled` (`refund_requested`) sinh yêu cầu hoàn tiền | reports/TIP-031-completion.md:27 | 032 | ĐẠT | sales/payments/services/refunds.ts:3; test payments.test.ts:268-270 |
 | DEF-031-3 | `order.completed` ghi sổ điểm + đảo khi hoàn tác | reports/TIP-031-completion.md:33 | 036 | ĐẠT | order-flow.handlers.ts completeOrder earnSnapshot + undo reverseCompletion; test loyalty-events.test.ts |
 | DEF-031-4 | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | reports/TIP-031-completion.md:26; TIP-024:27 | 035c | CHƯA | tools/scripts/fixtures/gen-assistant.py:137 vẫn `conversation.close`; TIP-035c nhận (2026-11-02) |
@@ -101,19 +101,30 @@
 | DV-901 | Duyệt thư viện / phần mềm ngoài stack cho Gọi điện: livekit-server-sdk, @livekit/rtc-node, livekit-client, livekit-server / livekit-sip, Kamailio + rtpengine | DEVIATIONS.md:129 | 047, 047c, 047d | CHƯA | DV-901 duyệt (D61); thi công ở TIP-047 / 047c / 047d |
 | DV-902 | Duyệt runtime Voice AI tự dựng: sherpa-onnx-node, whisper.cpp (tuỳ chọn), dịch vụ Python `vieneu`; model PhoWhisper / VieNeu-TTS / Piper ghim sha256 | DEVIATIONS.md:130 | 047, 047c | CHƯA | DV-902 duyệt (DC-907); thi công ở TIP-047 |
 | PD-902 | Lệch prototype Gọi điện: dữ liệu thật, bỏ nút demo, codec thật, thiết bị khác Web phone Sắp có, màn không vẽ theo SRS | docs/06-prototype/DEVIATIONS.md:48 | 047d | CHƯA | TIP-047d (duyệt / từ chối lúc verify) |
-| Q-907 | Hạn mức kênh của gói cho kênh mới | QUESTIONS.md:84 | 048b | CHƯA | Tạm theo đề xuất: mỗi tài khoản = 1 kênh; Chủ nhà chốt (luật gói) |
+| Q-907 | Hạn mức kênh của gói cho kênh mới | QUESTIONS.md:84 | 048b | CHƯA | Chốt DC-923 (c): mỗi tài khoản = 1 kênh — TIP-048b §6.4 |
 | Q-908 | Meta Business Verification + App Review + domain HTTPS | QUESTIONS.md:85 | 048e | CHỜ-TK | Chủ nhà nộp; test bằng transport giả |
 | Q-909 | App Zalo quyền OA API + OA thử gói Tăng trưởng; gói OA khách tự mua | QUESTIONS.md:86 | 048d | CHỜ-TK | Dùng chung App ZCC (DC-909); test bằng transport giả |
 | Q-910 | TikTok Business Messaging API + Accounts API form | QUESTIONS.md:87 | 048h | CHỜ-TK | Chủ nhà nộp; test bằng transport giả |
 | Q-911 | Hành vi gửi ra mới: nhắn riêng / trả lời công khai / HUMAN_AGENT / live | QUESTIONS.md:88 | 048f, 048g, 048h | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): agent là nhân viên, trả lời / nhắn riêng / tạo đơn thẳng — thi công ở 048f §6, 048g §5, 048h §5 |
 | Q-912 | Quyền cho bình luận / livestream | QUESTIONS.md:89 | 048f, 048g | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): không thêm permission, không luật quyền riêng cho agent (Tools ở Builder, D51) |
 | Q-918 | Luật cũ "AI chỉ gợi ý" (COMMERCE §5 giai đoạn cơ hội, đề xuất sau cuộc gọi, D61 #8) có theo Q-911 không | QUESTIONS.md:91 | 026c, 047c | CHƯA | Chủ nhà chốt "đổi luôn" → DC-922; thi công ở 026c / 047c / 047d |
-| Q-919 | Áp DC-921 / 922 cho action cũ đang `agentGrantable: false` (143 write + 12 send) | QUESTIONS.md:92 | — | NGOÀI | Mở — chờ Chủ nhà (Q-919); chưa thuộc TIP nào, đổi thì mở TIP rà action sau 046 |
-| Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | CHƯA | Tạm theo đề xuất: Memurai riêng; ALTER ROLE chỉ khi Chủ nhà `--apply` |
+| Q-919 | Áp DC-921 / 922 cho action cũ đang `agentGrantable: false` (143 write + 12 send) | QUESTIONS.md:92 | 050 | CHƯA | Chốt DC-923 (f): TIP-050 |
+| Q-054 | TOTP bắt buộc cho admin nền tảng | QUESTIONS.md:67 | 045 | CHƯA | Chốt DC-923 (e) — TIP-045 §3.7 |
+| Q-049 | Trợ lý / agent đọc lời mời bạn bè Zalo | QUESTIONS.md:62 | — | NGOÀI | Chốt DC-923 (b): không làm — bạn bè Zalo thủ công |
+| Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | CHƯA | Chốt DC-923 (d): role limit chỉ in lệnh — TIP-035d §4.2 |
 | PD-903 | Danh sách kênh theo registry + Sắp có cho WA / Telegram / LINE / Viber / WeChat | docs/06-prototype/DEVIATIONS.md:49 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
 | PD-904 | Hộp thư bình luận (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:50 | 048f | CHƯA | TIP-048f (duyệt / từ chối lúc verify) |
 | PD-905 | Livestream (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:51 | 048g | CHƯA | TIP-048g (duyệt / từ chối lúc verify) |
 | PD-906 | Khối Đồng bộ theo năng lực, hạn uỷ quyền thật | docs/06-prototype/DEVIATIONS.md:52 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
+| Q-914 | Shopee Open Platform ISV + shop thật | QUESTIONS.md:91 | 049b | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
+| Q-915 | TikTok Shop Partner Center ISV + shop thật | QUESTIONS.md:92 | 049c | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
+| Q-916 | Tồn biến thể không trừ — sửa đúng COMMERCE Q8 | QUESTIONS.md:93 | 049 | CHƯA | Tạm theo đề xuất: sửa ở TIP-049 |
+| Q-917 | Quyền `order.sync_now`: đổi `integrations.manage` → `order.manage`? (luật quyền — Chủ nhà) | QUESTIONS.md:94 | 049, 049d | CHƯA | Chốt DC-923 (a): `order.manage` — TIP-049 §5, 049d §4 |
+| PD-907 | Nền tảng kết nối: thẻ Shopee / TikTok Shop OAuth + chọn shop | docs/06-prototype/DEVIATIONS.md:53 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
+| PD-908 | Đơn / Sản phẩm sàn: badge, mã ngoài, trạng thái, vận đơn chỉ đọc, Ghép SKU, Kênh bán | docs/06-prototype/DEVIATIONS.md:54 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
+| PD-909 | Sơ đồ tổ chức + Phòng ban theo prototype, bỏ cấp Tập đoàn, agent là thành viên | docs/06-prototype/DEVIATIONS.md:55 | 051 | CHƯA | TIP-051 §6 |
+| PD-910 | Cột + lọc "Loại" màn Khách hàng, form, Hồ sơ 360° | docs/06-prototype/DEVIATIONS.md:56 | 051c | CHƯA | TIP-051c §4 |
+| PD-911 | Thành viên: dòng AI Agent, lọc Người / AI Agent, chân hai hạn mức | docs/06-prototype/DEVIATIONS.md:57 | 051d | CHƯA | TIP-051d §4 |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |
 | Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | 035c | CHƯA | Không có commit fix flaky trong git log; TIP-035c nhận (2026-11-02) |

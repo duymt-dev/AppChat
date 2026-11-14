@@ -1,6 +1,11 @@
 # TIP-013b — Cài đặt thật: chuyển / mua workspace, logo, lọc + xuất thành viên, mời bằng SĐT, số đếm nav, tài khoản nhận tiền, liên kết hướng dẫn
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/api/src/http/identity/settings.controller.ts`, `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/api.ts`, `apps/web/src/features/settings/components/MemberModal.tsx`, `apps/web/src/features/settings/components/MembersSection.tsx`, `packages/actions/src/settings.ts`, `packages/core/src/identity/actions/member-invite.handler.ts`, `packages/db/prisma/platform/identity.prisma`, `tools/parity/parity.manifest.ts`; integrate 013b before051d.
+- **Parallel-safe with TIP-051 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/registry.ts`, `tools/parity/parity.manifest.ts`; integrate 013b before051.
+- **Parallel-safe with TIP-051b (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/shared/api/mock/domains/settings-apps.ts`; integrate 013b before051b.
+- **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 013b before051c.
+- **Parallel-safe with TIP-049d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/shared/api/mock/domains/settings-apps.ts`, `tools/parity/parity.manifest.ts`; integrate 013b before049d.
 - **Parallel-safe with TIP-048c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `apps/web/src/features/settings/api.ts`, `apps/web/src/shared/api/mock/domains/settings-apps.ts`, `tools/parity/parity.manifest.ts`; integrate 013b before048c.
 - **Parallel-safe with TIP-048d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 013b before048d.
 - **Parallel-safe with TIP-048e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`; integrate 013b before048e.

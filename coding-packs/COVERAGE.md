@@ -13,13 +13,13 @@
 | Phần | ĐẠT | MỘT PHẦN | GIẢ | CHỜ-TK | CHƯA | NGOÀI | QUY-TẮC | Lỗ hổng |
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 163 | 6 | 0 | 13 | 12 | 2 | 0 | 0 |
-| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 7 | 0 | 2 | 23 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 167 | 9 | 0 | 9 | 60 | 11 | 21 | 0 |
-| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 415 | 32 | 0 | 5 | 57 | 3 | 0 | 0 |
-| E. standards/* | 234 | 28 | 0 | 6 | 23 | 1 | 43 | 0 |
+| B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 135 | 7 | 0 | 2 | 25 | 10 | 5 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 167 | 9 | 0 | 9 | 78 | 13 | 21 | 0 |
+| D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 415 | 32 | 0 | 6 | 58 | 2 | 0 | 0 |
+| E. standards/* | 234 | 28 | 0 | 6 | 24 | 1 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 72 | 1 | 13 | 0 | 29 | 6 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 83 | 5 | 0 | 20 | 35 | 3 | 0 | 0 |
-| **Tổng** | **1269** | **88** | **13** | **55** | **239** | **36** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 83 | 5 | 0 | 22 | 45 | 2 | 0 | 0 |
+| **Tổng** | **1269** | **88** | **13** | **58** | **271** | **36** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -298,7 +298,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-F07b-1 | Khung `OrderSyncProvider` + mock, ánh xạ trạng thái sàn về 2 trục, nhập một lần, khách theo buyer id | 01-REQUIREMENTS-MATRIX.md:132 | 031 | ĐẠT | packages/integrations/src/ports/order-sync.ts:43; packages/core/src/sales/orders/services/order-import.ts:93; test packages/integrations/test/order-sync.test.ts, orders.test.ts "sync_now", "webhook" |
 | REQ-F07b-2 | Đơn sàn khoá dòng / giá, thanh toán qua sàn không sinh đề nghị, tích điểm mặc định tắt | 01-REQUIREMENTS-MATRIX.md:132 | 031, 032 | ĐẠT | order-flow.handlers.ts:27 earns(); invoice-write.handlers.ts:55; test orders.test.ts "đơn sàn: sửa dòng / cọc 409 … không tích điểm", payments.test.ts "đơn sàn … không tạo đề nghị" |
 | REQ-F07b-3 | Bên giữ tồn chuẩn chọn theo kết nối (`stock_master` appchat / external) | 01-REQUIREMENTS-MATRIX.md:132 | 031c | CHƯA | chỉ có chú thích order-write.ts:4; manifest mock (packages/integrations/src/connectors/mock/order-sync.ts:16) không có trường stock_master; không đọc ở đâu; TIP-031c nhận (2026-11-02) |
-| REQ-F07b-4 | Adapter thật Sapo / Shopee / TikTok Shop / Lazada / Haravan / KiotViet / WooCommerce | 01-REQUIREMENTS-MATRIX.md:132 | — | NGOÀI | Ma trận ghi "adapter thật: P2"; 02-TASK-GRAPH.md:181 "adapter thật P2 (ngoài 46 TIP)" |
+| REQ-F07b-4 | Adapter thật Sapo / Lazada / Haravan / KiotViet / WooCommerce (Shopee + TikTok Shop → REQ-F07c, D63) | 01-REQUIREMENTS-MATRIX.md:139 | — | NGOÀI | Ma trận ghi "adapter thật: P2"; Shopee / TikTok Shop vào phạm vi D63 (TIP-049 → 049d) |
+| REQ-F07c | Đồng bộ sàn Shopee + TikTok Shop: OAuth + chọn shop, đơn theo cursor + webhook, vận đơn chỉ đọc, đọc sản phẩm để ghép SKU, khách ổn định, tồn biến thể (D63) | 01-REQUIREMENTS-MATRIX.md:140 | 049, 049b, 049c, 049d | CHƯA | TIP-049 → 049d (sàn thật CHỜ-TK Q-914 / Q-915) |
 | REQ-F08a | Đề nghị thanh toán cọc / đợt / toàn bộ, hạn 7 ngày, phiếu thu PDF, không thay hoá đơn GTGT | 01-REQUIREMENTS-MATRIX.md:133 | 032 | ĐẠT | packages/db/prisma/tenant/sales-payments.prisma:7–9; invoice-write.handlers.ts:44; apps/api/src/http/sales/invoices.controller.ts (receipts pdf); test payments.test.ts "create: TT-… hạn +7 ngày", "record_payment … phiếu thu PT-", documents.test.ts |
 | REQ-F08b | Nhắc công nợ T-1 / T+1 / T+7 mỗi mốc một lần | 01-REQUIREMENTS-MATRIX.md:133 | 032 | ĐẠT | packages/core/src/sales/payments/services/payment-system.ts:41 remindDue; test payments.test.ts "quá hạn → overdue; nhắc T+1 một lần" |
 | REQ-F08c | Xác nhận thu tay + hoàn tiền luôn qua duyệt | 01-REQUIREMENTS-MATRIX.md:133 | 032 | ĐẠT | invoice-pay.handlers.ts:26; refund.handlers.ts:29, :90; test payments.test.ts "record_payment", "yêu cầu theo liệu trình … chờ duyệt" |
@@ -391,7 +392,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | REQ-M03a | Trang Nền tảng kết nối: registry + port theo năng lực, thẻ "Sắp có" + "Đăng ký quan tâm", kết nối / ngắt, bí mật mã hoá | 01-REQUIREMENTS-MATRIX.md:201 | 012 | ĐẠT | packages/integrations/src/registry.ts, coming-soon.ts; packages/core/src/integrations/actions/*; test integrations.test.ts AC1–AC10, packages/integrations/test/registry.test.ts, apps/web/e2e/http/integrations.spec.ts |
 | REQ-M03b | Connector phát hành chạy thật: SePay, Casso (đối soát), SMTP, storage | 01-REQUIREMENTS-MATRIX.md:201 | 012d | MỘT PHẦN | SMTP thật (packages/integrations/src/connectors/smtp/mail.ts, test smtp.test.ts); storage LocalStorage (DV-003); SePay / Casso của DN là mock (registry.ts:16–17 — xem REQ-F08f); TIP-012d nhận (2026-11-02) |
 | REQ-M03c | Adapter thật hoá đơn điện tử / ký số CA / kế toán / TMĐT / Google Sheets / webhook HMAC / API key | 01-REQUIREMENTS-MATRIX.md:202 | — | NGOÀI | REQ-M03b Priority P2 |
-| REQ-M04 | Phòng ban, sơ đồ tổ chức, KPI, phân ca | 01-REQUIREMENTS-MATRIX.md:203 | — | NGOÀI | Ma trận Priority P3 |
+| REQ-M04 | KPI, phân ca (Phòng ban + sơ đồ tổ chức tách REQ-M04b — D64) | 01-REQUIREMENTS-MATRIX.md:213 | — | NGOÀI | Ma trận Priority P3 |
+| REQ-M04b | Tổ chức nhiều phòng ban: cây đơn vị + agent thành viên + scope Phòng ban + kênh theo phòng ban + vai trò mẫu + loại liên hệ (D64) | 01-REQUIREMENTS-MATRIX.md:214 | 051, 051b, 051c, 051d | CHƯA | TIP-051 (cây, scope, UI) · 051b (kênh, vai trò mẫu) · 051c (loại liên hệ) · 051d (agent là thành viên) |
 | REQ-M05 | Cài đặt → Hồ sơ 360°: danh sách mẫu, gán vai trò, sửa / nhân bản / xoá, tạo mẫu, "Xem như vai trò" | 01-REQUIREMENTS-MATRIX.md:204 | 015, 026 | ĐẠT | apps/web/src/features/settings/components/Profile360Section.tsx:102; profile-layout.handlers.ts; test crm-settings.test.ts AC9b, apps/web/e2e/http/customers.spec.ts "→ bố cục Hồ sơ 360°" |
 | REQ-N01a | Không Docker; monorepo pnpm Next.js + NestJS api / worker; PG16 + Redis native | 01-REQUIREMENTS-MATRIX.md:209 | 001 | QUY-TẮC | Không có Dockerfile trong repo (`find . -name 'Dockerfile*'` rỗng); apps/{api,worker,web}; kiểm `pnpm depcheck` + ci.yml |
 | REQ-N01b | Chạy production bằng PM2 / systemd | 01-REQUIREMENTS-MATRIX.md:209 | 045 | CHƯA | thư mục `infra/` chưa tồn tại |
@@ -483,7 +485,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-4b-5 | Mỗi kết nối chọn bên giữ tồn chuẩn (`appchat` / `external`) | plans/COMMERCE-DECISIONS.md:109 | 031c | MỘT PHẦN | Đơn sàn vẫn ghi sổ kho (order-import.ts:53); không có cấu hình `stock_master` (chỉ comment order-write.ts:4); đẩy tồn lên sàn P2; TIP-031c nhận (2026-11-02) |
 | COM-4b-6 | Khớp khách sàn theo `contact_identity(marketplace, buyer_id)` | plans/COMMERCE-DECISIONS.md:110 | 031 | ĐẠT | order-import.ts:93 · test orders.test.ts "khách theo buyer" |
 | COM-4b-7 | Đơn sàn mặc định không tích điểm, bật được trong cấu hình | plans/COMMERCE-DECISIONS.md:111 | 031 | ĐẠT | order-flow.handlers.ts:28-32 (`loyalty_enabled`) · test orders.test.ts "hoàn tất không tích điểm" (bật ở cấu hình loyalty: 036) |
-| COM-4b-8 | Khung port + mock + thẻ "Sắp có" P0; adapter thật sàn / POS P2 | plans/COMMERCE-DECISIONS.md:112 | 031 | ĐẠT | packages/integrations/src/registry.ts:19; coming-soon.ts:8-9 · test order-sync.test.ts "registry"; adapter thật: NGOÀI P2 |
+| COM-4b-8 | Khung port + mock + thẻ "Sắp có" P0; adapter thật sàn / POS P2 (Shopee + TikTok Shop vào phạm vi D63 — COM-4b-9) | plans/COMMERCE-DECISIONS.md:112 | 031 | ĐẠT | packages/integrations/src/registry.ts:19; coming-soon.ts:8-9 · test order-sync.test.ts "registry"; adapter thật: NGOÀI P2 |
+| COM-4b-9 | Adapter thật Shopee + TikTok Shop vào bản phát hành, luật §4b giữ nguyên (D63) | plans/COMMERCE-DECISIONS.md:113 | 049, 049b, 049c | CHƯA | TIP-049 → 049c |
 | COM-5-1 | Tên "Đề nghị thanh toán", mã `TT-000123` | plans/COMMERCE-DECISIONS.md:116 | 032 | ĐẠT | packages/shared/src/codes.ts:8 · test payments.test.ts "TT-001001" |
 | COM-5-2 | PDF ĐNTT / phiếu thu ghi "không thay thế hoá đơn GTGT" (không xoá được) | plans/COMMERCE-DECISIONS.md:117,239 | 028, 032 | ĐẠT | sales/payments/services/invoice-doc.ts:1-3 (renderRich tự chèn) · test documents.test.ts "đề nghị thanh toán / phiếu thu có dòng không thay thế HĐ GTGT" |
 | COM-5-3 | Hoá đơn điện tử thật qua `EInvoiceProvider` | plans/COMMERCE-DECISIONS.md:118 | — | NGOÀI | P2 (Q2); thẻ "Sắp có" packages/integrations/src/coming-soon.ts:14-17 |
@@ -703,8 +706,22 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D62-comments | Bình luận bài đăng vào Hộp thư, agent trả lời như nhân viên (D62 #3, DC-921) | 01-REQUIREMENTS-MATRIX.md:336 | 048f | CHƯA | TIP-048f |
 | D62-live | Livestream FB + IG; live TikTok / Shopee Sắp có (D62 #4) | 01-REQUIREMENTS-MATRIX.md:336 | 048g | CHƯA | TIP-048g |
 | D62-soon | Kênh còn lại "Sắp có" theo registry (D62 #1) | 01-REQUIREMENTS-MATRIX.md:336 | 048c | CHƯA | TIP-048c (PD-903) |
-| D62-quota | Hạn mức kênh của gói cho kênh mới (D62 #6 — Q-907 mở, tạm theo đề xuất) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b §chọn tài khoản (`QuotaService.assert('channels')`) |
+| D62-quota | Hạn mức kênh của gói cho kênh mới (D62 #6 — Q-907 chốt, DC-923) | 01-REQUIREMENTS-MATRIX.md:336 | 048b | CHƯA | TIP-048b §chọn tài khoản (`QuotaService.assert('channels')`) |
 | D62-order | Thứ tự: 035d sớm nhất (ngay sau TIP chờ đang mở PR — 016b / 034d lúc viết); 048 sau 047b trước 047c / 047d; 048b → 048h trước 044 / 045 / 046 (D62 #8) | 01-REQUIREMENTS-MATRIX.md:336 | 035d, 048 | QUY-TẮC | `python -X utf8 tools/obligations/order.py` + `manifests.py --order` |
+| D63-foundation | Nền sàn: OAuth + nhiều shop + webhook mức App + pull cursor + 5 lỗi đồng bộ (D63 #2, #4) | 01-REQUIREMENTS-MATRIX.md:338 | 049 | CHƯA | TIP-049 |
+| D63-shopee | Connector Shopee (D63 #1) | 01-REQUIREMENTS-MATRIX.md:338 | 049b | CHƯA | TIP-049b |
+| D63-tiktok-shop | Connector TikTok Shop (D63 #1) | 01-REQUIREMENTS-MATRIX.md:338 | 049c | CHƯA | TIP-049c |
+| D63-ui | Giao diện sàn: thẻ + chọn shop, Ghép SKU, đơn / sản phẩm sàn (D63) | 01-REQUIREMENTS-MATRIX.md:338 | 049d | CHƯA | TIP-049d |
+| D63-scope | Không đăng sản phẩm / đẩy tồn / chat người mua / livestream sàn; Lazada & POS vẫn Sắp có (D63 #3, #5) | 01-REQUIREMENTS-MATRIX.md:338 | — | NGOÀI | D63 |
+| D64-org | Cây đơn vị + agent thành viên + scope `dept` + Sơ đồ tổ chức / Phòng ban (D64 #1–#3) | 01-REQUIREMENTS-MATRIX.md:340 | 051 | CHƯA | TIP-051 |
+| D64-channels-roles | Kênh theo phòng ban nhận + vai trò mẫu (D64 #4–#5) | 01-REQUIREMENTS-MATRIX.md:340 | 051b | CHƯA | TIP-051b |
+| D64-relation | Loại liên hệ, chỉ Khách hàng vào phễu / chứng từ (D64 #6) | 01-REQUIREMENTS-MATRIX.md:340 | 051c | CHƯA | TIP-051c |
+| D64-members | AI agent là một dòng thành viên, có phòng ban; ghế người dùng / AI Agent tách như gói (D64 #9) | 01-REQUIREMENTS-MATRIX.md:340 | 051d | CHƯA | TIP-051d |
+| D64-scope | Không làm chấm công / lương / nghỉ phép / hồ sơ nhân sự / phễu tuyển dụng / KPI / phân ca (D64 #7) | 01-REQUIREMENTS-MATRIX.md:340 | — | NGOÀI | D64 #7; KPI / phân ca giữ REQ-M04 P3 |
+| DC-917 | Nền đồng bộ sàn: OAuth connector, shop route, pull cursor, sửa 5 lỗi | DECISIONS.md:498 | 049 | CHƯA | TIP-049 |
+| DC-918 | Connector Shopee | DECISIONS.md:499 | 049b | CHƯA | TIP-049b |
+| DC-919 | Connector TikTok Shop | DECISIONS.md:500 | 049c | CHƯA | TIP-049c |
+| DC-920 | Giao diện sàn | DECISIONS.md:501 | 049d | CHƯA | TIP-049d |
 | DC-908 | Cô lập 3 worktree: env theo bảng, Memurai riêng, slot Postgres, cổng theo env | DECISIONS.md:489 | 035d | CHƯA | TIP-035d |
 | DC-909 | Kho token OAuth chung + một App Zalo cho OA + ZCC; sửa 047 / 047b / 047c / 047d | DECISIONS.md:490 | 048 | CHƯA | TIP-048 |
 | DC-910 | Nền kênh webhook: route mức App, biên nhận, chọn tài khoản, cửa sổ gửi, registry | DECISIONS.md:491 | 048b | CHƯA | TIP-048b |
@@ -716,6 +733,11 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-916 | TikTok Business Messaging + bình luận video, 48 giờ / 10 + 3 tin | DECISIONS.md:497 | 048h | CHƯA | TIP-048h |
 | DC-921 | AI agent là nhân viên trên kênh D62: không trần gợi ý / luật riêng; `comment.*` (trừ delete) + `live.flag_update` cấp được cho agent; giữ luật chung §3.3 / D06 + luật nền tảng | DECISIONS.md:498 | 048f, 048g, 048h | CHƯA | TIP-048f §3 / §6 · 048g §5–6 · 048h §5 |
 | DC-922 | Agent là nhân viên áp cho cơ hội (bỏ ép Lead mới, set_stage / mark_lost / reopen / set_owner cấp được) + gọi điện (agent tự áp đề xuất, ZCC consent cấp được) | DECISIONS.md:499 | 026c, 047c, 047d | CHƯA | TIP-026c §2 / §4 · 047c §4 / §8 · 047d |
+| DC-923 | Chốt Q-917 / 049 / 907 / 913 / 054 / 919 theo đề xuất | DECISIONS.md:500 | 035d, 045, 048b, 049, 049d, 050 | CHƯA | TIP-049 §5 · 048b §6.4 · 035d §4.2 · 045 §3.7 · 050 |
+| DC-924 | Cây đơn vị trên bảng `team`, `team_agent`, scope `dept`, `org_unit.*` | DECISIONS.md:505 | 051 | CHƯA | TIP-051 §1–§4 |
+| DC-925 | `channel_account.settings.unit_id`, chia trong phòng, agent vào phòng, vai trò mẫu | DECISIONS.md:506 | 051b | CHƯA | TIP-051b §1–§4 |
+| DC-926 | `contact.relation`, chỉ Khách hàng vào phễu / chứng từ (422 `contact_not_customer`) | DECISIONS.md:507 | 051c | CHƯA | TIP-051c §1–§3 |
+| DC-927 | Agent tính là thành viên (dòng Thành viên, phòng ban, đơn vị bản ghi agent tạo; không chiếm ghế người dùng) | DECISIONS.md:508 | 051, 051d | CHƯA | TIP-051d §1–§6 |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1103,6 +1125,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-4.7-b | POST /hooks/integrations/:connector/:connectionId | plans/BLUEPRINT.md:1018 | 012 | ĐẠT | integrations/hooks.controller.ts; test integrations.test.ts, orders.test.ts |
 | BP-4.7-c | POST /hooks/tenant-payments/:provider/:feedId | plans/BLUEPRINT.md:1019 | 032 | CHỜ-TK | sales/tenant-payments-hook.controller.ts; test payments.test.ts — Q-004 |
 | BP-4.7-calls | POST /hooks/livekit · POST /hooks/zalo-zcc/:appId (chữ ký, biên nhận idempotent, action nội bộ) | plans/BLUEPRINT.md:1082 | 047c | CHƯA | TIP-047c §3 (ZCC thật CHỜ-TK Q-902) |
+| BP-4.7-marketplace | POST /hooks/marketplace/:connector mức App: chữ ký khoá app, shop route, integration_event, Shopee body rỗng (D63) | plans/BLUEPRINT.md:1093 | 049 | CHƯA | TIP-049 |
 | BP-4.7-oauth | GET /hooks/oauth/:provider/callback: state ký + nonce một lần → oauth.complete → về app (D62) | plans/BLUEPRINT.md:1091 | 048 | CHƯA | TIP-048 |
 | BP-4.7-channels | GET / POST /hooks/channels/:type mức App: chữ ký, tách theo route, biên nhận idempotent, 200 nhanh; data deletion Meta (D62) | plans/BLUEPRINT.md:1090 | 048b, 048e | CHƯA | TIP-048b · 048e (data deletion) |
 | BP-2.2-oauth-grant | Bảng `oauth_grant` + TokenVault làm mới có khoá (D62) | plans/BLUEPRINT.md:320 | 048 | CHƯA | TIP-048 |
@@ -1172,7 +1195,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | BP-10-K6 | Single VPS: backup offsite + restore thử, runbook dựng lại < 1 giờ | plans/BLUEPRINT.md:1365 | 045 | CHƯA | 045 BP-11-a-4/5 (checkpoint offsite, drill RPO/RTO) |
 | BP-10-K7 | Theo dõi số DB / kích thước; > 500 DB hoặc đĩa > 70% thêm cluster | plans/BLUEPRINT.md:1364 | 045 | CHƯA | 045 cảnh báo tenant DB + routing nhiều cluster (packages/db/src/routing/reconciler.ts theo manifest 045) |
 | BP-10-K8 | LibreOffice DOCX→PDF lệch bố cục/font: spike 5 mẫu, cài font | plans/BLUEPRINT.md:1366 | 028, 045 | MỘT PHẦN | Spike DV-007/008/009 (TIP-028); cài font production → 045 provision |
-| BP-10-K9 | API sàn TMĐT cần đăng ký app đối tác; adapter thật P2 | plans/BLUEPRINT.md:1367 | 031 | NGOÀI | REQ-F07b adapter sàn P2; OQ-10 Chủ nhà đăng ký |
+| BP-10-K9 | API sàn TMĐT cần đăng ký app đối tác; Shopee + TikTok Shop vào phạm vi (D63) | plans/BLUEPRINT.md:1472 | 049b, 049c | CHỜ-TK | Q-914 · Q-915; Lazada vẫn P2 |
 | BP-10-K13 | Kênh webhook cần App duyệt (Meta / Zalo / TikTok) + domain HTTPS — nộp sớm, test bằng transport giả (D62) | plans/BLUEPRINT.md:1461 | 048d, 048e, 048h | CHỜ-TK | Q-908 · Q-909 · Q-910 |
 | BP-10-K10 | AI nhận diện biến DOCX / soạn số liệu: người xác nhận field map, số liệu từ bản ghi, eval doc-draft | plans/BLUEPRINT.md:1368 | 028, 030b, 044 | MỘT PHẦN | Xác nhận field map có (DocxWizard); eval `doc-draft` → 044 |
 | BP-10-K11 | Scope own + collaborator làm chậm list lớn: EXPLAIN, denormalize khi p95 > 300ms | plans/BLUEPRINT.md:1369 | 042c, 046 | MỘT PHẦN | 042c scope SQL + EXPLAIN; đo p95 1M dòng → 046 |
@@ -1419,6 +1442,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-concurrency-2 | Chuyển trạng thái compare-and-set, 0 dòng → INVALID_TRANSITION | standards/domain/concurrency.md:11 | 003+ | ĐẠT | sales/quotes/services/quote-system.ts:42 `updateMany where status`; test quotes.test.ts, orders.test.ts |
 | STD-domain-concurrency-3 | Tiền/kho/credit/buổi: FOR UPDATE, sổ cái chỉ thêm, unique chống trừ đôi (điểm tách dòng riêng) | standards/domain/concurrency.md:12 | 009, 027, 032, 033 | ĐẠT | Bằng chứng hiện có: migration027:104 stock_movement unique,032:159,205; catalog.test.ts:142, billing.test.ts:98. Không dùng dòng này khẳng định loyalty đã triển khai. |
 | STD-domain-concurrency-3-loyalty | Điểm loyalty: transaction/khoá/sổ append-only/unique chống cộng-trừ đôi | standards/domain/concurrency.md:12 | 036 | ĐẠT | transaction + khoá đề nghị → đơn → khách → lô (packages/core/src/loyalty/repos/ledger.repo.ts), sổ chỉ thêm + dedupe_key unique (ledger.service.ts); test loyalty-concurrency.test.ts |
+| STD-domain-concurrency-3-variant | Sổ kho chống trừ đôi theo biến thể: unique `stock_movement(ref_type, ref_id, product_id, variant_id)` NULLS NOT DISTINCT; trừ / hoàn `product_variant.stock` (D63 / Q-916) | standards/domain/concurrency.md:15 | 049 | CHƯA | TIP-049 §2.3 / §6 |
 | STD-domain-concurrency-4 | Idempotency theo nguồn: Idempotency-Key / (provider, external_id) / (event_id, consumer) | standards/domain/concurrency.md:16 | 003, 010, 012 | ĐẠT | executor.ts:108; kernel/events/dispatcher.ts:36; sales-orders.prisma:97; test integrations.test.ts:152 |
 | STD-domain-concurrency-5a | Người gửi khi ai_mode=auto → chuyển copilot cùng tx; run kiểm ai_mode trước khi gửi | standards/domain/concurrency.md:21 | 045b | ĐẠT | core/src/inbox/services/human-takeover.ts (auto → copilot + ai_epoch cùng tx với tin người); ai/reply/send-fence.ts; hardening-takeover.test.ts; ai:live hd-takeover |
 | STD-domain-concurrency-5b | Một hội thoại chỉ một run agent `running` (khoá Redis `conv:{id}:run`) | standards/domain/concurrency.md:22 | 045b | ĐẠT | ai/reply/turn-lease.ts lease lượt bền trong DB tenant (ai_turn_fence / owner / until) — một lượt agent / hội thoại, restart / job trùng không tạo run thứ hai; reply-lease.test.ts; hardening-takeover.test.ts |
@@ -1808,7 +1832,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DEF-030-1 | Phụ lục hợp đồng `contract.create_appendix` | reports/TIP-030-completion.md:3,33 | 030b | ĐẠT | Đã làm ở TIP-030b F3 — xem COM-9-17 / ACT-contract.create_appendix |
 | DEF-030-2 | AI soạn nháp hợp đồng `contract.draft_from_content` | reports/TIP-030-completion.md:3 | 030b | ĐẠT | Đã làm ở TIP-030b F2 — xem ACT-contract.draft_from_content |
 | DEF-030-3 | Bảng chỉ thêm khác (stock_movement, order_event, ticket_event…) chặn UPDATE / DELETE bằng trigger | reports/TIP-030-completion.md:25 | 003e | CHƯA | Chỉ migration 20261101600000_030_contracts có trigger; TIP-003e nhận (2026-11-02) |
-| DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | — | NGOÀI | REQ-F07b adapter P2 |
+| DEF-031-1 | Adapter sàn thật (Shopee / TikTok Shop / Sapo…) | reports/TIP-031-completion.md:3 | 049b, 049c | CHƯA | Shopee + TikTok Shop vào phạm vi D63 (TIP-049b / 049c); Sapo / Lazada / KiotViet… vẫn NGOÀI (REQ-F07b-4) |
 | DEF-031-2 | `order.cancelled` (`refund_requested`) sinh yêu cầu hoàn tiền | reports/TIP-031-completion.md:27 | 032 | ĐẠT | sales/payments/services/refunds.ts:3; test payments.test.ts:268-270 |
 | DEF-031-3 | `order.completed` ghi sổ điểm + đảo khi hoàn tác | reports/TIP-031-completion.md:33 | 036 | ĐẠT | order-flow.handlers.ts completeOrder earnSnapshot + undo reverseCompletion; test loyalty-events.test.ts |
 | DEF-031-4 | Đồng bộ generator fixture `gen-inbox.py` / `gen-assistant.py` với fixture đang commit | reports/TIP-031-completion.md:26; TIP-024:27 | 035c | CHƯA | tools/scripts/fixtures/gen-assistant.py:137 vẫn `conversation.close`; TIP-035c nhận (2026-11-02) |
@@ -1836,19 +1860,30 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DV-901 | Duyệt thư viện / phần mềm ngoài stack cho Gọi điện: livekit-server-sdk, @livekit/rtc-node, livekit-client, livekit-server / livekit-sip, Kamailio + rtpengine | DEVIATIONS.md:129 | 047, 047c, 047d | CHƯA | DV-901 duyệt (D61); thi công ở TIP-047 / 047c / 047d |
 | DV-902 | Duyệt runtime Voice AI tự dựng: sherpa-onnx-node, whisper.cpp (tuỳ chọn), dịch vụ Python `vieneu`; model PhoWhisper / VieNeu-TTS / Piper ghim sha256 | DEVIATIONS.md:130 | 047, 047c | CHƯA | DV-902 duyệt (DC-907); thi công ở TIP-047 |
 | PD-902 | Lệch prototype Gọi điện: dữ liệu thật, bỏ nút demo, codec thật, thiết bị khác Web phone Sắp có, màn không vẽ theo SRS | docs/06-prototype/DEVIATIONS.md:48 | 047d | CHƯA | TIP-047d (duyệt / từ chối lúc verify) |
-| Q-907 | Hạn mức kênh của gói cho kênh mới | QUESTIONS.md:84 | 048b | CHƯA | Tạm theo đề xuất: mỗi tài khoản = 1 kênh; Chủ nhà chốt (luật gói) |
+| Q-907 | Hạn mức kênh của gói cho kênh mới | QUESTIONS.md:84 | 048b | CHƯA | Chốt DC-923 (c): mỗi tài khoản = 1 kênh — TIP-048b §6.4 |
 | Q-908 | Meta Business Verification + App Review + domain HTTPS | QUESTIONS.md:85 | 048e | CHỜ-TK | Chủ nhà nộp; test bằng transport giả |
 | Q-909 | App Zalo quyền OA API + OA thử gói Tăng trưởng; gói OA khách tự mua | QUESTIONS.md:86 | 048d | CHỜ-TK | Dùng chung App ZCC (DC-909); test bằng transport giả |
 | Q-910 | TikTok Business Messaging API + Accounts API form | QUESTIONS.md:87 | 048h | CHỜ-TK | Chủ nhà nộp; test bằng transport giả |
 | Q-911 | Hành vi gửi ra mới: nhắn riêng / trả lời công khai / HUMAN_AGENT / live | QUESTIONS.md:88 | 048f, 048g, 048h | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): agent là nhân viên, trả lời / nhắn riêng / tạo đơn thẳng — thi công ở 048f §6, 048g §5, 048h §5 |
 | Q-912 | Quyền cho bình luận / livestream | QUESTIONS.md:89 | 048f, 048g | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): không thêm permission, không luật quyền riêng cho agent (Tools ở Builder, D51) |
 | Q-918 | Luật cũ "AI chỉ gợi ý" (COMMERCE §5 giai đoạn cơ hội, đề xuất sau cuộc gọi, D61 #8) có theo Q-911 không | QUESTIONS.md:91 | 026c, 047c | CHƯA | Chủ nhà chốt "đổi luôn" → DC-922; thi công ở 026c / 047c / 047d |
-| Q-919 | Áp DC-921 / 922 cho action cũ đang `agentGrantable: false` (143 write + 12 send) | QUESTIONS.md:92 | — | NGOÀI | Mở — chờ Chủ nhà (Q-919); chưa thuộc TIP nào, đổi thì mở TIP rà action sau 046 |
-| Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | CHƯA | Tạm theo đề xuất: Memurai riêng; ALTER ROLE chỉ khi Chủ nhà `--apply` |
+| Q-919 | Áp DC-921 / 922 cho action cũ đang `agentGrantable: false` (143 write + 12 send) | QUESTIONS.md:92 | 050 | CHƯA | Chốt DC-923 (f): TIP-050 |
+| Q-054 | TOTP bắt buộc cho admin nền tảng | QUESTIONS.md:67 | 045 | CHƯA | Chốt DC-923 (e) — TIP-045 §3.7 |
+| Q-049 | Trợ lý / agent đọc lời mời bạn bè Zalo | QUESTIONS.md:62 | — | NGOÀI | Chốt DC-923 (b): không làm — bạn bè Zalo thủ công |
+| Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | CHƯA | Chốt DC-923 (d): role limit chỉ in lệnh — TIP-035d §4.2 |
 | PD-903 | Danh sách kênh theo registry + Sắp có cho WA / Telegram / LINE / Viber / WeChat | docs/06-prototype/DEVIATIONS.md:49 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
 | PD-904 | Hộp thư bình luận (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:50 | 048f | CHƯA | TIP-048f (duyệt / từ chối lúc verify) |
 | PD-905 | Livestream (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:51 | 048g | CHƯA | TIP-048g (duyệt / từ chối lúc verify) |
 | PD-906 | Khối Đồng bộ theo năng lực, hạn uỷ quyền thật | docs/06-prototype/DEVIATIONS.md:52 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
+| Q-914 | Shopee Open Platform ISV + shop thật | QUESTIONS.md:91 | 049b | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
+| Q-915 | TikTok Shop Partner Center ISV + shop thật | QUESTIONS.md:92 | 049c | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
+| Q-916 | Tồn biến thể không trừ — sửa đúng COMMERCE Q8 | QUESTIONS.md:93 | 049 | CHƯA | Tạm theo đề xuất: sửa ở TIP-049 |
+| Q-917 | Quyền `order.sync_now`: đổi `integrations.manage` → `order.manage`? (luật quyền — Chủ nhà) | QUESTIONS.md:94 | 049, 049d | CHƯA | Chốt DC-923 (a): `order.manage` — TIP-049 §5, 049d §4 |
+| PD-907 | Nền tảng kết nối: thẻ Shopee / TikTok Shop OAuth + chọn shop | docs/06-prototype/DEVIATIONS.md:53 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
+| PD-908 | Đơn / Sản phẩm sàn: badge, mã ngoài, trạng thái, vận đơn chỉ đọc, Ghép SKU, Kênh bán | docs/06-prototype/DEVIATIONS.md:54 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
+| PD-909 | Sơ đồ tổ chức + Phòng ban theo prototype, bỏ cấp Tập đoàn, agent là thành viên | docs/06-prototype/DEVIATIONS.md:55 | 051 | CHƯA | TIP-051 §6 |
+| PD-910 | Cột + lọc "Loại" màn Khách hàng, form, Hồ sơ 360° | docs/06-prototype/DEVIATIONS.md:56 | 051c | CHƯA | TIP-051c §4 |
+| PD-911 | Thành viên: dòng AI Agent, lọc Người / AI Agent, chân hai hạn mức | docs/06-prototype/DEVIATIONS.md:57 | 051d | CHƯA | TIP-051d §4 |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |
 | Q-009 | Script `pnpm smoke:build` + thêm vào bảng cổng D59 | QUESTIONS.md:17 | 046 | CHƯA | Không có script; TG 046 |
 | Q-010 | Sửa E2E mock chập chờn (`quotes.spec.ts:37`, `settings-ops.spec.ts:44`, `settings.spec.ts:124`) nhánh `fix/e2e-flaky` | QUESTIONS.md:18 | 035c | CHƯA | Không có commit fix flaky trong git log; TIP-035c nhận (2026-11-02) |

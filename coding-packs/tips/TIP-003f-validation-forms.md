@@ -1,6 +1,8 @@
 # TIP-003f — Chuẩn hoá validate dùng chung, zodRule, MoneyInput/PhoneInput, hỏi khi bỏ form đang sửa
 
 ## HEADER
+- **Parallel-safe with TIP-051c (coverage-closure manifest):** sequential, shares `apps/web/src/features/customers/components/ContactFormModal.tsx`; integrate 003f before051c.
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/crm.ts`; integrate 003f before050.
 - **Parallel-safe with TIP-048 (coverage-closure manifest):** sequential, shares `apps/web/messages/en/common.json`, `apps/web/messages/vi/common.json`; integrate 003f before048.
 - **Parallel-safe with TIP-048g (coverage-closure manifest):** sequential, shares `apps/web/src/features/orders/components/OrderFormModal.tsx`; integrate 003f before048g.
 - **Parallel-safe with TIP-047b (coverage-closure manifest):** sequential, shares `packages/actions/src/crm.ts`; integrate 003f before047b.

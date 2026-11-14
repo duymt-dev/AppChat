@@ -26,7 +26,7 @@
    - **Cấm hard-code màu/px trong component.** Giá trị chưa có token thì thêm token.
 6. **Ngoại lệ có chủ đích** chỉ được khi có mã quyết định (D/V/REQ) hoặc `PD` theo §6b. Danh sách hiện hành:
    - **Module ẩn:** Quy trình, Báo cáo (D07, D19). Gọi điện vào phạm vi từ 2026-11-13 (D61, TIP-047d): giữ "Gọi điện" trong `OUT_LABELS` tới commit dựng mục rail, gỡ cùng commit.
-   - **Mục Cài đặt ẩn:** Sơ đồ tổ chức, Phòng ban, KPI, Phân ca, API / Playground / Developer, SMS, ZBS, ~~Tổng đài~~ (vào phạm vi — D61), Cloud, Branding, Affiliate, SSO / Compliance. "Vai trò & phân quyền" chỉ đọc ở P0 (D27).
+   - **Mục Cài đặt ẩn:** ~~Sơ đồ tổ chức, Phòng ban~~ (vào phạm vi — D64, PD-909), KPI, Phân ca, API / Playground / Developer, SMS, ZBS, ~~Tổng đài~~ (vào phạm vi — D61), Cloud, Branding, Affiliate, SSO / Compliance. "Vai trò & phân quyền" chỉ đọc ở P0 (D27).
    - **Kênh:** chỉ kênh có manifest (`standards/channels/omnichannel-adapter.md`). **Connector:** chỉ connector có manifest, thẻ "Sắp có" (D28).
      - **D62 (TIP-048c):** mọi danh sách kênh (Cài đặt → Kênh, modal kết nối, rail / chip / badge Hộp thư, dropdown tài khoản, chip kênh Builder AI Agents, form ticket / lịch hẹn) đọc một registry; WhatsApp / WhatsApp Business API / Telegram / LINE / Viber / WeChat hiện "Sắp có" (PD-903); khối Đồng bộ của drawer theo năng lực kênh, "Đánh giá" ẩn (PD-906).
      - **Màn / vùng D62 không vẽ (mức 2):** hội thoại bình luận (PD-904), livestream (PD-905).

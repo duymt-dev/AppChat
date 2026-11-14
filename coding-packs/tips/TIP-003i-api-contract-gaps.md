@@ -1,6 +1,8 @@
 # TIP-003i — Khớp API với Blueprint §4: cursor chuẩn, /action-logs đủ lọc, /kb/*, /runs/:id/cancel, /profile-layouts?as_role
 
 ## HEADER
+- **Parallel-safe with TIP-051d (coverage-closure manifest):** sequential, shares `apps/api/src/http/identity/settings.controller.ts`, `packages/core/src/booking/services/calendar-read.service.ts`, `packages/core/src/identity/settings/settings-read.service.ts`; integrate 003i before051d.
+- **Parallel-safe with TIP-050 (coverage-closure manifest):** sequential, shares `packages/actions/src/registry.test.ts`; integrate 003i before050.
 - **Parallel-safe with TIP-047c (coverage-closure manifest):** sequential, shares `packages/core/src/booking/services/calendar-read.service.ts`; integrate 003i before047c.
 - TIP-ID: TIP-003i; Project: AppChat V2; Module: api read contracts; Priority: P1; Estimated: M. TIP bổ sung cho TIP-003 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 003d (OpenAPI), 019b (runs), 020b (kb), 023b, 045b (audit projection) đã tích hợp; trước 044/045/046.

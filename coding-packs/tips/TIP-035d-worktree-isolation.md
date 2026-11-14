@@ -1,6 +1,9 @@
 # TIP-035d — Cô lập worktree chạy song song: env, Memurai, cổng, slot Postgres (Hạ tầng thi công, D62)
 
 ## HEADER
+- **Parallel-safe with TIP-049 (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before049.
+- **Parallel-safe with TIP-049b (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before049b.
+- **Parallel-safe with TIP-049c (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before049c.
 - **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before006d.
 - **Parallel-safe with TIP-015c (coverage-closure manifest):** sequential, shares `packages/db/src/lifecycle/restore.ts`; integrate 015c before035d.
 - **Parallel-safe with TIP-020e (coverage-closure manifest):** sequential, shares `.env.example`; integrate 035d before020e.
@@ -208,7 +211,7 @@ Checkout chính (k = 0) không đặt biến mới → mọi giá trị như c�
   - `ALTER ROLE appchat_tenant_app CONNECTION LIMIT 45;`
   - `ALTER ROLE appchat_platform_app CONNECTION LIMIT 20;`
   - Số là đề xuất từ rà; chỉnh theo Rà #7.
-- `--apply` mới chạy. Cần quyền superuser và Chủ nhà đồng ý (Q-913).
+- `--apply` mới chạy. Cần quyền superuser; Chủ nhà tự chạy khi muốn (Q-913 chốt, DC-923) — thợ không chạy.
 - `--revert` in / chạy `CONNECTION LIMIT -1`.
 
 ### 5. Cổng web theo env — `tools/scripts/next-port.mjs`
@@ -310,7 +313,7 @@ Checkout chính (k = 0) không đặt biến mới → mọi giá trị như c�
 - [x] Manifest chính xác (file-level M/C). Không file nghiệp vụ, không prisma.
 - [x] Bảng env k = 1..3 khớp DC-908 a; Memurai riêng (DC-908 b); slot `pg_try_advisory_lock` (DC-908 c); biến pool / base / cổng web theo env (DC-908 d); kiểm cổng + `instance` (DC-908 e).
 - [x] Checkout chính không đặt biến mới → hành vi như cũ.
-- [x] Q-913: giới hạn role chỉ in lệnh, `--apply` khi Chủ nhà đồng ý.
+- [x] Q-913 chốt (DC-923): Memurai riêng; giới hạn role chỉ in lệnh, `--apply` do Chủ nhà tự chạy.
 - **Gap đã khai:**
   - Tên biến pool tenant / idle / cổng E2E web / URL Redis chưa kiểm (Rà #3).
   - Cách web nạp URL API + turbo lọc env chưa kiểm (Rà #4).
