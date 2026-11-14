@@ -171,7 +171,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 73 | [018b](../tips/TIP-018b-email-oauth.md) | W8 | chờ | `tip/018b-email-oauth` | | |
 | 74 | [019d](../tips/TIP-019d-agent-authority.md) | W8 | chờ | `tip/019d-agent-authority` | | |
 | 75 | [020f](../tips/TIP-020f-kb-parsers.md) | W8 | chờ | `tip/020f-kb-parsers` | | |
-| 76 | [022d](../tips/TIP-022d-zalo-proactive-cap.md) | W8 | chờ | `tip/022d-zalo-proactive-cap` | | |
+| 76 | [022d](../tips/TIP-022d-zalo-proactive-cap.md) | W8 | DONE — cap 200 (50–500 + cảnh báo > 200), trả lời 24h miễn cap, bảng dự phòng `channel_proactive_slot` chịu mất Redis, hoãn `deferred_cap` tz workspace, chưa nghiệm thu provider thật (Q-003); DC-703, DV-703 | `tip/022d-zalo-proactive-cap` | `40740351` | [#232](https://github.com/duymt-dev/AppChat/pull/232) |
 | 77 | [031b](../tips/TIP-031b-commerce-bulk.md) | W8 | chờ | `tip/031b-commerce-bulk` | | |
 | 78 | [031c](../tips/TIP-031c-stock-master.md) | W8 | chờ | `tip/031c-stock-master` | | |
 | 79 | [006d](../tips/TIP-006d-web-push.md) | W8 | chờ | `tip/006d-web-push` | | |

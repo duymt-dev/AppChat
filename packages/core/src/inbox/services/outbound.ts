@@ -148,6 +148,12 @@ export async function applySendResult(tx: TenantTx, r: SendResult, now: Date): P
     await tx.message.update({ where: { id: msg.id }, data: { status: r.outcome, error } });
     return [{ topic: 'message.updated', payload: { ...base, change: 'status' } }];
   }
+  if (!r.final && r.error === 'deferred_cap') {
+    const nextAttemptAt = r.deferred_until ? new Date(r.deferred_until) : ob.nextAttemptAt;
+    await tx.outboxMessage.update({ where: { id: ob.id }, data: { status: 'deferred_cap', nextAttemptAt, lastError: 'deferred_cap', updatedAt: now } });
+    await tx.message.update({ where: { id: msg.id }, data: { status: 'deferred_cap', error: 'deferred_cap' } });
+    return [{ topic: 'message.updated', payload: { ...base, change: 'status' } }];
+  }
   if (!r.final) {
     await tx.outboxMessage.update({ where: { id: ob.id }, data: { status: 'sending', attempts: ob.attempts + 1, lastError: error } });
     return [];

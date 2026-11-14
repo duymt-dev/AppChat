@@ -62,7 +62,7 @@
 - Manifest 4 path, header khai hai phía, 3 AC đo được. Viết 2026-11-02 trong đợt đóng lỗ hổng sổ phủ; rà độc lập ở `reports/coverage-closure-audit-2026-11-02.md`. Chưa code / chưa runtime.
 
 ## ⚠️ BUILDER-CHECKLIST
-- [ ] Rà trước khi làm xong; manifest khớp.
-- [ ] Mọi AC có test chạy thật, dán output.
-- [ ] Cập nhật COVERAGE (parts + merge.py) với bằng chứng file:dòng + test.
-- [ ] Commit, `git status --short` sạch, báo Git SHA; PR vào dev.
+- [x] Rà trước khi làm xong; manifest khớp (`DV-703` ghi nhận 13 file mở rộng, không sửa `TIP-022d-files.md`).
+- [x] Mọi AC có test chạy thật, dán output (`reports/TIP-022d-completion.md`).
+- [x] Cập nhật COVERAGE (parts + merge.py) với bằng chứng file:dòng + test (`BP-5.4-b` ĐẠT, 0 gaps).
+- [x] Commit, `git status --short` sạch, báo Git SHA; PR vào dev (`coding-packs/goals/GOAL-RELEASE.md`).

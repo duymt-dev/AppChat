@@ -89,3 +89,15 @@ model ConversationGroupRequest {
 
   @@map("conversation_group_request")
 }
+
+/// Sổ dự phòng trần tin chủ động / ngày của tài khoản kênh (TIP-022d, D35c / BP-5.4-b).
+/// `day` = YYYY-MM-DD theo múi giờ workspace; `ref_id` chống đếm đôi chung cho chiến dịch (`cr_*`), Inbox (`outbox_message.id`), follow-up.
+model ChannelProactiveSlot {
+  channelAccountId String   @map("channel_account_id") @db.Uuid
+  day              String
+  refId            String   @map("ref_id")
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@id([channelAccountId, day, refId])
+  @@map("channel_proactive_slot")
+}

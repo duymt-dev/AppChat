@@ -124,12 +124,23 @@ class ChannelsJobsRunner implements OnApplicationBootstrap, OnApplicationShutdow
     this.groups = groups;
     // Tạm dừng workspace (TIP-040) chặn tin gửi ra ngay cả khi worker đã giữ client DB tenant.
     const access = new WorkspaceAccess(platform, () => now().getTime());
+    const tzCache = new Map<string, { tz: string; exp: number }>();
+    const timeZone = async (ws: string): Promise<string> => {
+      const t = now().getTime();
+      const hit = tzCache.get(ws);
+      if (hit && hit.exp > t) return hit.tz;
+      const wsRow = await platform.workspace.findUnique({ where: { id: ws }, select: { timezone: true } });
+      const tz = wsRow?.timezone || 'Asia/Ho_Chi_Minh';
+      tzCache.set(ws, { tz, exp: t + 60_000 });
+      return tz;
+    };
     const senders: ChannelSenders = new ChannelSenders({
       redis, tenants, log: this.log, jitterScale: env.CHANNEL_SEND_JITTER, now,
       pause: (ws, id, detail) => sessions.markDown(ws, id, 'send_errors', detail),
       expire: (ws, id) => sessions.markDown(ws, id, 'expired'),
       reserve: reserveSend,
       isOpen: (ws) => access.isOpen(ws),
+      timeZone,
     });
     this.sessions = sessions;
     this.senders = senders;

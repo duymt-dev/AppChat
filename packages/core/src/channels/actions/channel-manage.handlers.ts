@@ -11,7 +11,7 @@ import type { ActionContext, TenantTx } from '../../kernel/actions/action-contex
 import { assertAgentAssignable } from '../../ai/agents/agent-names';
 import { assertBindingVersion, assertRouting, scheduleForAccount } from '../../ai/agents/channel-agent-config';
 import { ActionHandler, type ActionHandler as Handler, type HandlerOutcome } from '../../kernel/actions/handler';
-import { ChannelAccounts, routeStatusOf, settingsOf, type AccountRow, type AccountStatus, type AccountSettings } from '../services/accounts.service';
+import { ChannelAccounts, checkProactiveCap, routeStatusOf, settingsOf, type AccountRow, type AccountStatus, type AccountSettings } from '../services/accounts.service';
 import { ChannelControl } from '../services/control';
 import { historyStatusUrl, requestHistory } from '../operations/history-run';
 import { jobAccepted } from '../../kernel/actions/job-accepted';
@@ -19,6 +19,7 @@ import { actorUserId } from '../../inbox/services/access';
 import { disconnectPreview, pausePreview, resumePreview, syncHistoryPreview, updateSettingsPreview } from './previews/channel-manage.handlers.preview';
 
 type Ok = { ok: boolean };
+type SettingsOk = { ok: boolean; warnings?: string[] };
 
 const need = <T>(x: T | null): T => {
   if (!x) throw new AppError('NOT_IMPLEMENTED', 501, undefined, 'channels chưa cấu hình (Redis / PlatformDb)');
@@ -33,13 +34,13 @@ const sync = (accounts: ChannelAccounts, control: ChannelControl, ws: string, ro
 
 @Injectable()
 @ActionHandler('channel.update_settings')
-export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof channelUpdateSettings>, Ok> {
+export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof channelUpdateSettings>, SettingsOk> {
   constructor(
     @Inject(ChannelAccounts) private readonly accounts: ChannelAccounts | null,
     @Inject(CLOCK) private readonly clock: Clock,
   ) {}
 
-  async execute(ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx): Promise<HandlerOutcome<Ok>> {
+  async execute(ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx): Promise<HandlerOutcome<SettingsOk>> {
     // TIP-042b: `assign_mode` chỉ là bản chiếu cũ (chia lead thật = `lead_routing.update`) nhưng vẫn là cấu hình phân công → cần crm.reassign.
     if (input.patch.assign_mode !== undefined && !can(ctx.authz, 'crm.reassign')) throw new AppError('FORBIDDEN', 403, { permission: 'crm.reassign' });
     const row = await need(this.accounts).live(tx, input.channel_account_id);
@@ -47,6 +48,8 @@ export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof 
     await assertAgentAssignable(tx, agent_id);
     // TIP-022b: gán / phân luồng đổi đồng thời kể từ lúc xem → 409; lịch + ứng viên phân luồng kiểm ở server.
     assertBindingVersion(row.settings, input.expected_version);
+    const capDefault = channelRegistry.get(row.type)?.manifest.rateLimit.perDayProactive;
+    const warnings = checkProactiveCap(row.type, capDefault, rest.daily_cap);
     const sched = scheduleForAccount(schedule);
     const route = await assertRouting(tx, routing, row.type);
     const prev = settingsOf(row);
@@ -61,7 +64,11 @@ export class ChannelUpdateSettingsHandler implements Handler<ActionInput<typeof 
     };
     if (sla_override === null) delete next.sla_override;
     await tx.channelAccount.update({ where: { id: row.id }, data: { settings: JSON.parse(JSON.stringify(next)) as object, ...(name ? { name } : {}), updatedAt: this.clock.now() } });
-    return { result: { ok: true }, before: { id: row.id, name: row.name, settings: prev }, after: { id: row.id, name: name ?? row.name, settings: next } };
+    return {
+      result: { ok: true, ...(warnings.length ? { warnings } : {}) },
+      before: { id: row.id, name: row.name, settings: prev },
+      after: { id: row.id, name: name ?? row.name, settings: next },
+    };
   }
 
   async preview(_ctx: ActionContext, input: ActionInput<typeof channelUpdateSettings>, tx: TenantTx) {
