@@ -1,6 +1,8 @@
 # TIP-046 — Release gate: CI backend, build smoke, hiệu năng, a11y, i18n, parity đầy đủ
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 026c before046.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032e before046.
 - **Parallel-safe with TIP-003i (coverage-closure manifest):** sequential, shares `coding-packs/DEVIATIONS.md`; integrate 003i before046.
 - TIP-ID: TIP-046; Project: AppChat V2; Module: release evidence gate; Priority: P0; Estimated: XL, bốn lát (CI + smoke, runner + parity receipt, hiệu năng, a11y/i18n + gate report).
 - Depends on: **tất cả TIP chờ** (tích hợp sau cùng); tiêu thụ receipt của 044 (AI eval) và 045 (hạ tầng, backup/restore drill). Không chứa logic RAG (020e), backup (045), eval (044) hay sửa UI (001c và các TIP màn).

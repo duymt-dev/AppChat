@@ -153,6 +153,8 @@ W9   045b Bảo mật & vận hành trong app · 044 AI eval gate · 045 Hạ t�
 | 019d | [Quyền agent: write theo ngưỡng confidence, delegate lồng = giao quyền agent cha, kb_scope khi kb.search qua tool](tips/TIP-019d-agent-authority.md): bổ sung TIP-019 | 023b (current-authority resolver), 020c (effective KB scope), 019b, 022b đã tích hợp; trước 044/045/046. | P0 | M | W8 bổ sung | BP-3.3-c, BP-3.3b-e, BP-3.3b-f | Blueprint §3.3, §3.3b |
 | 022d | [Zalo cá nhân: cap 200 tin chủ động / ngày cấu hình được](tips/TIP-022d-zalo-proactive-cap.md): bổ sung TIP-022 | 014b, 037 (dùng cap cho chiến dịch) đã tích hợp; trước 044/045/046. | P0 | S | W8 bổ sung | BP-5.4-b | channels/omnichannel-adapter.md |
 | 006d | [Thông báo đẩy web (Web Push + PWA) cho kênh `mobile`](tips/TIP-006d-web-push.md): bổ sung TIP-006 | 006b (event delivery), 006c (realtime events) đã tích hợp; trước 044/045/046. | P1 | M | W8 bổ sung | DEF-006-2, DC-029 | events/outbox.md |
+| 026c | [Cơ hội / Sales Pipeline](tips/TIP-026c-sales-pipeline.md): thay `contact_opportunity` 026b bằng 7 giai đoạn xác suất cố định, chuỗi chứng từ thật, chuyển tự động theo báo giá / hợp đồng / đơn, giai đoạn khách suy từ cơ hội, thẻ 360° / drawer / chip / cột / "Thuộc cơ hội" | 026b, 015e/f/g, 032c và predecessor chung file; trước 032e/044/045/046 | P0 | XL/4 pha | W8 | REQ-F10, REQ-F13, D60, COM-8, DC-901 | COMMERCE §8, actions, authz, database, concurrency, ui |
+| 032e | [Tài chính](tips/TIP-032e-finance.md): dòng = đơn + đề nghị lẻ, Đã thu đủ / Quá hạn / Đã cọc / Còn nợ, Bán mới / Gia hạn / Marketing, lọc Nhóm + kỳ, 4 KPI, badge rail, drawer 360° · Tài chính, nhắc thanh toán hàng loạt (`invoice.bulk_remind`), thẻ / chip công nợ | 026c, 015b, 016b, 032b/c, 037, 045b và predecessor chung file; trước 044/045/046 | P0 | L/3 pha | W8 | REQ-F14, D60, COM-5, DC-902 | COMMERCE §5, actions, authz, database, ui |
 | 044 | [AI release eval gate](tips/TIP-044-ai-eval-gate.md): ten fixed suites, actual native/UI replay+live, protected file/receipt evidence, human review and CI | 023b,019b/c,020b/c/d,021b,022b/c,023c/d/e/f/g,015c/e/f/g,025b,030b/c,032b/c/d,033b/c,036–043,045b; exact manifest predecessors | P0 | XL | W9 | N11 + named eval obligations | ai/eval; native isolation |
 | 045 | [Native infrastructure](tips/TIP-045-native-infrastructure.md):186 paths; SHA deployment/readiness/drain, native monitoring, consistent offsite checkpoint and privacy-safe restore | 002,003b/c,006b,014b,019b,015c,040,041,044,045b and exact shared-file predecessors; before046 | P0 | XL | W9 | N01/N02/N06/N08/N09 + BP9e/BP11/D20/DEF0272;12 AC | Blueprint§11,ops/database/workflow |
 | 046 | [Release gate](tips/TIP-046-release-hardening.md): backend-it.yml (PG16+pgvector+Redis native runner), `pnpm smoke:build`, runner http release an toàn, parity receipt, đo p95/LCP/1M/200 tenant, axe + i18n, gate bằng chứng theo SHA; tiêu thụ 044/045 | tất cả TIP chờ (tích hợp cuối) | P0 | XL | W9 | REQ-C01c/N07/N08a/N10d/N14, D40, DEF-002-1/004-1/034-3, Q-008/009/017/020, STD-workflow-git-4c/4d | workflow/git-flow-ci, code/testing, ui/prototype-parity |
@@ -211,9 +213,9 @@ Mỗi file Prisma / action thuộc **đúng một TIP** (Blueprint §2.1). `tena
 | `tenant/contract-appendix-signing.prisma` | 030b | `appendix_signer`, `appendix_sign_token`, `appendix_signature_event` |
 | `tenant/commerce-settings.prisma` | 032b | `commerce_settings` (singleton id=1, ngưỡng duyệt báo giá cấu hình được) |
 | `tenant/catalog-import.prisma` | 032b | `product_import`, `product_import_row` (nhập sản phẩm CSV / XLSX, biên nhận từng dòng) |
-| `tenant/sales-orders.prisma` | 031 | `order`, `order_item` |
+| `tenant/sales-orders.prisma` | 031 | `order`, `order_item` — 032e (D60, DC-902) thêm `order.activity` + `campaign_id`, migration `20261112110000_finance_rows` |
 | `tenant/ai-task-events.prisma` | 012b | `ai_task_event_receipt` — biên nhận phát sự kiện → tác vụ AI unique (task_id, source_event_id), migration `20261108030000_ai_task_event_receipts` (DC-385) |
-| `tenant/crm-activities.prisma` | 026b | `contact_task`, `contact_opportunity` + enum kind ghi chú — hoạt động CRM thủ công, migration `20261108040000_crm_activities` (DC-387) |
+| `tenant/crm-activities.prisma` | 026b | `contact_task`, `contact_opportunity` + enum kind ghi chú — hoạt động CRM thủ công, migration `20261108040000_crm_activities` (DC-387). **026c (D60, DC-901)** nâng cấp tại chỗ `contact_opportunity` (7 giai đoạn) + thêm `contact_opportunity_item`, `contact_opportunity_event`, migration `20261112100000_opportunity_pipeline`; cột `opportunity_id` trên `quote` / `order` / `appointment` cùng migration |
 | `tenant/bank-ingress.prisma` | 012b | `bank_receipt` — biên nhận ngân hàng chuẩn tắc (provider, tài khoản, mã giao dịch), migration `20261108010000_bank_connector_runtime` (DC-383) |
 | `tenant/sales-payments.prisma` | 032 | `invoice`, `customer_payment`, `customer_package`, `package_usage`, `tenant_bank_feed`, `payment_account`; `package_reminder` + cột nguồn / bản hạn của gói do 032b thêm (migration `20261102003230_commerce_packages`) |
 | `tenant/booking.prisma` | 033 | `staff`, `business_hours`, `appointment`, … |
@@ -415,3 +417,19 @@ Product media/formatting and CSV dataset transfer remain separate. No model on o
 | TIP | Scope | Integration order | Gates |
 |---|---|---|---|
 |015g [crm-stage-hold](tips/TIP-015g-crm-stage-hold.md)|Canonical family/version/24h atomic stage guard, no-op compatibility and conditional manual undo across real Commerce triggers|After025b/015c/e/f/032c/003c/030c and exact bilateral predecessors|26 paths,1 owned Commerce invariant,8 AC; native ABA/exact cutoff/undo/source transaction matrix|
+
+### Supplemental026c — Cơ hội / Sales Pipeline (DC901, D60)
+
+| TIP | Scope | Integration order | Gates |
+|---|---|---|---|
+|026c [sales-pipeline](tips/TIP-026c-sales-pipeline.md)|`contact_opportunity` nâng cấp tại chỗ (7 giai đoạn, xác suất hằng, sản phẩm, lịch sử), liên kết `quote/order/appointment.opportunity_id`, chuyển tự động trong transaction producer, `recomputeContactStage` qua `applyStageRule`, UI 360° / drawer / chip / cột / form|After026b/015e/f/g/032c and exact bilateral predecessors; before032e/044/045/046|Exact manifest,10 AC; migration trên dữ liệu 026b, EXPLAIN100k, ai:live 6 ca|
+
+Kanban Pipeline và Hẹn gọi lại làm sau (D60 #8–9). Cơ hội tái mua tự tạo cần Quy trình (D19). Gắn cuộc gọi để TIP Call Center (`source_kind 'call'`).
+
+### Supplemental032e — Tài chính (DC902, D60)
+
+| TIP | Scope | Integration order | Gates |
+|---|---|---|---|
+|032e [finance](tips/TIP-032e-finance.md)|Service đọc dòng đơn + đề nghị lẻ (id-first + join), trạng thái / kỳ / hoạt động, drawer khách, badge `/nav/badges`, `invoice.bulk_remind` dùng chung `remindOne` với `send_payment_qr`, rail + lối vào|After026c/015b/016b/032b/c/037/045b and exact bilateral predecessors; before044/045/046|Exact manifest,10 AC; EXPLAIN100k, outbox một lần, parity --done|
+
+Không ghi thu, không cộng điểm vào đã thu, không gửi hàng loạt qua Zalo cá nhân. ZBS "Sắp có". Không đụng credit / billing nền tảng.

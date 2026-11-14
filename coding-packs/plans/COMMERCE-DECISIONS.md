@@ -128,6 +128,11 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
   - **Tự động:** DN kết nối SePay / Casso (`tenant_bank_feed`). Webhook `/hooks/tenant-payments/:provider/:feedId` → tra `tenant_bank_feed_route` ở DB nền tảng → vào DB tenant → khớp mã nội dung chuyển khoản `TT-xxxxxx` → ghi `customer_payment(confirmed)`.
   - Khớp không chắc chắn (sai số tiền, thiếu mã) thì đưa vào hàng "Cần đối soát" để người xử lý.
 - **Công nợ:** tổng phải thu và số quá hạn theo từng khách, hiển thị ở Hồ sơ 360° và trong danh sách đề nghị thanh toán.
+- **Màn Tài chính (D60):** chỉ đọc + nhắc thanh toán, không ghi thu.
+  - Một dòng = một đơn (gộp các đề nghị thanh toán của đơn) hoặc một đề nghị lẻ không gắn đơn.
+  - Trạng thái xét theo thứ tự: Đã thu đủ → Quá hạn → Đã cọc → Còn nợ.
+  - Hoạt động Bán mới / Gia hạn / Marketing suy từ nguồn, lưu lên đơn lúc tạo.
+  - Nhắc tay hàng loạt đi qua đường nhắc của `invoice.send_payment_qr`.
 
 ## 6. Liệu trình / gói buổi
 
@@ -157,19 +162,58 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 - **Hạng:** xét theo điểm tích trong 12 tháng gần nhất, xét lại mỗi quý. Ngưỡng 0 / 5.000 / 15.000 / 40.000.
 - Voucher / mã giảm giá: P2.
 
-## 8. Giai đoạn khách hàng (pipeline — thay BR-09)
+## 8. Cơ hội và giai đoạn khách hàng (pipeline — thay BR-09; sửa 2026-11-12 theo D60)
 
-| Sự kiện | Giai đoạn khách |
+**Cơ hội** (`contact_opportunity`): bản ghi riêng của khách, một khách có nhiều cơ hội. Giai đoạn và xác suất **cố định** (không nhập tay). Dự báo = giá trị × xác suất.
+
+| Giai đoạn | Xác suất |
+|---|---|
+| Lead mới | 10% |
+| Đủ điều kiện | 25% |
+| Tư vấn / Demo | 50% |
+| Báo giá | 70% |
+| Đàm phán | 85% |
+| Đã mua | 100% |
+| Thua | 0%. Bắt buộc lý do: Giá cao · Chọn đối thủ · Chưa có nhu cầu · Không liên lạc được. "Mở lại" về Đủ điều kiện |
+
+**Chuỗi chứng từ của cơ hội:**
+- Báo giá → [Hợp đồng ký → Đơn] **hoặc** Đơn → Đề nghị thanh toán → Khoản thu.
+- Chứng từ gắn cơ hội qua `opportunity_id`. Hợp đồng và đơn kế thừa liên kết từ báo giá nguồn.
+- "Tạo báo giá từ cơ hội" sinh **nháp**. Vẫn duyệt khi vượt ngưỡng (§3).
+
+**Cơ hội tự chuyển theo chứng từ gắn nó:**
+
+| Sự kiện | Cơ hội |
+|---|---|
+| Gửi báo giá (`quote.sent`) | Báo giá (nếu đang thấp hơn) |
+| Khách chốt báo giá (`quote.accepted`) | Đàm phán |
+| Khách ký hợp đồng (`contract.signed`, đường hợp đồng) | Đã mua |
+| Tạo đơn (đường đơn) | Đã mua |
+| Báo giá hết hạn mà cơ hội không còn báo giá mở | Tư vấn / Demo |
+| Khách từ chối báo giá | Bấm "Khách từ chối" trong chuỗi chứng từ = Đánh dấu Thua (bắt buộc lý do). Từ chối đi đường khác (màn Báo giá, link công khai, agent) → về Tư vấn / Demo nếu cơ hội không còn báo giá mở, kèm thông báo người phụ trách chọn lý do Thua (DC-901) |
+| Hợp đồng bị từ chối / đơn bị huỷ (không còn hợp đồng ký / đơn khác) | Đàm phán |
+
+- **Người đổi tay** giai đoạn cơ hội: tiến hoặc lùi đều được. Thua thì bắt buộc lý do.
+- **AI** chỉ gợi ý giai đoạn; người bấm "Áp dụng". Agent được cấp tool thì tạo được cơ hội, nhưng chỉ ở Lead mới.
+- **Đánh dấu Thua:** chỉ đổi báo giá đang mở đã gửi khách sang "từ chối". Báo giá đã chốt giữ nguyên.
+
+**Giai đoạn khách** suy từ cơ hội: bằng giai đoạn cao nhất trong các cơ hội **đang mở** (chưa Đã mua / Thua).
+- Nhãn: Lead mới · Đủ điều kiện · Tư vấn / Demo · Báo giá · Đàm phán · Đã mua.
+- Khách lên **Đã mua** khi có đơn hoàn tất (`order.completed`), dù đơn gắn hay không gắn cơ hội. Cơ hội Đã mua (khách ký / đã tạo đơn) **không** tự đưa khách lên Đã mua. Doanh số vẫn theo đơn (§9, DC-901).
+- Hạ giai đoạn khách chỉ qua luật lùi hiện có: không hạ Đã mua, không đụng Thất bại, giữ tay 24 giờ. Chứng từ không gắn cơ hội làm "sàn" (không hạ dưới giai đoạn chúng đỡ).
+- Chứng từ **không gắn cơ hội** vẫn theo luật cũ:
+
+| Sự kiện (chứng từ không gắn cơ hội) | Giai đoạn khách |
 |---|---|
 | Khách mới từ kênh | Lead mới |
 | Gửi báo giá (`quote.sent`) | Báo giá (nếu đang ở giai đoạn thấp hơn) |
-| Hợp đồng gửi ký / đã ký (`contract.sent_for_signature`, `contract.signed`) | Hợp đồng (nếu đang ở giai đoạn thấp hơn) |
-| Báo giá bị từ chối / hết hạn mà không còn báo giá mở | Đang tư vấn |
+| Hợp đồng gửi ký / đã ký (`contract.sent_for_signature`, `contract.signed`) | Đàm phán (nếu đang ở giai đoạn thấp hơn) |
+| Báo giá bị từ chối / hết hạn mà không còn báo giá mở | Tư vấn / Demo |
 | Đơn hoàn tất (`order.completed`) | Đã mua |
 
-- Khách đã ở **Đã mua** thì không bao giờ bị hạ giai đoạn. Khách cũ mua lại vẫn giữ Đã mua.
+- Khách đã mua thì giữ **Đã mua**, không bao giờ bị hạ. Khách cũ mua lại vẫn giữ Đã mua.
 - Người kéo tay luôn thắng quy tắc tự động. Quy tắc tự động không ghi đè trong 24 giờ sau lần kéo tay.
-- Không có pipeline Deal riêng (khác SRS FR-CUS-03). Giai đoạn nằm ngay trên Khách hàng, đúng như prototype.
+- Có pipeline cơ hội riêng (D60 thay luật "không có pipeline Deal riêng"). Màn kanban Pipeline làm sau, chỉ một pipeline.
 
 ## 8b. Nhiều sales chăm một khách (D32)
 
@@ -225,7 +269,7 @@ signed ──huỷ (lý do, Owner)──▶ terminated (Đã chấm dứt)
   - Qua ngày kết thúc thì `expired`.
   - "Gia hạn" tạo hợp đồng mới (`renewal_of_id`), đi lại luồng duyệt và ký.
 - **Chấm dứt:** chỉ Owner, bắt buộc lý do, ghi timeline. Không ảnh hưởng tới các đơn đã sinh.
-- **Giai đoạn khách:** thêm giai đoạn **"Hợp đồng"** giữa "Báo giá" và "Đã mua". Hợp đồng `pending_signature` hoặc `signed` thì chuyển sang "Hợp đồng" nếu khách đang ở giai đoạn thấp hơn (§8).
+- **Giai đoạn khách:** giai đoạn giữa "Báo giá" và "Đã mua" mang nhãn **"Đàm phán"** (D60; trước là "Hợp đồng"). Hợp đồng không gắn cơ hội ở `pending_signature` hoặc `signed` → Đàm phán nếu khách đang thấp hơn. Hợp đồng gắn cơ hội: khách ký → cơ hội Đã mua (§8).
 - **Hồ sơ 360°:** hiển thị các hợp đồng của khách, giá trị đang hiệu lực, ngày hết hạn gần nhất.
 
 ## 12. Mẫu chứng từ & AI soạn (D30)
@@ -262,5 +306,5 @@ signed ──huỷ (lý do, Owner)──▶ terminated (Đã chấm dứt)
 | "Ký số" trong prototype | prototype L5342+ | Ký điện tử của AppChat ở P0; ký số CA ở P2 |
 | Mọi báo giá qua duyệt nội bộ | SolutionDesign §4.2 | Chỉ duyệt khi vượt ngưỡng |
 | Trừ buổi liệu trình đặt ở loyalty | Blueprint §2.3 cũ | Chuyển sang `customer_package` |
-| Pipeline Deal 6 bước | SRS FR-CUS-03 | Giai đoạn nằm trên Khách hàng |
+| Pipeline Deal 6 bước | SRS FR-CUS-03 / prototype bản 2026-11-10 | Cơ hội riêng 7 giai đoạn, xác suất cố định; giai đoạn khách suy từ cơ hội (D60, §8) |
 | Hết credit | SRS BR-06 / CHANGELOG 07-28 / RRI D09 | Giữ D09 |

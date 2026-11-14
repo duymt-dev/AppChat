@@ -1,6 +1,8 @@
 # TIP-031b — Thanh chọn nhiều Khách / Báo giá / Hợp đồng / Đơn: Gán phụ trách hàng loạt + Chuyển tiếp (DC-296)
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/actions/src/orders.ts`, `packages/actions/src/quotes.ts`; integrate 031b before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 031b before032e.
 - **Parallel-safe with TIP-033c (coverage-closure manifest):** sequential, shares `packages/actions/src/index.ts`; integrate 033c before031b.
 - TIP-ID: TIP-031b; Project: AppChat V2; Module: commerce bulk assignment; Priority: P1; Estimated: M. TIP bổ sung cho TIP-031 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 032c (assigned_user_id CAS), 015d, 045b (per-item receipts), 006b đã tích hợp; trước 044/045/046.

@@ -1,6 +1,8 @@
 # TIP-034c — Ticket bulk outcomes, atomic item changes and guarded partial undo
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/tip-owners.ts`, `packages/shared/src/api/index.ts`, `tools/parity/parity.manifest.ts`; integrate 034c before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/actions/src/index.ts`, `packages/core/src/kernel/actions/tip-owners.ts`, `packages/shared/src/api/index.ts`, `packages/shared/src/index.ts`, `tools/parity/parity.manifest.ts`; integrate 034c before032e.
 - **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 034c before014c.
 - **Parallel-safe with TIP-001c (coverage-closure manifest):** sequential, shares `apps/web/src/shared/actions/useAction.ts`; integrate 034c before001c.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 034c before046.

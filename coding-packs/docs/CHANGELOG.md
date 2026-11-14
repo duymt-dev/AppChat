@@ -869,7 +869,8 @@ Sau: **một kiểu duy nhất** (class `aibtn`) — nền mực `#231F20`, icon
 
 **Ảnh hưởng:**
 - Baseline parity dịch theo bản mới: phần lớn màn ~0,2% (rail thêm 2 mục), **Hộp thư ~6,6%** và **Khách hàng ~3,7%** (thẻ Cơ hội / Công nợ trong Hồ sơ 360°, cột mới) — các màn này cần đo lại `pnpm parity` trên app.
-- Màn ẩn theo V2 (Quy trình · Gọi điện · Báo cáo) và phạm vi module vẫn theo Blueprint §7 / D-quyết định hiện hành; prototype mới **không** ghi đè D42 (D43). Tài chính / Cơ hội là màn chưa có trong scope — cần chốt phạm vi trước khi đưa vào TIP.
+- Màn ẩn theo V2 (Quy trình · Gọi điện · Báo cáo) và phạm vi module vẫn theo Blueprint §7 / D-quyết định hiện hành; prototype mới **không** ghi đè D42 (D43).
+- **Phạm vi (2026-11-12, D60 / Q-901):** Cơ hội / Sales Pipeline → TIP-026c (thay `contact_opportunity` 026b, sửa COMMERCE §8), Tài chính → TIP-032e (sửa COMMERCE §5); cả hai trước TIP-046. Hẹn gọi lại + màn kanban Pipeline làm sau.
 
 ---
 

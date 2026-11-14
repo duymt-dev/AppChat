@@ -1,6 +1,8 @@
 # TIP-013c — Người phụ trách vắng / ngoài ca → hàng chung hoặc agent
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/crm/crm.module.ts`, `packages/core/src/crm/services/crm-read.service.ts`; integrate 013c before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/core/src/crm/services/crm-read.service.ts`; integrate 013c before032e.
 - **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/settings.ts`; integrate 013c before006d.
 - TIP-ID: TIP-013c; Project: AppChat V2; Module: identity availability + inbox routing; Priority: P0; Estimated: L. TIP bổ sung cho TIP-013 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 042b (chia lead mới), 022b (agent theo kênh), 045b (send fence), 025b (inbox) đã tích hợp; trước 044/045/046.

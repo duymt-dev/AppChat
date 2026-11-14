@@ -1,6 +1,7 @@
 # TIP-001b — Web: gỡ vòng phụ thuộc, error boundary, lazy drawer, breakpoint, fmt
 
 ## HEADER
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/src/shared/api/mock/routes.ts`; integrate 001b before032e.
 - TIP-ID: TIP-001b; Project: AppChat V2; Module: apps/web nền tảng; Priority: P0; Estimated: L. TIP bổ sung cho TIP-001 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: Mọi TIP FE chung file đã tích hợp; trước 001c/044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-001b-files.md) — 31 paths (8 C). M path tương lai phải do TIP tạo trước tích hợp xong.

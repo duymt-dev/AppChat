@@ -1,6 +1,8 @@
 # TIP-022c: Sales Agent — tồn kho có căn cứ và ý định báo giá trước tác động
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `packages/core/src/sales/quotes/actions/quote-decide.handlers.ts`; integrate 022c before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`; integrate 022c before032e.
 - **Parallel-safe with TIP-019d (coverage-closure manifest):** sequential, shares `packages/core/src/ai/assistant/delegate.ts`; integrate 022c before019d.
 - **Parallel-safe with TIP-022d (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 022c before022d.
 - **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/send.processor.ts`; integrate 022c before003g.

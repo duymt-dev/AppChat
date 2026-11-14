@@ -1,6 +1,8 @@
 # TIP-032c: Hợp đồng/đơn hàng — attribution bất biến, sửa và hoàn tác không ghi đè
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `apps/web/src/shared/api/mock/domains/orders-actions.ts`, `packages/actions/src/index.ts`, `packages/actions/src/orders.ts`, `packages/core/src/ai/assistant/catalog.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/orders/actions/order-flow.handlers.ts`, `packages/core/src/sales/orders/actions/order-from-appointment.handler.ts`, `packages/db/prisma/tenant/sales-orders.prisma`, `tools/parity/parity.manifest.ts`; integrate 032c before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`, `packages/core/src/sales/orders/actions/order-create.handlers.ts`, `packages/core/src/sales/sales.module.ts`, `packages/db/prisma/tenant/sales-orders.prisma`, `packages/shared/src/i18n/server/en/sales.ts`, `packages/shared/src/i18n/server/vi/sales.ts`, `tools/parity/parity.manifest.ts`; integrate 032c before032e.
 - **Parallel-safe with TIP-014c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032c before014c.
 - **Parallel-safe with TIP-046 (release gate manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 032c before046.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `apps/web/messages/en/actions.json`, `apps/web/messages/vi/actions.json`, `packages/actions/src/index.ts`; integrate 032c before003e.

@@ -1,6 +1,8 @@
 # TIP-013b — Cài đặt thật: chuyển / mua workspace, logo, lọc + xuất thành viên, mời bằng SĐT, số đếm nav, tài khoản nhận tiền, liên kết hướng dẫn
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 013b before026c.
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `tools/parity/parity.manifest.ts`; integrate 013b before032e.
 - **Parallel-safe with TIP-006d (coverage-closure manifest):** sequential, shares `apps/web/messages/en/settings.json`, `apps/web/messages/vi/settings.json`, `packages/actions/src/settings.ts`; integrate 013b before006d.
 - TIP-ID: TIP-013b; Project: AppChat V2; Module: settings workspace/members/payments; Priority: P0; Estimated: L. TIP bổ sung cho TIP-013 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 039 (chọn gói cho workspace mới), 041 (workspace lifecycle), 042 (roles), 038b (xuất file), 045b (file security + identity.prisma) đã tích hợp; trước 044/045/046.

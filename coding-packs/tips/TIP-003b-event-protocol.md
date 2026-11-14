@@ -1,6 +1,7 @@
 # TIP-003b — Durable event transport and per-entity dispatch protocol
 
 ## HEADER
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003b before032e.
 - **Parallel-safe with TIP-003e (coverage-closure manifest):** sequential, shares `packages/core/src/kernel/actions/executor.ts`; integrate 003b before003e.
 - **Parallel-safe with TIP-003f (coverage-closure manifest):** sequential, shares `packages/shared/src/index.ts`; integrate 003b before003f.
 - **Parallel-safe with TIP-003g (coverage-closure manifest):** sequential, shares `packages/core/src/channels/jobs/sessions.ts`, `packages/core/src/sales/payments/services/payment-system.ts`; integrate 003b before003g.

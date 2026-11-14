@@ -1,6 +1,7 @@
 # TIP-016b — Badge đếm trên rail đọc GET /nav/badges thật
 
 ## HEADER
+- **Parallel-safe with TIP-032e (coverage-closure manifest):** sequential, shares `apps/api/test/integration/nav-badges.test.ts`, `apps/web/src/shared/realtime/event-invalidation.ts`, `packages/core/src/inbox/services/nav-badges.ts`; integrate 016b before032e.
 - TIP-ID: TIP-016b; Project: AppChat V2; Module: shell + inbox/ticket/calendar counts; Priority: P0; Estimated: S. TIP bổ sung cho TIP-016 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 025b (conversation.counts), 034b, 033b đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-016b-files.md) — 6 paths (2 C). M path tương lai phải do TIP tạo trước tích hợp xong.

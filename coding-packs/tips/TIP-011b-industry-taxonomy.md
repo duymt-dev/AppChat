@@ -1,6 +1,7 @@
 # TIP-011b — Chọn lĩnh vực theo taxonomy ngành 2 cấp (10 nhóm) khi khai báo doanh nghiệp
 
 ## HEADER
+- **Parallel-safe with TIP-026c (coverage-closure manifest):** sequential, shares `coding-packs/docs/06-prototype/DEVIATIONS.md`; integrate 011b before026c.
 - TIP-ID: TIP-011b; Project: AppChat V2; Module: onboarding; Priority: P1; Estimated: S. TIP bổ sung cho TIP-011 (đã DONE, không sửa file gốc — DC-233).
 - Depends on: 041 (workspace settings) đã tích hợp; trước 044/045/046.
 - **Files touched:** [exact M/C manifest](manifests/TIP-011b-files.md) — 9 paths (2 C). M path tương lai phải do TIP tạo trước tích hợp xong.
