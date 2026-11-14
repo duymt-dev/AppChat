@@ -5,6 +5,8 @@ import { defineAction } from './define';
 import { docChannel, money } from './sales-schemas';
 
 const invoiceId = z.string().min(1);
+/** Khoá lạc quan (concurrency §1, TIP-003e): version đề nghị thanh toán đang mở; lệch → 409 STALE_VERSION. */
+const ifVersion = z.number().int().positive().optional();
 const opened = (o: { invoice_id: string }) => ({
   type: 'open' as const,
   entity: 'invoice',
@@ -42,7 +44,7 @@ export const invoiceSendPaymentQr = defineAction({
   title: 'actions.invoice.send_payment_qr.title',
   description:
     'Send the payment request with a VietQR (amount left + transfer content = code) to the customer on their channel; draft → sent. Also used to re-send a reminder. Example: {"invoice_id":"inv_2040","channel":"zalo_personal"}',
-  input: z.object({ invoice_id: invoiceId, channel: docChannel }),
+  input: z.object({ invoice_id: invoiceId, channel: docChannel, if_version: ifVersion }),
   output: z.object({ invoice_id: z.string(), status: z.string() }),
   permission: 'invoice.manage',
   risk: 'send',
@@ -98,7 +100,7 @@ export const invoiceVoid = defineAction({
   title: 'actions.invoice.void.title',
   description:
     'Void a payment request that has no confirmed payment (reason required). Requests with money collected must go through a refund instead.',
-  input: z.object({ invoice_id: invoiceId, reason: z.string().trim().min(1).max(500) }),
+  input: z.object({ invoice_id: invoiceId, reason: z.string().trim().min(1).max(500), if_version: ifVersion }),
   output: z.object({ invoice_id: z.string(), status: z.string() }),
   permission: 'invoice.manage',
   risk: 'money',

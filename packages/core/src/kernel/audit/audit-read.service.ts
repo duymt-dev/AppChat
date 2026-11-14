@@ -32,7 +32,7 @@ function window(col: 'created_at' | 'started_at', q: AuditQuery) {
     ${q.from ? sql`AND ${at} >= ${new Date(q.from)}` : none} ${q.to ? sql`AND ${at} < ${new Date(q.to)}` : none}`;
 }
 
-type LogRow = { id: string; action_id: string; status: string; source: string; actor_type: string; actor_id: string | null; on_behalf: string | null; trace_id: string | null; created_at: Date };
+type LogRow = { id: string; action_id: string; status: string; source: string; actor_type: string; actor_id: string | null; on_behalf: string | null; trace_id: string | null; created_at: Date; correction?: unknown };
 
 export class AuditReadService {
   constructor(private readonly platform: Platform) {}
@@ -57,7 +57,7 @@ export class AuditReadService {
     const where = sql`risk <> 'read' ${actor} ${action} ${status} ${window('created_at', q)}`;
     const rows = await db.$queryRaw<LogRow[]>(sql`
       SELECT l.id, l.action_id, l.status::text AS status, l.source::text AS source, l.actor_type::text AS actor_type, l.actor_id,
-             l.on_behalf_of_user_id::text AS on_behalf, l.trace_id, l.created_at
+             l.on_behalf_of_user_id::text AS on_behalf, l.trace_id, l.created_at, l.correction
       FROM (SELECT id FROM action_log WHERE ${where} ORDER BY created_at DESC, id DESC LIMIT ${AUDIT_PAGE_SIZE + 1}) s
       JOIN action_log l ON l.id = s.id
       ORDER BY l.created_at DESC, l.id DESC`);
@@ -70,7 +70,8 @@ export class AuditReadService {
       // Agent / Trợ lý làm thay người: hiện người ra lệnh; hệ thống / agent trực kênh: không tên.
       const p = r.actor_type === 'user' ? who(r.actor_id) : who(r.on_behalf);
       const role = p?.role ?? (r.actor_type === 'system' ? 'system' : 'ai');
-      return { id: r.id, time: r.created_at.toISOString(), name: p?.name ?? null, role, actor_id: r.actor_id, action_id: r.action_id, action: r.action_id, source: r.source, status: auditStatusOf(r.status), ip: null, trace_id: r.trace_id };
+      const fixes = Array.isArray(r.correction) ? (r.correction as { note: string; at: string }[]).map((c) => ({ note: c.note, at: c.at })) : [];
+      return { id: r.id, time: r.created_at.toISOString(), name: p?.name ?? null, role, actor_id: r.actor_id, action_id: r.action_id, action: r.action_id, source: r.source, status: auditStatusOf(r.status), ip: null, trace_id: r.trace_id, ...(fixes.length ? { corrections: fixes } : {}) };
     });
     const last = page.at(-1);
     return { data, next_cursor: merged.length > AUDIT_PAGE_SIZE && last ? encodeCursor(last.created_at, last.id) : null };

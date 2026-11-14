@@ -97,7 +97,7 @@ export function OverviewTab({ i }: { i: Invoice }) {
           type="button"
           className={styles.btn}
           disabled={!open || !canManage}
-          onClick={() => void send.run({ invoice_id: i.id, channel })}
+          onClick={() => void send.run({ invoice_id: i.id, channel, if_version: i.version })}
           data-testid="iv-send"
         >
           {i.status === 'draft' ? t('detail.send') : t('detail.remind')}

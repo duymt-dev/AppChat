@@ -46,7 +46,8 @@ export const agentUpdate = defineAction({
   module: 'ai',
   title: 'actions.agent.update.title',
   description: 'Update the draft config of an agent (running version unchanged until publish). Example: {"agent_id":"ag_sales","patch":{"threshold":80}}',
-  input: z.object({ agent_id: agentId, patch: agentConfig.partial() }),
+  // TIP-003e: `if_version` so với `row_version` (khoá lạc quan dòng) — KHÔNG phải số phiên bản cấu hình đã xuất bản.
+  input: z.object({ agent_id: agentId, patch: agentConfig.partial(), if_version: z.number().int().positive().optional() }),
   output: z.object({ agent_id: z.string() }),
   permission: 'agents.manage',
   risk: 'config',

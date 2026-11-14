@@ -38,7 +38,8 @@ import { MessageReactHandler, MessageRecallHandler } from './actions/message-pro
 import { ContactSendEmailHandler } from './actions/email-send.handlers';
 import { ConversationCreateGroupHandler } from './actions/conversation-create-group.handler';
 import { CannedReplyCreateHandler, CannedReplyDeleteHandler, CannedReplyUpdateHandler, TagCreateHandler, TagDeleteHandler, TagUpdateHandler } from './actions/settings.handlers';
-import { UUID, canSeeConversation } from './services/access';
+import { UUID, canSeeConversation, visibleConversation } from './services/access';
+import { registerCorrectionScope } from '../kernel/actions/correction.handler';
 import { InboxMetaService } from './services/meta.service';
 import { InboundPipeline } from './services/pipeline';
 import { InboxReadService } from './services/read.service';
@@ -69,6 +70,8 @@ class ConversationGuardInstaller implements OnModuleInit {
   onModuleInit(): void {
     // Port chuyển phụ trách hội thoại (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Hộp thư.
     registerOwnershipPort(conversationOwnershipPort);
+    // TIP-003e: scope bản ghi gốc cho `action_log.add_correction` (tin thu hồi / chuyển tiếp, nhóm Zalo).
+    registerCorrectionScope('conversation', visibleConversation);
     const tenants = this.tenants;
     if (!tenants) return;
     registerConversationGuard(async ({ workspaceId, userId, authz, conversationId }) => {

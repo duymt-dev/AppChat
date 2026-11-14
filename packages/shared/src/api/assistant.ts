@@ -109,6 +109,10 @@ export const actionLogRowSchema = z.object({
   action_id: z.string(),
   undone: z.boolean().optional(),
   source: z.string().optional(),
+  /** TIP-003e (REQ-E09c): hành động đã gửi ra ngoài — không hoàn tác, người có quyền action gốc ghi được đính chính. */
+  correctable: z.boolean().optional(),
+  /** Đính chính đã ghi (mảng chỉ thêm, cũ → mới). */
+  corrections: z.array(z.object({ note: z.string(), at: z.string() })).optional(),
 });
 export const actionLogsPageSchema = z.object({ data: z.array(actionLogRowSchema), total: z.number().int(), next_cursor: z.string().nullable() });
 

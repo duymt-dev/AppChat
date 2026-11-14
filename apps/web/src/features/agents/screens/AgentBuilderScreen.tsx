@@ -23,12 +23,13 @@ interface FormProps {
   meta: AgentsMeta;
   agentId?: string;
   title: string;
+  rowVersion?: number;
 }
 
-function BuilderForm({ seed, meta: m, agentId, title }: FormProps) {
+function BuilderForm({ seed, meta: m, agentId, title, rowVersion }: FormProps) {
   const t = useTranslations('agents.b');
   const { styles } = useBuilderStyles();
-  const b = useAgentBuilder(seed, agentId);
+  const b = useAgentBuilder(seed, agentId, rowVersion);
   useAssistantContext(agentId);
 
   return (
@@ -70,13 +71,13 @@ export function AgentBuilderScreen({ agentId }: { agentId?: string }) {
   const router = useRouter();
   const { styles } = useBuilderStyles();
   const meta = useQuery(metaQuery());
-  const { seed, edit } = useBuilderSeed(agentId);
+  const { seed, edit, rowVersion } = useBuilderSeed(agentId);
   const title = edit ? t('editTitle') : t('createTitle');
 
   return (
     <div className={styles.root} role="dialog" aria-modal="true" aria-label={title} data-testid="agent-builder">
       {meta.data && seed ? (
-        <BuilderForm seed={seed} meta={meta.data} agentId={agentId} title={title} />
+        <BuilderForm seed={seed} meta={meta.data} agentId={agentId} title={title} rowVersion={rowVersion} />
       ) : (
         <PageStates state={meta.isError ? 'error' : 'loading'} onRetry={() => router.refresh()}>
           {null}

@@ -1818,5 +1818,16 @@
     "agent_assignment_not_run": "Giao cho AI Agent chỉ là phân công — agent không tự chạy hay xử lý ticket.",
     "bulk_background": "Hơn 50 ticket — chạy nền; theo dõi tiến độ, kết quả từng ticket hiện khi xong.",
     "undo_conflicts_kept": "Ticket đã bị sửa sau thao tác này sẽ được giữ nguyên (báo xung đột)."
+  },
+  "action_log": {
+    "add_correction": {
+      "title": "Ghi đính chính hành động đã gửi"
+    }
+  },
+  "stale": {
+    "title": "Bản ghi vừa được người khác cập nhật",
+    "body": "{title} chưa lưu vì bản ghi đã thay đổi sau khi bạn mở. Nội dung bạn đang nhập vẫn được giữ.",
+    "reload": "Tải lại",
+    "keep": "Giữ bản của tôi"
   }
 }

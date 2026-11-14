@@ -13,6 +13,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { ChannelSendQueue } from '../../channels/public';
 import { CrmMembers, actorUserId, fieldDefs } from '../../crm/public';
 import { enqueueOutgoing, writeOutgoing, type Outgoing } from '../../inbox/public';
+import { assertIfVersion } from '../../kernel/actions/cas';
 import { lockTicket, type TicketRecord } from '../ticket-access';
 import { actorOf, logEvent } from '../services/ticket-write';
 import { applyTicketPatch, recipientCols, revertTicketPatch, type TicketReceipt } from '../bulk/mutations';
@@ -49,6 +50,7 @@ export class TicketAssignHandler implements Handler<ActionInput<typeof ticketAss
     const now = this.clock.now();
     if (!input.assignee_user_id === !input.assignee_agent_id) throw new AppError('VALIDATION_FAILED', 422, { assignee: 'one_only' });
     const t = await lockTicket(tx, ctx.authz, input.ticket_id);
+    assertIfVersion(t.version, input.if_version);
     if (t.status === 'closed') throw new AppError('INVALID_TRANSITION', 409, { status: t.status });
     const cols = await recipientCols(ctx.workspaceId, tx, this.members, input.assignee_user_id ? { kind: 'user', id: input.assignee_user_id } : { kind: 'agent', id: input.assignee_agent_id! });
     const team = input.team_id !== undefined ? { teamId: input.team_id || null } : undefined;
@@ -77,6 +79,7 @@ export class TicketUpdateHandler implements Handler<ActionInput<typeof ticketUpd
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketUpdate>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
     const t = await lockTicket(tx, ctx.authz, input.ticket_id);
+    assertIfVersion(t.version, input.if_version);
     if (input.custom) {
       const errs = validateCustomValues(await fieldDefs(tx, 'ticket'), input.custom, ctx.authz.isOwner ? 'owner' : await this.members.roleOf(ctx.workspaceId, actorUserId(ctx)), 'update');
       if (Object.keys(errs).length) throw new AppError('VALIDATION_FAILED', 422, errs);

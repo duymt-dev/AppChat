@@ -48,6 +48,9 @@ import { PUBLIC_SIGN_ACTIONS, verifyParentPublic } from './signing/module';
 import { AuthzModule } from '../authz/authz.module';
 import { AuthzResolver } from '../authz/services/authz-resolver';
 import { ActionExecutor } from '../kernel/actions/executor';
+import { registerCorrectionScope } from '../kernel/actions/correction.handler';
+import { visibleContract } from './contract-access';
+import { visibleAppendix } from './appendix/access';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ChannelSendQueue) => ({ token, optional: true });
 
@@ -121,5 +124,8 @@ export class ContractsModule implements OnModuleInit {
     registerSystemVerifier('contract.system_transition', verifyContractTrigger);
     // TIP-030c: token hợp đồng cha đã lưu; biên nhận trigger theo request (milestone) — sống lâu hơn TTL idempotency.
     for (const id of PUBLIC_SIGN_ACTIONS) registerSystemVerifier(id, verifyParentPublic);
+    // TIP-003e: scope bản ghi gốc cho `action_log.add_correction`.
+    registerCorrectionScope('contract', visibleContract);
+    registerCorrectionScope('appendix', visibleAppendix);
   }
 }

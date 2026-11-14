@@ -15,6 +15,7 @@ import { instrumentExecutor } from '../metrics/collectors';
 import { actionIdOf } from './handler';
 import { ActionHandlerRegistry } from './handler-registry';
 import { UndoService } from './undo.service';
+import { ActionLogCorrectionHandler } from './correction.handler';
 import { ENC_KEY } from '../crypto';
 import { PlatformOperations } from '../consistency/platform-operation';
 
@@ -48,6 +49,8 @@ export class ActionsModule {
         { provide: AUTHORIZER, inject: [PLATFORM_DB], useFactory: (p: PlatformDb) => new ContextAuthorizer(p) },
         { provide: ActionHandlerRegistry, useFactory: () => new ActionHandlerRegistry(registry) },
         HandlerDiscovery,
+        // TIP-003e: đính chính hành động đã gửi (kernel — kiểm scope qua registry domain đăng ký).
+        ActionLogCorrectionHandler,
         {
           provide: ConfirmTokens,
           inject: [REDIS, CONFIRM_SECRET],

@@ -295,7 +295,16 @@
     },
     "undo": "Undo",
     "dash": "—",
-    "empty": "No actions of this type."
+    "empty": "No actions of this type.",
+    "correctBtn": "Add correction",
+    "corrected": "Correction: {note}",
+    "correct": {
+      "title": "Add correction",
+      "hint": "\"{title}\" was sent out so it cannot be undone. Add a correction to record what is right — nothing is sent to the customer.",
+      "note": "Correction",
+      "save": "Add correction",
+      "close": "Close"
+    }
   },
   "ap": {
     "title": "Approvals",

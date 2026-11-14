@@ -65,7 +65,7 @@ export function DetailTab({ k }: { k: Ticket }) {
   const sc = STATUS_TONE[k.status];
   const macro = (m: string) => {
     if (m === 'resolve') return set({ closeFor: k.id });
-    if (m === 'tech') return void setStatus.run({ ticket_id: k.id, status: 'in_progress' });
+    if (m === 'tech') return void setStatus.run({ ticket_id: k.id, status: 'in_progress', if_version: k.version });
     void comment.run({ ticket_id: k.id, body: t(`detail.macroText.${m}` as never), internal: false });
   };
   return (

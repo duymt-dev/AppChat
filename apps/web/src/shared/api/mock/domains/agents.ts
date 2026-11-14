@@ -5,12 +5,13 @@ import { ApiRequestError } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/agents.json';
 import { channelBindingPreview } from './channel-behavior';
 import { statsOf } from './agent-stats';
+import { checkVersion } from './commerce-edit';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
 
 export type AgentsFixture = typeof fixture;
-export type Agent = AgentsFixture['agents'][number] & { deleted?: boolean; template_id?: string; dirty?: boolean };
+export type Agent = AgentsFixture['agents'][number] & { deleted?: boolean; template_id?: string; dirty?: boolean; row_version?: number };
 type Config = Partial<Omit<Agent, 'id' | 'version' | 'status'>>;
 export type AgentVersion = { version: number; published_at: string; published_by: string; note: string; config: Config };
 
@@ -23,7 +24,7 @@ export interface AgentsState {
 /** Giới hạn gói (plan.max_agents) của gói đang dùng thử — vượt thì PLAN_LIMIT_REACHED. */
 export const MAX_AGENTS = 10;
 
-const RUNTIME_KEYS = ['id', 'version', 'status', 'deleted', 'dirty'] as const;
+const RUNTIME_KEYS = ['id', 'version', 'row_version', 'status', 'deleted', 'dirty'] as const;
 const snapshot = (a: Agent): Config =>
   structuredClone(Object.fromEntries(Object.entries(a).filter(([k]) => !(RUNTIME_KEYS as readonly string[]).includes(k)))) as Config;
 
@@ -43,7 +44,7 @@ export const createAgentsState = (): AgentsState => {
 
 const live = (db: MockDb) => db.agents.agents.filter((a) => !a.deleted);
 /** `custom` cũ chưa có lịch có cấu trúc → needs_configuration (như server agents.read — TIP-022b A). */
-const withScheduleState = (a: Agent) => ({ ...a, stats: statsOf(a), schedule_state: a.working_hours === 'custom' && !(a as { weekly_schedule?: unknown }).weekly_schedule ? 'needs_configuration' : 'ok' });
+const withScheduleState = (a: Agent) => ({ ...a, row_version: a.row_version ?? 1, stats: statsOf(a), schedule_state: a.working_hours === 'custom' && !(a as { weekly_schedule?: unknown }).weekly_schedule ? 'needs_configuration' : 'ok' });
 
 export const agentsRoutes: Record<string, MockRoute> = {
   '/agents': (db) => ({ data: live(db).map(withScheduleState), next_cursor: null }),
@@ -118,6 +119,7 @@ const publish = (db: MockDb, a: Agent, note: string, rollback = false) => {
     throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'weekly_schedule', fields: { weekly_schedule: 'needs_configuration' } });
   }
   a.version += 1;
+  a.row_version = (a.row_version ?? 1) + 1;
   a.status = 'active';
   a.dirty = false;
   (db.agents.versions[a.id] ??= []).unshift({ version: a.version, published_at: new Date().toISOString(), published_by: 'Trâm', note, config: snapshot(a) });
@@ -167,9 +169,11 @@ export const agentsHandlers: Record<string, MockHandler> = {
     },
   },
   'agent.update': {
-    execute: (db, i: { agent_id: string; patch: Config }) => {
+    execute: (db, i: { agent_id: string; patch: Config; if_version?: number }) => {
       const a = find(db, i.agent_id);
-      Object.assign(a, i.patch, { dirty: true });
+      // TIP-003e: `if_version` so với `row_version` (khoá lạc quan dòng), không phải phiên bản đã xuất bản.
+      checkVersion({ version: a.row_version ?? 1 }, i.if_version);
+      Object.assign(a, i.patch, { dirty: true, row_version: (a.row_version ?? 1) + 1 });
       return { agent_id: a.id };
     },
   },
@@ -189,6 +193,7 @@ export const agentsHandlers: Record<string, MockHandler> = {
     execute: (db, i: { agent_id: string; paused: boolean }) => {
       const a = find(db, i.agent_id);
       a.status = i.paused ? 'paused' : 'active';
+      a.row_version = (a.row_version ?? 1) + 1;
       return { agent_id: a.id, status: a.status };
     },
   },

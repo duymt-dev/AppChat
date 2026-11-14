@@ -1818,5 +1818,16 @@
     "agent_assignment_not_run": "Assigning to an AI agent is assignment only — the agent will not run or resolve the ticket.",
     "bulk_background": "More than 50 tickets — runs in the background; per-ticket results appear when done.",
     "undo_conflicts_kept": "Tickets edited after this operation are kept as they are (reported as conflicts)."
+  },
+  "action_log": {
+    "add_correction": {
+      "title": "Add a correction to a sent action"
+    }
+  },
+  "stale": {
+    "title": "This record was just updated by someone else",
+    "body": "{title} was not saved because the record changed after you opened it. What you typed is kept.",
+    "reload": "Reload",
+    "keep": "Keep my version"
   }
 }

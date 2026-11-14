@@ -9,7 +9,7 @@ export function withEditFields<T extends Row & { owner_name: string }>(rows: T[]
   return rows.map((r) => ({ ...r, assigned_user_id: r.assigned_user_id ?? r.owner_user_id, assigned_name: r.assigned_name ?? r.owner_name, version: r.version ?? 1 }));
 }
 
-export function checkVersion(r: Row, ifVersion: number | undefined) {
+export function checkVersion(r: { version?: number }, ifVersion: number | undefined) {
   if (ifVersion !== undefined && ifVersion !== (r.version ?? 1)) throw new ApiRequestError(409, { code: 'STALE_VERSION', message: 'version', fields: { version: String(r.version ?? 1) } });
 }
 

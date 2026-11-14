@@ -2,6 +2,7 @@
 // Dữ liệu = prototype invRows L11411 (fixture sinh bởi tools/scripts/fixtures/gen-invoices.py). Khoản thu cộng vào order.paid_total nếu gắn đơn.
 import { ApiRequestError, ROLE_DEFS, vietQrPayload, type ErrorCode } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/invoices.json';
+import { checkVersion } from './commerce-edit';
 import type { MockHandler } from '../handlers';
 import type { MockRoute } from '../routes';
 import type { MockDb } from '../store';
@@ -34,6 +35,8 @@ export type Invoice = Omit<Fixed, 'status' | 'payments' | 'events' | 'order_id' 
   events: InvoiceEvent[];
   note?: string;
   deleted?: boolean;
+  /** Khoá lạc quan (TIP-003e) — mỗi lần ghi (mọi ghi đều thêm sự kiện qua `log`) tăng 1, như trigger server. */
+  version?: number;
 };
 export type BankTx = (typeof fixture.bank_txs)[number];
 
@@ -126,6 +129,7 @@ export const enrichInvoice = (
     refunded: refundSum(i, 'confirmed'),
     refund_pending: refundSum(i, 'pending'),
     paid_pct: Math.round((Number(i.paid_amount) / Number(i.amount)) * 100),
+    version: i.version ?? 1,
     qr:
       payable && acc
         ? {
@@ -151,8 +155,10 @@ export const find = (db: MockDb, id: string) => {
 export const deny = (code: ErrorCode, message: string, fields?: Record<string, string>): never => {
   throw new ApiRequestError(409, { code, message, ...(fields ? { fields } : {}) });
 };
-export const log = (i: Invoice, type: string, extra: Partial<InvoiceEvent> = {}) =>
+export const log = (i: Invoice, type: string, extra: Partial<InvoiceEvent> = {}) => {
+  i.version = (i.version ?? 1) + 1;
   i.events.push({ type, at: MOCK_NOW, actor: NAMES[ME]!, ...extra });
+};
 const norm = (s: string) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'd').toLowerCase();
 
 /** Hoàn tiền chờ duyệt (khoản `refund` pending trên đề nghị) — hàng duyệt của Owner / người được uỷ quyền. */
@@ -313,8 +319,9 @@ export const invoicesHandlers: Record<string, MockHandler> = {
     },
   },
   'invoice.send_payment_qr': {
-    execute: (db, i: { invoice_id: string; channel: string }) => {
+    execute: (db, i: { invoice_id: string; channel: string; if_version?: number }) => {
       const inv = find(db, i.invoice_id);
+      checkVersion(inv, i.if_version);
       if (inv.status === 'void' || inv.status === 'paid') deny('INVALID_STATE', `${inv.code}: ${inv.status}`);
       const first = inv.status === 'draft';
       if (first) {
@@ -374,8 +381,9 @@ export const invoicesHandlers: Record<string, MockHandler> = {
     },
   },
   'invoice.void': {
-    execute: (db, i: { invoice_id: string; reason: string }) => {
+    execute: (db, i: { invoice_id: string; reason: string; if_version?: number }) => {
       const inv = find(db, i.invoice_id);
+      checkVersion(inv, i.if_version);
       // Đã có khoản thu → phải hoàn tiền (payment.refund, luôn duyệt), không huỷ thẳng.
       if (inv.status === 'void' || Number(inv.paid_amount) > 0) deny('INVALID_STATE', `${inv.code}: paid`);
       inv.status = 'void';

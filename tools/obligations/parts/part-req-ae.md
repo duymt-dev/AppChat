@@ -177,7 +177,7 @@
 | REQ-E08 | Briefing đầu ngày | 01-REQUIREMENTS-MATRIX.md:110 | 035 | ĐẠT | ai/tasks/task-briefing.ts; test ai-tasks.test.ts:330 |
 | REQ-E09a | Ghi mọi action Trợ lý / agent (ai, input, trước/sau) | 01-REQUIREMENTS-MATRIX.md:111 | 003, 024 | ĐẠT | packages/db/prisma/tenant/kernel.prisma:50-54; test assistant.test.ts, agents-ui.test.ts |
 | REQ-E09b | Lọc theo loại | 01-REQUIREMENTS-MATRIX.md:111 | 024 | ĐẠT | ai/assistant/action-logs.read.ts:12; test agents-ui.test.ts |
-| REQ-E09c | Hoàn tác trong hạn; đã gửi → ghi đính chính | 01-REQUIREMENTS-MATRIX.md:111 | 003e | MỘT PHẦN | Undo ĐẠT; không cơ chế đính chính; TIP-003e nhận (2026-11-02) |
+| REQ-E09c | Hoàn tác trong hạn; đã gửi → ghi đính chính | 01-REQUIREMENTS-MATRIX.md:111 | 003e | ĐẠT | Undo ĐẠT; đính chính: action_log.correction + action action_log.add_correction (kernel/actions/correction.handler.ts, quyền action gốc + scope bản ghi gốc), Nhật ký Trợ lý (LogColumns.tsx:76 nút Ghi đính chính) + Cài đặt › Audit log (AuditTable.tsx); test concurrency.test.ts:160, action_log.add_correction.action.test.ts, E2E concurrency.spec.ts:42 + http/concurrency.spec.ts:62 |
 | REQ-E10a | Danh sách phiên, tìm, mở lại | 01-REQUIREMENTS-MATRIX.md:112 | 023c | ĐẠT | GET /assistant/sessions keyset (last_message_at, id) + tìm trigram; FE SessionBrowser.tsx; test assistant-sessions.test.ts, e2e screen-assistant.spec.ts lịch sử trò chuyện |
 | REQ-E10b | Nhớ ngữ cảnh dài trong phiên | 01-REQUIREMENTS-MATRIX.md:112 | 023 | ĐẠT | ai/assistant/sessions.ts:10,63; test assistant.test.ts |
 | REQ-E11a | Chat / Cowork | 01-REQUIREMENTS-MATRIX.md:113 | 023 | ĐẠT | meta-tools.ts:53; test assistant.test.ts "ghi ở Chat → FORBIDDEN" |

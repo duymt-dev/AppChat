@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAction } from '@/shared/actions/useAction';
+import { usePinnedVersion } from '@/shared/actions/StaleVersionModal';
 import { agentQuery, templatesQuery } from '../api';
 import { useAgentsUi } from '../agents-store';
 import { useAuthz } from '@/shared/authz/useCan';
@@ -44,8 +45,8 @@ export function fromTemplate(tpl: AgentTemplate, allowed: (actionId: string) => 
   return withConfig({ name: tpl.name, role: tpl.role, role_label: tpl.tag, template_id: tpl.id, tools: d.tools.filter(allowed), intents: d.intents, model_tier: d.model_tier, threshold: d.threshold, prompt: d.prompt });
 }
 
-/** Cấu hình ban đầu của builder; null khi còn chờ agent / mẫu. */
-export function useBuilderSeed(agentId?: string): { seed: AgentConfig | null; edit: boolean } {
+/** Cấu hình ban đầu của builder; null khi còn chờ agent / mẫu. `rowVersion` = version dòng lúc mở (sửa agent có sẵn — TIP-003e). */
+export function useBuilderSeed(agentId?: string): { seed: AgentConfig | null; edit: boolean; rowVersion?: number } {
   const params = useSearchParams();
   const templateId = params.get('template');
   const fromAi = params.get('from') === 'ai';
@@ -55,7 +56,7 @@ export function useBuilderSeed(agentId?: string): { seed: AgentConfig | null; ed
   const allowed = useToolAllowed();
   const templates = useQuery({ ...templatesQuery({ q: '', group: 'all', industry: 'all', name: 'all' }), enabled: !!templateId });
   const edit = !!agentId || !!templateId;
-  if (agentId) return { seed: existing.data ? withConfig(existing.data) : null, edit };
+  if (agentId) return { seed: existing.data ? withConfig(existing.data) : null, edit, rowVersion: existing.data?.row_version };
   if (templateId) {
     const tpl = templates.data?.data.find((x) => x.id === templateId);
     return { seed: tpl && authz.data ? fromTemplate(tpl, allowed) : null, edit };
@@ -63,9 +64,11 @@ export function useBuilderSeed(agentId?: string): { seed: AgentConfig | null; ed
   return { seed: handoff ? withConfig(handoff) : blankConfig(), edit };
 }
 
-export function useAgentBuilder(seed: AgentConfig, agentId?: string) {
+/** `rowVersion` chốt lúc mở (TIP-003e); 409 STALE_VERSION → hộp xung đột chung, "Tải lại" lấy row_version mới, cấu hình đang sửa giữ nguyên. */
+export function useAgentBuilder(seed: AgentConfig, agentId?: string, rowVersion?: number) {
   const router = useRouter();
   const [cfg, setCfg] = useState<AgentConfig>(seed);
+  const ver = usePinnedVersion(rowVersion, agentQuery(agentId ?? '').queryKey, (d) => (d as { row_version?: number } | undefined)?.row_version);
   const create = useAction<{ agent_id: string; version: number }>('agent.create_and_publish');
   const update = useAction('agent.update');
   const publish = useAction('agent.publish');
@@ -84,7 +87,7 @@ export function useAgentBuilder(seed: AgentConfig, agentId?: string) {
   const save = async () => {
     if (!cfg.name.trim()) return;
     if (agentId) {
-      const ok = await update.run({ agent_id: agentId, patch: cfg }, { silent: true });
+      const ok = await update.run({ agent_id: agentId, patch: cfg, if_version: ver.ifVersion }, { silent: true, onStaleReload: ver.onStaleReload });
       if (!ok || !(await publish.run({ agent_id: agentId }))) return;
     } else if (!(await create.run(cfg))) return;
     close();

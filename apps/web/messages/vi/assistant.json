@@ -295,7 +295,16 @@
     },
     "undo": "Hoàn tác",
     "dash": "—",
-    "empty": "Không có hành động nào thuộc loại này."
+    "empty": "Không có hành động nào thuộc loại này.",
+    "correctBtn": "Ghi đính chính",
+    "corrected": "Đính chính: {note}",
+    "correct": {
+      "title": "Ghi đính chính",
+      "hint": "\"{title}\" đã gửi ra ngoài nên không hoàn tác được. Ghi đính chính để lưu lại nội dung đúng — không tự gửi tin cho khách.",
+      "note": "Nội dung đính chính",
+      "save": "Ghi đính chính",
+      "close": "Đóng"
+    }
   },
   "ap": {
     "title": "Chờ duyệt",

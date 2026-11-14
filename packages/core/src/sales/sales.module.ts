@@ -61,6 +61,7 @@ import { PackagesReadModule } from './payments/packages/read.module';
 import { TenantBankHook, genericBankSink } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
 import { COMMERCE_FILE_HANDLERS, registerCommerceFileSources } from './files/module';
+import { registerSalesCorrectionScopes } from './correction-scopes';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ActionExecutor) => ({ token, optional: true });
 const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
@@ -147,5 +148,7 @@ export class SalesModule implements OnModuleInit {
     // TIP-003c: họ action riêng sales — biên nhận trigger bền (mặc định).
     for (const id of ['quote.system_transition', 'invoice.system_transition', 'package.system_transition']) registerSystemVerifier(id, verifySalesTrigger);
     registerSystemVerifier('order.system_import', verifyOrderImport);
+    // TIP-003e: scope bản ghi gốc cho `action_log.add_correction`.
+    registerSalesCorrectionScopes();
   }
 }

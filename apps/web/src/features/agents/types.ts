@@ -47,6 +47,8 @@ export interface Agent extends AgentConfig {
   /** TIP-038: thống kê có nguồn (30 ngày) — `available: false` = chưa có dữ liệu / không quyền nguồn (hiện "—", khác 0 thật). */
   stats?: AgentStatsDto;
   version: number;
+  /** Khoá lạc quan dòng (TIP-003e) — `agent.update` gửi `if_version`; khác `version` (phiên bản đã xuất bản). */
+  row_version: number;
   dirty?: boolean;
   /** TIP-022b: `needs_configuration` = custom cũ chưa lưu lịch (cảnh báo, chặn xuất bản mới). */
   schedule_state?: 'ok' | 'needs_configuration';

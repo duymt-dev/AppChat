@@ -137,6 +137,8 @@ export const agentSchema = z.object({
   stats: agentStatsSchema.optional(),
   persona: z.string(),
   version: z.number().int(),
+  /** Khoá lạc quan dòng (TIP-003e) — `agent.update` gửi lại `if_version`; khác `version` (phiên bản cấu hình đã xuất bản). */
+  row_version: z.number().int(),
   dirty: z.boolean().optional(),
 });
 export type AgentDto = z.infer<typeof agentSchema>;

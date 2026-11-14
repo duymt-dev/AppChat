@@ -10,6 +10,7 @@ import type { KeyValueStore } from '../redis';
 import type { ActionContext } from './action-context';
 import type { ActionHandlerRegistry } from './handler-registry';
 import { undoActionOf } from './undo-action-registry';
+import { withUndoAllowance } from './undo-allowance';
 
 export class UndoService {
   constructor(
@@ -55,6 +56,8 @@ export class UndoService {
       if (log.undoUntil.getTime() < now.getTime()) throw new AppError('UNDO_EXPIRED', 409);
       // Người hoàn tác phải là người làm (hoặc Owner) — quyền chi tiết ở TIP-005.
       if (log.actorId !== ctx.actor.id && !ctx.authz.isOwner) throw new AppError('FORBIDDEN', 403);
+      // TIP-003e: bảng sự kiện chỉ thêm cho phép xoá (trực tiếp / cascade) chỉ trong transaction hoàn tác này.
+      await withUndoAllowance(tx);
       await handler.undo(ctx, { ...log, before: log.before, after: log.after, result: log.result, input: log.input }, tx);
       const n = await tx.actionLog.updateMany({
         where: { id: actionLogId, status: 'succeeded' },

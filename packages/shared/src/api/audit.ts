@@ -36,6 +36,8 @@ export const auditRowSchema = z.object({
   status: z.enum(AUDIT_STATUSES),
   ip: z.string().nullable(),
   trace_id: z.string().nullable(),
+  /** Đính chính đã ghi cho hành động đã gửi ra ngoài (TIP-003e §4, action_log.correction) — chỉ ghi chú + giờ, không lộ input. */
+  corrections: z.array(z.object({ note: z.string(), at: z.string() })).optional(),
 });
 export type AuditRowDto = z.infer<typeof auditRowSchema>;
 

@@ -87,6 +87,7 @@ export function toInvoiceRow(i: InvoiceRecord, r: Rel, ctx: InvoiceViewCtx): Inv
     due_date: i.dueDate.toISOString().slice(0, 10),
     sent_at: i.sentAt?.toISOString() ?? '',
     void_reason: i.voidReason,
+    version: i.version,
     refunded: neg(confirmedRefunds),
     refund_pending: neg(pendingRefunds),
     payments: r.pays.map((p) => ({

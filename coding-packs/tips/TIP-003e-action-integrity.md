@@ -130,7 +130,7 @@ Hoàn tất khoá lạc quan cho entity còn trống, FE xử lý xung đột th
 - Manifest 23 path, header khai hai phía, 8 AC đo được. Viết 2026-11-02 trong đợt đóng lỗ hổng sổ phủ; rà độc lập ở `reports/coverage-closure-audit-2026-11-02.md`. Chưa code / chưa runtime.
 
 ## ⚠️ BUILDER-CHECKLIST
-- [ ] Rà trước khi làm xong; manifest khớp.
-- [ ] Mọi AC có test chạy thật, dán output.
-- [ ] Cập nhật COVERAGE (parts + merge.py) với bằng chứng file:dòng + test.
-- [ ] Commit, `git status --short` sạch, báo Git SHA; PR vào dev.
+- [x] Rà trước khi làm xong; manifest khớp (lệch ghi DV-126).
+- [x] Mọi AC có test chạy thật, dán output.
+- [x] Cập nhật COVERAGE (parts + merge.py) với bằng chứng file:dòng + test.
+- [x] Commit, `git status --short` sạch, báo Git SHA; PR vào dev.
