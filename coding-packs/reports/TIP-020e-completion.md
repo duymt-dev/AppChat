@@ -1,9 +1,9 @@
 ### COMPLETION REPORT — TIP-020e
 
-**STATUS:** DONE (AC9 chưa nghiệm thu với provider thật — Q-066) — nhánh `tip/020e-rag-model-lifecycle` (từ `204c59db`, xếp chồng trên #224), ba commit:
+**STATUS:** DONE (AC9 chưa nghiệm thu với provider thật — Q-066) — PR #226, nhánh `tip/020e-rag-model-lifecycle` (từ `204c59db`, xếp chồng trên #224), ba commit:
 - P1 backend: `0b5d1daa`.
 - P2 FE / E2E: `03255634`.
-- P3 không gian ổn định + suite ai:live + sổ: SHA ghi ở bảng tiến độ `goals/GOAL-RELEASE.md` dòng 57.
+- P3 không gian ổn định + suite ai:live + sổ: `bcc52d2e`.
 
 Kết quả AC:
 - AC1–5, AC7, AC10 đạt bằng unit + integration Postgres 16 thật + test ghép worker.
