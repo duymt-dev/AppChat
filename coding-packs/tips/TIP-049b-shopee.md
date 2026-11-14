@@ -90,7 +90,7 @@ Thêm connector `shopee` (port `order_sync`, `auth.kind = 'oauth2'`): uỷ quy�
     - `query.main_account_id` → `token/get` theo tài khoản chính, trả `shop_id_list` → nhiều shop.
     - Mỗi shop gọi `v2.shop.get_shop_info` lấy tên + `region`. Region ≠ `VN` → vẫn trả để 049 từ chối `shop_region_unsupported`.
     - Trả `accounts[]` với `tokens` **riêng từng shop** (access / refresh theo shop) để 049 tạo grant theo shop. `grant` = token của shop đầu (subject = `shop:<shop_id>`).
-  - `refresh(t)` → `POST /api/v2/auth/access_token/get` `{ refresh_token, partner_id, shop_id }` → cặp mới (`refreshExpiresAt = now + 30 ngày`). `error = invalid_refresh_token` / `error_auth` → ném lỗi `invalid_grant` để `TokenVault` chuyển `revoked`.
+  - `refresh(t)` → `POST /api/v2/auth/access_token/get` `{ refresh_token, partner_id, shop_id }` (`shop_id` lấy từ `t.subject`) → cặp mới (`refreshExpiresAt = now + 30 ngày`). `error = invalid_refresh_token` / `error_auth` → ném lỗi `invalid_grant` để `TokenVault` chuyển `revoked`.
 - **`token-refresher.ts` (core):** `registerOAuthProvider(shopeeOAuth, { purposes: ['connector'], permission: 'integrations.manage' })` + hạn làm mới sớm 30 phút trước hạn access (4 giờ). Job `oauth-refresh` (048) quét grant `shopee` còn < 30 phút. Không tự gọi `refresh` ngoài `TokenVault`.
 
 ### 4. Client

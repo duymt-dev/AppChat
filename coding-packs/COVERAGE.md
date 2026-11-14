@@ -16,10 +16,10 @@
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 134 | 7 | 0 | 2 | 25 | 10 | 5 | 0 |
 | C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 70 | 12 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 403 | 33 | 1 | 6 | 60 | 2 | 0 | 0 |
-| E. standards/* | 226 | 31 | 0 | 7 | 27 | 1 | 43 | 0 |
+| E. standards/* | 226 | 31 | 0 | 7 | 28 | 1 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 67 | 1 | 18 | 0 | 29 | 6 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 22 | 43 | 2 | 0 | 0 |
-| **Tổng** | **1227** | **100** | **20** | **59** | **268** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 22 | 44 | 2 | 0 | 0 |
+| **Tổng** | **1227** | **100** | **20** | **59** | **270** | **35** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -1423,6 +1423,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | STD-domain-concurrency-2 | Chuyển trạng thái compare-and-set, 0 dòng → INVALID_TRANSITION | standards/domain/concurrency.md:11 | 003+ | ĐẠT | sales/quotes/services/quote-system.ts:42 `updateMany where status`; test quotes.test.ts, orders.test.ts |
 | STD-domain-concurrency-3 | Tiền/kho/credit/buổi: FOR UPDATE, sổ cái chỉ thêm, unique chống trừ đôi (điểm tách dòng riêng) | standards/domain/concurrency.md:12 | 009, 027, 032, 033 | ĐẠT | Bằng chứng hiện có: migration027:104 stock_movement unique,032:159,205; catalog.test.ts:142, billing.test.ts:98. Không dùng dòng này khẳng định loyalty đã triển khai. |
 | STD-domain-concurrency-3-loyalty | Điểm loyalty: transaction/khoá/sổ append-only/unique chống cộng-trừ đôi | standards/domain/concurrency.md:12 | 036 | ĐẠT | transaction + khoá đề nghị → đơn → khách → lô (packages/core/src/loyalty/repos/ledger.repo.ts), sổ chỉ thêm + dedupe_key unique (ledger.service.ts); test loyalty-concurrency.test.ts |
+| STD-domain-concurrency-3-variant | Sổ kho chống trừ đôi theo biến thể: unique `stock_movement(ref_type, ref_id, product_id, variant_id)` NULLS NOT DISTINCT; trừ / hoàn `product_variant.stock` (D63 / Q-916) | standards/domain/concurrency.md:15 | 049 | CHƯA | TIP-049 §2.3 / §6 |
 | STD-domain-concurrency-4 | Idempotency theo nguồn: Idempotency-Key / (provider, external_id) / (event_id, consumer) | standards/domain/concurrency.md:16 | 003, 010, 012 | ĐẠT | executor.ts:108; kernel/events/dispatcher.ts:36; sales-orders.prisma:97; test integrations.test.ts:152 |
 | STD-domain-concurrency-5a | Người gửi khi ai_mode=auto → chuyển copilot cùng tx; run kiểm ai_mode trước khi gửi | standards/domain/concurrency.md:21 | 045b | ĐẠT | core/src/inbox/services/human-takeover.ts (auto → copilot + ai_epoch cùng tx với tin người); ai/reply/send-fence.ts; hardening-takeover.test.ts; ai:live hd-takeover |
 | STD-domain-concurrency-5b | Một hội thoại chỉ một run agent `running` (khoá Redis `conv:{id}:run`) | standards/domain/concurrency.md:22 | 045b | ĐẠT | ai/reply/turn-lease.ts lease lượt bền trong DB tenant (ai_turn_fence / owner / until) — một lượt agent / hội thoại, restart / job trùng không tạo run thứ hai; reply-lease.test.ts; hardening-takeover.test.ts |
@@ -1856,6 +1857,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-914 | Shopee Open Platform ISV + shop thật | QUESTIONS.md:91 | 049b | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
 | Q-915 | TikTok Shop Partner Center ISV + shop thật | QUESTIONS.md:92 | 049c | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
 | Q-916 | Tồn biến thể không trừ — sửa đúng COMMERCE Q8 | QUESTIONS.md:93 | 049 | CHƯA | Tạm theo đề xuất: sửa ở TIP-049 |
+| Q-917 | Quyền `order.sync_now`: đổi `integrations.manage` → `order.manage`? (luật quyền — Chủ nhà) | QUESTIONS.md:94 | 049 | CHƯA | Mở; TIP-049 giữ quyền cũ tới khi chốt |
 | PD-907 | Nền tảng kết nối: thẻ Shopee / TikTok Shop OAuth + chọn shop | docs/06-prototype/DEVIATIONS.md:53 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
 | PD-908 | Đơn / Sản phẩm sàn: badge, mã ngoài, trạng thái, vận đơn chỉ đọc, Ghép SKU, Kênh bán | docs/06-prototype/DEVIATIONS.md:54 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |

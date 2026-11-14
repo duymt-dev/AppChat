@@ -117,6 +117,7 @@
 | Q-914 | Shopee Open Platform ISV + shop thật | QUESTIONS.md:91 | 049b | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
 | Q-915 | TikTok Shop Partner Center ISV + shop thật | QUESTIONS.md:92 | 049c | CHỜ-TK | Chủ nhà nộp; test bằng server giả |
 | Q-916 | Tồn biến thể không trừ — sửa đúng COMMERCE Q8 | QUESTIONS.md:93 | 049 | CHƯA | Tạm theo đề xuất: sửa ở TIP-049 |
+| Q-917 | Quyền `order.sync_now`: đổi `integrations.manage` → `order.manage`? (luật quyền — Chủ nhà) | QUESTIONS.md:94 | 049 | CHƯA | Mở; TIP-049 giữ quyền cũ tới khi chốt |
 | PD-907 | Nền tảng kết nối: thẻ Shopee / TikTok Shop OAuth + chọn shop | docs/06-prototype/DEVIATIONS.md:53 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
 | PD-908 | Đơn / Sản phẩm sàn: badge, mã ngoài, trạng thái, vận đơn chỉ đọc, Ghép SKU, Kênh bán | docs/06-prototype/DEVIATIONS.md:54 | 049d | CHƯA | TIP-049d (duyệt / từ chối lúc verify) |
 | Q-008 | Job CI `integration` (service postgres:16 + pgvector + Redis) | QUESTIONS.md:16 | 046 | CHƯA | Workflows không có postgres; TG 046 |

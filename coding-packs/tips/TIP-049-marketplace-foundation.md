@@ -140,8 +140,9 @@
 3. Tìm mọi chỗ dùng `IntegrationStatus` (switch, map nhãn). Thêm `expired` vỡ typecheck ở file ngoài manifest → L2.
 4. Kiểm `product.stock` hiện là tổng tồn biến thể hay độc lập (`catalog/services/variants.ts`, form sản phẩm). Chọn cách cộng ở §6.4 theo thực tế, ghi "Giả định đã chọn".
 5. Kiểm `registerCallOp` / `operations/call-receipt.ts` (ghi call log), điều kiện đăng ký `mock_marketplace` (ẩn ở production), cách harness integration chạy job BullMQ (helper chạy job trong test).
-6. `order.sync_now` hiện dùng quyền `integrations.manage` (~L185). Giữ nguyên; đổi quyền đã có là L2.
-7. Đo ở demo / dev: số đơn `source IN ('marketplace','pos')`, số kết nối `order_sync`, để backfill `external_shop_key` (§2) chạy đúng.
+6. `order.sync_now` hiện dùng quyền `integrations.manage` (~L185). Giữ nguyên; đổi quyền đã có là L2 (đề xuất `order.manage` ghi ở Q-917, chờ Chủ nhà chốt).
+7. Grep `ON CONFLICT (ref_type, ref_id, product_id)` và khoá Prisma `refType_refId_productId`: mọi chỗ phải đổi sang khoá sổ kho mới (§2.3). Chỗ nằm ngoài manifest → L2.
+8. Đo ở demo / dev: số đơn `source IN ('marketplace','pos')`, số kết nối `order_sync`, để backfill `external_shop_key` (§2) chạy đúng.
 
 ## TASK
 Dựng nền chung cho mọi sàn (049b Shopee, 049c TikTok Shop dùng lại), không adapter thật, không UI.
@@ -259,7 +260,7 @@ Dựng nền chung cho mọi sàn (049b Shopee, 049c TikTok Shop dùng lại), k
 4. **Tồn biến thể không trừ** — Q-916, sửa đúng COMMERCE Q8 (trừ khi xác nhận, hoàn khi huỷ, cho tồn âm + cảnh báo, truy vết `stock_movement`), **không đổi luật**:
    - Lỗi: `deductStock` (`order-write.ts` ~L149–159) gọi `recordMovement` không `variantId` (~L153); `recordMovement` (`catalog-write.ts` ~L118–131) chỉ cập nhật `product.stock`; unique sổ kho thiếu `variant_id` ⇒ hai biến thể cùng sản phẩm trong một đơn mất một lần trừ.
    - `variant-stock.ts` (C) `recordVariantMovement(tx, m)`: khoá `product` rồi `product_variant` (`SELECT … FOR UPDATE`, luôn thứ tự này; nhiều dòng sắp theo `(product_id, variant_id)`); chèn `stock_movement` có `variant_id` (`ON CONFLICT (ref_type, ref_id, product_id, variant_id) DO NOTHING`); cộng `qty` vào `product_variant.stock` và `product.stock` (sản phẩm = tổng biến thể — kiểm ở Rà #4); cảnh báo `low` theo tồn biến thể + ngưỡng sản phẩm.
-   - `recordMovement` (M) rẽ sang `recordVariantMovement` khi có `variantId`. `deductStock` / `returnStock` (M) mang `variant_id` của dòng / movement; movement cũ không biến thể hoàn về sản phẩm như lúc trừ.
+   - `recordMovement` (M) rẽ sang `recordVariantMovement` khi có `variantId`; nhánh không biến thể đổi `ON CONFLICT` sang khoá 4 cột mới (`variant_id` NULL — khoá cũ 3 cột bị bỏ ở §2.3, để nguyên sẽ lỗi "no unique constraint matching"). `deductStock` / `returnStock` (M) mang `variant_id` của dòng / movement; movement cũ không biến thể hoàn về sản phẩm như lúc trừ.
    - Áp cho mọi đơn (tay, báo giá, sàn) — Q8 chung. Combo giữ cách trừ theo thành phần hiện có.
 5. **Một kết nối / connector chặn hai shop** (`integration_connection_active_key`, migration `20261030150000_012_integrations` ~L93): sửa bằng hai unique partial §2 + route shop §3.
 
@@ -288,6 +289,8 @@ Dựng nền chung cho mọi sàn (049b Shopee, 049c TikTok Shop dùng lại), k
 | `marketplace.unmap_sku` | write | `catalog.manage` | false | §7 |
 | `marketplace.listings` | read | `catalog.view` | read: true | §7; đường tra `listing_id` cho Trợ lý |
 | `integration.auth_event` | internal | system | false | §8 |
+| `order.sync_now` (sửa) | write | `integrations.manage` (giữ — đổi sang `order.manage` là Q-917, chờ Chủ nhà) | false | §5; chỉ xếp job, trả `queued` |
+| `integration.sync_now` (sửa handler) | write | `integrations.manage` (giữ) | false | §5; kết nối `order_sync` → xếp job |
 
 - File MỚI `packages/actions/src/marketplace.ts` (module như `integration.connect` hiện có); export ở `index.ts`. Handler: `connector-oauth.handlers.ts` (`oauth_select`) + `integrations/actions/marketplace.handlers.ts` (còn lại); đăng ký ở `integrations.module.ts`.
 - Mọi action ghi có `preview()` (assistant-coverage). `ALIAS` / `EXEMPT` chỉ khi có lý do ghi rõ. Nhãn `actions.<id>.title` vi + en (`apps/web/messages/{vi,en}/actions.json`).
@@ -371,6 +374,7 @@ Dựng nền chung cho mọi sàn (049b Shopee, 049c TikTok Shop dùng lại), k
   - Trả hàng / hoàn một phần chi tiết (Returns API) chưa làm: đơn trả hàng giữ trục + `platform_status`.
   - Sàn chưa có `pullStock`: `stock_master = external` chỉ chọn được cho connector có `pullStock` (031c).
   - Thông báo sắp hết uỷ quyền tối đa một lần / kết nối / ngày.
+  - Khoá chống trừ đôi sổ kho mở rộng `(ref_type, ref_id, product_id)` → `+ variant_id` (Q-916): `standards/domain/concurrency.md` §3 đã sửa câu chữ ở PR docs D63.
 
 ## ⚠️ BUILDER-CHECKLIST (agent PHẢI hoàn thành trước khi báo DONE)
 - [ ] Implement đúng `Files touched` (manifest), không thêm file ngoài scope; file mới 200–400 dòng, trần 600.

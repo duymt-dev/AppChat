@@ -12,7 +12,7 @@
 3. **Tiền, kho, điểm, credit, buổi liệu trình** — ghi trong transaction với khoá dòng:
    - `SELECT … FOR UPDATE` trên bản ghi gốc (đơn, ví, gói) trước khi tính.
    - Sổ cái chỉ thêm (`stock_movement`, `credit_ledger`, `loyalty_txn`, `package_usage`, `customer_payment`); số dư là tổng hoặc cột cache cập nhật cùng transaction, có `CHECK (>= 0)` khi nghiệp vụ không cho âm.
-   - Unique chống trừ đôi: `loyalty_txn(order_id, kind)`, `package_usage(appointment_id)`, `customer_payment(bank_txn_id)`, `stock_movement(ref_type, ref_id, product_id)`.
+   - Unique chống trừ đôi: `loyalty_txn(order_id, kind)`, `package_usage(appointment_id)`, `customer_payment(bank_txn_id)`, `stock_movement(ref_type, ref_id, product_id, variant_id)` — `NULLS NOT DISTINCT` (D63 / Q-916, TIP-049: trừ / hoàn tồn theo biến thể).
 4. **Idempotency theo nguồn:**
    - UI / Trợ lý: header `Idempotency-Key` (`api/response-envelope.md` §7).
    - Webhook: khoá `(provider, external_id)` unique.
