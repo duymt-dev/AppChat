@@ -284,14 +284,15 @@ Dựng nền chung cho mọi sàn (049b Shopee, 049c TikTok Shop dùng lại), k
 | Action | Risk | Quyền | agentGrantable | Ghi chú |
 |---|---|---|---|---|
 | `integration.oauth_select` | config | `integrations.manage` | false | §3; `Idempotency-Key`; preview nêu shop sẽ nối / nối lại |
-| `marketplace.import_products` | write | `catalog.manage` | false | §7; chỉ xếp job |
-| `marketplace.map_sku` | write | `catalog.manage` | false | §7; preview nêu listing ↔ biến thể; undo 24 giờ |
-| `marketplace.unmap_sku` | write | `catalog.manage` | false | §7 |
+| `marketplace.import_products` | write | `catalog.manage` | true (DC-921) | §7; chỉ xếp job |
+| `marketplace.map_sku` | write | `catalog.manage` | true (DC-921) | §7; preview nêu listing ↔ biến thể; undo 24 giờ |
+| `marketplace.unmap_sku` | write | `catalog.manage` | true (DC-921) | §7 |
 | `marketplace.listings` | read | `catalog.view` | read: true | §7; đường tra `listing_id` cho Trợ lý |
 | `integration.auth_event` | internal | system | false | §8 |
 | `order.sync_now` (sửa) | write | `integrations.manage` (giữ — đổi sang `order.manage` là Q-917, chờ Chủ nhà) | false | §5; chỉ xếp job, trả `queued` |
 | `integration.sync_now` (sửa handler) | write | `integrations.manage` (giữ) | false | §5; kết nối `order_sync` → xếp job |
 
+- Agent là nhân viên (DC-921): action ghi mới của sàn cấp được cho agent ở Builder. `integration.oauth_select` (risk `config`) giữ `false` theo bảng nguồn × rủi ro §3.3 — luật chung, không riêng sàn. `order.sync_now` / `integration.sync_now` là action có sẵn, giữ cờ hiện tại.
 - File MỚI `packages/actions/src/marketplace.ts` (module như `integration.connect` hiện có); export ở `index.ts`. Handler: `connector-oauth.handlers.ts` (`oauth_select`) + `integrations/actions/marketplace.handlers.ts` (còn lại); đăng ký ở `integrations.module.ts`.
 - Mọi action ghi có `preview()` (assistant-coverage). `ALIAS` / `EXEMPT` chỉ khi có lý do ghi rõ. Nhãn `actions.<id>.title` vi + en (`apps/web/messages/{vi,en}/actions.json`).
 - **DTO:**
