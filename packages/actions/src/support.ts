@@ -8,6 +8,8 @@ const ticketId = z.string().min(1);
 const status = z.enum(['open', 'in_progress', 'waiting']);
 const priority = z.enum(['high', 'medium', 'low']);
 const out = z.object({ ticket_id: z.string(), status: z.string() });
+/** Khoá lạc quan (concurrency §1, TIP-003e): version ticket form đã mở; lệch → 409 STALE_VERSION. Không gửi = ghi bản mới nhất. */
+const ifVersion = z.number().int().positive().optional();
 const opened = (o: { ticket_id: string }) => ({
   type: 'open' as const,
   entity: 'ticket',
@@ -86,6 +88,7 @@ export const ticketUpdate = defineAction({
     category: z.string().trim().min(1).max(60).optional(),
     priority: priority.optional(),
     custom: customValuesSchema.optional(),
+    if_version: ifVersion,
   }),
   output: out,
   permission: 'ticket.manage',
@@ -105,6 +108,7 @@ export const ticketAssign = defineAction({
     assignee_user_id: z.string().optional(),
     assignee_agent_id: z.string().optional(),
     team_id: z.string().optional(),
+    if_version: ifVersion,
   }),
   output: out,
   permission: 'ticket.manage',
@@ -119,7 +123,7 @@ export const ticketSetStatus = defineAction({
   module: 'support',
   title: 'actions.ticket.set_status.title',
   description: 'Move an open ticket between open / in_progress / waiting (waiting pauses the SLA clock). Use ticket.close to close.',
-  input: z.object({ ticket_id: ticketId, status }),
+  input: z.object({ ticket_id: ticketId, status, if_version: ifVersion }),
   output: out,
   permission: 'ticket.manage',
   risk: 'write',
@@ -152,6 +156,7 @@ export const ticketClose = defineAction({
     ticket_id: ticketId,
     reason: z.enum(['resolved', 'duplicate', 'withdrawn', 'out_of_scope']),
     note: z.string().max(1000).optional(),
+    if_version: ifVersion,
   }),
   output: out.extend({ sla_result: z.enum(['met', 'breached']) }),
   permission: 'ticket.manage',
@@ -166,7 +171,7 @@ export const ticketReopen = defineAction({
   module: 'support',
   title: 'actions.ticket.reopen.title',
   description: 'Reopen a closed ticket (→ open, reopened_count + 1).',
-  input: z.object({ ticket_id: ticketId }),
+  input: z.object({ ticket_id: ticketId, if_version: ifVersion }),
   output: out,
   permission: 'ticket.manage',
   risk: 'write',

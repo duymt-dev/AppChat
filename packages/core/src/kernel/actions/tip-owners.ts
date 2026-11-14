@@ -56,6 +56,7 @@ const BY_ID: Record<string, string> = {
 
 const BY_PREFIX: Record<string, string> = {
   data_job: '045',
+  action_log: '003e',
   channel_operation: '014',
   notification: '003',
   profile: '004',

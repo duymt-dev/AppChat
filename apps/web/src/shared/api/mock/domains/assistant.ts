@@ -1,6 +1,7 @@
 // Mock Trợ lý AI (Blueprint §4.4 assistant / ai, §4.5): GET /assistant/home, /action-logs, /approvals (tác vụ tự chủ: ai-tasks.ts);
 // POST /assistant/messages (kịch bản thay SSE: trả danh sách event) + /assistant/confirm. Dữ liệu = prototype L1178–1504
 // (fixture sinh bởi tools/scripts/fixtures/gen-assistant.py).
+import { getAction } from '@appchat/actions';
 import { ApiRequestError, can, authzForRole, type PermissionKey, type RunLifecycle } from '@appchat/shared';
 import fixture from '../../../../../../../fixtures/prototype-parity/assistant.json';
 import type { MockHandler } from '../handlers';
@@ -20,6 +21,8 @@ export type ActionLogRow = Omit<AssistantFixture['action_logs'][number], 'title'
   object?: string;
   source?: 'ui' | 'assistant';
   undone?: boolean;
+  /** TIP-003e: đính chính (mảng chỉ thêm) cho hành động đã gửi. */
+  corrections?: { note: string; at: string }[];
 };
 type Field = { key: string; type: 'string' | 'number' | 'boolean'; required: boolean };
 type Approval = AssistantFixture['approvals'][number] & {
@@ -136,6 +139,10 @@ export const markUndone = (db: MockDb, logId: string) => {
 };
 
 const can_ = (db: MockDb, p: string) => can(authzForRole(db.role, 'u_tram'), p as PermissionKey);
+const sendPerm = (db: MockDb, actionId: string) => {
+  const p = getAction(actionId)?.permission;
+  return !!p && p !== 'platform_admin' && (p === 'self' || can_(db, p));
+};
 
 export const assistantRoutes: Record<string, MockRoute> = {
   '/assistant/home': () => ({
@@ -154,7 +161,9 @@ export const assistantRoutes: Record<string, MockRoute> = {
         (!q || [l.title, l.object, l.action_id].some((v) => v?.toLowerCase().includes(q)))
       );
     });
-    return { data: rows, total: db.assistant.logs.length, next_cursor: null };
+    // TIP-003e (như server): hành động `send` đã chạy → ghi đính chính được khi có permission của action gốc.
+    const correctable = (l: ActionLogRow) => l.kind === 'send' && l.status === 'done' && !l.undone && sendPerm(db, l.action_id);
+    return { data: rows.map((l) => (correctable(l) ? { ...l, correctable: true } : l)), total: db.assistant.logs.length, next_cursor: null };
   },
   '/approvals': (db, p) => {
     const status = String(p.status ?? 'pending');
@@ -297,6 +306,17 @@ export const assistantHandlers: Record<string, MockHandler> = {
       a.status = 'rejected';
       a.note = i.note;
       return { approval_id: a.id, status: a.status };
+    },
+  },
+  // TIP-003e: đính chính hành động đã gửi — quyền action gốc (403), chỉ log `send` đã chạy (409); thêm mục, không ghi đè.
+  'action_log.add_correction': {
+    execute: (db, i: { action_log_id: string; note: string }) => {
+      const l = db.assistant.logs.find((x) => x.id === i.action_log_id);
+      if (!l) throw new ApiRequestError(404, { code: 'NOT_FOUND', message: i.action_log_id });
+      if (!sendPerm(db, l.action_id)) throw new ApiRequestError(403, { code: 'FORBIDDEN', message: l.action_id });
+      if (l.kind !== 'send' || l.status !== 'done' || l.undone) throw new ApiRequestError(409, { code: 'INVALID_STATE', message: 'not_sent' });
+      l.corrections = [...(l.corrections ?? []), { note: i.note.trim(), at: new Date().toISOString() }];
+      return { action_log_id: l.id, corrections: l.corrections.length };
     },
   },
   'run.cancel': {

@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { usePinnedVersion } from '@/shared/actions/StaleVersionModal';
 import { useTkFormStyles } from '../styles/form.styles';
 import { useTicketsUi } from '../tickets-store';
 import { ticketQuery } from '../api';
@@ -13,18 +14,20 @@ const REASONS = ['resolved', 'duplicate', 'withdrawn', 'out_of_scope'] as const;
 
 export function CloseTicketModal() {
   const id = useTicketsUi((s) => s.closeFor);
-  const code = useQuery({ ...ticketQuery(id ?? ''), enabled: !!id }).data?.code;
-  if (!id || !code) return null;
-  return <CloseBox key={id} id={id} code={code} />;
+  const k = useQuery({ ...ticketQuery(id ?? ''), enabled: !!id }).data;
+  if (!id || !k?.code) return null;
+  return <CloseBox key={id} id={id} code={k.code} version={k.version} />;
 }
 
-function CloseBox({ id, code }: { id: string; code: string }) {
+function CloseBox({ id, code, version }: { id: string; code: string; version?: number }) {
   const t = useTranslations('tickets');
   const { styles, cx } = useTkFormStyles();
   const set = useTicketsUi((s) => s.set);
   const [reason, setReason] = useState<(typeof REASONS)[number] | ''>('');
   const [note, setNote] = useState('');
   const closeT = useAction('ticket.close');
+  // TIP-003e: version lúc mở hộp — người khác sửa trước → 409 → hộp xung đột chung, lý do / ghi chú giữ nguyên.
+  const ver = usePinnedVersion(version, ticketQuery(id).queryKey);
   const done = () => set({ closeFor: null });
   return (
     <ModalShell
@@ -54,7 +57,7 @@ function CloseBox({ id, code }: { id: string; code: string }) {
             disabled={!reason}
             onClick={async () => {
               if (!reason) return;
-              if (await closeT.run({ ticket_id: id, reason, ...(note.trim() ? { note: note.trim() } : {}) })) done();
+              if (await closeT.run({ ticket_id: id, reason, if_version: ver.ifVersion, ...(note.trim() ? { note: note.trim() } : {}) }, { onStaleReload: ver.onStaleReload })) done();
             }}
             data-testid="tk-close-ok"
           >

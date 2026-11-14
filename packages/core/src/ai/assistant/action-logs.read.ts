@@ -6,7 +6,7 @@
 // actor_type, status)` + deferred join tới hàng đầy đủ; chờ duyệt: `approval_request_status_requested_at_idx`.
 import { registry } from '@appchat/actions';
 import { TenantSql, type TenantDb } from '@appchat/db';
-import { can, foldText, interpolate, serverMessages, type ActionLogRowDto, type AuthzContext } from '@appchat/shared';
+import { can, foldText, interpolate, serverMessages, type ActionLogRowDto, type AuthzContext, type PermissionKey } from '@appchat/shared';
 import { confirmCard } from './card';
 
 export const LOG_KINDS = ['create', 'update', 'send', 'export', 'delete'] as const;
@@ -50,7 +50,7 @@ function range(day: LogFilter['day'], now: Date): { from?: Date; to?: Date } {
   return {};
 }
 
-type Row = { id: string; action_id: string; risk: string; status: string; source: string; undo_until: Date | null; input: unknown; result: unknown; created_at: Date; actor_id: string | null; on_behalf: string | null };
+type Row = { id: string; action_id: string; risk: string; status: string; source: string; undo_until: Date | null; input: unknown; result: unknown; created_at: Date; actor_id: string | null; on_behalf: string | null; correction: unknown };
 
 /** Tiêu đề hiển thị: tên / tiêu đề trong kết quả action nếu có; đối tượng = tên module. */
 function titleOf(r: Row, locale: string): { title?: string; object: string } {
@@ -62,6 +62,15 @@ function titleOf(r: Row, locale: string): { title?: string; object: string } {
   const name = src.flatMap((o) => NAME_KEYS.map((k) => o[k])).find((v) => typeof v === 'string' && v) as string | undefined;
   const base = def ? confirmCard(def, null, '', locale).title : r.action_id;
   return { title: name ? interpolate('{base} "{name}"', { base, name }) : base, object };
+}
+
+/** TIP-003e (REQ-E09c): action `send` đã chạy → nút "Ghi đính chính" khi người xem có permission của action gốc (scope bản ghi kiểm
+ *  lại lúc ghi); đính chính đã ghi hiện kèm (không lộ người ghi ngoài nhật ký đầy đủ). */
+function correctionOf(r: Row, authz: AuthzContext, inactive: boolean): Pick<ActionLogRowDto, 'correctable' | 'corrections'> {
+  const list = Array.isArray(r.correction) ? (r.correction as { note: string; at: string }[]).map((c) => ({ note: c.note, at: c.at })) : [];
+  const perm = DEFS.get(r.action_id)?.permission;
+  const correctable = !inactive && r.risk === 'send' && !!perm && perm !== 'platform_admin' && (perm === 'self' || can(authz, perm as PermissionKey));
+  return { ...(correctable ? { correctable } : {}), ...(list.length ? { corrections: list } : {}) };
 }
 
 /** Loại → điều kiện SQL (cùng luật `kindOf`): lọc trong SQL để `total` và LIMIT đúng theo bộ lọc. */
@@ -96,14 +105,14 @@ export async function listActionLogs(db: Pick<TenantDb, '$queryRaw'>, authz: Aut
   // Deferred join: chọn id theo index (created_at DESC), rồi mới đọc cột rộng (input / result) cho đúng số dòng.
   const rows = logs
     ? await db.$queryRaw<Row[]>(TenantSql.sql`
-    SELECT l.id, l.action_id, l.risk, l.status, l.source::text AS source, l.undo_until, l.input, l.result, l.created_at, l.actor_id, l.on_behalf_of_user_id::text AS on_behalf
+    SELECT l.id, l.action_id, l.risk, l.status, l.source::text AS source, l.undo_until, l.input, l.result, l.created_at, l.actor_id, l.on_behalf_of_user_id::text AS on_behalf, l.correction
     FROM (SELECT id FROM action_log WHERE ${where} ORDER BY created_at DESC LIMIT ${LIMIT}) s
     JOIN action_log l ON l.id = s.id
     ORDER BY l.created_at DESC`)
     : [];
   const pend = approvals
     ? await db.$queryRaw<Row[]>(TenantSql.sql`
-    SELECT id, action_id, risk, 'pending' AS status, source, NULL::timestamptz AS undo_until, input, NULL::jsonb AS result, requested_at AS created_at, NULL AS actor_id, on_behalf_of_user_id::text AS on_behalf
+    SELECT id, action_id, risk, 'pending' AS status, source, NULL::timestamptz AS undo_until, input, NULL::jsonb AS result, requested_at AS created_at, NULL AS actor_id, on_behalf_of_user_id::text AS on_behalf, NULL::jsonb AS correction
     FROM approval_request WHERE ${apWhere} ORDER BY requested_at DESC LIMIT ${LIMIT}`)
     : [];
   const [c1] = logs ? await db.$queryRaw<{ n: bigint }[]>(TenantSql.sql`SELECT count(*) AS n FROM action_log WHERE ${where}`) : [];
@@ -130,6 +139,7 @@ export async function listActionLogs(db: Pick<TenantDb, '$queryRaw'>, authz: Aut
       action_id: r.action_id,
       source: r.source,
       ...(undone ? { undone: true } : {}),
+      ...correctionOf(r, authz, pending || undone),
     });
   }
   return { data, total: Number(c1?.n ?? 0) + Number(c2?.n ?? 0), next_cursor: null };

@@ -63,6 +63,8 @@ model ActionLog {
   traceId          String?      @map("trace_id")
   /// Sự kiện nhạy cảm (TIP-045b annex A2) — đọc ở Cài đặt › Audit + thông báo Owner. Partial index viết tay ở migration.
   audit            Boolean      @default(false)
+  /// TIP-003e (REQ-E09c): đính chính cho action đã gửi ra ngoài — mảng chỉ thêm `[{ note, by, at, draft_message_id? }]`.
+  correction       Json?
   createdAt        DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@index([runId])

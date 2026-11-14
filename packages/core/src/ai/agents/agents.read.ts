@@ -27,6 +27,7 @@ function toDto(a: AgentRow, s: AgentStatsDto | undefined): AgentDto {
     csat: val(s?.csat),
     ...(s ? { stats: s } : {}),
     version: a.publishedVersion,
+    row_version: a.rowVersion,
     dirty: a.draftDirty,
   };
 }

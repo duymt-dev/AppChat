@@ -8,6 +8,7 @@ import { QuotaService } from '../../billing/public';
 import { openReservations, reserveQuota } from '../../kernel/consistency/handler-adapter';
 import { CLOCK, type Clock } from '../../kernel/clock';
 import { uuidv7 } from '../../kernel/ids';
+import { assertIfVersion } from '../../kernel/actions/cas';
 import type { ActionContext, PlatformTx, TenantTx } from '../../kernel/actions/action-context';
 import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type HandlerOutcome } from '../../kernel/actions/handler';
 import { agentEvent, assertTools, blankConfig, columnsOf, configOf, countLive, liveAgent, merge, publishDraft, type AgentConfig, type AgentRow } from './agent.store';
@@ -96,7 +97,11 @@ export class AgentUpdateHandler implements Handler<ActionInput<typeof agentUpdat
   constructor(@Inject(CLOCK) private readonly clock: Clock) {}
 
   async execute(ctx: ActionContext, input: ActionInput<typeof agentUpdate>, tx: TenantTx): Promise<HandlerOutcome<{ agent_id: string }>> {
+    // TIP-003e: khoá dòng rồi đọc lại, so `row_version` (trigger tăng mỗi UPDATE) — hai người sửa cùng bản nháp → người sau 409.
+    await liveAgent(tx, input.agent_id);
+    await tx.$queryRaw`SELECT 1 FROM ai_agent WHERE id = ${input.agent_id}::uuid FOR UPDATE`;
     const a = await liveAgent(tx, input.agent_id);
+    assertIfVersion(a.rowVersion, input.if_version);
     const before = configOf(a);
     const next = merge(before, input.patch as Partial<AgentConfig>);
     // Chỉ kiểm tool mới thêm (tool cũ do người khác cấp vẫn giữ — người sửa không cần có mọi quyền cũ).

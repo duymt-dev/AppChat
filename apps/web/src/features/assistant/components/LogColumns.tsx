@@ -1,4 +1,5 @@
 // Cột bảng Nhật ký hành động — prototype L1480–1496: Loại · Hành động · Đối tượng · Thời gian · Trạng thái · Hoàn tác; thẻ < md.
+// TIP-003e (REQ-E09c): hành động đã gửi ra ngoài không có Hoàn tác — cột đó hiện "Ghi đính chính"; đính chính đã ghi hiện dưới tiêu đề.
 'use client';
 import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
@@ -21,7 +22,9 @@ const STATUS_TONE = {
   undone: [color.text3, color.mutedBg],
 } as const;
 
-function useParts(onUndo: (r: ActionLogRow) => void) {
+type Handlers = { onUndo: (r: ActionLogRow) => void; onCorrect: (r: ActionLogRow) => void };
+
+function useParts({ onUndo, onCorrect }: Handlers) {
   const t = useTranslations('assistant.log');
   const { styles } = useLogStyles();
   return {
@@ -62,19 +65,42 @@ function useParts(onUndo: (r: ActionLogRow) => void) {
         </button>
       ) : r.undone ? (
         <span className={styles.dash}>{t('dash')}</span>
+      ) : r.correctable ? (
+        <button
+          type="button"
+          className={styles.undo}
+          onClick={(e) => {
+            e.stopPropagation();
+            onCorrect(r);
+          }}
+          data-testid="log-correct-open"
+        >
+          <Icon name="ic-edit" size={12} color={color.text3} strokeWidth={2} />
+          {t('correctBtn')}
+        </button>
       ) : null,
+    title: (r: ActionLogRow) => (
+      <>
+        <span className={styles.rowTitle}>{r.title ?? t('dash')}</span>
+        {r.corrections?.map((c) => (
+          <div key={c.at} className={styles.obj} data-testid="log-correction">
+            {t('corrected', { note: c.note })}
+          </div>
+        ))}
+      </>
+    ),
     when: (r: ActionLogRow) => t('when', { day: t(`day.${r.day}` as never), time: r.time }),
   };
 }
 
-export function useLogColumns(onUndo: (r: ActionLogRow) => void): TableColumnsType<ActionLogRow> {
+export function useLogColumns(h: Handlers): TableColumnsType<ActionLogRow> {
   const { styles } = useLogStyles();
-  const p = useParts(onUndo);
+  const p = useParts(h);
   const { t } = p;
   return useMemo(
     () => [
       { key: 'kind', title: t('col.kind'), width: 136, render: (_, r) => p.kind(r) },
-      { key: 'title', title: t('col.title'), render: (_, r) => <span className={styles.rowTitle}>{r.title ?? t('dash')}</span> },
+      { key: 'title', title: t('col.title'), render: (_, r) => p.title(r) },
       { key: 'object', title: t('col.object'), width: 300, render: (_, r) => <span className={styles.obj}>{r.object ?? r.action_id}</span> },
       { key: 'time', title: t('col.time'), width: 160, render: (_, r) => <span className={styles.time}>{p.when(r)}</span> },
       { key: 'status', title: t('col.status'), width: 130, render: (_, r) => p.status(r) },
@@ -84,9 +110,9 @@ export function useLogColumns(onUndo: (r: ActionLogRow) => void): TableColumnsTy
   );
 }
 
-export function LogCard({ r, onUndo }: { r: ActionLogRow; onUndo: (r: ActionLogRow) => void }) {
+export function LogCard({ r, ...h }: { r: ActionLogRow } & Handlers) {
   const { styles } = useLogStyles();
-  const p = useParts(onUndo);
+  const p = useParts(h);
   return (
     <div className={styles.card} data-log={r.id}>
       <div className={styles.cardRow}>
@@ -94,7 +120,7 @@ export function LogCard({ r, onUndo }: { r: ActionLogRow; onUndo: (r: ActionLogR
         <span style={{ flex: 1 }} />
         {p.status(r)}
       </div>
-      <div className={styles.rowTitle}>{r.title ?? p.t('dash')}</div>
+      <div>{p.title(r)}</div>
       <div className={styles.cardRow}>
         <span className={styles.obj} style={{ flex: 1 }}>
           {r.object ?? r.action_id} · {p.when(r)}

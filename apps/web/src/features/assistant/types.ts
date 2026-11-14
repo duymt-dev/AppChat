@@ -106,6 +106,9 @@ export interface ActionLogRow {
   status: 'done' | 'pending';
   action_id: string;
   undone?: boolean;
+  /** TIP-003e: đã gửi ra ngoài — không hoàn tác, ghi được đính chính. */
+  correctable?: boolean;
+  corrections?: { note: string; at: string }[];
 }
 
 export interface Run {

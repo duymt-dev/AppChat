@@ -3,6 +3,7 @@
 // sách mặc định; đóng chốt sla_result; mở lại +1.
 import { ApiRequestError, TICKET_DUP_HOURS, TICKET_FLOW, assertTransition, setStatusKey, type AppError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
+import { checkVersion } from './commerce-edit';
 import { ME } from './customers';
 import { MOCK_NOW } from './quotes';
 import { NOW, actor, find, slaOf, targets, ticketsRoutes, touch, type Comment, type Ticket, type TicketStatus } from './tickets';
@@ -104,18 +105,22 @@ export const ticketsHandlers: Record<string, MockHandler> = {
     },
   },
   'ticket.update': {
-    execute: (db, i: { ticket_id: string; title?: string; description?: string; category?: string; priority?: 'high' | 'medium' | 'low' }) => {
+    execute: (db, i: { if_version?: number; ticket_id: string; title?: string; description?: string; category?: string; priority?: 'high' | 'medium' | 'low' }) => {
       const t = find(db, i.ticket_id);
-      const { ticket_id, ...patch } = i;
+      checkVersion(t, i.if_version);
+      const { ticket_id, if_version, ...patch } = i;
       void ticket_id;
+      void if_version;
       if (i.priority && i.priority !== t.priority) touch(t, { type: 'priority' });
+      else t.version = (t.version ?? 1) + 1;
       Object.assign(t, patch, { updated_at: MOCK_NOW });
       return { ticket_id: t.id, status: t.status };
     },
   },
   'ticket.assign': {
-    execute: (db, i: { ticket_id: string; assignee_user_id?: string; assignee_agent_id?: string; team_id?: string }) => {
+    execute: (db, i: { if_version?: number; ticket_id: string; assignee_user_id?: string; assignee_agent_id?: string; team_id?: string }) => {
       const t = find(db, i.ticket_id);
+      checkVersion(t, i.if_version);
       if (!i.assignee_user_id === !i.assignee_agent_id) deny('VALIDATION_FAILED', 'assignee', { assignee: 'one_only' });
       if (t.status === 'closed') step(t, 'ticket.assign');
       assign(t, i);
@@ -124,8 +129,9 @@ export const ticketsHandlers: Record<string, MockHandler> = {
     },
   },
   'ticket.set_status': {
-    execute: (db, i: { ticket_id: string; status: 'open' | 'in_progress' | 'waiting' }) => {
+    execute: (db, i: { if_version?: number; ticket_id: string; status: 'open' | 'in_progress' | 'waiting' }) => {
       const t = find(db, i.ticket_id);
+      checkVersion(t, i.if_version);
       step(t, setStatusKey(i.status));
       // Rời "waiting" → cộng thời gian tạm dừng vào hạn TTR.
       if (t.paused_since && i.status !== 'waiting') {
@@ -158,8 +164,9 @@ export const ticketsHandlers: Record<string, MockHandler> = {
     },
   },
   'ticket.close': {
-    execute: (db, i: { ticket_id: string; reason: string }) => {
+    execute: (db, i: { if_version?: number; ticket_id: string; reason: string }) => {
       const t = find(db, i.ticket_id);
+      checkVersion(t, i.if_version);
       step(t, 'ticket.close');
       t.sla_result = slaOf(t).state === 'breach' ? 'breached' : 'met';
       t.status = 'closed';
@@ -170,8 +177,9 @@ export const ticketsHandlers: Record<string, MockHandler> = {
     },
   },
   'ticket.reopen': {
-    execute: (db, i: { ticket_id: string }) => {
+    execute: (db, i: { if_version?: number; ticket_id: string }) => {
       const t = find(db, i.ticket_id);
+      checkVersion(t, i.if_version);
       step(t, 'ticket.reopen');
       Object.assign(t, { status: 'open', close_reason: null, sla_result: null, reopened_count: t.reopened_count + 1 });
       touch(t, { type: 'reopened' });

@@ -17,6 +17,7 @@ import { enqueueOutgoing } from '../../../inbox/public';
 import { lockOrder } from '../../orders/order-access';
 import { actorOf } from '../../orders/services/order-write';
 import { QuoteDeps } from '../../quotes/services/quote-deps';
+import { assertIfVersion } from '../../../kernel/actions/cas';
 import { lockInvoice, visibleInvoice } from '../invoice-access';
 import { prepareInvoiceDelivery, type InvoiceDelivery } from '../services/invoice-delivery';
 import { invoiceText, postInvoice } from '../services/invoice-send';
@@ -140,6 +141,7 @@ export class InvoiceSendHandler implements Handler<SendIn, St> {
   async execute(ctx: ActionContext, input: SendIn, tx: TenantTx, _ptx?: unknown, prepared?: unknown): Promise<HandlerOutcome<St>> {
     const p = (prepared ?? NONE) as Prepared;
     const i = await lockInvoice(tx, ctx.authz, input.invoice_id);
+    assertIfVersion(i.version, input.if_version);
     const to = assertTransition(INVOICE_FLOW, i.status, 'invoice.send_payment_qr');
     const now = this.clock.now();
     const first = i.status === 'draft';
@@ -183,6 +185,7 @@ export class InvoiceVoidHandler implements Handler<ActionInput<typeof invoiceVoi
 
   async execute(ctx: ActionContext, input: ActionInput<typeof invoiceVoid>, tx: TenantTx): Promise<HandlerOutcome<St>> {
     const i = await lockInvoice(tx, ctx.authz, input.invoice_id);
+    assertIfVersion(i.version, input.if_version);
     if (i.paidAmount > 0n) throw new AppError('INVALID_STATE', 409, { invoice_id: 'paid' });
     const to = assertTransition(INVOICE_FLOW, i.status, 'invoice.void');
     const now = this.clock.now();

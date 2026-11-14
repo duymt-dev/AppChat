@@ -69,6 +69,8 @@ export const invoiceRowSchema = z.object({
   events: z.array(invoiceEventSchema),
   ai: z.object({ text: z.string(), acts: z.array(z.string()) }),
   qr: vietQrSchema.nullable(),
+  /** Khoá lạc quan (TIP-003e) — form gửi lại `if_version`. */
+  version: z.number().int(),
 });
 export type InvoiceRow = z.infer<typeof invoiceRowSchema>;
 

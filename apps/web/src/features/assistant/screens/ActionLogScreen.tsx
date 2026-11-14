@@ -1,4 +1,5 @@
-// Nhật ký hành động (orchestrator) — prototype L1464–1500: tìm, lọc trạng thái / thời gian, chip loại, DataTable + Hoàn tác.
+// Nhật ký hành động (orchestrator) — prototype L1464–1500: tìm, lọc trạng thái / thời gian, chip loại, DataTable + Hoàn tác; hành động đã
+// gửi ra ngoài → "Ghi đính chính" (TIP-003e, CorrectionModal).
 'use client';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
@@ -11,6 +12,7 @@ import { useLogStyles } from '../styles/log.styles';
 import { actionLogsQuery, type LogFilter } from '../api';
 import { AssistantTopBar } from '../components/AssistantTopBar';
 import { LogCard, useLogColumns } from '../components/LogColumns';
+import { CorrectionModal } from '../components/CorrectionModal';
 import type { ActionLogRow } from '../types';
 
 const EMPTY: LogFilter = { kind: 'all', status: 'all', day: 'all', q: '' };
@@ -32,7 +34,8 @@ export function ActionLogScreen() {
   const undo = async (r: ActionLogRow) => {
     await runUndo(r.id, r.action_id, r.title ?? r.action_id);
   };
-  const columns = useLogColumns(undo);
+  const [correcting, setCorrecting] = useState<ActionLogRow | null>(null);
+  const columns = useLogColumns({ onUndo: undo, onCorrect: setCorrecting });
 
   return (
     <div className={page.root} data-testid="action-log">
@@ -81,11 +84,12 @@ export function ActionLogScreen() {
             rowKey={(r) => r.id}
             minWidth={900}
             rowProps={(r) => ({ 'data-log': r.id })}
-            mobileCard={(r) => <LogCard r={r} onUndo={undo} />}
+            mobileCard={(r) => <LogCard r={r} onUndo={undo} onCorrect={setCorrecting} />}
             emptyText={t('empty')}
           />
         </PageStates>
       </div>
+      {correcting ? <CorrectionModal row={correcting} onClose={() => setCorrecting(null)} /> : null}
     </div>
   );
 }

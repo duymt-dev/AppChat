@@ -38,6 +38,8 @@ describe('Chờ duyệt + nhật ký', () => {
     expect(editableFields(def('invoice.send_payment_qr'))).toEqual([
       { key: 'invoice_id', type: 'string', required: true },
       { key: 'channel', type: 'string', required: true },
+      // TIP-003e: if_version tuỳ chọn — như campaign.delete (agents-ui.test.ts), giữ nguyên khi người duyệt không sửa.
+      { key: 'if_version', type: 'number', required: false },
     ]);
     expect(editableFields(undefined)).toEqual([]);
   });

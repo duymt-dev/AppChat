@@ -11,6 +11,7 @@ import { ActionHandler, type ActionHandler as Handler, type ActionLogRow, type H
 import { ChannelSendQueue } from '../../channels/public';
 import { CrmMembers, actorUserId } from '../../crm/public';
 import { enqueueOutgoing, writeOutgoing, type Outgoing } from '../../inbox/public';
+import { assertIfVersion } from '../../kernel/actions/cas';
 import { lockTicket, type TicketRecord } from '../ticket-access';
 import { SlaCalendar, defaultPolicy, resumeDue, targetsFor } from '../services/sla-clock';
 import { actorOf, evOf, logEvent, step, timeline, type Ev } from '../services/ticket-write';
@@ -58,6 +59,7 @@ export class TicketSetStatusHandler implements Handler<ActionInput<typeof ticket
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketSetStatus>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
     const t = await lockTicket(tx, ctx.authz, input.ticket_id);
+    assertIfVersion(t.version, input.if_version);
     const to = step(t, setStatusKey(input.status));
     const resumed = t.status === 'waiting' ? resumeDue(t, now, await this.cal.of(ctx.workspaceId)) : {};
     const row = await tx.ticket.update({ where: { id: t.id }, data: { status: to, pausedSince: to === 'waiting' ? now : null, ...resumed, updatedAt: now } });
@@ -87,6 +89,7 @@ export class TicketCloseHandler implements Handler<ActionInput<typeof ticketClos
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketClose>, tx: TenantTx): Promise<HandlerOutcome<Out & { sla_result: 'met' | 'breached' }>> {
     const now = this.clock.now();
     const t = await lockTicket(tx, ctx.authz, input.ticket_id);
+    assertIfVersion(t.version, input.if_version);
     const to = step(t, 'ticket.close');
     const cal = await this.cal.of(ctx.workspaceId);
     const due = t.status === 'waiting' ? resumeDue(t, now, cal) : { ttrDueAt: t.ttrDueAt, pausedTotalSec: t.pausedTotalSec };
@@ -137,6 +140,7 @@ export class TicketReopenHandler implements Handler<ActionInput<typeof ticketReo
   async execute(ctx: ActionContext, input: ActionInput<typeof ticketReopen>, tx: TenantTx): Promise<HandlerOutcome<Out>> {
     const now = this.clock.now();
     const t = await lockTicket(tx, ctx.authz, input.ticket_id);
+    assertIfVersion(t.version, input.if_version);
     const row = await reopenTicket(tx, t, now, await this.cal.of(ctx.workspaceId), await actorOf(ctx, tx, this.members));
     return { result: { ticket_id: t.id, status: row.status }, events: [evOf('ticket.reopened', row)] };
   }

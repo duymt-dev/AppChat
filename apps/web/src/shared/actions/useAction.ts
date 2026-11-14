@@ -7,6 +7,7 @@
 // nhận như Trợ lý). Form có ô bí mật: 202 trả `secret_vault`; lần xác nhận gửi vault + input ĐÃ BỎ ô bí mật (không gửi lại giá trị).
 // Vòng gửi / xem trước / xác nhận nằm ở runActionRequest (dùng chung với cầu nối hoàn tác); bấm "Hoàn tác" trên toast đi qua useUndoAction
 // (TIP-034c: cha có action hoàn tác riêng → xem trước + xác nhận, không báo "đã hoàn tác" khi chỉ một phần).
+// 409 STALE_VERSION (TIP-003e) mà màn không tự xử lý → hộp xung đột chung (StaleVersionModal: Tải lại / Giữ bản của tôi), không toast.
 'use client';
 import { useCallback, useState } from 'react';
 import { App } from 'antd';
@@ -19,6 +20,7 @@ import { useConfirmStore } from './confirm-store';
 import { creditExhausted } from '../billing/credit-error';
 import { runActionRequest } from './run-action-request';
 import { useUndoAction } from './useUndoAction';
+import { staleVersion } from './StaleVersionModal';
 
 export interface RunOptions {
   silent?: boolean;
@@ -26,6 +28,8 @@ export interface RunOptions {
   onError?: (e: ApiRequestError) => boolean;
   /** 202 đã nhận nhưng CHƯA xong (chờ duyệt / việc nền đang chạy) — màn giữ handle / cập nhật trạng thái chờ. */
   onAccepted?: (a: Exclude<ActionAccepted, { status: 'preview_required' }>) => void;
+  /** 409 STALE_VERSION → "Tải lại" xong thì gọi (form chốt version lúc mở → mở lại với bản mới). */
+  onStaleReload?: () => void;
   /** Gửi từ node GenUI: handle intent + đường dẫn ô bí mật của form (bỏ khỏi input ở lần xác nhận). */
   genui?: { intent: string; secretPaths?: string[] };
 }
@@ -107,6 +111,10 @@ export function useAction<O = unknown>(id: string) {
         const code = e instanceof ApiRequestError ? e.error.code : 'INTERNAL';
         // TIP-039: 402 hết Credit → popup ví (BillingNoticeHost) ngoài toast; PLAN_LIMIT_REACHED giữ toast riêng (không gắn nhãn hết Credit).
         if (code === 'CREDIT_EXHAUSTED') creditExhausted();
+        if (code === 'STALE_VERSION') {
+          staleVersion(id, opts.onStaleReload);
+          return null;
+        }
         message.error(t(`errors.${code}` as never));
         return null;
       } finally {

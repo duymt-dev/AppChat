@@ -65,6 +65,8 @@ export interface Invoice {
   events: InvoiceEvent[];
   ai: { text: string; acts: string[] };
   qr: VietQr | null;
+  /** Khoá lạc quan (TIP-003e) — gửi / huỷ kèm `if_version`. */
+  version: number;
 }
 
 export interface BankTx {

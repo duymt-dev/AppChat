@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { ModalShell, color } from '@appchat/ui';
 import { useAction } from '@/shared/actions/useAction';
+import { usePinnedVersion } from '@/shared/actions/StaleVersionModal';
 import { useFmt } from '@/shared/i18n/useFmt';
 import { useInvoiceFormStyles } from '../styles/form.styles';
 import { useInvoicesUi } from '../invoices-store';
@@ -144,6 +145,8 @@ function VoidInvoice({ i }: { i: Invoice }) {
   const set = useInvoicesUi((s) => s.set);
   const [reason, setReason] = useState('');
   const run = useAction('invoice.void');
+  // TIP-003e: version lúc mở hộp huỷ — đổi trong lúc nhập lý do → 409 → hộp xung đột chung, lý do giữ nguyên.
+  const ver = usePinnedVersion(i.version, invoiceQuery(i.id).queryKey);
   const close = () => set({ voidFor: null });
   return (
     <ModalShell
@@ -167,7 +170,7 @@ function VoidInvoice({ i }: { i: Invoice }) {
             className={cx(styles.btn, styles.primary)}
             disabled={!reason.trim()}
             onClick={async () => {
-              if (await run.run({ invoice_id: i.id, reason: reason.trim() })) close();
+              if (await run.run({ invoice_id: i.id, reason: reason.trim(), if_version: ver.ifVersion }, { onStaleReload: ver.onStaleReload })) close();
             }}
             data-testid="iv-void-ok"
           >

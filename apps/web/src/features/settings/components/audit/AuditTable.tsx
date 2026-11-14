@@ -1,5 +1,6 @@
 // Bảng Audit log — prototype L7024–7044: giờ (mono) · người làm (tên + vai trò hiện tại / Hệ thống / Trợ lý AI) · hành động (tên action
-// theo i18n, không có dữ liệu input) · IP. Hàng sự kiện bảo mật có nhãn. Chỉ đọc.
+// theo i18n, không có dữ liệu input) · IP. Hàng sự kiện bảo mật có nhãn; hành động đã gửi có đính chính (TIP-003e) hiện nhãn + ghi chú ở title.
+// Chỉ đọc.
 'use client';
 import { useTranslations } from 'next-intl';
 import { useFmt } from '@/shared/i18n/useFmt';
@@ -33,6 +34,11 @@ export function AuditTable({ rows }: { rows: AuditRow[] }) {
           <div className={styles.act}>
             {a.action !== a.action_id ? a.action : label(a.action_id)}
             {a.status === 'warn' ? <span className={styles.warn}>{t('status.warn')}</span> : null}
+            {a.corrections?.length ? (
+              <span className={styles.ok} title={a.corrections.map((c) => `${fmt.date(c.at)} ${fmt.time(c.at)} · ${c.note}`).join('\n')} data-testid="audit-correction">
+                {t('corrected', { n: a.corrections.length })}
+              </span>
+            ) : null}
           </div>
           <div className={cx(styles.ip, styles.hideM)}>{a.ip ?? DASH}</div>
         </div>

@@ -1461,6 +1461,7 @@
     "empty": "Chưa có hoạt động nào được ghi.",
     "emptyFiltered": "Không có dòng nào khớp bộ lọc.",
     "removed": "đã rời workspace",
+    "corrected": "Đã đính chính ({n})",
     "ctxLine": "{ctx} · {credits} credit · {tokens} token",
     "ctx": {
       "conversation": "Hộp thư / hội thoại",

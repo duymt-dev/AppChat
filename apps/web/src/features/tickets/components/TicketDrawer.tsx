@@ -90,7 +90,7 @@ function AiBanner({ k, meta }: { k: Ticket; meta: TicketsMeta }) {
   const ai = !!k.assignee_agent_id;
   const meId = meta.members.find((m) => m.id === me?.user.id)?.id ?? meta.members[0]!.id;
   const toggle = () =>
-    void assign.run(ai ? { ticket_id: k.id, assignee_user_id: meId } : { ticket_id: k.id, assignee_agent_id: meta.agent.id });
+    void assign.run({ ticket_id: k.id, if_version: k.version, ...(ai ? { assignee_user_id: meId } : { assignee_agent_id: meta.agent.id }) });
   return (
     <div className={styles.ai}>
       <span className={styles.aiIc}>
@@ -126,7 +126,7 @@ function Composer({ k }: { k: Ticket }) {
           <span className={styles.closed}>
             {t('detail.closedAs', { reason: t(`closeBox.reasons.${(k.close_reason ?? 'resolved') as 'resolved'}`) })}
           </span>
-          <button type="button" className={styles.act} onClick={() => void reopen.run({ ticket_id: k.id })} data-testid="tk-reopen">
+          <button type="button" className={styles.act} onClick={() => void reopen.run({ ticket_id: k.id, if_version: k.version })} data-testid="tk-reopen">
             <Icon name="ic-flow" size={14} color={color.text3} />
             {t('detail.reopen')}
           </button>
@@ -134,9 +134,11 @@ function Composer({ k }: { k: Ticket }) {
       </div>
     );
   const send = async () => {
-    if (!text.trim()) return;
-    const r = await comment.run({ ticket_id: k.id, body: text.trim(), internal });
-    if (r) setText('');
+    const body = text.trim();
+    if (!body) return;
+    const r = await comment.run({ ticket_id: k.id, body, internal });
+    // run chờ làm mới truy vấn xong mới trả — chỉ xoá khi ô vẫn là nội dung vừa gửi (không nuốt câu đang gõ tiếp).
+    if (r) setText((cur) => (cur.trim() === body ? '' : cur));
   };
   return (
     <div className={styles.comp}>

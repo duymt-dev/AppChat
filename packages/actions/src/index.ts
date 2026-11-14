@@ -96,6 +96,7 @@ import * as privacy from './privacy';
 import * as assistantPlans from './assistant-plans';
 import * as assistantDiscovery from './assistant-discovery';
 import * as assistantInput from './assistant-input';
+import * as actionLog from './action-log';
 
 export * from './define';
 export * from './assistant-plans';
@@ -198,6 +199,7 @@ export * from './data-jobs';
 export * from './data-transfer';
 export * from './crm-bulk';
 export * from './crm-forms';
+export * from './action-log';
 export * from './inbox-translation';
 export * from './privacy';
 
@@ -303,6 +305,7 @@ export const registry: readonly ActionDef[] = [
   ...Object.values(assistantPlans),
   ...Object.values(assistantDiscovery),
   ...Object.values(assistantInput),
+  ...Object.values(actionLog),
 ] as ActionDef[];
 
 export const getAction = (id: string): ActionDef | undefined => registry.find((a) => a.id === id);
