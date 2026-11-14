@@ -173,7 +173,7 @@ Trạng thái: `chờ` · `đang làm` · `DONE` · `PARTIAL` (chỉ vì tài ng
 | 75 | [020f](../tips/TIP-020f-kb-parsers.md) | W8 | chờ | `tip/020f-kb-parsers` | | |
 | 76 | [022d](../tips/TIP-022d-zalo-proactive-cap.md) | W8 | DONE — cap 200 (50–500 + cảnh báo > 200), trả lời 24h miễn cap, bảng dự phòng `channel_proactive_slot` chịu mất Redis, hoãn `deferred_cap` tz workspace, chưa nghiệm thu provider thật (Q-003); DC-703, DV-703 | `tip/022d-zalo-proactive-cap` | `40740351` | [#232](https://github.com/duymt-dev/AppChat/pull/232) |
 | 77 | [031b](../tips/TIP-031b-commerce-bulk.md) | W8 | chờ | `tip/031b-commerce-bulk` | | |
-| 78 | [031c](../tips/TIP-031c-stock-master.md) | W8 | chờ | `tip/031c-stock-master` | | |
+| 78 | [031c](../tips/TIP-031c-stock-master.md) | W8 | DONE (`4345dfb7`, chưa nghiệm thu provider thật — `mock_marketplace`) | `tip/031c-stock-master` | [#233](https://github.com/duymt-dev/AppChat/pull/233) | `COM-4b-5`, `REQ-F07b-3` ĐẠT (`DC-704`, `DV-704`, PR vào `dev`, dừng trước `048b` chờ `026c`+`048` merge) |
 | 79 | [006d](../tips/TIP-006d-web-push.md) | W8 | chờ | `tip/006d-web-push` | | |
 | 80 | [033d](../tips/TIP-033d-order-deposit.md) | W8 | chờ | `tip/033d-order-deposit` | | |
 | 81 | [026c](../tips/TIP-026c-sales-pipeline.md) | W8 | chờ — D60 / DC-901 (Q-901, 2026-11-12) | `tip/026c-sales-pipeline` | | |

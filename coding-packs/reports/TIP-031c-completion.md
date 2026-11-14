@@ -1,6 +1,6 @@
 # Báo cáo hoàn thành TIP-031c — Bên giữ tồn chuẩn theo kết nối bán hàng (`stock_master` appchat / external)
 
-**TIP:** `031c` · **Nhánh:** `tip/031c-stock-master` (`wt1` `D:/CODING/AppChat-Agy`) · **Nền rebase:** `(sẽ cập nhật sau rebase origin/dev)` · **Commit code:** `(sẽ cập nhật sau commit/rebase)` · **PR:** `(sẽ cập nhật sau gh pr create)` (`--base dev`) · **Ngày:** 2026-11-15  
+**TIP:** `031c` · **Nhánh:** `tip/031c-stock-master` (`wt1` `D:/CODING/AppChat-Agy`) · **Nền rebase:** `origin/dev` `a954e0b8` (PR #232 `TIP-022d`) · **Commit code:** `4345dfb7` · **PR:** [#233](https://github.com/duymt-dev/AppChat/pull/233) (`--base dev`) · **Ngày:** 2026-11-15  
 **Trạng thái nghiệm thu provider thật:** **chưa nghiệm thu với provider thật** (`Q-914` Shopee, `Q-915` TikTok Shop — toàn bộ unit / integration / HTTP E2E chạy qua kết nối giả `mock_marketplace` trên Postgres 16 + Memurai 6381).
 
 ---
