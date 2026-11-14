@@ -1,5 +1,5 @@
 // Mock transport: đúng envelope Blueprint §4.1 + mock ActionExecutor áp policy nguồn `ui` (Blueprint §3.3).
-import { getAction } from '@appchat/actions';
+import { REQUESTABLE_PREVIEW_ACTIONS, getAction } from '@appchat/actions';
 import { ApiRequestError, can, ROLE_DEFS, type PermissionKey, type StreamFrame } from '@appchat/shared';
 import type { Transport } from '../transport';
 import { mockHandlers } from './handlers';
@@ -19,6 +19,7 @@ import { withFieldPolicy } from './domains/field-policy';
 import { importTexts, productImportRoute } from './domains/product-import';
 import { dataTransferRoute } from './domains/data-transfer';
 import { dataJobBlob, dataJobsRoute } from './domains/data-jobs';
+import { bindBulkLog, bulkUndoActionOf } from './domains/tickets-bulk';
 import { channelOperationsRoute } from './domains/channel-operations';
 import { contactSyncRoute } from './domains/contact-sync';
 import { channelFriendsRoute } from './domains/channel-friends';
@@ -44,6 +45,7 @@ import { assistantUiParamRoute, assistantUiPosts } from './domains/assistant-ui'
 import { runDetailParamRoute } from './domains/run-detail';
 import { aiUtilityParamRoute } from './domains/ai-utilities';
 import { assistantSessionParamRoute } from './domains/assistant-sessions';
+import { assistantPlanParamRoute } from './domains/assistant-plans';
 import { assistantInputRoute } from './domains/assistant-input';
 import { keepUpload } from './assistant-input-store';
 import { signParamPost, signParamRoute } from './domains/contracts-sign';
@@ -51,6 +53,8 @@ import { assistantPosts, markUndone, recordActionLog } from './domains/assistant
 import { mockPosts, taxLookup } from './auth-routes';
 import { mockDb, mutate } from './store';
 import { docTemplatePreview as mockBlob } from './domains/doc-templates';
+import { recordFileBlob, stageRecordFile } from './domains/record-files';
+import { productMediaBlob, stageProductFile } from './domains/product-media';
 import { claimVault, genUiNeedsPreview, putVault, splitSecrets } from './genui-vault';
 
 const fail = (
@@ -113,6 +117,7 @@ export const mockTransport: Transport = {
       runDetailParamRoute(path) ??
       aiUtilityParamRoute(path) ??
       assistantSessionParamRoute(path) ??
+      assistantPlanParamRoute(path) ??
       assistantInputRoute(path) ??
       signParamRoute(path) ??
       agentToolsParamRoute(path) ??
@@ -166,7 +171,8 @@ export const mockTransport: Transport = {
 
     const { plain, secrets } = splitSecrets(def, parsed.data);
     const inputHash = JSON.stringify(plain);
-    if ((def.bulk || genUiNeedsPreview(def, opts?.genuiIntent)) && !(opts?.confirmToken && confirmTokens.get(opts.confirmToken) === inputHash)) {
+    const asked = !!opts?.preview && REQUESTABLE_PREVIEW_ACTIONS.has(id);
+    if ((def.bulk || asked || genUiNeedsPreview(def, opts?.genuiIntent)) && !(opts?.confirmToken && confirmTokens.get(opts.confirmToken) === inputHash)) {
       const token = nextId('ct');
       confirmTokens.set(token, inputHash);
       const p = handler.preview?.(mockDb(), parsed.data as never) ?? { summary: id };
@@ -191,7 +197,8 @@ export const mockTransport: Transport = {
     const undoUntil = def.undo ? new Date(Date.now() + def.undo.windowSec * 1000).toISOString() : undefined;
     if (def.undo && handler.undo)
       undoLog.set(logId, () => mutate((db) => handler.undo!(db, parsed.data as never)));
-    if (def.risk !== 'read') recordActionLog(mockDb(), id, logId, def.risk, !!(def.undo && handler.undo));
+    if (def.risk !== 'read') recordActionLog(mockDb(), id, logId, def.risk, !!(def.undo && (handler.undo || bulkUndoActionOf(id))));
+    bindBulkLog(result, logId);
     // Việc nền (202 job_accepted — TIP-032b): handler mock trả `{ __accepted: { job_id, status_url } }` như server khi xếp việc.
     const queued = (result as { __accepted?: { job_id: string; status_url: string } } | null)?.__accepted;
     if (queued) return { status: 202, data: { status: 'job_accepted', job_id: queued.job_id, action_log_id: logId, status_url: queued.status_url } };
@@ -207,6 +214,9 @@ export const mockTransport: Transport = {
   },
 
   async undo(actionLogId) {
+    // Cha có action hoàn tác riêng (TIP-034c, như undo-action-registry server) → 409 UNDO_REQUIRES_ACTION, không ghi gì.
+    const mapped = bulkUndoActionOf(mockDb().assistant.logs.find((l) => l.id === actionLogId)?.action_id);
+    if (mapped) throw new ApiRequestError(409, { code: 'UNDO_REQUIRES_ACTION', message: mapped, fields: { undo_action: mapped, parent_action_log_id: actionLogId } });
     const fn = undoLog.get(actionLogId);
     // dòng nhật ký mẫu (fixture) không có handler undo trong phiên — chỉ đổi trạng thái
     const seeded = mockDb().assistant.logs.find(
@@ -218,9 +228,17 @@ export const mockTransport: Transport = {
     mutate((db) => markUndone(db, actionLogId), 'action.undo');
   },
 
-  async upload(file, purpose, signal) {
+  async upload(file, purpose, signal, fields) {
     // Mock giữ metadata (FE chỉ cần id để gọi action); không lưu nội dung tệp. Huỷ trước khi xong → AbortError như fetch.
     if (signal?.aborted) throw new DOMException('aborted', 'AbortError');
+    // Tệp đính kèm đơn / đề nghị (TIP-032d): kiểm đích + quyền ghi trước khi nhận, tạo staging riêng.
+    if (purpose === 'record_attachment') {
+      const id = crypto.randomUUID();
+      // Ảnh / tài liệu sản phẩm (TIP-027b): cùng purpose, đích product.
+      if (fields?.parent_type === 'product') stageProductFile(mockDb(), id, file, fields.parent_id ?? '');
+      else stageRecordFile(mockDb(), id, file, fields);
+      return { file_id: id, name: file.name, size: file.size };
+    }
     // Đầu vào Trợ lý (TIP-023f): id dạng uuid như server (action prepare kiểm uuid) + kho tạm có giới hạn giữ chữ của tệp đọc được.
     const id = purpose === 'attachment' ? crypto.randomUUID() : nextId('file');
     if (purpose === 'attachment') keepUpload(id, { name: file.name, size: file.size, mime: file.type, text: /\.(txt|md|csv|html?|eml)$/i.test(file.name) ? await file.text() : null });
@@ -234,7 +252,7 @@ export const mockTransport: Transport = {
 
   async blob(path) {
     // Tải nguồn KB (TIP-020b): tệp → HTML có tên; URL / catalog → JSON mô tả như server.
-    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path);
+    const kb = kbSourceBlob(mockDb(), path) ?? marketingExportBlob(path) ?? dataJobBlob(path) ?? recordFileBlob(path) ?? productMediaBlob(mockDb(), path);
     if (kb) return kb;
     // Mock không có LibreOffice: bản xem trước là trang HTML đã điền dữ liệu minh hoạ (cùng renderRich với server).
     const html = mockBlob(mockDb(), path) ?? quotePdf(mockDb(), path) ?? contractPdf(mockDb(), path) ?? contractFileBlob(mockDb(), path) ?? loyaltyFileBlob(mockDb(), path) ?? billingInvoicePdf(mockDb(), path) ?? publicDocumentPdf(path);

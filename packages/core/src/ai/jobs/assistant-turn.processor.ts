@@ -7,6 +7,7 @@ import type { AuthzContext } from '@appchat/shared';
 import type { AppLogger } from '../../kernel/logger/logger';
 import { ASSISTANT_TURN_QUEUE, type TurnJob } from '../assistant/genui/turn-request.consumer';
 import { runTurn, type RunDeps } from '../assistant/turn.service';
+import { continuePlanTurn } from '../assistant/plans/continue';
 
 export interface TurnWorkerDeps extends RunDeps {
   tenants: TenantDbResolver;
@@ -21,7 +22,10 @@ export function startAssistantTurnWorker(redis: Redis, d: TurnWorkerDeps, log: A
       const db = await d.tenants.get(TenantContexts.system(job.data.ws, 'assistant-turn'));
       const run = await db.aiRun.findUnique({ where: { id: job.data.run_id }, select: { initiatedByUserId: true } });
       if (!run?.initiatedByUserId) return;
-      await runTurn(d, db, job.data.ws, job.data.run_id, await d.commander(job.data.ws, run.initiatedByUserId));
+      const authz = await d.commander(job.data.ws, run.initiatedByUserId);
+      // TIP-023d §3.6: job `plan` = chạy tiếp từ checkpoint sau plan_resume (claim CAS — lặp không gọi model lần hai).
+      if (job.name === 'plan') await continuePlanTurn(d, db, job.data.ws, job.data.run_id, authz, job.data.plan_epoch === undefined ? undefined : { epoch: job.data.plan_epoch, ...(job.data.plan_step === undefined ? {} : { step: job.data.plan_step }) });
+      else await runTurn(d, db, job.data.ws, job.data.run_id, authz);
     },
     { connection: redis.duplicate(), concurrency: 8 },
   );

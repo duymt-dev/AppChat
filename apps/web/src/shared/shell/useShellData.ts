@@ -1,6 +1,6 @@
 'use client';
 import { useQuery } from '@tanstack/react-query';
-import type { ListEnvelope } from '@appchat/shared';
+import type { ListEnvelope, NavBadgesDto } from '@appchat/shared';
 import { transport } from '../api/client';
 import { qk } from '../api/query-keys';
 
@@ -30,8 +30,10 @@ export interface NotificationItem {
 
 export const useMe = () => useQuery({ queryKey: qk.me(), queryFn: () => transport.get<Me>('/me') });
 
+// Số đếm rail theo quyền + scope (TIP-016b): khoá vắng = không có quyền module. Làm mới khi realtime báo đổi (event-invalidation —
+// tin / hội thoại / ticket / lịch hẹn); server cache 15 giây nhưng bỏ cache ngay khi có event đổi số.
 export const useNavBadges = () =>
-  useQuery({ queryKey: qk.navBadges(), queryFn: () => transport.get<Record<string, number>>('/nav/badges') });
+  useQuery({ queryKey: qk.navBadges(), queryFn: () => transport.get<NavBadgesDto>('/nav/badges'), staleTime: 15_000 });
 
 export const useNotifications = () =>
   useQuery({

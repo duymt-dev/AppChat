@@ -1,0 +1,113 @@
+{
+  "suite": "support-categories",
+  "cases": [
+    {
+      "id": "sc-edit",
+      "category": "support_categories",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Sửa danh mục gợi ý của ticket: đưa \"$LAST\" lên đầu làm mặc định, bỏ \"$SECOND\", các nhãn còn lại giữ nguyên thứ tự và giữ đúng chữ.",
+      "expect": {
+        "confirm": true,
+        "support_categories": true
+      },
+      "support_categories": {
+        "kind": "edit"
+      }
+    },
+    {
+      "id": "sc-csv-import",
+      "category": "support_categories",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Cấu hình danh mục ticket theo file đính kèm (thay cả bộ gợi ý, đúng thứ tự cột Vị trí).",
+      "expect": {
+        "confirm": true,
+        "support_categories": true
+      },
+      "support_categories": {
+        "kind": "csv"
+      }
+    },
+    {
+      "id": "sc-xlsx-export",
+      "category": "support_categories",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Xuất bộ danh mục ticket hiện tại ra file Excel cho tôi.",
+      "expect": {
+        "confirm": true,
+        "support_categories": true
+      },
+      "support_categories": {
+        "kind": "export"
+      }
+    },
+    {
+      "id": "sc-denied",
+      "category": "support_categories",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Đổi danh mục ticket mặc định thành \"$LAST\" giúp tôi.",
+      "expect": {
+        "confirm": false,
+        "support_categories": true
+      },
+      "support_categories": {
+        "kind": "denied"
+      }
+    },
+    {
+      "id": "sc-agent-denied",
+      "category": "support_categories",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Thay toàn bộ danh mục ticket gợi ý thành: Khiếu nại $TAG, Bảo hành $TAG.",
+      "expect": {
+        "confirm": false,
+        "support_categories": true
+      },
+      "support_categories": {
+        "kind": "agent"
+      }
+    },
+    {
+      "id": "sc-injected-stale",
+      "category": "support_categories",
+      "seed": "live-seed",
+      "actor": {
+        "role": "owner"
+      },
+      "locale": "vi",
+      "mode": "cowork",
+      "input": "Cấu hình danh mục ticket theo file đính kèm (thay cả bộ gợi ý).",
+      "expect": {
+        "confirm": true,
+        "support_categories": true
+      },
+      "support_categories": {
+        "kind": "injected"
+      }
+    }
+  ]
+}

@@ -59,6 +59,8 @@ export interface Quote {
   approval_reasons: ('total' | 'discount' | 'off_catalog')[];
   /** Đã sinh chứng từ (TIP-032b — một báo giá → một HĐ hoặc một đơn). */
   converted?: 'contract' | 'order' | null;
+  /** PDF đóng băng (TIP-028b, job doc-render): đang tạo / xong / lỗi (có Thử lại). null = chưa phát hành. */
+  render?: { status: 'pending_render' | 'rendered' | 'render_failed'; error: string | null } | null;
   /** Trường tuỳ biến (D56). */
   custom?: CustomValues;
 }

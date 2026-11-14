@@ -28,9 +28,12 @@ module.exports = {
     { name: 'ui-no-apps', severity: 'error', from: { path: '^packages/ui/' }, to: { path: '^apps/' } },
     { name: 'no-circular', severity: 'error', comment: 'không vòng phụ thuộc',
       from: { path: '^(apps|packages)/', pathNot: '^apps/web/' }, to: { circular: true } },
-    // DV-001: apps/web còn vòng có từ goal FE (barrel features/*/index.ts, mock transport) → cảnh báo, không chặn; gỡ khi module nối http.
-    { name: 'no-circular-web', severity: 'warn', comment: 'vòng phụ thuộc ở apps/web (nợ goal FE)',
-      from: { path: '^apps/web/' }, to: { circular: true } },
+    // TIP-001b (đóng DV-001, DC-446): apps/web không còn vòng RUNTIME — chặn như mọi gói. Vòng chỉ qua `import type` (MockDb ↔ State của
+    // domain mock) bị TypeScript xoá khi biên dịch, không đổi thứ tự nạp module → không tính.
+    { name: 'no-circular-web', severity: 'error', comment: 'không vòng phụ thuộc runtime ở apps/web',
+      from: { path: '^apps/web/' }, to: { circular: true, viaOnly: { dependencyTypesNot: ['type-only'] } } },
+    { name: 'web-no-own-barrel', severity: 'error', comment: 'trong một module, import file trực tiếp — index.ts chỉ cho module khác / app (TIP-001b §1.1)',
+      from: { path: '^apps/web/src/features/([^/]+)/' }, to: { path: '^apps/web/src/features/$1/index\\.ts$' } },
     { name: 'no-non-package-json', severity: 'error', comment: 'import gói npm phải khai trong package.json của gói đó',
       from: { path: '^(apps|packages)/' }, to: { dependencyTypes: ['npm-no-pkg', 'npm-unknown'] } },
     { name: 'not-to-unresolvable', severity: 'error', from: { path: '^(apps|packages)/' }, to: { couldNotResolve: true } },

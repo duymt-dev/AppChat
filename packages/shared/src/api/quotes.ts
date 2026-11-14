@@ -59,6 +59,8 @@ export const quoteRowSchema = z.object({
   approval_reasons: z.array(z.enum(['total', 'discount', 'off_catalog'])),
   /** Đã chuyển sang hợp đồng / đơn (TIP-030 / 031). */
   converted: z.enum(['contract', 'order']).nullable().optional(),
+  /** PDF đóng băng (TIP-028b, job doc-render): `pending_render` = đang tạo PDF; `render_failed` = lỗi, có Thử lại. null = chưa phát hành / bản cũ. */
+  render: z.object({ status: z.enum(['pending_render', 'rendered', 'render_failed']), error: z.string().nullable() }).nullable().optional(),
   custom: customValuesSchema.optional(),
 });
 export type QuoteRow = z.infer<typeof quoteRowSchema>;

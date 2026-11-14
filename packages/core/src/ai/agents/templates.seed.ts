@@ -1,12 +1,13 @@
 // Seed `agent_template` (DB nền tảng) từ catalog — idempotent theo `key`; thêm mẫu thiếu, KHÔNG ghi đè mẫu Quản trị nền tảng đã sửa
-// (TIP-040). Nâng phiên bản mặc định (TIP-022b — template-revisions): chỉ mẫu còn đúng bản dựng sẵn rev trước. Gọi khi boot api / worker.
+// (TIP-040). Nâng phiên bản mặc định (TIP-022b / 022c — template-revisions): chỉ mẫu còn đúng bản dựng sẵn rev trước. Gọi khi boot api /
+// worker.
 import type { PlatformDb } from '@appchat/db';
 import { uuidv7 } from '../../kernel/ids';
 import { AGENT_TEMPLATES, PROMPT_TEMPLATES } from './catalog';
-import { ROLE_DEFAULTS_V2, TEMPLATE_REVISION, planUpgrade } from './template-revisions';
+import { ROLE_DEFAULTS, TEMPLATE_REVISION, planUpgrade } from './template-revisions';
 
 export const templateDefaults = (role: string) => {
-  const d = ROLE_DEFAULTS_V2[role] ?? ROLE_DEFAULTS_V2.ops!;
+  const d = ROLE_DEFAULTS[role] ?? ROLE_DEFAULTS.ops!;
   return { tools: d.tools, intents: d.intents, model_tier: 'advanced', threshold: 70, prompt: PROMPT_TEMPLATES[d.prompt]!.text, revision: TEMPLATE_REVISION };
 };
 

@@ -87,11 +87,18 @@ model KbChunk {
   sourceId   String                       @map("source_id") @db.Uuid
   ord        Int
   content    String
+  /// Khe A (TIP-020e — hai khe vector đối xứng; khe đang phục vụ = `kb_setting.active_slot`).
   embedding  Unsupported("vector(1536)")?
   embedModel String                       @map("embed_model")
   tokenCount Int                          @default(0) @map("token_count")
   /// `{ path?: string[], page?: number, row?: number, volatile?: boolean }`
   meta       Json                         @default("{}")
+  /// Khe B + space key / generation đã ghi từng khe (`provider:model:1536:<thế hệ route>`). HNSW `embedding_b` + index generation viết tay.
+  embeddingB       Unsupported("vector(1536)")? @map("embedding_b")
+  embedSpaceA      String?                      @map("embed_space_a")
+  embedSpaceB      String?                      @map("embed_space_b")
+  embedGenerationA String?                      @map("embed_generation_a") @db.Uuid
+  embedGenerationB String?                      @map("embed_generation_b") @db.Uuid
 
   source KbSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
 
@@ -101,10 +108,44 @@ model KbChunk {
 
 /// Một dòng (id = 1): ngưỡng căn cứ của workspace (rag §7).
 model KbSetting {
-  id       Int   @id @default(1) @db.SmallInt
-  minScore Float @default(0.35) @map("min_score") @db.Real
+  id                 Int       @id @default(1) @db.SmallInt
+  minScore           Float     @default(0.35) @map("min_score") @db.Real
+  /// TIP-020e: khe vector đang phục vụ ('a' | 'b'), generation + space key của khe đó (null = chưa gắn — kho chưa có vector).
+  activeSlot         String    @default("a") @map("active_slot") @db.Char(1)
+  activeGenerationId String?   @map("active_generation_id") @db.Uuid
+  activeSpace        String?   @map("active_space")
+  /// 'current' | 'stale' — đổi route embed chỉ đánh dấu stale (không tự chạy job trả tiền — DC-288).
+  indexState         String    @default("current") @map("index_state")
+  staleSince         DateTime? @map("stale_since") @db.Timestamptz(6)
+  version            Int       @default(1)
 
   @@map("kb_setting")
+}
+
+/// Một lần tái tạo chỉ mục embedding (TIP-020e §2): ghi khe chưa hoạt động theo lô cursor (id đoạn), lease + CAS `version`, catch-up có
+/// trần vòng, publish đổi khe trong một transaction. Một generation dở mỗi workspace (partial unique viết tay).
+model KbEmbedGeneration {
+  id            String    @id @db.Uuid
+  slot          String    @db.Char(1)
+  spaceKey      String    @map("space_key")
+  /// building | catching_up | active | failed | cancelled | superseded
+  phase         String
+  expected      Int       @default(0)
+  done          Int       @default(0)
+  tokens        BigInt    @default(0)
+  cursorChunkId String?   @map("cursor_chunk_id") @db.Uuid
+  batchStep     Int       @default(0) @map("batch_step")
+  catchupRound  Int       @default(0) @map("catchup_round")
+  leaseToken    String?   @map("lease_token") @db.Uuid
+  leaseUntil    DateTime? @map("lease_until") @db.Timestamptz(6)
+  operationId   String?   @map("operation_id") @db.Uuid
+  reason        String?
+  createdBy     String?   @map("created_by") @db.Uuid
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  version       Int       @default(1)
+
+  @@map("kb_embed_generation")
 }
 
 enum KbSuggestionStatus {

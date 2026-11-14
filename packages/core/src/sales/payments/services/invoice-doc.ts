@@ -1,6 +1,7 @@
 // Chứng từ đề nghị thanh toán + phiếu thu (templates.md §2–3, §6): DocData dựng từ bản ghi (số tiền, hạn, tài khoản nhận + nội dung CK),
-// render bằng DocRenderer theo mẫu mặc định của loại `payment_request` / `receipt`; dòng "không thay thế hoá đơn GTGT" luôn có
-// (renderRich tự chèn). PDF đề nghị đóng băng lúc gửi (`invoice.file_id`); phiếu thu render khi tải lần đầu rồi giữ (`receipt_file_id`).
+// render bằng DocRenderer theo mẫu đã chụp trên chứng từ (`template_id` + `template_version` — TIP-028b, templates.md §2; bản ghi cũ chưa
+// có → mẫu mặc định hiện hành của loại); dòng "không thay thế hoá đơn GTGT" luôn có (renderRich tự chèn). PDF đề nghị đóng băng lúc gửi
+// (`invoice.file_id`); phiếu thu render khi tải lần đầu rồi giữ (`receipt_file_id`).
 import type { TenantDb } from '@appchat/db';
 import { AppError, createFmt, interpolate, invoiceTransferCode, serverMessages, vndWords, type DocData } from '@appchat/shared';
 import { businessData } from '../../../documents/public';
@@ -10,6 +11,7 @@ import { invoiceQrOf, pngDataUri, qrPng } from './invoice-qr';
 
 type Db = Pick<TenantDb, 'contact' | 'docTemplate' | 'file' | 'paymentAccount' | 'order'>;
 type PaymentRow = { amount: bigint; method: string; receiptCode: string | null; paidAt: Date; reference: string };
+type DocKindPay = 'payment_request' | 'receipt';
 
 async function base(db: Db, d: QuoteDocDeps, ws: string, contactId: string) {
   const [{ business, locale, timeZone }, contact, account] = await Promise.all([
@@ -72,10 +74,19 @@ export async function receiptDocData(db: Db, d: QuoteDocDeps, ws: string, i: Inv
   return { data, locale: b.locale };
 }
 
-/** PDF theo mẫu mặc định của loại. */
-export async function renderDocPdf(db: Db, d: QuoteDocDeps, kind: 'payment_request' | 'receipt', data: DocData, locale: string): Promise<Buffer> {
+/** Mẫu mặc định hiện hành của loại → `{ templateId, templateVersion }` để chụp lên chứng từ lúc tạo (không có mẫu → null, render báo lỗi sau). */
+export async function defaultTemplateOf(db: Pick<TenantDb, 'docTemplate'>, kind: DocKindPay): Promise<{ templateId: string; templateVersion: number } | null> {
+  const t = await db.docTemplate.findFirst({ where: { kind, isDefault: true, deletedAt: null }, select: { id: true, version: true } });
+  return t ? { templateId: t.id, templateVersion: t.version } : null;
+}
+
+/**
+ * PDF theo mẫu đã chụp trên chứng từ (cả khi mẫu đã xoá mềm — nội dung chọn lúc tạo); chưa chụp (bản ghi trước 028b) → mặc định của loại.
+ * Mẫu đã sửa sau khi chụp vẫn render bằng thân hiện tại của mẫu đó (mẫu không lưu lịch sử thân) — `template_version` là dấu vết đã dùng.
+ */
+export async function renderDocPdf(db: Db, d: QuoteDocDeps, kind: DocKindPay, data: DocData, locale: string, templateId?: string | null): Promise<Buffer> {
   if (!d.renderer) throw new AppError('NOT_IMPLEMENTED', 501, { tip: '028' }, 'DocRenderer chưa cấu hình');
-  const t = await db.docTemplate.findFirst({ where: { kind, isDefault: true, deletedAt: null } });
+  const t = (templateId ? await db.docTemplate.findFirst({ where: { id: templateId, kind } }) : null) ?? (await db.docTemplate.findFirst({ where: { kind, isDefault: true, deletedAt: null } }));
   if (!t) throw new AppError('INVALID_STATE', 409, { template_id: 'missing' });
   return d.renderer.pdf(db, { kind: t.kind, name: t.name, source: t.source, bodyHtml: t.bodyHtml, docxFileId: t.docxFileId, fieldMap: t.fieldMap }, data, locale);
 }

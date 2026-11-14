@@ -1,6 +1,6 @@
 // Hồ sơ 360° (khách / nhóm) — prototype L1903–2224 (380px, ≤ 1440 → 340px; ≤ 1180 trượt phủ; < md full màn).
 import { createStyles } from 'antd-style';
-import { color, font, gradient, layout, radius, shadow, z } from '@appchat/ui';
+import { color, font, gradient, layout, mq, radius, shadow, z } from '@appchat/ui';
 
 export const usePanelStyles = createStyles(({ css, responsive }) => ({
   panel: css`
@@ -10,7 +10,7 @@ export const usePanelStyles = createStyles(({ css, responsive }) => ({
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    @media (max-width: 1180px) {
+    ${mq.max1180} {
       position: fixed;
       right: 0;
       top: 0;
@@ -72,7 +72,7 @@ export const usePanelStyles = createStyles(({ css, responsive }) => ({
     border: none;
     background: none;
     cursor: pointer;
-    @media (max-width: 1180px) {
+    ${mq.max1180} {
       display: grid;
       place-items: center;
     }

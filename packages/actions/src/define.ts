@@ -65,6 +65,12 @@ export const defineAction = <I extends z.ZodTypeAny, O extends z.ZodTypeAny>(d: 
   return d;
 };
 
+/**
+ * Gửi / duyệt chứng từ có bảng kiểm pháp lý trong preview (TIP-028b, templates.md §6, DC-444): UI XIN xem trước (`x-action-preview: 1`)
+ * để người dùng thấy bảng kiểm trước khi gửi — nguồn vốn chạy thẳng đổi thành xem trước; quyết định khác (duyệt / cấm) giữ nguyên.
+ */
+export const REQUESTABLE_PREVIEW_ACTIONS: ReadonlySet<string> = new Set(['quote.send', 'contract.submit', 'contract.approve_and_sign', 'contract.send_for_signature', 'invoice.send_payment_qr', 'ticket_categories.replace']);
+
 /** Action hệ thống riêng (TIP-003c) — loại khỏi mọi bề mặt công khai. */
 export const isInternalAction = (d: Pick<ActionDef, 'exposure'>): boolean => d.exposure === 'internal';
 /** Cấp được cho agent: `agentGrantable` VÀ không internal (phòng thủ kép — registry đã chặn tổ hợp này lúc define). */
@@ -76,10 +82,15 @@ export const isAgentGrantable = (d: Pick<ActionDef, 'exposure' | 'agentGrantable
  * handler thật (pha sau).
  */
 const PRIVACY_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['contact.forget', 'privacy.review_resolve', 'contact.allow_recreation']);
+/** Điều khiển kế hoạch Cowork (TIP-023d §1.6): mọi lệnh ghi cần khoá ổn định — gửi lại trả đúng biên nhận, không thêm đợt dừng / root. */
+const PLAN_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['assistant.plan_request_edit', 'assistant.plan_update', 'assistant.plan_resume', 'assistant.plan_reuse']);
+/** Thao tác hàng loạt có thao tác cha bền (TIP-034c §1.4): một khoá = một thao tác đã nhận + đúng hash input; gửi lại / xác nhận / khôi phục
+ *  dùng lại khoá đó (không khoá mới khi transport thử lại). */
+const BULK_IDEMPOTENT_ACTIONS: ReadonlySet<string> = new Set(['ticket.bulk_update', 'ticket.bulk_undo']);
 
 /** Idempotency-Key bắt buộc: risk send / money và lệnh tạo (response-envelope §7) — executor kiểm, FE `useAction` tự gửi. */
 export function requiresIdempotencyKey(actionId: string, risk: Risk): boolean {
-  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId) || PRIVACY_IDEMPOTENT_ACTIONS.has(actionId);
+  return risk === 'send' || risk === 'money' || /\.create$/.test(actionId) || PRIVACY_IDEMPOTENT_ACTIONS.has(actionId) || PLAN_IDEMPOTENT_ACTIONS.has(actionId) || BULK_IDEMPOTENT_ACTIONS.has(actionId);
 }
 
 export type ActionInput<D> = D extends ActionDef<infer I, z.ZodTypeAny> ? z.input<I> : never;
@@ -93,12 +104,23 @@ export interface ActionResult<O = unknown> {
   ui_target?: UiCommand;
 }
 
+/**
+ * Mục bảng kiểm pháp lý của chứng từ trong preview gửi / duyệt (templates.md §6, TIP-028b) — cảnh báo, không chặn (COMMERCE, DC-444).
+ * `hint`: `template` = mẫu thiếu mục · `empty:<biến>` = mẫu có biến nhưng dữ liệu trống (vd. MST bên bán chưa khai).
+ */
+export interface ChecklistItem {
+  code: string;
+  ok: boolean;
+  hint?: string;
+}
+
 export interface ActionPreview {
   summary: string;
   risk: Risk;
   count?: number;
   changes?: { entity: string; id?: string; before?: Record<string, unknown>; after?: Record<string, unknown> }[];
   warnings?: string[];
+  checklist?: ChecklistItem[];
 }
 
 /** 202 của POST /v1/actions/:id (Blueprint §4.3). `job_accepted` (TIP-032b): yêu cầu đã ghi + xếp việc nền — CHƯA hoàn tất; tiến độ

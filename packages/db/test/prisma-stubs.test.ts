@@ -24,6 +24,7 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'contact-lifecycle': '015f',
   'contact-merge': '015e',
   'tenant-mail': '012c',
+  'ticket-stock': '034d',
   'ai-utilities': '019c',
   privacy: '015c',
   'assistant-plans': '023d',
@@ -35,6 +36,11 @@ const OWNERS: Record<'platform' | 'tenant', Record<string, string>> = {
   'contract-signing': '030c',
   'agent-drafting': '021b',
   'record-proposal': '023g',
+  'commerce-files': '032d',
+  'file-claims': '032d',
+  'product-media': '027b',
+  'ticket-categories': '034b',
+  'ai-sales-behavior': '022c',
   },
 };
 
@@ -53,6 +59,6 @@ describe('prisma stubs', () => {
         n++;
       }
     }
-    expect(n).toBe(65);
+    expect(n).toBe(71);
   });
 });

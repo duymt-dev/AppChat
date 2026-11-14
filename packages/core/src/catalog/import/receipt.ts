@@ -7,6 +7,7 @@ import type { TenantTx } from '../../kernel/actions/action-context';
 import { uuidv7 } from '../../kernel/ids';
 import { nextCode } from '../../kernel/sequence';
 import { categoryByName } from '../services/catalog-write';
+import { normalizeDescription } from '../description/normalize';
 import type { RowError, ValidRow } from './validate';
 
 export type RowOutcome = 'created' | 'updated' | 'failed' | 'skipped';
@@ -36,7 +37,6 @@ export async function writeRow(tx: TenantTx, importId: string, r: ValidRow | Row
     price: BigInt(r.price),
     ...(r.unit ? { unit: r.unit } : {}),
     ...(r.taxRate !== undefined ? { taxRate: r.taxRate } : {}),
-    ...(r.description ? { description: r.description } : {}),
     ...(categoryId !== undefined ? { categoryId } : {}),
     ...(r.sessions ? { sessions: r.sessions } : {}),
     ...(r.validDays ? { validDays: r.validDays } : {}),
@@ -52,13 +52,16 @@ export async function writeRow(tx: TenantTx, importId: string, r: ValidRow | Row
     return 'failed';
   }
   if (p) {
-    await tx.product.update({ where: { id: p.id }, data: { ...cols, version: { increment: 1 }, updatedAt: now } });
+    // Mô tả qua cùng bộ chuẩn hoá với product.update (TIP-027b §2.3): chữ thuần trùng chữ hiện có → giữ định dạng; khác → một đoạn mỗi dòng.
+    const cur = r.description || r.descriptionDoc ? await tx.product.findUnique({ where: { id: p.id }, select: { description: true, descriptionDoc: true } }) : null;
+    const desc = r.descriptionDoc ? normalizeDescription({ description_doc: r.descriptionDoc }, cur) : r.description ? normalizeDescription({ description: r.description }, cur) : {};
+    await tx.product.update({ where: { id: p.id }, data: { ...cols, ...desc, version: { increment: 1 }, updatedAt: now } });
     await receipt(tx, importId, r.rowNo, r.hash, 'updated', p.id, null, now);
     return 'updated';
   }
   const id = uuidv7(now.getTime());
   const code = r.sku ?? (await nextCode(tx, 'product'));
-  await tx.product.create({ data: { ...cols, id, code, type: r.type, unit: r.unit ?? 'Cái', stock: r.type === 'physical' ? 0 : null, createdBy: actorId, createdAt: now, updatedAt: now } });
+  await tx.product.create({ data: { ...cols, ...(r.descriptionDoc ? normalizeDescription({ description_doc: r.descriptionDoc }, null) : r.description ? normalizeDescription({ description: r.description }, null) : {}), id, code, type: r.type, unit: r.unit ?? 'Cái', stock: r.type === 'physical' ? 0 : null, createdBy: actorId, createdAt: now, updatedAt: now } });
   await receipt(tx, importId, r.rowNo, r.hash, 'created', id, null, now);
   return 'created';
 }

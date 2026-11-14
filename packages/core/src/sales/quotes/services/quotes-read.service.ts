@@ -8,6 +8,8 @@ import type { TenantTx } from '../../../kernel/actions/action-context';
 import { UUID, visibleQuote, type QuoteRecord } from '../quote-access';
 import { listQuoteIds, type QuoteFilter } from '../repos/quotes.repo';
 import { quoteDocData, renderQuotePdf } from './quote-doc';
+import { renderStates } from '../../../documents/public';
+import { QUOTE_RENDER_KIND } from './quote-render';
 import type { QuoteDeps } from './quote-deps';
 import { readQuoteToken } from './quote-link';
 import { aiRuns, quoteInsights, quoteKpis } from './quote-insights';
@@ -44,7 +46,7 @@ export class QuotesReadService {
   private async rowsOf(tx: TenantTx, ids: string[], base: Omit<ViewCtx, 'names'>, a: AuthzContext) {
     if (!ids.length) return [];
     const fv = await fieldView(tx, 'quote', a);
-    const [rows, items, comments] = await Promise.all([tx.quote.findMany({ where: { id: { in: ids } } }), itemsByQuote(tx, ids), commentsByQuote(tx, ids)]);
+    const [rows, items, comments, renders] = await Promise.all([tx.quote.findMany({ where: { id: { in: ids } } }), itemsByQuote(tx, ids), commentsByQuote(tx, ids), renderStates(tx, QUOTE_RENDER_KIND, ids)]);
     const order = new Map(ids.map((id, i) => [id, i]));
     rows.sort((a, b) => order.get(a.id)! - order.get(b.id)!);
     const contacts = await contactsOf(tx, rows.map((r) => r.contactId));
@@ -55,7 +57,7 @@ export class QuotesReadService {
     const ctx: ViewCtx = { ...base, names, contracted, approval: { policy: await readApprovalPolicy(tx), agentMaxPct: await agentDiscountCap(tx) } };
     // Trường tuỳ biến chỉ còn key người xem được thấy (FieldPolicy — TIP-045b annex C).
     return rows.map((q) => {
-      const row = toQuoteRow(q, { items: items.get(q.id) ?? [], contact: contacts.get(q.contactId), comments: comments.get(q.id) ?? [] }, ctx);
+      const row = toQuoteRow(q, { items: items.get(q.id) ?? [], contact: contacts.get(q.contactId), comments: comments.get(q.id) ?? [], render: renders.get(q.id) }, ctx);
       return { ...row, custom: projectCustom(fv, row.custom) };
     });
   }

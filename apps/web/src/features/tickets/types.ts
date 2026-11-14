@@ -1,5 +1,5 @@
 // Kiểu dữ liệu Ticket — khớp mock /tickets (Blueprint §2.2 ticket, §4.4 support).
-import type { CustomValues } from '@appchat/shared';
+import type { CustomValues, TicketStockSummary } from '@appchat/shared';
 
 export type TicketStatus = 'open' | 'in_progress' | 'waiting' | 'closed';
 export type Priority = 'high' | 'medium' | 'low';
@@ -59,17 +59,29 @@ export interface Ticket {
   sla: { state: SlaState; left_min: number | null };
   /** Trường tuỳ biến (D56). */
   custom?: CustomValues;
+  /** TIP-034c: version hiện tại — chọn nhiều gửi kèm `if_versions`. */
+  version?: number;
 }
+
+/** TIP-034d: năm số + so với quan sát thật hôm qua (cùng dịch vụ với action `ticket.stock_summary`). */
+export type { TicketStockSummary };
+export type StockMetric = keyof TicketStockSummary['counts'];
 
 export interface TicketsMeta {
   now: string;
   teams: { id: string; name: string }[];
+  /** Bộ cấu hình trước rồi trang đầu nhãn đã dùng (TIP-034b — giữ cho client cũ). */
   categories: string[];
+  category_config?: { version: number; labels: string[]; default: string };
+  /** Còn nhãn đã dùng ngoài trang đầu (đọc tiếp qua /support/category-suggestions). */
+  used_has_more?: boolean;
   agent: { id: string; name: string };
   members: { id: string; name: string; role: string }[];
   trend: Record<'total' | 'open' | 'waiting' | 'breach' | 'closed', string>;
   ai: [key: string, title: string, desc: string][];
   counts: Record<'total' | 'open' | 'waiting' | 'breach' | 'closed', number>;
+  /** Backend cũ không có → UI hiện "chưa rõ", không tự dựng xu hướng. */
+  stock_summary?: TicketStockSummary;
 }
 
 export interface TicketFilter {

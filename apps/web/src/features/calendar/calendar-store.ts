@@ -14,8 +14,6 @@ interface CalendarUi {
   aiOpen: boolean;
   /** Giá trị điền sẵn (UiCommand prefill `appointment.form`, hoặc bấm ô trống ở lịch ngày / tuần). */
   prefill: Record<string, unknown> | null;
-  /** Gợi ý tạo đơn sau khi hoàn thành buổi ngoài liệu trình (COMMERCE 8b). */
-  suggestFor: string | null;
   setFilter: (p: Partial<CalFilter>) => void;
   set: (p: Partial<Omit<CalendarUi, 'set' | 'setFilter'>>) => void;
 }
@@ -29,7 +27,6 @@ export const useCalendarUi = create<CalendarUi>((set) => ({
   cancelFor: null,
   aiOpen: false,
   prefill: null,
-  suggestFor: null,
   setFilter: (p) => set((s) => ({ filter: { ...s.filter, ...p } })),
   set: (p) => set(p),
 }));

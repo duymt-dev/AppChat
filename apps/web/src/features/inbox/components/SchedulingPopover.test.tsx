@@ -22,7 +22,7 @@ vi.mock('@/shared/api/client', () => ({
   },
 }));
 
-import { useCalendarUi } from '@/features/calendar';
+import { useCalendarUi } from '@/features/calendar/calendar-store';
 import { SchedulingPopover } from './SchedulingPopover';
 
 const conv = (contact: string | null) => ({ id: 'c1', contact_id: contact }) as never;

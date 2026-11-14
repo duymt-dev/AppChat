@@ -6,7 +6,10 @@
   "done": "Done",
   "commit": "Import {n} rows",
   "entityTitle": "Import into",
-  "hint": "Choose a CSV or Excel (.xlsx) file — the first row holds column names.",
+  "hint": {
+    "plain_projection": "Plain text — no formatting; changing text of a formatted product drops its formatting",
+    "structured_json": "Formatted description JSON (bold / italic / underline / lists) — exported by the system to keep formatting"
+  },
   "pick": "Choose file",
   "reading": "Reading file…",
   "uploadFailed": "Could not read the file. Check it is CSV / XLSX and try again.",
@@ -30,7 +33,9 @@
     "quote": "Quotes",
     "order": "Orders",
     "contract": "Contracts",
-    "invoice": "Payment requests"
+    "invoice": "Payment requests",
+    "ticket_category_suggestions": "Ticket categories",
+    "ticket_bulk_results": "Ticket bulk results (export only)"
   },
   "dataset": {
     "base": "Customers",
@@ -79,11 +84,18 @@
     "duplicate": "Duplicate",
     "unit_price_warning": "Price differs from catalog",
     "sku_warning": "Updates an existing product by SKU",
+    "invalid_doc": "Invalid formatted description (bad JSON structure)",
+    "mismatch_doc": "Plain description differs from the formatted description",
+    "description_warning": "Description changed — existing formatting (bold, italic, lists) will be dropped",
     "readonly": "Only open tasks can be imported — change state with the task actions",
     "terminal": "Won / lost opportunities cannot be imported",
     "forbidden": "You are not allowed to write the expected amount",
     "id_warning": "Row exported from the system — skipped, not updated",
-    "unsupported": "Dataset not supported"
+    "unsupported": "Dataset not supported",
+    "out_of_range": "Position outside 1..N",
+    "too_many": "More than 100 categories",
+    "control": "Contains control characters / line breaks",
+    "empty": "Empty"
   },
   "errorFile": {
     "row": "Row",
@@ -110,6 +122,7 @@
     "unit": "Unit",
     "tax_rate": "Tax rate (%)",
     "description": "Description",
+    "description_doc": "Formatted description (JSON)",
     "sessions": "Sessions",
     "valid_days": "Valid for (days)",
     "group": "Document group key",
@@ -139,6 +152,14 @@
     "stage": "Stage",
     "probability": "Probability (%)",
     "expected_close_date": "Expected close date",
-    "id": "Record ID (read-only)"
-  }
+    "id": "Record ID (read-only)",
+    "position": "Position",
+    "label": "Category",
+    "ticket_id": "Ticket ID",
+    "outcome": "Outcome",
+    "error_code": "Error code",
+    "changed": "Changed",
+    "undo_state": "Undo"
+  },
+  "atomicInvalid": "The file has invalid rows — fix the file and upload again (this dataset is imported as a whole, invalid rows cannot be skipped)."
 }

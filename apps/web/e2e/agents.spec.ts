@@ -116,6 +116,8 @@ test.describe('agents', () => {
     await expectTouchTargets(page.getByTestId('ag-clear'));
     await expectTouchTargets(page.getByTestId('ag-toggle').first());
     await page.getByTestId('ag-ai').click();
+    // drawer Trợ lý tải lười (TIP-001b) — chờ hiện rồi mới đo (count() không tự chờ)
+    await expect(page.getByTestId('ag-ai-send')).toBeVisible();
     await expectTouchTargets(page.getByTestId('ag-ai-send'));
     await expectNoHorizontalOverflow(page);
     await page.getByTestId('ag-ai-drawer').getByRole('button', { name: 'Đóng' }).click();

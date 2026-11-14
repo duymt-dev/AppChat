@@ -7,19 +7,21 @@ import { Icon, color } from '@appchat/ui';
 import { ScreenAssistantThread } from '@/shared/assistant/ScreenAssistantThread';
 import { useScreenAssistant } from '@/shared/assistant/useScreenAssistant';
 import { useDrawerStyles } from '../styles/drawer.styles';
-import { pts } from '../status';
+
 import type { Member } from '../types';
 import { useLadder } from './MemberTabs';
+import { useFmt } from '@/shared/i18n/useFmt';
 
 const ACTS = ['keep', 'care', 'expiring'] as const;
 
 export function AiTab({ m }: { m: Member }) {
+  const fmt = useFmt();
   const t = useTranslations('loyalty.dr');
   const tt = useTranslations('loyalty.tier');
   const { styles } = useDrawerStyles();
   const { next, need } = useLadder(m);
   const asst = useScreenAssistant('loyalty');
-  const ctx = { name: m.name, phone: m.phone, tier: tt(m.tier), points: pts(m.points), expiring: pts(m.expiring) };
+  const ctx = { name: m.name, phone: m.phone, tier: tt(m.tier), points: fmt.number(m.points), expiring: fmt.number(m.expiring) };
   return (
     <>
       <div className={styles.card}>
@@ -28,7 +30,7 @@ export function AiTab({ m }: { m: Member }) {
         </div>
         <div className={styles.ai} data-testid="ly-ai-insight">
           <Icon name="ic-spark" size={14} color={color.brandInk} />
-          <span>{next ? t.rich('aiD', { n: pts(need), t: tt(next.key), b: (c) => <b>{c}</b> }) : t('aiMax')}</span>
+          <span>{next ? t.rich('aiD', { n: fmt.number(need), t: tt(next.key), b: (c) => <b>{c}</b> }) : t('aiMax')}</span>
         </div>
       </div>
       <div className={styles.card}>

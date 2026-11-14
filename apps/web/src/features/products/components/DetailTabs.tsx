@@ -1,7 +1,6 @@
 // Nội dung 5 tab drawer sản phẩm — prototype L5703–5748: Tổng quan · CRM · AI · Tệp · Lịch sử.
 'use client';
 import { useState } from 'react';
-import { App } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -12,6 +11,7 @@ import { EmbeddedRecordAssistant } from '@/shared/assistant/record-intent/Record
 import { useDetailStyles } from '../styles/detail.styles';
 import { useProductsUi } from '../products-store';
 import { productActivityQuery } from '../api';
+import { ProductDescriptionView } from './ProductDescriptionView';
 import { StockAdjustModal } from './StockAdjustModal';
 import type { Product, ProductActivity, ProductsMeta } from '../types';
 
@@ -22,15 +22,6 @@ const KIND_DOT: Record<ProductActivity['kind'], string> = {
   archive: color.dangerStrong,
   restore: color.okStrong,
   stock: color.blue,
-};
-
-const EXT_BG: Record<string, string> = {
-  pdf: color.dangerStrong,
-  docx: color.blue,
-  xlsx: color.okStrong,
-  jpg: color.violet,
-  png: color.violet,
-  mp4: color.warn,
 };
 
 export function OverviewTab({ p }: { p: Product }) {
@@ -53,7 +44,7 @@ export function OverviewTab({ p }: { p: Product }) {
         </div>
         <div className={styles.kv}>
           <span>{t('desc')}</span>
-          <b>{p.description}</b>
+          <ProductDescriptionView doc={p.description_doc} plain={p.description} className={styles.kvDoc} />
         </div>
         <div className={cx(styles.kv, styles.bInk)}>
           <span>{t('revenue')}</span>
@@ -195,32 +186,6 @@ const PRODUCT_CHOICES = [
   { intent: 'product_campaign' as const, labelKey: 'intent.product_campaign' },
   { intent: 'inspect' as const, labelKey: 'intent.inspect' },
 ];
-
-export function FilesTab({ meta }: { meta: ProductsMeta }) {
-  const t = useTranslations('products.detail');
-  const { message } = App.useApp();
-  const { styles, cx } = useDetailStyles();
-  return (
-    <div className={cx(styles.card, styles.cardFlush)}>
-      <div className={cx(styles.h, styles.hFlush)}>{t('filesTitle')}</div>
-      {meta.files.length ? null : <div className={cx(styles.fMeta, styles.emptyRow)}>{t('noFiles')}</div>}
-      {meta.files.map(([n, ext, m]) => (
-        <div key={n} className={styles.file}>
-          <div className={styles.ext} style={{ background: EXT_BG[ext] ?? color.text3 }}>
-            {ext.toUpperCase()}
-          </div>
-          <div className={styles.grow}>
-            <div className={styles.fName}>{n}</div>
-            <div className={styles.fMeta}>{m}</div>
-          </div>
-          <button type="button" className={styles.open} onClick={() => void message.info(n)}>
-            {t('open')}
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-}
 
 export function HistoryTab({ p }: { p: Product }) {
   const t = useTranslations('products.detail');

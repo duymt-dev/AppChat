@@ -30,6 +30,8 @@ export const docTemplateCreate = defineAction({
   permission: 'documents.manage',
   risk: 'config',
   agentGrantable: false,
+  /** Hoàn tác 24h = xoá mềm mẫu khi CHƯA chứng từ nào dùng (TIP-028b); đã dùng → 409 HAS_DEPENDENCIES. */
+  undo: { windowSec: 86_400 },
   invalidates: ['doc_templates'],
 });
 

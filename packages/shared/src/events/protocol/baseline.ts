@@ -20,6 +20,8 @@ export const assistantTurnRequestedEvent = z.object({ ...base, run_id: uuid, use
 export const assistantPlanProposedEvent = z.object({ ...base, plan_id: uuid, owner_user_id: uuid, session_id: uuid, revision: z.number().int() });
 export const assistantPlanProgressedEvent = z.object({ ...base, plan_id: uuid, revision: z.number().int(), phase: z.string().max(40) });
 export const assistantPlanEditRequestedEvent = z.object({ ...base, plan_id: uuid, plan_epoch: z.number().int() });
+/** Kế hoạch đã tiếp tục (TIP-023d §3.6) — ROLE=ai chạy tiếp lượt gốc từ checkpoint; chỉ id + epoch. */
+export const assistantPlanResumedEvent = z.object({ ...base, plan_id: uuid, root_run_id: uuid, plan_epoch: z.number().int() });
 /** "Quên khách" (TIP-015c §1.7) — chỉ id + thế hệ + pha. */
 export const privacyRequestedEvent = z.object({ ...base, operation_id: uuid, canonical_contact_id: uuid, family_generation: z.number().int(), requester_id: uuid });
 export const privacyProgressedEvent = z.object({ ...base, operation_id: uuid, phase: z.string().max(40) });
@@ -41,6 +43,7 @@ export const BASELINE_EVENT_SCHEMAS = {
   'assistant.plan_proposed': assistantPlanProposedEvent,
   'assistant.plan_progressed': assistantPlanProgressedEvent,
   'assistant.plan_edit_requested': assistantPlanEditRequestedEvent,
+  'assistant.plan_resumed': assistantPlanResumedEvent,
   'contact.privacy_requested': privacyRequestedEvent,
   'contact.privacy_progressed': privacyProgressedEvent,
   'contact.forgotten': privacyForgottenEvent,

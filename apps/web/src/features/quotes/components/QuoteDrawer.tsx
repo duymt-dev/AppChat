@@ -22,6 +22,7 @@ import { OverviewTab } from './OverviewTab';
 import { AiTab, CrmTab, HistoryTab } from './DetailTabs';
 import { CustType, avColor, initial } from './parts';
 import { QuoteDeliveryModal } from './QuoteDeliveryModal';
+import { RenderStatus } from './RenderStatus';
 import type { Quote, QuotesMeta } from '../types';
 
 const TABS = ['overview', 'crm', 'ai', 'history'] as const;
@@ -181,6 +182,7 @@ function Header({ q }: { q: Quote }) {
           {t('detail.sendPdf')}
         </button>
       </div>
+      <RenderStatus q={q} />
       {delivery ? <QuoteDeliveryModal quoteId={q.id} initial="webchat" onClose={() => setDelivery(false)} /> : null}
     </>
   );

@@ -13,6 +13,7 @@ import { MAX_STEPS, type AiRunner } from '../runs/runner';
 import { RunStore } from '../runs/run.store';
 import { publishedAgent } from './reply-context';
 import { agentKnowledge } from '../kb/scope/context';
+import { admitQuoteDecision } from '../sales-behavior/admission';
 
 export const META = { handoff: 'handoff', transfer: 'transfer_to_agent', consult: 'consult' } as const;
 /** Độ sâu tối đa của consult / delegate (agent-gateway §5). */
@@ -144,6 +145,9 @@ export async function replyTools(d: ReplyToolDeps, t: ReplyTurn): Promise<ToolSp
     servedConversationId: t.conversationId,
     mapInput: (input) => unmaskPii(input, t.pii),
     db: d.db,
+    // TIP-022c: quyết định báo giá phải có biên nhận ý định khách (phân loại chỉ đọc ≥ 70%) — copilot chạy dry-run nên không tới đây.
+    salesGate: (actionId, input, authz) =>
+      admitQuoteDecision({ db: d.db, runner: d.runner, now: d.now, ws: t.ws, runId: t.runId, conversationId: t.conversationId, pii: t.pii, locale: t.cfg.language === 'en' ? 'en' : 'vi', tier: t.cfg.model_tier }, actionId, input, authz),
   }).map((s) => {
     const id = s.name.replaceAll('__', '.');
     if (!t.dryRun || RISK.get(id) === 'read') return s;

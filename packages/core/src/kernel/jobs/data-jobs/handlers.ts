@@ -54,6 +54,8 @@ export class DataJobRetryHandler implements Handler<ActionInput<typeof dataJobRe
     const job = await lockJob(tx, ctx, input.job_id);
     if (!['failed', 'cancelled', 'completed'].includes(job.status)) throw new AppError('INVALID_STATE', 409, { status: job.status });
     if (inputHash(job.input) !== job.inputHash) throw new AppError('INVALID_STATE', 409, { input: 'changed' });
+    // TIP-034c §3.1: tập "đã đổi thành công" đã niêm phong cho hoàn tác → thao tác đi không nhận thêm bản ghi nào nữa.
+    if (job.undoSeal) throw new AppError('INVALID_STATE', 409, { undo: 'sealed' });
     const now = this.clock.now();
     const r = await tx.dataJobItem.updateMany({ where: { jobId: job.id, status: 'failed' }, data: { status: 'pending', error: null, updatedAt: now } });
     // Xuất tệp: bản ghi chỉ đánh dấu done khi tệp đã ghi xong — huỷ / lỗi giữa chừng còn pending → chạy lại dựng tệp từ đầu (cùng tập id).

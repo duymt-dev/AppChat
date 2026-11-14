@@ -5,6 +5,7 @@
 'use client';
 import { io, type Socket } from 'socket.io-client';
 import { onSessionChange, sessionAuth } from '../api/http-transport';
+import { tabId } from './tab-id';
 
 type Handler = (event: string, data: unknown) => void;
 
@@ -21,8 +22,8 @@ function connect(): void {
   workspace = auth.workspace_id;
   const s = io(url(), {
     transports: ['websocket'],
-    // Gọi lại mỗi lần (kể cả tự nối lại) → luôn dùng access token mới nhất.
-    auth: (cb) => cb(sessionAuth()),
+    // Gọi lại mỗi lần (kể cả tự nối lại) → luôn dùng access token mới nhất. `tab_id` → phòng tab nhận `ui.command` (TIP-006c).
+    auth: (cb) => cb({ ...sessionAuth(), tab_id: tabId() }),
   });
   s.onAny((event: string, data: unknown) => {
     for (const h of handlers) h(event, data);

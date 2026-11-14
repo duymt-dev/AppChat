@@ -1,6 +1,6 @@
 // Hàng thư mục Dữ liệu RAG + nút sửa (TIP-020b — KbFolderEditor): nút 28 hiện khi rê / focus, luôn hiện + vùng chạm 44 trên cảm ứng.
 import { createStyles } from 'antd-style';
-import { color, radius } from '@appchat/ui';
+import { color, mq, radius } from '@appchat/ui';
 
 export const useRagFolderStyles = createStyles(({ css }) => ({
   /** TIP-020b: hàng thư mục + nút sửa (hiện khi rê / focus; luôn hiện trên cảm ứng). */
@@ -30,7 +30,7 @@ export const useRagFolderStyles = createStyles(({ css }) => ({
       background: ${color.divider};
       color: ${color.text2};
     }
-    @media (hover: none) {
+    ${mq.noHover} {
       opacity: 1;
       width: 44px;
       height: 44px;

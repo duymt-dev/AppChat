@@ -18,15 +18,14 @@ export const classifyProducts: Classifier = async (tx, _who, rows) => {
     rows.map((r) => validateProductRow({ rowNo: r.rowNo, cells: r.data })),
   );
   const skus = checked.flatMap((c) => (!isProductRowError(c) && c.sku ? [c.sku.toLowerCase()] : []));
-  const existing = skus.length
-    ? new Set(
-        (
-          await tx.$queryRaw<
-            { code: string }[]
-          >`SELECT lower(code) AS code FROM product WHERE lower(code) = ANY(${skus}::text[])`
-        ).map((p) => p.code),
-      )
-    : new Set<string>();
+  // SKU đã có + mô tả hiện hành (TIP-027b: chữ thuần mới khác chữ của sản phẩm ĐÃ định dạng → cảnh báo reset định dạng trước khi xác nhận).
+  const found = skus.length
+    ? await tx.$queryRaw<
+        { code: string; description: string; formatted: boolean }[]
+      >`SELECT lower(code) AS code, description, description_doc IS NOT NULL AS formatted FROM product WHERE lower(code) = ANY(${skus}::text[])`
+    : [];
+  const existing = new Set(found.map((p) => p.code));
+  const current = new Map(found.map((p) => [p.code, p]));
   return checked.map((c, i): RowCheck => {
     const r = rows[i] as CheckedRow;
     if (isProductRowError(c)) {
@@ -35,6 +34,8 @@ export const classifyProducts: Classifier = async (tx, _who, rows) => {
       return 'invalid';
     }
     if (c.sku && existing.has(c.sku.toLowerCase())) r.errors.sku_warning = 'updates_existing';
+    const cur = c.sku ? current.get(c.sku.toLowerCase()) : undefined;
+    if (cur?.formatted && !c.descriptionDoc && c.description !== undefined && c.description !== cur.description.trim()) r.errors.description_warning = 'formatting_reset';
     return 'valid';
   });
 };

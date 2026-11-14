@@ -90,7 +90,7 @@ export class TicketCreateHandler implements Handler<In, Out> {
         const body = [input.title.trim(), input.description?.trim()].filter(Boolean).join('\n');
         const cm = await tx.ticketComment.create({ data: { id: uuidv7(now.getTime()), ticketId: dup.id, authorType: actor.type === 'system' ? 'system' : actor.type, authorId: actor.id, authorName: actor.name, body, internal: true, createdAt: now } });
         await logEvent(tx, dup.id, 'note', actor, now, { merged: true });
-        await tx.ticket.update({ where: { id: dup.id }, data: { updatedAt: now, version: { increment: 1 } } });
+        await tx.ticket.update({ where: { id: dup.id }, data: { updatedAt: now } });
         return { result: { ticket_id: dup.id, code: dup.code, merged: true }, after: { merged_comment: cm.id } };
       }
     }

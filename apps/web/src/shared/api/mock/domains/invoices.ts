@@ -201,7 +201,6 @@ export const invoicesRoutes: Record<string, MockRoute> = {
       refunds: perms.includes('payment.refund_approve') ? pendingRefunds(db) : [],
       payment_account: db.invoices.payment_account,
       crm: fixture.crm,
-      files: fixture.files,
     };
   },
 };

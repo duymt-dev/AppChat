@@ -37,7 +37,9 @@ test.describe('sản phẩm (http)', () => {
     await create(page, 'Khám da soi VISIA', 'service', '500000', async (f) => {
       await f.getByTestId('pd-f-category').selectOption('Dịch vụ lẻ');
       await f.getByTestId('pd-f-duration').fill('60');
-      await f.getByTestId('pd-f-desc').fill('Soi da chuyên sâu bằng máy VISIA');
+      // TIP-027b: vùng soạn có cấu trúc (contentEditable qua mô hình) — gõ bằng bàn phím, không fill().
+      await f.getByTestId('pd-f-desc').click();
+      await page.keyboard.type('Soi da chuyên sâu bằng máy VISIA');
     });
     await create(page, 'Serum phục hồi B5', 'physical', '680000', async (f) => {
       await f.getByTestId('pd-f-category').selectOption('Sản phẩm');

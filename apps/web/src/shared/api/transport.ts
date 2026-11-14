@@ -12,6 +12,8 @@ export interface ActionCallOptions {
   genuiIntent?: string;
   /** Xác nhận form GenUI có ô bí mật: handle vault server trả ở 202 — thay cho giá trị bí mật (không gửi lại). */
   secretVault?: string;
+  /** Xin xem trước (TIP-028b) → header `x-action-preview: 1`; chỉ action trong REQUESTABLE_PREVIEW_ACTIONS (bảng kiểm chứng từ). */
+  preview?: boolean;
 }
 
 export type ActionResponse<O = unknown> =
@@ -27,8 +29,11 @@ export interface Transport {
   action<O = unknown>(id: string, input: unknown, opts?: ActionCallOptions): Promise<ActionResponse<O>>;
   /** POST /v1/action-logs/:id/undo */
   undo(actionLogId: string): Promise<void>;
-  /** POST /v1/files (multipart ≤ 25MB) → `file_id` dùng ở action sau (vd. `kb.add_source`). Mock: id giả, không giữ nội dung. */
-  upload(file: File, purpose: string, signal?: AbortSignal): Promise<UploadedFile>;
+  /**
+   * POST /v1/files (multipart ≤ 25MB) → `file_id` dùng ở action sau (vd. `kb.add_source`). Mock: id giả, không giữ nội dung. `fields` = ô
+   * multipart thêm (TIP-032d: `record_attachment` khai đích `parent_type` + `parent_id`).
+   */
+  upload(file: File, purpose: string, signal?: AbortSignal, fields?: Record<string, string>): Promise<UploadedFile>;
   /** GET /v1/<path> trả tệp nhị phân (PDF xem trước — TIP-028). Mock: tệp nhỏ dựng tại chỗ. */
   blob(path: string): Promise<Blob>;
   /**

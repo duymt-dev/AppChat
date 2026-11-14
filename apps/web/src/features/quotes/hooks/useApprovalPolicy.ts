@@ -5,7 +5,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { DEFAULT_APPROVAL_POLICY, type ApprovalPolicy } from '@appchat/shared';
-import { salesPolicyQuery } from '@/features/settings';
+import { salesPolicyQuery } from '@/features/settings/api';
 import { useFmt } from '@/shared/i18n/useFmt';
 
 export type ApprovalReason = 'total' | 'discount' | 'off_catalog';

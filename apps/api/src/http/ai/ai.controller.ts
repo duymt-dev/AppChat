@@ -1,8 +1,9 @@
 // Runtime AI (TIP-019, Blueprint §4.4 ai): GET /v1/settings/ai (Cài đặt › Mô hình AI — `ai.governance`, mức theo gói + credit / 1k token
 // rẻ nhất mỗi mức) · GET /v1/runs?root_run_id=&status= (khung "Trợ lý AI đang điều phối" — `assistant.use`). Ghi: ai_settings.update, run.cancel.
-import { Controller, Get, Inject, Query, Req } from '@nestjs/common';
+import { Controller, Get, Inject, Optional, Query, Req } from '@nestjs/common';
 import type { IncomingMessage } from 'node:http';
-import { PLATFORM_DB, ProviderStore, QuotaService, TENANT_RESOLVER, aiSettingsDto, listRuns, readAiSetting, readKb, runScope, type RunFilter } from '@appchat/core';
+import { CLOCK, KB_EMBEDDER, PLATFORM_DB, ProviderStore, QuotaService, TENANT_RESOLVER, aiSettingsDto, listRuns, readAiSetting, readKbWithIndex, runScope, type Clock, type RunFilter } from '@appchat/core';
+import type { Embedder } from '@appchat/ai';
 import type { PlatformDb } from '@appchat/db';
 import { TenantContexts, type TenantDbResolver } from '@appchat/db';
 import { AppError, type PermissionKey } from '@appchat/shared';
@@ -19,6 +20,8 @@ export class AiController {
     @Inject(QuotaService) private readonly quota: QuotaService,
     @Inject(ProviderStore) private readonly providers: ProviderStore | null,
     @Inject(PLATFORM_DB) private readonly platform: PlatformDb,
+    @Optional() @Inject(KB_EMBEDDER) private readonly embedder: Embedder | null = null,
+    @Optional() @Inject(CLOCK) private readonly clock: Clock | null = null,
   ) {}
 
   private async db(req: IncomingMessage, perm: PermissionKey) {
@@ -47,10 +50,11 @@ export class AiController {
 
   @Get('settings/kb')
   async kb(@Req() req: IncomingMessage, @Query('nav') nav?: string, @Query('folder') folder?: string, @Query('q') q?: string) {
-    const { db } = await this.db(req, 'kb.manage');
+    const { a, db } = await this.db(req, 'kb.manage');
     if (folder && !UUID.test(folder)) folder = undefined;
     const names = async (ids: string[]) =>
       new Map((ids.length ? await this.platform.user.findMany({ where: { id: { in: ids } }, select: { id: true, name: true, email: true } }) : []).map((u) => [u.id, u.name || u.email]));
-    return { data: await readKb(db, { nav: nav ?? 'all', folder: folder ?? null, q: (q ?? '').slice(0, 100) }, names) };
+    // TIP-020e: kèm trạng thái chỉ mục embedding (đánh dấu cũ khi route embed đổi — không tự chạy job trả tiền).
+    return { data: await readKbWithIndex(db, a.workspaceId, { nav: nav ?? 'all', folder: folder ?? null, q: (q ?? '').slice(0, 100) }, names, this.embedder, this.clock?.now() ?? new Date()) };
   }
 }

@@ -48,7 +48,20 @@ export { registerPassages, registryOf, MAX_CITATION_CANDIDATES } from './citatio
 export { bindingOf, CITATION_SCHEMA_VERSION } from './citations/publication';
 export { recoverCitations } from './citations/recovery';
 export { citationsOf } from './citations/projection';
-export { readKb, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
+export { readKb, readKbWithIndex, fmtSize, KB_NAV, type KbDataDto } from './kb/kb.read';
+// TIP-020e: tái tạo chỉ mục embedding + rerank kho tri thức.
+export { KB_RERANKER } from './kb/reindex/providers';
+export { KbReindexQueue, KB_REINDEX_QUEUE, reindexJobId } from './kb/reindex/reindex.queue';
+export { runGeneration, purgeGeneration, reasonOf, REINDEX_BATCH, MAX_CATCHUP_ROUNDS, type ReindexDeps, type ReindexOutcome } from './kb/reindex/reindex.service';
+export { publishGeneration, missingCount } from './kb/reindex/publish';
+export { readIndexStatus, reconcileIndexState, currentSpace } from './kb/reindex/index-status';
+export { readIndexSetting, sameSpace, spaceLabel, slotCols, kbSpaceEmbedder, type Slot } from './kb/reindex/space';
+export { claimLease, createGeneration, getGeneration, openGeneration, LEASE_MS as KB_REINDEX_LEASE_MS } from './kb/reindex/generation.store';
+export { estimateReindex } from './kb/reindex/estimate';
+export { rerankStage } from './kb/rerank-stage';
+export { rerankHooks, rerankPriceMissing } from './runs/metered-rerank';
+export { recoverReindex } from './kb/ingest-recovery';
+export { startKbReindexWorker } from './jobs/kb-reindex.processor';
 export { sourceDownload, safeName as kbSafeName, type KbDownload } from './kb/source-download';
 export { ParseError, csvBlocks, htmlBlocks, kindOf, markdownBlocks, parseDocument } from './kb/parse';
 export { AI_RUNTIME } from './jobs/ai.jobs.module';
@@ -67,7 +80,7 @@ export { recoverDrafts } from './agents/drafting/publication';
 export { seedAgentTemplates, templateDefaults, upgradeAgentTemplates } from './agents/templates.seed';
 // TIP-022b: hành vi agent trực kênh.
 export { channelBindingPreview } from './agents/channel-binding-preview';
-export { TEMPLATE_REVISION, ROLE_DEFAULTS_V1, ROLE_DEFAULTS_V2, invalidTemplateTools, planUpgrade, replacementPreview } from './agents/template-revisions';
+export { TEMPLATE_REVISION, ROLE_DEFAULTS, ROLE_DEFAULTS_V1, ROLE_DEFAULTS_V2, ROLE_DEFAULTS_V3, invalidTemplateTools, planUpgrade, replacementPreview } from './agents/template-revisions';
 export { agentSchedule, scheduleState, assertPublishable } from './agents/schedule-config';
 export { availability } from './reply/availability';
 export { routeByKeyword, normalizePhrase, longestMatch } from './reply/keyword-router';
@@ -97,6 +110,7 @@ export { parseRecordIntent, RECORD_ENTITY_DEFS } from './assistant/record-intent
 export { resolveRecord, type RecordRef as RecordIntentRef } from './assistant/record-intent/context';
 export { proposeForRecord, readProposal, recoverProposals } from './assistant/record-intent/recovery';
 export { PROPOSAL_MARK, proposalSchema } from './assistant/record-intent/proposal';
+export { continuePlanTurn } from './assistant/plans/continue';
 export { assistantTurn, assistantConfirm, assistantResumeSpec, prepareTurn, runTurn, replayTurn, TURN_REQUESTED, type AssistantDeps, type TurnRequest, type ConfirmRequest, type PreparedTurn } from './assistant/turn.service';
 export { findActions, briefSchema, allowedFor as assistantAllows, modeAllows, SYSTEM_ONLY, FIND_LIMIT, type AssistantMode, type FoundAction } from './assistant/catalog';
 export { confirmCard, lookOf } from './assistant/card';
@@ -134,3 +148,5 @@ export { proposeFromConversation, parsePairs, type ProposeDeps, type ProposeOutc
 export { kbSuggestConsumer, closedCutoff } from './kb/suggestions/suggestion.consumer';
 export { KbSuggestQueue, KB_SUGGEST_QUEUE } from './kb/suggestions/suggestion.jobs';
 export { CREDIT_HANDOFF_CONSUMER, creditHandoffConsumer, handoffForCredit, type CreditHandoffDeps } from './reply/credit-handoff.consumer';
+// TIP-022c: căn cứ công bố câu bán hàng (digest sự thật hiển thị / chữ) — bằng chứng worker / integration dựng căn cứ như lượt thật.
+export { contentDigest, visibleDigests } from './sales-behavior/publication';

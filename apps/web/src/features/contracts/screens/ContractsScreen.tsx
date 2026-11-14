@@ -14,13 +14,15 @@ import { useContractsUi } from '../contracts-store';
 import { contractsMetaQuery, contractsQuery } from '../api';
 import { ContractCard, ContractKanbanCard, useContractColumns, useTr } from '../columns';
 import { BulkBar, ContractsToolbar } from '../components/ContractsToolbar';
-import { ContractAiDrawer } from '../components/ContractAiDrawer';
 import { ApproveSignModal, SendSignModal } from '../components/SignModals';
 import { KANBAN, chipOf } from '../status';
 import type { Contract } from '../types';
 import { useContractsUiCommands } from '../ui-commands';
 import { ListPager } from '@/shared/list/ListPager';
 import { useAssistantContext } from '../hooks/useAssistantContext';
+import { Opened, lazyDrawer } from '@/shared/dynamic/lazy-drawers';
+
+const ContractAiDrawer = lazyDrawer(() => import('../components/ContractAiDrawer').then((m) => m.ContractAiDrawer));
 
 const KPI = [
   ['total', color.blue, 'ic-doc'],
@@ -144,7 +146,9 @@ export function ContractsScreen() {
           />
         )}
       </PageStates>
-      {meta ? <ContractAiDrawer meta={meta} /> : null}
+      <Opened name="contract-ai" when={ui.aiOpen && !!meta} onClose={() => ui.set({ aiOpen: false })}>
+        {meta ? <ContractAiDrawer meta={meta} /> : null}
+      </Opened>
       <ApproveSignModal />
       <SendSignModal />
     </div>

@@ -15,6 +15,7 @@ import { MetricsModule } from './metrics/metrics.module';
 import { GenUiIntents } from './actions/genui-intent';
 import { SecretVault } from './actions/secret-vault';
 import { DB_ENV, PLATFORM_DB, TENANT_RESOLVER, WORKSPACE_REGISTRY, dbProviders, readDbEnv } from './tenant/tenant.providers';
+import { registryBusProvider } from './tenant/registry-bus';
 
 export const LOGGER = Symbol('LOGGER');
 /** Bản env thô mà forRoot nhận — domain tự parse phần của mình (vd. identity.env.ts), test truyền env riêng. */
@@ -77,6 +78,8 @@ export class KernelModule {
       );
       exports.push(STORAGE, FilesService);
     }
+    // TIP-006c: vô hiệu cache registry workspace giữa tiến trình (Redis pub/sub) — mọi api / worker có DB + Redis.
+    if (db && k.REDIS_URL) providers.push(registryBusProvider(LOGGER));
     if (db && k.REDIS_URL) {
       if (!k.APP_ENC_KEY) throw new Error('Biến môi trường không hợp lệ: APP_ENC_KEY');
       imports.push(ActionsModule.forRoot({ confirmSecret: k.APP_ENC_KEY }));

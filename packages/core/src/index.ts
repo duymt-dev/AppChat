@@ -58,6 +58,7 @@ export { ContractsJobsModule } from './contracts/jobs/contracts.jobs.module';
 export * from './contracts/public';
 export { DocumentsModule } from './documents/documents.module';
 export { DocumentsJobsModule } from './documents/jobs/documents.jobs.module';
+export { DOC_RENDER_QUEUE, DOC_RENDER_CONSUMER, DocRenderQueue, docRenderConsumer, renderJobId, sweepPendingRenders } from './documents/jobs/doc-render.processor';
 export { IntegrationsModule } from './integrations/integrations.module';
 export { IntegrationsJobsModule } from './integrations/jobs/integrations.jobs.module';
 export { BookingModule } from './booking/booking.module';

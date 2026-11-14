@@ -60,6 +60,8 @@ function fakeTx() {
     message: table((r) => r.id as string, (w) => w),
     conversation: table((r) => r.id as string, (w) => w),
     contact: table((r) => r.id as string, (w) => w),
+    // TIP-022c: người ghi thu hồi đi qua hàng rào nguồn khách (khoá + vô hiệu biên nhận) — DB giả không có khách / biên nhận.
+    $queryRaw: async () => [],
     $executeRaw: async () => 0,
   };
   void t.message.create({ data: { id: MSG, conversationId: 'c1', channelAccountId: ACC, direction: 'out', recalledAt: null } });

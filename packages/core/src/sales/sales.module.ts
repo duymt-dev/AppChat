@@ -29,11 +29,13 @@ import { QuoteApproveHandler, QuoteRejectInternalHandler, QuoteSubmitHandler } f
 import { QuoteAcceptHandler, QuoteRejectHandler, QuoteRevisionHandler } from './quotes/actions/quote-decide.handlers';
 import { QuoteDraftFromContentHandler } from './quotes/actions/quote-draft.handler';
 import { QuoteExtendHandler, QuoteSendHandler } from './quotes/actions/quote-send.handlers';
+import { QuoteRetryRenderHandler } from './quotes/actions/quote-render.handler';
 import { QuoteCommentHandler, QuoteCreateHandler, QuoteDeleteHandler, QuoteUpdateHandler } from './quotes/actions/quote-write.handlers';
 import { QuoteGetHandler, QuoteSearchHandler } from './quotes/actions/quote-read.handlers';
 import { OrderGetHandler, OrderSearchHandler } from './orders/actions/order-read.handlers';
 import { InvoiceGetHandler, InvoiceSearchHandler, PackageSearchHandler } from './payments/actions/invoice-read.handlers';
 import { QuoteDeps } from './quotes/services/quote-deps';
+import { registerQuoteRenderKind } from './quotes/services/quote-render';
 import { quoteEnvFor } from './quotes/services/quote-env';
 import { QuotesReadService } from './quotes/services/quotes-read.service';
 import { SalesSettingsModule } from './settings/settings.module';
@@ -58,6 +60,7 @@ import { InvoicesReadService } from './payments/services/invoices-read.service';
 import { PackagesReadModule } from './payments/packages/read.module';
 import { TenantBankHook, genericBankSink } from './payments/services/bank-feed';
 import { IntegrationsModule } from '../integrations/integrations.module';
+import { COMMERCE_FILE_HANDLERS, registerCommerceFileSources } from './files/module';
 
 const opt = (token: symbol | typeof FilesService | typeof DocRenderer | typeof ActionExecutor) => ({ token, optional: true });
 const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
@@ -65,7 +68,7 @@ const ORDER_SYNC_KV = Symbol('ORDER_SYNC_KV');
 const HANDLERS = [
   QuoteCreateHandler, QuoteUpdateHandler, QuoteDeleteHandler, QuoteCommentHandler,
   QuoteSubmitHandler, QuoteApproveHandler, QuoteRejectInternalHandler,
-  QuoteSendHandler, QuoteExtendHandler,
+  QuoteSendHandler, QuoteExtendHandler, QuoteRetryRenderHandler,
   QuoteAcceptHandler, QuoteRejectHandler, QuoteRevisionHandler,
   QuoteDraftFromContentHandler,
   OrderCreateHandler, OrderFromQuoteHandler, OrderFromContractHandler,
@@ -76,6 +79,7 @@ const HANDLERS = [
   PaymentAccountUpdateHandler, BankFeedConnectHandler, BankFeedDisconnectHandler, BankFeedIngestHandler,
   // Đọc bản ghi cho Trợ lý / agent (TIP-023b R2).
   QuoteSearchHandler, QuoteGetHandler, OrderSearchHandler, OrderGetHandler, InvoiceSearchHandler, InvoiceGetHandler,
+  ...COMMERCE_FILE_HANDLERS,
   // Gửi chứng từ cho khách (TIP-032b P2).
   OrderSendConfirmationHandler, ReceiptSendHandler,
   // Action riêng chuyển trạng thái hệ thống (TIP-003c).
@@ -94,6 +98,8 @@ const HANDLERS = [
         return new QuoteDeps(r ?? null, p ?? null, d ?? null, f ?? null, quoteEnvFor(env, key, widgetUrlsFor(env).api), m);
       },
     },
+    // TIP-028b: kind `quote` của queue doc-render (render + phát hành ở job; Thử lại ở API dùng cùng registry).
+    { provide: 'QUOTE_RENDER_KIND', inject: [QuoteDeps], useFactory: (d: QuoteDeps) => (registerQuoteRenderKind(d), true) },
     {
       provide: OrdersReadService,
       inject: [QuoteDeps, CLOCK],
@@ -134,6 +140,8 @@ export class SalesModule implements OnModuleInit {
   /** Port chuyển phụ trách báo giá (TIP-015d) — CRM gọi trong transaction chuyển khách, không import Sales. */
   onModuleInit(): void {
     registerOwnershipPort(quoteOwnershipPort);
+    // TIP-032d: nguồn tệp đính kèm đơn / đề nghị — route tải tệp / dọn tệp hỏi qua kernel, không import sales.
+    registerCommerceFileSources();
     // 012b: claim FOR UPDATE + trạng thái biên nhận ngân hàng là khoá chống ghi đôi (domain).
     registerSystemVerifier('bank_feed.ingest', verifyBankIngress, { receipt: 'domain' });
     // TIP-003c: họ action riêng sales — biên nhận trigger bền (mặc định).

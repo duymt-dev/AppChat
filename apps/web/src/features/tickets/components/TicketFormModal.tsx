@@ -12,6 +12,8 @@ import { PRIORITIES, STATUSES } from '../status';
 import type { Channel, Priority, TicketsMeta } from '../types';
 import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
 import { sourceLinkOf } from '@/shared/crm-forms/source-link';
+import { defaultCategory, useCategorySuggestions } from '../hooks/useCategorySuggestions';
+import { TicketCategoryInput } from './TicketCategoryInput';
 
 const CHANNELS: Channel[] = ['zalo_personal', 'webchat', 'email'];
 const OPEN_STATUSES = STATUSES.filter((s) => s !== 'closed');
@@ -56,7 +58,7 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
     company: str(prefill.company),
     email: str(prefill.email),
     channel: (str(prefill.channel) || 'zalo_personal') as Channel,
-    category: str(prefill.category) || meta.categories[0]!,
+    category: str(prefill.category) || defaultCategory(meta),
     priority: (str(prefill.priority) || 'high') as Priority,
     status: (str(prefill.status) || 'open') as 'open' | 'in_progress' | 'waiting',
     team_id: str(prefill.team_id) || (meta.teams[0]?.id ?? ''),
@@ -65,11 +67,13 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
   });
   const [err, setErr] = useState('');
   const cf = useCustomDraft('ticket');
+  const cats = useCategorySuggestions(meta);
   const up = <K extends keyof typeof d>(k: K, v: (typeof d)[K]) => setD((s) => ({ ...s, [k]: v }));
   const close = () => set({ form: false, prefill: null });
   const save = async () => {
     if (!d.title.trim()) return setErr(t('form.required'));
     if (d.email && !EMAIL.test(d.email)) return setErr(t('form.emailBad'));
+    if (!d.category.trim()) return setErr(t('form.categoryRequired'));
     const agent = d.owner === meta.agent.id;
     const c = cf.collect('create');
     if (!c.ok) return;
@@ -80,7 +84,7 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
       ...(str(prefill.contact_id) ? { contact_id: str(prefill.contact_id) } : {}),
       ...sourceLinkOf(prefill),
       channel: d.channel,
-      category: d.category,
+      category: d.category.trim(),
       priority: d.priority,
       status: d.status,
       ...(agent ? { assignee_agent_id: d.owner } : { assignee_user_id: d.owner, ...(d.team_id ? { team_id: d.team_id } : {}) }),
@@ -159,7 +163,10 @@ function TicketForm({ meta, prefill }: { meta: TicketsMeta; prefill: Record<stri
           <input className={styles.input} placeholder={t('form.emailPh')} value={d.email} onChange={(e) => up('email', e.target.value)} data-testid="tk-email" />,
         )}
         {field(t('form.channel'), <Select value={d.channel} onPick={(v) => up('channel', v as Channel)} opts={CHANNELS.map((c) => [c, t(`channel.${c}`)])} testId="tk-channel" />)}
-        {field(t('form.category'), <Select value={d.category} onPick={(v) => up('category', v)} opts={meta.categories.map((c) => [c, c])} testId="tk-category" />)}
+        {field(
+          t('form.category'),
+          <TicketCategoryInput value={d.category} onChange={(v) => up('category', v)} options={cats} className={styles.input} label={t('form.category')} testId="tk-category" />,
+        )}
         {field(t('form.priority'), <Select value={d.priority} onPick={(v) => up('priority', v as Priority)} opts={PRIORITIES.map((p) => [p, t(`priority.${p}`)])} testId="tk-priority" />)}
         {field(
           t('form.status'),
