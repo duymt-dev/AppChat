@@ -100,10 +100,10 @@
     "stageCurrent": "Current stage",
     "stages": {
       "lead": "New lead",
-      "potential": "Potential",
-      "consulting": "In discussion",
+      "potential": "Qualified",
+      "consulting": "Consulting / Demo",
       "quote": "Quoted",
-      "contract": "Contract",
+      "contract": "Negotiation",
       "won": "Won",
       "lost": "Lost"
     },

@@ -1,6 +1,7 @@
 // Ghi Đơn hàng ở mock — cùng bảng ORDER_FLOW + payStatusOf + pointsFor với server (COMMERCE §4, §4b, §7): sai trạng thái →
 // INVALID_TRANSITION 409; processing chỉ sửa khi chưa thu; đơn sàn khoá dòng / cọc (INVALID_STATE); huỷ đã thu → chờ hoàn tiền; điểm
-// một lần khi hoàn tất (đơn sàn 0). Mã `DH-{n}` (D52).
+// một lần khi hoàn tất (đơn sàn 0). Mã `DH-{n}` (D52). TIP-026c: đơn từ báo giá / hợp đồng kế thừa cơ hội của báo giá → cơ hội Đã mua;
+// huỷ đơn khi không còn chứng từ sống → Đàm phán (opportunity-producers, cùng luật server).
 import { ApiRequestError, ORDER_FLOW, SHIPPING_EDITABLE, assertTransition, pointsFor, type AppError, type Discount } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
@@ -10,6 +11,7 @@ import type { QuoteItem } from './quotes';
 import { NAMES, deny, enrichOrder, findOrder, logOrder, type Order, type OrderStatus } from './orders';
 import { sendOrderConfirmation } from './commerce-delivery';
 import { applyAssigned, bump, checkOwnerEcho, checkVersion } from './commerce-edit';
+import { onDocumentUndone, onDocumentWon } from './opportunity-producers';
 
 const step = (o: Order, action: string): OrderStatus => {
   try {
@@ -110,6 +112,7 @@ export const ordersHandlers: Record<string, MockHandler> = {
         { source: 'quote', quote_id: q.id, quote_code: q.code, contact_name: q.contact_name, phone: q.phone },
       );
       q.converted = { kind: 'order', id: o.id };
+      onDocumentWon(db, q.opportunity_id, { step: 'order', id: o.id, code: o.code, status: o.status, amount_vnd: enrichOrder(o).total });
       return { order_id: o.id, code: o.code };
     },
     undo: shift,
@@ -132,6 +135,7 @@ export const ordersHandlers: Record<string, MockHandler> = {
         },
         { source: 'contract', contract_code: c.code, contact_name: c.contact_name, phone: c.phone },
       );
+      onDocumentWon(db, q?.opportunity_id, { step: 'order', id: o.id, code: o.code, status: o.status, amount_vnd: enrichOrder(o).total });
       return { order_id: o.id, code: o.code };
     },
     undo: shift,
@@ -218,6 +222,7 @@ export const ordersHandlers: Record<string, MockHandler> = {
       o.refund_pending = Number(o.paid_total) > 0;
       logOrder(o, 'cancelled', { reason: i.reason });
       if (o.refund_pending) logOrder(o, 'refund_requested', { amount: o.paid_total });
+      onDocumentUndone(db, o.id, 'cancelled');
       return { order_id: o.id, status: o.status, refund_requested: o.refund_pending };
     },
   },

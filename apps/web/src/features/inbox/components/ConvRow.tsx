@@ -11,6 +11,7 @@ import { TAG_TONE } from '../tones';
 import { ConvMenu } from './ConvMenu';
 import { AvatarFace } from './AvatarFace';
 import type { ChannelMeta, Conversation } from '../types';
+import { OpportunityChip } from './OpportunityChip';
 
 export interface ConvRowProps {
   conv: Conversation;
@@ -77,6 +78,7 @@ export function ConvRow({ conv, channel, selected }: ConvRowProps) {
               {g.label}
             </span>
           ))}
+          <OpportunityChip chip={conv.opportunity_chip} compact />
           {conv.unread > 0 ? <span className={styles.unread}>{conv.unread}</span> : null}
         </div>
       </div>

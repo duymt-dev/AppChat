@@ -17,10 +17,10 @@
   "stages": {
     "all": "Tất cả",
     "lead": "Lead mới",
-    "potential": "Tiềm năng",
-    "consulting": "Đang tư vấn",
+    "potential": "Đủ điều kiện",
+    "consulting": "Tư vấn / Demo",
     "quote": "Báo giá",
-    "contract": "Hợp đồng",
+    "contract": "Đàm phán",
     "won": "Đã mua",
     "lost": "Thất bại"
   },
@@ -100,7 +100,8 @@
     "status": "Trạng thái",
     "owner": "Phụ trách",
     "ai": "AI gợi ý",
-    "actions": "Thao tác"
+    "actions": "Thao tác",
+    "opportunity": "Cơ hội đang mở"
   },
   "ai": {
     "hint": "✦ {hint}",
@@ -405,5 +406,7 @@
       "owned": "Đã có người phụ trách",
       "invalid": "Thiếu SĐT / email hoặc sai"
     }
-  }
+  },
+  "oppCount": "{n} cơ hội",
+  "oppOpen": "Mở chi tiết cơ hội"
 }

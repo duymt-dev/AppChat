@@ -1,5 +1,5 @@
 // Kiểu dữ liệu Khách hàng (Blueprint §2.2 contact, §4.4 crm; D32 phụ trách + đồng phụ trách).
-import type { CustomValues } from '@appchat/shared';
+import type { CustomValues, OpenOpportunitySummaryDto } from '@appchat/shared';
 import type { IconName } from '@appchat/ui';
 
 export type StageKey = 'all' | 'lead' | 'potential' | 'consulting' | 'quote' | 'contract' | 'won' | 'lost';
@@ -38,6 +38,8 @@ export interface ContactRow {
   collaborator_count: number;
   /** Trường tuỳ biến (D56). */
   custom?: CustomValues;
+  /** TIP-026c: cột "Cơ hội đang mở" — tổng giá trị · số cơ hội · giai đoạn cao nhất (openSummary, một truy vấn cả trang); vắng = không có. */
+  open_opportunity?: OpenOpportunitySummaryDto;
   /** Phiên bản khách (TIP-026b) — kéo thẻ gửi lại làm if_version. */
   version?: number;
 }

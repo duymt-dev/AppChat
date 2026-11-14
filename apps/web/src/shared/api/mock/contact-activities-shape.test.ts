@@ -1,5 +1,5 @@
-// TIP-026b mock cùng hợp đồng server: 360 có `activities` khớp activitySummarySchema; GET trang khớp activityPageSchema + cursor; CAS lệch
-// → 409; done lặp không tăng version; CSKH (không quote.view) thấy tiền VẮNG + amount_hidden, ghi tiền → 403; won khi tạo → 422.
+// TIP-026b / 026c mock cùng hợp đồng server: 360 có `activities` khớp activitySummarySchema (thẻ cơ hội = opportunityCardSchema); GET trang
+// khớp activityPageSchema + cursor; CAS lệch → 409; done lặp không tăng version; cơ hội: xem contact-opportunities-shape.test.ts.
 import { beforeEach, describe, expect, it } from 'vitest';
 import { activityPageSchema, activitySummarySchema, ApiRequestError } from '@appchat/shared';
 import { activityHandlers, activityPage, activitySummary, seedActivities, type ActivityStore } from './domains/contact-activities';
@@ -41,12 +41,11 @@ describe('mock hoạt động CRM', () => {
     expect(db.s.tasks.find((t) => t.id === 'tk_lan_3')!.state).toBe('open');
   });
 
-  it('CSKH: tiền VẮNG + amount_hidden; ghi tiền 403; won khi tạo 422', () => {
-    db.role = 'cs';
-    const o = activitySummary(db.s, 'cs', 'ct_lan', true).opportunity.current!;
-    expect('amount_vnd' in o).toBe(false);
-    expect(o.amount_hidden).toBe(true);
-    expect(code(() => run('contact_opportunity.update', { opportunity_id: 'op_lan_1', patch: { amount_vnd: '1' } }))).toBe(403);
-    expect(code(() => run('contact_opportunity.create', { contact_id: 'ct_lan', title: 'x', stage: 'won' }))).toBe(422);
+  it('thẻ cơ hội 360° khớp schema: Tư vấn / Demo 50%, dự báo 24tr; CSKH tiền VẮNG + amount_hidden', () => {
+    const o = activitySummarySchema.parse(activitySummary(db.s, 'owner', 'ct_lan', true)).opportunity.current!;
+    expect([o.stage, o.probability, o.forecast_vnd]).toEqual(['demo', 50, '24000000']);
+    const cs = activitySummary(db.s, 'cs', 'ct_lan', true).opportunity.current!;
+    expect('amount_vnd' in cs).toBe(false);
+    expect(cs.amount_hidden).toBe(true);
   });
 });

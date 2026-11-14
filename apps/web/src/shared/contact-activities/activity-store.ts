@@ -1,9 +1,9 @@
 // State mở form / danh sách hoạt động CRM (TIP-026b §3.3) — mở từ Hồ sơ 360° (Hộp thư / Khách hàng) hoặc lệnh Trợ lý
-// `prefill:contact_note|contact_task|contact_opportunity.form`. Form host mount MỘT lần ở CrmFormsHost (app/).
+// `prefill:contact_note|contact_task.form`. Form host mount MỘT lần ở CrmFormsHost (app/). Cơ hội (TIP-026c): shared/opportunities.
 import { create } from 'zustand';
 import type { ActivityKind } from '@appchat/shared';
 
-export type ActivityFormKind = 'note' | 'comment' | 'task' | 'opportunity';
+export type ActivityFormKind = 'note' | 'comment' | 'task';
 
 export interface ActivityFormTarget {
   kind: ActivityFormKind;

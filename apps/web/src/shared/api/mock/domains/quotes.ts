@@ -48,6 +48,10 @@ export type Quote = Omit<
   /** Hạn đã chốt lúc gửi / gia hạn (ISO); chưa gửi → dự kiến nếu gửi hôm nay. */
   valid_until_at?: string;
   viewed_at?: string | null;
+  /** TIP-026c: thuộc cơ hội + hai cờ áp lúc gửi (mặc định bật). */
+  opportunity_id?: string | null;
+  opportunity_sync_value?: boolean;
+  opportunity_follow_up?: boolean;
   /** TIP-028b: trạng thái job render PDF (mô phỏng — quote-render.ts). */
   render?: { status: 'pending_render' | 'rendered' | 'render_failed'; error: string | null } | null;
 };

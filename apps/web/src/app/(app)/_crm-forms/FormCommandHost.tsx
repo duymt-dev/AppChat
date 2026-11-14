@@ -10,6 +10,7 @@ import { prefillTicketsForm } from '@/features/tickets/ui-commands';
 import { prefillCalendarForm } from '@/features/calendar/ui-commands';
 import { useUiCommand } from '@/shared/assistant/ui-command-bus';
 import { ACTIVITY_PREFILL } from '@/shared/contact-activities/commands';
+import { OPPORTUNITY_COMMANDS } from '@/shared/opportunities/ui-commands';
 
 export function FormCommandHost() {
   useUiCommand('prefill:contact.form', prefillContactForm);
@@ -22,5 +23,8 @@ export function FormCommandHost() {
   useUiCommand(ACTIVITY_PREFILL[0]![0], ACTIVITY_PREFILL[0]![1]);
   useUiCommand(ACTIVITY_PREFILL[1]![0], ACTIVITY_PREFILL[1]![1]);
   useUiCommand(ACTIVITY_PREFILL[2]![0], ACTIVITY_PREFILL[2]![1]);
+  // TIP-026c: mở drawer Cơ hội 360° + thêm nhanh cơ hội (chạy cả khi chỉ mở Hộp thư).
+  useUiCommand(OPPORTUNITY_COMMANDS[0]![0], OPPORTUNITY_COMMANDS[0]![1]);
+  useUiCommand(OPPORTUNITY_COMMANDS[1]![0], OPPORTUNITY_COMMANDS[1]![1]);
   return null;
 }

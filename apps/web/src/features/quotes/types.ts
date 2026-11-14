@@ -57,6 +57,10 @@ export interface Quote {
   total: string;
   lines: { gross: string; net: string }[];
   approval_reasons: ('total' | 'discount' | 'off_catalog')[];
+  /** TIP-026c: thuộc cơ hội (null = không gắn) + hai cờ áp lúc gửi. */
+  opportunity_id?: string | null;
+  opportunity_sync_value?: boolean;
+  opportunity_follow_up?: boolean;
   /** Đã sinh chứng từ (TIP-032b — một báo giá → một HĐ hoặc một đơn). */
   converted?: 'contract' | 'order' | null;
   /** PDF đóng băng (TIP-028b, job doc-render): đang tạo / xong / lỗi (có Thử lại). null = chưa phát hành. */

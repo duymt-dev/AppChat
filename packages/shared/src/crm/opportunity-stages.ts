@@ -18,10 +18,10 @@ export const OPPORTUNITY_STAGE_COLOR: Record<OpportunityStage, string> = {
   lead: '#2B9EF3',
   qualified: '#F59E0B',
   demo: '#7C3AED',
-  quote: '#EC4899',
+  quote: '#DB2777',
   negotiation: '#0F6E50',
-  won: '#22C55E',
-  lost: '#9CA3AF',
+  won: '#16A34A',
+  lost: '#6B7280',
 };
 
 /** Giai đoạn khách tương ứng (khoá enum khách giữ nguyên — `potential` = Đủ điều kiện, `consulting` = Tư vấn / Demo, `contract` = Đàm phán). */

@@ -11,6 +11,7 @@ import { Rich } from './Rich';
 import type { ChannelMeta, Conversation } from '../types';
 import { AvatarFace } from './AvatarFace';
 import { IntentBadge } from './IntentBadge';
+import { OpportunityChip } from './OpportunityChip';
 
 export function ChatHeader({ conv, channel }: { conv: Conversation; channel: ChannelMeta | undefined }) {
   const t = useTranslations('inbox.chat');
@@ -95,6 +96,7 @@ export function ChatHeader({ conv, channel }: { conv: Conversation; channel: Cha
             ) : null}
           </div>
         </div>
+        <OpportunityChip chip={conv.opportunity_chip} />
         <div className={styles.icons}>
           {icons.map(([icon, label, onClick, hideMobile]) => (
             <button

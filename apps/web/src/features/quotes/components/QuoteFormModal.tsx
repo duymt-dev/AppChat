@@ -17,6 +17,7 @@ import type { Quote } from '../types';
 import { LineEditor } from './LineEditor';
 import { CustomFieldInputs, useCustomDraft } from '@/shared/custom-fields';
 import type { ApiRequestError, CustomValues } from '@appchat/shared';
+import { OpportunityPicker } from '@/shared/opportunities';
 
 const toPrefill = (q: Quote): Record<string, unknown> => ({
   contact_id: q.contact_id,
@@ -26,6 +27,9 @@ const toPrefill = (q: Quote): Record<string, unknown> => ({
   header_discount: q.header_discount,
   payment_terms: q.payment_terms,
   note: q.note,
+  opportunity_id: q.opportunity_id ?? null,
+  opportunity_sync_value: q.opportunity_sync_value,
+  opportunity_follow_up: q.opportunity_follow_up,
 });
 
 const ALL_CONTACTS = {
@@ -148,7 +152,7 @@ function QuoteForm({
             <select
               className={styles.input}
               value={f.d.contact_id}
-              onChange={(e) => f.set('contact_id', e.target.value)}
+              onChange={(e) => (f.set('contact_id', e.target.value), f.set('opportunity_id', null))}
               data-testid="q-contact"
             >
               <option value="">{t('contactPh')}</option>
@@ -194,6 +198,16 @@ function QuoteForm({
           {field(t('status'), <input className={styles.input} value={t('statusDraft')} disabled />)}
         </div>
       </div>
+      {f.d.contact_id ? (
+        <OpportunityPicker
+          variant="quote"
+          contactId={f.d.contact_id}
+          value={f.d.opportunity_id}
+          onChange={(v) => f.set('opportunity_id', v)}
+          flags={{ sync: f.d.opportunity_sync_value, follow: f.d.opportunity_follow_up }}
+          onFlags={(x) => (f.set('opportunity_sync_value', x.sync), f.set('opportunity_follow_up', x.follow))}
+        />
+      ) : null}
       <div className={styles.section}>
         <div className={styles.sectionTitle}>{t('lines')}</div>
         <LineEditor f={f} />

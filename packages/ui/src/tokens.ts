@@ -2,6 +2,7 @@
 // Component chỉ được dùng token ở đây (qua createStyles / ConfigProvider) — cấm hard-code màu / px.
 
 import { salesColor, salesGradient } from './tokens-sales';
+import { pipelineColor } from './tokens-pipeline';
 import { opsColor, opsGradient } from './tokens-ops';
 import { settingsColor, settingsGradient, settingsShadow } from './tokens-settings';
 
@@ -208,6 +209,7 @@ export const color = {
   sparkBar: '#CDE9D8',
   pink: '#DB2777',
   ...salesColor,
+  ...pipelineColor,
   ...opsColor,
   ...settingsColor,
 } as const;

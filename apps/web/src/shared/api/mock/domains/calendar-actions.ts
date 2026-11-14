@@ -1,12 +1,14 @@
 // Ghi Lịch hẹn ở mock — cùng bảng APPOINTMENT_FLOW với server (REQ-G02, COMMERCE §6 / 8b): sai bước → INVALID_TRANSITION 409; trùng giờ
 // KTV + đệm → SLOT_TAKEN; huỷ cần lý do; hoàn thành thuộc liệu trình trừ 1 buổi, ngoài liệu trình chỉ gợi ý đơn (order.create_from_appointment
-// tạo đơn một lần). Nhân sự / giờ mở cửa (booking.config): booking-config.ts (version, tri-state).
+// tạo đơn một lần). Nhân sự / giờ mở cửa (booking.config): booking-config.ts (version, tri-state). TIP-026c: "Thuộc cơ hội" (cùng khách,
+// chưa Thua); hoàn thành lịch gắn cơ hội → gợi ý AI bước kế (opportunity-producers).
 import { APPOINTMENT_FLOW, assertTransition, toHm, toMin, type AppError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
 import { ME } from './customers';
 import { insertOrder } from './orders-actions';
 import { bookingConfigHandlers } from './booking-config';
+import { checkOppLink, onAppointmentDone } from './opportunity-producers';
 import { assertFree, day, deny, find, hm, isPast, iso, orderSuggestions, svcOf, type Appointment, type ApptStatus } from './calendar';
 
 const step = (a: Appointment, action: string): ApptStatus => {
@@ -27,6 +29,7 @@ type CreateIn = {
   start: string;
   status?: 'pending' | 'confirmed';
   note?: string;
+  opportunity_id?: string | null;
 };
 
 /** Trạng thái trước khi xác nhận — hoàn tác trả đúng về pending / expired. */
@@ -72,6 +75,7 @@ export const calendarHandlers: Record<string, MockHandler> = {
         reschedule_count: 0,
         package_id: pkg?.id ?? null,
         order_id: null,
+        opportunity_id: checkOppLink(db, contactId, i.opportunity_id),
         reminders: [],
       };
       db.calendar.appointments.push(a);
@@ -131,6 +135,7 @@ export const calendarHandlers: Record<string, MockHandler> = {
       const pkg = pkgOf(db, a);
       // Thuộc gói → trừ 1 buổi; ngoài gói → chỉ gợi ý tạo đơn (8b). Không cộng điểm (§7).
       if (pkg) pkg.used = Math.min(pkg.total, pkg.used + 1);
+      onAppointmentDone(db, a);
       return { appointment_id: a.id, status: a.status, package: pkg ? { id: pkg.id, used: pkg.used, total: pkg.total } : null, suggest_order: !pkg && !a.order_id };
     },
     undo: (db, i: { appointment_id: string }) => {

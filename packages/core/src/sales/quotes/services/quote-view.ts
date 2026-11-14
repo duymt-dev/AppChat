@@ -125,5 +125,8 @@ export function toQuoteRow(
     converted: q.orderId ? 'order' : ctx.contracted?.has(q.id) ? 'contract' : null,
     render: x.render ?? null,
     custom: (q.custom ?? {}) as CustomValues,
+    opportunity_id: q.opportunityId,
+    opportunity_sync_value: q.opportunitySyncValue,
+    opportunity_follow_up: q.opportunityFollowUp,
   };
 }

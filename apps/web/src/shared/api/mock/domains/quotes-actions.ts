@@ -1,6 +1,7 @@
 // Ghi Báo giá ở mock — cùng bảng QUOTE_FLOW với server (state-machine §1.3): sai trạng thái → INVALID_TRANSITION 409; vượt ngưỡng mà
 // chưa duyệt → QUOTE_NEEDS_APPROVAL; gửi đặt hạn = cuối ngày (gửi + valid_days); xin sửa → bản hiện tại `revision_requested`, sinh
-// lần n+1 nháp cùng mã, bản cũ `superseded` khi bản mới được gửi (D46); gia hạn bản đã hết hạn → `sent`.
+// lần n+1 nháp cùng mã, bản cũ `superseded` khi bản mới được gửi (D46); gia hạn bản đã hết hạn → `sent`. TIP-026c: "Thuộc cơ hội"
+// (cùng khách, chưa Thua — sai → 422); gửi / chốt / từ chối kéo cơ hội theo opportunity-producers (cùng luật server).
 import { ApiRequestError, QUOTE_FLOW, approvalReasons, assertTransition, quoteTotals, type AppError } from '@appchat/shared';
 import type { MockHandler } from '../handlers';
 import type { MockDb } from '../store';
@@ -9,8 +10,9 @@ import { approvalPolicyOf } from './sales-policy';
 import { draftFromContent } from './quotes-draft';
 import { MOCK_NOW, enrich, find, validUntilOf, type Quote, type QuoteItem } from './quotes';
 import { queueRender } from './quote-render';
+import { checkOppLink, onQuoteAccepted, onQuoteClosed, onQuoteSent } from './opportunity-producers';
 
-type Fields = Partial<Pick<Quote, 'contact_id' | 'owner_user_id' | 'items' | 'header_discount' | 'valid_days' | 'payment_terms' | 'note' | 'gift'>>;
+type Fields = Partial<Pick<Quote, 'contact_id' | 'owner_user_id' | 'items' | 'header_discount' | 'valid_days' | 'payment_terms' | 'note' | 'gift' | 'opportunity_id' | 'opportunity_sync_value' | 'opportunity_follow_up'>>;
 
 const deny = (code: 'QUOTE_NEEDS_APPROVAL' | 'INVALID_TRANSITION', status: string): never => {
   throw new ApiRequestError(409, { code, message: code, fields: { status } });
@@ -55,17 +57,21 @@ const insert = (db: MockDb, i: Fields & { contact_id: string; items: QuoteItem[]
     ai: { hint: '', wait: false },
     off_catalog: false,
     converted: null,
+    opportunity_id: checkOppLink(db, i.contact_id, i.opportunity_id),
+    opportunity_sync_value: i.opportunity_sync_value ?? true,
+    opportunity_follow_up: i.opportunity_follow_up ?? true,
     ...extra,
   };
   db.quotes.quotes.unshift(q);
   return q;
 };
 
-const move = (action: string, extra: (q: Quote) => Partial<Quote> = () => ({})) => ({
+const move = (action: string, extra: (q: Quote) => Partial<Quote> = () => ({}), after?: (db: MockDb, q: Quote) => void) => ({
   execute: (db: MockDb, i: { quote_id: string }) => {
     const q = find(db, i.quote_id);
     const to = step(q, action);
     Object.assign(q, extra(q), { status: to });
+    after?.(db, q);
     return { quote_id: q.id, status: to };
   },
 });
@@ -94,6 +100,7 @@ export const quotesHandlers: Record<string, MockHandler> = {
       if (i.patch.owner_user_id !== undefined && i.patch.owner_user_id !== q.owner_user_id) throw new ApiRequestError(422, { code: 'VALIDATION_FAILED', message: 'immutable', fields: { 'patch.owner_user_id': 'immutable' } });
       const patch: Fields = { ...i.patch };
       delete patch.owner_user_id;
+      if (patch.opportunity_id !== undefined) patch.opportunity_id = checkOppLink(db, patch.contact_id ?? q.contact_id, patch.opportunity_id);
       Object.assign(q, patch);
       return { quote_id: q.id };
     },
@@ -128,7 +135,9 @@ export const quotesHandlers: Record<string, MockHandler> = {
       Object.assign(q, { status: to, sent_at: MOCK_NOW, valid_until_at: validUntilOf(MOCK_NOW, q.valid_days) });
       queueRender(q);
       for (const x of db.quotes.quotes) if (x.root_id === q.root_id && x.version < q.version && x.status === 'revision_requested') x.status = 'superseded';
-      return { quote_id: q.id, valid_until: enrich(q).valid_until };
+      const row = enrich(q);
+      onQuoteSent(db, { id: q.id, code: q.code, contact_id: q.contact_id, opportunity_id: q.opportunity_id, total: row.total, sync: q.opportunity_sync_value, follow: q.opportunity_follow_up });
+      return { quote_id: q.id, valid_until: row.valid_until };
     },
   },
   'quote.request_revision': {
@@ -153,8 +162,8 @@ export const quotesHandlers: Record<string, MockHandler> = {
       return { quote_id: next.id, code: next.code, version: next.version };
     },
   },
-  'quote.mark_accepted': { ...move('quote.mark_accepted'), undo: undoDecision },
-  'quote.mark_rejected': { ...move('quote.mark_rejected'), undo: undoDecision },
+  'quote.mark_accepted': { ...move('quote.mark_accepted', () => ({}), (db, q) => onQuoteAccepted(db, q)), undo: undoDecision },
+  'quote.mark_rejected': { ...move('quote.mark_rejected', () => ({}), (db, q) => onQuoteClosed(db, q, 'rejected')), undo: undoDecision },
   'quote.extend_validity': {
     execute: (db, i: { quote_id: string; days: number }) => {
       const q = find(db, i.quote_id);

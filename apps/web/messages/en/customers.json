@@ -17,10 +17,10 @@
   "stages": {
     "all": "All",
     "lead": "New lead",
-    "potential": "Potential",
-    "consulting": "Consulting",
+    "potential": "Qualified",
+    "consulting": "Consulting / Demo",
     "quote": "Quote",
-    "contract": "Contract",
+    "contract": "Negotiation",
     "won": "Purchased",
     "lost": "Lost"
   },
@@ -100,7 +100,8 @@
     "status": "Status",
     "owner": "Owner",
     "ai": "AI hint",
-    "actions": "Actions"
+    "actions": "Actions",
+    "opportunity": "Open opportunities"
   },
   "ai": {
     "hint": "✦ {hint}",
@@ -405,5 +406,7 @@
       "owned": "Owned by someone else",
       "invalid": "Missing phone / email or invalid"
     }
-  }
+  },
+  "oppCount": "{n, plural, one {# opportunity} other {# opportunities}}",
+  "oppOpen": "Open opportunity details"
 }
