@@ -26,6 +26,8 @@ export const appointmentRowSchema = z.object({
   reschedule_count: z.number().int(),
   package_id: z.string().nullable(),
   order_id: z.string().nullable(),
+  /** Cơ hội của lịch (TIP-026c) — lịch demo hoàn thành → gợi ý bước kế trên thẻ cơ hội; null = không gắn. */
+  opportunity_id: z.string().nullable().optional(),
   package: z.object({ id: z.string(), name: z.string(), used: z.number().int(), total: z.number().int() }).nullable(),
   reminders: z.array(z.object({ kind: z.string(), at: z.string() })),
   custom: customValuesSchema.optional(),

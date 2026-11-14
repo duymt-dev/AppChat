@@ -79,6 +79,7 @@ export class CalendarReadService {
         reschedule_count: a.rescheduleCount,
         package_id: pk ? a.packageId : null,
         order_id: a.orderId,
+        opportunity_id: a.opportunityId,
         package: pk ? { id: pk.id, name: pk.name, used: pk.used, total: pk.total } : null,
         reminders: [...(a.confirmedAt ? [{ kind: 'confirm', at: utcToWall(a.confirmedAt, timeZone).iso }] : []), ...sent],
         // Chỉ key người xem được thấy (FieldPolicy — TIP-045b annex C).

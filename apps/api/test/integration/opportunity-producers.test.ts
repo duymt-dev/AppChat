@@ -191,6 +191,9 @@ describe('liên kết "Thuộc cơ hội" + lịch hẹn (AC9)', () => {
     expect([bad.status, bad.body.error.fields]).toEqual([422, { opportunity_id: 'invalid' }]);
     const a = (await ok(act('appointment.create', { contact_id: c, contact_name: name, service_id: svc, staff_id: staff, date: '2026-10-31', start: '09:00', status: 'confirmed', opportunity_id: o }))).appointment_id as string;
     expect((await db.appointment.findUniqueOrThrow({ where: { id: a } })).opportunityId).toBe(o);
+    // Đọc lại qua API lịch (shape appointmentRowSchema) — form Lịch hẹn hiện "Thuộc cơ hội" theo trường này.
+    const cal = await call(h, '/calendar?from=2026-10-31&to=2026-10-31').then(json);
+    expect((cal.body.data as { id: string; opportunity_id: string | null }[]).find((x) => x.id === a)?.opportunity_id).toBe(o);
     await ok(act('appointment.check_in', { appointment_id: a }));
     await ok(act('appointment.complete', { appointment_id: a }));
     expect((await opp(o)).stage).toBe('demo');
