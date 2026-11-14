@@ -75,7 +75,7 @@
 - **Depends on:** 026b, 015e, 015f, 015g, 032c và mọi TIP chờ cũ có chung file (dòng khai hai phía ở trên) — trước 032e, 044, 045, 046.
 - **Vì sao phụ thuộc:** 026b có bảng `contact_opportunity` + thẻ hoạt động 360°. 015g khoá họ khách theo chứng từ + giữ tay 24 giờ. 015e/f lo họ khách gộp và vòng đời. 029–033 (đã DONE) là báo giá, hợp đồng, đơn, lịch hẹn. 032c lo CAS chứng từ và `owner_user_id`.
 - **Files touched:** [exact M/C manifest](manifests/TIP-026c-files.md). Module mới `crm/opportunities/` (không dồn vào `crm/activities/opportunities.handlers.ts`). Prisma sửa file sở hữu sẵn, không tạo file prisma mới.
-- **Quyết định nguồn:** D60 (#1–3, #8–12) · COMMERCE §8 (bản 2026-11-12) · DC-901 · đảo một phần DC-253.
+- **Quyết định nguồn:** D60 (#1–3, #8–12) · COMMERCE §8 (bản 2026-11-12) · DC-901 · đảo một phần DC-253. · DC-922 (agent là nhân viên — đổi D60 #10)
 - **Dòng COVERAGE nhận:** REQ-F10 · REQ-F13 · D60-deal · COM-8-3 · COM-8-4 · COM-8-8 · COM-8-9 · COM-8-10 · COM-8-11 · COM-8-12 · CRM-ACTIVITY-OPPORTUNITY · PRO-inbox-360deal · PRO-deal-drawer · PRO-deal-chain · PRO-deal-lost · PRO-deal-inbox-chip · PRO-customers-deal-col · PRO-quotes-deal-link · PRO-calendar-deal-link · DC-901.
 
 ## CONTEXT
@@ -186,12 +186,12 @@ Thay mô hình cơ hội tự do của 026b bằng pipeline 7 giai đoạn có x
 ### 2. Action (module `packages/actions/src/contact-opportunities.ts` — tách thêm `contact-opportunity-flow.ts` nếu > 200 dòng)
 | Action | Risk | Quyền | agentGrantable | Ghi chú |
 |---|---|---|---|---|
-| `contact_opportunity.create` | write | `crm.edit` + scope khách; tiền: `quote.create` | **true** | Input: contact_id, title, amount_vnd?, items[]?, expected_close_date?, owner_user_id?, source_kind?, campaign_id?, source_conversation_id / message_id?. Người dùng chọn được giai đoạn khởi đầu ≠ won / lost. **Agent / task: ép `lead`**, `source_kind` = `conversation` khi có hội thoại (D60 #10). Undo 24h = lưu trữ |
-| `contact_opportunity.update` | write | như trên | false | Sửa tên, giá trị, sản phẩm, ngày chốt, nguồn, nhóm. **Không** đổi giai đoạn (dùng `set_stage`), không đổi chứng từ. CAS `if_version`. Undo = khôi phục ảnh trước |
-| `contact_opportunity.set_stage` | write | `crm.edit` + scope | false | Đổi tay tiến / lùi tới mọi giai đoạn trừ `lost` (dùng `mark_lost`) và trừ `won` khi chưa có đơn / hợp đồng ký (422 `won_needs_document`). Ghi event `stage` + `recomputeContactStage`. Undo 24h khi version còn khớp |
-| `contact_opportunity.mark_lost` | write | `crm.edit` + scope | false | Bắt buộc `lost_reason` (4 mã). Cùng transaction: mọi báo giá đang mở **đã gửi** (`sent · viewed`) của cơ hội → `quote.mark_rejected` (đi qua QUOTE_FLOW, timeline, event `quote.rejected`). Nháp / chờ duyệt không đổi. Báo giá đã `accepted` không đổi. Có đơn sống hoặc hợp đồng ký → 409 `has_live_document`. Undo 24h chỉ đảo cơ hội, không mở lại báo giá đã từ chối (ghi preview) |
-| `contact_opportunity.reopen` | write | `crm.edit` + scope | false | Thua → `qualified`, xoá `lost_reason`, `closed_at` null. Đã mua không mở lại bằng action này |
-| `contact_opportunity.set_owner` | write | `crm.reassign`, hoặc owner khách khi giao cho chính mình | false | Đổi phụ trách cơ hội. Nhóm chụp lại theo người mới. Không đổi `owner_user_id` của chứng từ (doanh số §8b) |
+| `contact_opportunity.create` | write | `crm.edit` + scope khách; tiền: `quote.create` | **true** | Input: contact_id, title, amount_vnd?, items[]?, expected_close_date?, owner_user_id?, source_kind?, campaign_id?, source_conversation_id / message_id?. Người dùng chọn được giai đoạn khởi đầu ≠ won / lost. Agent chọn giai đoạn như người (DC-922); `source_kind` = `conversation` khi có hội thoại. Undo 24h = lưu trữ |
+| `contact_opportunity.update` | write | như trên | true | Sửa tên, giá trị, sản phẩm, ngày chốt, nguồn, nhóm. **Không** đổi giai đoạn (dùng `set_stage`), không đổi chứng từ. CAS `if_version`. Undo = khôi phục ảnh trước |
+| `contact_opportunity.set_stage` | write | `crm.edit` + scope | true | Đổi tay tiến / lùi tới mọi giai đoạn trừ `lost` (dùng `mark_lost`) và trừ `won` khi chưa có đơn / hợp đồng ký (422 `won_needs_document`). Ghi event `stage` + `recomputeContactStage`. Undo 24h khi version còn khớp |
+| `contact_opportunity.mark_lost` | write | `crm.edit` + scope | true | Bắt buộc `lost_reason` (4 mã). Cùng transaction: mọi báo giá đang mở **đã gửi** (`sent · viewed`) của cơ hội → `quote.mark_rejected` (đi qua QUOTE_FLOW, timeline, event `quote.rejected`). Nháp / chờ duyệt không đổi. Báo giá đã `accepted` không đổi. Có đơn sống hoặc hợp đồng ký → 409 `has_live_document`. Undo 24h chỉ đảo cơ hội, không mở lại báo giá đã từ chối (ghi preview) |
+| `contact_opportunity.reopen` | write | `crm.edit` + scope | true | Thua → `qualified`, xoá `lost_reason`, `closed_at` null. Đã mua không mở lại bằng action này |
+| `contact_opportunity.set_owner` | write | `crm.reassign`, hoặc owner khách khi giao cho chính mình | true | Đổi phụ trách cơ hội. Nhóm chụp lại theo người mới. Không đổi `owner_user_id` của chứng từ (doanh số §8b) |
 | `contact_opportunity.archive` | delete | `crm.edit` | false | Giữ từ 026b. Không lưu trữ được cơ hội có chứng từ sống (409) |
 | `contact_opportunity.list` / `.get` | read | `crm.view` + scope; tiền theo field policy | read: true | `list` theo khách (cursor, mặc định 20); `get` trả drawer §3.3 |
 
@@ -251,7 +251,8 @@ Thay mô hình cơ hội tự do của 026b bằng pipeline 7 giai đoạn có x
    - Trả `source: 'rule'`.
 4. **Gợi ý AI đổi giai đoạn:**
    - Đọc gợi ý đã có ở record-proposal / Trợ lý (023g) hoặc event `ai_suggested`. Thẻ hiện "AI gợi ý: … → Áp dụng / Bỏ qua".
-   - Áp dụng = `contact_opportunity.set_stage` với `source: 'ui'` của người bấm (D60 #10). Event `ai_applied` lưu ref gợi ý.
+   - Áp dụng = `contact_opportunity.set_stage` với `source: 'ui'` của người bấm. Event `ai_applied` lưu ref gợi ý.
+   - Agent trực kênh được cấp `set_stage` thì đổi thẳng trong lượt (DC-922), không qua thẻ; event `stage` ghi actor agent.
    - Không có gợi ý thật thì không hiện khối (không dựng câu cứng của prototype).
 5. **Catalog / dataset:**
    - `ai/assistant/catalog.ts` cập nhật mô tả `contact_opportunity`.
@@ -302,7 +303,7 @@ Thay mô hình cơ hội tự do của 026b bằng pipeline 7 giai đoạn có x
 | 4 | Given đường hợp đồng, when tạo HĐ từ báo giá đã chốt → Owner ký → khách ký, then cơ hội chỉ Đã mua lúc khách ký; khách từ chối / link hết hạn → cơ hội về Đàm phán; báo giá hết hạn khi không còn báo giá mở → Tư vấn / Demo | integration contracts + quote-effects + `crm-stage-producers.test.ts` mở rộng |
 | 5 | Given cơ hội có báo giá `sent` và `draft`, when Đánh dấu Thua "Giá cao", then báo giá `sent` → rejected (event + timeline), nháp giữ, cơ hội Thua 0%; Mở lại → Đủ điều kiện; Thua khi có đơn sống → 409 | integration + preview liệt kê báo giá bị từ chối |
 | 6 | Given khách có hai cơ hội mở (Lead mới, Đàm phán) + báo giá mở không gắn cơ hội, when cơ hội Đàm phán Thua, then khách = Báo giá (sàn chứng từ), không thấp hơn; kéo tay trong 24 giờ thắng; khách đã mua không bị hạ | unit `stage-sync.test.ts` + integration với giữ tay 015g |
-| 7 | Given agent được cấp `contact_opportunity.create`, when tạo từ hội thoại với stage `quote`, then cơ hội tạo ở Lead mới nguồn `conversation`; agent gọi `set_stage` → bị cấm (không agentGrantable); Trợ lý đổi giai đoạn → preview + xác nhận; thẻ "Áp dụng" gợi ý AI chạy `set_stage` dưới quyền người bấm | executor/registry test + `pnpm ai:live --cases fixtures/ai-eval/sales-pipeline.json` (6 ca × 3 lượt, an toàn 100%) |
+| 7 | Given agent được cấp `contact_opportunity.create` / `set_stage` / `mark_lost`, when tạo từ hội thoại với stage `quote`, then cơ hội tạo ở `quote` nguồn `conversation`; agent `set_stage` chạy thẳng (event `stage` actor agent), `won` thiếu chứng từ → 422 như người, `mark_lost` thiếu lý do → 422 (DC-922); Trợ lý đổi giai đoạn → preview + xác nhận; thẻ "Áp dụng" gợi ý AI chạy `set_stage` dưới quyền người bấm | executor/registry test + `pnpm ai:live --cases fixtures/ai-eval/sales-pipeline.json` (6 ca × 3 lượt, an toàn 100%) |
 | 8 | Given 100k khách / 300k cơ hội, when bảng Khách hàng 50 dòng + Hộp thư 50 hội thoại tải cột / chip cơ hội, then một truy vấn `openSummary` mỗi trang, index seek, không N+1; danh sách cơ hội theo khách keyset | EXPLAIN ANALYZE dán report + đếm truy vấn |
 | 9 | Given form Báo giá / Lịch hẹn, when chọn "Thuộc cơ hội" hoặc "Không gắn", then lưu đúng `opportunity_id` / null (cảnh báo hiện), cơ hội khác họ khách → 422; lịch hẹn demo hoàn thành → gợi ý (không tự đổi) | integration quotes / booking + E2E |
 | 10 | Given drawer Cơ hội 360° và chip / cột, when so prototype 1440×900, then < 5% sau mask PD-901…030; mobile 390 không tràn; vi/en đủ khoá | `pnpm parity …` + `pnpm parity --done` + `pnpm i18n:check` + E2E mobile |
@@ -326,7 +327,7 @@ Thay mô hình cơ hội tự do của 026b bằng pipeline 7 giai đoạn có x
   - Đổi ngưỡng duyệt 20M / 5%.
   - Hiện "Hóa đơn HD-".
   - Ghi thu tiền từ chuỗi chứng từ.
-  - Cho agent đổi giai đoạn / Thua / Mở lại.
+  - Luật riêng cho agent (ép giai đoạn khởi đầu, chặn đổi giai đoạn) — DC-922.
   - Dựng kanban Pipeline hay Hẹn gọi lại.
   - Thêm code vào file legacy vượt trần.
 - **REUSE:**
@@ -356,6 +357,6 @@ Thay mô hình cơ hội tự do của 026b bằng pipeline 7 giai đoạn có x
 - [ ] **Action-first (BUILDER-HANDOFF):** mọi ghi cơ hội / liên kết / giai đoạn qua `ActionExecutor` (`POST /v1/actions/:id`). FE chỉ `useAction(id).run(input)`. Chuyển tự động chạy trong transaction của action producer, không đường ghi thứ hai.
 - [ ] **Tenant DB:** chỉ qua `TenantDbResolver`, bảng không `workspace_id`, mọi list / get áp scope; migration chạy CẢ `db:generate` → `db:migrate-tenants` → `db:setup`.
 - [ ] **COMMERCE không đổi ngoài D60:** ngưỡng duyệt, "Đề nghị thanh toán TT-", Owner ký trước, doanh số theo `owner_user_id` của chứng từ; khách Đã mua chỉ do `order.completed`.
-- [ ] **Quyền agent (D51):** chỉ `create` agentGrantable (ép Lead mới); delegate = quyền agent ∩ người ra lệnh, kiểm mỗi lần gọi.
+- [ ] **Quyền agent (D51, DC-922):** agent là nhân viên — `create` / `update` / `set_stage` / `mark_lost` / `reopen` / `set_owner` agentGrantable, cùng luật như người; delegate = quyền agent ∩ người ra lệnh, kiểm mỗi lần gọi.
 - [ ] Index theo indexing.md + EXPLAIN dán report; không N+1 ở cột / chip.
 - [ ] Không báo DONE nếu test chưa chạy. `git status --short` sạch, báo kèm Git SHA.

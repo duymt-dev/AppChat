@@ -77,7 +77,7 @@
   - 023b: assistant-coverage / `pendingByTip`.
   - 003b / 003c / 006b (DONE): outbox v2, system adapter, fanout realtime.
 - **Files touched:** [exact M/C manifest](manifests/TIP-047c-files.md). Domain mới `packages/core/src/callcenter/` (module + jobs + actions + services + events + privacy). Không thêm logic vào file legacy vượt trần — chỉ facade 1–2 dòng ở `crm/public.ts`, `index.ts`, `composition/privacy.module.ts`.
-- **Quyết định nguồn:** D61 (#2, #5–#10, #12) · DC-904 · DC-903 · **DC-907** (Voice AI tự dựng, chốt Q-902…906) · **DC-909** (token OA qua kho chung) · D60 #9–10 · Blueprint §2.3, §3.4, §3.5, §4.6, §4.7, §6b · sync wD:pD.
+- **Quyết định nguồn:** D61 (#2, #5–#10, #12) · DC-904 · DC-903 · **DC-907** (Voice AI tự dựng, chốt Q-902…906) · **DC-909** (token OA qua kho chung) · D60 #9–10 · Blueprint §2.3, §3.4, §3.5, §4.6, §4.7, §6b · sync wD:pD. · DC-922 (agent tự áp đề xuất cuộc gọi; ZCC consent cấp được cho agent)
 - **Dòng COVERAGE nhận:** REQ-O03 · REQ-O04 · REQ-O05 (API) · REQ-O06 (API) · REQ-O07 · REQ-O08 · REQ-O09 · REQ-O10 (API) · REQ-O11 · D61-calls · DC-904 · DC-907 (phiên / credit / Hộp SIM) · ACT-call.* · BP-4.7-calls · BP-2.3-calls.
 
 ## CONTEXT
@@ -201,7 +201,7 @@ Không UI (047d).
 | `call.assign_contact` · `call.link_opportunity` · `call.save_note` | write | `call.view` + scope (+ `crm.edit` cho gán khách / cơ hội) | false | Undo 24h. Gán khách ghi timeline khách; gán cơ hội gọi `recordOpportunityEvent(ref_type: 'call')` (026c), không đổi giai đoạn |
 | `call.create_ticket` | write | `ticket.manage` + `call.view` | false | Gọi `ticket.create` channel `call`, kèm tóm tắt + transcript **chỉ khi người gọi có `call.listen`**, không thì chỉ tóm tắt. Undo 24h |
 | `call.schedule_callback` | write | `crm.edit` + scope khách | **true** | Input `contact_id`, `at` (ISO offset; client tính 4 lựa chọn của prototype), `caller: user|agent`, `user_id?`, `agent_id?`, `note`, `call_id?`. Tạo `contact_task` kind `callback`. `caller: agent` chỉ khi agent có "Xử lý cuộc gọi" + kênh hotline / ZCC (không SIM — D61 #7). Undo 24h |
-| `call.zcc_request_consent` | send | `call.use` | false | Bắt buộc preview kèm phí (`MANDATORY_PREVIEW_ACTIONS` cho ui + assistant), `FORCE_APPROVAL_ACTIONS` cho agent / task (agentGrantable false ⇒ thực tế cấm). Idempotency-Key. Chống gửi lặp: còn `pending` < 24h cho cùng khách → 409 `consent_pending` |
+| `call.zcc_request_consent` | send | `call.use` | true | Bắt buộc preview kèm phí (`MANDATORY_PREVIEW_ACTIONS` cho ui + assistant), agent / task theo bảng nguồn × rủi ro §3.3 chung (DC-922). Idempotency-Key. Chống gửi lặp: còn `pending` < 24h cho cùng khách → 409 `consent_pending` |
 | `call.recording_url` | read | `call.listen` + scope | false | URL ký 5 phút (`signed-url.ts`), audit mỗi lần |
 | `call.export` | read, bulk | `callcenter.manage` | false | Kind `call` vào `LIST_EXPORT_KINDS`; CSV / XLSX theo export-runner; không xuất transcript |
 | `call_line.create` · `.update` · `.disable` · `.test` | config | `callcenter.manage` | false | Lưu số / trunk / ZCC (ZCC: nhận `oauth_grant_id` từ luồng uỷ quyền OA của TIP-048, kiểm grant `zalo_oa` có `subject = zcc_oa_id`; bí mật SIP mã hoá); `ensureTrunk` (047); ghi `tenant_call_route`; `.test` gọi `OPTIONS` / thử trunk giả lập. CAS |
@@ -296,7 +296,9 @@ Không UI (047d).
    - Tóm tắt + thái độ + đề xuất giai đoạn / việc → `call_summary` qua `AiSdkEngine` (run kind `suggestion`, credit qua CreditMeter ref `ai_step` như hiện tại).
    - "Dịch tiếng Việt": `text_vi` sinh lười khi người xem bấm (action đọc `call.translate` không cần — dùng `call.get?translate=vi`, tính credit một lần, lưu lại).
 3. **Timeline khách:** cuộc gọi kết thúc (có khách) ghi `writeTimeline` type `call`, key `call_in` / `call_out` / `call_missed` (tham số mã `CG-`, thời lượng, người nghe) — thêm `TimelineKey` / `TimelineType` ở `crm/services/timeline.service.ts` + nhãn `i18n/server/{vi,en}/crm.ts`; không chép transcript vào timeline.
-4. **Đề xuất AI:** chỉ lưu ở `call_summary.suggestion`. Áp dụng = người bấm gọi `contact_opportunity.set_stage` / `call.schedule_callback` / `contact_task.create` (D60 #10). Không tự đổi.
+4. **Đề xuất AI (DC-922 — agent là nhân viên):** lưu ở `call_summary.suggestion`.
+   - Cuộc gọi do AI agent nghe / gọi (`call_leg.role = 'ai'`, có `agent_id`): sau tóm tắt, agent đó áp đề xuất bằng tool đã cấp (`contact_opportunity.set_stage` / `call.schedule_callback` / `contact_task.create`) qua ActionExecutor nguồn `agent` (`agentToolSpecs`, quyền theo Tools ở Builder, idempotent theo `call:<id>:apply`). Thiếu tool → để thẻ cho người.
+   - Cuộc gọi của người: thẻ Áp dụng / Bỏ qua cho người (047d).
 5. **Dọn hết hạn (job `callcenter.expiry`, hằng ngày, ROLE=jobs):**
    - Ghi âm / transcript `expires_at < now` và `deleted_at` null:
      - Đánh dấu `deleted_at`.
@@ -328,7 +330,7 @@ Không UI (047d).
     - `app`: trừ credit idempotent ref `zcc_consent:<id>` trước khi gửi; lỗi gửi → hoàn credit cùng ref (`refund`).
   - Gửi qua `ZccClient.requestConsent`. Ghi `zcc_consent pending` + timeline khách.
 - Webhook ZCC đồng ý / từ chối / hết 24h → cập nhật trạng thái + `callable_until` (+30 ngày) + notify người gửi.
-- Agent không có action này (agentGrantable false + `FORCE_APPROVAL_ACTIONS`).
+- Agent được cấp tool thì gửi như nhân viên; policy theo bảng nguồn × rủi ro §3.3 chung, không vào `FORCE_APPROVAL_ACTIONS` (DC-922).
 
 ### 9. Đọc, scope, realtime, export
 1. **Scope `callcenter` own (D61 #5)** — cuộc thấy được khi:
@@ -376,7 +378,7 @@ Không UI (047d).
 | 3 | Given ngoài giờ (`business_hours` T7 đóng), when khách gọi vào, then lời nhắn → `voicemail`, việc gọi lại hạn đầu giờ ngày làm việc kế; trong giờ nhỡ → hạn +30 phút; nhỡ lần 2 khi việc còn mở → `missed_count = 2`, không thêm việc | unit `business-hours.test.ts` + integration `callcenter-missed.test.ts` |
 | 4 | Given số lạ gọi vào, when cuộc tạo, then khách nháp nguồn `call`, việc gọi lại chưa giao hiện ở tab Gọi nhỡ; người bấm Gọi lại nhận việc rồi gọi | integration `callcenter-missed.test.ts` |
 | 5 | Given sales scope own, when `call.list` / `call.get` / `call.kpis`, then chỉ thấy cuộc mình nghe / gọi, gọi nhỡ nhóm mình, khách mình phụ trách; không có `call.listen` → không transcript / không `recording_url` (403); owner thấy hết | integration `callcenter-scope.test.ts` |
-| 6 | Given ZCC khách ngoài cửa sổ 30 ngày, when `call.dial` qua ZCC, then 409 `zcc_consent_required` (không gọi); `call.zcc_request_consent` qua Trợ lý → preview có phí; `ZCC_BILLING=app` → trừ credit một lần (gửi lại cùng Idempotency-Key không trừ thêm), lỗi gửi → hoàn; agent gọi → bị cấm | integration `callcenter-zcc.test.ts` + executor / policy unit |
+| 6 | Given ZCC khách ngoài cửa sổ 30 ngày, when `call.dial` qua ZCC, then 409 `zcc_consent_required` (không gọi); `call.zcc_request_consent` qua Trợ lý → preview có phí; `ZCC_BILLING=app` → trừ credit một lần (gửi lại cùng Idempotency-Key không trừ thêm), lỗi gửi → hoàn; agent được cấp tool gọi → theo bảng §3.3 chung, không cấm riêng (DC-922) | integration `callcenter-zcc.test.ts` + executor / policy unit |
 | 7 | Given Voice AI mock kịch bản 3 lượt + tool `call.schedule_callback` + handoff, when cuộc vào AI nghe trước, then 3 dòng sổ `voice_turn` (gửi lại sự kiện lượt không trừ thêm), lượt `stt` / `tts` provider `local` trừ 0 credit, lượt `llm` trừ theo giá model; tool chạy qua Executor nguồn agent với quyền agent, handoff chuyển nhóm; hết credit giữa chừng → handoff `credit_exhausted`, cuộc không bị cắt; `VOICE_AI_BUSY` → cuộc đi thẳng nhóm | integration `callcenter-voice-ai.test.ts` |
 | 8 | Given cuộc có ghi âm (mock recorder) + transcript, when `contact.forget` hoàn tất, then transcript / tóm tắt xoá, ghi âm `deleted_at` + tệp bị xoá ở lượt job kế; hết 12 tháng (đồng hồ giả) → job xoá ghi âm + transcript, giữ tóm tắt | integration `callcenter-privacy.test.ts` + `record-ai-privacy.test.ts` (mở rộng) |
 | 9 | Given máy nhánh 6 trên gói Business 5 + 0 addon, when `call_extension.create`, then 402 `call_extensions`; máy AI 900 không tính; gói Personal Pro → 402 `calls` | integration `callcenter-config.test.ts` |
@@ -441,6 +443,6 @@ Không UI (047d).
 - [ ] AC 1–13 có kết quả từng cái, dán output thật (`pnpm …`, EXPLAIN); ô thiếu provider ghi "chưa nghiệm thu với provider thật".
 - [ ] **Action-first (BUILDER-HANDOFF):** mọi ghi qua `ActionExecutor`; webhook chỉ ghi biên nhận + outbox rồi system adapter gọi action internal.
 - [ ] **Event v2:** topic mới khai `events.ts` + `aggregate.ts` + manifest worker; payload chỉ id; ghi trong transaction đã đăng ký.
-- [ ] **Tiền / gửi ra ngoài có người (D61 #8, D51):** `zcc_request_consent` bắt buộc preview, agent không gọi được; credit idempotent theo `callId:turnIdx` / `zcc_consent:<id>`.
+- [ ] **Tiền / gửi ra ngoài (D61 #8, DC-922):** `zcc_request_consent` bắt buộc preview cho người / Trợ lý, agent theo bảng §3.3 chung; credit idempotent theo `callId:turnIdx` / `zcc_consent:<id>`.
 - [ ] **Tenant + scope:** mọi list / get / kpis / export áp scope `callcenter`; 404 đồng nhất ngoài scope.
 - [ ] Không báo DONE nếu test chưa chạy. `git status --short` sạch, báo kèm Git SHA.

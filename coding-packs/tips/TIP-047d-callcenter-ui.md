@@ -89,7 +89,7 @@
   - Modal dùng chung `apps/web/src/shared/contact-activities/CallbackModal.tsx`.
   - Section Cài đặt `callcenter`.
   - Màn = orchestrator; component 150–250 dòng, trần 400.
-- **Quyết định nguồn:** D61 (#2–#10, #13) · DC-905 · DC-907 h (Hộp SIM "Sắp có") · **DC-909** (nút "Uỷ quyền OA" dùng `useOAuthConnect` của TIP-048) · PD-902 · D42 / D43 · D60 #9–10 · REQ-C13 · prototype-parity §6.
+- **Quyết định nguồn:** D61 (#2–#10, #13) · DC-905 · DC-907 h (Hộp SIM "Sắp có") · **DC-909** (nút "Uỷ quyền OA" dùng `useOAuthConnect` của TIP-048) · PD-902 · D42 / D43 · D60 #9–10 · REQ-C13 · prototype-parity §6. · DC-922
 - **Dòng COVERAGE nhận:** REQ-O04 (UI) · REQ-O05 · REQ-O06 · REQ-O07 (UI) · REQ-O09 (UI) · REQ-O10 · REQ-O12 · D61-ui · DC-905 · PD-902 · PRO-callcenter-* · PRO-deal-callback.
 
 ## CONTEXT
@@ -226,7 +226,7 @@ Dựng toàn bộ giao diện Gọi điện theo prototype + SRS, chỉ qua acti
 - **Khối cơ hội** (prototype L4897–4920) dùng `shared/opportunities/*` (026c):
   - Khách có đúng 1 cơ hội mở → hiện "tự gán theo khách đang có 1 cơ hội mở" + `call.link_opportunity` khi người bấm.
   - "+ Thêm" / "+ Tạo cơ hội từ cuộc gọi" → `contact_opportunity.create` (source `call`, Lead mới).
-  - Đề xuất AI ("AI đề xuất sau cuộc gọi … Áp dụng / Bỏ qua") chỉ hiện khi `call_summary.suggestion` có. Áp dụng = `contact_opportunity.set_stage` + `call.schedule_callback` / `contact_task.create` dưới quyền người bấm (D60 #10).
+  - Đề xuất AI ("AI đề xuất sau cuộc gọi … Áp dụng / Bỏ qua") chỉ hiện khi `call_summary.suggestion` có. Áp dụng = `contact_opportunity.set_stage` + `call.schedule_callback` / `contact_task.create` dưới quyền người bấm (D60 #10). Cuộc gọi do AI agent xử lý đã tự áp (DC-922) → hiện "AI đã cập nhật" từ lịch sử cơ hội, không hiện nút Áp dụng.
   - "Đã cập nhật cơ hội" sau khi áp. Lịch sử cơ hội từ 026c.
 - **Transcript** (`TranscriptView.tsx`): đoạn theo người nói (Khách / Agent / AI), "Dịch tiếng Việt" bật bản dịch (`call.get?translate=vi`). Chỉ `call.listen`.
 - **Gán cuộc gọi:**

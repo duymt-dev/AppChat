@@ -797,7 +797,7 @@ Ghi chú ver2.1 (REQ-C09, C10, C13): `message.send` nhận `reply_to_id?` (tríc
 | `call.assign_contact` · `call.link_opportunity` · `call.save_note` | write | | 24h |
 | `call.create_ticket` | write (kèm transcript) | | 24h |
 | `call.schedule_callback` | write (`contact_task` kind callback; người gọi hoặc AI Agent) | ✓ | 24h |
-| `call.zcc_request_consent` | send (bắt buộc preview kèm phí; FORCE người bấm) | | |
+| `call.zcc_request_consent` | send (bắt buộc preview kèm phí cho người / Trợ lý; agent theo §3.3 — DC-922) | ✓ | |
 | `call.recording_url` | read (`call.listen`; URL ký ngắn hạn) | | |
 | `call.export` | read, bulk (`callcenter.manage`; data job CSV) | | |
 | `call_line.*` · `call_extension.*` · `call_queue.*` · `call_ivr.update` · `call_settings.update` | config (`callcenter.manage`) | | |

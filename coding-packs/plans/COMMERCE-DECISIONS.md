@@ -194,7 +194,7 @@ draft ──(vượt ngưỡng)──▶ pending_approval ──▶ approved ─
 | Hợp đồng bị từ chối / đơn bị huỷ (không còn hợp đồng ký / đơn khác) | Đàm phán |
 
 - **Người đổi tay** giai đoạn cơ hội: tiến hoặc lùi đều được. Thua thì bắt buộc lý do.
-- **AI** chỉ gợi ý giai đoạn; người bấm "Áp dụng". Agent được cấp tool thì tạo được cơ hội, nhưng chỉ ở Lead mới.
+- **AI agent là nhân viên** (cập nhật 2026-11-14, DC-922 — thay câu "AI chỉ gợi ý, agent chỉ tạo ở Lead mới"): được cấp tool thì tạo cơ hội ở giai đoạn phù hợp, đổi giai đoạn / Thua / mở lại như người, cùng các luật ở mục này. Gợi ý AI ("Áp dụng") vẫn hiện cho người dùng.
 - **Đánh dấu Thua:** chỉ đổi báo giá đang mở đã gửi khách sang "từ chối". Báo giá đã chốt giữ nguyên.
 
 **Giai đoạn khách** suy từ cơ hội: bằng giai đoạn cao nhất trong các cơ hội **đang mở** (chưa Đã mua / Thua).

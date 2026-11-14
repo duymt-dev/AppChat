@@ -14,12 +14,12 @@
 |---|---|---|---|---|---|---|---|---|
 | A. Yêu cầu REQ-A…E (01-REQUIREMENTS-MATRIX) | 157 | 10 | 0 | 13 | 14 | 2 | 0 | 0 |
 | B. Yêu cầu REQ-F…N (01-REQUIREMENTS-MATRIX) | 134 | 7 | 0 | 2 | 24 | 10 | 5 | 0 |
-| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 60 | 11 | 21 | 0 |
+| C. Quyết định D01–D59, DC-xxx + luật COMMERCE-DECISIONS | 163 | 12 | 0 | 9 | 61 | 11 | 21 | 0 |
 | D. BLUEPRINT (§3 action / policy / quyền, §4 API, §5 AI, §6, §8–§11) | 403 | 33 | 1 | 5 | 59 | 3 | 0 | 0 |
 | E. standards/* | 226 | 31 | 0 | 7 | 27 | 1 | 43 | 0 |
 | F. Prototype in-scope — nút / màn FE giả hoặc thiếu | 67 | 1 | 18 | 0 | 29 | 6 | 0 | 0 |
-| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 20 | 39 | 2 | 0 | 0 |
-| **Tổng** | **1227** | **100** | **20** | **56** | **252** | **35** | **69** | **0** |
+| G. Mục "để sau / hoãn / chưa" trong reports/ + QUESTIONS / DEVIATIONS còn mở | 77 | 6 | 1 | 20 | 39 | 3 | 0 | 0 |
+| **Tổng** | **1227** | **100** | **20** | **56** | **253** | **36** | **69** | **0** |
 
 ## Lỗ hổng chưa có TIP nhận (0)
 
@@ -531,7 +531,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | COM-8-9 | Cơ hội 7 giai đoạn, xác suất cố định 10/25/50/70/85/100/0, dự báo = giá trị × xác suất; Thua bắt buộc 4 lý do; Mở lại → Đủ điều kiện | plans/COMMERCE-DECISIONS.md:167-180 | 026c | CHƯA | TIP-026c §1–2 |
 | COM-8-10 | Cơ hội tự chuyển theo chứng từ gắn nó (gửi BG → Báo giá, chốt → Đàm phán, khách ký HĐ / tạo đơn → Đã mua, hết hạn → Tư vấn / Demo, HĐ từ chối / đơn huỷ → Đàm phán) | plans/COMMERCE-DECISIONS.md:182-194 | 026c | CHƯA | TIP-026c §3.1 |
 | COM-8-11 | Giai đoạn khách = cao nhất của cơ hội mở + sàn chứng từ không gắn cơ hội; Đã mua chỉ do đơn hoàn tất; kéo tay 24 giờ | plans/COMMERCE-DECISIONS.md:198-213 | 026c | CHƯA | TIP-026c §3.2 (qua applyStageRule) |
-| COM-8-12 | Đánh dấu Thua chỉ đổi BG mở đã gửi sang từ chối; AI chỉ gợi ý giai đoạn, agent tạo cơ hội ở Lead mới | plans/COMMERCE-DECISIONS.md:196-197 | 026c | CHƯA | TIP-026c §2 |
+| COM-8-12 | Đánh dấu Thua chỉ đổi BG mở đã gửi sang từ chối; agent là nhân viên: tạo / đổi giai đoạn / Thua như người (DC-922) | plans/COMMERCE-DECISIONS.md:196-197 | 026c | CHƯA | TIP-026c §2 |
 | COM-8b-1 | Vai trò trên khách owner / collaborator / watcher | plans/COMMERCE-DECISIONS.md:176 | 015 | ĐẠT | crm/services/access.ts · test crm-contacts.test.ts AC3 |
 | COM-8b-2 | Scope `own` gồm khách mình là collaborator **/ watcher**; báo giá, HĐ, đơn, lịch hẹn đi theo | plans/COMMERCE-DECISIONS.md:177 | 042c | ĐẠT | watcher đọc báo giá / HĐ / đơn / đề nghị / lịch hẹn của đúng khách, gỡ → request kế tiếp không thấy (integration + E2E http record-scope); coding-packs/reports/TIP-042c-completion.md |
 | COM-8b-2-write | Watcher chỉ đọc, không biến grant đọc thành ghi trong inbox/chứng từ | plans/COMMERCE-DECISIONS.md:176-177; rbac-permissions D32 | 042c | ĐẠT | AccessMode read / write: lock* / editable* / writableConversation kiểm GHI — watcher 403 SCOPE_FORBIDDEN không side effect / outbox / tiền ở 17 action + preview Trợ lý (watcher-write-denial.test.ts); coding-packs/reports/TIP-042c-completion.md |
@@ -668,7 +668,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | D61-perms | Quyền `call.use` / `call.view` (scope own) / `call.listen` / `call.monitor` / `callcenter.manage` theo 5 vai trò (D61 #5) | 01-REQUIREMENTS-MATRIX.md:328 | 047b | CHƯA | TIP-047b §3 |
 | D61-missed | Gọi nhỡ → việc gọi lại cho người phụ trách (không có → chưa giao, ai bấm thì nhận); hạn +30 phút / đầu giờ ngày kế; nhỡ lặp tăng đếm; số lạ → khách nháp (D61 #6) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §5 |
 | D61-ai | AI nghe máy cuộc vào; gọi ra chỉ từ Hẹn gọi lại một khách qua hotline / OA, không qua SIM; gọi hàng loạt / auto-dialer = Sắp có (D61 #7) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §7 |
-| D61-zcc-consent | Yêu cầu gọi Zalo do người bấm, xem trước phí; ví OA trả thì AppChat không thu, App trả thì trừ credit (D61 #8) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §8 |
+| D61-zcc-consent | Yêu cầu gọi Zalo xem trước phí (người / Trợ lý), agent theo §3.3 chung (DC-922); ví OA trả thì AppChat không thu, App trả thì trừ credit (D61 #8) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §8 |
 | D61-no-retry | Không tự gọi lần hai; hiện nút một chạm hotline / SIM hoặc gửi yêu cầu gọi Zalo (D61 #9) | 01-REQUIREMENTS-MATRIX.md:328 | 047d | CHƯA | TIP-047d §3 |
 | D61-recording | Ghi âm mặc định + thông báo; 12 tháng xoá file + transcript, giữ tóm tắt; `contact.forget` xoá ngay (D61 #10) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §6 |
 | D61-zcc-scope | ZCC chỉ thoại — không ZNS, không chat OA (D61 #11) | 01-REQUIREMENTS-MATRIX.md:328 | 047c | CHƯA | TIP-047c §4 (ZNS / chat OA vẫn NGOÀI theo D04) |
@@ -715,6 +715,7 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | DC-915 | Livestream FB / IG: phiên + cờ, SSE + poll, người / agent tạo khách / đơn | DECISIONS.md:496 | 048g | CHƯA | TIP-048g |
 | DC-916 | TikTok Business Messaging + bình luận video, 48 giờ / 10 + 3 tin | DECISIONS.md:497 | 048h | CHƯA | TIP-048h |
 | DC-921 | AI agent là nhân viên trên kênh D62: không trần gợi ý / luật riêng; `comment.*` (trừ delete) + `live.flag_update` cấp được cho agent; giữ luật chung §3.3 / D06 + luật nền tảng | DECISIONS.md:498 | 048f, 048g, 048h | CHƯA | TIP-048f §3 / §6 · 048g §5–6 · 048h §5 |
+| DC-922 | Agent là nhân viên áp cho cơ hội (bỏ ép Lead mới, set_stage / mark_lost / reopen / set_owner cấp được) + gọi điện (agent tự áp đề xuất, ZCC consent cấp được) | DECISIONS.md:499 | 026c, 047c, 047d | CHƯA | TIP-026c §2 / §4 · 047c §4 / §8 · 047d |
 
 **Ghi chú / chưa rà hết:**
 
@@ -1833,7 +1834,8 @@ Danh sách để bước 2 (viết TIP) gán chủ. Chi tiết + bằng chứng 
 | Q-910 | TikTok Business Messaging API + Accounts API form | QUESTIONS.md:87 | 048h | CHỜ-TK | Chủ nhà nộp; test bằng transport giả |
 | Q-911 | Hành vi gửi ra mới: nhắn riêng / trả lời công khai / HUMAN_AGENT / live | QUESTIONS.md:88 | 048f, 048g, 048h | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): agent là nhân viên, trả lời / nhắn riêng / tạo đơn thẳng — thi công ở 048f §6, 048g §5, 048h §5 |
 | Q-912 | Quyền cho bình luận / livestream | QUESTIONS.md:89 | 048f, 048g | CHƯA | Chủ nhà chốt 2026-11-14 (DC-921): không thêm permission, không luật quyền riêng cho agent (Tools ở Builder, D51) |
-| Q-918 | Luật cũ "AI chỉ gợi ý" (COMMERCE §5 giai đoạn cơ hội, đề xuất sau cuộc gọi, D61 #8) có theo Q-911 không | QUESTIONS.md:91 | 026c, 047c | CHƯA | Mở — giữ luật đã chốt tới khi Chủ nhà nói |
+| Q-918 | Luật cũ "AI chỉ gợi ý" (COMMERCE §5 giai đoạn cơ hội, đề xuất sau cuộc gọi, D61 #8) có theo Q-911 không | QUESTIONS.md:91 | 026c, 047c | CHƯA | Chủ nhà chốt "đổi luôn" → DC-922; thi công ở 026c / 047c / 047d |
+| Q-919 | Áp DC-921 / 922 cho action cũ đang `agentGrantable: false` (143 write + 12 send) | QUESTIONS.md:92 | — | NGOÀI | Mở — chờ Chủ nhà (Q-919); chưa thuộc TIP nào, đổi thì mở TIP rà action sau 046 |
 | Q-913 | Memurai riêng mỗi worktree + giới hạn kết nối role Postgres | QUESTIONS.md:90 | 035d | CHƯA | Tạm theo đề xuất: Memurai riêng; ALTER ROLE chỉ khi Chủ nhà `--apply` |
 | PD-903 | Danh sách kênh theo registry + Sắp có cho WA / Telegram / LINE / Viber / WeChat | docs/06-prototype/DEVIATIONS.md:49 | 048c | CHƯA | TIP-048c (duyệt / từ chối lúc verify) |
 | PD-904 | Hộp thư bình luận (không vẽ — mức 2) | docs/06-prototype/DEVIATIONS.md:50 | 048f | CHƯA | TIP-048f (duyệt / từ chối lúc verify) |
