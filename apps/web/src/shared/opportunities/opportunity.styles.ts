@@ -136,6 +136,10 @@ export const useOpportunityStyles = createStyles(({ css }) => ({
     background: ${color.oppNextBg};
     font-size: ${font.scale.s14}px;
     line-height: 1.45;
+    & > svg {
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
   `,
   nextWarn: css`
     background: ${color.oppNextWarnBg};

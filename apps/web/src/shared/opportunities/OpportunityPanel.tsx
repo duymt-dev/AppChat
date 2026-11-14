@@ -114,6 +114,7 @@ export function OpportunityPanel({ contactId, current: o, history, total, canEdi
           ) : null}
           {o.next_step && st === 'open' ? (
             <div className={cx(styles.next, o.stage === 'quote' && styles.nextWarn)} data-testid="opp-next">
+              <Icon name="ic-cal" size={15} color={o.stage === 'quote' ? color.rejectText : color.text3} />
               <span>
                 <b>{t('nextLabel')}</b> {t(`next.${o.next_step.key}`, o.next_step.params)}
               </span>

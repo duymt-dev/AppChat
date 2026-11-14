@@ -7,6 +7,7 @@ import { INTEGRATION_RUNTIME } from './manifests/integration-runtime';
 import { RECORD_AI } from './manifests/record-ai';
 import { GENUI_DRAWERS } from './modules/genui';
 import { CONTACT_MEMORY } from './modules/contact-memory';
+import { SALES_PIPELINE } from './modules/sales-pipeline';
 import { DATA_TRANSFER } from './modules/data-transfer';
 import { ASSISTANT_INPUT } from './modules/assistant-input';
 import { ASSISTANT_PLANS } from './modules/assistant-plans';
@@ -1548,6 +1549,7 @@ export const MANIFEST: ParityEntry[] = [
   ...RECORD_AI,
   ...GENUI_DRAWERS,
   ...CONTACT_MEMORY,
+  ...SALES_PIPELINE,
   ...hardeningEntries(settingsProto),
   ...PLATFORM_ADMIN,
   ...DATA_TRANSFER,

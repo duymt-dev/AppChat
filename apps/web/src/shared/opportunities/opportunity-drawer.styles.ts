@@ -1,7 +1,7 @@
 // Drawer "Cơ hội · Sales Pipeline 360°" (TIP-026c §5.1) — prototype L2852–2915: hộp 980 nền xám, đầu trắng (nhãn 12px, tên 18px, 3 nút
 // 32px), thân lưới 1.35fr / 1fr, thẻ trắng 12px; chuỗi chứng từ chấm 26px; ô lý do Thua nền đỏ nhạt. Mobile 390: toàn màn (một cột).
 import { createStyles } from 'antd-style';
-import { color, font, radius, shadow } from '@appchat/ui';
+import { color, font, radius, shadow, z } from '@appchat/ui';
 
 const btn = `height: 32px; padding: 0 12px; border-radius: ${radius.r8}px; font-size: ${font.scale.s13}px; font-weight: ${font.weight.bold}; cursor: pointer; font-family: inherit;`;
 
@@ -9,7 +9,7 @@ export const useDrawerStyles = createStyles(({ css, responsive }) => ({
   veil: css`
     position: fixed;
     inset: 0;
-    z-index: 150;
+    z-index: ${z.stackedModal};
     background: ${color.overlay};
     display: flex;
     align-items: center;
@@ -17,7 +17,6 @@ export const useDrawerStyles = createStyles(({ css, responsive }) => ({
     padding: 20px;
     ${responsive.md} {
       padding: 0;
-      z-index: 900;
     }
   `,
   box: css`
@@ -31,6 +30,8 @@ export const useDrawerStyles = createStyles(({ css, responsive }) => ({
     flex-direction: column;
     overflow: hidden;
     font-family: ${font.family};
+    /* prototype L2855 không đặt line-height → normal (không phải 1.5714 của antd) */
+    line-height: normal;
     ${responsive.md} {
       width: 100vw;
       height: 100dvh;

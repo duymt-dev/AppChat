@@ -146,7 +146,9 @@ function DrawerBody({ o, onClose }: { o: OpportunityDetailDto; onClose: () => vo
                 </div>
               </div>
               <div className={styles.meta}>
-                {t('owner')}: <b>{o.owner?.name ?? t('none')}</b> · {t('sourceLabel')}: {t(`source.${o.source_kind}`)}
+                {t('owner')}: <b>{o.owner?.name ?? t('none')}</b>
+                <br />
+                {t('sourceLabel')}: {t(`source.${o.source_kind}`)}
               </div>
             </div>
             <div className={cx(styles.card, styles.cardTight)}>

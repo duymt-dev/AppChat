@@ -32,7 +32,8 @@ const localFontCss = (): string => {
 const PROTO_SEED: Record<string, string> = { ac_authed: '1', ac_declared: '1', ac_trialseen: '1', ac_trialdays: '15' };
 
 /** Mục OUT bị ẩn trong V2 → gỡ khỏi DOM prototype để vị trí còn lại khớp (prototype-parity §7). */
-const OUT_LABELS = ['Gọi điện', 'Quy trình', 'Đối tác tiếp thị'];
+// TIP-026c: 'Báo cáo' (ẩn D07 / D19) + 'Tài chính' (chưa dựng tới TIP-032e) — rail prototype bản 2026-11-10 có hai mục này.
+const OUT_LABELS = ['Gọi điện', 'Quy trình', 'Đối tác tiếp thị', 'Báo cáo', 'Tài chính'];
 
 const removeOut = (page: Page) =>
   page.evaluate((labels) => {

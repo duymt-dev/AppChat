@@ -39,18 +39,18 @@ export function OpportunityCustomer360({ o }: { o: OpportunityDetailDto }) {
             <div className={styles.statV}>{nOpen}</div>
           </div>
         </div>
-        {ins ? (
-          <div className={styles.debt}>
-            {t('debt')}{' '}
-            {debt === null || debt === undefined ? (
-              <b>{t('hidden')}</b>
-            ) : debt.due !== '0' ? (
-              <b className={styles.debtWarn}>{t('debtDue', { amount: fmt.money(debt.due), n: debt.open })}</b>
-            ) : (
-              <b className={styles.debtOk}>{t('debtNone')}</b>
-            )}
-          </div>
-        ) : null}
+        <div className={styles.debt}>
+          {t('debt')}{' '}
+          {ins === undefined ? (
+            <b>{t('none')}</b>
+          ) : debt === null || debt === undefined ? (
+            <b>{t('hidden')}</b>
+          ) : debt.due !== '0' ? (
+            <b className={styles.debtWarn}>{t('debtDue', { amount: fmt.money(debt.due), n: debt.open })}</b>
+          ) : (
+            <b className={styles.debtOk}>{t('debtNone')}</b>
+          )}
+        </div>
         {others.length ? (
           <>
             <div className={styles.otherCap}>{t('others')}</div>
